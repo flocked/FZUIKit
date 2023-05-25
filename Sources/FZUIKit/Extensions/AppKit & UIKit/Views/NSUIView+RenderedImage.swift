@@ -17,6 +17,7 @@ public extension NSView {
         return NSGraphicsContext.current?.cgContext
     }
 
+    
     var renderedImage: NSImage {
         let image = NSImage(size: bounds.size)
         image.lockFocus()
