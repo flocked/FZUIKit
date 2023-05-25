@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 import FZSwiftUtils
@@ -20,33 +20,33 @@ public protocol BackgroundColorSettable {
 extension NSUIView: BackgroundColorSettable {}
 
 #if os(macOS)
-    public extension BackgroundColorSettable where Self: NSView {
-        internal var _effectiveAppearanceKVO: NSKeyValueObservation? {
-            get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
-            set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
-        }
+public extension BackgroundColorSettable where Self: NSView {
+    internal var _effectiveAppearanceKVO: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
+        set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
+    }
 
-        internal func updateBackgroundColor() {
-            wantsLayer = true
-            layer?.backgroundColor = backgroundColor?.resolvedColor(for: effectiveAppearance).cgColor
-        }
+    internal func updateBackgroundColor() {
+        wantsLayer = true
+        layer?.backgroundColor = backgroundColor?.resolvedColor(for: effectiveAppearance).cgColor
+    }
 
-        var backgroundColor: NSColor? {
-            get { getAssociatedValue(key: "_viewBackgroundColor", object: self) }
-            set {
-                set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
-                updateBackgroundColor()
-                if newValue != nil {
-                    if _effectiveAppearanceKVO == nil {
-                        _effectiveAppearanceKVO = observe(\.effectiveAppearance) { [weak self] _, _ in
-                            self?.updateBackgroundColor()
-                        }
+    var backgroundColor: NSColor? {
+        get { getAssociatedValue(key: "_viewBackgroundColor", object: self) }
+        set {
+            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
+            updateBackgroundColor()
+            if newValue != nil {
+                if _effectiveAppearanceKVO == nil {
+                    _effectiveAppearanceKVO = observe(\.effectiveAppearance) { [weak self] _, _ in
+                        self?.updateBackgroundColor()
                     }
-                } else {
-                    _effectiveAppearanceKVO?.invalidate()
-                    _effectiveAppearanceKVO = nil
                 }
+            } else {
+                _effectiveAppearanceKVO?.invalidate()
+                _effectiveAppearanceKVO = nil
             }
         }
     }
+}
 #endif

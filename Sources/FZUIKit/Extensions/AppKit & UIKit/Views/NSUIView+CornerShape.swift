@@ -6,26 +6,26 @@
 //
 
 #if os(macOS)
-    import AppKit
-    public typealias NSUIViewCornerShape = NSViewCornerShape
-    public enum NSViewCornerShape: Hashable {
-        case rectangle
-        case roundedRect(CGFloat)
-        case roundedRectRelative(CGFloat)
-        case circular
-        case capsule
-    }
+import AppKit
+public typealias NSUIViewCornerShape = NSViewCornerShape
+public enum NSViewCornerShape: Hashable {
+    case rectangle
+    case roundedRect(CGFloat)
+    case roundedRectRelative(CGFloat)
+    case circular
+    case capsule
+}
 
 #elseif canImport(UIKit)
-    import UIKit
-    public typealias NSUIViewCornerShape = UIViewCornerShape
-    public enum UIViewCornerShape: Hashable {
-        case rectangle
-        case roundedRect(CGFloat)
-        case roundedRectRelative(CGFloat)
-        case circular
-        case capsule
-    }
+import UIKit
+public typealias NSUIViewCornerShape = UIViewCornerShape
+public enum UIViewCornerShape: Hashable {
+    case rectangle
+    case roundedRect(CGFloat)
+    case roundedRectRelative(CGFloat)
+    case circular
+    case capsule
+}
 #endif
 
 import FZSwiftUtils
@@ -55,34 +55,34 @@ public extension NSUIView {
     }
 
     #if os(macOS)
-        internal func updateCornerShape() {
-            wantsLayer = true
-            switch cornerShape {
-            case let .roundedRect(radius):
-                layer?.cornerRadius = radius
-            case let .roundedRectRelative(value):
-                let value = value.clamped(max: 1.0)
-                layer?.cornerRadius = (bounds.size.height / 2.0) * value
-            case .capsule, .circular:
-                layer?.cornerRadius = bounds.size.height / 2.0
-            default:
-                layer?.cornerRadius = 0.0
-            }
+    internal func updateCornerShape() {
+        wantsLayer = true
+        switch cornerShape {
+        case let .roundedRect(radius):
+            layer?.cornerRadius = radius
+        case let .roundedRectRelative(value):
+            let value = value.clamped(max: 1.0)
+            layer?.cornerRadius = (bounds.size.height / 2.0) * value
+        case .capsule, .circular:
+            layer?.cornerRadius = bounds.size.height / 2.0
+        default:
+            layer?.cornerRadius = 0.0
         }
+    }
 
     #elseif canImport(UIKit)
-        internal func updateCornerShape() {
-            switch cornerShape {
-            case let .roundedRect(radius):
-                layer.cornerRadius = radius
-            case let .roundedRectRelative(value):
-                let value = value.clamped(max: 1.0)
-                layer.cornerRadius = (bounds.size.height / 2.0) * value
-            case .capsule, .circular:
-                layer.cornerRadius = bounds.size.height / 2.0
-            default:
-                layer.cornerRadius = 0.0
-            }
+    internal func updateCornerShape() {
+        switch cornerShape {
+        case let .roundedRect(radius):
+            layer.cornerRadius = radius
+        case let .roundedRectRelative(value):
+            let value = value.clamped(max: 1.0)
+            layer.cornerRadius = (bounds.size.height / 2.0) * value
+        case .capsule, .circular:
+            layer.cornerRadius = bounds.size.height / 2.0
+        default:
+            layer.cornerRadius = 0.0
         }
+    }
     #endif
 }

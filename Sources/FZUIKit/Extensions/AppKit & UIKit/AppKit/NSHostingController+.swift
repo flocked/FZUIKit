@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 @available(macOS 11.0, iOS 13.0, *)
@@ -54,61 +54,61 @@ public extension NSUIHostingController {
 }
 
 #if canImport(UIKit)
-    import SwiftUI
+import SwiftUI
 
-    @available(iOS 13.0, *)
-    public final class UIHostingView<Content: View>: UIView {
-        // MARK: - Public Properties
+@available(iOS 13.0, *)
+public final class UIHostingView<Content: View>: UIView {
+    // MARK: - Public Properties
 
-        public var rootView: Content {
-            get { hostingController.rootView }
-            set { hostingController.rootView = newValue }
-        }
+    public var rootView: Content {
+        get { hostingController.rootView }
+        set { hostingController.rootView = newValue }
+    }
 
-        // MARK: - Private Properties
+    // MARK: - Private Properties
 
-        private let hostingController: UIHostingController<Content>
-        private var hostingView: UIView { hostingController.view }
+    private let hostingController: UIHostingController<Content>
+    private var hostingView: UIView { hostingController.view }
 
-        // MARK: - Initialization
+    // MARK: - Initialization
 
-        @available(*, unavailable)
-        public required init?(coder _: NSCoder) {
-            fatalError("init?(coder:) unavailable")
-        }
+    @available(*, unavailable)
+    public required init?(coder _: NSCoder) {
+        fatalError("init?(coder:) unavailable")
+    }
 
-        public init(rootView: Content) {
-            hostingController = UIHostingController(rootView: rootView)
-            super.init(frame: .zero)
-            setup()
-        }
+    public init(rootView: Content) {
+        hostingController = UIHostingController(rootView: rootView)
+        super.init(frame: .zero)
+        setup()
+    }
 
-        override public func sizeThatFits(_ size: CGSize) -> CGSize {
-            return hostingView.sizeThatFits(size)
-        }
+    override public func sizeThatFits(_ size: CGSize) -> CGSize {
+        return hostingView.sizeThatFits(size)
+    }
 
-        override public func didMoveToWindow() {
-            if let parentController = parentController {
-                parentController.addChild(hostingController)
-                hostingController.didMove(toParent: parentController)
-            } else {
-                hostingController.willMove(toParent: nil)
-                hostingController.removeFromParent()
-            }
-        }
-
-        private func setup() {
-            hostingView.backgroundColor = .clear
-            hostingView.translatesAutoresizingMaskIntoConstraints = false
-
-            addSubview(hostingView)
-
-            NSLayoutConstraint.activate([
-                hostingView.topAnchor.constraint(equalTo: topAnchor),
-                hostingView.rightAnchor.constraint(equalTo: rightAnchor),
-                hostingView.bottomAnchor.constraint(equalTo: bottomAnchor),
-                hostingView.leftAnchor.constraint(equalTo: leftAnchor),
-            ])
+    override public func didMoveToWindow() {
+        if let parentController = parentController {
+            parentController.addChild(hostingController)
+            hostingController.didMove(toParent: parentController)
+        } else {
+            hostingController.willMove(toParent: nil)
+            hostingController.removeFromParent()
         }
     }
+
+    private func setup() {
+        hostingView.backgroundColor = .clear
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+
+        addSubview(hostingView)
+
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: topAnchor),
+            hostingView.rightAnchor.constraint(equalTo: rightAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            hostingView.leftAnchor.constraint(equalTo: leftAnchor),
+        ])
+    }
+}
 #endif

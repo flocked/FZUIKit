@@ -6,173 +6,173 @@
 //
 
 #if os(iOS) || os(macOS)
-    import SwiftUI
-    internal extension NSUIView {
-        func ancestor<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
-            var view = superview
+import SwiftUI
+internal extension NSUIView {
+    func ancestor<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
+        var view = superview
 
-            while let s = view {
-                if let typed = s as? ViewType {
-                    return typed
-                }
-                view = s.superview
+        while let s = view {
+            if let typed = s as? ViewType {
+                return typed
             }
-
-            return nil
+            view = s.superview
         }
 
-        var host: NSUIView? {
-            var view = superview
-
-            while let s = view {
-                if NSStringFromClass(type(of: s)).contains("ViewHost") {
-                    return s
-                }
-                view = s.superview
-            }
-
-            return nil
-        }
-
-        func sibling<ViewType: NSUIView>(ofType type: ViewType.Type) -> ViewType? {
-            guard let superview = superview, let index = superview.subviews.firstIndex(of: self) else { return nil }
-
-            var views = superview.subviews
-            views.remove(at: index)
-
-            for subview in views.reversed() {
-                if let typed = subview as? ViewType {
-                    return typed
-                } else if let typed = subview.child(ofType: type) {
-                    return typed
-                }
-            }
-
-            return nil
-        }
-
-        func child<ViewType: NSUIView>(ofType type: ViewType.Type) -> ViewType? {
-            for subview in subviews {
-                if let typed = subview as? ViewType {
-                    return typed
-                } else if let typed = subview.child(ofType: type) {
-                    return typed
-                }
-            }
-
-            return nil
-        }
+        return nil
     }
 
-    internal struct Inspector {
-        var hostView: NSUIView
-        var sourceView: NSUIView
-        var sourceController: NSUIViewController
+    var host: NSUIView? {
+        var view = superview
 
-        func ancestor<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
-            hostView.ancestor(ofType: ViewType.self)
+        while let s = view {
+            if NSStringFromClass(type(of: s)).contains("ViewHost") {
+                return s
+            }
+            view = s.superview
         }
 
-        func sibling<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
-            hostView.sibling(ofType: ViewType.self)
-        }
-
-        func child<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
-            hostView.child(ofType: ViewType.self)
-        }
+        return nil
     }
 
-    extension View {
-        private func inject<Wrapped>(_ content: Wrapped) -> some View where Wrapped: View {
-            overlay(content.frame(width: 0, height: 0))
-        }
+    func sibling<ViewType: NSUIView>(ofType type: ViewType.Type) -> ViewType? {
+        guard let superview = superview, let index = superview.subviews.firstIndex(of: self) else { return nil }
 
-        func inspect<ViewType: NSUIView>(selector: @escaping (_ inspector: Inspector) -> ViewType?, customize: @escaping (ViewType) -> Void) -> some View {
-            inject(InspectionView(selector: selector, customize: customize))
-        }
+        var views = superview.subviews
+        views.remove(at: index)
 
-        func controller(_ customize: @escaping (NSUIViewController?) -> Void) -> some View {
-            inspect { inspector in
-                inspector.sourceController.view
-            } customize: { view in
-                customize(view.parentController)
+        for subview in views.reversed() {
+            if let typed = subview as? ViewType {
+                return typed
+            } else if let typed = subview.child(ofType: type) {
+                return typed
             }
         }
+
+        return nil
     }
 
-    private struct InspectionView<ViewType: NSUIView>: View {
-        let selector: (Inspector) -> ViewType?
-        let customize: (ViewType) -> Void
-
-        var body: some View {
-            Representable(parent: self)
+    func child<ViewType: NSUIView>(ofType type: ViewType.Type) -> ViewType? {
+        for subview in subviews {
+            if let typed = subview as? ViewType {
+                return typed
+            } else if let typed = subview.child(ofType: type) {
+                return typed
+            }
         }
+
+        return nil
+    }
+}
+
+internal struct Inspector {
+    var hostView: NSUIView
+    var sourceView: NSUIView
+    var sourceController: NSUIViewController
+
+    func ancestor<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
+        hostView.ancestor(ofType: ViewType.self)
     }
 
-    private class SourceView: NSUIView {
-        required init() {
-            super.init(frame: .zero)
-            isHidden = true
-            #if os(iOS)
-                isUserInteractionEnabled = false
-            #endif
-        }
+    func sibling<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
+        hostView.sibling(ofType: ViewType.self)
+    }
 
-        @available(*, unavailable)
-        required init?(coder _: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+    func child<ViewType: NSUIView>(ofType _: ViewType.Type) -> ViewType? {
+        hostView.child(ofType: ViewType.self)
+    }
+}
+
+extension View {
+    private func inject<Wrapped>(_ content: Wrapped) -> some View where Wrapped: View {
+        overlay(content.frame(width: 0, height: 0))
+    }
+
+    func inspect<ViewType: NSUIView>(selector: @escaping (_ inspector: Inspector) -> ViewType?, customize: @escaping (ViewType) -> Void) -> some View {
+        inject(InspectionView(selector: selector, customize: customize))
+    }
+
+    func controller(_ customize: @escaping (NSUIViewController?) -> Void) -> some View {
+        inspect { inspector in
+            inspector.sourceController.view
+        } customize: { view in
+            customize(view.parentController)
         }
     }
+}
+
+private struct InspectionView<ViewType: NSUIView>: View {
+    let selector: (Inspector) -> ViewType?
+    let customize: (ViewType) -> Void
+
+    var body: some View {
+        Representable(parent: self)
+    }
+}
+
+private class SourceView: NSUIView {
+    required init() {
+        super.init(frame: .zero)
+        isHidden = true
+        #if os(iOS)
+        isUserInteractionEnabled = false
+        #endif
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
 #endif
 
 #if os(iOS)
-    private extension InspectionView {
-        struct Representable: UIViewRepresentable {
-            let parent: InspectionView
+private extension InspectionView {
+    struct Representable: UIViewRepresentable {
+        let parent: InspectionView
 
-            func makeUIView(context _: Context) -> UIView { .init() }
-            func updateUIView(_ view: UIView, context _: Context) {
-                DispatchQueue.main.async {
-                    guard let host = view.host else { return }
+        func makeUIView(context _: Context) -> UIView { .init() }
+        func updateUIView(_ view: UIView, context _: Context) {
+            DispatchQueue.main.async {
+                guard let host = view.host else { return }
 
-                    let inspector = Inspector(
-                        hostView: host,
-                        sourceView: view,
-                        sourceController: view.parentController
-                            ?? view.window?.rootViewController
-                            ?? UIViewController()
-                    )
+                let inspector = Inspector(
+                    hostView: host,
+                    sourceView: view,
+                    sourceController: view.parentController
+                        ?? view.window?.rootViewController
+                        ?? UIViewController()
+                )
 
-                    guard let targetView = parent.selector(inspector) else { return }
-                    parent.customize(targetView)
-                }
+                guard let targetView = parent.selector(inspector) else { return }
+                parent.customize(targetView)
             }
         }
     }
+}
 
 #elseif os(macOS)
-    private extension InspectionView {
-        struct Representable: NSViewRepresentable {
-            let parent: InspectionView
+private extension InspectionView {
+    struct Representable: NSViewRepresentable {
+        let parent: InspectionView
 
-            func makeNSView(context _: Context) -> NSView {
-                .init(frame: .zero)
-            }
+        func makeNSView(context _: Context) -> NSView {
+            .init(frame: .zero)
+        }
 
-            func updateNSView(_ view: NSView, context _: Context) {
-                DispatchQueue.main.async {
-                    guard let host = view.host else { return }
+        func updateNSView(_ view: NSView, context _: Context) {
+            DispatchQueue.main.async {
+                guard let host = view.host else { return }
 
-                    let inspector = Inspector(
-                        hostView: host,
-                        sourceView: view,
-                        sourceController: view.parentController ?? NSViewController(nibName: nil, bundle: nil)
-                    )
+                let inspector = Inspector(
+                    hostView: host,
+                    sourceView: view,
+                    sourceController: view.parentController ?? NSViewController(nibName: nil, bundle: nil)
+                )
 
-                    guard let targetView = parent.selector(inspector) else { return }
-                    parent.customize(targetView)
-                }
+                guard let targetView = parent.selector(inspector) else { return }
+                parent.customize(targetView)
             }
         }
     }
+}
 #endif

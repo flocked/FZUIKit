@@ -7,13 +7,13 @@
 
 #if os(macOS)
 
-    import AppKit
-    import Foundation
+import AppKit
+import Foundation
 
-    public extension NSVisualEffectView {
-        func roundCorners(withRadius cornerRadius: CGFloat) {
-            maskImage = .maskImage(cornerRadius: cornerRadius)
-        }
+public extension NSVisualEffectView {
+    func roundCorners(withRadius cornerRadius: CGFloat) {
+        maskImage = .maskImage(cornerRadius: cornerRadius)
     }
+}
 
 #endif

@@ -7,11 +7,11 @@
 
 import Foundation
 #if os(iOS)
-    import UIKit
-    public let NormalScrollDecelerationRate = UIScrollView.DecelerationRate.normal.rawValue
+import UIKit
+public let NormalScrollDecelerationRate = UIScrollView.DecelerationRate.normal.rawValue
 #elseif os(macOS)
-    import AppKit
-    public let NormalScrollDecelerationRate = 0.998
+import AppKit
+public let NormalScrollDecelerationRate = 0.998
 #endif
 
 public func rubberband(value: CGFloat, range: ClosedRange<CGFloat>, interval: CGFloat, c: CGFloat = 0.55) -> CGFloat {

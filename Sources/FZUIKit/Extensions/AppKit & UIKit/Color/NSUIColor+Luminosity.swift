@@ -8,25 +8,25 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIColor {
     var brightness: CGFloat {
         #if os(macOS)
-            let color: NSUIColor? = usingColorSpace(.deviceRGB)
+        let color: NSUIColor? = usingColorSpace(.deviceRGB)
         #else
-            let color: NSUIColor? = self
+        let color: NSUIColor? = self
         #endif
         if let components = color?.cgColor.components {
             return ((components[0] * 299) + (components[1] * 587) + (components[2] * 114)) / 1000
         }
         #if os(macOS)
-            return brightnessComponent
+        return brightnessComponent
         #else
-            return 1.0
+        return 1.0
         #endif
     }
 
@@ -42,15 +42,15 @@ public extension NSUIColor {
 
     var luminosity: CGFloat {
         #if os(macOS)
-            var color: NSUIColor = self
-            let supportedColorSpaces: [NSColorSpace] = [.sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .deviceRGB, .displayP3]
-            if supportedColorSpaces.contains(colorSpace) == false {
-                color = (usingColorSpace(.extendedSRGB) ?? usingColorSpace(.genericRGB)) ?? self
-            }
+        var color: NSUIColor = self
+        let supportedColorSpaces: [NSColorSpace] = [.sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .deviceRGB, .displayP3]
+        if supportedColorSpaces.contains(colorSpace) == false {
+            color = (usingColorSpace(.extendedSRGB) ?? usingColorSpace(.genericRGB)) ?? self
+        }
 
-            let coreColour = CIColor(color: color)!
+        let coreColour = CIColor(color: color)!
         #else
-            let coreColour = CIColor(color: self)
+        let coreColour = CIColor(color: self)
         #endif
         let rgb: [CGFloat] = [coreColour.red.clamped(max: 1.0), coreColour.green.clamped(max: 1.0), coreColour.blue.clamped(max: 1.0)]
         guard let minRGB = rgb.min(), let maxRGB = rgb.max() else { return 1.0 }
@@ -60,9 +60,9 @@ public extension NSUIColor {
     func withLuminosity(_ newLuminosity: CGFloat) -> NSUIColor {
         // 1 - Convert the RGB values to the range 0-1
         #if os(macOS)
-            let coreColour = CIColor(color: self)!
+        let coreColour = CIColor(color: self)!
         #else
-            let coreColour = CIColor(color: self)
+        let coreColour = CIColor(color: self)
         #endif
         let alpha = coreColour.alpha
         let red = coreColour.red.clamped(max: 1.0)

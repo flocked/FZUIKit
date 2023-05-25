@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public struct ColorTransformer: ContentTransformer {
@@ -90,35 +90,35 @@ public struct ColorTransformer: ContentTransformer {
     }
 
     #if os(macOS)
-        /// Creates a color transformer that generates a monochrome version of the color.
-        public static let monochrome: Self = .init("monochrome") { _ in .secondaryLabelColor }
+    /// Creates a color transformer that generates a monochrome version of the color.
+    public static let monochrome: Self = .init("monochrome") { _ in .secondaryLabelColor }
 
-        /// A color transformer that returns the preferred system accent color.
-        public static let preferredTint: Self = .init("monochrome") { _ in
-            .controlAccentColor
-        }
+    /// A color transformer that returns the preferred system accent color.
+    public static let preferredTint: Self = .init("monochrome") { _ in
+        .controlAccentColor
+    }
 
-        /// Creates a color transformer that generates a grayscale version of the color.
-        public static func grayscaled(mode: NSUIColor.GrayscalingMode = .lightness) -> Self {
-            Self("grayscaled: \(mode.rawValue)") { $0.grayscaled(mode: mode) }
-        }
+    /// Creates a color transformer that generates a grayscale version of the color.
+    public static func grayscaled(mode: NSUIColor.GrayscalingMode = .lightness) -> Self {
+        Self("grayscaled: \(mode.rawValue)") { $0.grayscaled(mode: mode) }
+    }
 
-        /// A color transformer that returns a color by system effect.
-        public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
-            return Self("systemEffect: \(systemEffect.rawValue)") { $0.withSystemEffect(systemEffect) }
-        }
+    /// A color transformer that returns a color by system effect.
+    public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
+        return Self("systemEffect: \(systemEffect.rawValue)") { $0.withSystemEffect(systemEffect) }
+    }
 
     #elseif canImport(UIKit)
-        public static var preferredTint: Self {
-            Self("preferredTint", UIConfigurationColorTransformer.preferredTint.transform)
-        }
+    public static var preferredTint: Self {
+        Self("preferredTint", UIConfigurationColorTransformer.preferredTint.transform)
+    }
 
-        public static var monochromeTint: Self {
-            Self("monochromeTint", UIConfigurationColorTransformer.monochromeTint.transform)
-        }
+    public static var monochromeTint: Self {
+        Self("monochromeTint", UIConfigurationColorTransformer.monochromeTint.transform)
+    }
 
-        public static var grayscale: Self {
-            Self("grayscale", UIConfigurationColorTransformer.grayscale.transform)
-        }
+    public static var grayscale: Self {
+        Self("grayscale", UIConfigurationColorTransformer.grayscale.transform)
+    }
     #endif
 }

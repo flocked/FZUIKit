@@ -6,142 +6,142 @@
 //
 
 #if os(macOS)
-    import Cocoa
+import Cocoa
 
-    // public protocol ToolbarItem: NSToolbarItem { }
+// public protocol ToolbarItem: NSToolbarItem { }
 
-    public class ToolbarItem: NSObject {
-        public typealias ActionBlock = NSToolbarItem.ActionBlock
+public class ToolbarItem: NSObject {
+    public typealias ActionBlock = NSToolbarItem.ActionBlock
 
-        public let identifier: NSToolbarItem.Identifier
+    public let identifier: NSToolbarItem.Identifier
 
-        internal lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
-        internal var item: NSToolbarItem {
-            return rootItem
-        }
-
-        public init(_ identifier: NSToolbarItem.Identifier) {
-            self.identifier = identifier
-        }
+    internal lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
+    internal var item: NSToolbarItem {
+        return rootItem
     }
 
-    public extension ToolbarItem {
-        /**
-         A Boolean value that indicates whether the item is currently visible in the toolbar, and not in the overflow menu.
+    public init(_ identifier: NSToolbarItem.Identifier) {
+        self.identifier = identifier
+    }
+}
 
-         The value of this property is true when the item is visible in the toolbar, and false when it isn’t in the toolbar or is present in the toolbar’s overflow menu. This property is key-value observing (KVO) compliant.
-         */
-        @available(macOS 12.0, *)
-        var isVisible: Bool { item.isVisible }
+public extension ToolbarItem {
+    /**
+     A Boolean value that indicates whether the item is currently visible in the toolbar, and not in the overflow menu.
 
-        /// The toolbar that currently includes the item.
-        var toolbar: NSToolbar? { item.toolbar }
+     The value of this property is true when the item is visible in the toolbar, and false when it isn’t in the toolbar or is present in the toolbar’s overflow menu. This property is key-value observing (KVO) compliant.
+     */
+    @available(macOS 12.0, *)
+    var isVisible: Bool { item.isVisible }
 
-        /// The label that appears for this item in the toolbar.
-        @discardableResult
-        func label(_ label: String?) -> Self {
-            set(\.item.label, to: label ?? "")
-        }
+    /// The toolbar that currently includes the item.
+    var toolbar: NSToolbar? { item.toolbar }
 
-        /**
-         The set of labels that the item might display.
+    /// The label that appears for this item in the toolbar.
+    @discardableResult
+    func label(_ label: String?) -> Self {
+        set(\.item.label, to: label ?? "")
+    }
 
-         Use this property to specify all of the labels you might possibly use for the toolbar item. Specify all strings in the current locale. To ensure there’s space for the longest label, the item sizes itself using the strings you provide.
-         */
-        @available(macOS 13.0, *)
-        @discardableResult
-        func possibleLabels(_ labels: Set<String>) -> Self {
-            item.possibleLabels = labels
-            return self
-        }
+    /**
+     The set of labels that the item might display.
 
-        /**
-         The label that appears when the toolbar item is in the customization palette.
+     Use this property to specify all of the labels you might possibly use for the toolbar item. Specify all strings in the current locale. To ensure there’s space for the longest label, the item sizes itself using the strings you provide.
+     */
+    @available(macOS 13.0, *)
+    @discardableResult
+    func possibleLabels(_ labels: Set<String>) -> Self {
+        item.possibleLabels = labels
+        return self
+    }
 
-         If you support toolbar customizations, you must provide palette labels for your items. In most cases, you can apply the same value to this property and the label property. However, you might use this property to offer a more descriptive string, or to provide a label string when the label property contains an empty string.
-         */
-        @discardableResult
-        func paletteLabel(_ paletteLabel: String?) -> Self {
-            set(\.item.paletteLabel, to: paletteLabel ?? "")
-        }
+    /**
+     The label that appears when the toolbar item is in the customization palette.
 
-        /**
-         An integer tag you can use to identify the toolbar item.
+     If you support toolbar customizations, you must provide palette labels for your items. In most cases, you can apply the same value to this property and the label property. However, you might use this property to offer a more descriptive string, or to provide a label string when the label property contains an empty string.
+     */
+    @discardableResult
+    func paletteLabel(_ paletteLabel: String?) -> Self {
+        set(\.item.paletteLabel, to: paletteLabel ?? "")
+    }
 
-         The toolbar doesn’t use this value. You can use it for your own custom purposes.
-         */
-        @discardableResult
-        func tag(_ tag: Int) -> Self {
-            set(\.item.tag, to: tag)
-        }
+    /**
+     An integer tag you can use to identify the toolbar item.
 
-        /**
-         A Boolean value that indicates whether the item is enabled.
-         */
-        @discardableResult
-        func isEnabled(_ isEnabled: Bool) -> Self {
-            set(\.item.isEnabled, to: isEnabled)
-        }
+     The toolbar doesn’t use this value. You can use it for your own custom purposes.
+     */
+    @discardableResult
+    func tag(_ tag: Int) -> Self {
+        set(\.item.tag, to: tag)
+    }
 
-        /**
-         A Boolean value that indicates whether the item can be selected.
-         */
-        @discardableResult
-        func isSelectable(_ isSelectable: Bool) -> Self {
-            set(\.item._isSelectable, to: isSelectable)
-        }
+    /**
+     A Boolean value that indicates whether the item is enabled.
+     */
+    @discardableResult
+    func isEnabled(_ isEnabled: Bool) -> Self {
+        set(\.item.isEnabled, to: isEnabled)
+    }
 
-        /// Mark the item as available on the 'default' toolbar presented to the user
-        @discardableResult
-        func isDefaultItem(_ isDefault: Bool) -> Self {
-            set(\.item.isDefaultItem, to: isDefault)
-        }
+    /**
+     A Boolean value that indicates whether the item can be selected.
+     */
+    @discardableResult
+    func isSelectable(_ isSelectable: Bool) -> Self {
+        set(\.item._isSelectable, to: isSelectable)
+    }
 
-        /**
-         A Boolean value that indicates whether the item can be removed or rearranged by the user.
-         */
-        @discardableResult
-        func isImmovable(_ isImmovable: Bool) -> Self {
-            set(\.item.isImmovableItem, to: isImmovable)
-        }
+    /// Mark the item as available on the 'default' toolbar presented to the user
+    @discardableResult
+    func isDefaultItem(_ isDefault: Bool) -> Self {
+        set(\.item.isDefaultItem, to: isDefault)
+    }
 
-        /// The tooltip to display when someone hovers over the item in the toolbar.
-        @discardableResult
-        func toolTip(_ toolTip: String?) -> Self {
-            set(\.item.toolTip, to: toolTip)
-        }
+    /**
+     A Boolean value that indicates whether the item can be removed or rearranged by the user.
+     */
+    @discardableResult
+    func isImmovable(_ isImmovable: Bool) -> Self {
+        set(\.item.isImmovableItem, to: isImmovable)
+    }
 
-        /**
-         The display priority associated with the toolbar item.
+    /// The tooltip to display when someone hovers over the item in the toolbar.
+    @discardableResult
+    func toolTip(_ toolTip: String?) -> Self {
+        set(\.item.toolTip, to: toolTip)
+    }
 
-         The default value of this property is standard. Assign a higher priority to give preference to the toolbar item when space is limited.
+    /**
+     The display priority associated with the toolbar item.
 
-         When a toolbar doesn’t have enough space to fit all of its items, it pushes lower-priority items to the overflow menu first. When two or more items have the same priority, the toolbar removes them one at a time starting from the trailing edge.
-         */
-        @discardableResult
-        func visibilityPriority(_ priority: NSToolbarItem.VisibilityPriority) -> Self {
-            set(\.item.visibilityPriority, to: priority)
-        }
+     The default value of this property is standard. Assign a higher priority to give preference to the toolbar item when space is limited.
 
-        /**
-         The menu item to use when the toolbar item is in the overflow menu.
+     When a toolbar doesn’t have enough space to fit all of its items, it pushes lower-priority items to the overflow menu first. When two or more items have the same priority, the toolbar removes them one at a time starting from the trailing edge.
+     */
+    @discardableResult
+    func visibilityPriority(_ priority: NSToolbarItem.VisibilityPriority) -> Self {
+        set(\.item.visibilityPriority, to: priority)
+    }
 
-         The toolbar provides an initial default menu form representation that uses the toolbar item’s label as the menu item’s title. You can customize this menu item by changing the title or adding a submenu. When the toolbar is in text only mode, this menu item provides the text for the toolbar item. If the menu item in this property has a submenu and is visbile, clicking the toolbar item displays that submenu. If the toolbar item isn’t visible because it’s in the overflow menu, the menu item and submenu appear there.
-         */
-        @discardableResult
-        func menuFormRepresentation(_ menuItem: NSMenuItem?) -> Self {
-            set(\.item.menuFormRepresentation, to: menuItem)
-        }
+    /**
+     The menu item to use when the toolbar item is in the overflow menu.
 
-        internal func apply(_ modifier: @escaping (Self) -> Void) -> Self {
-            modifier(self)
-            return self
-        }
+     The toolbar provides an initial default menu form representation that uses the toolbar item’s label as the menu item’s title. You can customize this menu item by changing the title or adding a submenu. When the toolbar is in text only mode, this menu item provides the text for the toolbar item. If the menu item in this property has a submenu and is visbile, clicking the toolbar item displays that submenu. If the toolbar item isn’t visible because it’s in the overflow menu, the menu item and submenu appear there.
+     */
+    @discardableResult
+    func menuFormRepresentation(_ menuItem: NSMenuItem?) -> Self {
+        set(\.item.menuFormRepresentation, to: menuItem)
+    }
 
-        internal func set<Value>(_ keyPath: ReferenceWritableKeyPath<ToolbarItem, Value>, to value: Value) -> Self {
-            apply {
-                $0[keyPath: keyPath] = value
-            }
+    internal func apply(_ modifier: @escaping (Self) -> Void) -> Self {
+        modifier(self)
+        return self
+    }
+
+    internal func set<Value>(_ keyPath: ReferenceWritableKeyPath<ToolbarItem, Value>, to value: Value) -> Self {
+        apply {
+            $0[keyPath: keyPath] = value
         }
     }
+}
 #endif

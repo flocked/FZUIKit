@@ -6,19 +6,19 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    public extension NSMenu {
-        /// A separator item.
-        struct SeparatorItem {
-            public init() {}
-        }
+public extension NSMenu {
+    /// A separator item.
+    struct SeparatorItem {
+        public init() {}
     }
+}
 
-    public extension MenuBuilder {
-        static func buildExpression(_ expr: NSMenu.SeparatorItem?) -> [NSMenuItem] {
-            expr != nil ? [.separator()] : []
-        }
+public extension MenuBuilder {
+    static func buildExpression(_ expr: NSMenu.SeparatorItem?) -> [NSMenuItem] {
+        expr != nil ? [.separator()] : []
     }
+}
 
 #endif

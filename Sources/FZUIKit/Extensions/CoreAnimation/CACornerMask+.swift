@@ -12,35 +12,35 @@ public extension CACornerMask {
     static let none: CACornerMask = []
 
     #if os(macOS)
-        static let bottomLeft = CACornerMask.layerMinXMinYCorner
-        static let bottomRight = CACornerMask.layerMaxXMinYCorner
-        static let topLeft = CACornerMask.layerMinXMaxYCorner
-        static let topRight = CACornerMask.layerMaxXMaxYCorner
+    static let bottomLeft = CACornerMask.layerMinXMinYCorner
+    static let bottomRight = CACornerMask.layerMaxXMinYCorner
+    static let topLeft = CACornerMask.layerMinXMaxYCorner
+    static let topRight = CACornerMask.layerMaxXMaxYCorner
 
-        static let bottomCorners: CACornerMask = [
-            .layerMaxXMinYCorner,
-            .layerMinXMinYCorner,
-        ]
+    static let bottomCorners: CACornerMask = [
+        .layerMaxXMinYCorner,
+        .layerMinXMinYCorner,
+    ]
 
-        static let topCorners: CACornerMask = [
-            .layerMinXMaxYCorner,
-            .layerMaxXMaxYCorner,
-        ]
+    static let topCorners: CACornerMask = [
+        .layerMinXMaxYCorner,
+        .layerMaxXMaxYCorner,
+    ]
     #elseif os(iOS)
-        static let bottomLeft = CACornerMask.layerMinXMaxYCorner
-        static let bottomRight = CACornerMask.layerMaxXMaxYCorner
-        static let topLeft = CACornerMask.layerMinXMinYCorner
-        static let topRight = CACornerMask.layerMaxXMinYCorner
+    static let bottomLeft = CACornerMask.layerMinXMaxYCorner
+    static let bottomRight = CACornerMask.layerMaxXMaxYCorner
+    static let topLeft = CACornerMask.layerMinXMinYCorner
+    static let topRight = CACornerMask.layerMaxXMinYCorner
 
-        static let bottomCorners: CACornerMask = [
-            .layerMaxXMaxYCorner,
-            .layerMinXMaxYCorner,
-        ]
+    static let bottomCorners: CACornerMask = [
+        .layerMaxXMaxYCorner,
+        .layerMinXMaxYCorner,
+    ]
 
-        static let topCorners: CACornerMask = [
-            .layerMinXMinYCorner,
-            .layerMaxXMinYCorner,
-        ]
+    static let topCorners: CACornerMask = [
+        .layerMinXMinYCorner,
+        .layerMaxXMinYCorner,
+    ]
     #endif
 
     static let leftCorners: CACornerMask = [

@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension ContentConfiguration {
@@ -45,33 +45,33 @@ public extension ContentConfiguration {
 }
 
 #if os(macOS)
-    @available(macOS 10.15.1, *)
-    public extension NSView {
-        /**
-         Configurates the border apperance of the view.
+@available(macOS 10.15.1, *)
+public extension NSView {
+    /**
+     Configurates the border apperance of the view.
 
-         - Parameters:
-            - configuration:The configuration for configurating the apperance.
-         */
-        func configurate(using configuration: ContentConfiguration.Border) {
-            wantsLayer = true
-            layer?.configurate(using: configuration)
-        }
+     - Parameters:
+        - configuration:The configuration for configurating the apperance.
+     */
+    func configurate(using configuration: ContentConfiguration.Border) {
+        wantsLayer = true
+        layer?.configurate(using: configuration)
     }
+}
 
 #elseif canImport(UIKit)
-    @available(iOS 14.0, *)
-    public extension UIView {
-        /**
-         Configurates the border apperance of the view.
+@available(iOS 14.0, *)
+public extension UIView {
+    /**
+     Configurates the border apperance of the view.
 
-         - Parameters:
-            - configuration:The configuration for configurating the apperance.
-         */
-        func configurate(using configuration: ContentConfiguration.Border) {
-            layer.configurate(using: configuration)
-        }
+     - Parameters:
+        - configuration:The configuration for configurating the apperance.
+     */
+    func configurate(using configuration: ContentConfiguration.Border) {
+        layer.configurate(using: configuration)
     }
+}
 #endif
 
 public extension CALayer {

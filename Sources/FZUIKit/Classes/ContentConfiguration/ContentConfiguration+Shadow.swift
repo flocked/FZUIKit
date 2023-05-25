@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension ContentConfiguration {
@@ -50,7 +50,7 @@ public extension ContentConfiguration {
         public static func none() -> Self { return Self(color: nil, opacity: 0.0) }
         public static func `default`() -> Self { return Self() }
         #if os(macOS)
-            public static func defaultAccent() -> Self { return Self(color: .controlAccentColor) }
+        public static func defaultAccent() -> Self { return Self(color: .controlAccentColor) }
         #endif
         public static func color(_ color: NSUIColor) -> Self {
             var value = Self()
@@ -61,33 +61,33 @@ public extension ContentConfiguration {
 }
 
 #if os(macOS)
-    public extension NSView {
-        /**
-         Configurates the shadow of the view.
+public extension NSView {
+    /**
+     Configurates the shadow of the view.
 
-         - Parameters:
-            - configuration:The configuration for configurating the shadow.
-            - type:The type of shadow. Either inner or outer.
-         */
-        func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
-            wantsLayer = true
-            layer?.configurate(using: configuration, type: type)
-        }
+     - Parameters:
+        - configuration:The configuration for configurating the shadow.
+        - type:The type of shadow. Either inner or outer.
+     */
+    func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
+        wantsLayer = true
+        layer?.configurate(using: configuration, type: type)
     }
+}
 
 #elseif canImport(UIKit)
-    public extension UIView {
-        /**
-         Configurates the shadow of the view.
+public extension UIView {
+    /**
+     Configurates the shadow of the view.
 
-         - Parameters:
-            - configuration:The configuration for configurating the shadow.
-            - type:The type of shadow. Either inner or outer.
-         */
-        func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
-            layer.configurate(using: configuration, type: type)
-        }
+     - Parameters:
+        - configuration:The configuration for configurating the shadow.
+        - type:The type of shadow. Either inner or outer.
+     */
+    func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
+        layer.configurate(using: configuration, type: type)
     }
+}
 #endif
 
 public extension CALayer {

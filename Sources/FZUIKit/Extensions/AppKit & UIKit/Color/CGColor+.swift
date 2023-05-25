@@ -8,9 +8,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension CGColor {
@@ -42,14 +42,14 @@ public extension CGColor {
     }
 
     #if os(macOS)
-        var nsColor: NSColor? {
-            return NSColor(cgColor: self)
-        }
+    var nsColor: NSColor? {
+        return NSColor(cgColor: self)
+    }
 
     #elseif canImport(UIKit)
-        var uiColor: UIColor? {
-            return UIColor(cgColor: self)
-        }
+    var uiColor: UIColor? {
+        return UIColor(cgColor: self)
+    }
     #endif
 }
 
@@ -60,9 +60,9 @@ extension CGColor: CustomStringConvertible {
 }
 
 #if canImport(UIKit)
-    public extension CGColor {
-        static var clear: CGColor {
-            return UIColor.clear.cgColor
-        }
+public extension CGColor {
+    static var clear: CGColor {
+        return UIColor.clear.cgColor
     }
+}
 #endif

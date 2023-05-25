@@ -8,11 +8,11 @@
 import Foundation
 import FZSwiftUtils
 #if os(macOS)
-    import AppKit
-    public typealias SupplementaryElementKind = NSCollectionView.SupplementaryElementKind
+import AppKit
+public typealias SupplementaryElementKind = NSCollectionView.SupplementaryElementKind
 #elseif canImport(UIKit)
-    import UIKit
-    public typealias SupplementaryElementKind = String
+import UIKit
+public typealias SupplementaryElementKind = String
 #endif
 
 public extension NSUICollectionViewCompositionalLayout {

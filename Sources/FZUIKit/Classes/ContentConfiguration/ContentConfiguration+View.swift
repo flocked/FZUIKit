@@ -6,11 +6,11 @@
 //
 
 #if os(macOS)
-    import AppKit
-    public typealias VisualEffect = ContentConfiguration.VisualEffect
+import AppKit
+public typealias VisualEffect = ContentConfiguration.VisualEffect
 #elseif canImport(UIKit)
-    import UIKit
-    public typealias VisualEffect = UIVisualEffect
+import UIKit
+public typealias VisualEffect = UIVisualEffect
 #endif
 
 @available(macOS 10.15.1, iOS 14.0, *)
@@ -103,49 +103,49 @@ public extension ContentConfiguration {
 }
 
 #if os(macOS)
-    public extension NSView {
-        func configurate(using viewProperties: ContentConfiguration.View) {
-            cornerRadius = viewProperties.cornerRadius
-            cornerCurve = viewProperties.cornerCurve
-            cornerShape = viewProperties.cornerShape
-            roundedCorners = viewProperties.roundedCorners
-            alpha = viewProperties.alpha
-            isHidden = viewProperties.isHidden
-            configurate(using: viewProperties.border)
-            if let outerShadow = viewProperties.outerShadow {
-                configurate(using: outerShadow)
-            }
-            backgroundColor = viewProperties.resolvedBackgroundColor()
-            backgroundView = viewProperties.customView
-            /*
-             public var innerShadow: Shadow? = nil
-             public var visualEffect: VisualEffect? = nil
-
-             public var customView: NSUIView? = nil
-             public var image: NSUIImage? = nil
-             public var imageProperties: Image = .scaled(.resizeAspect)
-
-             */
+public extension NSView {
+    func configurate(using viewProperties: ContentConfiguration.View) {
+        cornerRadius = viewProperties.cornerRadius
+        cornerCurve = viewProperties.cornerCurve
+        cornerShape = viewProperties.cornerShape
+        roundedCorners = viewProperties.roundedCorners
+        alpha = viewProperties.alpha
+        isHidden = viewProperties.isHidden
+        configurate(using: viewProperties.border)
+        if let outerShadow = viewProperties.outerShadow {
+            configurate(using: outerShadow)
         }
+        backgroundColor = viewProperties.resolvedBackgroundColor()
+        backgroundView = viewProperties.customView
+        /*
+         public var innerShadow: Shadow? = nil
+         public var visualEffect: VisualEffect? = nil
+
+         public var customView: NSUIView? = nil
+         public var image: NSUIImage? = nil
+         public var imageProperties: Image = .scaled(.resizeAspect)
+
+         */
     }
+}
 
 #elseif canImport(UIKit)
-    public extension UIView {
-        func configurate(using viewProperties: ContentConfiguration.View) {
-            cornerRadius = viewProperties.cornerRadius
-            cornerCurve = viewProperties.cornerCurve
-            cornerShape = viewProperties.cornerShape
-            roundedCorners = viewProperties.roundedCorners
-            alpha = viewProperties.alpha
-            isHidden = viewProperties.isHidden
-            configurate(using: viewProperties.border)
-            if let outerShadow = viewProperties.outerShadow {
-                configurate(using: outerShadow)
-            }
-            backgroundColor = viewProperties.resolvedBackgroundColor()
-            backgroundView = viewProperties.customView
+public extension UIView {
+    func configurate(using viewProperties: ContentConfiguration.View) {
+        cornerRadius = viewProperties.cornerRadius
+        cornerCurve = viewProperties.cornerCurve
+        cornerShape = viewProperties.cornerShape
+        roundedCorners = viewProperties.roundedCorners
+        alpha = viewProperties.alpha
+        isHidden = viewProperties.isHidden
+        configurate(using: viewProperties.border)
+        if let outerShadow = viewProperties.outerShadow {
+            configurate(using: outerShadow)
         }
+        backgroundColor = viewProperties.resolvedBackgroundColor()
+        backgroundView = viewProperties.customView
     }
+}
 #endif
 
 /*

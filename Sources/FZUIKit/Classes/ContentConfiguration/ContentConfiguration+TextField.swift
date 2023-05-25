@@ -6,22 +6,22 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    public extension ContentConfiguration {
-        /// A configuration that specifies the appearance of a text.
-        struct TextField: Hashable {
-            public enum BezelStyle: Hashable {
-                case rounded
-                case square
-            }
-
-            public var textConfiguration: Text = .default()
-
-            public var isSelectable: Bool = false
-            public var isEditable: Bool = false
-
-            public var bezelStyle: BezelStyle? = nil
+public extension ContentConfiguration {
+    /// A configuration that specifies the appearance of a text.
+    struct TextField: Hashable {
+        public enum BezelStyle: Hashable {
+            case rounded
+            case square
         }
+
+        public var textConfiguration: Text = .default()
+
+        public var isSelectable: Bool = false
+        public var isEditable: Bool = false
+
+        public var bezelStyle: BezelStyle? = nil
     }
+}
 #endif

@@ -8,9 +8,9 @@
 import SwiftUI
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIColor {
@@ -45,9 +45,9 @@ public extension Color {
         let amount = amount.clamped(max: 1.0)
         let nsUIColor = NSUIColor(self)
         #if os(macOS)
-            return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)) ?? nsUIColor)
+        return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)) ?? nsUIColor)
         #elseif canImport(UIKit)
-            return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)))
+        return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)))
         #endif
     }
 

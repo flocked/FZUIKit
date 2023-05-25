@@ -6,10 +6,10 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import MobileCoreServices
-    import UIKit
+import MobileCoreServices
+import UIKit
 #endif
 
 public extension NSUIImage {

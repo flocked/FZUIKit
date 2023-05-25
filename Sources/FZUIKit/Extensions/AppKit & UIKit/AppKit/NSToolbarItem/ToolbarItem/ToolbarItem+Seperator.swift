@@ -6,39 +6,39 @@
 //
 
 #if os(macOS)
-    import Cocoa
-    import SwiftUI
+import Cocoa
+import SwiftUI
 
-    @available(macOS 11.0, *)
-    public extension ToolbarItem {
-        class TrackingSeparator: ToolbarItem {
-            internal lazy var separatorItem = NSTrackingSeparatorToolbarItem(identifier)
-            override internal var item: NSToolbarItem {
-                return separatorItem
-            }
+@available(macOS 11.0, *)
+public extension ToolbarItem {
+    class TrackingSeparator: ToolbarItem {
+        internal lazy var separatorItem = NSTrackingSeparatorToolbarItem(identifier)
+        override internal var item: NSToolbarItem {
+            return separatorItem
+        }
 
-            @discardableResult
-            public func splitView(_ splitView: NSSplitView) -> Self {
-                separatorItem.splitView = splitView
-                return self
-            }
+        @discardableResult
+        public func splitView(_ splitView: NSSplitView) -> Self {
+            separatorItem.splitView = splitView
+            return self
+        }
 
-            @discardableResult
-            public func dividerIndex(_ index: Int) -> Self {
-                separatorItem.dividerIndex = index
-                return self
-            }
+        @discardableResult
+        public func dividerIndex(_ index: Int) -> Self {
+            separatorItem.dividerIndex = index
+            return self
+        }
 
-            public init(
-                _ identifier: NSToolbarItem.Identifier,
-                splitView: NSSplitView,
-                dividerIndex: Int
-            ) {
-                super.init(identifier)
-                self.splitView(splitView)
-                self.dividerIndex(dividerIndex)
-            }
+        public init(
+            _ identifier: NSToolbarItem.Identifier,
+            splitView: NSSplitView,
+            dividerIndex: Int
+        ) {
+            super.init(identifier)
+            self.splitView(splitView)
+            self.dividerIndex(dividerIndex)
         }
     }
+}
 
 #endif

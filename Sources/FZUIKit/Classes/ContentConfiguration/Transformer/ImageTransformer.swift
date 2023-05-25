@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 import FZSwiftUtils
 
@@ -118,33 +118,33 @@ public extension ContentConfiguration {
         @available(macOS 11.0, iOS 14.0, *)
         public static func symbolConfiguration(_ value: NSUIImage.SymbolConfiguration) -> Self {
             #if os(macOS)
-                return Self { $0.withSymbolConfiguration(value) ?? $0 }
+            return Self { $0.withSymbolConfiguration(value) ?? $0 }
             #elseif canImport(UIKit)
-                return Self { $0.applyingSymbolConfiguration(value) ?? $0 }
+            return Self { $0.applyingSymbolConfiguration(value) ?? $0 }
             #endif
         }
 
         public static func resized(to size: CGSize) -> Self {
             #if os(macOS)
-                return Self("resizedTo: \(size)") { $0.resized(to: size) }
+            return Self("resizedTo: \(size)") { $0.resized(to: size) }
             #elseif canImport(UIKit)
-                return Self("resizedTo: \(size)") { $0.resized(to: size) ?? $0 }
+            return Self("resizedTo: \(size)") { $0.resized(to: size) ?? $0 }
             #endif
         }
 
         public static func resized(toFit size: CGSize) -> Self {
             #if os(macOS)
-                return Self("resizedToFit: \(size)") { $0.resized(toFit: size) }
+            return Self("resizedToFit: \(size)") { $0.resized(toFit: size) }
             #elseif canImport(UIKit)
-                return Self("resizedToFit: \(size)") { $0.resized(toFit: size) ?? $0 }
+            return Self("resizedToFit: \(size)") { $0.resized(toFit: size) ?? $0 }
             #endif
         }
 
         public static func resized(toFill size: CGSize) -> Self {
             #if os(macOS)
-                return Self("resizedToFill: \(size)") { $0.resized(toFill: size) }
+            return Self("resizedToFill: \(size)") { $0.resized(toFill: size) }
             #elseif canImport(UIKit)
-                return Self("resizedToFill: \(size)") { $0.resized(toFill: size) ?? $0 }
+            return Self("resizedToFill: \(size)") { $0.resized(toFill: size) ?? $0 }
             #endif
         }
     }

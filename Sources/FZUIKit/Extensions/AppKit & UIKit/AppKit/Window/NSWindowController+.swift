@@ -6,13 +6,13 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    public extension NSWindowController {
-        convenience init(contentViewController: NSViewController) {
-            self.init(window: NSWindow(contentViewController: contentViewController))
-            window?.title = contentViewController.title ?? "Untitled"
-        }
+public extension NSWindowController {
+    convenience init(contentViewController: NSViewController) {
+        self.init(window: NSWindow(contentViewController: contentViewController))
+        window?.title = contentViewController.title ?? "Untitled"
     }
+}
 
 #endif

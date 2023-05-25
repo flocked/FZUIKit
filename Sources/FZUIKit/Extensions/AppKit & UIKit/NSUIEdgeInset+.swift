@@ -8,9 +8,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 import SwiftUI
 
@@ -50,7 +50,7 @@ extension NSUIEdgeInsets: Hashable {
 
 public extension NSUIEdgeInsets {
     #if os(macOS)
-        static var zero = NSEdgeInsets(0)
+    static var zero = NSEdgeInsets(0)
     #endif
 
     var directional: NSDirectionalEdgeInsets {
@@ -130,14 +130,14 @@ public extension NSDirectionalEdgeInsets {
     }
 
     #if os(macOS)
-        var nsEdgeInsets: NSEdgeInsets {
-            return .init(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
-        }
+    var nsEdgeInsets: NSEdgeInsets {
+        return .init(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
+    }
 
     #elseif canImport(UIKit)
-        var uiEdgeInsets: NSUIEdgeInsets {
-            return .init(top: top, left: leading, bottom: bottom, right: trailing)
-        }
+    var uiEdgeInsets: NSUIEdgeInsets {
+        return .init(top: top, left: leading, bottom: bottom, right: trailing)
+    }
     #endif
 }
 

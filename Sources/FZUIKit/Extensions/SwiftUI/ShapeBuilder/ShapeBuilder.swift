@@ -1,19 +1,19 @@
 import SwiftUI
 
 #if swift(>=5.4)
-    @resultBuilder
-    public enum ShapeBuilder {
-        public static func buildBlock<S: Shape>(_ builder: S) -> some Shape {
-            builder
-        }
+@resultBuilder
+public enum ShapeBuilder {
+    public static func buildBlock<S: Shape>(_ builder: S) -> some Shape {
+        builder
     }
+}
 #else
-    @_functionBuilder
-    public enum ShapeBuilder {
-        public static func buildBlock<S: Shape>(_ builder: S) -> some Shape {
-            builder
-        }
+@_functionBuilder
+public enum ShapeBuilder {
+    public static func buildBlock<S: Shape>(_ builder: S) -> some Shape {
+        builder
     }
+}
 #endif
 
 public extension ShapeBuilder {

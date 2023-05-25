@@ -25,96 +25,96 @@
 //
 
 #if os(macOS)
-    import AppKit
-    import Foundation
+import AppKit
+import Foundation
 
-    /// An NSView instance that can be used as the base NSView type for an NSMenuItem that will
-    /// react to mouse hover _similarly_ to how a regular menuitem does
-    ///
-    /// If you attach an NSView to an NSMenuItem, you are responsible for handling ALL the drawing
-    /// events for the menu item, including hoveer coloring etc. This class can be used as the base
-    /// view to provide the menu item background drawing
-    class NSMenuItemHighlightableView: NSVisualEffectView {
-        @IBOutlet var parentMenuItem: NSMenuItem?
-        var isHighlighted = false {
-            didSet {
-                if isHighlighted {
-                    material = .selection
-                } else {
-                    material = .menu
-                }
+/// An NSView instance that can be used as the base NSView type for an NSMenuItem that will
+/// react to mouse hover _similarly_ to how a regular menuitem does
+///
+/// If you attach an NSView to an NSMenuItem, you are responsible for handling ALL the drawing
+/// events for the menu item, including hoveer coloring etc. This class can be used as the base
+/// view to provide the menu item background drawing
+class NSMenuItemHighlightableView: NSVisualEffectView {
+    @IBOutlet var parentMenuItem: NSMenuItem?
+    var isHighlighted = false {
+        didSet {
+            if isHighlighted {
+                material = .selection
+            } else {
+                material = .menu
             }
-        }
-
-        // If true, shows the highlight bar under the view when the mouse is over the view
-        var showsHighlight: Bool = true
-
-        // Enable or disable the view
-        var isEnabled: Bool = true
-
-        private var trackingArea: NSTrackingArea?
-
-        override init(frame: NSRect) {
-            super.init(frame: frame)
-            setup()
-        }
-
-        required init?(coder decoder: NSCoder) {
-            super.init(coder: decoder)
-            setup()
-        }
-
-        private func setup() {
-            state = .active
-            material = .menu
-            blendingMode = .behindWindow
-            if #available(macOS 10.12, *) { isEmphasized = true }
-        }
-
-        override open func updateTrackingAreas() {
-            super.updateTrackingAreas()
-
-            if let t = trackingArea {
-                removeTrackingArea(t)
-            }
-            let newTrackingArea = NSTrackingArea(
-                rect: bounds,
-                options: [
-                    .mouseEnteredAndExited,
-                    .activeInActiveApp,
-                ],
-                owner: self,
-                userInfo: nil
-            )
-            addTrackingArea(newTrackingArea)
-        }
-
-        override public func mouseEntered(with event: NSEvent) {
-            material = (showsHighlight && isEnabled) ? .selection : .menu
-            super.mouseEntered(with: event)
-        }
-
-        override public func mouseDragged(with event: NSEvent) {
-            material = (showsHighlight && isEnabled) ? .selection : .menu
-            super.mouseDragged(with: event)
-        }
-
-        override public func mouseExited(with event: NSEvent) {
-            material = .menu
-            super.mouseExited(with: event)
-        }
-
-        override public func mouseUp(with event: NSEvent) {
-            super.mouseUp(with: event)
-
-            guard let m = enclosingMenuItem?.menu else {
-                return
-            }
-
-            material = .menu
-
-            m.cancelTracking()
-            m.performActionForItem(at: m.index(of: enclosingMenuItem!))
         }
     }
+
+    // If true, shows the highlight bar under the view when the mouse is over the view
+    var showsHighlight: Bool = true
+
+    // Enable or disable the view
+    var isEnabled: Bool = true
+
+    private var trackingArea: NSTrackingArea?
+
+    override init(frame: NSRect) {
+        super.init(frame: frame)
+        setup()
+    }
+
+    required init?(coder decoder: NSCoder) {
+        super.init(coder: decoder)
+        setup()
+    }
+
+    private func setup() {
+        state = .active
+        material = .menu
+        blendingMode = .behindWindow
+        if #available(macOS 10.12, *) { isEmphasized = true }
+    }
+
+    override open func updateTrackingAreas() {
+        super.updateTrackingAreas()
+
+        if let t = trackingArea {
+            removeTrackingArea(t)
+        }
+        let newTrackingArea = NSTrackingArea(
+            rect: bounds,
+            options: [
+                .mouseEnteredAndExited,
+                .activeInActiveApp,
+            ],
+            owner: self,
+            userInfo: nil
+        )
+        addTrackingArea(newTrackingArea)
+    }
+
+    override public func mouseEntered(with event: NSEvent) {
+        material = (showsHighlight && isEnabled) ? .selection : .menu
+        super.mouseEntered(with: event)
+    }
+
+    override public func mouseDragged(with event: NSEvent) {
+        material = (showsHighlight && isEnabled) ? .selection : .menu
+        super.mouseDragged(with: event)
+    }
+
+    override public func mouseExited(with event: NSEvent) {
+        material = .menu
+        super.mouseExited(with: event)
+    }
+
+    override public func mouseUp(with event: NSEvent) {
+        super.mouseUp(with: event)
+
+        guard let m = enclosingMenuItem?.menu else {
+            return
+        }
+
+        material = .menu
+
+        m.cancelTracking()
+        m.performActionForItem(at: m.index(of: enclosingMenuItem!))
+    }
+}
 #endif

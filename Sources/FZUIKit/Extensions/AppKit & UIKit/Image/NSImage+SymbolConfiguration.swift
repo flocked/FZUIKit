@@ -7,9 +7,9 @@
 
 import SwiftUI
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 @available(macOS 12.0, iOS 15.0, *)
@@ -56,7 +56,7 @@ public extension NSUIImage.SymbolConfiguration {
         let conf = applying(NSUIImage.SymbolConfiguration.monochrome())
         conf.colors = nil
         #if os(macOS)
-            conf.prefersMulticolor = false
+        conf.prefersMulticolor = false
         #endif
         return conf
     }
@@ -69,7 +69,7 @@ public extension NSUIImage.SymbolConfiguration {
     func hierarchical(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
         let conf = applying(NSUIImage.SymbolConfiguration.hierarchical(color))
         #if os(macOS)
-            conf.prefersMulticolor = false
+        conf.prefersMulticolor = false
         #endif
         return conf
     }
@@ -77,7 +77,7 @@ public extension NSUIImage.SymbolConfiguration {
     func palette(_ primary: NSUIColor, _ secondary: NSUIColor, _ tertiary: NSUIColor? = nil) -> NSUIImage.SymbolConfiguration {
         let conf = applying(NSUIImage.SymbolConfiguration.palette(primary, secondary, tertiary))
         #if os(macOS)
-            conf.prefersMulticolor = false
+        conf.prefersMulticolor = false
         #endif
         return conf
     }
@@ -91,15 +91,15 @@ public extension NSUIImage.SymbolConfiguration {
 
     static func systemFont(_ size: CGFloat, weight: NSUIImage.SymbolWeight = .regular, scale: NSUIImage.SymbolScale? = nil) -> NSUIImage.SymbolConfiguration {
         #if os(macOS)
-            if let scale = scale {
-                return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight.fontWeight(), scale: scale)
-            }
-            return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight.fontWeight())
+        if let scale = scale {
+            return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight.fontWeight(), scale: scale)
+        }
+        return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight.fontWeight())
         #else
-            if let scale = scale {
-                return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight, scale: scale)
-            }
-            return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight)
+        if let scale = scale {
+            return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight, scale: scale)
+        }
+        return NSUIImage.SymbolConfiguration(pointSize: size, weight: weight)
         #endif
     }
 
@@ -132,14 +132,14 @@ public extension NSUIImage.SymbolConfiguration {
     }
 
     #if os(macOS)
-        static var unspecified: NSUIImage.SymbolConfiguration {
-            return NSUIImage.SymbolConfiguration()
-        }
+    static var unspecified: NSUIImage.SymbolConfiguration {
+        return NSUIImage.SymbolConfiguration()
+    }
 
-        convenience init(weight: NSUIImage.SymbolWeight) {
-            self.init()
-            self.weight = weight.fontWeight()
-        }
+    convenience init(weight: NSUIImage.SymbolWeight) {
+        self.init()
+        self.weight = weight.fontWeight()
+    }
     #endif
 }
 
@@ -177,36 +177,66 @@ extension NSUIImage.SymbolConfiguration {
 }
 
 #if os(macOS)
-    @available(macOS 11.0, *)
-    public extension NSImage {
-        convenience init?(systemSymbolName: String) {
-            self.init(systemSymbolName: systemSymbolName, accessibilityDescription: nil)
-        }
-
-        convenience init?(systemSymbolName: String, configuration: NSImage.SymbolConfiguration) {
-            self.init(systemSymbolName: systemSymbolName, configuration: configuration, accessibilityDescription: nil)
-        }
-
-        convenience init?(systemSymbolName: String, configuration: NSImage.SymbolConfiguration, accessibilityDescription: String?) {
-            self.init(systemSymbolName: systemSymbolName, accessibilityDescription: accessibilityDescription)
-            if let size = withSymbolConfiguration(configuration)?.representations.first?.size {
-                representations.first?.size = size
-            }
-        }
+@available(macOS 11.0, *)
+public extension NSImage {
+    convenience init?(systemSymbolName: String) {
+        self.init(systemSymbolName: systemSymbolName, accessibilityDescription: nil)
     }
 
-    @available(macOS 12.0, *)
-    public extension NSImage {
-        func applyingSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration) -> NSImage? {
-            let updatedConfiguration = symbolConfiguration.applying(configuration)
-            return withSymbolConfiguration(updatedConfiguration)
-        }
+    convenience init?(systemSymbolName: String, configuration: NSImage.SymbolConfiguration) {
+        self.init(systemSymbolName: systemSymbolName, configuration: configuration, accessibilityDescription: nil)
     }
 
-    @available(macOS 11.0, iOS 13.0, *)
-    public extension NSUIFont.Weight {
-        func symbolWeight() -> NSUIImage.SymbolWeight {
+    convenience init?(systemSymbolName: String, configuration: NSImage.SymbolConfiguration, accessibilityDescription: String?) {
+        self.init(systemSymbolName: systemSymbolName, accessibilityDescription: accessibilityDescription)
+        if let size = withSymbolConfiguration(configuration)?.representations.first?.size {
+            representations.first?.size = size
+        }
+    }
+}
+
+@available(macOS 12.0, *)
+public extension NSImage {
+    func applyingSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration) -> NSImage? {
+        let updatedConfiguration = symbolConfiguration.applying(configuration)
+        return withSymbolConfiguration(updatedConfiguration)
+    }
+}
+
+@available(macOS 11.0, iOS 13.0, *)
+public extension NSUIFont.Weight {
+    func symbolWeight() -> NSUIImage.SymbolWeight {
+        switch self {
+        case .ultraLight: return .ultraLight
+        case .thin: return .thin
+        case .light: return .light
+        case .regular: return .regular
+        case .medium: return .medium
+        case .semibold: return .semibold
+        case .bold: return .bold
+        case .heavy: return .heavy
+        case .black: return .black
+        default: return .unspecified
+        }
+    }
+}
+
+@available(macOS 11.0, *)
+public extension NSImage {
+    enum SymbolWeight: Int, CaseIterable {
+        case unspecified = 0
+        case ultraLight
+        case thin
+        case light
+        case regular
+        case medium
+        case semibold
+        case bold
+        case heavy
+        case black
+        func fontWeight() -> NSFont.Weight {
             switch self {
+            case .unspecified: return .init(rawValue: CGFloat.greatestFiniteMagnitude)
             case .ultraLight: return .ultraLight
             case .thin: return .thin
             case .light: return .light
@@ -216,49 +246,19 @@ extension NSUIImage.SymbolConfiguration {
             case .bold: return .bold
             case .heavy: return .heavy
             case .black: return .black
-            default: return .unspecified
             }
         }
     }
-
-    @available(macOS 11.0, *)
-    public extension NSImage {
-        enum SymbolWeight: Int, CaseIterable {
-            case unspecified = 0
-            case ultraLight
-            case thin
-            case light
-            case regular
-            case medium
-            case semibold
-            case bold
-            case heavy
-            case black
-            func fontWeight() -> NSFont.Weight {
-                switch self {
-                case .unspecified: return .init(rawValue: CGFloat.greatestFiniteMagnitude)
-                case .ultraLight: return .ultraLight
-                case .thin: return .thin
-                case .light: return .light
-                case .regular: return .regular
-                case .medium: return .medium
-                case .semibold: return .semibold
-                case .bold: return .bold
-                case .heavy: return .heavy
-                case .black: return .black
-                }
-            }
-        }
-    }
+}
 #endif
 
 @available(macOS 12.0, iOS 14.0, *)
 extension NSUIImage.SymbolConfiguration {
     static var colorsValueKey: String {
         #if os(macOS)
-            "paletteColors"
+        "paletteColors"
         #else
-            "_colors"
+        "_colors"
         #endif
     }
 
@@ -310,66 +310,66 @@ extension NSUIImage.SymbolConfiguration {
 }
 
 #if os(macOS)
-    @available(macOS 12.0, *)
-    public extension Image {
+@available(macOS 12.0, *)
+public extension Image {
+    @ViewBuilder
+    func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration) -> some View {
+        modifier(NSImage.SymbolConfiguration.Modifier(configuration: configuration))
+    }
+}
+
+@available(macOS 12.0, *)
+extension NSImage.SymbolConfiguration {
+    struct Modifier: ImageModifier {
+        let configuration: NSImage.SymbolConfiguration
         @ViewBuilder
-        func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration) -> some View {
-            modifier(NSImage.SymbolConfiguration.Modifier(configuration: configuration))
+        func body(image: SwiftUI.Image) -> some View {
+            image.symbolRenderingMode(configuration.mode?.symbolRendering)
+                .font(configuration.uiFont)
+                .imageScaleOptional(configuration.scale?.swiftUI)
+                .foregroundStyleOptional(configuration.primary?.swiftUI, configuration.secondary?.swiftUI, configuration.tertiary?.swiftUI)
         }
     }
 
-    @available(macOS 12.0, *)
-    extension NSImage.SymbolConfiguration {
-        struct Modifier: ImageModifier {
-            let configuration: NSImage.SymbolConfiguration
-            @ViewBuilder
-            func body(image: SwiftUI.Image) -> some View {
-                image.symbolRenderingMode(configuration.mode?.symbolRendering)
-                    .font(configuration.uiFont)
-                    .imageScaleOptional(configuration.scale?.swiftUI)
-                    .foregroundStyleOptional(configuration.primary?.swiftUI, configuration.secondary?.swiftUI, configuration.tertiary?.swiftUI)
+    enum Mode: String {
+        case monochrome
+        case multicolor
+        case hierarchical
+        case palette
+        var symbolRendering: SymbolRenderingMode {
+            switch self {
+            case .monochrome: return .monochrome
+            case .multicolor: return .multicolor
+            case .hierarchical: return .hierarchical
+            case .palette: return .palette
             }
         }
+    }
 
-        enum Mode: String {
-            case monochrome
-            case multicolor
-            case hierarchical
-            case palette
-            var symbolRendering: SymbolRenderingMode {
-                switch self {
-                case .monochrome: return .monochrome
-                case .multicolor: return .multicolor
-                case .hierarchical: return .hierarchical
-                case .palette: return .palette
-                }
-            }
-        }
-
-        var mode: Mode? {
-            #if os(macOS)
-                if colors?.isEmpty == false, let type = value(forKey: "paletteType") as? Int {
-                    if type == 1 {
-                        return .hierarchical
-                    } else if type == 2 {
-                        if prefersMulticolor {
-                            return .multicolor
-                        } else {
-                            return .palette
-                        }
-                    }
-                }
-            #else
-                var description = debugDescription
-                if description.contains("multicolor") {
+    var mode: Mode? {
+        #if os(macOS)
+        if colors?.isEmpty == false, let type = value(forKey: "paletteType") as? Int {
+            if type == 1 {
+                return .hierarchical
+            } else if type == 2 {
+                if prefersMulticolor {
                     return .multicolor
-                } else if description.contains("palette") {
+                } else {
                     return .palette
-                } else if description.contains("hierarchical") {
-                    return .hierarchical
                 }
-            #endif
-            return .monochrome
+            }
         }
+        #else
+        var description = debugDescription
+        if description.contains("multicolor") {
+            return .multicolor
+        } else if description.contains("palette") {
+            return .palette
+        } else if description.contains("hierarchical") {
+            return .hierarchical
+        }
+        #endif
+        return .monochrome
     }
+}
 #endif

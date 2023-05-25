@@ -8,9 +8,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIColor {
@@ -22,10 +22,10 @@ public extension NSUIColor {
 
         var color: NSUIColor? = self
         #if os(macOS)
-            let supportedColorSpaces: [NSColorSpace] = [.sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .deviceRGB, .displayP3]
-            if supportedColorSpaces.contains(colorSpace) == false {
-                color = (usingColorSpace(.extendedSRGB) ?? usingColorSpace(.sRGB)) ?? nil
-            }
+        let supportedColorSpaces: [NSColorSpace] = [.sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .deviceRGB, .displayP3]
+        if supportedColorSpaces.contains(colorSpace) == false {
+            color = (usingColorSpace(.extendedSRGB) ?? usingColorSpace(.sRGB)) ?? nil
+        }
         #endif
         color?.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         return (red, green, blue, alpha)
@@ -39,7 +39,7 @@ public extension NSUIColor {
 
         var color: NSUIColor? = self
         #if os(macOS)
-            color = withSupportedColorSpace()
+        color = withSupportedColorSpace()
         #endif
         color?.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         return (hue: h, saturation: s, brightness: b, alpha: a)
@@ -103,13 +103,13 @@ public extension NSUIColor {
     }
 
     #if os(macOS)
-        var isPatternColor: Bool {
-            return (Swift.type(of: self) == NSClassFromString("NSPatternColor"))
-        }
+    var isPatternColor: Bool {
+        return (Swift.type(of: self) == NSClassFromString("NSPatternColor"))
+    }
 
-        var patternImageCGColor: CGColor? {
-            guard isPatternColor else { return nil }
-            return CGColor.fromImage(patternImage)
-        }
+    var patternImageCGColor: CGColor? {
+        guard isPatternColor else { return nil }
+        return CGColor.fromImage(patternImage)
+    }
     #endif
 }

@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension ContentConfiguration {
@@ -94,78 +94,78 @@ public extension ImageLayer {
 }
 
 #if os(macOS)
-    public extension ImageView {
-        /// Applys the configuration’s values to the properties of the view.
-        func configurate(using imageProperties: ContentConfiguration.Image) {
-            if let tintColor = imageProperties.tintColor {
-                contentTintColor = imageProperties.resolvedTintColor(for: tintColor)
-            } else {
-                contentTintColor = nil
-            }
-            cornerRadius = imageProperties.cornerRadius
-            imageScaling = imageProperties.scaling
-            cornerShape = imageProperties.cornerShape
-            roundedCorners = imageProperties.roundedCorners
-            alpha = imageProperties.opacity
-            configurate(using: imageProperties.border)
-            backgroundColor = imageProperties.resolvedBackgroundColor()
-            if let outerShadow = imageProperties.outerShadow {
-                configurate(using: outerShadow)
-            }
+public extension ImageView {
+    /// Applys the configuration’s values to the properties of the view.
+    func configurate(using imageProperties: ContentConfiguration.Image) {
+        if let tintColor = imageProperties.tintColor {
+            contentTintColor = imageProperties.resolvedTintColor(for: tintColor)
+        } else {
+            contentTintColor = nil
+        }
+        cornerRadius = imageProperties.cornerRadius
+        imageScaling = imageProperties.scaling
+        cornerShape = imageProperties.cornerShape
+        roundedCorners = imageProperties.roundedCorners
+        alpha = imageProperties.opacity
+        configurate(using: imageProperties.border)
+        backgroundColor = imageProperties.resolvedBackgroundColor()
+        if let outerShadow = imageProperties.outerShadow {
+            configurate(using: outerShadow)
         }
     }
+}
 
-    @available(macOS 10.15.1, *)
-    public extension NSImageView {
-        /// Applys the configuration’s values to the properties of the view.
-        func configurate(using imageProperties: ContentConfiguration.Image) {
-            if let tintColor = imageProperties.tintColor {
-                contentTintColor = imageProperties.resolvedTintColor(for: tintColor)
-            } else {
-                contentTintColor = nil
-            }
-            cornerRadius = imageProperties.cornerRadius
-            imageScaling = NSImageScaling(contentsGravity: imageProperties.scaling)
-            cornerShape = imageProperties.cornerShape
-            roundedCorners = imageProperties.roundedCorners
-            alpha = imageProperties.opacity
-            configurate(using: imageProperties.border)
-            backgroundColor = imageProperties.resolvedBackgroundColor()
-            if let outerShadow = imageProperties.outerShadow {
-                configurate(using: outerShadow)
-            }
-            /*
-             self.maximumSize = maximumSize
-             self.reservedLayoutSize = reservedLayoutSize
-             self.accessibilityIgnoresInvertColors = accessibilityIgnoresInvertColors
-             self.innerShadow = innerShadow
-             self.outerShadow = outerShadow
-             self.backgroundColor = backgroundColor
-             self.backgroundColorTransformer = backgroundColorTransformer
-             */
+@available(macOS 10.15.1, *)
+public extension NSImageView {
+    /// Applys the configuration’s values to the properties of the view.
+    func configurate(using imageProperties: ContentConfiguration.Image) {
+        if let tintColor = imageProperties.tintColor {
+            contentTintColor = imageProperties.resolvedTintColor(for: tintColor)
+        } else {
+            contentTintColor = nil
         }
+        cornerRadius = imageProperties.cornerRadius
+        imageScaling = NSImageScaling(contentsGravity: imageProperties.scaling)
+        cornerShape = imageProperties.cornerShape
+        roundedCorners = imageProperties.roundedCorners
+        alpha = imageProperties.opacity
+        configurate(using: imageProperties.border)
+        backgroundColor = imageProperties.resolvedBackgroundColor()
+        if let outerShadow = imageProperties.outerShadow {
+            configurate(using: outerShadow)
+        }
+        /*
+         self.maximumSize = maximumSize
+         self.reservedLayoutSize = reservedLayoutSize
+         self.accessibilityIgnoresInvertColors = accessibilityIgnoresInvertColors
+         self.innerShadow = innerShadow
+         self.outerShadow = outerShadow
+         self.backgroundColor = backgroundColor
+         self.backgroundColorTransformer = backgroundColorTransformer
+         */
     }
+}
 
 #elseif canImport(UIKit)
-    public extension UIImageView {
-        /// Applys the configuration’s values to the properties of the view.
-        func configurate(using imageProperties: ContentConfiguration.Image) {
-            if let tintColor = imageProperties.tintColor {
-                self.tintColor = imageProperties.resolvedTintColor(for: tintColor)
-            } else {
-                tintColor = nil
-            }
-            layer.cornerRadius = imageProperties.cornerRadius
-            //  self.cornerShape = imageProperties.cornerShape
-            layer.maskedCorners = imageProperties.roundedCorners
-            alpha = imageProperties.opacity
-            configurate(using: imageProperties.border)
-            backgroundColor = imageProperties.resolvedBackgroundColor()
-            contentMode = UIView.ContentMode(contentsGravity: imageProperties.scaling)
-            if let outerShadow = imageProperties.outerShadow {
-                configurate(using: outerShadow)
-            }
+public extension UIImageView {
+    /// Applys the configuration’s values to the properties of the view.
+    func configurate(using imageProperties: ContentConfiguration.Image) {
+        if let tintColor = imageProperties.tintColor {
+            self.tintColor = imageProperties.resolvedTintColor(for: tintColor)
+        } else {
+            tintColor = nil
+        }
+        layer.cornerRadius = imageProperties.cornerRadius
+        //  self.cornerShape = imageProperties.cornerShape
+        layer.maskedCorners = imageProperties.roundedCorners
+        alpha = imageProperties.opacity
+        configurate(using: imageProperties.border)
+        backgroundColor = imageProperties.resolvedBackgroundColor()
+        contentMode = UIView.ContentMode(contentsGravity: imageProperties.scaling)
+        if let outerShadow = imageProperties.outerShadow {
+            configurate(using: outerShadow)
         }
     }
+}
 
 #endif

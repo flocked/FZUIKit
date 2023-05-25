@@ -6,12 +6,12 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    public extension NSStoryboard {
-        convenience init(name: NSStoryboard.Name) {
-            self.init(name: name, bundle: nil)
-        }
+public extension NSStoryboard {
+    convenience init(name: NSStoryboard.Name) {
+        self.init(name: name, bundle: nil)
     }
+}
 
 #endif

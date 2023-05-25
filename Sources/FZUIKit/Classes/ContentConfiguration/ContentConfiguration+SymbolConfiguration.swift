@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension ContentConfiguration {
@@ -85,9 +85,9 @@ public extension ContentConfiguration {
                     configuration = .init(hierarchicalColor: primary)
                 } else {
                     #if os(macOS)
-                        configuration = .preferringHierarchical()
+                    configuration = .preferringHierarchical()
                     #elseif canImport(UIKit)
-                        configuration = .preferringMonochrome()
+                    configuration = .preferringMonochrome()
                     #endif
                 }
             }
@@ -129,50 +129,50 @@ public extension ContentConfiguration {
 }
 
 #if os(macOS)
-    @available(macOS 13.0, *)
-    public extension NSImageView {
-        func configurate(using configuration: ContentConfiguration.SymbolConfiguration) {
-            symbolConfiguration = configuration.toImageSymbolConfiguration()
-            if configuration.colorMode == .multicolor, let primary = configuration.primary {
-                contentTintColor = primary
-            }
+@available(macOS 13.0, *)
+public extension NSImageView {
+    func configurate(using configuration: ContentConfiguration.SymbolConfiguration) {
+        symbolConfiguration = configuration.toImageSymbolConfiguration()
+        if configuration.colorMode == .multicolor, let primary = configuration.primary {
+            contentTintColor = primary
         }
     }
+}
 
-    @available(macOS 13.0, *)
-    public extension NSImage {
-        func withSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSImage? {
-            if var image = withSymbolConfiguration(configuration.toImageSymbolConfiguration()) {
-                if configuration.colorMode == .multicolor, let primary = configuration.primary {
-                    image = image.withTintColor(primary)
-                }
-                return image
+@available(macOS 13.0, *)
+public extension NSImage {
+    func withSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSImage? {
+        if var image = withSymbolConfiguration(configuration.toImageSymbolConfiguration()) {
+            if configuration.colorMode == .multicolor, let primary = configuration.primary {
+                image = image.withTintColor(primary)
             }
-            return nil
+            return image
         }
+        return nil
     }
+}
 
 #elseif canImport(UIKit)
-    @available(iOS 16.0, *)
-    public extension UIImageView {
-        func configurate(using configuration: ContentConfiguration.SymbolConfiguration) {
-            preferredSymbolConfiguration = configuration.toImageSymbolConfiguration()
-            if configuration.colorMode == .multicolor, let primary = configuration.primary {
-                tintColor = primary
-            }
+@available(iOS 16.0, *)
+public extension UIImageView {
+    func configurate(using configuration: ContentConfiguration.SymbolConfiguration) {
+        preferredSymbolConfiguration = configuration.toImageSymbolConfiguration()
+        if configuration.colorMode == .multicolor, let primary = configuration.primary {
+            tintColor = primary
         }
     }
+}
 
-    @available(iOS 16.0, *)
-    public extension UIImage {
-        func applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSUIImage? {
-            if var image = applyingSymbolConfiguration(configuration.toImageSymbolConfiguration()) {
-                if configuration.colorMode == .multicolor, let primary = configuration.primary {
-                    image = image.withTintColor(primary)
-                }
-                return image
+@available(iOS 16.0, *)
+public extension UIImage {
+    func applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSUIImage? {
+        if var image = applyingSymbolConfiguration(configuration.toImageSymbolConfiguration()) {
+            if configuration.colorMode == .multicolor, let primary = configuration.primary {
+                image = image.withTintColor(primary)
             }
-            return nil
+            return image
         }
+        return nil
     }
+}
 #endif

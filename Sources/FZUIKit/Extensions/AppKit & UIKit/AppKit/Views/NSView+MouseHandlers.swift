@@ -6,28 +6,28 @@
 //
 
 #if os(macOS)
-    import AppKit
-    import FZSwiftUtils
+import AppKit
+import FZSwiftUtils
 
-    public extension NSView {
-        var mouseHandlers: MouseHandlers {
-            get { associatedValue.get("", initialValue: MouseHandlers(self)) }
-            set { associatedValue[""] = newValue }
-        }
+public extension NSView {
+    var mouseHandlers: MouseHandlers {
+        get { associatedValue.get("", initialValue: MouseHandlers(self)) }
+        set { associatedValue[""] = newValue }
+    }
 
-        struct MouseHandlers {
-            public var mouseClick: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
-            public var rightMouseClick: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
-            public var mouseDragged: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
-            public var mouseEntered: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
-            public var mouseMoved: ((CGPoint) -> Void)?
-            public var mouseExited: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
-            internal weak var view: NSView!
-            internal init(_ view: NSView) {
-                self.view = view
-            }
+    struct MouseHandlers {
+        public var mouseClick: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
+        public var rightMouseClick: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
+        public var mouseDragged: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
+        public var mouseEntered: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
+        public var mouseMoved: ((CGPoint) -> Void)?
+        public var mouseExited: ((_ point: CGPoint, _ event: NSEvent) -> Void)?
+        internal weak var view: NSView!
+        internal init(_ view: NSView) {
+            self.view = view
         }
     }
+}
 #endif
 
 /*

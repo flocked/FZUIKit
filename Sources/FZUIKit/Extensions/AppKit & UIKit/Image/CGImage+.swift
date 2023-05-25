@@ -6,21 +6,21 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension CGImage {
     #if os(macOS)
-        var nsImage: NSImage {
-            return NSImage(cgImage: self)
-        }
+    var nsImage: NSImage {
+        return NSImage(cgImage: self)
+    }
 
     #elseif canImport(UIKit)
-        var uiImage: UIImage {
-            return UIImage(cgImage: self)
-        }
+    var uiImage: UIImage {
+        return UIImage(cgImage: self)
+    }
     #endif
 
     var size: CGSize {

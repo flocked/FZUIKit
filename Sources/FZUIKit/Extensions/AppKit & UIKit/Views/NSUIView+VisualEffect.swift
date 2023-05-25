@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIView {
@@ -31,9 +31,9 @@ public extension NSUIView {
                     _visualEffectView?.contentProperties = newValue
                 }
                 #if os(macOS)
-                    if let appearance = newValue.appearance {
-                        self.appearance = appearance
-                    }
+                if let appearance = newValue.appearance {
+                    self.appearance = appearance
+                }
                 #endif
             } else {
                 _visualEffectView = nil
@@ -56,65 +56,65 @@ public extension NSUIView {
 }
 
 #if os(macOS)
-    internal extension NSView {
-        class TaggedVisualEffectView: NSVisualEffectView {
-            public static var Tag: Int {
-                return 3_443_024
-            }
+internal extension NSView {
+    class TaggedVisualEffectView: NSVisualEffectView {
+        public static var Tag: Int {
+            return 3_443_024
+        }
 
-            override var tag: Int {
-                return Self.Tag
-            }
+        override var tag: Int {
+            return Self.Tag
+        }
 
-            public var contentProperties: ContentConfiguration.VisualEffect {
-                get {
-                    return ContentConfiguration.VisualEffect(material: material, blendingMode: blendingMode, state: state, isEmphasized: isEmphasized, maskImage: maskImage, appearance: appearance)
-                }
-                set {
-                    material = newValue.material
-                    blendingMode = newValue.blendingMode
-                    state = newValue.state
-                    isEmphasized = newValue.isEmphasized
-                    maskImage = newValue.maskImage
-                    appearance = newValue.appearance
-                }
+        public var contentProperties: ContentConfiguration.VisualEffect {
+            get {
+                return ContentConfiguration.VisualEffect(material: material, blendingMode: blendingMode, state: state, isEmphasized: isEmphasized, maskImage: maskImage, appearance: appearance)
+            }
+            set {
+                material = newValue.material
+                blendingMode = newValue.blendingMode
+                state = newValue.state
+                isEmphasized = newValue.isEmphasized
+                maskImage = newValue.maskImage
+                appearance = newValue.appearance
             }
         }
     }
+}
 
 #elseif canImport(UIKit)
-    internal extension UIView {
-        class TaggedVisualEffectView: UIVisualEffectView {
-            public var contentProperties: ContentConfiguration.VisualEffect = .init(style: nil) {
-                didSet { updateEffect() }
-            }
+internal extension UIView {
+    class TaggedVisualEffectView: UIVisualEffectView {
+        public var contentProperties: ContentConfiguration.VisualEffect = .init(style: nil) {
+            didSet { updateEffect() }
+        }
 
-            internal func updateEffect() {
-                if let newStyle = contentProperties.style {
-                    switch newStyle {
-                    case let .vibrancy(blur: blurStyle, vibrancy: vibrancy):
-                        let blurEffect = UIBlurEffect(style: blurStyle)
-                        if let vibrancy = vibrancy {
-                            effect = UIVibrancyEffect(blurEffect: blurEffect, style: vibrancy)
-                        } else {
-                            effect = UIVibrancyEffect(blurEffect: blurEffect)
-                        }
-                    case let .blur(blurStyle):
-                        effect = UIBlurEffect(style: blurStyle)
+        internal func updateEffect() {
+            if let newStyle = contentProperties.style {
+                switch newStyle {
+                case let .vibrancy(blur: blurStyle, vibrancy: vibrancy):
+                    let blurEffect = UIBlurEffect(style: blurStyle)
+                    if let vibrancy = vibrancy {
+                        effect = UIVibrancyEffect(blurEffect: blurEffect, style: vibrancy)
+                    } else {
+                        effect = UIVibrancyEffect(blurEffect: blurEffect)
                     }
-                } else {
-                    effect = nil
+                case let .blur(blurStyle):
+                    effect = UIBlurEffect(style: blurStyle)
                 }
-            }
-
-            public static var Tag: Int {
-                return 3_443_024
-            }
-
-            override var tag: Int {
-                get { return Self.Tag }
-                set {}
+            } else {
+                effect = nil
             }
         }
+
+        public static var Tag: Int {
+            return 3_443_024
+        }
+
+        override var tag: Int {
+            get { return Self.Tag }
+            set {}
+        }
     }
+}
 #endif

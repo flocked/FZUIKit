@@ -8,9 +8,9 @@
 import QuartzCore
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension CALayer {
@@ -59,17 +59,17 @@ public extension CALayer {
     }
 
     #if os(macOS)
-        internal var parentView: NSView? {
-            if let view = delegate as? NSView {
-                return view
-            }
-            return superlayer?.parentView
+    internal var parentView: NSView? {
+        if let view = delegate as? NSView {
+            return view
         }
+        return superlayer?.parentView
+    }
     #endif
 }
 
 #if os(macOS)
-    public extension CAAutoresizingMask {
-        static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
-    }
+public extension CAAutoresizingMask {
+    static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
+}
 #endif

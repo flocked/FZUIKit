@@ -1,7 +1,7 @@
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIView {
@@ -12,9 +12,9 @@ public extension NSUIView {
         case insets(NSUIEdgeInsets)
         public static func insets(_ directionalEdgeInsets: NSDirectionalEdgeInsets) -> ConstraintValueMode {
             #if os(macOS)
-                return .insets(directionalEdgeInsets.nsEdgeInsets)
+            return .insets(directionalEdgeInsets.nsEdgeInsets)
             #elseif canImport(UIKit)
-                return .insets(directionalEdgeInsets.uiEdgeInsets)
+            return .insets(directionalEdgeInsets.uiEdgeInsets)
             #endif
         }
     }
@@ -75,41 +75,41 @@ public extension NSUIView {
     }
 
     #if os(macOS)
-        func addSubview(withAutoresizing view: NSView) {
-            addSubview(withAutoresizing: view, mode: .full)
+    func addSubview(withAutoresizing view: NSView) {
+        addSubview(withAutoresizing: view, mode: .full)
+    }
+
+    func addSubview(withAutoresizing view: NSUIView, mode: ConstraintValueMode) {
+        view.translatesAutoresizingMaskIntoConstraints = true
+        addSubview(view)
+        view.autoresize(to: view, using: mode)
+    }
+
+    func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintValueMode, to index: Int) {
+        guard index < subviews.count else { return }
+        addSubview(withAutoresizing: view, mode: mode)
+        moveSubview(view, to: index)
+    }
+
+    internal func autoresize(to view: NSView, using mode: ConstraintValueMode) {
+        translatesAutoresizingMaskIntoConstraints = true
+        switch mode {
+        case .full:
+            frame = view.bounds
+        case let .insets(insets):
+            let width = insets.right - insets.left
+            let height = insets.top - insets.bottom
+            frame = CGRect(x: insets.bottom, y: insets.left, width: width, height: height)
+        default:
+            break
         }
 
-        func addSubview(withAutoresizing view: NSUIView, mode: ConstraintValueMode) {
-            view.translatesAutoresizingMaskIntoConstraints = true
-            addSubview(view)
-            view.autoresize(to: view, using: mode)
+        if case .relative = mode {
+            self.autoresizingMask = [.height, .width]
+        } else {
+            autoresizingMask = .all
         }
-
-        func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintValueMode, to index: Int) {
-            guard index < subviews.count else { return }
-            addSubview(withAutoresizing: view, mode: mode)
-            moveSubview(view, to: index)
-        }
-
-        internal func autoresize(to view: NSView, using mode: ConstraintValueMode) {
-            translatesAutoresizingMaskIntoConstraints = true
-            switch mode {
-            case .full:
-                frame = view.bounds
-            case let .insets(insets):
-                let width = insets.right - insets.left
-                let height = insets.top - insets.bottom
-                frame = CGRect(x: insets.bottom, y: insets.left, width: width, height: height)
-            default:
-                break
-            }
-
-            if case .relative = mode {
-                self.autoresizingMask = [.height, .width]
-            } else {
-                autoresizingMask = .all
-            }
-        }
+    }
     #endif
 
     internal func calculateMultipliers(_ view: NSUIView) -> [CGFloat] {

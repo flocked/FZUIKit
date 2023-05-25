@@ -20,18 +20,18 @@ public extension Image {
 }
 
 #if os(macOS)
-    import AppKit
-    public extension Image {
-        init(_ nsImage: NSImage) {
-            if let systemName = nsImage.systemSymbolName {
-                if #available(macOS 11.0, *) {
-                    self = Image(systemName: systemName)
-                } else {
-                    self = Image(nsImage: nsImage)
-                }
+import AppKit
+public extension Image {
+    init(_ nsImage: NSImage) {
+        if let systemName = nsImage.systemSymbolName {
+            if #available(macOS 11.0, *) {
+                self = Image(systemName: systemName)
             } else {
                 self = Image(nsImage: nsImage)
             }
+        } else {
+            self = Image(nsImage: nsImage)
         }
     }
+}
 #endif

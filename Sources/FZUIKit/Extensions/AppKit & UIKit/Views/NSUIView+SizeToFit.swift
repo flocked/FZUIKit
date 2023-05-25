@@ -6,10 +6,10 @@
 //
 
 #if os(macOS)
-    import AppKit
-    import SwiftUI
+import AppKit
+import SwiftUI
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public protocol Sizable {
@@ -38,35 +38,35 @@ public extension Sizable where Self: NSUIView {
 }
 
 #if os(macOS)
-    public extension Sizable where Self: NSView {
-        func sizeThatFits(_: CGSize) -> CGSize {
-            return fittingSize
-        }
+public extension Sizable where Self: NSView {
+    func sizeThatFits(_: CGSize) -> CGSize {
+        return fittingSize
+    }
+}
+
+extension NSHostingController: Sizable {
+    public var fittingSize: CGSize {
+        return view.fittingSize
     }
 
-    extension NSHostingController: Sizable {
-        public var fittingSize: CGSize {
-            return view.fittingSize
-        }
-
-        public func sizeThatFits(_ size: CGSize) -> CGSize {
-            return sizeThatFits(in: size)
-        }
-
-        public func sizeToFit(size: CGSize) {
-            view.frame.size = sizeThatFits(size)
-        }
-
-        public func sizeToFit() {
-            view.frame.size = fittingSize
-        }
+    public func sizeThatFits(_ size: CGSize) -> CGSize {
+        return sizeThatFits(in: size)
     }
+
+    public func sizeToFit(size: CGSize) {
+        view.frame.size = sizeThatFits(size)
+    }
+
+    public func sizeToFit() {
+        view.frame.size = fittingSize
+    }
+}
 #endif
 
 #if canImport(UIKit)
-    public extension Sizable where Self: NSUIView {
-        var fittingSize: CGSize {
-            sizeThatFits(bounds.size)
-        }
+public extension Sizable where Self: NSUIView {
+    var fittingSize: CGSize {
+        sizeThatFits(bounds.size)
     }
+}
 #endif

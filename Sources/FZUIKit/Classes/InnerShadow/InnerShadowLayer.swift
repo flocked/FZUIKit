@@ -7,9 +7,9 @@
 
 import Foundation
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public class InnerShadowLayer: CALayer {
@@ -72,16 +72,16 @@ public class InnerShadowLayer: CALayer {
         if superlayer != nil {
             var path = NSUIBezierPath(rect: bounds.insetBy(dx: -20, dy: -20))
             #if os(macOS)
-                var innerPart = NSUIBezierPath(rect: bounds).reversed
+            var innerPart = NSUIBezierPath(rect: bounds).reversed
             #else
-                var innerPart = NSUIBezierPath(rect: bounds).reversing()
+            var innerPart = NSUIBezierPath(rect: bounds).reversing()
             #endif
             if cornerRadius != 0.0 {
                 path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
                 #if os(macOS)
-                    innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
+                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
                 #else
-                    innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
+                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
                 #endif
             }
             path.append(innerPart)

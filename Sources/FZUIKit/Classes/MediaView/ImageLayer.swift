@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 import Combine
@@ -26,21 +26,10 @@ public class ImageLayer: CALayer {
         set {
             if let newImage = newValue {
                 #if os(macOS)
-                    if newImage.isAnimatable {
-                        setGif(image: newImage)
-                    } else {
-                        if #available(macOS 12.0, *) {
-                            if newImage.isSystemSymbol, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
-                                self.images = [updatedImage]
-                            } else {
-                                self.images = [newImage]
-                            }
-                        } else {
-                            images = [newImage]
-                        }
-                    }
-                #else
-                    if #available(iOS 15.0, *) {
+                if newImage.isAnimatable {
+                    setGif(image: newImage)
+                } else {
+                    if #available(macOS 12.0, *) {
                         if newImage.isSystemSymbol, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
                             self.images = [updatedImage]
                         } else {
@@ -49,6 +38,17 @@ public class ImageLayer: CALayer {
                     } else {
                         images = [newImage]
                     }
+                }
+                #else
+                if #available(iOS 15.0, *) {
+                    if newImage.isSystemSymbol, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
+                        self.images = [updatedImage]
+                    } else {
+                        self.images = [newImage]
+                    }
+                } else {
+                    images = [newImage]
+                }
                 #endif
 
             } else {
@@ -104,13 +104,13 @@ public class ImageLayer: CALayer {
          */
 
         #if os(macOS)
-            if let contentTintColor = contentTintColor?.resolvedColor() {
-                configuration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
-            }
+        if let contentTintColor = contentTintColor?.resolvedColor() {
+            configuration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
+        }
         #else
-            if let contentTintColor = contentTintColor {
-                configuration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
-            }
+        if let contentTintColor = contentTintColor {
+            configuration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
+        }
         #endif
 
         if let symbolConfiguration = symbolConfiguration {
@@ -227,23 +227,23 @@ public class ImageLayer: CALayer {
     }
 
     #if os(macOS)
-        public func setGif(image: NSImage) {
-            if let frames = image.frames {
-                Task {
-                    var duration = 0.0
-                    do {
-                        let allFrames = try frames.collect()
-                        for frame in allFrames {
-                            duration = duration + frame.duration
-                        }
-                        self.animationDuration = duration
-                        self.images = allFrames.compactMap { NSImage(cgImage: $0.image) }
-                    } catch {
-                        Swift.print(error)
+    public func setGif(image: NSImage) {
+        if let frames = image.frames {
+            Task {
+                var duration = 0.0
+                do {
+                    let allFrames = try frames.collect()
+                    for frame in allFrames {
+                        duration = duration + frame.duration
                     }
+                    self.animationDuration = duration
+                    self.images = allFrames.compactMap { NSImage(cgImage: $0.image) }
+                } catch {
+                    Swift.print(error)
                 }
             }
         }
+    }
     #endif
 
     private var currentIndex = 0 {

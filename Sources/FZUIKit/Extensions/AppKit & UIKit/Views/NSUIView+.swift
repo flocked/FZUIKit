@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIView {
@@ -39,9 +39,9 @@ public extension NSUIView {
     func sendToBack() {
         if let superview = superview, let firstView = superview.subviews.first, firstView != self {
             #if os(macOS)
-                superview.addSubview(self, positioned: .below, relativeTo: firstView)
+            superview.addSubview(self, positioned: .below, relativeTo: firstView)
             #elseif canImport(UIKeyCommand)
-                superview.insertSubview(self, belowSubview: firstView)
+            superview.insertSubview(self, belowSubview: firstView)
             #endif
         }
     }
@@ -49,11 +49,11 @@ public extension NSUIView {
     func insertSubview(_ view: NSUIView, at index: Int) {
         guard index < self.subviews.count else { return }
         #if os(macOS)
-            var subviews = self.subviews
-            subviews.insert(view, at: index)
-            self.subviews = subviews
+        var subviews = self.subviews
+        subviews.insert(view, at: index)
+        self.subviews = subviews
         #elseif canImport(UIKit)
-            insertSubview(view, belowSubview: self.subviews[index])
+        insertSubview(view, belowSubview: self.subviews[index])
         #endif
     }
 
@@ -85,22 +85,22 @@ public extension NSUIView {
             if toIndex >= 0, toIndex < subviewsCount {
                 let indexes = IndexSet(Array(indexes).filter { $0 < subviewsCount })
                 #if os(macOS)
-                    var subviews = self.subviews
-                    if reorder {
-                        for index in indexes.reversed() {
-                            subviews.move(from: IndexSet(integer: index), to: toIndex)
-                        }
-                    } else {
-                        subviews.move(from: indexes, to: toIndex)
+                var subviews = self.subviews
+                if reorder {
+                    for index in indexes.reversed() {
+                        subviews.move(from: IndexSet(integer: index), to: toIndex)
                     }
-                    self.subviews = subviews
+                } else {
+                    subviews.move(from: indexes, to: toIndex)
+                }
+                self.subviews = subviews
                 #elseif canImport(UIKit)
-                    var below = self.subviews[toIndex]
-                    let subviewsToMove = (reorder == true) ? self.subviews[indexes].reversed() : self.subviews[indexes]
-                    for subviewToMove in subviewsToMove {
-                        insertSubview(subviewToMove, belowSubview: below)
-                        below = (reorder == true) ? subviews[toIndex] : subviewToMove
-                    }
+                var below = self.subviews[toIndex]
+                let subviewsToMove = (reorder == true) ? self.subviews[indexes].reversed() : self.subviews[indexes]
+                for subviewToMove in subviewsToMove {
+                    insertSubview(subviewToMove, belowSubview: below)
+                    below = (reorder == true) ? subviews[toIndex] : subviewToMove
+                }
                 #endif
             }
         }

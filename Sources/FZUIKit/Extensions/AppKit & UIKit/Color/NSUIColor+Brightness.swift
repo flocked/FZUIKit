@@ -8,25 +8,25 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIColor {
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS)
-            return blended(withFraction: amount, of: .white) ?? self
+        return blended(withFraction: amount, of: .white) ?? self
         #else
-            return blended(withFraction: amount, of: .white)
+        return blended(withFraction: amount, of: .white)
         #endif
     }
 
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS)
-            return blended(withFraction: amount, of: .black) ?? self
+        return blended(withFraction: amount, of: .black) ?? self
         #else
-            return blended(withFraction: amount, of: .black)
+        return blended(withFraction: amount, of: .black)
         #endif
     }
 

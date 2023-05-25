@@ -9,9 +9,9 @@ import CoreGraphics
 import Foundation
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif os(iOS)
-    import UIKit
+import UIKit
 #endif
 
 /**
@@ -48,7 +48,7 @@ public class ViewAnimator {
     init(view: NSUIView) {
         self.view = view
         #if os(macOS)
-            self.view.wantsLayer = true
+        self.view.wantsLayer = true
         #endif
     }
 
@@ -236,10 +236,10 @@ public class ViewAnimator {
             animation.valueChanged = { [weak self] size in
                 guard let strongSelf = self else { return }
                 #if os(iOS)
-                    strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
+                strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
                 #elseif os(macOS)
-                    strongSelf.view.bounds.size = size
-                    strongSelf.view.frame.size = size
+                strongSelf.view.bounds.size = size
+                strongSelf.view.frame.size = size
                 #endif
             }
 

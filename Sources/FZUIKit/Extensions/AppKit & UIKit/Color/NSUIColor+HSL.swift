@@ -9,9 +9,9 @@ import FZSwiftUtils
 import SwiftUI
 
 #if os(iOS) || os(tvOS) || os(watchOS)
-    import UIKit
+import UIKit
 #elseif os(OSX)
-    import AppKit
+import AppKit
 #endif
 
 public extension NSUIColor {

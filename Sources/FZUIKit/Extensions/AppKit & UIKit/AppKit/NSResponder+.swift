@@ -6,23 +6,23 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    public extension NSResponder {
-        /// Returns the parent view controller.
-        var parentViewController: NSViewController? {
-            return nextResponder as? NSViewController ?? nextResponder?.parentViewController
-        }
-
-        /// Returns the respnder chain including itself.
-        func responderChain() -> [NSResponder] {
-            var current = self
-            var chain: [NSResponder] = [self]
-            while let nextResponder = current.nextResponder {
-                chain.append(nextResponder)
-                current = nextResponder
-            }
-            return chain
-        }
+public extension NSResponder {
+    /// Returns the parent view controller.
+    var parentViewController: NSViewController? {
+        return nextResponder as? NSViewController ?? nextResponder?.parentViewController
     }
+
+    /// Returns the respnder chain including itself.
+    func responderChain() -> [NSResponder] {
+        var current = self
+        var chain: [NSResponder] = [self]
+        while let nextResponder = current.nextResponder {
+            chain.append(nextResponder)
+            current = nextResponder
+        }
+        return chain
+    }
+}
 #endif

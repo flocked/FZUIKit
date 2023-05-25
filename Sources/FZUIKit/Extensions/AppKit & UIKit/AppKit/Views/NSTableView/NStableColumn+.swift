@@ -6,12 +6,12 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    public extension NSTableColumn {
-        var isVisible: Bool {
-            tableView?.visibleColumns.contains(self) ?? false
-        }
+public extension NSTableColumn {
+    var isVisible: Bool {
+        tableView?.visibleColumns.contains(self) ?? false
     }
+}
 
 #endif

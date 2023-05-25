@@ -6,45 +6,45 @@
 //
 
 #if os(macOS)
-    import Cocoa
+import Cocoa
 
-    public extension ToolbarItem {
-        class Item: ToolbarItem {
-            @discardableResult
-            public func title(_ title: String) -> Self {
-                set(\.item.title, to: title)
-            }
+public extension ToolbarItem {
+    class Item: ToolbarItem {
+        @discardableResult
+        public func title(_ title: String) -> Self {
+            set(\.item.title, to: title)
+        }
 
-            @discardableResult
-            public func image(_ image: NSImage?) -> Self {
-                set(\.item.image, to: image)
-            }
+        @discardableResult
+        public func image(_ image: NSImage?) -> Self {
+            set(\.item.image, to: image)
+        }
 
-            @discardableResult
-            public func bordered(_ isBordered: Bool) -> Self {
-                set(\.item.isBordered, to: isBordered)
-            }
+        @discardableResult
+        public func bordered(_ isBordered: Bool) -> Self {
+            set(\.item.isBordered, to: isBordered)
+        }
 
-            @available(macOS 11.0, *)
-            @discardableResult
-            public func isNavigational(_ isNavigational: Bool) -> Self {
-                item.isNavigational = isNavigational
-                return self
-            }
+        @available(macOS 11.0, *)
+        @discardableResult
+        public func isNavigational(_ isNavigational: Bool) -> Self {
+            item.isNavigational = isNavigational
+            return self
+        }
 
-            @discardableResult
-            public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
-                item.actionBlock = action
-                return self
-            }
+        @discardableResult
+        public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
+            item.actionBlock = action
+            return self
+        }
 
-            @discardableResult
-            public func onAction(_ handler: @escaping () -> Void) -> Self {
-                item.actionBlock = { _ in
-                    handler()
-                }
-                return self
+        @discardableResult
+        public func onAction(_ handler: @escaping () -> Void) -> Self {
+            item.actionBlock = { _ in
+                handler()
             }
+            return self
         }
     }
+}
 #endif

@@ -6,9 +6,9 @@
 //
 
 #if os(iOS)
-    import UIKit
+import UIKit
 #elseif os(macOS)
-    import AppKit
+import AppKit
 #endif
 
 private var ViewAnimatorAssociatedObjectHandle: UInt8 = 1 << 4

@@ -9,9 +9,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIImage {
@@ -84,9 +84,9 @@ extension NSUIImage {
         guard let resizedImage = resizeForImageColors(newSize: scaleDownSize) else { return nil }
 
         #if os(OSX)
-            guard let cgImage = resizedImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        guard let cgImage = resizedImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
         #else
-            guard let cgImage = resizedImage.cgImage else { return nil }
+        guard let cgImage = resizedImage.cgImage else { return nil }
         #endif
 
         let width: Int = cgImage.width
@@ -203,30 +203,30 @@ extension NSUIImage {
     }
 
     #if os(OSX)
-        internal func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
-            let frame = CGRect(origin: .zero, size: newSize)
-            guard let representation = bestRepresentation(for: frame, context: nil, hints: nil) else {
-                return nil
-            }
-            let result = NSImage(size: newSize, flipped: false, drawingHandler: { _ -> Bool in
-                representation.draw(in: frame)
-            })
-
-            return result
+    internal func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
+        let frame = CGRect(origin: .zero, size: newSize)
+        guard let representation = bestRepresentation(for: frame, context: nil, hints: nil) else {
+            return nil
         }
+        let result = NSImage(size: newSize, flipped: false, drawingHandler: { _ -> Bool in
+            representation.draw(in: frame)
+        })
+
+        return result
+    }
     #else
-        internal func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
-            UIGraphicsBeginImageContextWithOptions(newSize, false, 0)
-            defer {
-                UIGraphicsEndImageContext()
-            }
-            draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-            guard let result = UIGraphicsGetImageFromCurrentImageContext() else {
-                fatalError("UIImageColors.resizeForUIImageColors failed: UIGraphicsGetImageFromCurrentImageContext returned nil.")
-            }
-
-            return result
+    internal func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 0)
+        defer {
+            UIGraphicsEndImageContext()
         }
+        draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+        guard let result = UIGraphicsGetImageFromCurrentImageContext() else {
+            fatalError("UIImageColors.resizeForUIImageColors failed: UIGraphicsGetImageFromCurrentImageContext returned nil.")
+        }
+
+        return result
+    }
     #endif
 }
 
