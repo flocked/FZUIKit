@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-
+/*
 import AppKit
 import FZSwiftUtils
 
@@ -188,5 +188,6 @@ public extension NSButton {
         }
     }
 }
+ */
 
 #endif
