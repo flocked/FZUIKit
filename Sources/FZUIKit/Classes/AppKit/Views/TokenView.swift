@@ -2,7 +2,7 @@
 //  TokenFieldTokenView.swift
 //  TokenField
 //
-//  Created by Umur Gedik on 22.05.2021.
+//
 //
 
 #if os(macOS)
@@ -258,6 +258,8 @@ public class TokenView: NSView {
 
     //   public var backgroundColor: NSColor? = NSColor.controlAccentColor {
     //     didSet { needsDisplay = true } }
+    
+    public var isSelectable = false
 
     public var isSelected = false {
         didSet {

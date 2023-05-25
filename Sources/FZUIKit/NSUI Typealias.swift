@@ -18,6 +18,8 @@ public typealias NSUICollectionViewLayout = NSCollectionViewLayout
 public typealias NSUICollectionViewLayoutAttributes = NSCollectionViewLayoutAttributes
 public typealias NSUIColor = NSColor
 public typealias NSUIConfigurationColorTransformer = NSConfigurationColorTransformer
+@available(macOS 12.0, *)
+public typealias NSUIConfigurationTextAttributesTransformer = NSConfigurationTextAttributesTransformer
 public typealias NSUIEdgeInsets = NSEdgeInsets
 public typealias NSUIFont = NSFont
 public typealias NSUIFontDescriptor = NSFontDescriptor
@@ -41,6 +43,8 @@ public typealias NSUIImageSymbolWeight = NSImage.SymbolWeight
 public typealias NSUILayoutGuide = NSLayoutGuide
 public typealias NSUICollectionViewItem = NSCollectionViewItem
 #elseif canImport(UIKit)
+
+
 import UIKit
 public typealias NSUIBezierPath = UIBezierPath
 public typealias NSUICollectionView = UICollectionView
@@ -52,6 +56,8 @@ public typealias NSUICollectionViewLayoutAttributes = UICollectionViewLayoutAttr
 public typealias NSUIColor = UIColor
 @available(iOS 14.0, *)
 public typealias NSUIConfigurationColorTransformer = HashableUIConfigurationColorTransformer
+@available(iOS 15, tvOS 15, watchOS 8, *)
+public typealias NSUIConfigurationTextAttributesTransformer = HashableUIConfigurationTextAttributesTransformer
 public typealias NSUIEdgeInsets = UIEdgeInsets
 public typealias NSUIFont = UIFont
 public typealias NSUIFontDescriptor = UIFontDescriptor

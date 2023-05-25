@@ -15,16 +15,6 @@ player.isLooping = true
 tableView.register(MyTableViewCellClass.self, forIdentifier: "MyCellClassIdentifier")
 ```
 
-### QuicklookPanel
-Present files in a Quicklook panel simliar to Finder`s Quicklook. 
-```
-QuicklookPanel.shared.present(fileURLs)
-```
-If a NSCollectionViewItem/NSTableCellView conforms to the protocol QLPreviable and provides a previewURL, it also provides easy quicklock of selected items/cells.
-```
-collectionView.quicklookSelectedItems()
-```
-
 ### NSImage preparingForDisplay & preparingThumbnail
 An UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
 ```

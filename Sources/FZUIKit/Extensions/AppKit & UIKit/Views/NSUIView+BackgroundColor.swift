@@ -38,7 +38,7 @@ public extension BackgroundColorSettable where Self: NSView {
             updateBackgroundColor()
             if newValue != nil {
                 if _effectiveAppearanceKVO == nil {
-                    _effectiveAppearanceKVO = observe(\.effectiveAppearance) { [weak self] _, _ in
+                    _effectiveAppearanceKVO = observeChange(\.effectiveAppearance) { [weak self] _, _ in
                         self?.updateBackgroundColor()
                     }
                 }

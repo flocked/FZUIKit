@@ -10,6 +10,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a shadow.
@@ -25,7 +26,7 @@ public extension ContentConfiguration {
         public var radius: CGFloat = 2.0
         public var offset: CGSize = .init(width: 1.0, height: -1.5)
 
-        public func resolvedColor() -> NSUIColor? {
+        public func resolvedColor(withOpacity: Bool = false) -> NSUIColor? {
             if let color = color {
                 return colorTransform?(color) ?? color
             }
@@ -56,6 +57,36 @@ public extension ContentConfiguration {
             var value = Self()
             value.color = color
             return value
+        }
+    }
+}
+
+public extension NSShadow {
+    convenience init(configuration: ContentConfiguration.Shadow) {
+        self.init()
+        self.configurate(using: configuration)
+    }
+    
+    func configurate(using configuration: ContentConfiguration.Shadow) {
+        self.shadowColor = configuration.resolvedColor(withOpacity: true)
+        self.shadowOffset = configuration.offset
+        self.shadowBlurRadius = configuration.radius
+    }
+}
+
+public extension NSMutableAttributedString {
+    func configurate(using configuration: ContentConfiguration.Shadow) {
+        var attributes = self.attributes(at: 0, effectiveRange: nil)
+        attributes[.shadow] = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
+        self.setAttributes(attributes, range: NSRange(0..<length))
+    }
+}
+
+@available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
+public extension AttributedString {
+    mutating func configurate(using configuration: ContentConfiguration.Shadow) {
+        self.editAttributes() {
+            $0.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
         }
     }
 }

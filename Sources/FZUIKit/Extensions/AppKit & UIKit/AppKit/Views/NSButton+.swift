@@ -89,7 +89,7 @@ public extension NSButton {
             }
         } else {
             if buttonStateObserver == nil {
-                buttonStateObserver = observe(\.cell?.state, options: [.new], changeHandler: { [weak self] _, _ in
+                buttonStateObserver = observeChange(\.cell?.state) { [weak self] _, _ in
                     guard let self = self else { return }
                     if let contentTintColor = self.contentTintColor(for: state) {
                         self.contentTintColor = contentTintColor
@@ -99,7 +99,7 @@ public extension NSButton {
                             self.symbolConfiguration = symbolConfiguration
                         }
                     }
-                })
+                }
             }
         }
     }
