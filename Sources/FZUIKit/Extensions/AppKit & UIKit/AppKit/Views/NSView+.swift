@@ -147,7 +147,8 @@ public extension NSView {
         get { guard let cgValue = layer?.opacity else { return 1.0 }
             return CGFloat(cgValue)
         }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
             layer?.opacity = Float(newValue)
         }
     }
@@ -259,57 +260,7 @@ public extension NSView {
             removeTrackingArea(trackingArea)
         }
     }
-
-    @available(macOS 10.12, *)
-    static func animate(withDuration duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction, animations: @escaping () -> Void, completion: (() -> Void)? = nil) {
-        NSAnimationContext.runAnimationGroup {
-            context in
-            context.duration = duration
-            context.timingFunction = timingFunction
-            context.allowsImplicitAnimation = true
-            context.completionHandler = completion
-            animations()
-        }
-    }
-
-    @available(macOS 10.12, *)
-    static func animate(withDuration duration: TimeInterval = 0.25, delay _: TimeInterval, timingFunction: CAMediaTimingFunction? = nil, animations: @escaping () -> Void, completion: (() -> Void)? = nil) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            NSAnimationContext.runAnimationGroup {
-                context in
-                context.duration = duration
-                context.timingFunction = timingFunction
-                context.allowsImplicitAnimation = true
-                context.completionHandler = completion
-                animations()
-            }
-        }
-    }
-
-    @available(macOS 10.12, *)
-    static func animate(withDuration duration: TimeInterval = 0.25, animations: @escaping () -> Void, completion: (() -> Void)? = nil) {
-        NSAnimationContext.runAnimationGroup {
-            context in
-            context.duration = duration
-            context.allowsImplicitAnimation = true
-            context.completionHandler = completion
-            animations()
-        }
-    }
-
-    @available(OSX 10.12, *)
-    func animateLayout(changes: (NSAnimationContext) -> Void) {
-        layoutSubtreeIfNeeded()
-
-        NSAnimationContext.runAnimationGroup { context in
-            context.allowsImplicitAnimation = true
-
-            changes(context)
-
-            self.layoutSubtreeIfNeeded()
-        }
-    }
-
+    
     func setNeedsDisplay() {
         needsDisplay = true
     }

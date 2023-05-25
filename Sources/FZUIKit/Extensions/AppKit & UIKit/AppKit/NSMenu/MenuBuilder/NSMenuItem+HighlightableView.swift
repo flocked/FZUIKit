@@ -68,7 +68,7 @@ class NSMenuItemHighlightableView: NSVisualEffectView {
         state = .active
         material = .menu
         blendingMode = .behindWindow
-        _ = self.trackingArea
+        self.trackingArea.update()
         if #available(macOS 10.12, *) { isEmphasized = true }
     }
 

@@ -76,16 +76,17 @@ public extension NSButton {
     }
 
     internal func updateButtonStateObserver() {
-        let requiresObserver: Bool
+        let shouldObserveState: Bool
         if #available(macOS 11.0, *) {
-            requiresObserver = self.stateContentTintColor.hasValues || self.stateSymbolConfiguration.hasValues
+            shouldObserveState = self.stateContentTintColor.hasValues || self.stateSymbolConfiguration.hasValues
         } else {
-            requiresObserver = stateContentTintColor.hasValues
+            shouldObserveState = stateContentTintColor.hasValues
         }
 
-        if requiresObserver == false {
+        if shouldObserveState == false {
             if let stateObserver = buttonStateObserver {
                 removeObserver(stateObserver, forKeyPath: "state")
+                buttonStateObserver = nil
             }
         } else {
             if buttonStateObserver == nil {
