@@ -23,15 +23,16 @@ public extension Image {
 import AppKit
 public extension Image {
     init(_ nsImage: NSImage) {
-        if let systemName = nsImage.systemSymbolName {
-            if #available(macOS 11.0, *) {
-                self = Image(systemName: systemName)
-            } else {
-                self = Image(nsImage: nsImage)
-            }
-        } else {
-            self = Image(nsImage: nsImage)
+        self = nsImage.uiImage
+    }
+}
+
+public extension NSImage {
+    var uiImage: Image {
+        if #available(macOS 11.0, *), let systemName = self.systemSymbolName {
+               return Image(systemName: systemName)
         }
+        return Image(nsImage: self)
     }
 }
 #endif
