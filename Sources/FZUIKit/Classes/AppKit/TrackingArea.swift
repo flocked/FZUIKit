@@ -7,12 +7,10 @@
 //
 
 #if os(macOS)
-
-import Foundation
 import AppKit
 
 /// A tracking area that tracks a view
-final class TrackingArea {
+public class TrackingArea {
     /**
      One or more constants that specify the type of tracking area, the situations when the area is active, and special behaviors of the tracking area.
      */
@@ -36,7 +34,7 @@ final class TrackingArea {
         - view: The view to add tracking to.
         - rect: The area inside the view to track. Defaults to the whole view (`view.bounds`).
     */
-    init(for view: NSView, rect: CGRect? = nil, options: NSTrackingArea.Options = []) {
+    public init(for view: NSView, rect: CGRect? = nil, options: NSTrackingArea.Options = []) {
         self.view = view
         self.trackingRect = rect
         self.options = options
@@ -46,7 +44,7 @@ final class TrackingArea {
     Updates the tracking area.
     - Note: This should be called in your `NSView#updateTrackingAreas()` method.
     */
-    func update() {
+    public func update() {
         if let trackingArea = self.trackingArea {
             self.view?.removeTrackingArea(trackingArea)
         }
