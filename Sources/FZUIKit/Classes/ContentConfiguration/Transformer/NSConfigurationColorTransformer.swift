@@ -98,6 +98,11 @@ public struct NSConfigurationColorTransformer {
     public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
         return Self("systemEffect: \(systemEffect.rawValue)") { $0.withSystemEffect(systemEffect) }
     }
+    
+    /// A color transformer that returns the color.
+    public static func color(_ color: NSColor) -> Self {
+        return Self("color: ") { _ in return color }
+    }
 }
 
 extension NSConfigurationColorTransformer: Hashable {
