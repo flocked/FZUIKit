@@ -22,12 +22,7 @@ public extension NSUIColor {
 
         var color: NSUIColor? = self
         #if os(macOS)
-        Swift.print("Here")
-        let supportedColorSpaces: [NSColorSpace] = [.sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .deviceRGB, .displayP3]
-        if supportedColorSpaces.contains(colorSpace) == false {
-            Swift.print("NewColor")
-            color = (usingColorSpace(.extendedSRGB) ?? usingColorSpace(.sRGB)) ?? nil
-        }
+        color = self.withSupportedColorSpace() ?? self
         #endif
         color?.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         return (red, green, blue, alpha)

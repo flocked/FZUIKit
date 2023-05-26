@@ -47,7 +47,7 @@ public extension NSColor {
     }
 
     func withSupportedColorSpace() -> NSColor? {
-        let supportedColorSpaces: [NSColorSpace] = [.extendedSRGB, .sRGB, .genericRGB, .adobeRGB1998, .deviceRGB, .displayP3]
+        let supportedColorSpaces: [NSColorSpace] = [.extendedSRGB, .sRGB, .deviceRGB, .genericRGB, .adobeRGB1998, .displayP3]
         if supportedColorSpaces.contains(colorSpace) == false {
             for supportedColorSpace in supportedColorSpaces {
                 if let supportedColor = usingColorSpace(supportedColorSpace) {
