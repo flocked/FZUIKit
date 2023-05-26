@@ -93,7 +93,7 @@ public struct NSConfigurationColorTransformer {
     public static func grayscaled(mode: NSUIColor.GrayscalingMode = .lightness) -> Self {
         Self("grayscaled: \(mode.rawValue)") { $0.grayscaled(mode: mode) }
     }
-
+    
     /// A color transformer that returns a color by system effect.
     public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
         return Self("systemEffect: \(systemEffect.rawValue)") { $0.withSystemEffect(systemEffect) }
