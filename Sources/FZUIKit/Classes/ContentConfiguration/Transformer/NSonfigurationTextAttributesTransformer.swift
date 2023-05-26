@@ -9,53 +9,28 @@ import Foundation
 
 #if os(macOS)
 @available(macOS 12.0, *)
-public struct NSConfigurationTextAttributesTransformer {
+public struct NSConfigurationTextAttributesTransformer: ContentTransformer {
     public let transform: (AttributeContainer) -> AttributeContainer
-    internal let uuid: UUID = UUID()
+    public let id: String
     
-    public func callAsFunction(_ input: AttributeContainer) -> AttributeContainer {
-        return transform(input)
-    }
-    
-    public init(_ transform: @escaping (AttributeContainer) -> AttributeContainer) {
+    /// Creates a text attributes transformer with the specified closure.
+    public init(_ id: String, _ transform: @escaping (AttributeContainer) -> AttributeContainer) {
         self.transform = transform
-    }
-}
-
-
-@available(macOS 12.0, *)
-extension NSConfigurationTextAttributesTransformer: Hashable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.uuid == rhs.uuid
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
+        self.id = id
     }
 }
 
 #elseif canImport(UIKit)
 
 @available(iOS 15, tvOS 15, watchOS 8, *)
-public struct HashableUIConfigurationTextAttributesTransformer {
+public struct HashableUIConfigurationTextAttributesTransformer: ContentTransformer {
     public let transform: (AttributeContainer) -> AttributeContainer
-    internal let uuid: UUID = UUID()
+    public let id: String
     
-    public func callAsFunction(_ input: AttributeContainer) -> AttributeContainer {
-        return transform(input)
-    }
-    
-    public init(_ transform: @escaping (AttributeContainer) -> AttributeContainer) {
+    /// Creates a text attributes transformer with the specified closure.
+    public init(_ id: String, _ transform: @escaping (AttributeContainer) -> AttributeContainer) {
         self.transform = transform
-    }
-}
-
-@available(iOS 15, tvOS 15, watchOS 8, *)
-extension HashableUIConfigurationTextAttributesTransformer: Hashable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.uuid == rhs.uuid
-    }
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
+        self.id = id
     }
 }
 

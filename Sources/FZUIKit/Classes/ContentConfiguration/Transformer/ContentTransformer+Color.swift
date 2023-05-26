@@ -17,42 +17,10 @@ public struct ColorTransformer: ContentTransformer {
     public let id: String
 
     /// Creates a color transformer with the specified closure.
-    public init(_ transform: @escaping (NSUIColor) -> NSUIColor) {
-        self.transform = transform
-        id = UUID().uuidString
-    }
-
-    /// Creates a color transformer with the specified closure.
     public init(_ id: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
         self.transform = transform
         self.id = id
     }
-
-    /*
-     public func appending(_ transformer: Self) -> Self {
-         Self("\(self.id) && \(transformer.id)") { input in
-             var result = input
-             result = self(result)
-             result = transformer(result)
-             return result
-         }
-     }
-
-     public func appending(_ transformers: Self...) -> Self {
-         return appending(transformers)
-     }
-
-     public func appending(_ transformers: [Self]) -> Self {
-         let idString = transformers.compactMap({$0.id}).joined(separator: ", ")
-         return Self("\(self.id), \(idString)") { input in
-             var result = input
-             for transformer in transformers {
-                 result = transformer(result)
-             }
-             return result
-         }
-     }
-      */
 
     /// Creates a color transformer that generates a version of the color.with modified opacity.
     public static func opacity(_ opacity: CGFloat) -> Self {
@@ -87,6 +55,10 @@ public struct ColorTransformer: ContentTransformer {
     /// Creates a color transformer that generates a version of the color.that is desaturated by the amount.
     public static func desaturated(by amount: CGFloat = 0.2) -> Self {
         return Self("darkened: \(amount)") { $0.desaturated(by: amount) }
+    }
+    
+    public static func color(_ color: NSUIColor) -> Self {
+        Self("color: \(String(describing: color))") { _ in return color }
     }
 
     #if os(macOS)

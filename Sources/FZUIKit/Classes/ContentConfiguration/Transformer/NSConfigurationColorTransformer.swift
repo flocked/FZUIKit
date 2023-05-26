@@ -14,31 +14,11 @@ import AppKit
 
  Because color transformers can use the same base input color to produce a number of variants of that color, you can create different appearances for different states of your views.
  */
-public struct NSConfigurationColorTransformer {
+public struct NSConfigurationColorTransformer: ContentTransformer {
     /// The transform closure of the color transformer.
     public let transform: (NSUIColor) -> NSUIColor
     /// The identifier of the color transformer.
     public let id: String
-
-    /**
-     Calls the transform closure of the color transformer.
-
-     Using this syntax, you can call the color transformer type as if it were a closure:
-     ```
-     let opacityColorTransformer: NSConfigurationColorTransformer = .opacity(0.3)
-     let baseColor = NSColor.red
-     let modifiedColor = opacityColorTransformer(baseColor)
-     ```
-     */
-    public func callAsFunction(_ input: NSUIColor) -> NSUIColor {
-        return transform(input)
-    }
-
-    /// Creates a color transformer with the specified closure.
-    public init(_ transform: @escaping (NSUIColor) -> NSUIColor) {
-        self.transform = transform
-        id = UUID().uuidString
-    }
 
     /// Creates a color transformer with the specified closure.
     public init(_ id: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
@@ -101,35 +81,16 @@ public struct NSConfigurationColorTransformer {
     
     /// A color transformer that returns the color.
     public static func color(_ color: NSColor) -> Self {
-        return Self("color: ") { _ in return color }
-    }
-}
-
-extension NSConfigurationColorTransformer: Hashable {
-    public static func == (lhs: NSConfigurationColorTransformer, rhs: NSConfigurationColorTransformer) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        return Self("color: \(String(describing: color))") { _ in return color }
     }
 }
 #endif
 
 #if canImport(UIKit)
 import UIKit
-public struct HashableUIConfigurationColorTransformer {
+public struct HashableUIConfigurationColorTransformer: ContentTransformer {
     public let transform: (UIColor) -> UIColor
     public let id: String
-
-    public func callAsFunction(_ input: UIColor) -> UIColor {
-        return transform(input)
-    }
-
-    public init(_ transform: @escaping (UIColor) -> UIColor) {
-        self.transform = transform
-        id = UUID().uuidString
-    }
 
     public init(_ id: String, _ transform: @escaping (UIColor) -> UIColor) {
         self.transform = transform
@@ -145,15 +106,10 @@ public struct HashableUIConfigurationColorTransformer {
     public static let monochromeTint: Self = .init("monochromeTint", UIConfigurationColorTransformer.monochromeTint.transform)
 
     public static let grayscale: Self = .init("grayscale", UIConfigurationColorTransformer.grayscale.transform)
-}
-
-extension HashableUIConfigurationColorTransformer: Hashable {
-    public static func == (lhs: HashableUIConfigurationColorTransformer, rhs: HashableUIConfigurationColorTransformer) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    
+    /// A color transformer that returns the color.
+    public static func color(_ color: NSUIColor) -> Self {
+        return Self("color: \(String(describing: color))") { _ in return color }
     }
 }
 

@@ -18,12 +18,6 @@ public struct ImageTransformer: ContentTransformer {
     public let id: String
 
     /// Creates a color transformer with the specified closure.
-    public init(_ transform: @escaping (NSUIImage) -> NSUIImage) {
-        self.transform = transform
-        id = UUID().uuidString
-    }
-
-    /// Creates a color transformer with the specified closure.
     public init(_ id: String, _ transform: @escaping (NSUIImage) -> NSUIImage) {
         self.transform = transform
         self.id = id
