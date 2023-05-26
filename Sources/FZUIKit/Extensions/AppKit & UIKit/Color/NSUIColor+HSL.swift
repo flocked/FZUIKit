@@ -36,7 +36,9 @@ internal struct HSL {
     }
 
     init(color: NSUIColor) {
+        Swift.print("hsl init")
         let rgba = color.rgbaComponents()
+        Swift.print("hsl rgbaComponents")
         let maximum = max(rgba.red, max(rgba.green, rgba.blue))
         let minimum = min(rgba.red, min(rgba.green, rgba.blue))
 
@@ -102,6 +104,7 @@ internal struct HSL {
     }
 
     func lighter(amount: CGFloat) -> HSL {
+        Swift.print("hsl lighter")
         let amount = amount.clamped(max: 1.0)
         return HSL(hue: h * 360.0, saturation: s, lightness: l + amount, alpha: a)
     }
