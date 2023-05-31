@@ -20,18 +20,6 @@ public struct AttribuedStringTransformer: ContentTransformer {
         self.id = id
     }
     
-    public static func attributes(_ edits: @escaping (inout AttributeContainer) -> ()) -> Self {
-        Self { attributedString in
-            var attributedString = attributedString
-            if var attributes = attributedString.runs.first?.attributes {
-                edits(&attributes)
-                attributedString.setAttributes(attributes)
-                return attributedString
-            }
-            return attributedString
-        }
-    }
-    
     /// Creates a color transformer that generates a capitalized version of the attributed string.
     public static func capitalized() -> Self {
         return Self("capitalized") { $0.capitalized() }

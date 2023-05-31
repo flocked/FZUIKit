@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import FZSwiftUtils
 
 public extension NSUIImage {
     var dataSize: DataSize? {

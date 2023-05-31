@@ -16,30 +16,10 @@ public protocol ContentTransformer<Content>: Hashable, Identifiable {
 }
 
 public extension ContentTransformer {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id
-    }
-    
-    static func + (lhs: Self, rhs: Self) -> Self {
-        return Self { input in
-            var result = lhs(input)
-            result = rhs(result)
-            return result
-        }
-    }
-        
     init(_ transform: @escaping ((Content) -> Content)) {
         self.init(UUID().uuidString, transform)
     }
-    
-    init(_ transformers: Self...) {
-        self.init(transformers)
-    }
-    
+        
     init(_ transformers: [Self]) {
         let id = transformers.compactMap({$0.id}).joined(separator: ", ")
         self.init(id) { content in
@@ -49,6 +29,10 @@ public extension ContentTransformer {
             }
             return content
         }
+    }
+    
+    init(_ transformers: Self...) {
+        self.init(transformers)
     }
     
     func callAsFunction(_ input: Content) -> Content {
@@ -97,6 +81,22 @@ public extension ContentTransformer {
     func callAsFunction<S>(_ inputs: S) async -> [Content] where S: Sequence<Content> {
         let results = await inputs.asyncMap { await self($0) }
         return results
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    static func + (lhs: Self, rhs: Self) -> Self {
+        return Self { input in
+            var result = lhs(input)
+            result = rhs(result)
+            return result
+        }
     }
 }
 

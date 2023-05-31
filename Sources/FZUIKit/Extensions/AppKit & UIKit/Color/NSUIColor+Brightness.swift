@@ -31,8 +31,12 @@ public extension NSUIColor {
     }
 
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
+        #if os(macOS)
         let color = self.withSupportedColorSpace() ?? self
         return HSL(color: color).lighter(amount: amount).toColor()
+        #else
+        return HSL(color: self).lighter(amount: amount).toColor()
+        #endif
     }
 
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {

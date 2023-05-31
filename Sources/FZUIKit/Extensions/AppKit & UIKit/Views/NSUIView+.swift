@@ -110,7 +110,7 @@ public extension NSUIView {
         return self.firstSuperview(where: {$0 is V}) as? V
     }
     
-    func firstSuperview(where predicate: (NSUIView)->(Bool)) -> NSView? {
+    func firstSuperview(where predicate: (NSUIView)->(Bool)) -> NSUIView? {
         if let superview = superview {
             if predicate(superview) == true {
                 return superview
@@ -121,39 +121,22 @@ public extension NSUIView {
     }
 
     
-    func subviews<V: NSUIView>(type _: V.Type, depth: Int? = nil) -> [V] {
+    func subviews<V>(type _: V.Type, depth: Int? = nil) -> [V] {
         self.subviews(depth: depth ?? 0).compactMap({$0 as? V})
     }
     
-    func subviews(where predicate: (NSUIView)->(Bool), depth: Int? = nil) -> [NSView] {
+    func subviews(where predicate: (NSUIView)->(Bool), depth: Int? = nil) -> [NSUIView] {
         self.subviews(depth: depth ?? 0).filter({predicate($0) == true})
     }
     
-    func subviews(depth: Int) -> [NSView] {
+    func subviews(depth: Int) -> [NSUIView] {
         if depth > 0 {
-            return subviews.flatMap { $0.subviews(depth: depth - 1) }
+            return subviews + subviews.flatMap { $0.subviews(depth: depth - 1) }
         } else {
             return subviews
         }
     }
     
-
-    func nestedSubviews<V: NSUIView>(type _: V.Type, depth: Int? = nil) -> [V] {
-        nestedSubviews(depth: depth).compactMap { $0 as? V }
-    }
-
-    func nestedSubviews(depth: Int? = nil) -> [NSUIView] {
-        if let depth = depth {
-            if depth > 0 {
-                return subviews.flatMap { $0.nestedSubviews(depth: depth - 1) }
-            } else {
-                return subviews
-            }
-        } else {
-            return subviews + subviews.flatMap { $0.nestedSubviews() }
-        }
-    }
-
     func removeSubviews(type: NSUIView.Type, depth: Int? = nil) {
         subviews(type: type, depth: depth).forEach { $0.removeFromSuperview() }
     }

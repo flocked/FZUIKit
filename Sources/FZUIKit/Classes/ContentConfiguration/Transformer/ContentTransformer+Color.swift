@@ -66,7 +66,7 @@ public struct ColorTransformer: ContentTransformer {
     public static let monochrome: Self = .init("monochrome") { _ in .secondaryLabelColor }
 
     /// A color transformer that returns the preferred system accent color.
-    public static let preferredTint: Self = .init("monochrome") { _ in
+    public static let preferredTint: Self = .init("preferredTint") { _ in
         .controlAccentColor
     }
 

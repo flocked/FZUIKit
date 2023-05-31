@@ -75,7 +75,7 @@ public class Toolbar: NSObject {
     internal var toolbarItemSelectionObserver: NSKeyValueObservation? = nil
     internal func setupToolbarItemSelectionObserver() {
         if toolbarItemSelectionObserver == nil {
-            toolbarItemSelectionObserver = observeChange(\.toolbar.selectedItemIdentifier) { [weak self] _, identifier in
+            toolbarItemSelectionObserver = observeChange(\.toolbar.selectedItemIdentifier) { [weak self] _,_, identifier in
                 guard let self = self else { return }
                 if let identifier = identifier {
                     guard let item = self.items.first(where: { $0.identifier == identifier }) else { return }
@@ -163,7 +163,7 @@ public class TToolbar: NSToolbar {
     internal var _toolbarItemSelectionObserver: NSKeyValueObservation? = nil
     internal func _setupToolbarItemSelectionObserver() {
         if _toolbarItemSelectionObserver == nil {
-            _toolbarItemSelectionObserver = observeChange(\.selectedItemIdentifier) { [weak self] _, identifier in
+            _toolbarItemSelectionObserver = observeChange(\.selectedItemIdentifier) { [weak self] _,_, identifier in
                 guard let self = self else { return }
                 if let identifier = identifier  {
                     guard let item = self._items.first(where: { $0.itemIdentifier == identifier }) else { return }

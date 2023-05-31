@@ -90,7 +90,7 @@ public extension NSButton {
             }
         } else {
             if buttonStateObserver == nil {
-                buttonStateObserver = observeChange(\.cell?.state) { [weak self] _, _ in
+                buttonStateObserver = observeChange(\.cell?.state) { [weak self] _,_, _ in
                     guard let self = self else { return }
                     if let contentTintColor = self.contentTintColor(for: state) {
                         self.contentTintColor = contentTintColor

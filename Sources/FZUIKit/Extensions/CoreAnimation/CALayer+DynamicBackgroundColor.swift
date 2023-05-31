@@ -21,7 +21,7 @@ internal protocol ObservableAppearanceObject: NSAppearanceCustomization {
 
 extension ObservableAppearanceObject where Self: NSObject & NSAppearanceCustomization {
     func observeEffectiveAppearance(changeHandler: @escaping (() -> Void)) -> NSKeyValueObservation {
-        return observeChange(\.effectiveAppearance) { [weak self] _, _ in
+        return observeChange(\.effectiveAppearance) { [weak self] _,_, _ in
             guard self != nil else { return }
             changeHandler()
         }
@@ -58,7 +58,7 @@ public extension CALayer {
                             self?.updateBackgroundColor()
                         }
                     } else {
-                        effectiveAppearanceObserver = NSApp.observeChange(\.effectiveAppearance) { [weak self] _, _ in
+                        effectiveAppearanceObserver = NSApp.observeChange(\.effectiveAppearance) { [weak self] _,_, _ in
                             self?.updateBackgroundColor()
                         }
                     }
@@ -110,7 +110,7 @@ public extension CALayer {
                  self?.updateBackgroundColor(obj)
              }
          } else {
-             self.effectiveAppearanceObserver = NSApp.observeChange(\.effectiveAppearance) { [weak self] app, change in
+             self.effectiveAppearanceObserver = NSApp.observeChange(\.effectiveAppearance) { [weak self] app,_, change in
                  self?.updateBackgroundColor(app)
              }
          }
@@ -166,7 +166,7 @@ public extension CALayer {
 
  extension ObservableAppearanceObject where Self: NSObject & NSAppearanceCustomization {
      func observeEffectiveAppearance( changeHandler: @escaping ((Self)->())) -> NSKeyValueObservation {
-        return self.observeChange(\.effectiveAppearance) { [weak self] view, value in
+        return self.observeChange(\.effectiveAppearance) { [weak self] view,_, value in
              guard let self = self else { return }
              changeHandler(self)
          }

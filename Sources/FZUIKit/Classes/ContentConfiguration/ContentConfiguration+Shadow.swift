@@ -85,9 +85,7 @@ public extension NSMutableAttributedString {
 @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
 public extension AttributedString {
     mutating func configurate(using configuration: ContentConfiguration.Shadow) {
-        self.editAttributes() {
-            $0.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
-        }
+        self.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
     }
 }
 
