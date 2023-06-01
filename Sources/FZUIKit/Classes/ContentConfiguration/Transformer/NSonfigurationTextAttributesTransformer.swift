@@ -23,7 +23,7 @@ public struct NSConfigurationTextAttributesTransformer: ContentTransformer {
 #elseif canImport(UIKit)
 
 @available(iOS 15, tvOS 15, watchOS 8, *)
-public struct HashableUIConfigurationTextAttributesTransformer: ContentTransformer {
+public struct UIConfigurationHashingTextAttributesTransformer: ContentTransformer {
     public let transform: (AttributeContainer) -> AttributeContainer
     public let id: String
     

@@ -7,8 +7,12 @@
 
 import Foundation
 
+public struct ContentTransformers {
+    
+}
+
 /// A  protocol for a transformer that generates a modified output from an input.
-public protocol ContentTransformer<Content>: Hashable, Identifiable {
+public protocol ContentTransformer: Hashable, Identifiable {
     associatedtype Content
     var transform: (Content) -> Content { get }
     var id: String { get }

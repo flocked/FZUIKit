@@ -9,7 +9,7 @@ import Foundation
 import FZSwiftUtils
 
 @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
-public struct AttribuedStringTransformer: ContentTransformer {
+public struct AttributedStringTransformer: ContentTransformer {
     /// The transform closure of the color transformer.
     public let transform: (AttributedString) -> AttributedString
     public let id: String
@@ -38,7 +38,7 @@ public struct AttribuedStringTransformer: ContentTransformer {
 
 
 
-public struct NSAttribuedStringTransformer: ContentTransformer {
+public struct NSAttributedStringTransformer: ContentTransformer {
     /// The transform closure of the color transformer.
     public let transform: (NSAttributedString) -> NSAttributedString
     public let id: String

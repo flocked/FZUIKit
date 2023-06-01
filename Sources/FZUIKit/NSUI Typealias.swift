@@ -42,9 +42,8 @@ public typealias NSUIImageSymbolScale = NSImage.SymbolScale
 public typealias NSUIImageSymbolWeight = NSImage.SymbolWeight
 public typealias NSUILayoutGuide = NSLayoutGuide
 public typealias NSUICollectionViewItem = NSCollectionViewItem
+
 #elseif canImport(UIKit)
-
-
 import UIKit
 public typealias NSUIBezierPath = UIBezierPath
 public typealias NSUICollectionView = UICollectionView
@@ -54,8 +53,7 @@ public typealias NSUICollectionViewDelegate = UICollectionViewDelegate
 public typealias NSUICollectionViewLayout = UICollectionViewLayout
 public typealias NSUICollectionViewLayoutAttributes = UICollectionViewLayoutAttributes
 public typealias NSUIColor = UIColor
-@available(iOS 14.0, *)
-public typealias NSUIConfigurationColorTransformer = HashableUIConfigurationColorTransformer
+public typealias NSUIConfigurationColorTransformer = UIConfigurationHashingColorTransformer
 @available(iOS 15, tvOS 15, watchOS 8, *)
 public typealias NSUIConfigurationTextAttributesTransformer = HashableUIConfigurationTextAttributesTransformer
 public typealias NSUIEdgeInsets = UIEdgeInsets

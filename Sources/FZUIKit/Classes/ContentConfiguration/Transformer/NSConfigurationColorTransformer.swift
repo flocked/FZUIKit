@@ -88,7 +88,7 @@ public struct NSConfigurationColorTransformer: ContentTransformer {
 
 #if canImport(UIKit)
 import UIKit
-public struct HashableUIConfigurationColorTransformer: ContentTransformer {
+public struct UIConfigurationHashingColorTransformer: ContentTransformer {
     public let transform: (UIColor) -> UIColor
     public let id: String
 

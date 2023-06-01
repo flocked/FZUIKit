@@ -13,6 +13,8 @@ public protocol BackgroundStylable {
     var backgroundStyle: NSView.BackgroundStyle { get set }
 }
 
+extension NSTableCellView: BackgroundStylable { }
+extension NSCell: BackgroundStylable { }
 extension NSControl: BackgroundStylable {
     public var backgroundStyle: NSView.BackgroundStyle {
         get { self.cell?.backgroundStyle ?? .normal }
@@ -20,9 +22,11 @@ extension NSControl: BackgroundStylable {
     }
 }
 
-extension NSTableCellView: BackgroundStylable { }
-
 public extension NSView {
+    func backgroundStyle() -> NSView.BackgroundStyle {
+        self.firstSubview(type: BackgroundStylable.self, depth: .max)?.backgroundStyle ?? .normal
+    }
+    
     func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         var stylableViews = self.subviews(type: BackgroundStylable.self, depth: .max)
         stylableViews.editEach {

@@ -37,13 +37,22 @@ public extension NSUIView {
     }
 
     func sendToBack() {
-        if let superview = superview, let firstView = superview.subviews.first, firstView != self {
+        if let superview = superview {
             #if os(macOS)
-            superview.addSubview(self, positioned: .below, relativeTo: firstView)
-            #elseif canImport(UIKeyCommand)
-            superview.insertSubview(self, belowSubview: firstView)
+            superview.addSubview(self, positioned: .below, relativeTo: nil)
+            #else
+            superview.insertSubview(self, at: 0)
             #endif
         }
+    }
+    
+    func enclosingRect(for subviews: [NSUIView]) -> CGRect {
+        var enlosingFrame = CGRect.zero
+        for subview in subviews {
+            let frame = convert(subview.bounds, from: subview)
+            enlosingFrame = CGRectUnion(enlosingFrame, frame)
+        }
+        return enlosingFrame
     }
 
     func insertSubview(_ view: NSUIView, at index: Int) {
@@ -129,24 +138,41 @@ public extension NSUIView {
         self.subviews(depth: depth ?? 0).filter({predicate($0) == true})
     }
     
+    func removeSubviews(type: NSUIView.Type, depth: Int? = nil) {
+        subviews(type: type, depth: depth).forEach { $0.removeFromSuperview() }
+    }
+    
+    func removeSubviews(where predicate: (NSUIView)->(Bool), depth: Int? = nil) {
+        subviews(where: predicate, depth: depth).forEach { $0.removeFromSuperview() }
+    }
+    
+    func firstSubview<V>(type _: V.Type, depth: Int? = nil) -> V? {
+        self.firstSuperview(where: { $0 is V }) as? V
+    }
+    
+    func firstSubview(where predicate: (NSUIView)->(Bool), depth: Int? = nil) -> NSUIView? {
+        let depth = depth ?? 0
+        
+        if let found = subviews.first(where: predicate) {
+            return found
+        }
+        
+        if depth > 0 {
+            for subview in self.subviews {
+                if let found = subview.firstSubview(where: predicate, depth: depth - 1) {
+                    return found
+                }
+            }
+        }
+        
+        return nil
+    }
+    
     func subviews(depth: Int) -> [NSUIView] {
         if depth > 0 {
             return subviews + subviews.flatMap { $0.subviews(depth: depth - 1) }
         } else {
             return subviews
         }
-    }
-    
-    func removeSubviews(type: NSUIView.Type, depth: Int? = nil) {
-        subviews(type: type, depth: depth).forEach { $0.removeFromSuperview() }
-    }
-
-    func enclosingRect(for subviews: [NSUIView]) -> CGRect {
-        var enlosingFrame = CGRect.zero
-        for subview in subviews {
-            let frame = convert(subview.bounds, from: subview)
-            enlosingFrame = CGRectUnion(enlosingFrame, frame)
-        }
-        return enlosingFrame
     }
 }
