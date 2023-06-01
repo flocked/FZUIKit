@@ -40,11 +40,16 @@ public extension NSCollectionView {
         return layoutAttributesForItem(at: indexPath)?.frame
     }
 
-    func item(at point: CGPoint) -> NSCollectionViewItem? {
-        if let indexPath = indexPathForItem(at: point) {
+    func item(at location: CGPoint) -> NSCollectionViewItem? {
+        if let indexPath = indexPathForItem(at: location) {
             return item(at: indexPath)
         }
         return nil
+    }
+    
+    func item(for event: NSEvent) -> NSCollectionViewItem? {
+        let location = event.location(in: self)
+        return item(at: location)
     }
 
     func indexPaths(for section: Int) -> [IndexPath] {
@@ -111,11 +116,8 @@ public extension NSCollectionView {
 }
 
 public extension NSCollectionView {
-    struct SavedScrollPosition {
-        let bounds: CGRect
-        let visible: CGRect
-    }
-
+    typealias SavedScrollPosition = NSScrollView.SavedScrollPosition
+    
     func saveScrollPosition() -> SavedScrollPosition {
         return SavedScrollPosition(bounds: bounds, visible: visibleRect)
     }

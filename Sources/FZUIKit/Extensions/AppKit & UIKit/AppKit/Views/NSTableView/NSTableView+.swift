@@ -90,6 +90,27 @@ public extension NSTableView {
         }
         return cells
     }
+    
+    func rowView(at location: CGPoint) -> NSTableRowView? {
+        let index = self.row(at: location)
+        guard index >= 0 else { return nil }
+        return self.rowView(atRow: index, makeIfNecessary: false)
+    }
+    
+    func rowView(for event: NSEvent) -> NSTableRowView? {
+        let location = event.location(in: self)
+        return rowView(at: location)
+    }
+    
+    func cellView(at location: CGPoint) -> NSTableCellView? {
+        guard let rowView = self.rowView(at: location) else { return nil }
+        return rowView.cellViews.first(where: { $0.frame.contains(location) })
+    }
+    
+    func cellView(for event: NSEvent) -> NSTableCellView? {
+        let location = event.location(in: self)
+        return cellView(at: location)
+    }
 
     static func tableRowHeight(text: ContentConfiguration.Text.FontSize, secondaryText: ContentConfiguration.Text.FontSize? = nil, textPadding: CGFloat = 0.0, verticalPadding: CGFloat = 2.0) -> CGFloat {
         return tableRowHeight(fontSize: text.value, secondaryTextFontSize: secondaryText?.value, textPadding: textPadding, verticalPadding: verticalPadding)
