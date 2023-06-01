@@ -9,6 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
+/*
 public extension NSView {
     var mouseHandlers: MouseHandlers {
         get { associatedValue.get("", initialValue: MouseHandlers(self)) }
@@ -28,6 +29,7 @@ public extension NSView {
         }
     }
 }
+ */
 #endif
 
 /*
