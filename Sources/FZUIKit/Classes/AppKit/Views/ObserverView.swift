@@ -13,6 +13,20 @@ import FZSwiftUtils
  A NSView that adds various handlers (e.g. for mouse events and changes to the window and superview).
  */
 public class ObserverView: NSView {
+    public var contentView: NSView? = nil {
+        willSet {
+            if (newValue != self.contentView) {
+                self.contentView?.removeFromSuperview()
+            }
+        }
+        
+        didSet {
+            if let contentView = self.contentView {
+                self.addSubview(withConstraint: contentView)
+            }
+        }
+    }
+    
     public var windowHandlers = WindowHandlers() {
         didSet { self.updateWindowObserver() }
     }

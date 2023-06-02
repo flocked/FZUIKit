@@ -49,7 +49,7 @@ public extension NSTableView {
         let visibleRects = visibleRect
         let visibleRange = self.rows(in: visibleRects)
         var rows = [Int]()
-        for i in visibleRange.location ... visibleRange.location + visibleRange.length {
+        for i in visibleRange.location ..< visibleRange.location + visibleRange.length {
             rows.append(i)
         }
         return rows
