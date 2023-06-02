@@ -16,6 +16,15 @@ public extension View {
             self
         }
     }
+    
+    @ViewBuilder
+    func borderOptional<S, A: Shape>(_ content: S?, width: CGFloat = 1, shape: A) -> some View where S: ShapeStyle {
+        if let content = content, width > 0.0 {
+            border(content, width: width, shape: shape)
+        } else {
+            self
+        }
+    }
 
     @available(macOS 11.0, iOS 13.0, *)
     @ViewBuilder

@@ -9,13 +9,13 @@
 import AppKit
 import FZSwiftUtils
 
-public protocol BackgroundStylable {
+public protocol ViewBackgroundStyleCustomizable {
     var backgroundStyle: NSView.BackgroundStyle { get set }
 }
 
-extension NSTableCellView: BackgroundStylable { }
-extension NSCell: BackgroundStylable { }
-extension NSControl: BackgroundStylable {
+extension NSTableCellView: ViewBackgroundStyleCustomizable { }
+extension NSCell: ViewBackgroundStyleCustomizable { }
+extension NSControl: ViewBackgroundStyleCustomizable {
     public var backgroundStyle: NSView.BackgroundStyle {
         get { self.cell?.backgroundStyle ?? .normal }
         set { self.cell?.backgroundStyle = newValue }
@@ -24,11 +24,11 @@ extension NSControl: BackgroundStylable {
 
 public extension NSView {
     func backgroundStyle() -> NSView.BackgroundStyle {
-        self.firstSubview(type: BackgroundStylable.self, depth: .max)?.backgroundStyle ?? .normal
+        self.firstSubview(type: ViewBackgroundStyleCustomizable.self, depth: .max)?.backgroundStyle ?? .normal
     }
     
     func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
-        var stylableViews = self.subviews(type: BackgroundStylable.self, depth: .max)
+        var stylableViews = self.subviews(type: ViewBackgroundStyleCustomizable.self, depth: .max)
         stylableViews.editEach {
             $0.backgroundStyle = backgroundStyle
         }
