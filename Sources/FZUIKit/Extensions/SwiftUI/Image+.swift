@@ -32,7 +32,11 @@ public extension NSImage {
         if #available(macOS 11.0, *), let systemName = self.systemSymbolName {
                return Image(systemName: systemName)
         }
-        return Image(nsImage: self)
+        if self.isTemplate {
+            return Image(nsImage: self).renderingMode(.template)
+        } else {
+            return Image(nsImage: self)
+        }
     }
 }
 #endif
