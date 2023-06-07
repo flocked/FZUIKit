@@ -14,6 +14,7 @@ public struct EditableLabel: View {
     @State var editProcessGoing = false { didSet{ newValue = text } }
     
     let onEditEnd: (String) -> Void
+
     
     public init(_ txt: Binding<String>, onEditEnd: @escaping (String) -> Void) {
         _text = txt
