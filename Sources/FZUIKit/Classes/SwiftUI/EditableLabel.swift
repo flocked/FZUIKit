@@ -13,9 +13,9 @@ public struct EditableLabel: View {
     
     @State var editProcessGoing = false { didSet{ newValue = text } }
     
-    let onEditEnd: () -> Void
+    let onEditEnd: (String) -> Void
     
-    public init(_ txt: Binding<String>, onEditEnd: @escaping () -> Void) {
+    public init(_ txt: Binding<String>, onEditEnd: @escaping (String) -> Void) {
         _text = txt
         self.onEditEnd = onEditEnd
     }
@@ -30,7 +30,7 @@ public struct EditableLabel: View {
             // TextField for edit mode of View
             TextField("", text: $newValue,
                           onEditingChanged: { _ in },
-                          onCommit: { text = newValue; editProcessGoing = false; onEditEnd() } )
+                          onCommit: { text = newValue; editProcessGoing = false; onEditEnd(text) } )
                 .opacity(editProcessGoing ? 1 : 0)
         }
         // Enable EditMode on double tap
