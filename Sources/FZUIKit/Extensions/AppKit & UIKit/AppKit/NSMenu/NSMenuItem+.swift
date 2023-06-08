@@ -37,9 +37,9 @@ public extension NSMenuItem {
         }
     }
 
-    convenience init<V: View>(view: V, showsHighlight: Bool = true) {
+    convenience init<V: View>(showsHighlight: Bool = true, view: V) {
         self.init(title: "")
-        self.view = NSMenu.MenuItemView(showsHighlight: showsHighlight, view)
+        self.view = NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: view)
     }
 
     convenience init(title: String,

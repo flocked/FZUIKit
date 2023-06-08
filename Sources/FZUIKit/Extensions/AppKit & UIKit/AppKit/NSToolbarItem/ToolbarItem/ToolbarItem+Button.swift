@@ -11,7 +11,7 @@ import Cocoa
 public extension ToolbarItem {
     class Button: ToolbarItem {
         internal let button: NSButton
-
+        
         @discardableResult
         public func title(_ title: String) -> Self {
             button.title = title
@@ -139,9 +139,24 @@ public extension ToolbarItem {
             button.setButtonType(type)
             return button
         }
-
-        public convenience init(_ identifier: NSToolbarItem.Identifier, type: NSButton.ButtonType = .momentaryLight) {
+        
+        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, type: NSButton.ButtonType = .momentaryLight) {
             let button = Self.button(for: type)
+            button.title = title
+            self.init(identifier, button: button)
+        }
+        
+        public convenience init(_ identifier: NSToolbarItem.Identifier, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
+            let button = Self.button(for: type)
+            button.title = ""
+            button.image = image
+            self.init(identifier, button: button)
+        }
+
+        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
+            let button = Self.button(for: type)
+            button.title = title
+            button.image = image
             self.init(identifier, button: button)
         }
 

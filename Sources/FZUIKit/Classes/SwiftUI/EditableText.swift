@@ -1,5 +1,5 @@
 //
-//  EditableLabel.swift
+//  EditableText.swift
 //  
 //
 //  Created by Florian Zand on 07.06.23.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct EditableLabel: View {
+public struct EditableText: View {
     @Binding var text: String
     @State private var newValue: String = ""
     

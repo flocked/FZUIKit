@@ -23,14 +23,14 @@ public extension Image {
 import AppKit
 public extension Image {
     init(_ nsImage: NSImage) {
-        self = nsImage.uiImage
+        self = nsImage.swiftui
     }
 }
 
 public extension NSImage {
-    var uiImage: Image {
-        if #available(macOS 11.0, *), let systemName = self.systemSymbolName {
-               return Image(systemName: systemName)
+    var swiftui: Image {
+        if #available(macOS 11.0, *), let symbolName = self.symbolName {
+               return Image(systemName: symbolName)
         }
         if self.isTemplate {
             return Image(nsImage: self).renderingMode(.template)

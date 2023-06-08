@@ -10,7 +10,7 @@ import Cocoa
 import SwiftUI
 
 @available(macOS 11.0, *)
-public extension ToolbarItem {
+public extension ToolbarItem {    
     class TrackingSeparator: ToolbarItem {
         internal lazy var separatorItem = NSTrackingSeparatorToolbarItem(identifier)
         override internal var item: NSToolbarItem {

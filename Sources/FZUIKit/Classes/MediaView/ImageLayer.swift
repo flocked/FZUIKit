@@ -29,8 +29,8 @@ public class ImageLayer: CALayer {
                 if newImage.isAnimatable {
                     setGif(image: newImage)
                 } else {
-                    if #available(macOS 12.0, *) {
-                        if newImage.isSystemSymbol, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
+                    if #available(macOS 12.0, iOS 13.0, *) {
+                        if newImage.isSymbolImage, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
                             self.images = [updatedImage]
                         } else {
                             self.images = [newImage]
@@ -80,7 +80,7 @@ public class ImageLayer: CALayer {
     internal func updateDisplayingImageSymbolConfiguration() {
         if #available(macOS 12.0, iOS 15.0, *) {
             if contentTintColor != nil {
-                if let image = self.displayingImage, image.isSystemSymbol, let updatedImage = applyingSymbolConfiguration(to: image) {
+                if let image = self.displayingImage, image.isSymbolImage, let updatedImage = applyingSymbolConfiguration(to: image) {
                     self.images[self.currentIndex] = updatedImage
                     self.updateDisplayingImage()
                 }

@@ -16,11 +16,8 @@ import UniformTypeIdentifiers
 
 // isSymbolImage
 public extension NSUIImage {
-    var isSystemSymbol: Bool {
-        return (systemSymbolName != nil)
-    }
-
-    var systemSymbolName: String? {
+    /// The symbol name of the image.
+    var symbolName: String? {
         #if os(macOS)
         let description = String(describing: self)
         return description.substrings(between: "symbol = ", and: ">").first
@@ -35,6 +32,11 @@ public extension NSUIImage {
 
 #if os(macOS)
 public extension NSImage {
+    /// A Boolean value that indicates whether the image is a symbol.
+    var isSymbolImage: Bool {
+        return (symbolName != nil)
+    }
+    
     convenience init(cgImage: CGImage) {
         self.init(cgImage: cgImage, size: .zero)
     }

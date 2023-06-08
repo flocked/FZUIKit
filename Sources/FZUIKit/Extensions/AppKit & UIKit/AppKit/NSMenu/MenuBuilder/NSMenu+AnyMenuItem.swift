@@ -101,7 +101,7 @@ public extension AnyMenuItem {
     ///
     /// By default, a selection material (`NSVisualEffectView.Material.selection`) will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
     func view<Content: View>(showsHighlight: Bool = true, @ViewBuilder _ content: () -> Content) -> Self {
-        view(NSMenu.MenuItemView(showsHighlight: showsHighlight, content()))
+        view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: content()))
     }
     #endif
 

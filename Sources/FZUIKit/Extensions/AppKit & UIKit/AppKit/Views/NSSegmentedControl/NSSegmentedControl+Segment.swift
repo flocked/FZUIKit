@@ -191,9 +191,10 @@ public extension NSUISegmentedControl {
 
          - Returns: A NSSegmentedControl.Segment object.
          */
-        public init(_ title: String) {
+        public init(_ title: String, isSelected: Bool = false) {
             self.title = title
-            image = nil
+            self.isSelected = isSelected
+            self.image = nil
         }
 
         /**
@@ -204,9 +205,10 @@ public extension NSUISegmentedControl {
 
          - Returns: A NSSegmentedControl.Segment object.
          */
-        public init(title: String) {
+        public init(title: String, isSelected: Bool = false) {
             self.title = title
-            image = nil
+            self.image = nil
+            self.isSelected = isSelected
         }
 
         /**
@@ -217,9 +219,10 @@ public extension NSUISegmentedControl {
 
          - Returns: A NSSegmentedControl.Segment object.
          */
-        public init(image: NSImage) {
-            title = nil
+        public init(image: NSImage, isSelected: Bool = false) {
+            self.title = nil
             self.image = image
+            self.isSelected = isSelected
         }
 
         /**
@@ -230,9 +233,10 @@ public extension NSUISegmentedControl {
 
          - Returns: A NSSegmentedControl.Segment object.
          */
-        public init(_ image: NSImage) {
-            title = nil
+        public init(_ image: NSImage, isSelected: Bool = false) {
+            self.title = nil
             self.image = image
+            self.isSelected = isSelected
         }
 
         @available(macOS 11.0, *)
@@ -244,12 +248,13 @@ public extension NSUISegmentedControl {
 
          - Returns: A NSSegmentedControl.Segment object with a image based on the name you specify,  otherwise nil if the method couldn’t find a suitable image with the system symbol name.
          */
-        public init?(systemSymbolName: String) {
-            guard let image = NSImage(systemSymbolName: systemSymbolName) else {
+        public init?(symbolName: String, isSelected: Bool = false) {
+            guard let image = NSImage(systemSymbolName: symbolName) else {
                 return nil
             }
-            title = nil
+            self.title = nil
             self.image = image
+            self.isSelected = isSelected
         }
 
         /**
@@ -261,9 +266,10 @@ public extension NSUISegmentedControl {
 
          - Returns: A NSSegmentedControl.Segment object.
          */
-        public init(title: String, image: NSImage) {
+        public init(title: String, image: NSImage, isSelected: Bool = false) {
             self.title = title
             self.image = image
+            self.isSelected = isSelected
         }
 
         /**
@@ -275,8 +281,8 @@ public extension NSUISegmentedControl {
          - Returns: A NSSegmentedControl.Segment object.
          */
         public required init(stringLiteral value: String) {
-            title = value
-            image = nil
+            self.title = value
+            self.image = nil
         }
 
         internal init(title: String?, titleAlignment: NSTextAlignment = .left, image: NSImage?, imageScaling: NSImageScaling = .scaleProportionallyDown, menu: NSMenu? = nil, showsMenuIndicator: Bool = false, isSelected: Bool, isEnabled: Bool = true, width: CGFloat = .zero, toolTip: String? = nil, tag: Int? = nil, segmentedControl: NSSegmentedControl? = nil) {

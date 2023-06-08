@@ -3,16 +3,19 @@
 Swift AppKit/UIKit extensions and useful Classes & utilities.
 
 ## Notable Extensions & Classes
-- NSView/CALayer backgroundColor
-    - Automatically adjusts on light/dark mode changes
-    
-- AVPlayer: Easy looping of AVPlayerItems
+
+### NSView background color
+A background color property that automatically adjusts on light/dark mode changes.
+
+```
+view.backgroundColor = .red
+```
+
+### AVPlayer looping
+Easy looping of AVPlayer.
+
 ```
 player.isLooping = true
-```
-- NSTableView cell registration via classes `register(_ forIdentifier:)` (NSTableView usually only offers registration via NSNib)
-```
-tableView.register(MyTableViewCellClass.self, forIdentifier: "MyCellClassIdentifier")
 ```
 
 ### NSImage preparingForDisplay & preparingThumbnail
@@ -54,3 +57,50 @@ view.configurate(using: borderConfiguration)
 let textField = NSTextField()
 let textConfiguration = ContentConfiguration.Text(font: .ystemFont(ofSize: 12), textColor: .red, numberOfLines: 1)
 textField.configurate(using: textConfiguration)
+
+### NSSegmentedControl Segments
+Configurate the segments of a NSSegmentedControl.
+```
+let segmentedControl = NSSegmentedControl() {
+    Segment("Segment 1", isSelected: true)
+    Segment("Segment 2"), 
+    Segment(NSImage(named: "Image")!)
+    Segment(symbolName: "photo")
+}
+```
+
+### NSToolbar
+Configurate the items of a NSToolbar.
+```
+let toolbar = Toolbar("ToolbarIdentifier") {
+        Button("OpenItem", title: "Open…")
+            .onAction() { /// Button pressed }
+        FlexibleSpace()
+        Segmented("SegmentedItem") {
+            Segment("Segment 1", isSelected: true)
+            Segment("Segment 2"), 
+        }
+        Space()
+            .onAction() { /// Segmented pressed }
+        Search("SearchItem")
+            .onSearch() { searchField, stringValue, state in /// Searching }
+}
+```
+
+### NSMenu
+Configurate the items of a Menu.
+```
+let menu = NSMenu() {
+        MenuItem("Open…")
+            .onSelect() { // Open item Pressed }
+        MenuItem("Delete")
+            .onSelect() { // Delete item Pressed }
+        SeparatorItem()
+        MenuItemHostingView() {
+            HStack {
+                Circle().forgroundColor(.red)
+                Circle().forgroundColor(.blue)
+            }
+        }
+    }
+```
