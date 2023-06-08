@@ -57,6 +57,7 @@ view.configurate(using: borderConfiguration)
 let textField = NSTextField()
 let textConfiguration = ContentConfiguration.Text(font: .ystemFont(ofSize: 12), textColor: .red, numberOfLines: 1)
 textField.configurate(using: textConfiguration)
+```
 
 ### NSSegmentedControl Segments
 Configurate the segments of a NSSegmentedControl.
