@@ -38,12 +38,12 @@ public extension NSPageController {
 }
 
 extension NSPageController {
-    enum KeyboardControl {
+    public enum KeyboardControl {
         case on(CGFloat = 0.0)
         case onLooping(CGFloat = 0.0)
         case off
 
-        func values(for type: AdvanceType) -> (AdvanceType, CGFloat)? {
+        internal func values(for type: AdvanceType) -> (AdvanceType, CGFloat)? {
             if type == .first || type == .last {
                 switch self {
                 case let .on(value):
@@ -64,7 +64,7 @@ extension NSPageController {
             }
         }
 
-        var isOn: Bool {
+        internal var isOn: Bool {
             switch self {
             case .off:
                 return false

@@ -42,6 +42,7 @@ public typealias NSUIImageSymbolScale = NSImage.SymbolScale
 public typealias NSUIImageSymbolWeight = NSImage.SymbolWeight
 public typealias NSUILayoutGuide = NSLayoutGuide
 public typealias NSUICollectionViewItem = NSCollectionViewItem
+public typealias NSUIViewCornerShape = NSViewCornerShape
 
 #elseif canImport(UIKit)
 import UIKit
@@ -74,4 +75,5 @@ public typealias NSUIImageSymbolScale = UIImage.SymbolScale
 public typealias NSUIImageSymbolWeight = UIImage.SymbolWeight
 public typealias NSUILayoutGuide = UILayoutGuide
 public typealias NSUICollectionViewItem = UICollectionViewCell
+public typealias NSUIViewCornerShape = UIViewCornerShape
 #endif

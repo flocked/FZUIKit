@@ -49,9 +49,13 @@ public extension NSView {
             borderLayer?.borderWidth = properties.width
             borderLayer?.cornerRadius = properties.cornerRadius
             borderLayer?.cornerCurve = properties.cornerCurve
-            
+            borderLayer?.masksToBounds = true
+
             if let layer = self.layer, let borderLayer = borderLayer {
                 layer.addSublayer(borderLayer)
+              //  layer.addSublayer(withConstraint: <#T##CALayer#>)
+                
+
                 borderLayer.sendToBack()
                 let constraints = borderLayer.constraintTo(layer: layer)
                 constraints[0].constant = properties.width
@@ -69,7 +73,7 @@ public extension UIView {
         self.borderColor = properties.color
         self.borderWidth = properties.width
         self.cornerCurve = properties.cornerCurve
-        var borderLayer = self.layer?.sublayers?.first(where: {$0.name == "SkeuomorphBorderLayer"})
+        var borderLayer = self.layer.sublayers?.first(where: {$0.name == "SkeuomorphBorderLayer"})
         borderLayer?.removeFromSuperlayer()
 
         if (properties.color != nil || properties.width != 0.0) {

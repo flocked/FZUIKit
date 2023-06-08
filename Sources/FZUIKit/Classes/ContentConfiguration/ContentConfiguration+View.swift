@@ -116,7 +116,17 @@ public extension NSView {
             configurate(using: outerShadow)
         }
         backgroundColor = viewProperties.resolvedBackgroundColor()
-        backgroundView = viewProperties.customView
+        
+        if let customView = viewProperties.customView {
+            if let taggedBackgroundView = self.taggedBackgroundView {
+                taggedBackgroundView.managedBackgroundView = customView
+            } else {
+                let taggedBackgroundView = TaggedBackgroundView(customView)
+                self.insertSubview(withConstraint: taggedBackgroundView, at: 0)
+            }
+        } else {
+            self.taggedBackgroundView?.removeFromSuperview()
+        }
         /*
          public var innerShadow: Shadow? = nil
          public var visualEffect: VisualEffect? = nil
@@ -142,8 +152,18 @@ public extension UIView {
         if let outerShadow = viewProperties.outerShadow {
             configurate(using: outerShadow)
         }
-        backgroundColor = viewProperties.resolvedBackgroundColor()
-        backgroundView = viewProperties.customView
+        backgroundColor = viewProperties.resolvedBackgroundColor()        
+        
+        if let customView = viewProperties.customView {
+            if let taggedBackgroundView = self.taggedBackgroundView {
+                taggedBackgroundView.managedBackgroundView = customView
+            } else {
+                let taggedBackgroundView = TaggedBackgroundView(customView)
+                self.insertSubview(withConstraint: taggedBackgroundView, at: 0)
+            }
+        } else {
+            self.taggedBackgroundView?.removeFromSuperview()
+        }
     }
 }
 #endif

@@ -11,44 +11,44 @@ import Foundation
 
 public class PagingView<View: NSView, Element>: NSView {
     private typealias ViewController = TypedViewController<View>
-    typealias Handler = (View, Element) -> Void
+    public typealias Handler = (View, Element) -> Void
 
     private let pageController: PageController<ViewController, Element>
 
-    func select(_ index: Int, duration: CGFloat = 0.0) {
+    public  func select(_ index: Int, duration: CGFloat = 0.0) {
         pageController.select(index, duration: duration)
     }
 
-    func advance(to type: NSPageController.AdvanceType, duration: CGFloat = 0.0) {
+    public func advance(to type: NSPageController.AdvanceType, duration: CGFloat = 0.0) {
         pageController.advance(to: type, duration: duration)
     }
 
-    var transitionStyle: NSPageController.TransitionStyle {
+    public var transitionStyle: NSPageController.TransitionStyle {
         get { pageController.transitionStyle }
         set { pageController.transitionStyle = newValue }
     }
 
-    var keyControllable: NSPageController.KeyboardControl {
+    public var keyControllable: NSPageController.KeyboardControl {
         get { pageController.keyboardControl }
         set { pageController.keyboardControl = newValue }
     }
 
-    var swipeControllable: Bool {
+    public var swipeControllable: Bool {
         get { pageController.isSwipeable }
         set { pageController.isSwipeable = newValue }
     }
 
-    var selectedIndex: Int {
+    public var selectedIndex: Int {
         get { return pageController.selectedIndex }
         set { pageController.selectedIndex = newValue }
     }
 
-    var elements: [Element] {
+    public var elements: [Element] {
         get { return pageController.elements }
         set { pageController.elements = newValue }
     }
 
-    init(frame: CGRect, elements: [Element] = [], handler: @escaping Handler) {
+    public init(frame: CGRect, elements: [Element] = [], handler: @escaping Handler) {
         pageController = PageController<ViewController, Element>(handler: {
             viewController, element in
             handler(viewController.typedView, element)
@@ -58,7 +58,7 @@ public class PagingView<View: NSView, Element>: NSView {
         addSubview(withConstraint: pageController.view)
     }
 
-    convenience init(elements: [Element] = [], handler: @escaping Handler) {
+    public convenience init(elements: [Element] = [], handler: @escaping Handler) {
         self.init(frame: .zero, elements: elements, handler: handler)
     }
 

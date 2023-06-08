@@ -14,14 +14,14 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
         view = NSView()
     }
 
-    var isSwipeable = true
-    var isLooping = false
-    var keyboardControl: KeyboardControl = .on()
+    public var isSwipeable = true
+    public var isLooping = false
+    public var keyboardControl: KeyboardControl = .on()
 
-    typealias Handler = (ViewController, Element) -> Void
+    public typealias Handler = (ViewController, Element) -> Void
     private let handler: Handler
 
-    init(elements: [Element] = [], handler: @escaping Handler) {
+    public init(elements: [Element] = [], handler: @escaping Handler) {
         self.handler = handler
         super.init(nibName: nil, bundle: nil)
         self.elements = elements
@@ -76,7 +76,7 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
         }
     }
 
-    var elements: [Element] {
+    public var elements: [Element] {
         get { return arrangedObjects.isEmpty ? [] : (arrangedObjects as! [Element]) }
         set { arrangedObjects = newValue }
     }
