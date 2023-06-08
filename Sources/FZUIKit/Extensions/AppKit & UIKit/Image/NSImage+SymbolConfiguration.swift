@@ -326,8 +326,8 @@ extension NSImage.SymbolConfiguration {
         func body(image: SwiftUI.Image) -> some View {
             image.symbolRenderingMode(configuration.mode?.symbolRendering)
                 .font(configuration.uiFont)
-                .imageScaleOptional(configuration.scale?.swiftUI)
-                .foregroundStyleOptional(configuration.primary?.swiftUI, configuration.secondary?.swiftUI, configuration.tertiary?.swiftUI)
+                .imageScale(configuration.scale?.swiftUI)
+                .foregroundStyle(configuration.primary?.swiftUI, configuration.secondary?.swiftUI, configuration.tertiary?.swiftUI)
         }
     }
 

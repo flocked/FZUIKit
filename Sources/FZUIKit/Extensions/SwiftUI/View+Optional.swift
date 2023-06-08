@@ -8,8 +8,28 @@
 import SwiftUI
 
 public extension View {
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
     @ViewBuilder
-    func borderOptional<S>(_ content: S?, width: CGFloat = 1) -> some View where S: ShapeStyle {
+    func background<S: ShapeStyle>(_ style: S?) -> some View {
+        if let style = style {
+            background(style)
+        } else {
+            self
+        }
+    }
+    
+    
+    @ViewBuilder
+    func shadow(color: Color?, radius: CGFloat, offset: CGPoint) -> some View {
+        if let color = color {
+            shadow(color: color, radius: radius, x: offset.x, y: offset.y)
+        } else {
+            self
+        }
+    }
+    
+    @ViewBuilder
+    func border<S>(_ content: S?, width: CGFloat = 1) -> some View where S: ShapeStyle {
         if let content = content, width > 0.0 {
             border(content, width: width)
         } else {
@@ -18,7 +38,7 @@ public extension View {
     }
     
     @ViewBuilder
-    func borderOptional<S, A: Shape>(_ content: S?, width: CGFloat = 1, shape: A) -> some View where S: ShapeStyle {
+    func border<S, A: Shape>(_ content: S?, width: CGFloat = 1, shape: A) -> some View where S: ShapeStyle {
         if let content = content, width > 0.0 {
             border(content, width: width, shape: shape)
         } else {
@@ -28,7 +48,7 @@ public extension View {
 
     @available(macOS 11.0, iOS 13.0, *)
     @ViewBuilder
-    func imageScaleOptional(_ scale: Image.Scale?) -> some View {
+    func imageScale(_ scale: Image.Scale?) -> some View {
         if let scale = scale {
             imageScale(scale)
         } else {
@@ -38,7 +58,7 @@ public extension View {
 
     @available(macOS 12.0, iOS 15.0, *)
     @ViewBuilder
-    func foregroundStyleOptional(_ primary: Color?, _ secondary: Color?, _ tertiary: Color?) -> some View {
+    func foregroundStyle(_ primary: Color?, _ secondary: Color?, _ tertiary: Color?) -> some View {
         if let primary = primary {
             if let secondary = secondary {
                 if let tertiary = tertiary {
