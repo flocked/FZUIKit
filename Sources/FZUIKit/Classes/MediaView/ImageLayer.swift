@@ -41,7 +41,7 @@ public class ImageLayer: CALayer {
                 }
                 #else
                 if #available(iOS 15.0, *) {
-                    if newImage.isSystemSymbol, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
+                    if newImage.isSymbolImage, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
                         self.images = [updatedImage]
                     } else {
                         self.images = [newImage]

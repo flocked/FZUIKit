@@ -104,3 +104,12 @@ let menu = NSMenu() {
         }
     }
 ```
+
+### DateTextFieldLabel
+A NSTextField that displays a date either absolute or relative.
+```
+let textField = DateTextField(date: Date())
+textField.dateDisplayMode = .relative // It displays e.g. "2 mins ago"
+textField.dateDisplayMode = .absolute // It displays e.g. "04.04.2023 10:20pm"
+```
+ with a date property that automatically updates its string baased on date. It can show the date absolute or relative.

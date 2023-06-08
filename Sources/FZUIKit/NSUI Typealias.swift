@@ -55,7 +55,7 @@ public typealias NSUICollectionViewLayoutAttributes = UICollectionViewLayoutAttr
 public typealias NSUIColor = UIColor
 public typealias NSUIConfigurationColorTransformer = UIConfigurationHashingColorTransformer
 @available(iOS 15, tvOS 15, watchOS 8, *)
-public typealias NSUIConfigurationTextAttributesTransformer = HashableUIConfigurationTextAttributesTransformer
+public typealias NSUIConfigurationTextAttributesTransformer = UIConfigurationHashingColorTransformer
 public typealias NSUIEdgeInsets = UIEdgeInsets
 public typealias NSUIFont = UIFont
 public typealias NSUIFontDescriptor = UIFontDescriptor

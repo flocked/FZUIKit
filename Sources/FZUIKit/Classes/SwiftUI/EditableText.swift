@@ -14,7 +14,6 @@ public struct EditableText: View {
     @State var editProcessGoing = false { didSet{ newValue = text } }
     
     let onEditEnd: (String) -> Void
-
     
     public init(_ txt: Binding<String>, onEditEnd: @escaping (String) -> Void) {
         _text = txt
@@ -37,6 +36,8 @@ public struct EditableText: View {
         // Enable EditMode on double tap
         .onTapGesture(count: 2, perform: { editProcessGoing = true } )
         // Exit from EditMode on Esc key press
+        #if os(macOS)
         .onExitCommand(perform: { editProcessGoing = false; newValue = text })
+        #endif
     }
 }

@@ -22,7 +22,7 @@ public extension NSUIImage {
         let description = String(describing: self)
         return description.substrings(between: "symbol = ", and: ">").first
         #else
-        guard isSystemSymbol, let strSeq = "\(String(describing: self))".split(separator: ")").first else { return nil }
+        guard isSymbolImage, let strSeq = "\(String(describing: self))".split(separator: ")").first else { return nil }
         let str = String(strSeq)
         guard let name = str.split(separator: ":").last else { return nil }
         return String(name)
