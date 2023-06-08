@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSPasteboard+.swift
 //  
 //
 //  Created by Florian Zand on 08.06.23.
@@ -10,8 +10,8 @@ import AppKit
 
 public extension NSPasteboard {
     func write(_ string: String) {
-            self.clearContents()
-          self.setString(string, forType: .string)
+        self.clearContents()
+        self.setString(string, forType: .string)
     }
     
     func write(_ images: [NSImage]) {
@@ -22,7 +22,6 @@ public extension NSPasteboard {
     
     func write(_ urls: [URL]) {
         self.clearContents()
-        let urls = urls as [NSURL]
         let writings = urls.compactMap({$0 as NSPasteboardWriting})
         self.writeObjects(writings)
     }
