@@ -15,11 +15,18 @@ import UIKit
 
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a border.
-    public struct SkeuomorphBorder: Hashable {
+    struct SkeuomorphBorder: Hashable {
         public let color: NSUIColor?
         public let width: CGFloat
         public let cornerRadius: CGFloat
         public let cornerCurve: CALayerCornerCurve
+        
+        public init(color: NSUIColor?, width: CGFloat, cornerRadius: CGFloat, cornerCurve: CALayerCornerCurve = .circular) {
+            self.color = color
+            self.width = width
+            self.cornerRadius = cornerRadius
+            self.cornerCurve = cornerCurve
+        }
     }
 }
 
@@ -46,7 +53,7 @@ public extension NSView {
             if let layer = self.layer, let borderLayer = borderLayer {
                 layer.addSublayer(borderLayer)
                 borderLayer.sendToBack()
-                var constraints = borderLayer.constraintTo(layer: layer)
+                let constraints = borderLayer.constraintTo(layer: layer)
                 constraints[0].constant = properties.width
                 constraints[1].constant = properties.width
                 constraints[2].constant = properties.width
