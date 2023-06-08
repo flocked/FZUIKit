@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 public extension View {
+    /// If
     @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
         if condition {
             transform(self)
