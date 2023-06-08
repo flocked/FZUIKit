@@ -11,7 +11,7 @@ import Foundation
 
 public class PagingView<View: NSView, Element>: NSView {
     private typealias ViewController = TypedViewController<View>
-    public typealias Handler = (View, Element) -> Void
+    public typealias Handler = (_ view: View, _ element: Element) -> Void
 
     private let pageController: PageController<ViewController, Element>
 

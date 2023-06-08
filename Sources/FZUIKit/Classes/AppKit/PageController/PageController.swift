@@ -18,7 +18,7 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     public var isLooping = false
     public var keyboardControl: KeyboardControl = .on()
 
-    public typealias Handler = (ViewController, Element) -> Void
+    public typealias Handler = (_ viewController: ViewController, _ element: Element) -> Void
     private let handler: Handler
 
     public init(elements: [Element] = [], handler: @escaping Handler) {
