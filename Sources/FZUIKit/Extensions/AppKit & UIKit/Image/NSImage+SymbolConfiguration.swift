@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-@available(macOS 12.0, iOS 15.0, *)
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0,  *)
 public extension NSUIImage.SymbolConfiguration {
     func font(_ textStyle: NSUIFont.TextStyle?) -> NSUIImage.SymbolConfiguration {
         if let textStyle = textStyle {
@@ -109,7 +109,12 @@ public extension NSUIImage.SymbolConfiguration {
     }
 
     static func monochrome() -> NSUIImage.SymbolConfiguration {
-        return NSUIImage.SymbolConfiguration.unspecified
+        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+            return NSUIImage.SymbolConfiguration.preferringMonochrome()
+        } else {
+            return NSUIImage.SymbolConfiguration.unspecified
+            // Fallback on earlier versions
+        }
     }
 
     static func multicolor(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
@@ -203,7 +208,7 @@ public extension NSImage {
     }
 }
 
-@available(macOS 11.0, iOS 13.0, *)
+@available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension NSUIFont.Weight {
     func symbolWeight() -> NSUIImage.SymbolWeight {
         switch self {
@@ -252,7 +257,7 @@ public extension NSImage {
 }
 #endif
 
-@available(macOS 12.0, iOS 14.0, *)
+@available(macOS 12.0, iOS 14.0, tvOS 14.0, *)
 extension NSUIImage.SymbolConfiguration {
     static var colorsValueKey: String {
         #if os(macOS)

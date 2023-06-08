@@ -38,6 +38,15 @@ public extension Shape {
         stroke(strokeStyle, lineWidth: lineWidth)
             .background(fill(fillStyle))
     }
+    
+    @ViewBuilder
+    func stroke<S>(_ content: S?, lineWidth: CGFloat = 1) -> some View where S : ShapeStyle {
+        if let content = content, lineWidth != 0.0 {
+            self.stroke(content, lineWidth: lineWidth)
+        } else {
+            self
+        }
+    }
 }
 
 public extension InsettableShape {
