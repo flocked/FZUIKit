@@ -10,9 +10,9 @@ import SwiftUI
 public extension View {
     @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
     @ViewBuilder
-    func background<S: ShapeStyle>(_ style: S?) -> some View {
+    func background<S: ShapeStyle>(_ style: S?, ignoresSafeAreaEdges edges: Edge.Set = .all) -> some View {
         if let style = style {
-            background(style)
+            background(style, ignoresSafeAreaEdges: edges)
         } else {
             self
         }
