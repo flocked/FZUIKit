@@ -12,7 +12,7 @@ import FZSwiftUtils
 /**
  A NSView that adds various handlers (e.g. for mouse events and changes to the window and superview).
  */
-public class ObserverView: NSView {
+public class ObservingView: NSView {
     public var contentView: NSView? = nil {
         willSet {
             if (newValue != self.contentView) {
@@ -33,6 +33,10 @@ public class ObserverView: NSView {
     
     public var viewHandlers = ViewHandlers() {
         didSet {  }
+    }
+    
+    public var keyHandlers = KeyHandlers() {
+        didSet { self.updateWindowObserver() }
     }
 
     public var mouseHandlers = MouseHandlers() {
@@ -72,44 +76,70 @@ public class ObserverView: NSView {
     }
     
     public override func mouseEntered(with event: NSEvent) {
-        self.mouseHandlers.entered?(event)
-        super.mouseEntered(with: event)
+        if (self.mouseHandlers.entered?(event) ?? true) {
+            super.mouseEntered(with: event)
+        }
     }
     
     public override func mouseExited(with event: NSEvent) {
-        self.mouseHandlers.exited?(event)
-        super.mouseExited(with: event)
+        if (self.mouseHandlers.exited?(event) ?? true) {
+            super.mouseExited(with: event)
+        }
     }
     
     public override func mouseDown(with event: NSEvent) {
-        self.mouseHandlers.down?(event)
-        super.mouseDown(with: event)
+        if (self.mouseHandlers.down?(event) ?? true) {
+            super.mouseDown(with: event)
+        }
     }
     
     public override func rightMouseDown(with event: NSEvent) {
-        self.mouseHandlers.rightDown?(event)
-        super.rightMouseDown(with: event)
+        if (self.mouseHandlers.rightDown?(event) ?? true) {
+            super.rightMouseDown(with: event)
+        }
     }
     
     public override func mouseUp(with event: NSEvent) {
-        self.mouseHandlers.up?(event)
-        super.mouseUp(with: event)
+        if (self.mouseHandlers.up?(event) ?? true) {
+            super.mouseUp(with: event)
+        }
     }
     
     public override func rightMouseUp(with event: NSEvent) {
-        self.mouseHandlers.rightUp?(event)
-        super.rightMouseUp(with: event)
+        if (self.mouseHandlers.rightUp?(event) ?? true) {
+            super.rightMouseUp(with: event)
+        }
     }
     
     public override func mouseMoved(with event: NSEvent) {
-      //  mouseMoveHandler?(event)
-        self.mouseHandlers.moved?(event)
-        super.mouseMoved(with: event)
+        if (self.mouseHandlers.moved?(event) ?? true) {
+            super.mouseMoved(with: event)
+        }
     }
     
     public override func mouseDragged(with event: NSEvent) {
-        self.mouseHandlers.dragged?(event)
-        super.mouseDragged(with: event)
+        if (self.mouseHandlers.dragged?(event) ?? true) {
+            super.mouseDragged(with: event)
+        }
+    }
+    
+    public override func keyDown(with event: NSEvent) {
+        if (self.keyHandlers.keyDown?(event) ?? true) {
+            super.keyDown(with: event)
+        }
+    }
+    
+    public override func keyUp(with event: NSEvent) {
+        if (self.keyHandlers.keyUp?(event) ?? true) {
+            super.keyUp(with: event)
+        }
+    }
+    
+    public override func flagsChanged(with event: NSEvent) {
+        let performSuper = self.keyHandlers.flagsChanged?(event) ?? true
+        if (performSuper) {
+            super.flagsChanged(with: event)
+        }
     }
     
     public override func viewDidMoveToWindow() {
@@ -213,7 +243,7 @@ public class ObserverView: NSView {
     }
 }
 
-public extension ObserverView {
+public extension ObservingView {
     struct WindowHandlers {
         public var willMoveToWindow: ((NSWindow?)->())? = nil
         public var didMoveToWindow: ((NSWindow)->())? = nil
@@ -226,15 +256,21 @@ public extension ObserverView {
         public var didMoveToSuperview: ((NSView?)->())? = nil
     }
     
+    struct KeyHandlers {
+        public var keyDown: ((NSEvent)->(Bool))? = nil
+        public var keyUp: ((NSEvent)->(Bool))? = nil
+        public var flagsChanged: ((NSEvent)->(Bool))? = nil
+    }
+    
     struct MouseHandlers {
-        public var moved: ((NSEvent)->())? = nil
-        public var dragged: ((NSEvent)->())? = nil
-        public var entered: ((NSEvent)->())? = nil
-        public var exited: ((NSEvent)->())? = nil
-        public var down: ((NSEvent)->())? = nil
-        public var rightDown: ((NSEvent)->())? = nil
-        public var up: ((NSEvent)->())? = nil
-        public var rightUp: ((NSEvent)->())? = nil
+        public var moved: ((NSEvent)->(Bool))? = nil
+        public var dragged: ((NSEvent)->(Bool))? = nil
+        public var entered: ((NSEvent)->(Bool))? = nil
+        public var exited: ((NSEvent)->(Bool))? = nil
+        public var down: ((NSEvent)->(Bool))? = nil
+        public var rightDown: ((NSEvent)->(Bool))? = nil
+        public var up: ((NSEvent)->(Bool))? = nil
+        public var rightUp: ((NSEvent)->(Bool))? = nil
         
         internal var trackingAreaOptions: NSTrackingArea.Options {
             var options: NSTrackingArea.Options = [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited]

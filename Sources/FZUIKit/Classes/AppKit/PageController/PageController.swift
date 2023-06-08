@@ -11,12 +11,14 @@ import Foundation
 
 public class PageController<ViewController: NSViewController, Element>: NSPageController, NSPageControllerDelegate {
     override public func loadView() {
-        view = NSView()
+        view = ObservingView()
     }
 
     public var isSwipeable = true
     public var isLooping = false
-    public var keyboardControl: KeyboardControl = .on()
+    public var keyboardControl: KeyboardControl = .disabled
+    public var isKeyboardControllable = false
+    public var keyboardTransitionDuration: TimeInterval = 0.0
 
     public typealias Handler = (_ viewController: ViewController, _ element: Element) -> Void
     private let handler: Handler
@@ -24,7 +26,7 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     public init(elements: [Element] = [], handler: @escaping Handler) {
         self.handler = handler
         super.init(nibName: nil, bundle: nil)
-        self.elements = elements
+        self.arrangedObjects = elements
     }
 
     @available(*, unavailable)
@@ -33,23 +35,25 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     }
 
     override public func performKeyEquivalent(with event: NSEvent) -> Bool {
-        var type: AdvanceType? = nil
-        if event.keyCode == 123 {
-            if event.modifierFlags.contains(.command) {
-                type = .first
+        if self.elements.isEmpty == false, self.keyboardControl.isEnabled {
+            var type: AdvanceType? = nil
+            if event.keyCode == 123 {
+                if event.modifierFlags.contains(.command) {
+                    type = .first
+                } else {
+                    type = .previous
+                }
             } else {
-                type = .previous
+                if event.modifierFlags.contains(.command) {
+                    type = .last
+                } else {
+                    type = .next
+                }
             }
-        } else {
-            if event.modifierFlags.contains(.command) {
-                type = .last
-            } else {
-                type = .next
+            if let type = type {
+                self.advance(to: type, duration: self.keyboardControl.transitionDuration)
+                return true
             }
-        }
-        if let type = type, let values = keyboardControl.values(for: type) {
-            advance(to: values.0, duration: values.1)
-            return true
         }
         return false
     }
@@ -60,14 +64,11 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
 
     override public func viewDidLoad() {
         super.viewDidLoad()
+        (view as? ObservingView)?.keyHandlers.keyDown = { event in
+            return self.performKeyEquivalent(with: event)
+        }
         delegate = self
         transitionStyle = .horizontalStrip
-
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            let isHandled = self.performKeyEquivalent(with: event)
-            //  self.keyDown(with: $0)
-            return isHandled ? nil : event
-        }
     }
 
     override public func scrollWheel(with event: NSEvent) {

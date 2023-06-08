@@ -152,7 +152,7 @@ public extension UIView {
         if let outerShadow = viewProperties.outerShadow {
             configurate(using: outerShadow)
         }
-        backgroundColor = viewProperties.resolvedBackgroundColor()        
+        backgroundColor = viewProperties.resolvedBackgroundColor()
         
         if let customView = viewProperties.customView {
             if let taggedBackgroundView = self.taggedBackgroundView {
@@ -231,3 +231,4 @@ public extension UIView {
  }
  }
  */
+

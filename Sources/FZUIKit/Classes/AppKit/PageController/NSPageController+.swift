@@ -39,34 +39,22 @@ public extension NSPageController {
 
 extension NSPageController {
     public enum KeyboardControl {
-        case on(CGFloat = 0.0)
-        case onLooping(CGFloat = 0.0)
-        case off
-
-        internal func values(for type: AdvanceType) -> (AdvanceType, CGFloat)? {
-            if type == .first || type == .last {
-                switch self {
-                case let .on(value):
-                    return (type, value)
-                case let .onLooping(value):
-                    return (type, value)
-                case .off:
-                    return nil
-                }
-            }
+        case enabled(transitionDuration: TimeInterval = 0.0)
+        case enabledLooping(transitionDuration: TimeInterval = 0.0)
+        case disabled
+        
+        internal var transitionDuration: TimeInterval {
             switch self {
-            case let .on(value):
-                return ((type == .previous) ? .previous : .next, value)
-            case let .onLooping(value):
-                return ((type == .previous) ? .previousLooping : .nextLooping, value)
-            case .off:
-                return nil
+            case let .enabled(value), let .enabledLooping(value):
+                return value
+            case .disabled:
+                return 0.0
             }
         }
 
-        internal var isOn: Bool {
+        internal var isEnabled: Bool {
             switch self {
-            case .off:
+            case .disabled:
                 return false
             default:
                 return true
