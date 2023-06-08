@@ -15,7 +15,7 @@ import UIKit
 
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a border.
-    struct SkeuomorphBorder: Hashable {
+    public struct SkeuomorphBorder: Hashable {
         public let color: NSUIColor?
         public let width: CGFloat
         public let cornerRadius: CGFloat
