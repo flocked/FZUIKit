@@ -9,10 +9,10 @@
 import AppKit
 import FZSwiftUtils
 
-public protocol DraggingType { }
-extension String: DraggingType { }
-extension NSImage: DraggingType { }
-extension URL: DraggingType { }
+public protocol PasteboardWriting { }
+extension String: PasteboardWriting { }
+extension NSImage: PasteboardWriting { }
+extension URL: PasteboardWriting { }
 
 
 
@@ -57,7 +57,7 @@ public class ObservingView: NSView {
     }
     
     internal func setupDragAndDrop() {
-        self.registerForDraggedTypes([.fileURL])
+        self.registerForDraggedTypes([.fileURL, .png, .string, .tiff])
     }
     
     public override init(frame frameRect: NSRect) {
@@ -159,27 +159,64 @@ public class ObservingView: NSView {
         }
     }
     
+    internal func pasteboardWritings(for sender: NSDraggingInfo) -> [PasteboardWriting] {
+        var items = [PasteboardWriting]()
+        if let fileURLs = sender.draggingPasteboard.fileURLs() {
+            items.append(contentsOf: fileURLs)
+        }
+        
+        if let string = sender.draggingPasteboard.string() {
+            items.append(string)
+        }
+        
+        if let images = sender.draggingPasteboard.images() {
+            items.append(contentsOf: images)
+        }
+        return items
+    }
+    
     public override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return false }
-        guard let files = filesOnPasteboard(for: sender) else { return false }
-        return (canDrop(files).count > 0)
+        
+        let items = pasteboardWritings(for: sender)
+        guard items.count > 0 else { return false }
+        return (canDrop(items).count > 0)
+    }
+    
+    public override func draggingExited(_ sender: NSDraggingInfo?) {
+        if let dropOutside = self.dragAndDropHandlers.dropOutside?() {
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            if let string = dropOutside.compactMap({$0 as? String}).first {
+                pasteboard.setString(string, forType: .string)
+            }
+            var items: [NSPasteboardWriting] = []
+            let inages = dropOutside.compactMap({$0 as? NSImage})
+            items.append(contentsOf: inages)
+            let urls = dropOutside.compactMap({$0 as? NSURL})
+            items.append(contentsOf: urls)
+            if items.isEmpty == false {
+                pasteboard.writeObjects(items)
+            }
+        }
+        super.draggingExited(sender)
     }
 
     public override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return [] }
-        guard let files = filesOnPasteboard(for: sender) else { return [] }
+        let items = pasteboardWritings(for: sender)
+        guard items.count > 0 else { return [] }
+        guard (canDrop(items).count > 0) else { return [] }
         
-        guard (canDrop(files).count > 0) else { return [] }
         return .copy
     }
 
 
     public override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        guard var files = filesOnPasteboard(for: sender) else { return false }
-        
-        files = dragAndDropHandlers.canDrop?(files) ?? files
-        guard files.count > 0 else { return false }
-        dragAndDropHandlers.didDrop?(files)
+        var items = pasteboardWritings(for: sender)
+        items = dragAndDropHandlers.canDrop?(items) ?? items
+        guard items.count > 0 else { return false }
+        dragAndDropHandlers.didDrop?(items)
         return true
     }
     
@@ -293,11 +330,9 @@ public extension ObservingView {
     }
     
     struct DragAndDropHandlers {
-        public var canDrop: (([URL]) -> ([URL]))? = nil
-        public var didDrop: (([URL]) -> ())? = nil
-        
-        public var canDropOutside: (() -> ([URL]))? = nil
-        public var didDropOutside: (([URL]) -> ())? = nil
+        public var canDrop: (([PasteboardWriting]) -> ([PasteboardWriting]))? = nil
+        public var didDrop: (([PasteboardWriting]) -> ())? = nil
+        public var dropOutside: (() -> ([PasteboardWriting]))? = nil
         
         internal var isSetup: Bool {
             self.canDrop != nil && self.didDrop != nil
