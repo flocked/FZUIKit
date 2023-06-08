@@ -90,6 +90,16 @@ internal extension NSView {
 
         return false
     }
+    
+    func stringsOnPasteboard(for sender: NSDraggingInfo) -> [String]? {
+        return sender.draggingPasteboard.pasteboardItems?.compactMap({$0.string(forType: .string)})
+    }
+    
+    func imagesOnPasteboard(for sender: NSDraggingInfo) -> [NSImage]? {
+        let pngData = sender.draggingPasteboard.pasteboardItems?.compactMap({$0.data(forType: .png)})
+        let images = pngData?.compactMap({ NSImage(data: $0) })
+        return images?.count == 0 ? nil : images
+    }
 
     func filesOnPasteboard(for sender: NSDraggingInfo) -> [URL]? {
         let pb = sender.draggingPasteboard

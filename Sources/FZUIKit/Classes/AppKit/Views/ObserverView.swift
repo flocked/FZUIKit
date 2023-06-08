@@ -9,6 +9,13 @@
 import AppKit
 import FZSwiftUtils
 
+public protocol DraggingType { }
+extension String: DraggingType { }
+extension NSImage: DraggingType { }
+extension URL: DraggingType { }
+
+
+
 /**
  A NSView that adds various handlers (e.g. for mouse events and changes to the window and superview).
  */
@@ -41,6 +48,16 @@ public class ObservingView: NSView {
 
     public var mouseHandlers = MouseHandlers() {
         didSet { self.trackingArea.options = mouseHandlers.trackingAreaOptions }
+    }
+    
+    public var dragAndDropHandlers = DragAndDropHandlers() {
+        didSet {
+            if dragAndDropHandlers.isSetup {
+            self.setupDragAndDrop() } }
+    }
+    
+    internal func setupDragAndDrop() {
+        self.registerForDraggedTypes([.fileURL])
     }
     
     public override init(frame frameRect: NSRect) {
@@ -140,6 +157,30 @@ public class ObservingView: NSView {
         if (performSuper) {
             super.flagsChanged(with: event)
         }
+    }
+    
+    public override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        guard let canDrop = self.dragAndDropHandlers.canDrop else { return false }
+        guard let files = filesOnPasteboard(for: sender) else { return false }
+        return (canDrop(files).count > 0)
+    }
+
+    public override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        guard let canDrop = self.dragAndDropHandlers.canDrop else { return [] }
+        guard let files = filesOnPasteboard(for: sender) else { return [] }
+        
+        guard (canDrop(files).count > 0) else { return [] }
+        return .copy
+    }
+
+
+    public override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        guard var files = filesOnPasteboard(for: sender) else { return false }
+        
+        files = dragAndDropHandlers.canDrop?(files) ?? files
+        guard files.count > 0 else { return false }
+        dragAndDropHandlers.didDrop?(files)
+        return true
     }
     
     public override func viewDidMoveToWindow() {
@@ -251,6 +292,18 @@ public extension ObservingView {
         public var isMain: ((Bool)->())? = nil
     }
     
+    struct DragAndDropHandlers {
+        public var canDrop: (([URL]) -> ([URL]))? = nil
+        public var didDrop: (([URL]) -> ())? = nil
+        
+        public var canDropOutside: (() -> ([URL]))? = nil
+        public var didDropOutside: (([URL]) -> ())? = nil
+        
+        internal var isSetup: Bool {
+            self.canDrop != nil && self.didDrop != nil
+        }
+    }
+        
     struct ViewHandlers {
         public var willMoveToSuperview: ((NSView?)->())? = nil
         public var didMoveToSuperview: ((NSView?)->())? = nil
