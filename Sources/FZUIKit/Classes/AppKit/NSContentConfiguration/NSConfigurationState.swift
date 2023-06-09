@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
+/*
 #if os(macOS)
 import Foundation
 
@@ -86,3 +87,4 @@ extension NSConfigurationStateCustomKey: ExpressibleByStringLiteral {
 }
 
 #endif
+*/

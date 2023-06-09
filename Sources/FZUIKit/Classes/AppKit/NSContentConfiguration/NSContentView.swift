@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
+/*
 #if os(macOS)
 
 import AppKit
@@ -44,3 +45,4 @@ public extension NSContentView {
 }
 
 #endif
+*/
