@@ -14,15 +14,26 @@ import UIKit
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a view's displaying images.
     struct Image: Hashable {
-        public var tintColor: NSUIColor? = nil
-        public var tintColorTransformer: NSUIConfigurationColorTransformer? = nil
-        public func resolvedTintColor(for color: NSUIColor) -> NSUIColor {
-            return tintColorTransformer?(color) ?? color
+        /// The tint color of the image.
+        public var tintColor: NSUIColor? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// The color transformer for resolving the tint color.
+        public var tintColorTransformer: NSUIConfigurationColorTransformer? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// Generates the resolved tint color for the specified tint color, using the tint color and color transformer.
+        public func resolvedTintColor() -> NSUIColor? {
+            if let tintColor = self.tintColor {
+                return tintColorTransformer?(tintColor) ?? tintColor
+            }
+            return nil
         }
 
         public var maximumSize: CGSize = .zero
         public var reservedLayoutSize: CGSize = .zero
         public var accessibilityIgnoresInvertColors: Bool = false
+        /// The image scaling.
         public var scaling: CALayerContentsGravity = .resizeAspectFill
 
         public var cornerRadius: CGFloat = 0.0
@@ -32,13 +43,27 @@ public extension ContentConfiguration {
         public var border: Border = .init()
         public var innerShadow: Shadow? = nil
         public var outerShadow: Shadow? = nil
-        public var backgroundColor: NSUIColor? = nil
-        public var backgroundColorTransformer: NSUIConfigurationColorTransformer? = nil
+        /// The background color of the image.
+        public var backgroundColor: NSUIColor? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// The color transformer for resolving the background color.
+        public var backgroundColorTransformer: NSUIConfigurationColorTransformer? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// Generates the resolved background color for the specified background color, using the background color and color transformer.
         public func resolvedBackgroundColor() -> NSUIColor? {
             if let backgroundColor = backgroundColor {
                 return backgroundColorTransformer?(backgroundColor) ?? backgroundColor
             }
             return nil
+        }
+        
+        internal var _resolvedbackgroundColor: NSColor? = nil
+        internal var _resolvedTintColor: NSColor? = nil
+        internal mutating func updateResolvedColor() {
+            _resolvedbackgroundColor = resolvedBackgroundColor()
+            _resolvedTintColor = resolvedTintColor()
         }
 
         public init(tintColor: NSUIColor? = nil,
@@ -97,11 +122,7 @@ public extension ImageLayer {
 public extension ImageView {
     /// Applys the configuration’s values to the properties of the view.
     func configurate(using imageProperties: ContentConfiguration.Image) {
-        if let tintColor = imageProperties.tintColor {
-            contentTintColor = imageProperties.resolvedTintColor(for: tintColor)
-        } else {
-            contentTintColor = nil
-        }
+        contentTintColor = imageProperties._resolvedTintColor
         cornerRadius = imageProperties.cornerRadius
         imageScaling = imageProperties.scaling
         cornerShape = imageProperties.cornerShape
@@ -119,16 +140,12 @@ public extension ImageView {
 public extension NSImageView {
     /// Applys the configuration’s values to the properties of the view.
     func configurate(using imageProperties: ContentConfiguration.Image) {
-        if let tintColor = imageProperties.tintColor {
-            contentTintColor = imageProperties.resolvedTintColor(for: tintColor)
-        } else {
-            contentTintColor = nil
-        }
+        contentTintColor = imageProperties._resolvedTintColor
         cornerRadius = imageProperties.cornerRadius
         imageScaling = NSImageScaling(contentsGravity: imageProperties.scaling)
         cornerShape = imageProperties.cornerShape
         roundedCorners = imageProperties.roundedCorners
-        alpha = imageProperties.opacity
+        alphaValue = imageProperties.opacity
         configurate(using: imageProperties.border)
         backgroundColor = imageProperties.resolvedBackgroundColor()
         if let outerShadow = imageProperties.outerShadow {
@@ -150,11 +167,7 @@ public extension NSImageView {
 public extension UIImageView {
     /// Applys the configuration’s values to the properties of the view.
     func configurate(using imageProperties: ContentConfiguration.Image) {
-        if let tintColor = imageProperties.tintColor {
-            self.tintColor = imageProperties.resolvedTintColor(for: tintColor)
-        } else {
-            tintColor = nil
-        }
+        tintColor = imageProperties._resolvedTintColor
         layer.cornerRadius = imageProperties.cornerRadius
         //  self.cornerShape = imageProperties.cornerShape
         layer.maskedCorners = imageProperties.roundedCorners

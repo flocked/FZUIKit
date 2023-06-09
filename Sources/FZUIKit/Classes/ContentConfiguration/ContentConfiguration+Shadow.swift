@@ -20,21 +20,36 @@ public extension ContentConfiguration {
             case outer
         }
 
-        public var color: NSUIColor? = .shadowColor
-        public var colorTransform: NSUIConfigurationColorTransformer? = nil
-        public var opacity: CGFloat = 0.3
-        public var radius: CGFloat = 2.0
-        public var offset: CGSize = .init(width: 1.0, height: -1.5)
-
+        /// The color of the shadow.
+        public var color: NSUIColor? = .shadowColor {
+            didSet { updateResolvedColor() } }
+        
+        /// The color transformer for resolving the shadow color.
+        public var colorTransform: NSUIConfigurationColorTransformer? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// Generates the resolved shadow color for the specified shadow color, using the shadow color and color transformer.
         public func resolvedColor(withOpacity: Bool = false) -> NSUIColor? {
             if let color = color {
                 return colorTransform?(color) ?? color
             }
             return nil
         }
+        
+        /// The opacity of the shadow.
+        public var opacity: CGFloat = 0.5
+        /// The blur radius of the shadow.
+        public var radius: CGFloat = 2.0
+        /// The offset of the shadow.
+        public var offset: CGSize = .init(width: 1.0, height: -1.5)
 
         internal var isInvisible: Bool {
             return (color == nil || opacity == 0.0)
+        }
+        
+        internal var _resolvedColor: NSColor? = nil
+        internal mutating func updateResolvedColor() {
+            _resolvedColor = resolvedColor()
         }
 
         public init(color: NSUIColor? = .shadowColor,
@@ -50,8 +65,9 @@ public extension ContentConfiguration {
 
         public static func none() -> Self { return Self(color: nil, opacity: 0.0) }
         public static func `default`() -> Self { return Self() }
+        public static func black() -> Self { return Self(color: .controlAccentColor) }
         #if os(macOS)
-        public static func defaultAccent() -> Self { return Self(color: .controlAccentColor) }
+        public static func accentColor() -> Self { return Self(color: .controlAccentColor) }
         #endif
         public static func color(_ color: NSUIColor) -> Self {
             var value = Self()

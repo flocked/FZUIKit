@@ -14,19 +14,33 @@ import UIKit
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a border.
     struct Border: Hashable {
-        public var color: NSUIColor? = nil
-        public var colorTransformer: NSUIConfigurationColorTransformer? = nil
-        public var width: CGFloat = 0.0
-        public var pattern: [PatternValue] = [.line]
-        public func resolvedColor(for color: NSUIColor) -> NSUIColor {
-            return colorTransformer?(color) ?? color
+        
+        /// The color of the border.
+        public var color: NSUIColor? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// The color transformer for resolving the border color.
+        public var colorTransformer: NSUIConfigurationColorTransformer? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// Generates the resolved border color for the specified border color, using the border color and color transformer.
+        public func resolvedColor() -> NSUIColor? {
+            if let color = self.color {
+                return colorTransformer?(color) ?? color
+            }
+            return nil
         }
-
+        
+        /// The width of the border.
+        public var width: CGFloat = 0.0
+        /// The pattern of the border.
+        public var pattern: [PatternValue] = [.line]
+                
         public enum PatternValue: Int {
             case line
-            case noLine
+            case space
         }
-
+        
         public init(color: NSUIColor? = nil,
                     colorTransformer: NSUIConfigurationColorTransformer? = nil,
                     width: CGFloat = 0.0,
@@ -36,10 +50,20 @@ public extension ContentConfiguration {
             self.width = width
             self.pattern = pattern
             self.colorTransformer = colorTransformer
+            self.updateResolvedColor()
         }
 
         public static func none() -> Self {
             return Self()
+        }
+        
+        public static func black() -> Self {
+            Self(color: .black, width: 1.0)
+        }
+        
+        internal var _resolvedColor: NSColor? = nil
+        internal mutating func updateResolvedColor() {
+            _resolvedColor = resolvedColor()
         }
     }
 }
@@ -82,11 +106,7 @@ public extension CALayer {
         - configuration:The configuration for configurating the apperance.
      */
     func configurate(using configuration: ContentConfiguration.Border) {
-        if let color = configuration.color {
-            borderColor = configuration.resolvedColor(for: color).cgColor
-        } else {
-            borderColor = nil
-        }
+        borderColor = configuration._resolvedColor?.cgColor
         borderWidth = configuration.width
     }
 }

@@ -40,12 +40,12 @@ Configurate several aspects of views, windows, etc. Examples:
 - VisualEffect
 ```
 window.visualEffect = .darkAqua
+view.visualEffect = .vibrantLight
 ```
 - Shadow
 ```
-let view = NSView()
 let shadowConfiguration = ContentConfiguration.Shadow(opacity: 0.5, radius: 2.0)
-            view.configurate(using: shadowConfiguration)
+view.configurate(using: shadowConfiguration)
 ```
 - Border
 ```
