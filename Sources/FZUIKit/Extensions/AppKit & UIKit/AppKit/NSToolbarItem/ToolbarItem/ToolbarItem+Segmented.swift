@@ -64,7 +64,7 @@ public extension ToolbarItem {
             let segmentedControl = NSSegmentedControl(segments: segments, switching: switching, style: type)
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-          //  segmentedControl.segmentDistribution = .fi
+            segmentedControl.segmentDistribution = .fit
             return segmentedControl
         }
 
