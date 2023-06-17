@@ -88,6 +88,9 @@ public class MediaView: NSView {
                 showVideoView()
                 mediaType = .video
                 videoSize = asset.videoNaturalSize
+                if videoView.player == nil {
+                    videoView.player = AVPlayer()
+                }
                 let item = AVPlayerItem(asset: asset)
                 videoView.player?.pause()
                 videoView.player?.replaceCurrentItem(with: item)
