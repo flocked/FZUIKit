@@ -63,8 +63,8 @@ public extension ToolbarItem {
         internal static func segmentedControl(segments: [Segment], switching: SwitchingMode, type: Style) -> NSSegmentedControl {
             let segmentedControl = NSSegmentedControl(segments: segments, switching: switching, style: type)
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-       //     segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-            segmentedControl.segmentDistribution = .fillEqually
+            segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+          //  segmentedControl.segmentDistribution = .fi
             return segmentedControl
         }
 
@@ -96,7 +96,7 @@ public extension ToolbarItem {
             self.segmentedControl = segmentedControl
             super.init(identifier)
             self.segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-         //   self.segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            self.segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
             self.item.view = self.segmentedControl
             self.segmentedControl.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
