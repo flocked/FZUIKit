@@ -48,6 +48,17 @@ public extension ToolbarItem {
 
         @discardableResult
         public func onSelection(_ handler: @escaping ([Segment]) -> Void) -> Self {
+            self.segmentedControl.actionBlock = { [weak self] segment in
+                guard let self = self else { return }
+                var selected = self.segments.filter { $0.isSelected }
+                if let index = selected.firstIndex(where: { $0.isLastSelected == true }) {
+                    let lastSelected = selected.remove(at: index)
+                    selected = lastSelected + selected
+                }
+                handler(selected)
+            }
+            
+            /*
             item.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 var selected = self.segments.filter { $0.isSelected }
@@ -57,6 +68,7 @@ public extension ToolbarItem {
                 }
                 handler(selected)
             }
+            */
             return self
         }
 
