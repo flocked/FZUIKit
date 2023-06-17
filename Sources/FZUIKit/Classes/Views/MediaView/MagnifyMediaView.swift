@@ -11,7 +11,9 @@ import Cocoa
 import Foundation
 import FZSwiftUtils
 
-public class MagnifyMediaView: NSView {
+
+/// A magnifiable view that presents media.
+open class MagnifyMediaView: NSView {
     private let mediaView = MediaView()
     private let scrollView = NSScrollView()
 
@@ -254,6 +256,7 @@ public class MagnifyMediaView: NSView {
     override public var enclosingScrollView: NSScrollView? {
         return scrollView
     }
+    
 
     public init(mediaURL: URL) {
         super.init(frame: .zero)
@@ -265,12 +268,12 @@ public class MagnifyMediaView: NSView {
         self.mediaURL = mediaURL
     }
 
-    override init(frame frameRect: NSRect) {
+    override public init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         sharedInit()
     }
 
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }

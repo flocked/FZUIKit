@@ -105,9 +105,13 @@ public extension NSVisualEffectView {
 #elseif canImport(UIKit)
 import UIKit
 public extension ContentConfiguration {
+    /// A configuration that specifies the appearance of a visual effect view.
     struct VisualEffect: Hashable {
+        /// The visual effect style.
         public enum Style: Hashable {
-            case vibrancy(blur: UIBlurEffect.Style, vibrancy: UIVibrancyEffectStyle? = nil)
+            /// A blurring and vibrancy effect.
+            case vibrancy(UIVibrancyEffectStyle, blur: UIBlurEffect.Style)
+            /// A blurring effect.
             case blur(UIBlurEffect.Style)
         }
 
@@ -115,9 +119,11 @@ public extension ContentConfiguration {
         public init(style: Self.Style? = nil) {
             self.style = style
         }
+        
+        /// A visual blurring vibrancy effect.
+        public static func vibrancy(_ vibrancy: UIVibrancyEffectStyle, blur: UIBlurEffect.Style) -> Self { return Self(style: .vibrancy(vibrancy, blur: blur)) }
 
-        public static func vibrancy(blur: UIBlurEffect.Style, vibrancy: UIVibrancyEffectStyle? = nil) -> Self { return Self(style: .vibrancy(blur: blur, vibrancy: vibrancy)) }
-
+        /// A visual blurring effect.
         public static func blur(_ style: UIBlurEffect.Style) -> Self { return Self(style: .blur(style)) }
     }
 }

@@ -27,7 +27,7 @@ extension NSWindowController: Nibloadable {}
 #endif
 
 public extension Nibloadable {
-    static func loadFromStoryboard(name: String = "main", identifier: String? = nil) -> Self? {
+    static func loadFromStoryboard(name: String = "Main", identifier: String? = nil) -> Self? {
         let identifier = identifier ?? String(describing: self)
         let storyboard = NSUIStoryboard(name: name, bundle: nil)
         return loadFromStoryboard(storyboard, identifier: identifier)
