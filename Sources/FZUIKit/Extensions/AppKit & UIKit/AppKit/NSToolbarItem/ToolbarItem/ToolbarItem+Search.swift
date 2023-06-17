@@ -58,6 +58,12 @@ public extension ToolbarItem {
             searchField.placeholderAttributedString = placeholder
             return self
         }
+        
+        public init(_ identifier: NSToolbarItem.Identifier, maxWidth: CGFloat) {
+            super.init(identifier)
+            self.searchField.translatesAutoresizingMaskIntoConstraints = false
+            self.searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
+        }
 
         public init(_ identifier: NSToolbarItem.Identifier, searchField: NSSearchField) {
             super.init(identifier)
