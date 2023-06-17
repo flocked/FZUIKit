@@ -17,7 +17,6 @@ public class ToolbarItem: NSObject {
 
     internal lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
     internal var item: NSToolbarItem {
-        Swift.print("ToolbarItem", identifier.rawValue, rootItem)
         return rootItem
     }
 

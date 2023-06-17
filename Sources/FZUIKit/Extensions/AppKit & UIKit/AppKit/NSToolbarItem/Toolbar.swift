@@ -116,11 +116,9 @@ extension Toolbar: NSToolbarDelegate {
     }
 
     public func toolbarAllowedItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-        var items = items.map { $0.identifier }
         Swift.print("toolbarAllowedItemIdentifiers", self.items.count + 2 )
 
-        items.append(contentsOf: [NSToolbarItem.Identifier.flexibleSpace, NSToolbarItem.Identifier.space])
-        return items.uniqued()
+        return self.items.map { $0.identifier }
     }
 
     public func toolbarSelectableItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
