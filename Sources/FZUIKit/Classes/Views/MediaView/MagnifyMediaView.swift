@@ -14,7 +14,7 @@ import FZSwiftUtils
 
 /// A magnifiable view that presents media.
 open class MagnifyMediaView: NSView {
-    private let mediaView = MediaView()
+    public let mediaView = MediaView()
     private let scrollView = NSScrollView()
 
     override open var acceptsFirstResponder: Bool {

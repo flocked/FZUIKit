@@ -269,7 +269,7 @@ public class MediaView: NSView {
         return imageView
     }()
 
-    internal lazy var videoView: NoKeyDownPlayerView = {
+    public lazy var videoView: NoKeyDownPlayerView = {
         let videoView = NoKeyDownPlayerView()
         videoView.isHidden = true
         videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: self.contentScaling) ?? .resizeAspectFill
@@ -304,9 +304,9 @@ public class MediaView: NSView {
     }
 }
 
-internal class NoKeyDownPlayerView: AVPlayerView {
-    var ignoreKeyDown = true
-    override func keyDown(with event: NSEvent) {
+public class NoKeyDownPlayerView: AVPlayerView {
+    public var ignoreKeyDown = true
+    override public func keyDown(with event: NSEvent) {
         if ignoreKeyDown {
             nextResponder?.keyDown(with: event)
         } else {
