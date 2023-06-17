@@ -264,7 +264,6 @@ public class ObservingView: NSView {
     }
     
     internal func observeWindowState(for window: NSWindow) {
-        Swift.print(observeWindowState)
         if windowDidBecomeKeyObserver == nil, windowHandlers.isKey != nil {
             windowDidBecomeKeyObserver = NotificationCenter.default.observe(name: NSWindow.didBecomeKeyNotification, object: window) { notification in
                 self.windowIsKey = true
