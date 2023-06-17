@@ -124,10 +124,9 @@ extension Toolbar: NSToolbarDelegate {
     }
 
     public func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
-        let toolbarItem = items.first { item -> Bool in
-            item.identifier == itemIdentifier
-        }
-        return toolbarItem?.item
+        Swift.print("itemForItemIdentifier", items.first { $0.identifier == itemIdentifier }?.item ?? "")
+
+        return items.first { $0.identifier == itemIdentifier }?.item
     }
 
     public func toolbarWillAddItem(_ notification: Notification) {
