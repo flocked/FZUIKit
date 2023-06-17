@@ -155,6 +155,7 @@ public extension ToolbarItem {
             self.button = button
             popoverController = popoverContentController
             super.init(identifier)
+            self.button.translatesAutoresizingMaskIntoConstraints = false
             self.item.view = self.button
             self.button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
