@@ -91,8 +91,9 @@ public extension ToolbarItem {
         }
 
         public init(_ identifier: NSToolbarItem.Identifier, popUpButton: NSPopUpButton) {
-            button = popUpButton
+            self.button = popUpButton
             super.init(identifier)
+            self.item.view = self.button
             button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 self.item.actionBlock?(self.item)

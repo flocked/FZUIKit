@@ -163,6 +163,7 @@ public extension ToolbarItem {
         public init(_ identifier: NSToolbarItem.Identifier, button: NSButton) {
             self.button = button
             super.init(identifier)
+            self.item.view = self.button
             self.button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 self.item.actionBlock?(self.item)

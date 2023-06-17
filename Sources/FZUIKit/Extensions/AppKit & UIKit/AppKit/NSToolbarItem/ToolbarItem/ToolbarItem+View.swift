@@ -36,12 +36,11 @@ public extension ToolbarItem {
             self.view = view
         }
 
-        public init(
+        public convenience init(
             _ identifier: NSToolbarItem.Identifier,
             view: some SwiftUI.View
         ) {
-            super.init(identifier)
-            self.view = NSHostingView(rootView: view)
+            self.init(identifier, view: NSHostingView(rootView: view))
         }
     }
 }

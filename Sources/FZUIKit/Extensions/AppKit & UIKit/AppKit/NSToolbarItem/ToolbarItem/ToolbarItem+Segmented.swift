@@ -95,6 +95,7 @@ public extension ToolbarItem {
         {
             self.segmentedControl = segmentedControl
             super.init(identifier)
+            self.item.view = self.segmentedControl
             self.segmentedControl.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 self.item.actionBlock?(self.item)
