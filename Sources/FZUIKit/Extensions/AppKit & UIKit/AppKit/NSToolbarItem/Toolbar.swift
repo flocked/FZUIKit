@@ -104,6 +104,8 @@ public class Toolbar: NSObject {
 
 extension Toolbar: NSToolbarDelegate {
     public func toolbarDefaultItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
+        Swift.print("toolbarDefaultItemIdentifiers",items.filter { $0.item.isDefaultItem }.count )
+
         return items.filter { $0.item.isDefaultItem }
             .map { $0.identifier }
     }
@@ -115,6 +117,8 @@ extension Toolbar: NSToolbarDelegate {
 
     public func toolbarAllowedItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
         var items = items.map { $0.identifier }
+        Swift.print("toolbarAllowedItemIdentifiers", self.items.count + 2 )
+
         items.append(contentsOf: [NSToolbarItem.Identifier.flexibleSpace, NSToolbarItem.Identifier.space])
         return items.uniqued()
     }
