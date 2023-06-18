@@ -58,6 +58,7 @@ public class MediaView: NSView {
 
     public var mediaURL: URL? = nil {
         didSet {
+            self.pause()
             if let mediaURL = mediaURL {
                 updatePreviousPlaybackState()
                 if mediaURL.fileType == .video {
@@ -86,6 +87,7 @@ public class MediaView: NSView {
         set {
             if let asset = newValue {
                 showVideoView()
+                self.pause()
                 mediaType = .video
                 videoSize = asset.videoNaturalSize
                 if videoView.player == nil {
@@ -122,6 +124,7 @@ public class MediaView: NSView {
             return nil
         }
         set {
+            self.pause()
             if let image = newValue {
                 showImageView()
                 imageView.image = image
@@ -137,7 +140,9 @@ public class MediaView: NSView {
 
     public var images: [NSImage] {
         get { return imageView.images }
-        set { imageView.images = newValue
+        set {
+            self.pause()
+            imageView.images = newValue
             if newValue.isEmpty == false {
                 showImageView()
                 hideVideoView()
