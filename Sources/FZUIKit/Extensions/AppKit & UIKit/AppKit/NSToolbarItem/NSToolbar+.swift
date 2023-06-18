@@ -11,21 +11,34 @@ import AppKit
 import FZSwiftUtils
 
 extension NSToolbar {
+    
+    /**
+     Creates a managed toolbar with the specified identifier and toolbar items.
+
+     This toolbar manages its items automatically by using a ManagedToolbarDelegate as it's delegate. Use the toolbar items isDefaultItem, isSelectable and isImmovableItem properties.
+     
+     - Parameters identifier: A string used by the class to identify the kind of the toolbar.
+     - Parameters items: An array of toolbar items to be managed by the toolbar.
+     - Note: You shouldn't change it's delegate.
+     */
     public convenience init(
         identifier: NSToolbar.Identifier,
         items: [NSToolbarItem]
     ) {
         self.init(identifier: identifier)
-        setupDelegateProxy(items: items)
+        self.managedToolbarDelegate = ManagedToolbarDelegate(items: items)
+        self.delegate = self.managedToolbarDelegate!
     }
 
-    public convenience init(
-        identifier: NSToolbar.Identifier,
-        @Builder builder: () -> [NSToolbarItem]
-    ) {
-        self.init(identifier: identifier, items: builder())
-    }
+    /**
+     Creates a managed toolbar with the specified identifier and toolbar items.
 
+     This toolbar manages its items automatically by using a ManagedToolbarDelegate as it's delegate. Use the toolbar items isDefaultItem, isSelectable and isImmovableItem properties.
+
+     - Parameters identifier: A string used by the class to identify the kind of the toolbar.
+     - Parameters bulder: The builder for the toolbar items to be managed by the toolbar.
+     - Note: You shouldn't change it's delegate.
+     */
     public convenience init(
         _ identifier: NSToolbar.Identifier,
         @Builder builder: () -> [NSToolbarItem]
@@ -33,9 +46,10 @@ extension NSToolbar {
         self.init(identifier: identifier, items: builder())
     }
 
-    public var itemSelectionHandler: ((NSToolbarItem.Identifier?) -> Void)? {
-        get { getAssociatedValue(key: "_toolbarItemSelectionHandler", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "_toolbarItemSelectionHandler", object: self)
+    /// A handler that gets called whenever the selected toolbar item changes.
+    public var selectedItemHandler: ((NSToolbarItem.Identifier?) -> ())? {
+        get { getAssociatedValue(key: "_selectedItemHandler", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "_selectedItemHandler", object: self)
             setupToolbarItemSelectionObserver()
         }
     }
@@ -47,11 +61,11 @@ extension NSToolbar {
     }
 
     internal func setupToolbarItemSelectionObserver() {
-        if itemSelectionHandler != nil {
+        if selectedItemHandler != nil {
             if toolbarItemSelectionObserver == nil {
                 toolbarItemSelectionObserver = observeChange(\.selectedItemIdentifier) { [weak self] _,_, itemIdentifier in
                     guard let self = self else { return }
-                    self.itemSelectionHandler?(itemIdentifier)
+                    self.selectedItemHandler?(itemIdentifier)
                 }
             }
         } else {
@@ -59,87 +73,9 @@ extension NSToolbar {
         }
     }
 
-    internal var delegateProxy: DelegateProxy? {
-        get { getAssociatedValue(key: "_toolbarDelegateProxy", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "_toolbarDelegateProxy", object: self)
-        }
-    }
-
-    internal func setupDelegateProxy(items: [NSToolbarItem]) {
-        if delegateProxy == nil {
-            delegateProxy = DelegateProxy(self, items: items)
-        }
-    }
-}
-
-internal extension NSToolbar {
-    class DelegateProxy: NSObject, NSToolbarDelegate {
-        internal weak var toolbar: NSToolbar!
-        internal weak var delegate: NSToolbarDelegate? = nil
-        internal var items: [NSToolbarItem]
-
-        func toolbarWillAddItem(_ notification: Notification) {
-            delegate?.toolbarWillAddItem?(notification)
-        }
-
-        func toolbarDidRemoveItem(_ notification: Notification) {
-            delegate?.toolbarDidRemoveItem?(notification)
-        }
-
-        @available(macOS 13.0, *)
-        func toolbar(_ toolbar: NSToolbar, itemIdentifier: NSToolbarItem.Identifier, canBeInsertedAt index: Int) -> Bool {
-            return delegate?.toolbar?(toolbar, itemIdentifier: itemIdentifier, canBeInsertedAt: index) ?? true
-        }
-
-        public func toolbarDefaultItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-            return items.filter { $0.isDefaultItem }
-                .map { $0.itemIdentifier }
-        }
-
-        public func toolbarImmovableItemIdentifiers(_: NSToolbar) -> Set<NSToolbarItem.Identifier> {
-            return Set(items.filter { $0.isImmovableItem }
-                .map { $0.itemIdentifier })
-        }
-
-        public func toolbarAllowedItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-            var items = items.map { $0.itemIdentifier }
-            items.append(contentsOf: [.flexibleSpace, .space])
-            return items.uniqued()
-        }
-
-        /*
-         public func toolbarSelectableItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-             return items.filter { $0.isSelectable }.map { $0.itemIdentifier }
-         }
-          */
-
-        public func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
-            let toolbarItem = items.first { item -> Bool in
-                item.itemIdentifier == itemIdentifier
-            }
-            return toolbarItem
-        }
-
-        public init(_ toolbar: NSToolbar, items: [NSToolbarItem]?) {
-            self.toolbar = toolbar
-            self.items = items ?? toolbar.items
-            super.init()
-            delegate = self.toolbar.delegate
-            self.toolbar.delegate = self
-        }
-
-        public convenience init(
-            toolbar: NSToolbar,
-            @Builder builder: () -> [NSToolbarItem]
-        ) {
-            self.init(toolbar, items: builder())
-        }
-
-        public convenience init(
-            _ toolbar: NSToolbar,
-            @Builder builder: () -> [NSToolbarItem]
-        ) {
-            self.init(toolbar, items: builder())
+    internal var managedToolbarDelegate: ManagedToolbarDelegate? {
+        get { getAssociatedValue(key: "_managedToolbarDelegate", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "_managedToolbarDelegate", object: self)
         }
     }
 }

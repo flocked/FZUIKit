@@ -14,6 +14,9 @@ public class ToolbarItem: NSObject {
     public typealias ActionBlock = NSToolbarItem.ActionBlock
 
     public let identifier: NSToolbarItem.Identifier
+    
+    internal var isDefault = true
+    internal var isSelectable = false
 
     internal lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
     internal var item: NSToolbarItem {
@@ -88,13 +91,13 @@ public extension ToolbarItem {
      */
     @discardableResult
     func isSelectable(_ isSelectable: Bool) -> Self {
-        set(\.item._isSelectable, to: isSelectable)
+        set(\.isSelectable, to: isSelectable)
     }
 
     /// Mark the item as available on the 'default' toolbar presented to the user
     @discardableResult
     func isDefaultItem(_ isDefault: Bool) -> Self {
-        set(\.item.isDefaultItem, to: isDefault)
+        set(\.isDefault, to: isDefault)
     }
 
     /**

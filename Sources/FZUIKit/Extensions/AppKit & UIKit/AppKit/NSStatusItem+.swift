@@ -10,6 +10,10 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSStatusItem {
+    func onClick(_ onClick: NSButton.ActionBlock?, rightClick: NSButton.ActionBlock?) {
+        
+    }
+    
     var onClick: NSButton.ActionBlock? {
         get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
         set { associatedValue.set(newValue, key: "_statusItemActionBlock")

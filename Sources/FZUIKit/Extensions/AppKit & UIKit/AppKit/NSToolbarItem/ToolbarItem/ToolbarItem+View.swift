@@ -11,21 +11,9 @@ import SwiftUI
 
 public extension ToolbarItem {
     class View: ToolbarItem {
-        public var view: NSView? {
-            get { item.view }
+        public var view: NSView {
+            get { item.view! }
             set { item.view = newValue }
-        }
-
-        @discardableResult
-        public func view(_ view: NSView) -> Self {
-            self.view = view
-            return self
-        }
-
-        @discardableResult
-        public func view(_ view: some SwiftUI.View) -> Self {
-            self.view = NSHostingView(rootView: view)
-            return self
         }
 
         public init(

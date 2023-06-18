@@ -57,6 +57,16 @@ public class Toolbar: NSObject {
     public func runCustomizationPalette(_ sender: Any?) {
         toolbar.runCustomizationPalette(sender)
     }
+    
+    @available(macOS 11.0, *)
+    public var style: NSWindow.ToolbarStyle? {
+        get { attachedWindow?.toolbarStyle }
+        set {
+            if let newValue = newValue {
+                attachedWindow?.toolbarStyle = newValue
+            }
+        }
+    }
 
     public var customizationPaletteIsRunning: Bool { toolbar.customizationPaletteIsRunning }
 
@@ -68,6 +78,11 @@ public class Toolbar: NSObject {
                 attachedWindow.toolbar = toolbar
             }
         }
+    }
+    
+    public func toggleVisibility() {
+        attachedWindow?.toggleToolbarShown(nil)
+
     }
 
     private var items: [ToolbarItem] = []
@@ -104,7 +119,7 @@ public class Toolbar: NSObject {
 
 extension Toolbar: NSToolbarDelegate {
     public func toolbarDefaultItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-        return items.filter { $0.item.isDefaultItem }
+        return items.filter { $0.isDefault }
             .map { $0.identifier }
     }
 
@@ -118,7 +133,7 @@ extension Toolbar: NSToolbarDelegate {
     }
 
     public func toolbarSelectableItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-        return items.filter { $0.item._isSelectable }.map { $0.identifier }
+        return items.filter { $0.isSelectable }.map { $0.identifier }
     }
 
     public func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
@@ -207,7 +222,7 @@ extension TToolbar: NSToolbarDelegate {
     }
 
     public func toolbarSelectableItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-        return _items.filter { $0._isSelectable }.map { $0.itemIdentifier }
+        return _items.filter { $0.isSelectable }.map { $0.itemIdentifier }
     }
 
     public func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
