@@ -112,3 +112,16 @@ public final class UIHostingView<Content: View>: UIView {
     }
 }
 #endif
+
+
+/*
+ internal class HitHostingView<Content: View>: NSHostingView<Content> {
+     override func hitTest(_ point: NSPoint) -> NSView? {
+         guard let hitTest = super.hitTest(point) else {
+             return self.firstSuperview(for: NSCollectionView.self) }
+         return hitTest
+     }
+ }
+
+
+ */
