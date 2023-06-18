@@ -10,7 +10,7 @@ import Cocoa
 
 public extension ToolbarItem {
     class Button: ToolbarItem {
-        internal let button: NSButton
+        public let button: NSButton
         
         @discardableResult
         public func title(_ title: String) -> Self {

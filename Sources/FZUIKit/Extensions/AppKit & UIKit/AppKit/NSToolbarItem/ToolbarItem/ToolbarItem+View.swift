@@ -11,7 +11,7 @@ import SwiftUI
 
 public extension ToolbarItem {
     class View: ToolbarItem {
-        internal var view: NSView? {
+        public var view: NSView? {
             get { item.view }
             set { item.view = newValue }
         }

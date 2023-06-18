@@ -10,7 +10,7 @@ import Cocoa
 
 public extension ToolbarItem {
     class PopupButton: ToolbarItem {
-        internal let button: NSPopUpButton
+        public let button: NSPopUpButton
 
         @discardableResult
         public func onSelect(_ handler: @escaping () -> Void) -> Self {

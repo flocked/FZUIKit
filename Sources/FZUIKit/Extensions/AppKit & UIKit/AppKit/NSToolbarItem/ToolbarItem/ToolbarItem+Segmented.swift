@@ -15,7 +15,7 @@ public extension ToolbarItem {
         public typealias Segment = NSSegmentedControl.Segment
         public typealias Style = NSSegmentedControl.Style
 
-        internal let segmentedControl: NSSegmentedControl
+        public let segmentedControl: NSSegmentedControl
 
         public var segments: [Segment] {
             get { segmentedControl.segments }

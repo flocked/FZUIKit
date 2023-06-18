@@ -10,7 +10,7 @@ import Cocoa
 
 public extension ToolbarItem {
     class PopoverButton: ToolbarItem, NSPopoverDelegate {
-        internal let button: NSButton
+        public let button: NSButton
         internal weak var popoverController: NSViewController?
         internal weak var popover: NSPopover?
 
