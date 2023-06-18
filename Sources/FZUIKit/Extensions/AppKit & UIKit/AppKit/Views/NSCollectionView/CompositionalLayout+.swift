@@ -26,7 +26,6 @@ public extension NSUICollectionViewCompositionalLayout {
             itemSupplementaryItems.append(seperatorItem)
         }
         let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: itemSupplementaryItems)
-
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                heightDimension: .absolute(rowHeight))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,

@@ -10,10 +10,12 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSWindow {
+    /// A Boolean value that indicates whether the window is fullscreen.
     var isFullscreen: Bool {
         styleMask.contains(.fullScreen)
     }
 
+    /// the index of the window tab or nil if the window isn't a tab.
     var tabIndex: Int? {
         tabbedWindows?.firstIndex(of: self)
     }
@@ -32,17 +34,25 @@ public extension NSWindow {
         origin.y = screenFrame.origin.y + point.y
         setFrameOrigin(origin)
     }
-
+    /**
+     Sets the window’s location to the center of the specified screen.
+     
+     The window is placed exactly in the center horizontally and somewhat above center vertically. Such a placement carries a certain visual immediacy and importance. This method doesn’t put the window onscreen, however; use makeKeyAndOrderFront(_:) to do that.
+     You typically use this method to place a window—most likely an alert dialog—where the user can’t miss it. This method is invoked automatically when a panel is placed on the screen by the runModal(for:) method of the NSApplication class.
+     
+     - Parameters screen: The screen for centering the window.
+     */
     func center(on screen: NSScreen) {
         var frame = self.frame
         frame.center = screen.frame.center
         setFrame(frame, display: true)
     }
-
-    /// Make the receiver a sensible size, given the current screen
-    ///
-    /// This method attempts to size the window to match the current screen
-    /// aspect ratio and dimensions. It will not exceed 1024 x 900.
+    
+    /**
+     Make the receiver a sensible size, given the current screen
+     
+     This method attempts to size the window to match the current screen aspect ratio and dimensions. It will not exceed 1024 x 900.
+     */
     func resizeToScreenAspectRatio() {
         guard let screen = NSScreen.main else {
             return
@@ -70,11 +80,12 @@ public extension NSWindow {
          setContentSize(NSSize(width: ceil(width), height: ceil(height)))
           */
     }
-
-    /// Returns the total titlebar height
-    ///
-    /// Takes into account the tab bar, as well as transparent title bars and
-    /// full size content.
+    
+    /**
+     Returns the total titlebar height
+     
+     Takes into account the tab bar, as well as transparent title bars and full size content.
+     */
     var titleBarHeight: CGFloat {
         let frameHeight = contentView?.frame.height ?? frame.height
         let contentLayoutRectHeight = contentLayoutRect.height
@@ -82,7 +93,7 @@ public extension NSWindow {
         return frameHeight - contentLayoutRectHeight
     }
 
-    /// Indicates the state of the window's tab bar
+    /// A Boolean value that indicates whether the tab bar is visible.
     var isTabBarVisible: Bool {
         if #available(OSX 10.13, *) {
             // be extremely careful here. Just *accessing* the tabGroup property can
@@ -96,10 +107,12 @@ public extension NSWindow {
             return false
         }
     }
-
-    /// Returns the tab bar height
-    ///
-    /// This value will be zero if the tab bar is not visible
+    
+    /**
+     Returns the tab bar height.
+     
+     This value will be zero if the tab bar isn't visible.
+     */
     var tabBarHeight: CGFloat {
         // hard-coding this isn't excellent, but I don't know
         // of another way to determine it without messing around
@@ -107,6 +120,10 @@ public extension NSWindow {
         return isTabBarVisible ? 28.0 : 0.0
     }
 
+    /**
+     Runs the specified handler without animating the window.
+     - Parameters block: The handler to be used.
+     */
     func withAnimationDisabled(block: () -> Void) {
         let currentBehavior = animationBehavior
 
@@ -122,8 +139,8 @@ public extension NSWindow {
 
 public extension NSWindow {
     /**
-      The window’s visual effect background.
-
+     The window’s visual effect background.
+     
      The property adds a NSVisualEffectView as background to the window’s contentView. The default value is nil.
       */
     var visualEffect: ContentConfiguration.VisualEffect? {

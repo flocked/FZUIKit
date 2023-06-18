@@ -9,11 +9,21 @@ import CoreGraphics
 import Foundation
 import QuartzCore
 
+/**
+ A timer that fires after a certain time interval has elapsed, calling a specified handler.
+
+ The timer uses displaylink and is much more precices compared to a regular timer. It also allows changing the timer interval while it's running.
+ */
 public class DisplayLinkTimer {
     public typealias Action = (DisplayLinkTimer) -> Void
 
+    /// The number of seconds between firings of the timer.
     public var timeInterval: TimeInterval = 0.0
+    
+    /// If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
     public var repeating = true
+    
+    /// The handler to be called whenever the timer fires.
     public let action: Action
 
     internal var displayLink: AnyCancellable?
@@ -21,21 +31,24 @@ public class DisplayLinkTimer {
     internal var previousTimestamp: TimeInterval = 0.0
     internal var lastFireDate: Date?
 
-    convenience init(repeating: TimeInterval, shouldFire: Bool = true, action: @escaping Action) {
-        self.init(timeInterval: repeating, repeating: true, shouldFire: shouldFire, action: action)
+    /**
+     Returns a repeating timer object with the specified time interval.
+     - Parameters timeInterval: The number of seconds between firings of the timer.
+     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     - Returns: A new repeating Timer object, configured according to the specified parameters.
+     */
+    public static func repeating(timeInterval: TimeInterval, shouldFire: Bool = true, action: @escaping Action) -> DisplayLinkTimer {
+        DisplayLinkTimer(timeInterval: timeInterval, repeating: true, shouldFire: shouldFire, action: action)
     }
 
-    convenience init(repeating: TimeInterval, shouldFire: Bool = true, target: AnyObject, selector: Selector) {
-        let action: Action = { _ in _ = target.perform(selector) }
-        self.init(timeInterval: repeating, repeating: true, shouldFire: shouldFire, action: action)
-    }
-
-    convenience init(timeInterval: TimeInterval, repeating _: Bool, shouldFire: Bool = true, target: AnyObject, selector: Selector) {
-        let action: Action = { _ in _ = target.perform(selector) }
-        self.init(timeInterval: timeInterval, repeating: true, shouldFire: shouldFire, action: action)
-    }
-
-    init(timeInterval: TimeInterval, repeating: Bool, shouldFire: Bool = true, action: @escaping Action) {
+    /**
+     Initializes a timer object with the specified time interval.
+     - Parameters timeInterval: The number of seconds between firings of the timer.
+     - Parameters repeating: If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
+     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     - Returns: A new Timer object, configured according to the specified parameters.
+     */
+   public init(timeInterval: TimeInterval, repeating: Bool, shouldFire: Bool = true, action: @escaping Action) {
         self.timeInterval = timeInterval
         self.repeating = repeating
         self.action = action
@@ -44,16 +57,19 @@ public class DisplayLinkTimer {
         }
     }
 
+    /// The date when the timer will fire next.
     public var nextFireDate: Date? {
-        //  (self.isRunning) ? Date().addingTimeInterval(-self.timeIntervalSinceLastFire+self.timeInterval) : nil
         lastFireDate?.addingTimeInterval(timeInterval)
     }
 
+    /// A Boolean value that indicates whether the timer is running.
     public var isRunning: Bool {
         return (displayLink != nil)
     }
 
     internal var _isRunning: Bool = false
+    
+    /// Causes the timer's action to be called.
     public func fire() {
         if isRunning == false {
             previousTimestamp = 0.0
@@ -82,6 +98,7 @@ public class DisplayLinkTimer {
         }
     }
 
+    /// Stops the timer from firing.
     public func stop() {
         displayLink?.cancel()
         lastFireDate = nil
@@ -95,7 +112,9 @@ public class DisplayLinkTimer {
     }
 }
 
+/*
 extension DisplayLinkTimer {
+    /// The bpm (beats per minute)  firings of the timer.
     var bpm: CGFloat {
         get {
             return timeInterval * 6
@@ -105,3 +124,4 @@ extension DisplayLinkTimer {
         }
     }
 }
+*/

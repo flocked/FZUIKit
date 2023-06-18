@@ -10,10 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSStatusItem {
-    func onClick(_ onClick: NSButton.ActionBlock?, rightClick: NSButton.ActionBlock?) {
-        
-    }
-    
+    /// The handler to be called when the status item gets clicked.
     var onClick: NSButton.ActionBlock? {
         get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
         set { associatedValue.set(newValue, key: "_statusItemActionBlock")
@@ -21,6 +18,7 @@ public extension NSStatusItem {
         }
     }
 
+    /// The handler to be called when the status item gets right clicked.
     var onRightClick: NSButton.ActionBlock? {
         get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
         set { associatedValue.set(newValue, key: "_statusItemActionBlock")
@@ -50,32 +48,74 @@ public extension NSStatusItem {
         }
     }
 
+    /**
+     Creates a status item with the specified title and menu.
+     
+     - Parameters title: The title to be displayed.
+     - Parameters menu: The menu of the items.
+     - Returns: Returns  the status item.
+     */
     convenience init(title: String, menu: NSMenu) {
         self.init()
         button?.title = title
         self.menu = menu
     }
 
-    convenience init(title: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
+    /**
+     Creates a status item with the specified title and menu items.
+     
+     - Parameters title: The title to be displayed.
+     - Parameters items: The menu items for the status item.
+     - Returns: Returns  the status item.
+     */
+    convenience init(title: String, @MenuBuilder items: () -> [NSMenuItem]) {
         self.init(title: title, menu: NSMenu(items: items()))
     }
 
+    /**
+     Creates a status item with the specified title and action.
+     
+     - Parameters title: The title to be displayed.
+     - Parameters action: The handler to be called when the status item gets clicked.
+     - Returns: Returns  the status item.
+     */
     convenience init(title: String, action: @escaping NSButton.ActionBlock) {
         self.init()
         button?.title = title
         onClick = action
     }
 
+    /**
+     Creates a status item with the specified image and menu.
+     
+     - Parameters image: The image to be displayed.
+     - Parameters menu: The menu of the items.
+     - Returns: Returns  the status item.
+     */
     convenience init(image: NSImage, menu: NSMenu) {
         self.init()
         button?.image = image
         self.menu = menu
     }
 
-    convenience init(image: NSImage, @MenuBuilder _ items: () -> [NSMenuItem]) {
+    /**
+     Creates a status item with the specified image and menu.
+     
+     - Parameters image: The image to be displayed.
+     - Parameters items: The menu items for the status item.
+     - Returns: Returns  the status item.
+     */
+    convenience init(image: NSImage, @MenuBuilder items: () -> [NSMenuItem]) {
         self.init(image: image, menu: NSMenu(items: items()))
     }
 
+    /**
+     Creates a status item with the specified image and action.
+     
+     - Parameters image: The image to be displayed.
+     - Parameters action: The handler to be called when the status item gets clicked.
+     - Returns: Returns  the status item.
+     */
     convenience init(image: NSImage, action: @escaping NSButton.ActionBlock) {
         self.init()
         button?.image = image
@@ -83,7 +123,14 @@ public extension NSStatusItem {
     }
 
     @available(macOS 11.0, *)
-    convenience init?(symbolName: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
+    /**
+     Creates a status item with the specified symbol image and menu items.
+     
+     - Parameters symbolName: The symbol name of the image to be displayed.
+     - Parameters items: The menu items for the status item.
+     - Returns: Returns  the status item.
+     */
+    convenience init?(symbolName: String, @MenuBuilder items: () -> [NSMenuItem]) {
         guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
         self.init()
         button?.image = image
@@ -91,6 +138,13 @@ public extension NSStatusItem {
     }
 
     @available(macOS 11.0, *)
+    /**
+     Creates a status item with the specified symbol image and action.
+     
+     - Parameters symbolName: The symbol name of the image to be displayed.
+     - Parameters action: The handler to be called when the status item gets clicked.
+     - Returns: Returns  the status item.
+     */
     convenience init?(symbolName: String, action: @escaping NSButton.ActionBlock) {
         guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
         self.init()

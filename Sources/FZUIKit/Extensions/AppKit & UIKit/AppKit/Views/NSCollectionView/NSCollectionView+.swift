@@ -84,16 +84,6 @@ public extension NSCollectionView {
         enclosingScrollView?.scrollToEndOfDocument(nil)
     }
 
-    func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animated: Bool) {
-        if animated == true {
-            performBatchUpdates({
-                self.animator().collectionViewLayout = layout
-            })
-        } else {
-            collectionViewLayout = layout
-        }
-    }
-
     func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animated: Bool, completion: ((Bool) -> Void)? = nil) {
         if animated == true {
             performBatchUpdates({

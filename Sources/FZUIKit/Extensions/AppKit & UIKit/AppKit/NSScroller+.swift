@@ -9,6 +9,7 @@
 import AppKit
 
 public extension NSScroller {
+    /// The thickness of the scroller.
     var thickness: CGFloat {
         return Self.scrollerWidth(for: controlSize, scrollerStyle: scrollerStyle)
     }
