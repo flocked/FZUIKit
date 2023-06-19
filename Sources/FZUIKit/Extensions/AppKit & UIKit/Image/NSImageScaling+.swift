@@ -15,20 +15,15 @@ extension NSImageScaling: CaseIterable {
 }
 
 public extension NSImageScaling {
-    static var reize: Self { return .scaleAxesIndependently }
-    static var reizeAspect: Self { return .scaleProportionallyDown }
-    static var reizeAspectFill: Self { return .scaleProportionallyUpOrDown }
-    static var center: Self { return .scaleNone }
-
     var contentsGravity: CALayerContentsGravity {
         switch self {
-        case .center, .scaleNone:
+        case .scaleNone:
             return .center
-        case .reizeAspect, .scaleProportionallyDown:
+        case .scaleProportionallyDown:
             return .resizeAspectFill
-        case .reizeAspectFill, .scaleProportionallyUpOrDown:
+        case  .scaleProportionallyUpOrDown:
             return .resize
-        case .reize, .scaleAxesIndependently:
+        case.scaleAxesIndependently:
             return .resizeAspect
         @unknown default:
             return .center
@@ -36,7 +31,7 @@ public extension NSImageScaling {
     }
 
     init(contentsGravity: CALayerContentsGravity) {
-        let rawValue = NSImageScaling.allCases.first(where: { $0.contentsGravity == contentsGravity })?.rawValue ?? NSImageScaling.reizeAspectFill.rawValue
+        let rawValue = NSImageScaling.allCases.first(where: { $0.contentsGravity == contentsGravity })?.rawValue ?? NSImageScaling.scaleProportionallyUpOrDown.rawValue
         self.init(rawValue: rawValue)!
     }
 }

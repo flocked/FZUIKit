@@ -10,7 +10,7 @@ import FZSwiftUtils
 #if os(macOS)
 import AppKit
 
-// An UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them.
+// An UIImage port for generating thumbnails and for preparing and decoding images for much better performance when displaying then.
 
 public extension NSImage {
     /**

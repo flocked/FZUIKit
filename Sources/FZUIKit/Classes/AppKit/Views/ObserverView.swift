@@ -9,34 +9,10 @@
 import AppKit
 import FZSwiftUtils
 
-public protocol PasteboardWriting { }
-extension String: PasteboardWriting { }
-extension NSImage: PasteboardWriting { }
-extension URL: PasteboardWriting { }
-
-internal extension PasteboardWriting {
-    var nsPasteboardWriting: NSPasteboardWriting? {
-        return (self as? NSPasteboardWriting) ?? (self as? NSURL)
-    }
-}
-
 /**
- A NSView that adds various handlers (e.g. for mouse events and changes to the window and superview).
+ A view that provides various handlers for mouse, key, view, window and drag & drop events.
  */
 public class ObservingView: NSView {
-    public var contentView: NSView? = nil {
-        willSet {
-            if (newValue != self.contentView) {
-                self.contentView?.removeFromSuperview()
-            }
-        }
-        
-        didSet {
-            if let contentView = self.contentView {
-                self.addSubview(withConstraint: contentView)
-            }
-        }
-    }
     
     public var windowHandlers = WindowHandlers() {
         didSet { self.updateWindowObserver() }
@@ -58,6 +34,17 @@ public class ObservingView: NSView {
         didSet {
             if dragAndDropHandlers.isSetup {
             self.setupDragAndDrop() } }
+    }
+    
+    public var contentView: NSView? = nil {
+        didSet {
+            if oldValue != self.contentView {
+                oldValue?.removeFromSuperview()
+            }
+            if let contentView = self.contentView {
+                self.addSubview(withConstraint: contentView)
+            }
+        }
     }
     
     internal func setupDragAndDrop() {
@@ -373,6 +360,16 @@ public extension ObservingView {
             }
             return options
         }
+    }
+}
+public protocol PasteboardWriting { }
+extension String: PasteboardWriting { }
+extension NSImage: PasteboardWriting { }
+extension URL: PasteboardWriting { }
+
+internal extension PasteboardWriting {
+    var nsPasteboardWriting: NSPasteboardWriting? {
+        return (self as? NSPasteboardWriting) ?? (self as? NSURL)
     }
 }
 #endif

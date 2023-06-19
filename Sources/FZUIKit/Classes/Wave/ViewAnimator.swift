@@ -1,8 +1,8 @@
 //
 //  ViewAnimator.swift
-//  Wave
 //
-//  Copyright (c) 2022 Janum Trivedi.
+//  Modified by Florian Zand
+//  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
 import CoreGraphics

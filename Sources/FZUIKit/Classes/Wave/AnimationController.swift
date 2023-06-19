@@ -1,8 +1,8 @@
 //
 //  AnimationController.swift
-//  ATest
 //
-//  Created by Florian Zand on 03.06.22.
+//  Modified by Florian Zand
+//  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
 import Combine

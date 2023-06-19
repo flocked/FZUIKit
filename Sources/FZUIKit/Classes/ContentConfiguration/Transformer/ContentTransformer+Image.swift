@@ -45,8 +45,8 @@ public struct ImageTransformer: ContentTransformer {
         return Self("preparedForDisplay") { $0.preparingForDisplay() ?? $0 }
     }
 
-    public static func roundedCorners(radius: CGFloat) -> Self {
-        return Self("roundedCorners: \(radius)") { $0.roundedCorners(radius: radius) }
+    public static func rounded(radius: CGFloat) -> Self {
+        return Self("roundedCorners: \(radius)") { $0.rounded(radius: radius) }
     }
 
     public static var rounded: Self {

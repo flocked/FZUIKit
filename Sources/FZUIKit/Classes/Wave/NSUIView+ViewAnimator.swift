@@ -1,8 +1,8 @@
 //
-//  UIView+ViewAnimator.swift
-//  Wave
+//  NSUIView+ViewAnimator.swift
 //
-//  Copyright (c) 2022 Janum Trivedi.
+//  Modified by Florian Zand
+//  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
 #if os(iOS)
