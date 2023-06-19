@@ -150,6 +150,32 @@ public class SimpleStackViewNew: NSView {
          
     }
     
+    public func sizeThatFits(_ size: CGSize) -> CGSize {
+        var fittingSize: CGSize? = nil
+        if orientation == .vertical, size.width != .zero {
+            let originalWidthConstraint: NSLayoutConstraint? = self.constraints.first(where: {$0.firstAttribute == .width
+                || $0.secondAttribute == .width
+            })
+            originalWidthConstraint?.isActive = false
+            let widthConstraint = self.widthAnchor.constraint(equalToConstant: (size.width == .infinity || size.width == NSUIView.noIntrinsicMetric) ? 10000 : size.width)
+            widthConstraint.isActive = true
+            fittingSize = self.fittingSize
+            widthConstraint.isActive = false
+            originalWidthConstraint?.isActive = true
+        } else if orientation == .horizontal, size.height != .zero {
+            let originalHeightConstraint: NSLayoutConstraint? = self.constraints.first(where: {$0.firstAttribute == .height
+                || $0.secondAttribute == .height
+            })
+            originalHeightConstraint?.isActive = false
+            let heightConstraint = self.heightAnchor.constraint(equalToConstant: (size.height == .infinity || size.height == NSUIView.noIntrinsicMetric) ? 10000 : size.height)
+            heightConstraint.isActive = true
+            fittingSize = self.fittingSize
+            heightConstraint.isActive = false
+            originalHeightConstraint?.isActive = true
+        }
+        return fittingSize ?? self.fittingSize
+    }
+    
     internal func updateViewConstraints() {
         NSLayoutConstraint.deactivate(viewConstraints)
         viewConstraints.removeAll()

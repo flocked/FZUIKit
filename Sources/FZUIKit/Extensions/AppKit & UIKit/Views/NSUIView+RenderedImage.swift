@@ -16,7 +16,6 @@ public extension NSView {
     static var currentContext: CGContext? {
         return NSGraphicsContext.current?.cgContext
     }
-
     
     var renderedImage: NSImage {
         let image = NSImage(size: bounds.size)

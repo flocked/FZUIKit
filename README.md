@@ -4,11 +4,13 @@ Swift AppKit/UIKit extensions and useful Classes & utilities.
 
 ## Notable Extensions & Classes
 
-### NSView background color
+### NSView backgroundColor & CALayer dynamicBackgroundColor
 A background color property that automatically adjusts on light/dark mode changes.
 
 ```
-view.backgroundColor = .red
+view.backgroundColor = .systemRed
+
+layer.dynamicBackgroundColor = .systemBlue
 ```
 
 ### AVPlayer looping
