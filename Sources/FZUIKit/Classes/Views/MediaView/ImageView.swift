@@ -9,18 +9,18 @@
 import AppKit
 import Foundation
 
-public class ImageView: NSView {
-    public var contentTintColor: NSColor? {
+open class ImageView: NSView {
+    open var contentTintColor: NSColor? {
         get { self.imageLayer.contentTintColor }
         set { self.imageLayer.contentTintColor = newValue }
     }
 
-    override public func viewDidChangeEffectiveAppearance() {
+    override open func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         imageLayer.updateDisplayingImageSymbolConfiguration()
     }
 
-    public var image: NSImage? {
+    open var image: NSImage? {
         get {
             imageLayer.image
         }
@@ -29,7 +29,7 @@ public class ImageView: NSView {
         }
     }
 
-    public var images: [NSImage] {
+    open var images: [NSImage] {
         get {
             imageLayer.images
         }
@@ -38,7 +38,7 @@ public class ImageView: NSView {
         }
     }
 
-    public var imageScaling: CALayerContentsGravity {
+    open var imageScaling: CALayerContentsGravity {
         get {
             imageLayer.imageScaling
         }
@@ -49,12 +49,12 @@ public class ImageView: NSView {
     }
 
     @available(macOS 12.0, iOS 13.0, *)
-    public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
+    open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { imageLayer.symbolConfiguration }
         set { imageLayer.symbolConfiguration = newValue }
     }
 
-    public var autoAnimates: Bool {
+    open var autoAnimates: Bool {
         get {
             imageLayer.autoAnimates
         }
@@ -63,7 +63,7 @@ public class ImageView: NSView {
         }
     }
 
-    public var animationDuration: TimeInterval {
+    open var animationDuration: TimeInterval {
         get {
             imageLayer.animationDuration
         }
@@ -72,57 +72,57 @@ public class ImageView: NSView {
         }
     }
 
-    public var isAnimating: Bool {
+    open var isAnimating: Bool {
         return imageLayer.isAnimating
     }
 
-    public func startAnimating() {
+    open func startAnimating() {
         imageLayer.startAnimating()
     }
 
-    public func pauseAnimating() {
+    open func pauseAnimating() {
         imageLayer.pauseAnimating()
     }
 
-    public func stopAnimating() {
+    open func stopAnimating() {
         imageLayer.stopAnimating()
     }
 
-    public func toggleAnimating() {
+    open func toggleAnimating() {
         imageLayer.toggleAnimating()
     }
 
-    public func setFrame(to option: ImageLayer.FrameOption) {
+    open func setFrame(to option: ImageLayer.FrameOption) {
         imageLayer.setFrame(to: option)
     }
 
-    public func setGif(image: NSImage) {
+    open func setGif(image: NSImage) {
         imageLayer.setGif(image: image)
     }
 
-    override public var fittingSize: NSSize {
+    override open var fittingSize: NSSize {
         return imageLayer.fittingSize
     }
 
-    public func sizeToFit() {
+    open func sizeToFit() {
         frame.size = fittingSize
     }
 
-    public func sizeThatFits(_ size: CGSize) -> CGSize {
+    open func sizeThatFits(_ size: CGSize) -> CGSize {
         return imageLayer.sizeThatFits(size)
     }
 
     private let imageLayer = ImageLayer()
 
-    override public func makeBackingLayer() -> CALayer {
+    override open func makeBackingLayer() -> CALayer {
         return imageLayer
     }
 
-    public var displayingImage: NSUIImage? {
+    open var displayingImage: NSUIImage? {
         return self.imageLayer.displayingImage
     }
 
-    override public var intrinsicContentSize: CGSize {
+    override open var intrinsicContentSize: CGSize {
         return displayingImage?.size ?? CGSize(width: NSUIView.noIntrinsicMetric, height: NSUIView.noIntrinsicMetric)
     }
 
@@ -146,12 +146,12 @@ public class ImageView: NSView {
         self.images = images
     }
 
-    override init(frame frameRect: NSRect) {
+    override public init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         sharedInit()
     }
 
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }
@@ -163,7 +163,7 @@ public class ImageView: NSView {
     }
 
     /*
-     public override var wantsUpdateLayer: Bool {
+     open override var wantsUpdateLayer: Bool {
      return true
      }
      */

@@ -157,6 +157,10 @@ public class SimpleStackView: NSView {
          
     }
     
+    public override var intrinsicContentSize: NSSize {
+        self.sizeThatFits(CGSize(width: NSUIView.noIntrinsicMetric, height: NSUIView.noIntrinsicMetric))
+    }
+    
     public func sizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize: CGSize? = nil
         if orientation == .vertical, size.width != .zero {
