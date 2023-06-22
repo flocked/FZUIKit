@@ -61,7 +61,7 @@ public extension ContentConfiguration {
             Self(color: .black, width: 1.0)
         }
         
-        internal var _resolvedColor: NSColor? = nil
+        internal var _resolvedColor: NSUIColor? = nil
         internal mutating func updateResolvedColor() {
             _resolvedColor = resolvedColor()
         }

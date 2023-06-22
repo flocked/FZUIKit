@@ -30,6 +30,7 @@ class AutoHeightHostingController<Content>: NSUIHostingController<Content> where
     internal var previousWidth: CGFloat = 0.0
     internal lazy var heightAnchor = self.view.heightAnchor.constraint(equalToConstant: 1)
     
+    #if os(macOS)
     override func viewDidLayout() {
         if self.view.frame.size.width != previousWidth {
             previousWidth = self.view.frame.size.width
@@ -37,6 +38,15 @@ class AutoHeightHostingController<Content>: NSUIHostingController<Content> where
             self.heightAnchor.constant = fittingSize.height
         }
     }
+    #elseif canImport(UIKit)
+    override func viewDidLayoutSubviews() {
+        if self.view.frame.size.width != previousWidth {
+            previousWidth = self.view.frame.size.width
+            let fittingSize = self.sizeThatFits(in: CGSize(width: previousWidth, height: 10000))
+            self.heightAnchor.constant = fittingSize.height
+        }
+    }
+    #endif
 }
 
 /*

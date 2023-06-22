@@ -1,8 +1,7 @@
+#if os(macOS)
 import AppKit
 import SwiftUI
 import FZSwiftUtils
-
-#if os(macOS)
 /**
  A content configuration suitable for hosting a hierarchy of SwiftUI views.
 

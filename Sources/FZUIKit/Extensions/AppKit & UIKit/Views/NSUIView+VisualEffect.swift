@@ -92,13 +92,9 @@ internal extension UIView {
         internal func updateEffect() {
             if let newStyle = contentProperties.style {
                 switch newStyle {
-                case let .vibrancy(blur: blurStyle, vibrancy: vibrancy):
+                case let .vibrancy(vibrancy, blur: blurStyle):
                     let blurEffect = UIBlurEffect(style: blurStyle)
-                    if let vibrancy = vibrancy {
-                        effect = UIVibrancyEffect(blurEffect: blurEffect, style: vibrancy)
-                    } else {
-                        effect = UIVibrancyEffect(blurEffect: blurEffect)
-                    }
+                    effect = UIVibrancyEffect(blurEffect: blurEffect, style: vibrancy)
                 case let .blur(blurStyle):
                     effect = UIBlurEffect(style: blurStyle)
                 }

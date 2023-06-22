@@ -127,7 +127,7 @@ public extension NSUIImage {
     
     func rounded() -> NSUIImage {
         let maxRadius = min(size.width, size.height)
-        return roundedCorners(radius: maxRadius)
+        return rounded(radius: maxRadius)
     }
     
     func rounded(radius: CGFloat) -> NSUIImage {

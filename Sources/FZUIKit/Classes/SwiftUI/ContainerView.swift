@@ -13,18 +13,32 @@ import UIKit
 import SwiftUI
 
 /// A SwiftUI view that displays a NSView / UIView.
-public struct ContainerView<Content: NSUIView>: NSViewRepresentable {
+public struct ContainerView<Content: NSUIView>: NSUIViewRepresentable {
     public let view: Content
     
     public init(view: Content) {
         self.view = view
     }
     
-  public func makeNSView(context: Context) -> Content {
-      return view
-  }
-  
-  public func updateNSView(_ nsView: Content, context: Context) {
-   
-  }
+#if os(macOS)
+    public typealias NSViewType = Content
+    
+    public func updateNSView(_ nsView: Content, context: Context) {
+        
+    }
+    
+    public func makeNSView(context: Context) -> Content {
+        return view
+    }
+#elseif canImport(UIKit)
+    public typealias UIViewType = Content
+    
+    public func updateUIView(_ nsView: Content, context: Context) {
+        
+    }
+    
+    public func makeUIView(context: Context) -> Content {
+        return view
+    }
+#endif
 }

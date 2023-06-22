@@ -5,10 +5,10 @@
 //  Created by Florian Zand on 08.04.23.
 //
 
-import AppKit
-import FZSwiftUtils
 
 #if os(macOS)
+import AppKit
+import FZSwiftUtils
 
 /**
  A content configuration suitable for backgrounds.

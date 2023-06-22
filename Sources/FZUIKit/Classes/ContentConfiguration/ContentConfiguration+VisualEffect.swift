@@ -132,11 +132,8 @@ public extension UIVisualEffectView {
     func configurate(using configuration: ContentConfiguration.VisualEffect) {
         if let style = configuration.style {
             switch style {
-            case let .vibrancy(blur: blur, vibrancy: vibrancy):
-                effect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur))
-                if let vibrancy = vibrancy {
-                    effect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)
-                }
+            case let .vibrancy(vibrancy, blur: blur):
+                effect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)
             case let .blur(blurStyle):
                 effect = UIBlurEffect(style: blurStyle)
             }

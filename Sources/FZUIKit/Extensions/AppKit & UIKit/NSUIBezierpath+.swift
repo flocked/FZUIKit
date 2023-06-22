@@ -203,14 +203,7 @@ public extension NSBezierPath {
         assert(rect.width == rect.height)
         return superellipse(in: rect, cornerRadius: rect.width / 2)
     }
-}
-#endif
-
-public extension NSUIBezierPath {
-    convenience init(roundedRect rect: CGRect, byRoundingCorners corners: NSUIRectCorner, cornerRadius: CGFloat) {
-        self.init(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
-    }
-
+    
     func rotationTransform(byRadians radians: Double, centerPoint point: CGPoint) -> AffineTransform {
         var transform = AffineTransform()
         transform.translate(x: point.x, y: point.y)
@@ -229,6 +222,13 @@ public extension NSUIBezierPath {
         let transform = rotationTransform(byRadians: radians, centerPoint: point)
         path.transform(using: transform)
         return path
+    }
+}
+#endif
+
+public extension NSUIBezierPath {
+    convenience init(roundedRect rect: CGRect, byRoundingCorners corners: NSUIRectCorner, cornerRadius: CGFloat) {
+        self.init(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
     }
 }
 

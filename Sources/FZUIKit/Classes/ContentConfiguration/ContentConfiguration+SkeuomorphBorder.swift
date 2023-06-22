@@ -89,7 +89,7 @@ public extension UIView {
             if let borderLayer = borderLayer {
                 self.layer.addSublayer(borderLayer)
                 borderLayer.sendToBack()
-                var constraints = borderLayer.constraintTo(layer: layer)
+                let constraints = borderLayer.constraintTo(layer: layer)
                 constraints[0].constant = properties.width
                 constraints[1].constant = properties.width
                 constraints[2].constant = properties.width

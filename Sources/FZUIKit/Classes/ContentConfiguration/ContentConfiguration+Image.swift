@@ -59,8 +59,8 @@ public extension ContentConfiguration {
             return nil
         }
         
-        internal var _resolvedbackgroundColor: NSColor? = nil
-        internal var _resolvedTintColor: NSColor? = nil
+        internal var _resolvedbackgroundColor: NSUIColor? = nil
+        internal var _resolvedTintColor: NSUIColor? = nil
         internal mutating func updateResolvedColor() {
             _resolvedbackgroundColor = resolvedBackgroundColor()
             _resolvedTintColor = resolvedTintColor()

@@ -22,9 +22,9 @@ import SwiftUI
  */
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-public class InnerShadowView: NSView {
+public class InnerShadowView: NSUIView {
     
-    public var shadowColor: NSColor? = nil {
+    public var shadowColor: NSUIColor? = nil {
         didSet { if oldValue != shadowColor {
                 self.updateShadow()
             } } }
@@ -55,11 +55,10 @@ public class InnerShadowView: NSView {
     }
      */
     
-    public override init(frame frameRect: NSRect) {
+    public override init(frame frameRect: CGRect) {
         super.init(frame: frameRect)
         self.initalSetup()
     }
-    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.initalSetup()
@@ -69,14 +68,14 @@ public class InnerShadowView: NSView {
         hostingController.rootView = ShadowView(color: shadowColor?.swiftUI, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset)
     }
     
-    internal let hostingController = NSHostingController(rootView: ShadowView.black)
+    internal let hostingController = NSUIHostingController(rootView: ShadowView.black)
 
    internal func initalSetup() {
        self.addSubview(withConstraint: hostingController.view)
     }
 }
 
-@available(macOS 13.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 public struct ShadowView: View {
     public let color: Color?
     public let opacity: CGFloat

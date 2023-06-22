@@ -47,7 +47,7 @@ public extension ContentConfiguration {
             return (color == nil || opacity == 0.0)
         }
         
-        internal var _resolvedColor: NSColor? = nil
+        internal var _resolvedColor: NSUIColor? = nil
         internal mutating func updateResolvedColor() {
             _resolvedColor = resolvedColor()
         }
@@ -65,7 +65,7 @@ public extension ContentConfiguration {
 
         public static func none() -> Self { return Self(color: nil, opacity: 0.0) }
         public static func `default`() -> Self { return Self() }
-        public static func black() -> Self { return Self(color: .controlAccentColor) }
+        public static func black() -> Self { return Self(color: .black) }
         #if os(macOS)
         public static func accentColor() -> Self { return Self(color: .controlAccentColor) }
         #endif

@@ -5,10 +5,10 @@
 //  Created by Florian Zand on 22.06.23.
 //
 
-import AppKit
-import FZSwiftUtils
 
 #if os(macOS)
+import AppKit
+import FZSwiftUtils
 
 public class NSBackgroundContentView: NSView, NSContentView {
     /// The current configuration of the view.

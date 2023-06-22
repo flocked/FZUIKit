@@ -44,6 +44,9 @@ public typealias NSUILayoutGuide = NSLayoutGuide
 public typealias NSUICollectionViewItem = NSCollectionViewItem
 public typealias NSUIViewCornerShape = NSViewCornerShape
 public typealias NSUILayoutPriority = NSLayoutConstraint.Priority
+public typealias NSUIUserInterfaceLayoutOrientation = NSUserInterfaceLayoutOrientation
+public typealias NSUIViewRepresentable = NSViewRepresentable
+
 #elseif canImport(UIKit)
 import UIKit
 public typealias NSUIBezierPath = UIBezierPath
@@ -77,4 +80,7 @@ public typealias NSUILayoutGuide = UILayoutGuide
 public typealias NSUICollectionViewItem = UICollectionViewCell
 public typealias NSUIViewCornerShape = UIViewCornerShape
 public typealias NSUILayoutPriority = UILayoutPriority
+public typealias NSUIUserInterfaceLayoutOrientation = NSLayoutConstraint.Axis
+public typealias NSUIViewRepresentable = UIViewRepresentable
+
 #endif

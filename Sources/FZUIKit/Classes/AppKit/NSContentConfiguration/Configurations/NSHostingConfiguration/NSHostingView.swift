@@ -5,11 +5,10 @@
 //  Created by Florian Zand on 01.06.23.
 //
 
+#if os(macOS)
 import AppKit
 import SwiftUI
 import FZSwiftUtils
-
-#if os(macOS)
 
 internal class NSHostingContentView<Content, Background>: NSView, NSContentView where Content: View, Background: View {
     
