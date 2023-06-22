@@ -1,5 +1,5 @@
 //
-//  SimpleStackViewNew.swift
+//  SimpleStackView.swift
 //
 //
 //  Created by Florian Zand on 18.06.23.
@@ -14,7 +14,7 @@ import FZSwiftUtils
  
  It's a simplified stack view compared to NSStackView.
  */
-public class SimpleStackViewNew: NSView {
+public class SimpleStackView: NSView {
     /// The distribution for an arranged subview.
     public enum ViewDistribution: Int {
         /// The view fills the total stack view orientation (default).

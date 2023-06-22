@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 16.09.21.
 //
 
+
 import Foundation
 #if os(macOS)
 import AppKit
@@ -55,11 +56,11 @@ public class InnerShadowLayer: CALayer {
     }
 
     public var configuration: ContentConfiguration.Shadow {
-        get { ContentConfiguration.Shadow(color: self.color, opacity: CGFloat(self.opacity), radius: self.radius, offset: self.offset) }
+        get { ContentConfiguration.Shadow(color: self.color, opacity: CGFloat(self.opacity), radius: self.radius, offset: CGPoint(x: self.offset.width, y: self.offset.height))  }
         set {
             self.color = newValue.color
             self.opacity = Float(newValue.opacity)
-            self.offset = newValue.offset
+            self.offset = CGSize(width: newValue.offset.x, height: newValue.offset.y)
             self.radius = newValue.radius
         }
     }
@@ -102,3 +103,4 @@ public class InnerShadowLayer: CALayer {
         update()
     }
 }
+

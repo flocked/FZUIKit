@@ -10,6 +10,7 @@ import Foundation
 import FZSwiftUtils
 
 extension AVPlayer {
+    /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
     public var isLooping: Bool {
         get {
             return getAssociatedValue(key: "_playerIsLooping", object: self, initialValue: false)
@@ -49,10 +50,15 @@ extension AVPlayer {
 }
 
 public extension AVPlayer {
-    enum State: Int {
+    /// The state of hte player.
+    enum State: String {
+        /// The player is playing.
         case isPlaying
+        /// The player is paused.
         case isPaused
+        /// The player is stopped.
         case isStopped
+        /// The player has an error.
         case error
     }
 
@@ -70,11 +76,17 @@ public extension AVPlayer {
         }
     }
 
+    /// Stops playback of the current item and seeks it to the start.
     func stop() {
         pause()
         seek(to: TimeDuration.zero)
     }
 
+    /**
+     Requests that the player seek to a specified percentage.
+     
+     - Parameters percentage: The percentage to which to seek.
+     */
     func seek(toPercentage percentage: Double) {
         if let currentItem = currentItem {
             let duration = currentItem.duration
@@ -84,11 +96,17 @@ public extension AVPlayer {
         }
     }
 
-    func seek(to duration: TimeDuration) {
-        let seekTo = CMTime(duration: duration)
+    /**
+     Requests that the player seek to a specified time expressed by seconds.
+     
+     - Parameters duration: The time to which to seek.
+     */
+    func seek(to time: TimeDuration) {
+        let seekTo = CMTime(duration: time)
         seek(to: seekTo)
     }
 
+    /// The remaining time until the player reaches to end.
     var remainingTime: CMTime? {
         if let duration = currentItem?.duration {
             let remainingSeconds = duration.seconds - currentTime().seconds
@@ -97,6 +115,7 @@ public extension AVPlayer {
         return nil
     }
 
+    /// The percentage played.
     var currentPercentage: Double? {
         if let duration = currentItem?.duration {
             return currentTime().seconds / duration.seconds
@@ -104,6 +123,7 @@ public extension AVPlayer {
         return nil
     }
 
+    /// Toggles the playback.
     func togglePlayback() {
         if state == .isPlaying {
             pause()

@@ -41,7 +41,7 @@ public extension ContentConfiguration {
         /// The blur radius of the shadow.
         public var radius: CGFloat = 2.0
         /// The offset of the shadow.
-        public var offset: CGSize = .init(width: 1.0, height: -1.5)
+        public var offset: CGPoint = .init(x: 1.0, y: -1.5)
 
         internal var isInvisible: Bool {
             return (color == nil || opacity == 0.0)
@@ -55,7 +55,7 @@ public extension ContentConfiguration {
         public init(color: NSUIColor? = .shadowColor,
                     opacity: CGFloat = 0.3,
                     radius: CGFloat = 2.0,
-                    offset: CGSize = CGSize(width: 1.0, height: -1.5))
+                    offset: CGPoint = CGPoint(x: 1.0, y: -1.5))
         {
             self.color = color
             self.opacity = opacity
@@ -85,7 +85,7 @@ public extension NSShadow {
     
     func configurate(using configuration: ContentConfiguration.Shadow) {
         self.shadowColor = configuration.resolvedColor(withOpacity: true)
-        self.shadowOffset = configuration.offset
+        self.shadowOffset = CGSize(width: configuration.offset.x, height: configuration.offset.y)
         self.shadowBlurRadius = configuration.radius
     }
 }
@@ -146,7 +146,7 @@ public extension CALayer {
     func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
         if type == .outer {
             shadowColor = configuration.resolvedColor()?.cgColor
-            shadowOffset = configuration.offset
+            shadowOffset = CGSize(width: configuration.offset.x, height: configuration.offset.y)
             shadowRadius = configuration.radius
             shadowOpacity = Float(configuration.opacity)
         } else {

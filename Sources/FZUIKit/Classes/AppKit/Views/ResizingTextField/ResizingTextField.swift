@@ -8,7 +8,6 @@
 #if os(macOS)
 
 import AppKit
-import Foundation
 
 public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     public enum EditState {

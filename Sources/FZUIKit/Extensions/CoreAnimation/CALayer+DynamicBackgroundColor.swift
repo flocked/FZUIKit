@@ -11,25 +11,6 @@ import AppKit
 import FZSwiftUtils
 import QuartzCore
 
-internal protocol ObservableAppearanceObject: NSAppearanceCustomization {
-    func observeEffectiveAppearance(changeHandler: @escaping (() -> Void)) -> NSKeyValueObservation
-}
-
-extension NSView: ObservableAppearanceObject {}
-extension NSApplication: ObservableAppearanceObject {}
-extension NSWindow: ObservableAppearanceObject {}
-extension NSMenu: ObservableAppearanceObject {}
-extension NSPopover: ObservableAppearanceObject {}
-
-extension ObservableAppearanceObject where Self: NSObject & NSAppearanceCustomization {
-    func observeEffectiveAppearance(changeHandler: @escaping (() -> Void)) -> NSKeyValueObservation {
-        return observeChange(\.effectiveAppearance) { [weak self] _,_, _ in
-            guard self != nil else { return }
-            changeHandler()
-        }
-    }
-}
-
 public extension CALayer {
     /// The background color of the layer that automatically updates whenever the appearance of the app changes (e.g. on dark & light mode).
     var dynamicBackgroundColor: NSColor? {
@@ -56,17 +37,6 @@ public extension CALayer {
         }
     }
     
-    var superview: NSView? {
-        var currentLayer: CALayer? = self
-        while let layer = currentLayer {
-            if let view = (layer.delegate as? NSView) {
-                return view
-            }
-            currentLayer = currentLayer?.superlayer
-        }
-        return nil
-    }
-
     internal var effectiveAppearanceObserver: NSKeyValueObservation? {
         get { getAssociatedValue(key: "_layerEffectiveAppearanceObserver", object: self) }
         set { set(associatedValue: newValue, key: "_layerEffectiveAppearanceObserver", object: self) }
@@ -77,14 +47,21 @@ public extension CALayer {
         backgroundColor = dynamicBackgroundColor?.resolvedColor(for: appearance).cgColor
     }
 
-    internal var appearanceObject: ObservableAppearanceObject? {
-        if let appearanceObject = delegate as? ObservableAppearanceObject {
+    internal var appearanceObject: (NSObject & NSAppearanceCustomization)? {
+        if let appearanceObject = delegate as? (NSObject & NSAppearanceCustomization) {
             return appearanceObject
         }
         return superlayer?.appearanceObject
     }
 }
 
-
+internal extension NSAppearanceCustomization where Self: NSObject {
+    func observeEffectiveAppearance(changeHandler: @escaping (() -> Void)) -> NSKeyValueObservation {
+        return observeChange(\.effectiveAppearance) { [weak self] _,_, _ in
+            guard self != nil else { return }
+            changeHandler()
+        }
+    }
+}
 
 #endif

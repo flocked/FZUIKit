@@ -1,110 +1,118 @@
 //
 //  InnerShadowView.swift
-//  FZExtensions
+//  InnerShadow
 //
-//  Created by Florian Zand on 03.09.22.
+//  Created by Florian Zand on 19.06.23.
 //
 
 #if os(macOS)
 import AppKit
-
-public class InnerShadowView: NSView {
-    static let Tag = 435_234_364
-
-    public var shadowOpacity: CGFloat {
-        get { return CGFloat(innershadowLayer.shadowOpacity) }
-        set { innershadowLayer.shadowOpacity = Float(newValue) }
-    }
-
-    public var shadowRadius: CGFloat {
-        get { innershadowLayer.shadowRadius }
-        set { innershadowLayer.shadowRadius = newValue }
-    }
-
-    public var shadowOffset: CGSize {
-        get { innershadowLayer.offset }
-        set { innershadowLayer.offset = newValue }
-    }
-
-    public var shadowColor: NSColor? {
-        get { innershadowLayer.color }
-        set { innershadowLayer.color = newValue }
-    }
-
-    public var configuration: ContentConfiguration.Shadow {
-        get { innershadowLayer.configuration }
-        set { innershadowLayer.configuration = newValue }
-    }
-
-    internal lazy var innershadowLayer: InnerShadowLayer = {
-        self.wantsLayer = true
-        let shadowLayer: InnerShadowLayer
-        if let sLayer = self.layer as? InnerShadowLayer {
-            shadowLayer = sLayer
-        } else {
-            shadowLayer = InnerShadowLayer()
-            self.layer = shadowLayer
-        }
-        self.layer?.zPosition = .greatestFiniteMagnitude
-        return shadowLayer
-    }()
-
-    override public func makeBackingLayer() -> CALayer {
-        let shadowLayer = InnerShadowLayer()
-        return shadowLayer
-    }
-
-    override public var tag: Int {
-        return Self.Tag
-    }
-}
-
 #elseif canImport(UIKit)
 import UIKit
-public class InnerShadowView: UIView {
-    static let Tag = 435_234_364
+#endif
+import SwiftUI
+ 
+/**
+ iOS 16.0+
+ iPadOS 16.0+
+ macOS 13.0+
+ Mac Catalyst 16.0+
+ tvOS 16.0+
+ watchOS 9.0+
+ */
 
-    public var shadowOpacity: CGFloat {
-        get { return CGFloat(innershadowLayer.shadowOpacity) }
-        set { innershadowLayer.shadowOpacity = Float(newValue) }
-    }
-
-    public var shadowRadius: CGFloat {
-        get { innershadowLayer.shadowRadius }
-        set { innershadowLayer.shadowRadius = newValue }
-    }
-
-    public var shadowOffset: CGSize {
-        get { innershadowLayer.offset }
-        set { innershadowLayer.offset = newValue }
-    }
-
-    public var shadowColor: NSUIColor? {
-        get { innershadowLayer.color }
-        set { innershadowLayer.color = newValue }
-    }
-
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+public class InnerShadowView: NSView {
+    
+    public var shadowColor: NSColor? = nil {
+        didSet { if oldValue != shadowColor {
+                self.updateShadow()
+            } } }
+    
+    public var shadowOpacity: CGFloat = 0.7 {
+        didSet { if oldValue != shadowOpacity {
+                self.updateShadow()
+            } } }
+    
+    public var shadowRadius: CGFloat = 3 {
+        didSet { if oldValue != shadowRadius {
+                self.updateShadow()
+            } } }
+    
+    public var shadowOffset: CGPoint = CGPoint(x: 1, y: 1) {
+        didSet { if oldValue != shadowOffset {
+                self.updateShadow()
+            } } }
+    /*
     public var configuration: ContentConfiguration.Shadow {
-        get { innershadowLayer.configuration }
-        set { innershadowLayer.configuration = newValue }
+        get { ContentConfiguration.Shadow(color: self.shadowColor, opacity: self.shadowOpacity, radius: self.shadowRadius, offset: self.shadowOffset) }
+        set {
+            self.shadowColor = newValue.color
+            self.shadowOpacity = newValue.opacity
+            self.shadowOffset = newValue.offset
+            self.shadowRadius = newValue.radius
+        }
     }
-
-    internal var innershadowLayer: InnerShadowLayer {
-        return self.layer as! InnerShadowLayer
+     */
+    
+    public override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        self.initalSetup()
     }
-
-    override public class var layerClass: AnyClass { return InnerShadowLayer.self }
-
-    override public init(frame: CGRect) {
-        super.init(frame: frame)
-        tag = Self.Tag
-        layer.zPosition = .greatestFiniteMagnitude
-    }
-
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        tag = Self.Tag
-        layer.zPosition = .greatestFiniteMagnitude
+        self.initalSetup()
+    }
+    
+    internal func updateShadow() {
+        hostingController.rootView = ShadowView(color: shadowColor?.swiftUI, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset)
+    }
+    
+    internal let hostingController = NSHostingController(rootView: ShadowView.black)
+
+   internal func initalSetup() {
+       self.addSubview(withConstraint: hostingController.view)
     }
 }
-#endif
+
+@available(macOS 13.0, *)
+public struct ShadowView: View {
+    public let color: Color?
+    public let opacity: CGFloat
+    public let radius: CGFloat
+    public let offset: CGPoint
+    
+    public static var black: ShadowView {
+        ShadowView(color: .black)
+    }
+    
+    public static var accentColor: ShadowView {
+        ShadowView(color: .accentColor)
+    }
+    
+    public init(color: Color?, opacity: CGFloat = 0.7, radius: CGFloat = 3, offset: CGPoint = CGPoint(x: 1, y: 1)) {
+        self.color = color
+        self.opacity = opacity
+        self.radius = radius
+        self.offset = offset
+    }
+    
+    public var body: some View {
+        if let color = self.color {
+            Rectangle()
+                .fill(.shadow(.inner(color: color.opacity(opacity), radius: radius, x: offset.x, y: offset.y)))
+                .foregroundColor(.red)
+            
+            /*
+                .foregroundStyle(
+                    Color.blue.gradient.shadow(.inner(color: color.opacity(opacity), radius: radius, x: offset.x, y: offset.y))
+                )
+             */
+     
+                          
+        } else {
+            Rectangle()
+        }
+    }
+}
