@@ -4,6 +4,15 @@ Swift AppKit/UIKit extensions and useful Classes & utilities.
 
 ## Notable Extensions & Classes
 
+### ContentConfiguration
+A port of UIContentConfiguration.
+- NSHostingConfiguration
+```
+let configuration = NSHostingConfiguration() {
+    Text("Sample")
+}
+```
+
 ### NSView backgroundColor & CALayer dynamicBackgroundColor
 A background color property that automatically adjusts on light/dark mode changes.
 
