@@ -21,31 +21,6 @@ internal extension NSUIView {
     }
 }
 
-public extension NSUIView {
-    /**
-     Creates a view with the specified background color.
-     
-     - Parameters color: The background color of the view.
-     - Returns: An initialized view object.
-     */
-    convenience init(color: NSUIColor) {
-        self.init(frame: .zero)
-        self.backgroundColor = color
-    }
-    
-    /**
-     Creates a view with the specified background color and frame rectangle.
-     
-     - Parameters color: The background color of the view.
-     - Parameters frame: The frame rectangle for the view, measured in points. The origin of the frame is relative to the superview in which you plan to add it. This method uses the frame rectangle to set the center and bounds properties accordingly.
-     - Returns: An initialized view object.
-     */
-    convenience init(color: NSUIColor, frame: CGRect) {
-        self.init(frame: frame)
-        self.backgroundColor = color
-    }
-}
-
 public extension BackgroundViewSettable where Self: NSUIView {
     var backgroundView: NSUIView? {
         get { taggedBackgroundView?.backgroundView }
