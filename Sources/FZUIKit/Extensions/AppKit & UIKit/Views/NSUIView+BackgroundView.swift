@@ -21,6 +21,18 @@ internal extension NSUIView {
     }
 }
 
+public extension NSUIView {
+    convenience init(color: NSUIColor) {
+        self.init(frame: .zero)
+        self.backgroundColor = color
+    }
+    
+    convenience init(color: NSUIColor, frame: CGRect) {
+        self.init(frame: frame)
+        self.backgroundColor = color
+    }
+}
+
 public extension BackgroundViewSettable where Self: NSUIView {
     var backgroundView: NSUIView? {
         get { taggedBackgroundView?.backgroundView }
