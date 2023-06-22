@@ -9,18 +9,18 @@
 import AppKit
 import Foundation
 
-open class ImageView: NSView {
-    open var contentTintColor: NSColor? {
+public class ImageView: NSView {
+    public var contentTintColor: NSColor? {
         get { self.imageLayer.contentTintColor }
         set { self.imageLayer.contentTintColor = newValue }
     }
 
-    override open func viewDidChangeEffectiveAppearance() {
+    override public func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         imageLayer.updateDisplayingImageSymbolConfiguration()
     }
 
-    open var image: NSImage? {
+    public var image: NSImage? {
         get {
             imageLayer.image
         }
@@ -29,7 +29,7 @@ open class ImageView: NSView {
         }
     }
 
-    open var images: [NSImage] {
+    public var images: [NSImage] {
         get {
             imageLayer.images
         }
@@ -38,7 +38,7 @@ open class ImageView: NSView {
         }
     }
 
-    open var imageScaling: CALayerContentsGravity {
+    public var imageScaling: CALayerContentsGravity {
         get {
             imageLayer.imageScaling
         }
@@ -49,12 +49,12 @@ open class ImageView: NSView {
     }
 
     @available(macOS 12.0, iOS 13.0, *)
-    open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
+    public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { imageLayer.symbolConfiguration }
         set { imageLayer.symbolConfiguration = newValue }
     }
 
-    open var autoAnimates: Bool {
+    public var autoAnimates: Bool {
         get {
             imageLayer.autoAnimates
         }
@@ -63,7 +63,7 @@ open class ImageView: NSView {
         }
     }
 
-    open var animationDuration: TimeInterval {
+    public var animationDuration: TimeInterval {
         get {
             imageLayer.animationDuration
         }
@@ -72,57 +72,57 @@ open class ImageView: NSView {
         }
     }
 
-    open var isAnimating: Bool {
+    public var isAnimating: Bool {
         return imageLayer.isAnimating
     }
 
-    open func startAnimating() {
+    public func startAnimating() {
         imageLayer.startAnimating()
     }
 
-    open func pauseAnimating() {
+    public func pauseAnimating() {
         imageLayer.pauseAnimating()
     }
 
-    open func stopAnimating() {
+    public func stopAnimating() {
         imageLayer.stopAnimating()
     }
 
-    open func toggleAnimating() {
+    public func toggleAnimating() {
         imageLayer.toggleAnimating()
     }
 
-    open func setFrame(to option: ImageLayer.FrameOption) {
+    public func setFrame(to option: ImageLayer.FrameOption) {
         imageLayer.setFrame(to: option)
     }
 
-    open func setGif(image: NSImage) {
+    public func setGif(image: NSImage) {
         imageLayer.setGif(image: image)
     }
 
-    override open var fittingSize: NSSize {
+    override public var fittingSize: NSSize {
         return imageLayer.fittingSize
     }
 
-    open func sizeToFit() {
+    public func sizeToFit() {
         frame.size = fittingSize
     }
 
-    open func sizeThatFits(_ size: CGSize) -> CGSize {
+    public func sizeThatFits(_ size: CGSize) -> CGSize {
         return imageLayer.sizeThatFits(size)
     }
 
     private let imageLayer = ImageLayer()
 
-    override open func makeBackingLayer() -> CALayer {
+    override public func makeBackingLayer() -> CALayer {
         return imageLayer
     }
 
-    open var displayingImage: NSUIImage? {
+    public var displayingImage: NSUIImage? {
         return self.imageLayer.displayingImage
     }
 
-    override open var intrinsicContentSize: CGSize {
+    override public var intrinsicContentSize: CGSize {
         return displayingImage?.size ?? CGSize(width: NSUIView.noIntrinsicMetric, height: NSUIView.noIntrinsicMetric)
     }
 
@@ -163,7 +163,7 @@ open class ImageView: NSView {
     }
 
     /*
-     open override var wantsUpdateLayer: Bool {
+     public override var wantsUpdateLayer: Bool {
      return true
      }
      */
