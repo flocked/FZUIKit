@@ -117,7 +117,12 @@ public extension NSBezierPath {
             }
         }
     }
+/**
+ The Core Graphics representation of the path.
 
+ This property contains a snapshot of the path at any given point in time. Getting this property returns an immutable path object that you can pass to Core Graphics functions. The path object itself is owned by the UIBezierPath object and is valid only until you make further modifications to the path.
+ You can set the value of this property to a path you built using the functions of the Core Graphics framework. When setting a new path, this method makes a copy of the path you provide.
+ */
     var cgPath: CGPath {
         let path = CGMutablePath()
         var points = [CGPoint](repeating: .zero, count: 3)
@@ -142,12 +147,88 @@ public extension NSBezierPath {
         }
         return path
     }
+    
+    /**
+    Returns a new Bézier path object with a rounded rectangular path.
+
+     - Parameters rect: The rectangle that defines the basic shape of the path.
+     - Parameters cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+     - Returns: A new path object with the rounded rectangular path.
+    */
+    static func superellipse(in rect: CGRect, cornerRadius: Double) -> Self {
+        let minSide = min(rect.width, rect.height)
+        let radius = min(cornerRadius, minSide / 2)
+
+        let topLeft = CGPoint(x: rect.minX, y: rect.minY)
+        let topRight = CGPoint(x: rect.maxX, y: rect.minY)
+        let bottomLeft = CGPoint(x: rect.minX, y: rect.maxY)
+        let bottomRight = CGPoint(x: rect.maxX, y: rect.maxY)
+
+        // Top side (clockwise)
+        let point1 = CGPoint(x: rect.minX + radius, y: rect.minY)
+        let point2 = CGPoint(x: rect.maxX - radius, y: rect.minY)
+
+        // Right side (clockwise)
+        let point3 = CGPoint(x: rect.maxX, y: rect.minY + radius)
+        let point4 = CGPoint(x: rect.maxX, y: rect.maxY - radius)
+
+        // Bottom side (clockwise)
+        let point5 = CGPoint(x: rect.maxX - radius, y: rect.maxY)
+        let point6 = CGPoint(x: rect.minX + radius, y: rect.maxY)
+
+        // Left side (clockwise)
+        let point7 = CGPoint(x: rect.minX, y: rect.maxY - radius)
+        let point8 = CGPoint(x: rect.minX, y: rect.minY + radius)
+
+        let path = self.init()
+        path.move(to: point1)
+        path.line(to: point2)
+        path.curve(to: point3, controlPoint1: topRight, controlPoint2: topRight)
+        path.line(to: point4)
+        path.curve(to: point5, controlPoint1: bottomRight, controlPoint2: bottomRight)
+        path.line(to: point6)
+        path.curve(to: point7, controlPoint1: bottomLeft, controlPoint2: bottomLeft)
+        path.line(to: point8)
+        path.curve(to: point1, controlPoint1: topLeft, controlPoint2: topLeft)
+        return path
+    }
+
+    /**
+    Returns a new Bézier path object with a squircle rectangular path.
+
+     - Parameters rect: The rectangle that defines the basic shape of the path.
+     - Returns: A new path object with the squircle rectangular path.
+    */
+    static func squircle(rect: CGRect) -> Self {
+        assert(rect.width == rect.height)
+        return superellipse(in: rect, cornerRadius: rect.width / 2)
+    }
 }
 #endif
 
 public extension NSUIBezierPath {
     convenience init(roundedRect rect: CGRect, byRoundingCorners corners: NSUIRectCorner, cornerRadius: CGFloat) {
         self.init(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
+    }
+
+    func rotationTransform(byRadians radians: Double, centerPoint point: CGPoint) -> AffineTransform {
+        var transform = AffineTransform()
+        transform.translate(x: point.x, y: point.y)
+        transform.rotate(byRadians: radians)
+        transform.translate(x: -point.x, y: -point.y)
+        return transform
+    }
+
+    func rotating(byRadians radians: Double, centerPoint point: CGPoint) -> Self {
+        let path = self.copy() as! Self
+
+        guard radians != 0 else {
+            return path
+        }
+
+        let transform = rotationTransform(byRadians: radians, centerPoint: point)
+        path.transform(using: transform)
+        return path
     }
 }
 
