@@ -13,13 +13,11 @@ let configuration = NSHostingConfiguration() {
 }
 ```
 
-### NSView backgroundColor & CALayer dynamicBackgroundColor
+### NSView backgroundColor
 A background color property that automatically adjusts on light/dark mode changes.
 
 ```
 view.backgroundColor = .systemRed
-
-layer.dynamicBackgroundColor = .systemBlue
 ```
 
 ### AVPlayer looping
