@@ -1,13 +1,11 @@
 //
 //  NSContentView.swift
-//  
+//
 //
 //  Created by Florian Zand on 03.09.22.
 //
 
-/*
 #if os(macOS)
-
 import AppKit
 
 /**
@@ -34,15 +32,12 @@ public protocol NSContentView {
      - Returns: true if the view supports this configuration being set to its configuration property and is capable of updating itself for the configuration; otherwise, false.
      */
     func supports(_ configuration: NSContentConfiguration) -> Bool
-    func sizeThatFits(_ size: CGSize) -> CGSize
-    var fittingSize: CGSize { get }
 }
 
 public extension NSContentView {
+    /// Determines whether the view is compatible with the provided configuration.
     func supports(_ configuration: NSContentConfiguration) -> Bool {
        return type(of: configuration) == type(of: self.configuration)
     }
 }
-
 #endif
-*/
