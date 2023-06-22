@@ -145,7 +145,7 @@ public extension CALayer {
      */
     func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
         if type == .outer {
-            shadowColor = configuration.resolvedColor()?.cgColor
+            shadowColor = configuration._resolvedColor?.cgColor
             shadowOffset = CGSize(width: configuration.offset.x, height: configuration.offset.y)
             shadowRadius = configuration.radius
             shadowOpacity = Float(configuration.opacity)
