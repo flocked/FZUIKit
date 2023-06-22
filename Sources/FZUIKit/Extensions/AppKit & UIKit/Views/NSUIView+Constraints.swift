@@ -20,6 +20,12 @@ public extension NSUIView {
     }
 
     @discardableResult
+    /**
+     Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver.
+     
+     - Parameters view: The view to be added. After being added, this view appears on top of any other subviews.
+     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     */
     func addSubview(withConstraint view: NSUIView) -> [NSLayoutConstraint] {
         return addSubview(withConstraint: view, .full)
     }

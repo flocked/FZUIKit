@@ -56,6 +56,13 @@ public class SimpleStackView: NSView {
         }
     }
     
+    /// Sets the distribution for all arranged subviews. The default value is fill.
+    public func setDistribution(_ distribution: ViewDistribution) {
+        for subview in arrangedSubviews {
+            self.setDistribution(distribution, for: subview)
+        }
+    }
+    
     /// Sets the distribution for an arranged subview. The default value is fill.
     public func setDistribution(_ distribution: ViewDistribution, for arrangedSubview: NSView) {
         guard self.arrangedSubviews.contains(arrangedSubview) else { return }
