@@ -30,7 +30,7 @@ public extension NSView {
         return window?.convertToScreen(frameInWindow)
     }
 
-    open var contentMode: ContentMode {
+    @objc var contentMode: ContentMode {
         get { layer?.contentsGravity ?? .center }
         set { wantsLayer = true
             layer?.contentsGravity = newValue
@@ -46,7 +46,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var maskToBounds: Bool {
+    @objc var maskToBounds: Bool {
         get { layer?.masksToBounds ?? false }
         set { wantsLayer = true
             layer?.masksToBounds = newValue
@@ -75,7 +75,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var isOpaque: Bool {
+    @objc var isOpaque: Bool {
         get { layer?.isOpaque ?? false }
         set { wantsLayer = true
             layer?.isOpaque = newValue
@@ -102,7 +102,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var transform: CGAffineTransform {
+    @objc var transform: CGAffineTransform {
         get { wantsLayer = true
             return layer?.affineTransform() ?? .init()
         }
@@ -118,7 +118,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var transform3D: CATransform3D {
+    @objc var transform3D: CATransform3D {
         get { wantsLayer = true
             return layer?.transform ?? CATransform3DIdentity
         }
@@ -136,7 +136,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var anchorPoint: CGPoint {
+    @objc var anchorPoint: CGPoint {
         get { layer?.anchorPoint ?? .zero }
         set { wantsLayer = true
             setAnchorPoint(newValue)
@@ -158,7 +158,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var cornerRadius: CGFloat {
+    @objc var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set { wantsLayer = true
             layer?.cornerRadius = newValue
@@ -170,7 +170,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var cornerCurve: CALayerCornerCurve {
+    @objc var cornerCurve: CALayerCornerCurve {
         get { layer?.cornerCurve ?? .circular }
         set { wantsLayer = true
             layer?.cornerCurve = newValue
@@ -182,7 +182,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var roundedCorners: CACornerMask {
+    @objc var roundedCorners: CACornerMask {
         get { layer?.maskedCorners ?? CACornerMask() }
         set { wantsLayer = true
             layer?.maskedCorners = newValue
@@ -194,7 +194,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var borderWidth: CGFloat {
+    @objc var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
         set { wantsLayer = true
             layer?.borderWidth = newValue
@@ -206,7 +206,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    open var borderColor: NSColor? {
+    @objc var borderColor: NSColor? {
         get { if let cgColor = layer?.borderColor {
             return NSColor(cgColor: cgColor)
         } else { return nil } }
