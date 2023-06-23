@@ -9,15 +9,15 @@
 import AppKit
 import FZSwiftUtils
 
-public extension NSView {
-    typealias ContentMode = CALayerContentsGravity
+extension NSView {
+    public typealias ContentMode = CALayerContentsGravity
 
     /**
      The frame rectangle, which describes the view’s location and size in its window’s coordinate system.
 
      This rectangle defines the size and position of the view in its window’s coordinate system. If the view isn't installed in a window, it will return zero.
      */
-    var frameInWindow: CGRect {
+    public var frameInWindow: CGRect {
         convert(bounds, to: nil)
     }
 
@@ -26,11 +26,11 @@ public extension NSView {
 
      This rectangle defines the size and position of the view in its screen’s coordinate system.
      */
-    var frameOnScreen: CGRect? {
+    public var frameOnScreen: CGRect? {
         return window?.convertToScreen(frameInWindow)
     }
 
-    var contentMode: ContentMode {
+    public var contentMode: ContentMode {
         get { layer?.contentsGravity ?? .center }
         set { wantsLayer = true
             layer?.contentsGravity = newValue
@@ -46,14 +46,14 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var maskToBounds: Bool {
+    public var maskToBounds: Bool {
         get { layer?.masksToBounds ?? false }
         set { wantsLayer = true
             layer?.masksToBounds = newValue
         }
     }
 
-    var mask: NSView? {
+    public var mask: NSView? {
         get { return getAssociatedValue(key: "_viewMaskView", object: self) }
         set {
             layer?.mask = nil
@@ -75,7 +75,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var isOpaque: Bool {
+    public var isOpaque: Bool {
         get { layer?.isOpaque ?? false }
         set { wantsLayer = true
             layer?.isOpaque = newValue
@@ -88,7 +88,7 @@ public extension NSView {
      The center point is specified in points in the coordinate system of its superview. Setting this property updates the origin of the rectangle in the frame property appropriately.
      Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform. Changes to this property can be animated.
      */
-    var center: CGPoint {
+    public var center: CGPoint {
         get { frame.center }
         set { frame.center = newValue }
     }
@@ -102,7 +102,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var transform: CGAffineTransform {
+    public var transform: CGAffineTransform {
         get { wantsLayer = true
             return layer?.affineTransform() ?? .init()
         }
@@ -118,7 +118,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var transform3D: CATransform3D {
+    public var transform3D: CATransform3D {
         get { wantsLayer = true
             return layer?.transform ?? CATransform3DIdentity
         }
@@ -136,7 +136,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var anchorPoint: CGPoint {
+    public var anchorPoint: CGPoint {
         get { layer?.anchorPoint ?? .zero }
         set { wantsLayer = true
             setAnchorPoint(newValue)
@@ -158,7 +158,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    @objc dynamic var cornerRadius: CGFloat {
+    @objc open dynamic var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set { wantsLayer = true
             layer?.cornerRadius = newValue
@@ -170,7 +170,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    @objc dynamic var cornerCurve: CALayerCornerCurve {
+    @objc open dynamic var cornerCurve: CALayerCornerCurve {
         get { layer?.cornerCurve ?? .circular }
         set { wantsLayer = true
             layer?.cornerCurve = newValue
@@ -182,7 +182,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    @objc dynamic var roundedCorners: CACornerMask {
+    @objc open dynamic var roundedCorners: CACornerMask {
         get { layer?.maskedCorners ?? CACornerMask() }
         set { wantsLayer = true
             layer?.maskedCorners = newValue
@@ -194,7 +194,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    @objc dynamic var borderWidth: CGFloat {
+    @objc open dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
         set { wantsLayer = true
             layer?.borderWidth = newValue
@@ -206,7 +206,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    @objc dynamic var borderColor: NSColor? {
+    @objc open dynamic var borderColor: NSColor? {
         get { if let cgColor = layer?.borderColor {
             return NSColor(cgColor: cgColor)
         } else { return nil } }
@@ -242,7 +242,7 @@ public extension NSView {
         - rect: A rectangle that defines a region of the view for tracking events related to mouse tracking and cursor updating. The specified rectangle should not exceed the view’s bounds rectangle.
         - options: One or more constants that specify the type of tracking area, the situations when the area is active, and special behaviors of the tracking area. See the description of NSTrackingArea.Options and related constants for details. You must specify one or more options for the initialized object for the type of tracking area and for when the tracking area is active; zero is not a valid value.
      */
-    func addTrackingArea(rect: NSRect? = nil, options: NSTrackingArea.Options = [
+    public func addTrackingArea(rect: NSRect? = nil, options: NSTrackingArea.Options = [
         .mouseMoved,
         .mouseEnteredAndExited,
         .activeInKeyWindow,
@@ -254,27 +254,27 @@ public extension NSView {
         ))
     }
 
-    /// Removes all tracking areas
-    func removeAllTrackingAreas() {
+    /// Removes all tracking areas.
+    public func removeAllTrackingAreas() {
         for trackingArea in trackingAreas {
             removeTrackingArea(trackingArea)
         }
     }
     
-    func setNeedsDisplay() {
+    public func setNeedsDisplay() {
         needsDisplay = true
     }
 
-    func setNeedsLayout() {
+    public func setNeedsLayout() {
         needsLayout = true
     }
 
-    func setNeedsUpdateConstraints() {
+    public func setNeedsUpdateConstraints() {
         needsUpdateConstraints = true
     }
 
     // Returns the view controller managing the view.
-    var parentController: NSViewController? {
+    public var parentController: NSViewController? {
         if let responder = nextResponder as? NSViewController {
             return responder
         } else if let responder = nextResponder as? NSView {
@@ -284,7 +284,7 @@ public extension NSView {
         }
     }
 
-    var isVisible: Bool {
+    public var isVisible: Bool {
         window != nil && alphaValue != 0.0 && visibleRect != .zero
     }
 }
