@@ -36,14 +36,14 @@ public class FinderFileProgress {
         dateStarted = Date()
         isCancellable = false
 
-        pauseObserver = progress.observeChange(\.isPaused) { [weak self] _, _, isPaused in
+        pauseObserver = progress.observeChanges(for: \.isPaused) { [weak self]  _, isPaused in
             guard let self = self else { return }
             if self.state != .finished {
                 self.state = (isPaused == true) ? .paused : .executing
             }
         }
 
-        cancelObserver = progress.observeChange(\.isCancelled) { [weak self] _,_, isCancelled in
+        cancelObserver = progress.observeChanges(for: \.isCancelled) { [weak self] _, isCancelled in
             guard let self = self else { return }
             if self.state != .finished {
                 self.state = (isCancelled == true) ? .cancelled : .executing

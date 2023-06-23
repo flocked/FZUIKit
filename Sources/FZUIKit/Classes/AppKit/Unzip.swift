@@ -75,9 +75,9 @@ public enum Unarchiver {
         case "gz":
             return []
         case "tar", "tar.gz", "tgz":
-            return stdout.matches(regex: #"x \s*([^\n\r]*)"#)
+            return stdout.matches(regex: #"x \s*([^\n\r]*)"#).compactMap({$0.string})
         case "zip":
-            return stdout.matches(regex: #"\d{2}-\d{2}-\d{4}\s+\d{2}:\d{2}\s+\s*([^\n\r]*)"#)
+            return stdout.matches(regex: #"\d{2}-\d{2}-\d{4}\s+\d{2}:\d{2}\s+\s*([^\n\r]*)"#).compactMap({$0.string})
         default:
             return []
         }

@@ -25,7 +25,7 @@ public extension CALayer {
                             self?.updateBackgroundColor()
                         }
                     } else {
-                        effectiveAppearanceObserver = NSApp.observeChange(\.effectiveAppearance) { [weak self] _,_, _ in
+                        effectiveAppearanceObserver = NSApp.observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                             self?.updateBackgroundColor()
                         }
                     }
@@ -57,7 +57,7 @@ public extension CALayer {
 
 internal extension NSAppearanceCustomization where Self: NSObject {
     func observeEffectiveAppearance(changeHandler: @escaping (() -> Void)) -> NSKeyValueObservation {
-        return observeChange(\.effectiveAppearance) { [weak self] _,_, _ in
+        return observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
             guard self != nil else { return }
             changeHandler()
         }

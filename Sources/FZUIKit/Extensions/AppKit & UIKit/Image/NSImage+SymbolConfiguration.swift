@@ -154,22 +154,22 @@ extension NSUIImage.SymbolConfiguration {
         get { guard let rawValue = value(forKey: "weight", type: CGFloat.self), rawValue != CGFloat.greatestFiniteMagnitude else { return nil }
             return NSUIFont.Weight(rawValue: rawValue)
         }
-        set { setValueSafely(newValue?.rawValue ?? CGFloat.greatestFiniteMagnitude, forKey: "weight") }
+        set { setValue(safely: newValue?.rawValue ?? CGFloat.greatestFiniteMagnitude, forKey: "weight") }
     }
 
     var pointSize: CGFloat {
         get { return value(forKey: "pointSize", type: CGFloat.self) ?? 0.0 }
-        set { setValueSafely(newValue, forKey: "pointSize") }
+        set { setValue(safely: newValue, forKey: "pointSize") }
     }
 
     var textStyle: NSUIFont.TextStyle? {
         get { return value(forKey: "textStyle", type: NSUIFont.TextStyle.self) }
-        set { setValueSafely(newValue, forKey: "textStyle") }
+        set { setValue(safely: newValue, forKey: "textStyle") }
     }
 
     var prefersMulticolor: Bool {
         get { return value(forKey: "prefersMulticolor", type: Bool.self) ?? false }
-        set { setValueSafely(newValue, forKey: "prefersMulticolor") }
+        set { setValue(safely: newValue, forKey: "prefersMulticolor") }
     }
 
     var scale: NSUIImage.SymbolScale? {
@@ -177,7 +177,7 @@ extension NSUIImage.SymbolConfiguration {
             else { return nil }
             return NSUIImage.SymbolScale(rawValue: rawValue)
         }
-        set { setValueSafely(newValue?.rawValue ?? -1, forKey: "scale") }
+        set { setValue(safely: newValue?.rawValue ?? -1, forKey: "scale") }
     }
 }
 
@@ -269,7 +269,7 @@ extension NSUIImage.SymbolConfiguration {
 
     var colors: [NSUIColor]? {
         get { value(forKey: Self.colorsValueKey, type: [NSUIColor].self) }
-        set { setValueSafely(newValue, forKey: Self.colorsValueKey) }
+        set { setValue(safely: newValue, forKey: Self.colorsValueKey) }
     }
 
     var primary: NSUIColor? {

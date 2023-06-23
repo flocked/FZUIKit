@@ -299,7 +299,7 @@ public class ObservingView: NSView {
     internal var windowDidBecomeMainObserver: NotificationToken? = nil
     internal var windowDidResignMainObserver: NotificationToken? = nil
     
-    internal lazy var superviewObserver: NSKeyValueObservation? = self.observeChange(\.superview) { [weak self] _, _, new in
+    internal lazy var superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self]  _, new in
         guard let self = self else { return }
         self.viewHandlers.didMoveToSuperview?(new)
     }

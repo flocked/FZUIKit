@@ -35,7 +35,7 @@ public extension NSUIView {
             if let newValue = newValue {
                 if newValue != .rectangle {
                     if cornerShapeBoundsKVO == nil {
-                        cornerShapeBoundsKVO = observeChange(\.bounds) { [weak self] _,_, _ in
+                        cornerShapeBoundsKVO = observeChanges(for: \.bounds) { [weak self] _, _ in
                             self?.updateCornerShape()
                         }
                     }

@@ -17,7 +17,7 @@ public extension NSUIImage {
     var symbolName: String? {
         #if os(macOS)
         let description = String(describing: self)
-        return description.substrings(between: "symbol = ", and: ">").first
+        return description.matches(between: "symbol = ", and: ">").compactMap({$0.string}).first
         #else
         guard isSymbolImage, let strSeq = "\(String(describing: self))".split(separator: ")").first else { return nil }
         let str = String(strSeq)

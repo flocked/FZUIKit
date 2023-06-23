@@ -63,7 +63,7 @@ extension NSToolbar {
     internal func setupToolbarItemSelectionObserver() {
         if selectedItemHandler != nil {
             if toolbarItemSelectionObserver == nil {
-                toolbarItemSelectionObserver = observeChange(\.selectedItemIdentifier) { [weak self] _,_, itemIdentifier in
+                toolbarItemSelectionObserver = observeChanges(for: \.selectedItemIdentifier) { [weak self] _, itemIdentifier in
                     guard let self = self else { return }
                     self.selectedItemHandler?(itemIdentifier)
                 }
