@@ -28,7 +28,7 @@ public extension NSImage {
     }
 
     var isAnimatable: Bool {
-        return (framesCount > 1)
+        return (framesCount > 1) && !self.isTemplate && !self.isSymbolImage
     }
 
     var framesCount: Int {
