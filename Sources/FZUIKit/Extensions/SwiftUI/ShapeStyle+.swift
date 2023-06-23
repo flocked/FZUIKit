@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ShapeStyle+.swift
 //
 //
 //  Created by Florian Zand on 07.10.22.

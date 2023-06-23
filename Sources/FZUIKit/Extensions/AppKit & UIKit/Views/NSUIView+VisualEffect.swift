@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIView+VisualEffect.swift
 //
 //
 //  Created by Florian Zand on 03.02.23.

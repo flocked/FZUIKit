@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIView+Nib.swift
 //  
 //
 //  Created by Florian Zand on 08.06.23.

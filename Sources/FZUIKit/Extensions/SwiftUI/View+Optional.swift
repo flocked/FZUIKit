@@ -1,6 +1,6 @@
 //
 //  View+Optional.swift
-//  NSButtonConfiguration
+//  
 //
 //  Created by Florian Zand on 05.02.23.
 //

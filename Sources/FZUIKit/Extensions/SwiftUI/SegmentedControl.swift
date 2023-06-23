@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  SegmentedControl.swift
 //
 //
 //  Created by Florian Zand on 02.02.23.

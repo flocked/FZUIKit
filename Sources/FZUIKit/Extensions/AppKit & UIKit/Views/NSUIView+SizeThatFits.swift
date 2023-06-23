@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIView+SizeThatFits.swift
 //
 //
 //  Created by Florian Zand on 21.10.22.
@@ -17,7 +17,7 @@ public protocol Sizable {
     var fittingSize: CGSize { get }
 }
 
-extension NSUIView: Sizable {}
+extension NSUIView: Sizable { }
 
 
 public extension Sizable where Self: NSUIView {
@@ -50,8 +50,8 @@ public extension Sizable where Self: NSView {
             || $0.secondAttribute == .height
         })
         
-        let widthConstraint = (size.width != NSUIView.noIntrinsicMetric) ? self.widthAnchor.constraint(equalToConstant: (size.width == .infinity) ? 10000 : size.width) : nil
-        let heightConstraint = (size.width != NSUIView.noIntrinsicMetric) ? self.heightAnchor.constraint(equalToConstant: (size.height == .infinity) ? 10000 : size.height) : nil
+        let widthConstraint = (size.width != NSUIView.noIntrinsicMetric) ? self.widthAnchor.constraint(equalToConstant: (size.width == .infinity) ? 100000 : size.width) : nil
+        let heightConstraint = (size.width != NSUIView.noIntrinsicMetric) ? self.heightAnchor.constraint(equalToConstant: (size.height == .infinity) ? 100000 : size.height) : nil
         
         if widthConstraint != nil {
             originalWidthConstraint?.isActive = false
@@ -94,7 +94,7 @@ extension NSHostingController: Sizable {
 #if canImport(UIKit)
 public extension Sizable where Self: NSUIView {
     var fittingSize: CGSize {
-        sizeThatFits(bounds.size)
+        sizeThatFits(CGSize(width: 10000, height: 10000))
     }
 }
 #endif

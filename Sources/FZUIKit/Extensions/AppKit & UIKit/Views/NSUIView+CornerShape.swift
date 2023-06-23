@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIView+CornerShape.swift
 //
 //
 //  Created by Florian Zand on 21.10.22.

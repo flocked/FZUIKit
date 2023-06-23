@@ -1,3 +1,10 @@
+//
+//  InsettableShapeBuilder.swift
+//
+//
+//  Created by Florian Zand on 06.10.22.
+//
+
 import SwiftUI
 
 #if swift(>=5.4)

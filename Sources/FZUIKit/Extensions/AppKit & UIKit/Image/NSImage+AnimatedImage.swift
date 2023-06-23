@@ -1,6 +1,6 @@
 //
-//  NSImage+GIF.swift
-//  FZExtensions
+//  NSImage+AnimatedImage.swift
+//  
 //
 //  Created by Florian Zand on 05.06.22.
 //

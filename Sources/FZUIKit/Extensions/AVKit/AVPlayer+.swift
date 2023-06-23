@@ -1,6 +1,6 @@
 //
 //  AVPlayer+.swift
-//  NewImageViewer
+//  
 //
 //  Created by Florian Zand on 07.08.22.
 //

@@ -1,3 +1,10 @@
+//
+//  NSUIView+PinEdges.swift
+//
+//
+//  Created by Florian Zand on 22.08.22.
+//
+
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)

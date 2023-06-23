@@ -1,3 +1,10 @@
+//
+//  NSUIView+Constraints.swift
+//
+//
+//  Created by Florian Zand on 21.10.22.
+//
+
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)

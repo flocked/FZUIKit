@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIImage+.swift
 //
 //
 //  Created by Florian Zand on 18.05.23.

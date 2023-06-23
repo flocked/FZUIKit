@@ -1,8 +1,8 @@
 //
-//  BlurView.swift
-//  AuroraEditorModules/AuroraEditorUI
+//  EffectView.swift
+//  
 //
-//  Created by Rehatbir Singh on 15/03/2022.
+//  Created by Florian Zand on 16.03.23.
 //
 
 import SwiftUI

@@ -1,5 +1,5 @@
 //
-//  SwiftUI Text+.swift
+//  Text+.swift
 //  
 //
 //  Parts taken from: https://github.com/danielsaidi/SwiftUIKit

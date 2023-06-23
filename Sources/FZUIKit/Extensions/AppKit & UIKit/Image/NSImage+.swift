@@ -1,6 +1,6 @@
 //
 //  NSImage+.swift
-//  FZCollection
+//  
 //
 //  Created by Florian Zand on 25.04.22.
 //

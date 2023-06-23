@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSImage+SymbolConfiguration.swift
 //
 //
 //  Created by Florian Zand on 10.10.22.

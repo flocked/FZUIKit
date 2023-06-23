@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  CGImage+.swift
 //
 //
 //  Created by Florian Zand on 05.05.23.

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUI Typealias.swift
 //
 //
 //  Created by Florian Zand on 23.08.22.

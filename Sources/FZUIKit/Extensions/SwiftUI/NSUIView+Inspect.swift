@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIView+Inspect.swift
 //
 //
 //  Created by Florian Zand on 05.02.23.

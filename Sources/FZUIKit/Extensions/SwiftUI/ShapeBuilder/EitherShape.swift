@@ -1,3 +1,10 @@
+//
+//  EitherShape.swift
+//
+//
+//  Created by Florian Zand on 06.10.22.
+//
+
 import SwiftUI
 
 public enum EitherShape<First: Shape, Second: Shape>: Shape {

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RoundedCornerRectangle.swift
 //
 //
 //  Created by Florian Zand on 02.10.22.

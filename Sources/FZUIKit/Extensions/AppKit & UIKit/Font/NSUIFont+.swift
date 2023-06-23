@@ -1,6 +1,6 @@
 //
-//  NSFont+.swift
-//  FZCollection
+//  NSUIFont+.swift
+//
 //
 //  Created by Florian Zand on 18.05.22.
 //

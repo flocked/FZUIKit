@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIView+BackgroundView.swift
 //
 //
 //  Created by Florian Zand on 03.02.23.
