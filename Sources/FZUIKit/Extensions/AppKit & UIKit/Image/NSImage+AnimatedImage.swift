@@ -26,9 +26,15 @@ public extension NSImage {
         }
         return nil
     }
+    
+    var isAnimated: Bool {
+        guard framesCount > 1 else { return false }
+        let frameDuration = (self.representations[0] as? NSBitmapImageRep)?.value(forProperty: .currentFrameDuration)
+        return frameDuration != nil
+    }
 
     var isAnimatable: Bool {
-        return (framesCount > 1) && !self.isTemplate && !self.isSymbolImage
+        (self.framesCount > 1)
     }
 
     var framesCount: Int {
@@ -44,8 +50,8 @@ public extension NSImage {
         return nil
     }
 
-    var duration: TimeInterval {
-        guard let source = ImageSource(image: self) else { return 0.0 }
+    var framesDuration: TimeInterval? {
+        guard let source = ImageSource(image: self) else { return nil }
         return source.animationDuration
     }
 

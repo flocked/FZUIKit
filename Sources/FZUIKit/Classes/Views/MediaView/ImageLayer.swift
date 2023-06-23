@@ -26,7 +26,7 @@ public class ImageLayer: CALayer {
         set {
             if let newImage = newValue {
                 #if os(macOS)
-                if newImage.isAnimatable {
+                if newImage.isAnimated {
                     setGif(image: newImage)
                 } else {
                     if #available(macOS 12.0, iOS 13.0, *) {
@@ -234,7 +234,7 @@ public class ImageLayer: CALayer {
                 do {
                     let allFrames = try frames.collect()
                     for frame in allFrames {
-                        duration = duration + frame.duration
+                        duration = duration + (frame.duration ?? ImageSource.defaultFrameDuration)
                     }
                     self.animationDuration = duration
                     self.images = allFrames.compactMap { NSImage(cgImage: $0.image) }
