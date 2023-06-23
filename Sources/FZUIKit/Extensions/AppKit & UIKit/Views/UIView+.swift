@@ -19,7 +19,7 @@ public extension UIView {
         }
     }
 
-    var borderColor: UIColor? {
+    @objc dynamic var borderColor: UIColor? {
         get {
             if let cgColor = layer.borderColor {
                 return UIColor(cgColor: cgColor)
@@ -29,22 +29,22 @@ public extension UIView {
         set { layer.borderColor = newValue?.cgColor }
     }
 
-    var borderWidth: CGFloat {
+    @objc dynamic var borderWidth: CGFloat {
         get { layer.borderWidth }
         set { layer.borderWidth = newValue }
     }
 
-    var roundedCorners: CACornerMask {
+    @objc dynamic var roundedCorners: CACornerMask {
         get { layer.maskedCorners }
         set { layer.maskedCorners = newValue }
     }
 
-    var cornerRadius: CGFloat {
+    @objc dynamic var cornerRadius: CGFloat {
         get { layer.cornerRadius }
         set { layer.cornerRadius = newValue }
     }
 
-    var cornerCurve: CALayerCornerCurve {
+    @objc dynamic var cornerCurve: CALayerCornerCurve {
         get { layer.cornerCurve }
         set { layer.cornerCurve = newValue }
     }

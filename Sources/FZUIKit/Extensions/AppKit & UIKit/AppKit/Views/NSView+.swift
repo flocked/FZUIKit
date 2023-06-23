@@ -158,7 +158,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var cornerRadius: CGFloat {
+    @objc dynamic var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set { wantsLayer = true
             layer?.cornerRadius = newValue
@@ -170,7 +170,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var cornerCurve: CALayerCornerCurve {
+    @objc dynamic var cornerCurve: CALayerCornerCurve {
         get { layer?.cornerCurve ?? .circular }
         set { wantsLayer = true
             layer?.cornerCurve = newValue
@@ -182,7 +182,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var roundedCorners: CACornerMask {
+    @objc dynamic var roundedCorners: CACornerMask {
         get { layer?.maskedCorners ?? CACornerMask() }
         set { wantsLayer = true
             layer?.maskedCorners = newValue
@@ -194,7 +194,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var borderWidth: CGFloat {
+    @objc dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
         set { wantsLayer = true
             layer?.borderWidth = newValue
@@ -206,7 +206,7 @@ public extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    var borderColor: NSColor? {
+    @objc dynamic var borderColor: NSColor? {
         get { if let cgColor = layer?.borderColor {
             return NSColor(cgColor: cgColor)
         } else { return nil } }
