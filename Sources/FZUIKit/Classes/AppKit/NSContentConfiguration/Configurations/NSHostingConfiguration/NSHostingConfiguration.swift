@@ -1,3 +1,10 @@
+//
+//  NSHostingConfiguration.swift
+//
+//
+//  Created by Florian Zand on 01.06.23.
+//
+
 #if os(macOS)
 import AppKit
 import SwiftUI

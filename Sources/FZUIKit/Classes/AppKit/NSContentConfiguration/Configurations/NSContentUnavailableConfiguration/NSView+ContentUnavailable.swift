@@ -1,10 +1,11 @@
 //
-//  NSView+.swift
-//  NSContentUnavailableConfiguration
+//  NSView+NSContentUnavailableConfiguration.swift
+//
 //
 //  Created by Florian Zand on 24.06.23.
 //
 
+/*
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
@@ -76,3 +77,4 @@ public extension NSView {
     }
 }
 #endif
+*/

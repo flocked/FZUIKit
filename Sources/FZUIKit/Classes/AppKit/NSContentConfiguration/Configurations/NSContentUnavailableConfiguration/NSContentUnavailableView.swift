@@ -1,6 +1,6 @@
 //
 //  NSContentUnavailableView.swift
-//  NSContentUnavailableConfiguration
+//  
 //
 //  Created by Florian Zand on 24.06.23.
 //
@@ -99,9 +99,16 @@ internal extension NSContentUnavailableView {
         
         @ViewBuilder
         var buttonItems: some View {
-            VStack(spacing: configuration.buttonToSecondaryButtonPadding) {
-                buttonItem
-                secondaryButton
+            if configuration.buttonOrientation == .vertical {
+                VStack(spacing: configuration.buttonToSecondaryButtonPadding) {
+                    buttonItem
+                    secondaryButton
+                }
+            } else {
+                HStack(spacing: configuration.buttonToSecondaryButtonPadding) {
+                    buttonItem
+                    secondaryButton
+                }
             }
         }
         

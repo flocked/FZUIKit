@@ -1,6 +1,6 @@
 //
 //  NSContentUnavailableConfiguration.swift
-//  NSContentUnavailableConfiguration
+//  
 //
 //  Created by Florian Zand on 24.06.23.
 //
@@ -14,8 +14,7 @@ import AppKit
  A content-unavailable configuration is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. Fill the configuration with placeholder content, and then assign it to a view’s contentUnavailableConfiguration, or to a NSContentUnavailableView.
  */
 @available(macOS 12.0, *)
-public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashable {
-    
+public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashable {    
     /// The image to display.
     public var image: NSImage? = nil
     
@@ -64,6 +63,13 @@ public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashabl
     /// The padding between the primary button and secondary button.
     public var buttonToSecondaryButtonPadding: CGFloat = 4.0
     
+    /**
+     The orientation of the buttons.
+     
+     If `vertical` the secondary button is placed  next to the primary button, if `horizontal` it's placed below the primary button.
+     */
+    public var buttonOrientation: NSUIUserInterfaceLayoutOrientation = .vertical
+    
     internal var displayLoadingIndicator: Bool = false
     
     public func makeContentView() -> NSView & NSContentView {
@@ -93,7 +99,6 @@ public extension NSContentUnavailableConfiguration {
     /// Creates the default configuration for content that’s loading.
     static func loading() -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
-        configuration.text = "Loading…"
         configuration.textProperties = .body()
         configuration.secondaryTextProperties = configuration.textProperties
         configuration.displayLoadingIndicator = true
@@ -106,8 +111,6 @@ public extension NSContentUnavailableConfiguration {
         configuration.textProperties.font = .system(.headline).weight(.semibold)
         configuration.secondaryTextProperties.font = .subheadline
         configuration.imageProperties.symbolConfiguration = .font(.largeTitle)
-
-        configuration.text = "No Results"
         configuration.image = NSImage(systemSymbolName: "magnifyingglass")
         return configuration
     }

@@ -1,5 +1,5 @@
 //
-//  TextProperties.swift
+//  NSContentUnavailableConfiguration+TextProperties.swift
 //  
 //
 //  Created by Florian Zand on 19.06.23.

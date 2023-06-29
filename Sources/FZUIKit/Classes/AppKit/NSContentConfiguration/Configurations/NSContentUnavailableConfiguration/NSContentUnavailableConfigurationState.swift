@@ -1,6 +1,6 @@
 //
 //  NSContentUnavailableConfigurationState.swift
-//  NSContentUnavailableConfiguration
+//  
 //
 //  Created by Florian Zand on 24.06.23.
 //
