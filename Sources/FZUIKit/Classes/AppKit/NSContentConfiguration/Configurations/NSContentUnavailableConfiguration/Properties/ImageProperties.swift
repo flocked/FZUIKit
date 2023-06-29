@@ -22,30 +22,26 @@ public extension NSContentUnavailableConfiguration {
         public var cornerRadius: CGFloat = 0.0
         
         /// The symbol configuration of the image.
-        public var symbolConfiguration: SymbolConfiguration? = SymbolConfiguration().font(.textStyle(.body, weight: nil))
+        public var symbolConfiguration: SymbolConfiguration? = .font(.largeTitle)
         
         /// The image scaling.
         public var scaling: NSImageScaling = .scaleNone
         
-        /// The maximum width of the image.
-        public var maxWidth: CGFloat? = nil
-        /// The maximum height of the image.
-        public var maxHeight: CGFloat? = nil
+        /// The maximum size of the image.
+        public var maxSize: CGSize? = nil
     
         
         /// Creates image properties.
-        public init(tintColor: NSColor? = nil,
+        public init(tintColor: NSColor? = .secondaryLabelColor,
                     cornerRadius: CGFloat = 0.0,
-                    symbolConfiguration: SymbolConfiguration? = nil,
+                    symbolConfiguration: SymbolConfiguration? = .font(.largeTitle),
                     scaling: NSImageScaling = .scaleNone,
-                    maxWidth: CGFloat? = nil,
-                    maxHeight: CGFloat? = nil) {
+                    maxSize: CGSize? = nil) {
             self.tintColor = tintColor
             self.cornerRadius = cornerRadius
             self.symbolConfiguration = symbolConfiguration
             self.scaling = scaling
-            self.maxWidth = maxWidth
-            self.maxHeight = maxHeight
+            self.maxSize = maxSize
         }
         
     }

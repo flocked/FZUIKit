@@ -31,36 +31,42 @@ public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashabl
     /// An attributed variant of the secondary text.
     public var secondaryAttributedText: NSAttributedString? = nil
     
+    /// The button configuration.
+    public var button: ButtonConfiguration? = nil
+    
+    /// The secondary button configuration.
+    public var secondaryButton: ButtonConfiguration? = nil
+    
     /// The configuration for the image.
     public var imageProperties: ImageProperties = ImageProperties()
     
     /// Properties for configuring the primary text.
-    public var textProperties: TextProperties = TextProperties()
+    public var textProperties: TextProperties = .primary()
     
     /// Properties for configuring the secondary text.
-    public var secondaryTextProperties: TextProperties = TextProperties()
+    public var secondaryTextProperties: TextProperties = .secondary()
     
     /// The configuration for the background.
-    public var background: NSBackgroundConfiguration = NSBackgroundConfiguration()
+    public var background: NSBackgroundConfiguration = .clear()
     
     /// The margins between the content and the edges of the content view.
     public var directionalLayoutMargins: NSDirectionalEdgeInsets = .init(6.0)
     
     /// The padding between the image and the primary text.
-    public var imageToTextPadding: CGFloat = 2.0
+    public var imageToTextPadding: CGFloat = 6.0
     
     /// The padding between the primary and secondary text.
     public var textToSecondaryTextPadding: CGFloat = 2.0
     
     /// The padding between the text and buttons.
-    public var textToButtonPadding: CGFloat = 2.0
+    public var textToButtonPadding: CGFloat = 4.0
     
     /// The padding between the primary button and secondary button.
-    public var buttonToSecondaryButtonPadding: CGFloat = 2.0
+    public var buttonToSecondaryButtonPadding: CGFloat = 4.0
     
-    internal var isLoadingConfiguration: Bool = false
+    internal var displayLoadingIndicator: Bool = false
     
-    public func makeContentView() -> NSView & FZUIKit.NSContentView {
+    public func makeContentView() -> NSView & NSContentView {
         NSContentUnavailableView(configuration: self)
     }
     
@@ -89,22 +95,20 @@ public extension NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
         configuration.text = "Loading…"
         configuration.textProperties = .body()
-        configuration.textProperties.color = .secondaryLabelColor
-        configuration.imageToTextPadding = 6.0
-        configuration.isLoadingConfiguration = true
+        configuration.secondaryTextProperties = configuration.textProperties
+        configuration.displayLoadingIndicator = true
         return configuration
     }
     
     /// Creates the default configuration for searches that return no results.
     static func search() -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
+        configuration.textProperties.font = .system(.headline).weight(.semibold)
+        configuration.secondaryTextProperties.font = .subheadline
         configuration.imageProperties.symbolConfiguration = .font(.largeTitle)
-        configuration.image = NSImage(systemSymbolName: "magnifyingglass")
+
         configuration.text = "No Results"
-        configuration.textProperties.font = .system(.headline).weight(.bold)
-        configuration.secondaryTextProperties = .subheadline()
-        configuration.imageToTextPadding = 6.0
-        configuration.secondaryTextProperties.color = .secondaryLabelColor
+        configuration.image = NSImage(systemSymbolName: "magnifyingglass")
         return configuration
     }
     

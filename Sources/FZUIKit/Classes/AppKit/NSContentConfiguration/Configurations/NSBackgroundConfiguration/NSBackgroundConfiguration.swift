@@ -17,12 +17,10 @@ import FZSwiftUtils
  var configuration = NSBackgroundConfiguration()
 
  // Customize appearance.
- content.backgroundColor = .controlAccentColor
- content.cornerRadius = 6.0
- content.shadow = .black
-
- // Customize appearance.
- content.imageProperties.tintColor = .purple
+ configuration.backgroundColor = .controlAccentColor
+ configuration.cornerRadius = 6.0
+ configuration.shadow = .black
+ configuration.imageProperties.tintColor = .purple
 
  collectionItem.backgroundConfiguration = configuration
  ```
@@ -30,7 +28,7 @@ import FZSwiftUtils
 public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     /// Creates a new instance of the content view using the configuration.
     public func makeContentView() -> NSView & NSContentView {
-        NSBackgroundContentView(configuration: self)
+        NSBackgroundView(configuration: self)
     }
     
     /// Generates a configuration for the specified state by applying the configuration’s default values for that state to any properties that you don’t customize.
@@ -93,8 +91,12 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     
     /// The corner radius.
     public var cornerRadius: CGFloat = 0.0
-    /// The margins between the content and the edges of the background view.
+    /// The insets (or outsets, if negative) for the background and border, relative to the edges of the containing view.
     public var insets: NSDirectionalEdgeInsets = .zero
+    
+    public static func clear() -> NSBackgroundConfiguration {
+        return NSBackgroundConfiguration()
+    }
     
     /// Creates a cell background configuration.
     public init(color: NSColor? = nil,

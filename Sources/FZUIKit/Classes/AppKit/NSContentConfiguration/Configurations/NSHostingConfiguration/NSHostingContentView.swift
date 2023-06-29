@@ -41,7 +41,11 @@ internal class NSHostingContentView<Content, Background>: NSView, NSContentView 
     
     internal func updateConfiguration() {
         hostingView.rootView = HostingView(configuration: _configuration)
-        directionalLayoutMargins = _configuration.margins
+        
+        hostingViewConstraints[0].constant = _configuration.margins.bottom
+        hostingViewConstraints[1].constant = _configuration.margins.leading
+        hostingViewConstraints[2].constant = -_configuration.margins.width
+        hostingViewConstraints[3].constant = -_configuration.margins.height
     }
     
     internal lazy var hostingView: NSHostingView<HostingView<Content, Background>> = {
@@ -65,17 +69,6 @@ internal class NSHostingContentView<Content, Background>: NSView, NSContentView 
     }
     
     internal var hostingViewConstraints: [NSLayoutConstraint] = []
-
-    internal var directionalLayoutMargins: NSDirectionalEdgeInsets {
-        get { return NSDirectionalEdgeInsets(top: -hostingViewConstraints[0].constant, leading: -hostingViewConstraints[1].constant , bottom: hostingViewConstraints[2].constant , trailing: hostingViewConstraints[3].constant)
-        }
-        set {
-            hostingViewConstraints[0].constant = -newValue.bottom
-            hostingViewConstraints[1].constant = newValue.top
-            hostingViewConstraints[2].constant = newValue.leading
-            hostingViewConstraints[3].constant = -newValue.trailing
-        }
-    }
     
     override var intrinsicContentSize: CGSize {
         var intrinsicContentSize = super.intrinsicContentSize

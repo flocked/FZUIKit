@@ -6,11 +6,31 @@ Swift AppKit/UIKit extensions and useful Classes & utilities.
 
 ### ContentConfiguration
 A port of UIContentConfiguration.
-- NSHostingConfiguration
+- NSHostingConfiguration: A content configuration suitable for hosting a hierarchy of SwiftUI views.
 ```
 let configuration = NSHostingConfiguration() {
     Text("Sample")
 }
+```
+- NSBackgroundConfiguration: A content configuration suitable for backgrounds.
+```
+var configuration = NSBackgroundConfiguration()
+
+configuration.backgroundColor = .controlAccentColor
+configuration.cornerRadius = 6.0
+configuration.shadow = .black
+configuration.imageProperties.tintColor = .purple
+
+let backgroundView = NSBackgroundView(configuration: configuration)
+```
+- NSContentUnavailableConfiguration: A content configuration for a content-unavailable view. It is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. 
+```
+let configuration = NSContentUnavailableConfiguration.loading() // A loading view that is displaying a spinning indicator.
+
+configuration.text = "Loading…"
+configuration.secondaryText = "The database is getting loaded."
+
+let loadingView = NSContentUnavailableView(configuration: configuration)
 ```
 
 ### NSView backgroundColor

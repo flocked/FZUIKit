@@ -32,6 +32,13 @@ public extension NSContentUnavailableConfiguration {
         public var maxNumberOfLines: Int = 0
         
         
+        /// A default configuration for a primary text.
+        public static func primary() -> Self { TextProperties(font: .body.weight(.semibold)) }
+        
+        /// A default configuration for a secondary text.
+        public static func secondary() -> Self { TextProperties(font: .callout, color: .secondaryLabelColor) }
+        
+        
         /// A configuration with a font for captions.
         public static func caption2() -> Self { TextProperties(font: .caption2) }
         /// A configuration with a font for captions.

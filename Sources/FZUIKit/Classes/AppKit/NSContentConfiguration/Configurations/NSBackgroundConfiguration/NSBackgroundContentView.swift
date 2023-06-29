@@ -10,7 +10,7 @@
 import AppKit
 import FZSwiftUtils
 
-public class NSBackgroundContentView: NSView, NSContentView {
+public class NSBackgroundView: NSView, NSContentView {
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
         get { _configuration }
@@ -31,15 +31,20 @@ public class NSBackgroundContentView: NSView, NSContentView {
         self._configuration = configuration
         super.init(frame: .zero)
         self.maskToBounds = false
+        self.contentView.maskToBounds = false
+        self.contentViewConstraints = self.addSubview(withConstraint: contentView)
         self.updateConfiguration()
     }
+    
+    internal let contentView = NSView()
+    internal var contentViewConstraints: [NSLayoutConstraint] = []
     
     internal var view: NSView? = nil {
         didSet {
             if oldValue != self.view {
                 oldValue?.removeFromSuperview()
                 if let view = self.view {
-                    self.addSubview(withConstraint: view)
+                    contentView.addSubview(withConstraint: view)
                 }
             }
         }
@@ -53,7 +58,7 @@ public class NSBackgroundContentView: NSView, NSContentView {
                 if (self.imageView == nil) {
                     let imageView = ImageView()
                     self.imageView = imageView
-                    self.addSubview(withConstraint: imageView)
+                    contentView.addSubview(withConstraint: imageView)
                 }
                 self.imageView?.image = image
                 self.imageView?.imageScaling = _configuration.imageScaling
@@ -72,13 +77,19 @@ public class NSBackgroundContentView: NSView, NSContentView {
         self.view = _configuration.view
         self.image = _configuration.image
         
-        self.backgroundColor =  _configuration._resolvedColor
+        imageView?.imageScaling = _configuration.imageScaling
         
-        self.visualEffect = _configuration.visualEffect
-        self.cornerRadius = _configuration.cornerRadius
+        contentView.backgroundColor =  _configuration._resolvedColor
+        contentView.visualEffect = _configuration.visualEffect
+        contentView.cornerRadius = _configuration.cornerRadius
         
-        self.configurate(using: _configuration.shadow)
-        self.configurate(using: _configuration.border)
+        contentView.configurate(using: _configuration.shadow)
+        contentView.configurate(using: _configuration.border)
+                
+        contentViewConstraints[1].constant = -_configuration.insets.bottom
+        contentViewConstraints[0].constant = _configuration.insets.leading
+        contentViewConstraints[2].constant = -_configuration.insets.width
+        contentViewConstraints[3].constant = -_configuration.insets.height
     }
     
     required init?(coder: NSCoder) {

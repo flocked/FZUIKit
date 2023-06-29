@@ -84,9 +84,32 @@ internal extension NSContentUnavailableView {
         let configuration: NSContentUnavailableConfiguration
         
         @ViewBuilder
+        var buttonItem: some View {
+            if let configuration = configuration.button, configuration.hasContent {
+                ButtonItem(configuration: configuration)
+            }
+        }
+        
+        @ViewBuilder
+        var secondaryButton: some View {
+            if let configuration = configuration.secondaryButton, configuration.hasContent {
+                ButtonItem(configuration: configuration)
+            }
+        }
+        
+        @ViewBuilder
+        var buttonItems: some View {
+            VStack(spacing: configuration.buttonToSecondaryButtonPadding) {
+                buttonItem
+                secondaryButton
+            }
+        }
+        
+        @ViewBuilder
         var imageItem: some View {
             if let image = configuration.image {
                 Image(image)
+                    .frame(maxWidth: configuration.imageProperties.maxSize?.width, maxHeight: configuration.imageProperties.maxSize?.height)
                     .foregroundColor(configuration.imageProperties.tintColor?.swiftUI)
                     .symbolConfiguration(configuration.imageProperties.symbolConfiguration)
                     .cornerRadius(configuration.imageProperties.cornerRadius)
@@ -101,21 +124,63 @@ internal extension NSContentUnavailableView {
             }
         }
         
-        var stack: some View {
+        @ViewBuilder
+        var loadingIndicatorItem: some View {
+            if configuration.displayLoadingIndicator {
+                ProgressView()
+                    .controlSize(.small)
+                    .progressViewStyle(CircularProgressViewStyle())
+            }
+        }
+        
+        @ViewBuilder
+        var imageTextStack: some View {
             VStack(spacing: configuration.imageToTextPadding) {
-                if configuration.isLoadingConfiguration {
-                    ProgressView()
-                        .controlSize(.small)
-                        .progressViewStyle(CircularProgressViewStyle())
-                }
+                loadingIndicatorItem
                 imageItem
                 textItems
+            }
+        }
+        
+        @ViewBuilder
+        var stack: some View {
+            VStack(spacing: configuration.textToButtonPadding) {
+                imageTextStack
+                buttonItems
             }
         }
         
         var body: some View {
             stack
                 .frame(maxWidth: .infinity,  maxHeight: .infinity, alignment: .center)
+        }
+    }
+    
+    struct ButtonItem: View {
+        let configuration: NSContentUnavailableConfiguration.ButtonConfiguration
+        
+        var body: some View {
+            Button {
+                configuration.action()
+            } label: {
+                if let atributedTitle = configuration.atributedTitle {
+                    if let image = configuration.image {
+                        Label { Text(atributedTitle) } icon: {  Image(image) }
+                    } else {
+                        Text(atributedTitle)
+                    }
+                } else if let title = configuration.title {
+                    if let image = configuration.image {
+                        Label { Text(title) } icon: {  Image(image) }
+                    } else {
+                        Text(title)
+                    }
+                } else if let image = configuration.image {
+                    Image(image)
+                }
+            }.buttonStyling(configuration.style)
+                .foregroundColor(configuration.contentTintColor?.swiftUI)
+                .symbolConfiguration(configuration.symbolConfiguration)
         }
     }
     
