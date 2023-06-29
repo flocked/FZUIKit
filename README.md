@@ -9,8 +9,10 @@ A port of UIContentConfiguration to AppKit.
 - **NSHostingConfiguration**: A content configuration suitable for hosting a hierarchy of SwiftUI views.
 ```
 let configuration = NSHostingConfiguration() {
-    Text("Sample")
+    Label("Your account", systemImage: "folder.circle")
 }
+
+collectionViewItem.contentConfiguration = configuration
 ```
 - **NSBackgroundConfiguration**: A content configuration suitable for backgrounds.
 ```
