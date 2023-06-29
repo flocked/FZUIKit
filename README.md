@@ -5,7 +5,7 @@ Swift AppKit/UIKit extensions and useful Classes & utilities.
 ## Notable Extensions & Classes
 
 ### ContentConfiguration
-A port of UIContentConfiguration.
+A port of UIContentConfiguration to AppKit.
 - NSHostingConfiguration: A content configuration suitable for hosting a hierarchy of SwiftUI views.
 ```
 let configuration = NSHostingConfiguration() {
