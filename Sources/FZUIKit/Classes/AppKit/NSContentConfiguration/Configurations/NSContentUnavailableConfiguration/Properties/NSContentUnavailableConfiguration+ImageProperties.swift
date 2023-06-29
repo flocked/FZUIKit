@@ -24,6 +24,8 @@ public extension NSContentUnavailableConfiguration {
         /// The symbol configuration of the image.
         public var symbolConfiguration: SymbolConfiguration? = .font(.largeTitle)
         
+        public typealias SymbolConfiguration = ContentConfiguration.SymbolConfiguration
+        
         /// The image scaling.
         public var scaling: NSImageScaling = .scaleNone
         
@@ -44,42 +46,6 @@ public extension NSContentUnavailableConfiguration {
             self.maxSize = maxSize
         }
         
-    }
-}
-
-@available(macOS 12.0, *)
-internal extension NSContentUnavailableConfiguration.SymbolConfiguration {
-    func nsSymbolConfiguration() -> NSImage.SymbolConfiguration {
-        var configuration: NSImage.SymbolConfiguration
-        switch self.colorConfiguration {
-        case .hierarchical(let color):
-            configuration = .hierarchical(color)
-        case .monochrome:
-            configuration = .monochrome()
-        case .palette(let primary, let secondary, let tertiary):
-            configuration = .palette(primary, secondary, tertiary)
-        case .multicolor(let color):
-            configuration = .multicolor(color)
-        case .none:
-            configuration = .unspecified
-        }
-        
-        switch self.font {
-            case .systemFont(size: let size, weight: let weight):
-                configuration = configuration.font(size: size)
-            configuration = configuration.weight(weight?.symbolWeight())
-            case .textStyle(let style, weight: let weight):
-                configuration = configuration.font(style)
-            configuration = configuration.weight(weight?.symbolWeight())
-            case .none:
-                break
-        }
-        
-        if let symbolScale = self.imageScale?.nsSymbolScale {
-            configuration = configuration.scale(symbolScale)
-        }
-        
-        return configuration
     }
 }
 

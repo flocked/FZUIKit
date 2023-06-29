@@ -13,23 +13,25 @@ import FZSwiftUtils
 @available(macOS 12.0, *)
 public extension NSContentUnavailableConfiguration {
     struct ButtonConfiguration {
-        internal enum Style: Hashable {
+        public enum Style: Hashable {
             case plain
             case borderless
             case bordered
             case link
         }
         
-        var title: String?
-        var atributedTitle: AttributedString? = nil
-        var image: NSImage? = nil
+        public var title: String?
+        public var atributedTitle: AttributedString? = nil
+        public var image: NSImage? = nil
         
-        var action: (()->())
-        var isEnabled: Bool = true
+        public var action: (()->())
+        public var isEnabled: Bool = true
         
-        var contentTintColor: NSColor? = nil
-        var style: Style = .bordered
-        var symbolConfiguration: SymbolConfiguration? = nil
+        public var contentTintColor: NSColor? = nil
+        public var style: Style = .bordered
+        public var symbolConfiguration: SymbolConfiguration? = nil
+        
+        public typealias SymbolConfiguration = ContentConfiguration.SymbolConfiguration
         
         internal var hasContent: Bool {
             (self.title != nil || self.atributedTitle != nil || self.image != nil)

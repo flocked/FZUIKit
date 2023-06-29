@@ -10,6 +10,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import SwiftUI
 
 #if os(macOS)
 public extension ContentConfiguration.Text.BezelStyle {
@@ -304,6 +305,20 @@ public extension NSAttributedString {
             return lowercased()
         case .uppercase:
             return uppercased()
+        }
+    }
+}
+
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+internal extension Text {
+    @ViewBuilder func textConfiguration(_ configuration: ContentConfiguration.Text?) -> some View {
+        if let configuration = configuration {
+            self
+                .font(configuration.font.swiftUI)
+                .foregroundColor(configuration.textColor.swiftUI)
+              //  .frame(.al)
+        } else {
+            self
         }
     }
 }
