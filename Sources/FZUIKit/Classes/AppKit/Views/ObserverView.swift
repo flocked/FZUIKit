@@ -341,6 +341,17 @@ public extension ObservingView {
     }
     
     struct MouseHandlers {
+        public enum Event {
+            case moved
+            case dragged
+            case entered
+            case exited
+            case down
+            case rightDown
+            case up
+            case rightUp
+        }
+        
         public var moved: ((NSEvent)->(Bool))? = nil
         public var dragged: ((NSEvent)->(Bool))? = nil
         public var entered: ((NSEvent)->(Bool))? = nil
@@ -349,6 +360,33 @@ public extension ObservingView {
         public var rightDown: ((NSEvent)->(Bool))? = nil
         public var up: ((NSEvent)->(Bool))? = nil
         public var rightUp: ((NSEvent)->(Bool))? = nil
+        
+        public mutating func setup(_ events: [Event], handler: @escaping ((NSEvent)->(Bool))) {
+            if events.contains(.moved) {
+                self.moved = handler
+            }
+            if events.contains(.dragged) {
+                self.dragged = handler
+            }
+            if events.contains(.entered) {
+                self.entered = handler
+            }
+            if events.contains(.exited) {
+                self.exited = handler
+            }
+            if events.contains(.down) {
+                self.down = handler
+            }
+            if events.contains(.rightDown) {
+                self.rightDown = handler
+            }
+            if events.contains(.up) {
+                self.up = handler
+            }
+            if events.contains(.rightUp) {
+                self.rightUp = handler
+            }
+        }
         
         internal var trackingAreaOptions: NSTrackingArea.Options {
             var options: NSTrackingArea.Options = [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited]
