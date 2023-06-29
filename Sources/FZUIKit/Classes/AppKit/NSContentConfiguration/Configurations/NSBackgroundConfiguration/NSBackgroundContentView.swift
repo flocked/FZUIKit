@@ -13,10 +13,10 @@ import FZSwiftUtils
 public class NSBackgroundView: NSView, NSContentView {
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
-        get { _configuration }
+        get { appliedConfiguration }
         set {
             if let newValue = newValue as? NSBackgroundConfiguration {
-                _configuration = newValue
+                appliedConfiguration = newValue
             }
         }
     }
@@ -28,7 +28,7 @@ public class NSBackgroundView: NSView, NSContentView {
     
     /// Creates a background content view with the specified content configuration.
     public init(configuration: NSBackgroundConfiguration) {
-        self._configuration = configuration
+        self.appliedConfiguration = configuration
         super.init(frame: .zero)
         self.maskToBounds = false
         self.contentView.maskToBounds = false
@@ -61,7 +61,7 @@ public class NSBackgroundView: NSView, NSContentView {
                     contentView.addSubview(withConstraint: imageView)
                 }
                 self.imageView?.image = image
-                self.imageView?.imageScaling = _configuration.imageScaling
+                self.imageView?.imageScaling = appliedConfiguration.imageScaling
             } else {
                 self.imageView?.removeFromSuperview()
                 self.imageView = nil
@@ -69,27 +69,27 @@ public class NSBackgroundView: NSView, NSContentView {
         }
     }
     
-    internal var _configuration: NSBackgroundConfiguration {
-        didSet { if oldValue != _configuration {
+    internal var appliedConfiguration: NSBackgroundConfiguration {
+        didSet { if oldValue != appliedConfiguration {
             self.updateConfiguration() } } }
     
     internal func updateConfiguration() {
-        self.view = _configuration.view
-        self.image = _configuration.image
+        self.view = appliedConfiguration.view
+        self.image = appliedConfiguration.image
         
-        imageView?.imageScaling = _configuration.imageScaling
+        imageView?.imageScaling = appliedConfiguration.imageScaling
         
-        contentView.backgroundColor =  _configuration._resolvedColor
-        contentView.visualEffect = _configuration.visualEffect
-        contentView.cornerRadius = _configuration.cornerRadius
+        contentView.backgroundColor =  appliedConfiguration._resolvedColor
+        contentView.visualEffect = appliedConfiguration.visualEffect
+        contentView.cornerRadius = appliedConfiguration.cornerRadius
         
-        contentView.configurate(using: _configuration.shadow)
-        contentView.configurate(using: _configuration.border)
+        contentView.configurate(using: appliedConfiguration.shadow)
+        contentView.configurate(using: appliedConfiguration.border)
                 
-        contentViewConstraints[1].constant = -_configuration.insets.bottom
-        contentViewConstraints[0].constant = _configuration.insets.leading
-        contentViewConstraints[2].constant = -_configuration.insets.width
-        contentViewConstraints[3].constant = -_configuration.insets.height
+        contentViewConstraints[1].constant = -appliedConfiguration.insets.bottom
+        contentViewConstraints[0].constant = appliedConfiguration.insets.leading
+        contentViewConstraints[2].constant = -appliedConfiguration.insets.width
+        contentViewConstraints[3].constant = -appliedConfiguration.insets.height
     }
     
     required init?(coder: NSCoder) {

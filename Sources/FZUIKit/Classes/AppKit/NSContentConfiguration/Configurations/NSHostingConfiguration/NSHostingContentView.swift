@@ -14,10 +14,10 @@ internal class NSHostingContentView<Content, Background>: NSView, NSContentView 
     
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
-        get { _configuration }
+        get { appliedConfiguration }
         set {
             if let newValue = newValue as? NSHostingConfiguration<Content, Background> {
-                _configuration = newValue
+                appliedConfiguration = newValue
             }
         }
     }
@@ -27,45 +27,58 @@ internal class NSHostingContentView<Content, Background>: NSView, NSContentView 
         configuration is NSHostingConfiguration<Content, Background>
     }
     
+    public func sizeThatFits(_ size: CGSize) -> CGSize {
+        return hostingController.sizeThatFits(size)
+    }
+    
+    override var fittingSize: NSSize {
+        return hostingController.fittingSize
+    }
+    
     /// Creates a hosting content view with the specified content configuration.
     public init(configuration: NSHostingConfiguration<Content, Background>) {
-        self._configuration = configuration
+        self.appliedConfiguration = configuration
         super.init(frame: .zero)
-        hostingViewConstraints = addSubview(withConstraint: hostingView)
+        hostingViewConstraints = addSubview(withConstraint: hostingController.view)
         self.updateConfiguration()
     }
     
-    internal var _configuration: NSHostingConfiguration<Content, Background> {
+    internal var appliedConfiguration: NSHostingConfiguration<Content, Background> {
         didSet { updateConfiguration() }
     }
     
     internal func updateConfiguration() {
-        hostingView.rootView = HostingView(configuration: _configuration)
+        hostingController.rootView = HostingView(configuration: appliedConfiguration)
         
-        hostingViewConstraints[0].constant = _configuration.margins.bottom
-        hostingViewConstraints[1].constant = _configuration.margins.leading
-        hostingViewConstraints[2].constant = -_configuration.margins.width
-        hostingViewConstraints[3].constant = -_configuration.margins.height
+        self.margins = appliedConfiguration.margins
     }
     
-    internal lazy var hostingView: NSHostingView<HostingView<Content, Background>> = {
-        let contentView = HostingView(configuration: _configuration)
-        let hostingView = NSHostingView<HostingView<Content, Background>>(rootView: contentView)
-        hostingView.backgroundColor = .clear
-        hostingView.translatesAutoresizingMaskIntoConstraints = false
-        return hostingView
+    internal var margins: NSDirectionalEdgeInsets {
+        get {
+            var edgeInsets = NSDirectionalEdgeInsets(top: hostingViewConstraints[0].constant, leading: hostingViewConstraints[1].constant, bottom: 0, trailing: 0)
+            edgeInsets.width = -hostingViewConstraints[2].constant
+            edgeInsets.height = -hostingViewConstraints[3].constant
+            return edgeInsets
+        }
+        set {
+            hostingViewConstraints[0].constant = newValue.bottom
+            hostingViewConstraints[1].constant = newValue.leading
+            hostingViewConstraints[2].constant = -newValue.width
+            hostingViewConstraints[3].constant = -newValue.height
+        }
+    }
+    
+    internal lazy var hostingController: NSUIHostingController<HostingView<Content, Background>> = {
+        let contentView = HostingView(configuration: appliedConfiguration)
+        let hostingController = NSUIHostingController(rootView: contentView)
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        return hostingController
     }()
+
 
     override func invalidateIntrinsicContentSize() {
         super.invalidateIntrinsicContentSize()
-    }
-    
-    public func sizeThatFits(_ size: CGSize) -> CGSize {
-        return hostingView.sizeThatFits(size)
-    }
-    
-    override var fittingSize: NSSize {
-        return hostingView.fittingSize
     }
     
     internal var hostingViewConstraints: [NSLayoutConstraint] = []

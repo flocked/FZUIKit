@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Unarchiver.swift
 //
 //
 //  Created by Florian Zand on 19.05.23.
@@ -10,8 +10,17 @@ import AppKit
 import FZSwiftUtils
 
 public enum Unarchiver {
+    ///The supported file extensions for extracting files.
     public static let supportedFileExtensions: [String] = ["zip", "tar", "tar.gz", "tgz", "gz"]
 
+    /**
+     Extracts the specified archive.
+     - Parameters archive: The url to the file.
+     - Parameters directory: The destionation directory where the files of the archive should be extracted to or nil if the files should be extracted to the same directory the archive is located at.
+     - Parameters overwriteFiles: A Boolean value that indicates whether existing files that get extracted from the archive should be overwritten
+     - Parameters deleteArchiveWhenDone: A Boolean value that indicates whether the archive should be deleted when it's files got extracted.
+     - Parameters completionHandler: The handler to be called whenever the extracting is done returning the urls to the extracted files and an error if the extraction failed.
+     */
     public static func extractArchive(_ archive: URL, to directory: URL? = nil, overwriteFiles: Bool = false, deleteArchiveWhenDone: Bool = false, completionHandler: @escaping (([URL]?, Error?) -> Void)) {
         DispatchQueue.global(qos: .userInitiated).async {
             do {
@@ -27,9 +36,25 @@ public enum Unarchiver {
         }
     }
 
+    /**
+     Extracts the specified archive.
+     - Parameters archive: The url to the file.
+     - Parameters directory: The destionation directory where the files of the archive should be extracted to or nil if the files should be extracted to the same directory the archive is located at.
+     - Parameters overwriteFiles: A Boolean value that indicates whether existing files that get extracted from the archive should be overwritten
+     - Parameters deleteArchiveWhenDone: A Boolean value that indicates whether the archive should be deleted when it's files got extracted.
+     
+     - Throws: Throws if the archive or destionation directory doesn't exist or if the extraction failes.
+     - Returns: The urls of the extracted files.
+     */
     public static func extractArchive(_ archive: URL, to directory: URL? = nil, overwriteFiles: Bool = false, deleteArchiveWhenDone: Bool = false) throws -> [URL] {
         guard FileManager.default.fileExists(atPath: archive.path) else {
             throw Errors.archiveDoesntExist
+        }
+        
+        if let directory = directory {
+            guard FileManager.default.fileExists(atPath: directory.path) else {
+                throw Errors.directoryDoesntExist
+            }
         }
 
         guard supportedFileExtensions.contains(archive.pathExtension.lowercased()) else {
@@ -108,9 +133,15 @@ public enum Unarchiver {
 }
 
 public extension Unarchiver {
+    /// Extraction Errors.
     enum Errors: Error {
+        /// An unknown archive format.
         case unknownArchive
+        /// The archive doesn't exist.
         case archiveDoesntExist
+        /// The destionationDirectory doesn't exist.
+        case directoryDoesntExist
+        /// Failed to extract the archive.
         case failedToExtract
     }
 }

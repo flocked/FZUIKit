@@ -1,6 +1,6 @@
 //
 //  NSPageController+.swift
-//  PageController
+//  
 //
 //  Created by Florian Zand on 26.05.22.
 //

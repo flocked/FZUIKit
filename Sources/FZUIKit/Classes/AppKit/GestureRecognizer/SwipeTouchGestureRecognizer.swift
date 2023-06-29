@@ -1,13 +1,43 @@
+//
+//  SwipeTouchGestureRecognizer.swift
+//
+//
+//  Created by Florian Zand on 22.09.22.
+//
+
 #if os(macOS)
 import AppKit
 
+/// A discrete gesture recognizer that interprets swiping gestures in one or more directions.
 public class SwipeTouchGestureRecognizer: NSGestureRecognizer {
-    public enum Direction {
-        case right, left, up, down
-    }
+    /// The permitted direction of the swipe for this gesture recognizer.
+    public struct Direction: OptionSet {
+        public let rawValue: UInt
+        /// The touch or touches swipe to the right.
+        public static let right = Direction(rawValue: 1 << 0)
+        /// The touch or touches swipe to the left.
+        public static let left = Direction(rawValue: 1 << 1)
+        /// The touch or touches swipe upward.
+        public static let up = Direction(rawValue: 1 << 2)
+        /// The touch or touches swipe downward.
+        public static let down = Direction(rawValue: 1 << 3)
 
+        /// Creates a swipe direction structure with the specified raw value.
+        public init(rawValue: UInt) {
+            self.rawValue = rawValue
+        }
+    }
+    
+    /**
+     The permitted direction of the swipe for this gesture recognizer.
+     
+     The default direction is right. See descriptions of `SwipeTouchGestureRecognizer.Direction` constants for more information.
+     */
+    public var direction: Direction = .right
+    
+
+    /// The number of swipes required to detect the swipe.
     public var numberOfTouchesRequired: Int = 2
-    public var direction: Direction = .left
 
     internal var twoFingersTouches: [String: NSTouch]?
 
@@ -84,22 +114,22 @@ public class SwipeTouchGestureRecognizer: NSGestureRecognizer {
     }
 
     func happenedLeft() {
-        guard direction == .left, let action = action else { return }
+        guard direction.contains(.left), let action = action else { return }
         _ = target?.perform(action, with: self)
     }
 
     func happenedRight() {
-        guard direction == .right, let action = action else { return }
+        guard direction.contains(.right), let action = action else { return }
         _ = target?.perform(action, with: self)
     }
 
     func happenedUp() {
-        guard direction == .up, let action = action else { return }
+        guard direction.contains(.up), let action = action else { return }
         _ = target?.perform(action, with: self)
     }
 
     func happenedDown() {
-        guard direction == .down, let action = action else { return }
+        guard direction.contains(.down), let action = action else { return }
         _ = target?.perform(action, with: self)
     }
 

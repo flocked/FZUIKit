@@ -1,6 +1,6 @@
 //
 //  FinderFileProgress.swift
-//  FZExtensions
+//  
 //
 //  Created by Florian Zand on 20.02.23.
 //

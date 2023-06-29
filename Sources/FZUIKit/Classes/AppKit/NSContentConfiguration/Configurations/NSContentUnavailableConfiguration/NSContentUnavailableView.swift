@@ -13,10 +13,10 @@ import SwiftUI
 public class NSContentUnavailableView: NSView, NSContentView {
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
-        get { _configuration }
+        get { appliedConfiguration }
         set {
             if let newValue = newValue as? NSContentUnavailableConfiguration {
-                _configuration = newValue
+                appliedConfiguration = newValue
             }
         }
     }
@@ -28,7 +28,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
         
     /// Creates a item content view with the specified content configuration.
     public init(configuration: NSContentUnavailableConfiguration) {
-        self._configuration = configuration
+        self.appliedConfiguration = configuration
         super.init(frame: .zero)
         self.backgroundConstraints = addSubview(withConstraint: backgroundView)
         self.hostingConstraints = addSubview(withConstraint: hostingView)
@@ -38,33 +38,33 @@ public class NSContentUnavailableView: NSView, NSContentView {
     internal var backgroundConstraints: [NSLayoutConstraint] = []
     internal var hostingConstraints: [NSLayoutConstraint] = []
     
-    internal lazy var backgroundView: (NSView & NSContentView) = _configuration.background.makeContentView()
+    internal lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
     
-    internal var _configuration: NSContentUnavailableConfiguration {
+    internal var appliedConfiguration: NSContentUnavailableConfiguration {
         didSet {
-            if oldValue != _configuration {
+            if oldValue != appliedConfiguration {
                 updateConfiguration()
             }
         }
     }
     
     internal func updateConfiguration() {
-        backgroundView.configuration = _configuration.background
-        hostingView.rootView =  ContentView(configuration: self._configuration)
+        backgroundView.configuration = appliedConfiguration.background
+        hostingView.rootView =  ContentView(configuration: self.appliedConfiguration)
         
-        backgroundConstraints[1].constant = -_configuration.directionalLayoutMargins.bottom
-        backgroundConstraints[0].constant = _configuration.directionalLayoutMargins.leading
-        backgroundConstraints[2].constant = -_configuration.directionalLayoutMargins.width
-        backgroundConstraints[3].constant = -_configuration.directionalLayoutMargins.height
+        backgroundConstraints[1].constant = -appliedConfiguration.directionalLayoutMargins.bottom
+        backgroundConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
+        backgroundConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
+        backgroundConstraints[3].constant = -appliedConfiguration.directionalLayoutMargins.height
 
-        hostingConstraints[1].constant = -_configuration.directionalLayoutMargins.bottom
-        hostingConstraints[0].constant = _configuration.directionalLayoutMargins.leading
-        hostingConstraints[2].constant = -_configuration.directionalLayoutMargins.width
-        hostingConstraints[3].constant = -_configuration.directionalLayoutMargins.height
+        hostingConstraints[1].constant = -appliedConfiguration.directionalLayoutMargins.bottom
+        hostingConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
+        hostingConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
+        hostingConstraints[3].constant = -appliedConfiguration.directionalLayoutMargins.height
     }
     
     internal lazy var hostingView: NSHostingView<ContentView> = {
-        let contentView = ContentView(configuration: self._configuration)
+        let contentView = ContentView(configuration: self.appliedConfiguration)
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.backgroundColor = .clear
         hostingView.translatesAutoresizingMaskIntoConstraints = false

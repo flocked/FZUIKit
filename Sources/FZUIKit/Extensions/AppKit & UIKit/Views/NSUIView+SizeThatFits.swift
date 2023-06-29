@@ -13,7 +13,9 @@ import UIKit
 #endif
 
 public protocol Sizable {
+    /// Returns the original proposal, with nil components replaced by a small positive value.
     func sizeThatFits(_ size: CGSize) -> CGSize
+    /// The minimum size of the view that satisfies the constraints it holds.
     var fittingSize: CGSize { get }
 }
 
@@ -21,18 +23,23 @@ extension NSUIView: Sizable { }
 
 
 public extension Sizable where Self: NSUIView {
+    /// Resizes and moves the receiver view so it just encloses its subviews fitting the size.
+
     func sizeToFit(size: CGSize) {
         frame.size = sizeThatFits(size)
     }
     
+    /// Resizes and moves the receiver view so it just encloses its subviews.
     func sizeToFit() {
         frame.size = fittingSize
     }
     
+    /// Resizes and moves the receiver view so it fit's the specified width and height.
     func sizeToFit(width: CGFloat?, height: CGFloat?) {
         frame.size = sizeThatFits(width: width, height: height)
     }
     
+    /// Returns the original proposal, with nil components replaced by a small positive value.
     func sizeThatFits(width: CGFloat?, height: CGFloat?) -> CGSize {
         return sizeThatFits(CGSize(width: width ?? NSUIView.noIntrinsicMetric, height: height ?? NSUIView.noIntrinsicMetric))
     }
@@ -40,6 +47,7 @@ public extension Sizable where Self: NSUIView {
 
 #if os(macOS)
 public extension Sizable where Self: NSView {
+    /// Returns the original proposal, with nil components replaced by a small positive value.
     func sizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize: CGSize? = nil
         
@@ -73,10 +81,12 @@ public extension Sizable where Self: NSView {
 }
 
 extension NSHostingController: Sizable {
+    /// The minimum size of the view that satisfies the constraints it holds.
     public var fittingSize: CGSize {
         return view.fittingSize
     }
     
+    /// Returns the original proposal, with nil components replaced by a small positive value.
     public func sizeThatFits(_ size: CGSize) -> CGSize {
         return sizeThatFits(in: size)
     }
@@ -93,6 +103,7 @@ extension NSHostingController: Sizable {
 
 #if canImport(UIKit)
 public extension Sizable where Self: NSUIView {
+    /// The minimum size of the view that satisfies the constraints it holds.
     var fittingSize: CGSize {
         sizeThatFits(CGSize(width: 10000, height: 10000))
     }
