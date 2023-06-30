@@ -85,18 +85,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         get { textCell?.verticalAlignment ?? .default }
         set { textCell?.verticalAlignment = newValue }
     }
-    
-    /// The leading padding of the text field
-    public var leadingPadding: CGFloat {
-        get { textCell?.leadingPadding ?? 0 }
-        set { textCell?.leadingPadding = newValue }
-    }
-    
-    /// The trailing padding of the text field
-    public var trailingPadding: CGFloat {
-        get { textCell?.trailingPadding ?? 0 }
-        set { textCell?.trailingPadding = newValue }
-    }
 
     /// The handler called when the edit state changes.
     public var editingStateHandler: ((EditState) -> Void)?
