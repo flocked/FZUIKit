@@ -24,6 +24,22 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
     public var automaticallyResizesToFit: Bool = true
     
+    /// Indicates how the text field should resize for fitting the placeholder.
+    public var resizesToFitPlaceholder: PlaceHolderResizeOption = .emptyText {
+        didSet { if oldValue != resizesToFitPlaceholder, resizesToFitPlaceholder != .never {
+            self.invalidateIntrinsicContentSize() } }
+    }
+    
+    /// The placeholder resize option.
+    public enum PlaceHolderResizeOption: Int {
+        /// Resizes the text field to always fit the placeholder.
+        case always
+        /// Resizes the text field to fit the placeholder if the text is an empty string ("").
+        case emptyText
+        /// Never resizes the text field to fit the placeholder.
+        case never
+    }
+    
     /**
      The minimum width of the text field when it automatically resizes to fit its text.
      
@@ -164,7 +180,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     override public var placeholderString: String? { didSet {
         guard oldValue != placeholderString else { return }
         self.placeholderSize = placeholderStringSize()
-        Swift.print("placeholderString.size", self.placeholderSize ?? "nil")
     }}
     
     public override var placeholderAttributedString: NSAttributedString? { didSet {
@@ -314,9 +329,16 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
             minSize.width = maxWidth
         }
         
-        if placeholderString != nil || placeholderAttributedString != nil, let placeholderSize = self.placeholderSize {
-            minSize.width = min(placeholderSize.width, minWidth)
-            Swift.print("intrinsicContentSize placeholder minSize", minSize)
+        if let placeholderSize = self.placeholderSize {
+            switch resizesToFitPlaceholder {
+            case .always:
+                minSize.width = min(placeholderSize.width, minWidth)
+            case .emptyText:
+                if stringValue == "" {
+                    minSize.width = min(placeholderSize.width, minWidth)
+                }
+            case .never: break
+            }
         }
         
         if let minWidth = self.minWidth {
