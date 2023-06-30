@@ -200,6 +200,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     }
     
     internal func placeholderStringSize() -> CGSize? {
+        Swift.print("placeholderAttributedString", self.placeholderAttributedString ?? "")
         guard let stringSize = self.placeholderAttributedString?.size() else { return nil }
         var placeholderStringSize = CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
         placeholderStringSize.width += 8.0
