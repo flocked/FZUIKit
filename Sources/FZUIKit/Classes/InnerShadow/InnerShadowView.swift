@@ -67,7 +67,7 @@ public class InnerShadowView: NSUIView {
     #if os(macOS)
     override public func makeBackingLayer() -> CALayer {
         let shadowLayer = InnerShadowLayer()
-        shadowLayer.zPosition = FLT_MAX
+     //   shadowLayer.zPosition = FLT_MAX
         return shadowLayer
     }
 
@@ -93,7 +93,7 @@ public class InnerShadowView: NSUIView {
     internal func sharedInit() {
 #if canImport(UIKit)
         tag = Self.Tag
-        layer.zPosition = .greatestFiniteMagnitude
+    //    layer.zPosition = .greatestFiniteMagnitude
 #endif
     }
 }
