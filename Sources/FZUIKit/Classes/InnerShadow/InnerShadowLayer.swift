@@ -20,20 +20,13 @@ public class InnerShadowLayer: CALayer {
         set { shadowOpacity = newValue }
     }
     
-    internal var superlayerValueObserver: NSKeyValueObservation? = nil
     internal var superlayerObserver: KeyValueObserver<CALayer>? = nil
-
 
     override public init() {
         super.init()
-        superlayerValueObserver = self.observeChanges(for: \.superlayer, handler: { [weak self] old, new in
-            Swift.print("superlayer changed")
-            guard let self = self, old != new else { return }
-            self.updateSuperlayerObservation()
-        })
     }
     
-    internal func updateSuperlayerObservation() {
+    public func setupSuperlayerObservation() {
         if let superlayer = superlayer {
             if superlayerObserver?.observedObject != superlayer {
                 superlayerObserver = nil
@@ -49,6 +42,7 @@ public class InnerShadowLayer: CALayer {
                     self.superlayerDidUpdate()
                 }
             }
+            self.superlayerDidUpdate()
         } else {
             superlayerObserver = nil
         }
