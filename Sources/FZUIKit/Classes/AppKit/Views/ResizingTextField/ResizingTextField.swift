@@ -164,7 +164,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     override public var placeholderString: String? { didSet {
         guard oldValue != placeholderString else { return }
         self.placeholderSize = placeholderStringSize()
-        Swift.print("placeholderString.size", self.placeholderSize )
+        Swift.print("placeholderString.size", self.placeholderSize ?? "nil")
         self.invalidateIntrinsicContentSize()
     }}
     
@@ -200,8 +200,14 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     }
     
     internal func placeholderStringSize() -> CGSize? {
-        Swift.print("placeholderAttributedString", self.placeholderAttributedString ?? "")
-        guard let stringSize = self.placeholderAttributedString?.size() else { return nil }
+        let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        var attributedString: NSAttributedString? = nil
+        if let placeholderAttributedString = self.placeholderAttributedString {
+            attributedString = placeholderAttributedString.font(font)
+        } else if let placeholderString = self.placeholderString {
+            attributedString = NSAttributedString(string: placeholderString, attributes: [.font: font])
+        }
+        guard let stringSize = attributedString?.size() else { return nil }
         var placeholderStringSize = CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
         placeholderStringSize.width += 8.0
         return placeholderStringSize
