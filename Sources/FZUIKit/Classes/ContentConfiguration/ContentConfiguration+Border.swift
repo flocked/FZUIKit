@@ -152,6 +152,7 @@ public extension CALayer {
             self.borderLayer?.strokeColor = configuration._resolvedColor?.cgColor
             self.borderLayer?.lineWidth = configuration.width
             self.borderLayer?.lineJoin = CAShapeLayerLineJoin.round
+            self.borderLayer?.cornerRadius = self.cornerRadius
             self.borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
             self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
         }
