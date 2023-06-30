@@ -128,8 +128,8 @@ public extension CALayer {
      */
     func configurate(using configuration: ContentConfiguration.Border) {
         if configuration._resolvedColor == nil || configuration.width == 0.0 {
+            self.borderLayer?.layerBorderObserver = nil
             self.borderLayer = nil
-            self.layerBorderObserver = nil
         } else {
             if self.borderLayer == nil {
                 self.borderLayer = CAShapeLayer()
@@ -141,7 +141,7 @@ public extension CALayer {
                 let frameSize = CGSize(width: self.frame.size.width-configuration.insets.width, height: self.frame.size.height-configuration.insets.height)
                 let shapeRect = CGRect(origin: CGPoint(x: configuration.insets.leading, y: configuration.insets.bottom), size: frameSize)
                 
-                let scale = shapeRect.size.width/self.frame.size.width
+                let scale = (shapeRect.size.width-configuration.width)/self.frame.size.width
                 let cornerRadius = self.cornerRadius * scale
                 
                 self.borderLayer?.bounds = CGRect(.zero, shapeRect.size)
@@ -149,19 +149,19 @@ public extension CALayer {
                 self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
             }
             
-            if layerBorderObserver == nil {
-                layerBorderObserver = KeyValueObserver(self)
+            if self.borderLayer?.layerBorderObserver == nil {
+                self.borderLayer?.layerBorderObserver = KeyValueObserver(self)
             }
             
-            layerBorderObserver?.remove(\.cornerRadius)
-            layerBorderObserver?.remove(\.bounds)
+            self.borderLayer?.layerBorderObserver?.remove(\.cornerRadius)
+            self.borderLayer?.layerBorderObserver?.remove(\.bounds)
 
-            layerBorderObserver?.add(\.cornerRadius) { old, new in
+            self.borderLayer?.layerBorderObserver?.add(\.cornerRadius) { old, new in
                 Swift.print("cornerRadius changed")
                 guard old != new else { return }
                 frameUpdateHandler()
             }
-            layerBorderObserver?.add(\.bounds) { old, new in
+            self.borderLayer?.layerBorderObserver?.add(\.bounds) { old, new in
                 Swift.print("bounds changed")
                 guard old != new else { return }
                 frameUpdateHandler()
