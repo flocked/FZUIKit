@@ -29,14 +29,20 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
      
      When the text field hits the maximum width, it will automatically grow it's height.
      */
-    public var minWidth: CGFloat? = nil
+    public var minWidth: CGFloat? = nil {
+        didSet { if oldValue != minWidth {
+            self.invalidateIntrinsicContentSize() } }
+    }
     
     /**
      The maximum width of the text field when it automatically resizes to fit its text.
 
      When `automaticallyResizesToFit` is enabled and the text field hits the maximum width, it will automatically grow in height.
      */
-    public var maxWidth: CGFloat? = nil
+    public var maxWidth: CGFloat? = nil {
+        didSet { if oldValue != maxWidth {
+            self.invalidateIntrinsicContentSize() } }
+    }
         
     /// A Boolean value that indicates whether the user can enter an empty text.
     public var allowsEmptyString: Bool = false
@@ -162,16 +168,30 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         var size = size(placeholderString)
         size.width = size.width + 8.0
         self.placeholderSize = size
+        self.invalidateIntrinsicContentSize()
+    }}
+    
+    public override var placeholderAttributedString: NSAttributedString? { didSet {
+        guard let placeholderAttributedString = self.placeholderAttributedString else { return }
+        var size = size(placeholderAttributedString)
+        size.width = size.width + 8.0
+        self.placeholderSize = size
+        self.invalidateIntrinsicContentSize()
     }}
 
     override public var stringValue: String { didSet {
-        if self.isEditing { return }
+        guard !self.isEditing else { return }
         self.lastContentSize = size(stringValue)
+    }}
+    
+    public override var attributedStringValue: NSAttributedString { didSet {
+        guard !self.isEditing else { return }
+        self.lastContentSize = size(attributedStringValue)
     }}
 
     override public var font: NSFont? {
         didSet {
-            if self.isEditing { return }
+            guard !self.isEditing else { return }
             self.lastContentSize = size(stringValue)
         }
     }
@@ -179,6 +199,13 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     internal func size(_ string: String) -> NSSize {
         let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         let stringSize = NSAttributedString(string: string, attributes: [.font: font]).size()
+
+        return NSSize(width: stringSize.width, height: super.intrinsicContentSize.height)
+    }
+    
+    internal func size(_ attributedString: NSAttributedString) -> NSSize {
+        let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        let stringSize = attributedString.size()
 
         return NSSize(width: stringSize.width, height: super.intrinsicContentSize.height)
     }
@@ -267,6 +294,10 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
                 minSize.height = cellSize.height + 8.0
             }
             minSize.width = maxWidth
+        }
+        
+        if placeholderString != nil || placeholderAttributedString != nil, let placeholderSize = self.placeholderSize {
+            minSize.width = min(placeholderSize.width, minWidth)
         }
         
         if let minWidth = self.minWidth {
