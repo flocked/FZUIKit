@@ -136,6 +136,20 @@ public extension UIView {
 #endif
 
 public extension CALayer {
+    internal var innerShadowLayer: InnerShadowLayer? {
+        get { getAssociatedValue(key: "CALayer_innerShadowLayer", object: self, initialValue: nil) }
+        set {
+            if newValue != self.innerShadowLayer {
+                self.innerShadowLayer?.removeFromSuperlayer()
+                if let newValue = newValue, newValue.superlayer != self {
+                    self.addSublayer(newValue)
+                    newValue.sendToBack()
+                }
+            }
+            set(associatedValue: newValue, key: "CALayer_innerShadowLayer", object: self)
+        }
+    }
+    
     /**
      Configurates the shadow of the LAYER.
 
@@ -150,12 +164,43 @@ public extension CALayer {
             shadowRadius = configuration.radius
             shadowOpacity = Float(configuration.opacity)
         } else {
-            if let layer = sublayers?.compactMap({ $0 as? InnerShadowLayer }).first {
-                layer.configuration = configuration
-            } else {
-                let layer = InnerShadowLayer(configuration: configuration)
-                insertSublayer(layer, at: 0)
+            if self.innerShadowLayer == nil {
+                self.innerShadowLayer = InnerShadowLayer()
             }
+            
+            let frameUpdateHandler: (()->()) = { [weak self] in
+                guard let self = self else { return }
+                let frameSize = self.frame.size
+                let shapeRect = CGRect(origin: .zero, size: frameSize)
+                
+                self.innerShadowLayer?.cornerRadius = self.cornerRadius
+                self.innerShadowLayer?.bounds = CGRect(.zero, shapeRect.size)
+                self.innerShadowLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+            }
+            
+            if self.innerShadowLayer?.layerObserver == nil {
+                self.innerShadowLayer?.layerObserver = KeyValueObserver(self)
+            }
+            
+            self.innerShadowLayer?.layerObserver?.remove(\.cornerRadius)
+            self.innerShadowLayer?.layerObserver?.remove(\.bounds)
+
+            self.innerShadowLayer?.layerObserver?.add(\.cornerRadius) { old, new in
+                Swift.print("innerShadowLayer cornerRdius")
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+            self.innerShadowLayer?.layerObserver?.add(\.bounds) { old, new in
+                Swift.print("innerShadowLayer bounds")
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+            
+            frameUpdateHandler()
+            self.innerShadowLayer?.color = configuration.color
+            self.innerShadowLayer?.offset = CGSize(configuration.offset.x, configuration.offset.y)
+            self.innerShadowLayer?.radius = configuration.radius
+            self.innerShadowLayer?.opacity = Float(configuration.opacity)
         }
     }
 }

@@ -101,7 +101,7 @@ public extension UIView {
 #endif
 
 public extension CALayer {
-    internal var layerBorderObserver: KeyValueObserver<CALayer>? {
+    internal var layerObserver: KeyValueObserver<CALayer>? {
         get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
     }
@@ -128,7 +128,7 @@ public extension CALayer {
      */
     func configurate(using configuration: ContentConfiguration.Border) {
         if configuration._resolvedColor == nil || configuration.width == 0.0 {
-            self.borderLayer?.layerBorderObserver = nil
+            self.borderLayer?.layerObserver = nil
             self.borderLayer = nil
         } else {
             if self.borderLayer == nil {
@@ -149,19 +149,19 @@ public extension CALayer {
                 self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
             }
             
-            if self.borderLayer?.layerBorderObserver == nil {
-                self.borderLayer?.layerBorderObserver = KeyValueObserver(self)
+            if self.borderLayer?.layerObserver == nil {
+                self.borderLayer?.layerObserver = KeyValueObserver(self)
             }
             
-            self.borderLayer?.layerBorderObserver?.remove(\.cornerRadius)
-            self.borderLayer?.layerBorderObserver?.remove(\.bounds)
+            self.borderLayer?.layerObserver?.remove(\.cornerRadius)
+            self.borderLayer?.layerObserver?.remove(\.bounds)
 
-            self.borderLayer?.layerBorderObserver?.add(\.cornerRadius) { old, new in
+            self.borderLayer?.layerObserver?.add(\.cornerRadius) { old, new in
                 Swift.print("borderLayer cornerRdius")
                 guard old != new else { return }
                 frameUpdateHandler()
             }
-            self.borderLayer?.layerBorderObserver?.add(\.bounds) { old, new in
+            self.borderLayer?.layerObserver?.add(\.bounds) { old, new in
                 Swift.print("borderLayer bounds")
                 guard old != new else { return }
                 frameUpdateHandler()
