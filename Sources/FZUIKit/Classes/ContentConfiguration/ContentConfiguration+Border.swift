@@ -177,12 +177,14 @@ public extension CALayer {
             if self.borderLayerNe == nil {
                 let borderedLayer = DashedBorderLayer()
                 self.addSublayer(borderedLayer)
+                Swift.print("borderedLayer added")
                 borderedLayer.sendToBack()
             }
             
             let borderedLayer = self.borderLayerNe
             
             let frameUpdateHandler: (()->()) = { [weak self] in
+                Swift.print("borderedLayer frameUpdateHandler", borderedLayer ?? "")
                 guard let self = self else { return }
                 let frameSize = self.frame.size
                 let shapeRect = CGRect(origin: .zero, size: frameSize)
@@ -190,6 +192,7 @@ public extension CALayer {
                 borderedLayer?.cornerRadius = self.cornerRadius
                 borderedLayer?.bounds = CGRect(.zero, shapeRect.size)
                 borderedLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+                borderedLayer?.setNeedsDisplay()
             }
             
             if borderedLayer?.layerObserver == nil {
@@ -197,12 +200,14 @@ public extension CALayer {
             }
                         
             borderedLayer?.layerObserver?[\.cornerRadius] = { old, new in
+                Swift.print("borderedLayer cornerRadius")
                 guard old != new else { return }
                 frameUpdateHandler()
             }
             
             
             borderedLayer?.layerObserver?[\.bounds] = { old, new in
+                Swift.print("borderedLayer bounds")
                 guard old != new else { return }
                 frameUpdateHandler()
             }
