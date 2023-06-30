@@ -36,6 +36,20 @@ public class DashedBorderLayer: CALayer {
         }
     }
     
+    public override var cornerRadius: CGFloat {
+        didSet {
+            if oldValue != self.cornerRadius {
+                self.layoutBorderedLayer()
+            }
+        }
+    }
+    
+    public override var cornerCurve: CALayerCornerCurve {
+        didSet {
+            self.borderedLayer.cornerCurve = self.cornerCurve
+        }
+    }
+    
     public var borderDashPattern: [CGFloat]? {
         get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) }
         set { borderedLayer.lineDashPattern = newValue as? [NSNumber] }
