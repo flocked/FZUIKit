@@ -141,9 +141,12 @@ public extension CALayer {
                 let frameSize = CGSize(width: self.frame.size.width-configuration.insets.width, height: self.frame.size.height-configuration.insets.height)
                 let shapeRect = CGRect(origin: CGPoint(x: configuration.insets.leading, y: configuration.insets.bottom), size: frameSize)
                 
+                let scale = shapeRect.size.width/self.frame.size.width
+                let cornerRadius = self.cornerRadius * scale
+                
                 self.borderLayer?.bounds = CGRect(.zero, shapeRect.size)
                 self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
+                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
             }
             
             if layerBorderObserver == nil {
