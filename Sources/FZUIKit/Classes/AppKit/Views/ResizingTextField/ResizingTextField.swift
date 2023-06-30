@@ -157,18 +157,13 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         self.cell?.wraps = true
         self.lineBreakMode = .byTruncatingTail
 
-        self.lastContentSize = size(self.stringValue)
-        if let placeholderString = self.placeholderString {
-            self.placeholderSize = size(placeholderString)
-        }
+        self.lastContentSize = stringValueSize()
+        self.placeholderSize = placeholderStringSize()
     }
 
     override public var placeholderString: String? { didSet {
-        guard let placeholderString = self.placeholderString else { return }
-        var size = size(placeholderString)
-        size.width = size.width + 8.0
-        self.placeholderSize = size
-        self.invalidateIntrinsicContentSize()
+        guard oldValue != placeholderString else { return }
+        self.placeholderSize = placeholderStringSize()
     }}
     
     public override var placeholderAttributedString: NSAttributedString? { didSet {
@@ -181,7 +176,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     override public var stringValue: String { didSet {
         guard !self.isEditing else { return }
-        self.lastContentSize = size(stringValue)
+        self.lastContentSize = stringValueSize()
     }}
     
     public override var attributedStringValue: NSAttributedString { didSet {
@@ -192,8 +187,21 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     override public var font: NSFont? {
         didSet {
             guard !self.isEditing else { return }
-            self.lastContentSize = size(stringValue)
+            self.lastContentSize = stringValueSize()
+            self.placeholderSize = placeholderStringSize()
         }
+    }
+    
+    internal func stringValueSize() -> CGSize {
+        let stringSize = self.attributedStringValue.size()
+        return CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
+    }
+    
+    internal func placeholderStringSize() -> CGSize? {
+        guard let stringSize = self.placeholderAttributedString?.size() else { return nil }
+        var placeholderStringSize = CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
+        placeholderStringSize.width += 8.0
+        return placeholderStringSize
     }
 
     internal func size(_ string: String) -> NSSize {
@@ -325,7 +333,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         }
 
         // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
-        var newWidth = ceil(size(self.stringValue).width)
+        var newWidth = ceil(stringValueSize().width)
         if let minWidth = self.minWidth {
             newWidth = max(newWidth, minWidth)
         }
