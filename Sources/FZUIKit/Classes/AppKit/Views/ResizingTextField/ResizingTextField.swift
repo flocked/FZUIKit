@@ -200,12 +200,15 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         let stringSize = NSAttributedString(string: string, attributes: [.font: font]).size()
 
+        Swift.print("string.Size", NSSize(width: stringSize.width, height: super.intrinsicContentSize.height))
+        
         return NSSize(width: stringSize.width, height: super.intrinsicContentSize.height)
     }
     
     internal func size(_ attributedString: NSAttributedString) -> NSSize {
         let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         let stringSize = attributedString.size()
+        Swift.print("attributedString.size", NSSize(width: stringSize.width, height: super.intrinsicContentSize.height))
 
         return NSSize(width: stringSize.width, height: super.intrinsicContentSize.height)
     }
