@@ -27,8 +27,11 @@ public class InnerShadowLayer: CALayer {
     }
     
     public func setupSuperlayerObservation() {
+        Swift.print("setupSuperlayerObservation")
         if let superlayer = superlayer {
+            Swift.print("setupSuperlayerObservation1")
             if superlayerObserver?.observedObject != superlayer {
+                Swift.print("setupSuperlayerObservation2")
                 superlayerObserver = nil
                 superlayerObserver = KeyValueObserver(superlayer)
                 superlayerObserver?.add(\.cornerRadius) { [weak self] old, new in
