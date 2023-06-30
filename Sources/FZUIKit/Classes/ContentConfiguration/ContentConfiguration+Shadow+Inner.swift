@@ -56,6 +56,7 @@ public extension ContentConfiguration {
             self.opacity = opacity
             self.radius = radius
             self.offset = offset
+            self.updateResolvedColor()
         }
 
         public static func none() -> Self { return Self(color: nil, opacity: 0.0) }
