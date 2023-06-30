@@ -164,6 +164,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     override public var placeholderString: String? { didSet {
         guard oldValue != placeholderString else { return }
         self.placeholderSize = placeholderStringSize()
+        Swift.print("placeholderString.size", self.placeholderSize )
         self.invalidateIntrinsicContentSize()
     }}
     
@@ -290,9 +291,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     override public var intrinsicContentSize: NSSize {
         let intrinsicContentSize = super.intrinsicContentSize
-        if automaticallyResizesToFit == false {
-            return intrinsicContentSize
-        }
+        guard automaticallyResizesToFit else { return intrinsicContentSize }
 
         let minWidth: CGFloat!
         if !self.stringValue.isEmpty {
@@ -311,6 +310,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         
         if placeholderString != nil || placeholderAttributedString != nil, let placeholderSize = self.placeholderSize {
             minSize.width = min(placeholderSize.width, minWidth)
+            Swift.print("intrinsicContentSize placeholder minSize", minSize)
         }
         
         if let minWidth = self.minWidth {
@@ -319,6 +319,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
         guard let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView
         else {
+            Swift.print("intrinsicContentSize minSize", minSize)
             return minSize
         }
 
@@ -347,6 +348,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
             newSize.width = maxWidth
         }
         self.lastContentSize = newSize
+        Swift.print("intrinsicContentSize newSize", minSize)
         return newSize
     }
 
