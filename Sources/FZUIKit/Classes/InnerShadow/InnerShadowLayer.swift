@@ -51,7 +51,14 @@ public class InnerShadowLayer: CALayer {
     internal func superlayerDidUpdate() {
         if let superlayer = superlayer {
             self.isUpdating = true
-            self.bounds = superlayer.bounds
+          //  self.bounds = superlayer.bounds
+            
+            let frameSize = superlayer.frame.size
+            let shapeRect = CGRect(origin: .zero, size: frameSize)
+            self.bounds = shapeRect
+            self.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+
+            
             self.cornerRadius = superlayer.cornerRadius
             self.update()
             self.isUpdating = false
