@@ -27,7 +27,7 @@ public class DashedBorderLayer: CALayer {
         set { borderedLayer.lineDashPattern = newValue as? [NSNumber] }
     }
     
-    /*
+    
     public override var borderColor: CGColor? {
         get { borderedLayer.strokeColor }
         set { borderedLayer.strokeColor = newValue }
@@ -41,7 +41,7 @@ public class DashedBorderLayer: CALayer {
             layoutBorderedLayer()
         }
     }
-    */
+    
     
     public override var cornerRadius: CGFloat {
         didSet {
