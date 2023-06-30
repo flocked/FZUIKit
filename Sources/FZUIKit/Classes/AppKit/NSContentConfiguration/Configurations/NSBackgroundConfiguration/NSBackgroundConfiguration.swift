@@ -86,6 +86,15 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         }
     }
     
+    /// Properties for configuring the shadow.
+    public var innerShadow: ContentConfiguration.InnerShadow = .none() {
+        didSet {
+            if self.innerShadow != oldValue {
+                self.updateResolvedColors()
+            }
+        }
+    }
+    
     /// Properties for configuring the background visual effect.
     public var visualEffect: ContentConfiguration.VisualEffect? = nil
     
@@ -106,6 +115,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
                 view: NSView? = nil,
                 border: ContentConfiguration.Border = .init(),
                 shadow: ContentConfiguration.Shadow = .none(),
+                innerShadow: ContentConfiguration.InnerShadow = .none(),
                 visualEffect: ContentConfiguration.VisualEffect? = nil,
                 cornerRadius: CGFloat = 0.0,
                 insets: NSDirectionalEdgeInsets = .init()
@@ -120,16 +130,20 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         self.image = image
         self.imageScaling = imageScaling
         self.shadow = shadow
+        self.innerShadow = innerShadow
+        self.updateResolvedColors()
     }
     
     internal var _resolvedColor: NSColor? = nil
     internal var _resolvedBorderColor: NSColor? = nil
     internal var _resolvedShadowColor: NSColor? = nil
+    internal var _resolvedInnerShadowColor: NSColor? = nil
 
     internal mutating func updateResolvedColors() {
         self._resolvedColor = self.resolvedColor()
         self._resolvedBorderColor = self.border.resolvedColor()
         self._resolvedShadowColor = self.shadow.resolvedColor(withOpacity: false)
+        self._resolvedInnerShadowColor = self.innerShadow.resolvedColor(withOpacity: false)
     }
 }
 

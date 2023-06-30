@@ -94,9 +94,6 @@ public class DashedBorderLayer: CALayer {
         borderedLayer.bounds = CGRect(.zero, shapeRect.size)
         borderedLayer.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
         borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
-        
-        Swift.print("layoutBorderedLayer", self.frame)
-
     }
     
     /**

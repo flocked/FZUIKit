@@ -60,12 +60,20 @@ public extension ContentConfiguration {
         }
         
         public static func black() -> Self {
-            Self(color: .black, width: 1.0)
+            Self(color: .black, width: 2.0)
+        }
+        
+        public static func dashed(color: NSColor = .black, width: CGFloat = 2.0) -> Self {
+            return Self(color: color, width: width, dashPattern: [2])
         }
         
         internal var _resolvedColor: NSUIColor? = nil
         internal mutating func updateResolvedColor() {
             _resolvedColor = resolvedColor()
+        }
+        
+        internal var isInvisible: Bool {
+            return (self.width == 0.0 || self._resolvedColor == nil)
         }
     }
 }
@@ -106,14 +114,9 @@ public extension CALayer {
         set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
     }
     
-    internal var borderLayer: CAShapeLayer? {
-        self.sublayers?.first(where: {$0.name == "_DashedBorderLayer"}) as? CAShapeLayer
-    }
-    
-    internal var borderLayerNe: DashedBorderLayer? {
+    internal var borderLayer: DashedBorderLayer? {
         self.firstSublayer(type: DashedBorderLayer.self)
     }
-    /*
     /**
      Configurates the border apperance of the view.
 
@@ -121,70 +124,18 @@ public extension CALayer {
         - configuration:The configuration for configurating the apperance.
      */
     func configurate(using configuration: ContentConfiguration.Border) {
-        if configuration._resolvedColor == nil || configuration.width == 0.0 {
-            self.borderLayer?.layerObserver = nil
+        if configuration.isInvisible {
             self.borderLayer?.removeFromSuperlayer()
         } else {
             if self.borderLayer == nil {
-                let borderLayer = CAShapeLayer()
-                borderLayer.name = "_DashedBorderLayer"
-                self.addSublayer(borderLayer)
-            }
-            
-            let borderLayer = self.borderLayer
-            
-            let frameUpdateHandler: (()->()) = { [weak self] in
-                guard let self = self else { return }
-                let frameSize = CGSize(width: self.frame.size.width-configuration.insets.width, height: self.frame.size.height-configuration.insets.height)
-                let shapeRect = CGRect(origin: CGPoint(x: configuration.insets.leading, y: configuration.insets.bottom), size: frameSize)
-                
-                let scale = (shapeRect.size.width-configuration.width)/self.frame.size.width
-                let cornerRadius = self.cornerRadius * scale
-                
-                borderLayer?.bounds = CGRect(.zero, shapeRect.size)
-                borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
-            }
-                        
-            if borderLayer?.layerObserver == nil {
-                borderLayer?.layerObserver = KeyValueObserver(self)
-            }
-            
-            borderLayer?.layerObserver?[\.cornerRadius] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            
-            borderLayer?.layerObserver?[\.bounds] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            
-            frameUpdateHandler()
-            borderLayer?.cornerCurve = self.cornerCurve
-            borderLayer?.fillColor = .clear
-            borderLayer?.strokeColor = configuration._resolvedColor?.cgColor
-            borderLayer?.lineWidth = configuration.width
-            borderLayer?.lineJoin = CAShapeLayerLineJoin.round
-            borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
-        }
-    }
-     */
-}
-
-public extension CALayer {
-    func configurate(using configuration: ContentConfiguration.Border) {
-            if self.borderLayerNe == nil {
                 let borderedLayer = DashedBorderLayer()
                 self.addSublayer(borderedLayer)
-                Swift.print("borderedLayer added")
                 borderedLayer.sendToBack()
             }
             
-            let borderedLayer = self.borderLayerNe
+            let borderedLayer = self.borderLayer
             
             let frameUpdateHandler: (()->()) = { [weak self] in
-                Swift.print("borderedLayer frameUpdateHandler", borderedLayer ?? "")
                 guard let self = self else { return }
                 let frameSize = self.frame.size
                 let shapeRect = CGRect(origin: .zero, size: frameSize)
@@ -192,27 +143,74 @@ public extension CALayer {
                 borderedLayer?.cornerRadius = self.cornerRadius
                 borderedLayer?.bounds = CGRect(.zero, shapeRect.size)
                 borderedLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+                Swift.print("borderedLayer.position", borderedLayer?.position ?? "")
                 borderedLayer?.setNeedsDisplay()
             }
             
             if borderedLayer?.layerObserver == nil {
                 borderedLayer?.layerObserver = KeyValueObserver(self)
             }
-                        
+            
+            Swift.print("borderedLayer.anchorPoint", borderedLayer?.anchorPoint ?? "")
+            
             borderedLayer?.layerObserver?[\.cornerRadius] = { old, new in
-                Swift.print("borderedLayer cornerRadius")
                 guard old != new else { return }
                 frameUpdateHandler()
             }
             
             
             borderedLayer?.layerObserver?[\.bounds] = { old, new in
-                Swift.print("borderedLayer bounds")
                 guard old != new else { return }
                 frameUpdateHandler()
             }
-                        
+            
             frameUpdateHandler()
             borderedLayer?.configuration = configuration
+        }
     }
 }
+
+public extension CALayer {
+    func constraintToSuperlayer(padding: NSDirectionalEdgeInsets = .zero) {
+        if let superlayer = self.superlayer {
+            let frameUpdateHandler: (()->()) = { [weak self] in
+                guard let self = self else { return }
+                let frameSize = superlayer.frame.size
+                let shapeRect = CGRect(origin: .zero, size: frameSize)
+                
+                self.cornerRadius = superlayer.cornerRadius
+                self.cornerCurve = superlayer.cornerCurve
+                self.bounds = CGRect(.zero, shapeRect.size)
+                self.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+                self.setNeedsDisplay()
+            }
+            var superlayerObserver: KeyValueObserver<CALayer>? = getAssociatedValue(key: "CALayer.superlayerObserver", object: self, initialValue: KeyValueObserver(superlayer))
+            if superlayerObserver?.observedObject != superlayer {
+                superlayerObserver = KeyValueObserver(superlayer)
+                set(associatedValue: superlayerObserver!, key: "CALayer.boundsObserver", object: self)
+            }
+            
+            superlayerObserver?[\.cornerRadius] = { old, new in
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+            
+            superlayerObserver?[\.bounds] = { old, new in
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+            frameUpdateHandler()
+        }
+    }
+    
+    func removeConstraintToSuperlayer() {
+        
+    }
+}
+
+/*
+ internal var layerObserver: KeyValueObserver<CALayer>? {
+     get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
+     set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
+ }
+ */

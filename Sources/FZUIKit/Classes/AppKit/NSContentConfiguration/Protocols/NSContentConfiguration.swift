@@ -24,4 +24,10 @@ public protocol NSContentConfiguration {
      */
     func updated(for state: NSConfigurationState) -> Self
 }
+
+public extension NSContentConfiguration {
+    func updated(for state: NSConfigurationState) -> Self {
+        return self
+    }
+}
 #endif

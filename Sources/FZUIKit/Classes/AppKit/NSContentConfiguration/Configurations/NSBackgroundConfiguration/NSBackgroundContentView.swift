@@ -84,6 +84,7 @@ public class NSBackgroundView: NSView, NSContentView {
         contentView.cornerRadius = appliedConfiguration.cornerRadius
         
         contentView.configurate(using: appliedConfiguration.shadow)
+        contentView.configurate(using: appliedConfiguration.innerShadow)
         contentView.configurate(using: appliedConfiguration.border)
                 
         contentViewConstraints[1].constant = -appliedConfiguration.insets.bottom

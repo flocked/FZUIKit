@@ -24,8 +24,8 @@ public extension ContentConfiguration {
         public var alpha: CGFloat = 1.0
         public var isHidden: Bool = false
         public var border: Border = .init()
-        public var innerShadow: Shadow? = nil
-        public var outerShadow: Shadow? = nil
+        public var innerShadow: InnerShadow = .none()
+        public var outerShadow: Shadow = .none()
         public var visualEffect: VisualEffect? = nil
 
         public var customView: NSUIView? = nil
@@ -74,8 +74,8 @@ public extension ContentConfiguration {
                     alpha: CGFloat = 1.0,
                     isHidden: Bool = false,
                     border: Border = Border(),
-                    innerShadow: Shadow? = nil,
-                    outerShadow: Shadow? = nil,
+                    innerShadow: InnerShadow,
+                    outerShadow: Shadow,
                     visualEffect: VisualEffect? = nil,
                     customView: NSUIView? = nil,
                     image: NSUIImage? = nil,
@@ -112,9 +112,8 @@ public extension NSView {
         alpha = viewProperties.alpha
         isHidden = viewProperties.isHidden
         configurate(using: viewProperties.border)
-        if let outerShadow = viewProperties.outerShadow {
-            configurate(using: outerShadow)
-        }
+        configurate(using: viewProperties.outerShadow)
+        configurate(using: viewProperties.innerShadow)
         backgroundColor = viewProperties.resolvedBackgroundColor()
         
         if let customView = viewProperties.customView {
