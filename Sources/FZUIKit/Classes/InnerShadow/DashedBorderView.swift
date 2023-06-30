@@ -21,6 +21,12 @@ public class DashedBorderView: NSUIView {
         get { borderedLayer.borderInsets }
         set { borderedLayer.borderInsets = newValue }
     }
+    
+    /// The color of the inner shadow.
+    public var borderDashPattern: [CGFloat]? {
+        get { borderedLayer.borderDashPattern }
+        set { borderedLayer.borderDashPattern = newValue }
+    }
 
     /// The configuration of the inner shadow.
     public var configuration: ContentConfiguration.Border {
