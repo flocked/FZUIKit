@@ -22,6 +22,11 @@ public class DashedBorderLayer: CALayer {
         }
     }
     
+    public var borderDashPattern: [CGFloat]? {
+        get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) }
+        set { borderedLayer.lineDashPattern = newValue as? [NSNumber] }
+    }
+    
     /*
     public override var borderColor: CGColor? {
         get { borderedLayer.strokeColor }
@@ -52,11 +57,6 @@ public class DashedBorderLayer: CALayer {
         }
     }
     
-    public var borderDashPattern: [CGFloat]? {
-        get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) }
-        set { borderedLayer.lineDashPattern = newValue as? [NSNumber] }
-    }
-    
     public var configuration: ContentConfiguration.Border {
         get { ContentConfiguration.Border(color: self.borderColor?.nsColor, width: self.borderWidth, dashPattern: self.borderDashPattern, insets: self.borderInsets) }
         set { guard newValue != self.configuration else { return  }
@@ -72,6 +72,16 @@ public class DashedBorderLayer: CALayer {
     public override func layoutSublayers() {
         self.layoutBorderedLayer()
         super.layoutSublayers()
+    }
+    
+    override public func draw(in ctx: CGContext) {
+        super.draw(in: ctx)
+        layoutBorderedLayer()
+    }
+
+    override public func display() {
+        super.display()
+        layoutBorderedLayer()
     }
     
     internal let borderedLayer = CAShapeLayer()
@@ -111,7 +121,6 @@ public class DashedBorderLayer: CALayer {
     internal func sharedInit() {
         borderedLayer.fillColor = .clear
         borderedLayer.lineJoin = CAShapeLayerLineJoin.round
-        borderedLayer.masksToBounds = true
         self.addSublayer(borderedLayer)
     }
 }
