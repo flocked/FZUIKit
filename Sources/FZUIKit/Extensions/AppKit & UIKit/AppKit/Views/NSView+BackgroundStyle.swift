@@ -30,7 +30,7 @@ public extension NSView {
         if let view = self as? ViewBackgroundStyleCustomizable {
             return view.backgroundStyle
         }
-        self.firstSubview(type: ViewBackgroundStyleCustomizable.self, depth: .max)?.backgroundStyle ?? .normal
+        return self.firstSubview(type: ViewBackgroundStyleCustomizable.self, depth: .max)?.backgroundStyle ?? .normal
     }
     
     /**
