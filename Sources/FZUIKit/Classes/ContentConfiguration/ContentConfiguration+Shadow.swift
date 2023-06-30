@@ -168,7 +168,10 @@ public extension CALayer {
                 self.innerShadowLayer = InnerShadowLayer()
             }
             
+            Swift.print("configurate shadow", innerShadowLayer ?? "")
+            
             let frameUpdateHandler: (()->()) = { [weak self] in
+                Swift.print("shadow frameUpdateHandler")
                 guard let self = self else { return }
                 let frameSize = self.frame.size
                 let shapeRect = CGRect(origin: .zero, size: frameSize)
@@ -195,6 +198,8 @@ public extension CALayer {
                 guard old != new else { return }
                 frameUpdateHandler()
             }
+            
+            Swift.print("shadow layerObserver", self.innerShadowLayer?.layerObserver ?? "" )
             
             frameUpdateHandler()
             self.innerShadowLayer?.color = configuration.color
