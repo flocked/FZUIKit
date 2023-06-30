@@ -38,15 +38,20 @@ public extension ContentConfiguration {
         /// The dash pattern of the border.
         public var dashPattern: [CGFloat]? = nil
         
+        /// The insets of the border.
+        public var insets: NSDirectionalEdgeInsets = .init(0)
+        
         public init(color: NSUIColor? = nil,
                     colorTransformer: NSUIConfigurationColorTransformer? = nil,
                     width: CGFloat = 0.0,
-                    dashPattern: [CGFloat]? = nil)
+                    dashPattern: [CGFloat]? = nil,
+                    insets: NSDirectionalEdgeInsets = .init(0))
         {
             self.color = color
             self.width = width
             self.dashPattern = dashPattern
             self.colorTransformer = colorTransformer
+            self.insets = insets
             self.updateResolvedColor()
         }
 
@@ -132,19 +137,22 @@ public extension CALayer {
                 self.borderLayer?.name = "_DashedBorderLayer"
             }
             
-            if layerBoundsObserver == nil {
-                layerBoundsObserver = self.observeChanges(for: \.bounds, handler: { [weak self] old, new in
+            self.layerBoundsObserver?.invalidate()
+            self.layerBoundsObserver = self.observeChanges(for: \.bounds, handler: { [weak self] old, new in
                     guard let self = self else { return }
                     Swift.print("layerBoundsObserver", new)
                     guard new != old else { return }
-                    self.borderLayer?.bounds = new
-              //      self.borderLayer?.path = NSUIBezierPath(roundedRect: new, cornerRadius: self.cornerRadius).cgPath
-                    self.borderLayer?.position = CGPoint(x: new.size.width/2, y: new.size.height/2)
+                
+                let frameSize = CGSize(width: new.size.width-configuration.insets.width, height: new.size.height-configuration.insets.height)
+                let shapeRect = CGRect(origin: CGPoint(x: configuration.insets.leading, y: configuration.insets.bottom), size: frameSize)
+                
+                self.borderLayer?.bounds = shapeRect
+                self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
                 })
-            }
             
-            let frameSize = self.frame.size
-            let shapeRect = CGRect(origin: .zero, size: frameSize)
+            let frameSize = CGSize(width: self.frame.size.width-configuration.insets.width, height: self.frame.size.height-configuration.insets.height)
+            let shapeRect = CGRect(origin: CGPoint(x: configuration.insets.leading, y: configuration.insets.bottom), size: frameSize)
             
             self.borderLayer?.bounds = shapeRect
             self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
@@ -154,7 +162,7 @@ public extension CALayer {
             self.borderLayer?.lineJoin = CAShapeLayerLineJoin.round
             self.borderLayer?.cornerRadius = self.cornerRadius
             self.borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
-      //      self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
+            self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
         }
     }
 }
