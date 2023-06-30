@@ -157,12 +157,10 @@ public extension CALayer {
             self.borderLayer?.layerBorderObserver?.remove(\.bounds)
 
             self.borderLayer?.layerBorderObserver?.add(\.cornerRadius) { old, new in
-                Swift.print("cornerRadius changed")
                 guard old != new else { return }
                 frameUpdateHandler()
             }
             self.borderLayer?.layerBorderObserver?.add(\.bounds) { old, new in
-                Swift.print("bounds changed")
                 guard old != new else { return }
                 frameUpdateHandler()
             }

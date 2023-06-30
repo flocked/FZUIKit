@@ -68,6 +68,10 @@ public class InnerShadowLayer: CALayer {
     override public var frame: CGRect {
         didSet { update() }
     }
+    
+    public override var cornerRadius: CGFloat  {
+        didSet { update() }
+    }
 
     private func update() {
         if superlayer != nil {
