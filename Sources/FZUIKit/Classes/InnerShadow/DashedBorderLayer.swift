@@ -22,6 +22,7 @@ public class DashedBorderLayer: CALayer {
         }
     }
     
+    /*
     public override var borderColor: CGColor? {
         get { borderedLayer.strokeColor }
         set { borderedLayer.strokeColor = newValue }
@@ -35,6 +36,7 @@ public class DashedBorderLayer: CALayer {
             layoutBorderedLayer()
         }
     }
+    */
     
     public override var cornerRadius: CGFloat {
         didSet {
@@ -62,9 +64,8 @@ public class DashedBorderLayer: CALayer {
             self.borderedLayer.strokeColor = newValue._resolvedColor?.cgColor
             self.borderInsets = newValue.insets
             self.borderDashPattern = newValue.dashPattern
-            self.borderedLayer.backgroundColor = NSColor.red.cgColor
+         //   self.borderedLayer.backgroundColor = NSColor.red.cgColor
             self.layoutBorderedLayer()
-            self.borderedLayer.removeFromSuperlayer()
         }
     }
     
