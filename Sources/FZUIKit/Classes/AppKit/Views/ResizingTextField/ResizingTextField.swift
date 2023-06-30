@@ -164,6 +164,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     override public var placeholderString: String? { didSet {
         guard oldValue != placeholderString else { return }
         self.placeholderSize = placeholderStringSize()
+        self.invalidateIntrinsicContentSize()
     }}
     
     public override var placeholderAttributedString: NSAttributedString? { didSet {
