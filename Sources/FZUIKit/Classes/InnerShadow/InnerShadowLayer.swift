@@ -12,15 +12,56 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public class InnerShadowLayer: CALayer {
     override public var opacity: Float {
         get { return shadowOpacity }
         set { shadowOpacity = newValue }
     }
+    
+    internal var superlayerValueObserver: NSKeyValueObservation? = nil
+    internal var superlayerObserver: KeyValueObserver<CALayer>? = nil
+
 
     override public init() {
         super.init()
+        superlayerValueObserver = self.observeChanges(for: \.superlayer, handler: { [weak self] old, new in
+            Swift.print("superlayer changed")
+            guard let self = self, old != new else { return }
+            self.updateSuperlayerObservation()
+        })
+    }
+    
+    internal func updateSuperlayerObservation() {
+        if let superlayer = superlayer {
+            if superlayerObserver?.observedObject != superlayer {
+                superlayerObserver = nil
+                superlayerObserver = KeyValueObserver(superlayer)
+                superlayerObserver?.add(\.cornerRadius) { [weak self] old, new in
+                    Swift.print("superlayer cornerRadius changed")
+                    guard let self = self, old != new else { return }
+                    self.superlayerDidUpdate()
+                }
+                superlayerObserver?.add(\.bounds) { [weak self] old, new in
+                    Swift.print("superlayer bounds changed")
+                    guard let self = self, old != new else { return }
+                    self.superlayerDidUpdate()
+                }
+            }
+        } else {
+            superlayerObserver = nil
+        }
+    }
+    
+    internal func superlayerDidUpdate() {
+        if let superlayer = superlayer {
+            self.isUpdating = true
+            self.bounds = superlayer.bounds
+            self.cornerRadius = superlayer.cornerRadius
+            self.update()
+            self.isUpdating = false
+        }
     }
 
     public init(configuration: ContentConfiguration.Shadow) {
@@ -65,12 +106,21 @@ public class InnerShadowLayer: CALayer {
         }
     }
 
+
+    internal var isUpdating: Bool = false
     override public var frame: CGRect {
-        didSet { update() }
+        didSet { if !isUpdating, oldValue != frame {
+            update() } }
     }
     
-    public override var cornerRadius: CGFloat  {
-        didSet { update() }
+    override public var bounds: CGRect {
+        didSet { if !isUpdating, oldValue != bounds {
+            update() } }
+    }
+    
+    public override var cornerRadius: CGFloat {
+        didSet { if !isUpdating, oldValue != cornerRadius {
+            update() } }
     }
 
     private func update() {
