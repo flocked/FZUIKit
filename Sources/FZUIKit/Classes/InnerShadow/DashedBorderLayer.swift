@@ -43,6 +43,20 @@ public class DashedBorderLayer: CALayer {
     }
     */
     
+    public override var borderColor: CGColor? {
+        didSet {
+            borderedLayer.strokeColor = self.borderColor
+            self.borderColor = nil
+        }
+    }
+    
+    public override var borderWidth: CGFloat {
+        didSet {
+            borderedLayer.lineWidth = self.borderWidth
+            self.borderWidth = 0.0
+        }
+    }
+    
     public override var cornerRadius: CGFloat {
         didSet {
             if oldValue != self.cornerRadius {
@@ -72,11 +86,6 @@ public class DashedBorderLayer: CALayer {
     public override func layoutSublayers() {
         self.layoutBorderedLayer()
         super.layoutSublayers()
-    }
-    
-    override public func draw(in ctx: CGContext) {
-        super.draw(in: ctx)
-        layoutBorderedLayer()
     }
 
     override public func display() {
