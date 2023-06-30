@@ -26,10 +26,25 @@ public class InnerShadowLayer: CALayer {
         super.init()
     }
     
+    
+    internal var boundsObserver: NSKeyValueObservation? = nil
+    internal var cornerRadiusObserver: NSKeyValueObservation? = nil
+
     public func setupSuperlayerObservation() {
         Swift.print("setupSuperlayerObservation")
         if let superlayer = superlayer {
             Swift.print("setupSuperlayerObservation1")
+            
+            self.cornerRadiusObserver = self.observeChanges(for: \.superlayer?.cornerRadius, handler: {
+                old, new in
+                Swift.print("superlayer cornerRadius changed")
+            })
+            
+            self.boundsObserver = self.observeChanges(for: \.superlayer?.bounds, handler: {
+                old, new in
+                Swift.print("superlayer bounds changed")
+            })
+            /*
             if superlayerObserver?.observedObject != superlayer {
                 Swift.print("setupSuperlayerObservation2")
                 superlayerObserver = nil
@@ -45,6 +60,7 @@ public class InnerShadowLayer: CALayer {
                     self.superlayerDidUpdate()
                 }
             }
+            */
             self.superlayerDidUpdate()
         } else {
             superlayerObserver = nil
