@@ -165,7 +165,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         guard oldValue != placeholderString else { return }
         self.placeholderSize = placeholderStringSize()
         Swift.print("placeholderString.size", self.placeholderSize ?? "nil")
-        self.invalidateIntrinsicContentSize()
     }}
     
     public override var placeholderAttributedString: NSAttributedString? { didSet {
