@@ -14,71 +14,27 @@ import UIKit
 #endif
 
 #if os(macOS)
+
+
 public extension NSBezierPath {
-    convenience init(roundedRect rect: CGRect, byRoundingCorners corners: NSRectCorner, cornerRadii: CGSize) {
-        self.init()
-        defer { close() }
+    convenience init(roundedRect rect: NSRect, byRoundingCorners corners: NSRectCorner, cornerRadius radius: CGFloat) {
+         
+         self.init()
+         
+         let radius = radius.clamped(to: 0...(min(rect.width, rect.height) / 2))
+         
+         let topLeft = NSPoint(x: rect.minX, y: rect.minY)
+         let topRight = NSPoint(x: rect.maxX, y: rect.minY)
+         let bottomRight = NSPoint(x: rect.maxX, y: rect.maxY)
+         let bottomLeft = NSPoint(x: rect.minX, y: rect.maxY)
+         self.move(to: topLeft.offset(x: 0, y: radius))
+         self.appendArc(from: topLeft, to: topRight, radius: corners.contains(.topLeft) ? radius : 0)
+         self.appendArc(from: topRight, to: bottomRight, radius: corners.contains(.topRight) ? radius : 0)
+         self.appendArc(from: bottomRight, to: bottomLeft, radius: corners.contains(.bottomRight) ? radius : 0)
+         self.appendArc(from: bottomLeft, to: topLeft, radius: corners.contains(.bottomLeft) ? radius : 0)
+         self.close()
+     }
 
-        let topLeft = rect.origin
-        let topRight = NSPoint(x: rect.maxX, y: rect.minY)
-        let bottomRight = NSPoint(x: rect.maxX, y: rect.maxY)
-        let bottomLeft = NSPoint(x: rect.minX, y: rect.maxY)
-
-        if corners.contains(.topLeft) {
-            move(to: CGPoint(x: topLeft.x + cornerRadii.width,
-                             y: topLeft.y))
-        } else {
-            move(to: topLeft)
-        }
-
-        if corners.contains(.topRight) {
-            line(to: CGPoint(x: topRight.x - cornerRadii.width,
-                             y: topRight.y))
-            curve(to: topRight,
-                  controlPoint1: CGPoint(x: topRight.x,
-                                         y: topRight.y + cornerRadii.height),
-                  controlPoint2: CGPoint(x: topRight.x,
-                                         y: topRight.y + cornerRadii.height))
-        } else {
-            line(to: topRight)
-        }
-
-        if corners.contains(.bottomRight) {
-            line(to: CGPoint(x: bottomRight.x,
-                             y: bottomRight.y - cornerRadii.height))
-            curve(to: bottomRight,
-                  controlPoint1: CGPoint(x: bottomRight.x - cornerRadii.width,
-                                         y: bottomRight.y),
-                  controlPoint2: CGPoint(x: bottomRight.x - cornerRadii.width,
-                                         y: bottomRight.y))
-        } else {
-            line(to: bottomRight)
-        }
-
-        if corners.contains(.bottomLeft) {
-            line(to: CGPoint(x: bottomLeft.x + cornerRadii.width,
-                             y: bottomLeft.y))
-            curve(to: bottomLeft,
-                  controlPoint1: CGPoint(x: bottomLeft.x,
-                                         y: bottomLeft.y - cornerRadii.height),
-                  controlPoint2: CGPoint(x: bottomLeft.x,
-                                         y: bottomLeft.y - cornerRadii.height))
-        } else {
-            line(to: bottomLeft)
-        }
-
-        if corners.contains(.topLeft) {
-            line(to: CGPoint(x: topLeft.x,
-                             y: topLeft.y + cornerRadii.height))
-            curve(to: topLeft,
-                  controlPoint1: CGPoint(x: topLeft.x + cornerRadii.width,
-                                         y: topLeft.y),
-                  controlPoint2: CGPoint(x: topLeft.x + cornerRadii.width,
-                                         y: topLeft.y))
-        } else {
-            line(to: topLeft)
-        }
-    }
 
     convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat) {
         self.init(roundedRect: rect, byRoundingCorners: .allCorners, cornerRadius: cornerRadius)
@@ -226,11 +182,13 @@ public extension NSBezierPath {
 }
 #endif
 
+#if canImport(UIKit)
 public extension NSUIBezierPath {
     convenience init(roundedRect rect: CGRect, byRoundingCorners corners: NSUIRectCorner, cornerRadius: CGFloat) {
         self.init(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
     }
 }
+#endif
 
 public extension NSUIRectCorner {
     init(_ cornerMask: CACornerMask) {
