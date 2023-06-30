@@ -165,6 +165,7 @@ public extension CALayer {
             }
             
             frameUpdateHandler()
+            self.borderLayer?.cornerCurve = self.cornerCurve
             self.borderLayer?.fillColor = .clear
             self.borderLayer?.strokeColor = configuration._resolvedColor?.cgColor
             self.borderLayer?.lineWidth = configuration.width
