@@ -138,7 +138,7 @@ public extension CALayer {
                     Swift.print("layerBoundsObserver", new)
                     guard new != old else { return }
                     self.borderLayer?.bounds = new
-                    self.borderLayer?.path = NSUIBezierPath(roundedRect: new, cornerRadius: self.cornerRadius).cgPath
+              //      self.borderLayer?.path = NSUIBezierPath(roundedRect: new, cornerRadius: self.cornerRadius).cgPath
                     self.borderLayer?.position = CGPoint(x: new.size.width/2, y: new.size.height/2)
                 })
             }
@@ -154,7 +154,7 @@ public extension CALayer {
             self.borderLayer?.lineJoin = CAShapeLayerLineJoin.round
             self.borderLayer?.cornerRadius = self.cornerRadius
             self.borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
-            self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
+      //      self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
         }
     }
 }
