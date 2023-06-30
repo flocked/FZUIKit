@@ -67,6 +67,10 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     /// The maximum amount of characters allowed when the user edits the text.
     public var maxAmountChars: Int? = nil
     
+    /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
+    public var stopsEditingOnOutsideMouseDown = false {
+        didSet { self.setupMouseDownMonitor() } }
+    
     /// A Boolean value that indicates whether the user is editing the text.
     public private(set) var isEditing = false
 
@@ -84,6 +88,26 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     /// The handler called when the edit state changes.
     public var editingStateHandler: ((EditState) -> Void)?
+    
+    /// The location of the cursor while editing.
+    public var editingCursorLocation: Int? {
+        let currentEditor = self.currentEditor() as? NSTextView
+        return currentEditor?.selectedRanges.first?.rangeValue.location
+    }
+
+    /// The range of the selected text while editing.
+    public private(set) var editingSelectedRange: NSRange? {
+        get {
+            let currentEditor = self.currentEditor() as? NSTextView
+            return currentEditor?.selectedRanges.first?.rangeValue
+        }
+        set {
+            if let range = newValue {
+                let currentEditor = self.currentEditor() as? NSTextView
+                currentEditor?.setSelectedRange(range)
+            }
+        }
+    }
     
     override public init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -176,20 +200,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         self.lastContentSize = stringValueSize()
         self.placeholderSize = placeholderStringSize()
     }
-
-    override public var placeholderString: String? { didSet {
-        guard oldValue != placeholderString else { return }
-        self.placeholderSize = placeholderStringSize()
-    }}
     
-    public override var placeholderAttributedString: NSAttributedString? { didSet {
-        guard let placeholderAttributedString = self.placeholderAttributedString else { return }
-        var size = size(placeholderAttributedString)
-        size.width = size.width + 8.0
-        self.placeholderSize = size
-        self.invalidateIntrinsicContentSize()
-    }}
-
     override public var stringValue: String { didSet {
         guard !self.isEditing else { return }
         self.lastContentSize = stringValueSize()
@@ -197,10 +208,20 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     
     public override var attributedStringValue: NSAttributedString { didSet {
         guard !self.isEditing else { return }
-        self.lastContentSize = size(attributedStringValue)
+        self.lastContentSize = stringValueSize()
     }}
 
-    override public var font: NSFont? {
+    override public var placeholderString: String? { didSet {
+        guard oldValue != placeholderString else { return }
+        self.placeholderSize = placeholderStringSize()
+    }}
+    
+    public override var placeholderAttributedString: NSAttributedString? { didSet {
+        guard oldValue != placeholderAttributedString else { return }
+        self.placeholderSize = placeholderStringSize()
+    }}
+
+    public override var font: NSFont? {
         didSet {
             guard !self.isEditing else { return }
             self.lastContentSize = stringValueSize()
@@ -227,34 +248,14 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         return placeholderStringSize
     }
 
-    internal func size(_ string: String) -> NSSize {
-        let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
-        let stringSize = NSAttributedString(string: string, attributes: [.font: font]).size()
-
-        Swift.print("string.Size", NSSize(width: stringSize.width, height: super.intrinsicContentSize.height))
-        
-        return NSSize(width: stringSize.width, height: super.intrinsicContentSize.height)
-    }
-    
-    internal func size(_ attributedString: NSAttributedString) -> NSSize {
-        let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
-        let attributedString = attributedString.font(font)
-        let stringSize = attributedString.size()
-        Swift.print("attributedString.size", NSSize(width: stringSize.width, height: super.intrinsicContentSize.height))
-
-        return NSSize(width: stringSize.width, height: super.intrinsicContentSize.height)
-    }
-
     internal var previousStringValue: String = ""
     internal var previousCharStringValue: String = ""
     internal var previousSelectedRange: NSRange? = nil
 
-    override public func textDidBeginEditing(_ notification: Notification) {
+    public override func textDidBeginEditing(_ notification: Notification) {
         super.textDidBeginEditing(notification)
-        if stopsEditingOnOutsideMouseDown {
-            self.addMouseDownMonitor()
-        }
         self.isEditing = true
+        self.setupMouseDownMonitor()
         self.previousStringValue = self.stringValue
         self.previousCharStringValue = self.stringValue
         self.previousSelectedRange = self.editingSelectedRange
@@ -265,32 +266,14 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         self.editingStateHandler?(.didBegin)
     }
 
-    override public func textDidEndEditing(_ notification: Notification) {
+    public override func textDidEndEditing(_ notification: Notification) {
         super.textDidEndEditing(notification)
-        self.removeMouseDownMonitor()
         self.isEditing = false
+        self.setupMouseDownMonitor()
         self.editingStateHandler?(.didEnd)
     }
 
-    var editingCursorLocation: Int? {
-        let currentEditor = self.currentEditor() as? NSTextView
-        return currentEditor?.selectedRanges.first?.rangeValue.location
-    }
-
-    var editingSelectedRange: NSRange? {
-        get {
-            let currentEditor = self.currentEditor() as? NSTextView
-            return currentEditor?.selectedRanges.first?.rangeValue
-        }
-        set {
-            if let range = newValue {
-                let currentEditor = self.currentEditor() as? NSTextView
-                currentEditor?.setSelectedRange(range)
-            }
-        }
-    }
-
-    override public func textDidChange(_ notification: Notification) {
+    public override func textDidChange(_ notification: Notification) {
         super.textDidChange(notification)
         if let minAmountChars = minAmountChars, self.stringValue.count < minAmountChars {
             if previousStringValue.count > self.stringValue.count {
@@ -310,7 +293,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         self.editingStateHandler?(.changed)
     }
 
-    override public var intrinsicContentSize: NSSize {
+    public override var intrinsicContentSize: NSSize {
         let intrinsicContentSize = super.intrinsicContentSize
         guard automaticallyResizesToFit else { return intrinsicContentSize }
 
@@ -347,7 +330,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
         guard let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView
         else {
-            Swift.print("intrinsicContentSize minSize", minSize)
             return minSize
         }
 
@@ -376,14 +358,19 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
             newSize.width = maxWidth
         }
         self.lastContentSize = newSize
-        Swift.print("intrinsicContentSize newSize", minSize)
         return newSize
     }
 
-    public var stopsEditingOnOutsideMouseDown = false
     internal var mouseDownMonitor: Any? = nil
+    internal func setupMouseDownMonitor() {
+        if isEditing {
+            self.addMouseDownMonitor()
+        } else {
+            self.removeMouseDownMonitor()
+        }
+    }
     internal func addMouseDownMonitor() {
-        if mouseDownMonitor == nil {
+        if mouseDownMonitor == nil, stopsEditingOnOutsideMouseDown {
             mouseDownMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown, handler: { event in
                 let point = event.location(in: self)
                 if self.bounds.contains(point) == false {

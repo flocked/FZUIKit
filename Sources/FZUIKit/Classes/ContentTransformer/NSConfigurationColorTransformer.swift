@@ -17,10 +17,10 @@ import AppKit
 public struct NSConfigurationColorTransformer: ContentTransformer {
     /// The transform closure of the color transformer.
     public let transform: (NSUIColor) -> NSUIColor
-    /// The identifier of the color transformer.
+    /// The identifier of the transformer.
     public let id: String
 
-    /// Creates a color transformer with the specified closure.
+    /// Creates a color transformer with the specified identifier and closure.
     public init(_ id: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
         self.transform = transform
         self.id = id
@@ -89,7 +89,9 @@ public struct NSConfigurationColorTransformer: ContentTransformer {
 #if canImport(UIKit)
 import UIKit
 public struct UIConfigurationHashingColorTransformer: ContentTransformer {
+    /// The transform closure of the color transformer.
     public let transform: (UIColor) -> UIColor
+    /// The identifier of the transformer.
     public let id: String
 
     public init(_ id: String, _ transform: @escaping (UIColor) -> UIColor) {

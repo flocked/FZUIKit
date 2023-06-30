@@ -8,45 +8,36 @@
 #if os(macOS)
 import AppKit
 
-public class FZTextField: NSTextField {
-    override public class var cellClass: AnyClass? {
-        get { VerticallyCenteredTextFieldCell.self }
-        set { super.cellClass = newValue }
-    }
-
-    internal var textCell: VerticallyCenteredTextFieldCell? {
-        cell as? VerticallyCenteredTextFieldCell
-    }
-
-    public var focusType: VerticallyCenteredTextFieldCell.FocusType {
-        get { textCell?.focusType ?? .default }
-        set { textCell?.focusType = newValue }
-    }
-
-    public var verticalTextAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
-        get { textCell?.verticalAlignment ?? .default }
-        set { textCell?.verticalAlignment = newValue }
-    }
-}
-
+/// A text field cell with vertical alignment and focus type property.
 public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
+    /// The focus ring type.
     public enum FocusType: Equatable {
+        /// No focus ring.
         case none
+        /// A capsule focus ring.
         case capsule
+        /// A focus ring with rounded corners.
         case roundedCorners(CGFloat)
+        /// A focus ring with relative rounded corners.
         case roundedCornersRelative(CGFloat)
+        /// The default focus ring.
         case `default`
     }
 
+    /// The vertical alignment of the text.
     public enum VerticalAlignment: Equatable {
+        /// The text is vertically centered.
         case center
+        /// The default vertical text alignment.
         case `default`
     }
 
-    internal var isEditingOrSelecting = false
+    /// The focus ring type.
     public var focusType: FocusType = .default
+    /// The vertical alignment of the text.
     public var verticalAlignment: VerticalAlignment = .center
 
+    internal var isEditingOrSelecting = false
     //  internal var isEditingHandler: ((Bool)->())? = nil
 
     override public func titleRect(forBounds rect: NSRect) -> NSRect {

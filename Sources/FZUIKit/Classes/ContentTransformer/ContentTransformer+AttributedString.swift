@@ -9,12 +9,16 @@ import Foundation
 import FZSwiftUtils
 
 @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
+/**
+ A transformer that generates a modified output attributed string from an input attributed string.
+ */
 public struct AttributedStringTransformer: ContentTransformer {
-    /// The transform closure of the color transformer.
+    /// The transform closure of the text transformer.
     public let transform: (AttributedString) -> AttributedString
+    /// The identifier of the transformer.
     public let id: String
 
-    /// Creates a color transformer with the specified closure.
+    /// Creates a text transformer with the specified identifier and closure.
     public init(_ id: String, _ transform: @escaping (AttributedString) -> AttributedString) {
         self.transform = transform
         self.id = id
@@ -36,14 +40,16 @@ public struct AttributedStringTransformer: ContentTransformer {
     }
 }
 
-
-
+/**
+ A transformer that generates a modified output attributed string from an input attributed string.
+ */
 public struct NSAttributedStringTransformer: ContentTransformer {
-    /// The transform closure of the color transformer.
+    /// The transform closure of the text transformer.
     public let transform: (NSAttributedString) -> NSAttributedString
+    /// The identifier of the transformer.
     public let id: String
 
-    /// Creates a color transformer with the specified closure.
+    /// Creates a text transformer with the specified identifier and closure.
     public init(_ id: String, _ transform: @escaping (NSAttributedString) -> NSAttributedString) {
         self.transform = transform
         self.id = id

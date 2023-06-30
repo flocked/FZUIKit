@@ -10,6 +10,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a border.
@@ -33,22 +34,18 @@ public extension ContentConfiguration {
         
         /// The width of the border.
         public var width: CGFloat = 0.0
-        /// The pattern of the border.
-        public var pattern: [PatternValue] = [.line]
-                
-        public enum PatternValue: Int {
-            case line
-            case space
-        }
+        
+        /// The dash pattern of the border.
+        public var dashPattern: [CGFloat]? = nil
         
         public init(color: NSUIColor? = nil,
                     colorTransformer: NSUIConfigurationColorTransformer? = nil,
                     width: CGFloat = 0.0,
-                    pattern: [PatternValue] = [.line])
+                    dashPattern: [CGFloat]? = nil)
         {
             self.color = color
             self.width = width
-            self.pattern = pattern
+            self.dashPattern = dashPattern
             self.colorTransformer = colorTransformer
             self.updateResolvedColor()
         }
@@ -99,6 +96,25 @@ public extension UIView {
 #endif
 
 public extension CALayer {
+    internal var layerBoundsObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "CALayer.boundsObserver", object: self) }
+        set { set(associatedValue: newValue, key: "boundsObserver", object: self) }
+    }
+    
+    internal var borderLayer: CAShapeLayer? {
+        get { getAssociatedValue(key: "CALayer_borderLayer", object: self, initialValue: nil) }
+        set {
+            if newValue != self.borderLayer {
+                self.borderLayer?.removeFromSuperlayer()
+                if let newValue = newValue, newValue.superlayer != self {
+                    self.addSublayer(newValue)
+                    newValue.sendToBack()
+                }
+            }
+            set(associatedValue: newValue, key: "CALayer_borderLayer", object: self)
+        }
+    }
+    
     /**
      Configurates the border apperance of the view.
 
@@ -106,7 +122,38 @@ public extension CALayer {
         - configuration:The configuration for configurating the apperance.
      */
     func configurate(using configuration: ContentConfiguration.Border) {
-        borderColor = configuration._resolvedColor?.cgColor
-        borderWidth = configuration.width
+        if configuration._resolvedColor == nil || configuration.width == 0.0 {
+            self.borderLayer = nil
+            self.layerBoundsObserver?.invalidate()
+            self.layerBoundsObserver = nil
+        } else {
+            if self.borderLayer == nil {
+                self.borderLayer = CAShapeLayer()
+                self.borderLayer?.name = "_DashedBorderLayer"
+            }
+            
+            if layerBoundsObserver == nil {
+                layerBoundsObserver = self.observeChanges(for: \.bounds, handler: { [weak self] old, new in
+                    guard let self = self else { return }
+                    Swift.print("layerBoundsObserver", new)
+                    guard new != old else { return }
+                    self.borderLayer?.bounds = new
+                    self.borderLayer?.path = NSUIBezierPath(roundedRect: new, cornerRadius: self.cornerRadius).cgPath
+                    self.borderLayer?.position = CGPoint(x: new.size.width/2, y: new.size.height/2)
+                })
+            }
+            
+            let frameSize = self.frame.size
+            let shapeRect = CGRect(origin: .zero, size: frameSize)
+            
+            self.borderLayer?.bounds = shapeRect
+            self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+            self.borderLayer?.fillColor = .clear
+            self.borderLayer?.strokeColor = configuration._resolvedColor?.cgColor
+            self.borderLayer?.lineWidth = configuration.width
+            self.borderLayer?.lineJoin = CAShapeLayerLineJoin.round
+            self.borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
+            self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
+        }
     }
 }
