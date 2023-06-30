@@ -62,6 +62,7 @@ public class DashedBorderLayer: CALayer {
      //       self.borderedLayer.strokeColor = newValue._resolvedColor?.cgColor
             self.borderInsets = newValue.insets
             self.borderDashPattern = newValue.dashPattern
+            self.borderedLayer.backgroundColor = NSColor.red.cgColor
         }
     }
     
