@@ -110,6 +110,7 @@ public class DashedBorderLayer: CALayer {
     internal func sharedInit() {
         borderedLayer.fillColor = .clear
         borderedLayer.lineJoin = CAShapeLayerLineJoin.round
+        borderedLayer.masksToBounds = true
         self.addSublayer(borderedLayer)
     }
 }
