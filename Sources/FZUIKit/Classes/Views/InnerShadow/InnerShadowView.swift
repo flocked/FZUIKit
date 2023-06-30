@@ -36,8 +36,8 @@ public class InnerShadowView: NSUIView {
 
     /// The color of the inner shadow.
     public var shadowColor: NSUIColor? {
-        get { innershadowLayer.color }
-        set { innershadowLayer.color = newValue }
+        get { innershadowLayer.shadowColor?.nsColor }
+        set { innershadowLayer.shadowColor = newValue?.cgColor }
     }
 
     /// The configuration of the inner shadow.

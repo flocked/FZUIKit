@@ -110,6 +110,10 @@ public extension CALayer {
         self.sublayers?.first(where: {$0.name == "_DashedBorderLayer"}) as? CAShapeLayer
     }
     
+    internal var borderLayerNe: DashedBorderLayer? {
+        self.firstSublayer(type: DashedBorderLayer.self)
+    }
+    /*
     /**
      Configurates the border apperance of the view.
 
@@ -164,5 +168,46 @@ public extension CALayer {
             borderLayer?.lineJoin = CAShapeLayerLineJoin.round
             borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
         }
+    }
+     */
+}
+
+public extension CALayer {
+    func configurate(using configuration: ContentConfiguration.Border) {
+            if self.borderLayerNe == nil {
+                let borderedLayer = DashedBorderLayer()
+                self.addSublayer(borderedLayer)
+                borderedLayer.sendToBack()
+            }
+            
+            let borderedLayer = self.borderLayerNe
+            
+            let frameUpdateHandler: (()->()) = { [weak self] in
+                guard let self = self else { return }
+                let frameSize = self.frame.size
+                let shapeRect = CGRect(origin: .zero, size: frameSize)
+                
+                borderedLayer?.cornerRadius = self.cornerRadius
+                borderedLayer?.bounds = CGRect(.zero, shapeRect.size)
+                borderedLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+            }
+            
+            if borderedLayer?.layerObserver == nil {
+                borderedLayer?.layerObserver = KeyValueObserver(self)
+            }
+                        
+            borderedLayer?.layerObserver?[\.cornerRadius] = { old, new in
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+            
+            
+            borderedLayer?.layerObserver?[\.bounds] = { old, new in
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+                        
+            frameUpdateHandler()
+            borderedLayer?.configuration = configuration
     }
 }

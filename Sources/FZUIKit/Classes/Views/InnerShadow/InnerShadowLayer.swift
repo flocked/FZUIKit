@@ -19,7 +19,7 @@ public class InnerShadowLayer: CALayer {
     
     /// The configuration of the inner shadow.
     public var configuration: ContentConfiguration.InnerShadow {
-        get { ContentConfiguration.InnerShadow(color: self.color, opacity: CGFloat(self.shadowOpacity), radius: self.shadowRadius, offset: CGPoint(x: self.shadowOffset.width, y: self.shadowOffset.height))  }
+        get { ContentConfiguration.InnerShadow(color: self.shadowColor?.nsColor, opacity: CGFloat(self.shadowOpacity), radius: self.shadowRadius, offset: CGPoint(x: self.shadowOffset.width, y: self.shadowOffset.height))  }
         set {
             self.shadowColor = newValue.color?.cgColor
             self.shadowOpacity = Float(newValue.opacity)
@@ -46,15 +46,6 @@ public class InnerShadowLayer: CALayer {
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-    }
-    
-    public var color: NSUIColor? {
-        get { if let cgColor = shadowColor {
-            return NSUIColor(cgColor: cgColor)
-        }
-            return nil
-        }
-        set { shadowColor = newValue?.cgColor }
     }
     
     public override var shadowRadius: CGFloat {
