@@ -338,18 +338,17 @@ extension NSView {
      
      - Parameters rect: The rectangle to be made visible in the clip view.
      - Parameters animationDuration: The animation duration of the scolling.
-     - Returns: `true` if any scrolling is performed; otherwise returns `false`.
      */
-    @discardableResult
-    func scrollToVisible(_ rect: CGRect, animationDuration: CGFloat) -> Bool {
+    func scrollToVisible(_ rect: CGRect, animationDuration: CGFloat) {
         if animationDuration > 0.0 {
             NSAnimationContext.runAnimationGroup {
                 context in
                 context.duration = animationDuration
-                return self.scrollToVisible(rect)
+                self.scrollToVisible(rect)
             }
+            
         } else {
-            return scrollToVisible(rect)
+            scrollToVisible(rect)
         }
     }
 }
