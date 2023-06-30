@@ -101,9 +101,9 @@ public extension UIView {
 #endif
 
 public extension CALayer {
-    internal var layerBoundsObserver: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "CALayer.boundsObserver", object: self) }
-        set { set(associatedValue: newValue, key: "boundsObserver", object: self) }
+    internal var layerBorderObserver: KeyValueObserver<CALayer>? {
+        get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
     }
     
     internal var borderLayer: CAShapeLayer? {
@@ -129,39 +129,47 @@ public extension CALayer {
     func configurate(using configuration: ContentConfiguration.Border) {
         if configuration._resolvedColor == nil || configuration.width == 0.0 {
             self.borderLayer = nil
-            self.layerBoundsObserver?.invalidate()
-            self.layerBoundsObserver = nil
+            self.layerBorderObserver = nil
         } else {
             if self.borderLayer == nil {
                 self.borderLayer = CAShapeLayer()
                 self.borderLayer?.name = "_DashedBorderLayer"
             }
             
-            self.layerBoundsObserver?.invalidate()
-            self.layerBoundsObserver = self.observeChanges(for: \.bounds, handler: { [weak self] old, new in
-                    guard let self = self else { return }
-                    Swift.print("layerBoundsObserver", new)
-                    guard new != old else { return }
-                
-                let frameSize = CGSize(width: new.size.width-configuration.insets.width, height: new.size.height-configuration.insets.height)
+            let frameUpdateHandler: (()->()) = { [weak self] in
+                guard let self = self else { return }
+                let frameSize = CGSize(width: self.frame.size.width-configuration.insets.width, height: self.frame.size.height-configuration.insets.height)
                 let shapeRect = CGRect(origin: CGPoint(x: configuration.insets.leading, y: configuration.insets.bottom), size: frameSize)
                 
                 self.borderLayer?.bounds = CGRect(.zero, shapeRect.size)
                 self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
                 self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius/2.0).cgPath
-                })
+            }
             
-            let frameSize = CGSize(width: self.frame.size.width-configuration.insets.width, height: self.frame.size.height-configuration.insets.height)
-            let shapeRect = CGRect(origin: CGPoint(x: configuration.insets.leading, y: configuration.insets.bottom), size: frameSize)
+            if layerBorderObserver == nil {
+                layerBorderObserver = KeyValueObserver(self)
+            }
             
-            self.borderLayer?.bounds = CGRect(.zero, shapeRect.size)
-            self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+            layerBorderObserver?.remove(\.cornerRadius)
+            layerBorderObserver?.remove(\.bounds)
+
+            layerBorderObserver?.add(\.cornerRadius) { old, new in
+                Swift.print("cornerRadius changed")
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+            layerBorderObserver?.add(\.bounds) { old, new in
+                Swift.print("bounds changed")
+                guard old != new else { return }
+                frameUpdateHandler()
+            }
+            
+            frameUpdateHandler()
             self.borderLayer?.fillColor = .clear
             self.borderLayer?.strokeColor = configuration._resolvedColor?.cgColor
             self.borderLayer?.lineWidth = configuration.width
             self.borderLayer?.lineJoin = CAShapeLayerLineJoin.round
             self.borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
-            self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius/2.0).cgPath
         }
     }
 }
