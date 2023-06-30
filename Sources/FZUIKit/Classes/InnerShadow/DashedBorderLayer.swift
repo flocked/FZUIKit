@@ -59,7 +59,7 @@ public class DashedBorderLayer: CALayer {
         get { ContentConfiguration.Border(color: self.borderColor?.nsColor, width: self.borderWidth, dashPattern: self.borderDashPattern, insets: self.borderInsets) }
         set { guard newValue != self.configuration else { return  }
             self.borderedLayer.lineWidth = newValue.width
-     //       self.borderedLayer.strokeColor = newValue._resolvedColor?.cgColor
+            self.borderedLayer.strokeColor = newValue._resolvedColor?.cgColor
             self.borderInsets = newValue.insets
             self.borderDashPattern = newValue.dashPattern
             self.borderedLayer.backgroundColor = NSColor.red.cgColor
