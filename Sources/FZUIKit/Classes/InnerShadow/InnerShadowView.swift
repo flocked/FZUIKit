@@ -54,7 +54,7 @@ public class InnerShadowView: NSUIView {
      */
         
     /**
-     Initalizes a inner shadow view with the specified configuration.
+     Initalizes an inner shadow view with the specified configuration.
      
      - Parameters configuration: The configuration of the inner shadow.
      - Returns: The inner shadow view.

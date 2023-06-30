@@ -27,14 +27,21 @@ public class InnerShadowLayer: CALayer {
             self.shadowRadius = newValue.radius
         }
     }
-    
-    override public init() {
-        super.init()
-    }
 
+    /**
+     Initalizes an inner shadow layer with the specified configuration.
+     
+     - Parameters configuration: The configuration of the inner shadow.
+     - Returns: The inner shadow layer.
+     */
     public init(configuration: ContentConfiguration.InnerShadow) {
         super.init()
         self.configuration = configuration
+    }
+    
+    
+    override public init() {
+        super.init()
     }
 
     required init?(coder: NSCoder) {
@@ -93,11 +100,6 @@ public class InnerShadowLayer: CALayer {
             shadowPath = path.cgPath
             masksToBounds = true
             backgroundColor = .clear
-    }
-
-    override public func draw(in ctx: CGContext) {
-        super.draw(in: ctx)
-        update()
     }
 
     override public func display() {

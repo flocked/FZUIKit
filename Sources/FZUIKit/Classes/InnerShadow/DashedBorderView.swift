@@ -16,36 +16,29 @@ import UIKit
 public class DashedBorderView: NSUIView {
     internal static let Tag = 435_234_364
 
-    /// The color of the inner shadow.
+    /// The insets of the border.
     public var borderInsets: NSDirectionalEdgeInsets {
         get { borderedLayer.borderInsets }
         set { borderedLayer.borderInsets = newValue }
     }
     
-    /// The color of the inner shadow.
+    /// The dash pattern of the border.
     public var borderDashPattern: [CGFloat]? {
         get { borderedLayer.borderDashPattern }
         set { borderedLayer.borderDashPattern = newValue }
     }
 
-    /// The configuration of the inner shadow.
+    /// THe configuration of the border.
     public var configuration: ContentConfiguration.Border {
         get { borderedLayer.configuration }
         set { borderedLayer.configuration = newValue }
     }
-    
-    /*
-    public override func layoutSubviews() {
-        innershadowLayer.update()
-        super.layoutSubviews()
-    }
-     */
         
     /**
-     Initalizes a inner shadow view with the specified configuration.
+     Initalizes a dashed border view with the specified configuration.
      
-     - Parameters configuration: The configuration of the inner shadow.
-     - Returns: The inner shadow view.
+     - Parameters configuration: The configuration of the border.
+     - Returns: The dashed border view.
      */
     public init(configuration: ContentConfiguration.Border) {
         super.init(frame: .zero)

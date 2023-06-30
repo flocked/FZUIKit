@@ -13,8 +13,9 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-/// A CALayer that displays a inner shadow.
+/// A CALayer that displays a dashed border.
 public class DashedBorderLayer: CALayer {
+    /// The insets of the border.
     public var borderInsets: NSDirectionalEdgeInsets = .init(0) {
         didSet {
             guard oldValue != borderInsets else { return }
@@ -22,27 +23,13 @@ public class DashedBorderLayer: CALayer {
         }
     }
     
+    /// The dash pattern of the border.
     public var borderDashPattern: [CGFloat]? {
         get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) }
         set { borderedLayer.lineDashPattern = newValue as? [NSNumber] }
     }
     
-    /*
-    public override var borderColor: CGColor? {
-        get { borderedLayer.strokeColor }
-        set { borderedLayer.strokeColor = newValue }
-    }
-    
-    public override var borderWidth: CGFloat {
-        get { borderedLayer.lineWidth }
-        set {
-            guard newValue != borderWidth else { return }
-            borderedLayer.lineWidth = newValue
-            layoutBorderedLayer()
-        }
-    }
-    */
-    
+    /// The border color.
     public override var borderColor: CGColor? {
         didSet {
             borderedLayer.strokeColor = self.borderColor
@@ -50,6 +37,7 @@ public class DashedBorderLayer: CALayer {
         }
     }
     
+    /// The border width.
     public override var borderWidth: CGFloat {
         didSet {
             borderedLayer.lineWidth = self.borderWidth
@@ -71,6 +59,7 @@ public class DashedBorderLayer: CALayer {
         }
     }
     
+    /// THe configuration of the border.
     public var configuration: ContentConfiguration.Border {
         get { ContentConfiguration.Border(color: self.borderColor?.nsColor, width: self.borderWidth, dashPattern: self.borderDashPattern, insets: self.borderInsets) }
         set { guard newValue != self.configuration else { return  }
@@ -107,6 +96,12 @@ public class DashedBorderLayer: CALayer {
         borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
     }
     
+    /**
+     Initalizes a dashed border layer with the specified configuration.
+     
+     - Parameters configuration: The configuration of the border.
+     - Returns: The dashed border layer.
+     */
     public init(configuration: ContentConfiguration.Border) {
         super.init()
         self.configuration = configuration
