@@ -74,8 +74,7 @@ public class InnerShadowLayer: CALayer {
             update() } }
     }
 
-    private func update() {
-        if superlayer != nil {
+    internal func update() {
             var path = NSUIBezierPath(rect: bounds.insetBy(dx: -20, dy: -20))
             #if os(macOS)
             var innerPart = NSUIBezierPath(rect: bounds).reversed
@@ -94,7 +93,6 @@ public class InnerShadowLayer: CALayer {
             shadowPath = path.cgPath
             masksToBounds = true
             backgroundColor = .clear
-        }
     }
 
     override public func draw(in ctx: CGContext) {

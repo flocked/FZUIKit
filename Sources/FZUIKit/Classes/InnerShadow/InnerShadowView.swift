@@ -46,6 +46,13 @@ public class InnerShadowView: NSUIView {
         set { innershadowLayer.configuration = newValue }
     }
     
+    /*
+    public override func layoutSubviews() {
+        innershadowLayer.update()
+        super.layoutSubviews()
+    }
+     */
+        
     /**
      Initalizes a inner shadow view with the specified configuration.
      
