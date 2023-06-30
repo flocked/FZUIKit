@@ -25,6 +25,10 @@ public extension CALayer {
         removeFromSuperlayer()
         superlayer.insertSublayer(self, at: 0)
     }
+    
+    func firstSublayer<V>(type _: V.Type) -> V? {
+        self.sublayers?.first(where: { $0 is V }) as? V
+    }
 
     @discardableResult
     func addSublayer(withConstraint layer: CALayer) -> [NSLayoutConstraint] {

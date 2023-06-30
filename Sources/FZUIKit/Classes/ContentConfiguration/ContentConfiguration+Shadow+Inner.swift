@@ -78,7 +78,7 @@ public extension NSUIView {
      Configurates the inner shadow of the view.
 
      - Parameters:
-        - configuration:The configuration for configurating the shadow.
+        - configuration:The configuration for configurating the inner shadow.
      */
     func configurate(using configuration: ContentConfiguration.InnerShadow) {
         #if os(macOS)
@@ -91,86 +91,58 @@ public extension NSUIView {
 }
 
 public extension CALayer {
-    func firstSublayer<V>(type _: V.Type) -> V? {
-        self.sublayers?.first(where: { $0 is V }) as? V
-    }
-    
-    internal var innerShadowLayer: InnerShadowLayer? {
-        self.firstSublayer(type: InnerShadowLayer.self)
-    }
-    
-    /*
-    internal var innerShadowLayer: InnerShadowLayer? {
-        get { getAssociatedValue(key: "CALayer_innerShadowLayer", object: self, initialValue: nil) }
-        set {
-            if newValue != self.innerShadowLayer {
-                self.innerShadowLayer?.removeFromSuperlayer()
-                if let newValue = newValue, newValue.superlayer != self {
-                    self.addSublayer(newValue)
-                    newValue.sendToBack()
-                }
-            }
-            set(associatedValue: newValue, key: "CALayer_innerShadowLayer", object: self)
-        }
-    }
-    */
-    
     /**
-     Configurates the shadow of the layer.
+     Configurates the inner shadow of the layer.
 
      - Parameters:
-        - configuration:The configuration for configurating the shadow.
+        - configuration:The configuration for configurating the inner shadow.
      */
     func configurate(using configuration: ContentConfiguration.InnerShadow) {
-        Swift.print("innershadow configurate", configuration.isInvisible)
         if configuration.isInvisible {
             self.innerShadowLayer?.removeFromSuperlayer()
         } else {
             if self.innerShadowLayer == nil {
-                Swift.print("innerShadowLayer add")
                 let innerShadowLayer = InnerShadowLayer()
                 self.addSublayer(innerShadowLayer)
                 innerShadowLayer.sendToBack()
             }
             
+            let innerShadowLayer = self.innerShadowLayer
+            
             let frameUpdateHandler: (()->()) = { [weak self] in
-                Swift.print("shadow frameUpdateHandler")
                 guard let self = self else { return }
                 let frameSize = self.frame.size
                 let shapeRect = CGRect(origin: .zero, size: frameSize)
                 
-                self.innerShadowLayer?.cornerRadius = self.cornerRadius
-                self.innerShadowLayer?.bounds = CGRect(.zero, shapeRect.size)
-                self.innerShadowLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+                innerShadowLayer?.cornerRadius = self.cornerRadius
+                innerShadowLayer?.bounds = CGRect(.zero, shapeRect.size)
+                innerShadowLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
             }
             
-            if self.innerShadowLayer?.layerObserver == nil {
-                self.innerShadowLayer?.layerObserver = KeyValueObserver(self)
+            if innerShadowLayer?.layerObserver == nil {
+                innerShadowLayer?.layerObserver = KeyValueObserver(self)
             }
-            
-            self.innerShadowLayer?.layerObserver?.remove(\.cornerRadius)
-            self.innerShadowLayer?.layerObserver?.remove(\.bounds)
-            
-            self.innerShadowLayer?.layerObserver?[\.cornerRadius] = { old, new in
-                Swift.print("innerShadowLayer cornerRdius")
+                        
+            innerShadowLayer?.layerObserver?[\.cornerRadius] = { old, new in
                 guard old != new else { return }
                 frameUpdateHandler()
             }
             
             
-            self.innerShadowLayer?.layerObserver?[\.bounds] = { old, new in
-                Swift.print("innerShadowLayer bounds")
+            innerShadowLayer?.layerObserver?[\.bounds] = { old, new in
                 guard old != new else { return }
                 frameUpdateHandler()
             }
-            
-            Swift.print("shadow layerObserver", self.innerShadowLayer?.layerObserver ?? "" )
-            
+                        
             frameUpdateHandler()
-            self.innerShadowLayer?.color = configuration.color
-            self.innerShadowLayer?.offset = CGSize(configuration.offset.x, configuration.offset.y)
-            self.innerShadowLayer?.radius = configuration.radius
-            self.innerShadowLayer?.opacity = Float(configuration.opacity)
+            innerShadowLayer?.color = configuration.color
+            innerShadowLayer?.offset = CGSize(configuration.offset.x, configuration.offset.y)
+            innerShadowLayer?.radius = configuration.radius
+            innerShadowLayer?.opacity = Float(configuration.opacity)
         }
+    }
+    
+    internal var innerShadowLayer: InnerShadowLayer? {
+        self.firstSublayer(type: InnerShadowLayer.self)
     }
 }

@@ -107,17 +107,7 @@ public extension CALayer {
     }
     
     internal var borderLayer: CAShapeLayer? {
-        get { getAssociatedValue(key: "CALayer_borderLayer", object: self, initialValue: nil) }
-        set {
-            if newValue != self.borderLayer {
-                self.borderLayer?.removeFromSuperlayer()
-                if let newValue = newValue, newValue.superlayer != self {
-                    self.addSublayer(newValue)
-                    newValue.sendToBack()
-                }
-            }
-            set(associatedValue: newValue, key: "CALayer_borderLayer", object: self)
-        }
+        self.sublayers?.first(where: {$0.name == "_DashedBorderLayer"}) as? CAShapeLayer
     }
     
     /**
@@ -129,12 +119,15 @@ public extension CALayer {
     func configurate(using configuration: ContentConfiguration.Border) {
         if configuration._resolvedColor == nil || configuration.width == 0.0 {
             self.borderLayer?.layerObserver = nil
-            self.borderLayer = nil
+            self.borderLayer?.removeFromSuperlayer()
         } else {
             if self.borderLayer == nil {
-                self.borderLayer = CAShapeLayer()
-                self.borderLayer?.name = "_DashedBorderLayer"
+                let borderLayer = CAShapeLayer()
+                borderLayer.name = "_DashedBorderLayer"
+                self.addSublayer(borderLayer)
             }
+            
+            let borderLayer = self.borderLayer
             
             let frameUpdateHandler: (()->()) = { [weak self] in
                 guard let self = self else { return }
@@ -144,36 +137,32 @@ public extension CALayer {
                 let scale = (shapeRect.size.width-configuration.width)/self.frame.size.width
                 let cornerRadius = self.cornerRadius * scale
                 
-                self.borderLayer?.bounds = CGRect(.zero, shapeRect.size)
-                self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
+                borderLayer?.bounds = CGRect(.zero, shapeRect.size)
+                borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
+                borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
+            }
+                        
+            if borderLayer?.layerObserver == nil {
+                borderLayer?.layerObserver = KeyValueObserver(self)
             }
             
-            if self.borderLayer?.layerObserver == nil {
-                self.borderLayer?.layerObserver = KeyValueObserver(self)
-            }
-            
-            self.borderLayer?.layerObserver?.remove(\.cornerRadius)
-            self.borderLayer?.layerObserver?.remove(\.bounds)
-
-            self.borderLayer?.layerObserver?.add(\.cornerRadius) { old, new in
-                Swift.print("borderLayer cornerRdius")
+            borderLayer?.layerObserver?[\.cornerRadius] = { old, new in
                 guard old != new else { return }
                 frameUpdateHandler()
             }
-            self.borderLayer?.layerObserver?.add(\.bounds) { old, new in
-                Swift.print("borderLayer bounds")
+            
+            borderLayer?.layerObserver?[\.bounds] = { old, new in
                 guard old != new else { return }
                 frameUpdateHandler()
             }
             
             frameUpdateHandler()
-            self.borderLayer?.cornerCurve = self.cornerCurve
-            self.borderLayer?.fillColor = .clear
-            self.borderLayer?.strokeColor = configuration._resolvedColor?.cgColor
-            self.borderLayer?.lineWidth = configuration.width
-            self.borderLayer?.lineJoin = CAShapeLayerLineJoin.round
-            self.borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
+            borderLayer?.cornerCurve = self.cornerCurve
+            borderLayer?.fillColor = .clear
+            borderLayer?.strokeColor = configuration._resolvedColor?.cgColor
+            borderLayer?.lineWidth = configuration.width
+            borderLayer?.lineJoin = CAShapeLayerLineJoin.round
+            borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
         }
     }
 }
