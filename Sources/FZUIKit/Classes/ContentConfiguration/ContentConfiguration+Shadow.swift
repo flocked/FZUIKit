@@ -15,11 +15,6 @@ import FZSwiftUtils
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a shadow.
     struct Shadow: Hashable {
-        public enum ShadowType {
-            case inner
-            case outer
-        }
-
         /// The color of the shadow.
         public var color: NSUIColor? = .shadowColor {
             didSet { updateResolvedColor() } }
@@ -105,107 +100,35 @@ public extension AttributedString {
     }
 }
 
+public extension NSUIView {
+    /**
+     Configurates the shadow of the view.
+
+     - Parameters:
+        - configuration:The configuration for configurating the shadow.
+     */
+    func configurate(using configuration: ContentConfiguration.Shadow) {
 #if os(macOS)
-public extension NSView {
-    /**
-     Configurates the shadow of the view.
-
-     - Parameters:
-        - configuration:The configuration for configurating the shadow.
-        - type:The type of shadow. Either inner or outer.
-     */
-    func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
         wantsLayer = true
-        layer?.configurate(using: configuration, type: type)
-    }
-}
-
+        layer?.configurate(using: configuration)
 #elseif canImport(UIKit)
-public extension UIView {
-    /**
-     Configurates the shadow of the view.
-
-     - Parameters:
-        - configuration:The configuration for configurating the shadow.
-        - type:The type of shadow. Either inner or outer.
-     */
-    func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
-        layer.configurate(using: configuration, type: type)
+        layer.configurate(using: configuration)
+#endif
     }
 }
-#endif
 
 public extension CALayer {
-    internal var innerShadowLayer: InnerShadowLayer? {
-        get { getAssociatedValue(key: "CALayer_innerShadowLayer", object: self, initialValue: nil) }
-        set {
-            if newValue != self.innerShadowLayer {
-                self.innerShadowLayer?.removeFromSuperlayer()
-                if let newValue = newValue, newValue.superlayer != self {
-                    self.addSublayer(newValue)
-                    newValue.sendToBack()
-                }
-            }
-            set(associatedValue: newValue, key: "CALayer_innerShadowLayer", object: self)
-        }
-    }
-    
     /**
-     Configurates the shadow of the LAYER.
+     Configurates the shadow of the layer.
 
      - Parameters:
         - configuration:The configuration for configurating the shadow.
-        - type:The type of shadow. Either inner or outer.
      */
-    func configurate(using configuration: ContentConfiguration.Shadow, type: ContentConfiguration.Shadow.ShadowType = .outer) {
-        if type == .outer {
+    func configurate(using configuration: ContentConfiguration.Shadow) {
             shadowColor = configuration._resolvedColor?.cgColor
             shadowOffset = CGSize(width: configuration.offset.x, height: configuration.offset.y)
             shadowRadius = configuration.radius
             shadowOpacity = Float(configuration.opacity)
-        } else {
-            if self.innerShadowLayer == nil {
-                self.innerShadowLayer = InnerShadowLayer()
-            }
-            
-            Swift.print("configurate shadow", innerShadowLayer ?? "")
-            
-            let frameUpdateHandler: (()->()) = { [weak self] in
-                Swift.print("shadow frameUpdateHandler")
-                guard let self = self else { return }
-                let frameSize = self.frame.size
-                let shapeRect = CGRect(origin: .zero, size: frameSize)
-                
-                self.innerShadowLayer?.cornerRadius = self.cornerRadius
-                self.innerShadowLayer?.bounds = CGRect(.zero, shapeRect.size)
-                self.innerShadowLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-            }
-            
-            if self.innerShadowLayer?.layerObserver == nil {
-                self.innerShadowLayer?.layerObserver = KeyValueObserver(self)
-            }
-            
-            self.innerShadowLayer?.layerObserver?.remove(\.cornerRadius)
-            self.innerShadowLayer?.layerObserver?.remove(\.bounds)
-
-            self.innerShadowLayer?.layerObserver?.add(\.cornerRadius) { old, new in
-                Swift.print("innerShadowLayer cornerRdius")
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            self.innerShadowLayer?.layerObserver?.add(\.bounds) { old, new in
-                Swift.print("innerShadowLayer bounds")
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            
-            Swift.print("shadow layerObserver", self.innerShadowLayer?.layerObserver ?? "" )
-            
-            frameUpdateHandler()
-            self.innerShadowLayer?.color = configuration.color
-            self.innerShadowLayer?.offset = CGSize(configuration.offset.x, configuration.offset.y)
-            self.innerShadowLayer?.radius = configuration.radius
-            self.innerShadowLayer?.opacity = Float(configuration.opacity)
-        }
     }
 }
+
