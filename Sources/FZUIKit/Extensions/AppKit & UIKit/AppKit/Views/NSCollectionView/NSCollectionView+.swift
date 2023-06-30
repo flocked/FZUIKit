@@ -98,8 +98,8 @@ public extension NSCollectionView {
     }
 
     var contentOffset: CGPoint {
-        get { return enclosingScrollView?.documentVisibleRect.origin ?? .zero }
-        set { scroll(newValue) }
+        get { return enclosingScrollView?.contentOffset ?? .zero }
+        set { enclosingScrollView?.contentOffset = newValue }
     }
 
     var contentSize: CGSize { return enclosingScrollView?.contentSize ?? .zero }

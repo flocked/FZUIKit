@@ -136,9 +136,9 @@ public extension CALayer {
                         
             frameUpdateHandler()
             innerShadowLayer?.color = configuration.color
-            innerShadowLayer?.offset = CGSize(configuration.offset.x, configuration.offset.y)
-            innerShadowLayer?.radius = configuration.radius
-            innerShadowLayer?.opacity = Float(configuration.opacity)
+            innerShadowLayer?.shadowOffset = CGSize(configuration.offset.x, configuration.offset.y)
+            innerShadowLayer?.shadowRadius = configuration.radius
+            innerShadowLayer?.shadowOpacity = Float(configuration.opacity)
         }
     }
     

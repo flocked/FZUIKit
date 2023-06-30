@@ -8,10 +8,10 @@
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
-import FZUIKitTests
+import UIKit
 #endif
 
-public class RatingViewNew: NSView {
+public class RatingViewNew: NSUIView {
     
     public var numberOfSteps: Int = 5 {
         didSet { if isApplyingConfiguration == false, oldValue != numberOfSteps {

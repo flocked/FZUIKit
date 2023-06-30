@@ -1,7 +1,7 @@
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
-import FZUIKitTests
+import UIKit
 #endif
 
 public extension RatingViewNew {

@@ -15,7 +15,7 @@ import UIKit
 public typealias SupplementaryElementKind = String
 #endif
 
-public extension NSUICollectionViewCompositionalLayout {
+public extension NSUICollectionViewLayout {
     static func list(rowHeight: CGFloat, seperatorLine: Bool) -> NSUICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                               heightDimension: .fractionalHeight(1.0))
@@ -60,7 +60,7 @@ public extension NSUICollectionViewCompositionalLayout {
         return layout
     }
 
-    static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 0.0, insets: NSDirectionalEdgeInsets = .zero, header: SupplementaryItemType? = nil, footer: SupplementaryItemType? = nil) -> NSUICollectionViewLayout {
+    static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 0.0, insets: NSDirectionalEdgeInsets = .zero, header: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil, footer: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil) -> NSUICollectionViewLayout {
         return NSUICollectionViewCompositionalLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
 
             // Item

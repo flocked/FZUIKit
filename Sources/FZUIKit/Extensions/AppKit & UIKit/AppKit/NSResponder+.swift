@@ -9,11 +9,6 @@
 import AppKit
 
 public extension NSResponder {
-    /// Returns the parent view controller.
-    var parentViewController: NSViewController? {
-        return nextResponder as? NSViewController ?? nextResponder?.parentViewController
-    }
-
     /// Returns the respnder chain including itself.
     func responderChain() -> [NSResponder] {
         var current = self

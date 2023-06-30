@@ -14,78 +14,25 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+/// A CALayer that displays a inner shadow.
 public class InnerShadowLayer: CALayer {
-    override public var opacity: Float {
-        get { return shadowOpacity }
-        set { shadowOpacity = newValue }
+    
+    /// The configuration of the inner shadow.
+    public var configuration: ContentConfiguration.InnerShadow {
+        get { ContentConfiguration.InnerShadow(color: self.color, opacity: CGFloat(self.shadowOpacity), radius: self.shadowRadius, offset: CGPoint(x: self.shadowOffset.width, y: self.shadowOffset.height))  }
+        set {
+            self.shadowColor = newValue.color?.cgColor
+            self.shadowOpacity = Float(newValue.opacity)
+            self.shadowOffset = CGSize(width: newValue.offset.x, height: newValue.offset.y)
+            self.shadowRadius = newValue.radius
+        }
     }
     
-    internal var superlayerObserver: KeyValueObserver<CALayer>? = nil
-
     override public init() {
         super.init()
     }
-    
-    
-    internal var boundsObserver: NSKeyValueObservation? = nil
-    internal var cornerRadiusObserver: NSKeyValueObservation? = nil
 
-    public func setupSuperlayerObservation() {
-        Swift.print("setupSuperlayerObservation")
-        if let superlayer = superlayer {
-            Swift.print("setupSuperlayerObservation1")
-            
-            
-            self.cornerRadiusObserver = superlayer.observeChanges(for: \.cornerRadius, handler: {
-                old, new in
-                Swift.print("superlayer cornerRadius changed")
-            })
-            
-            self.boundsObserver = superlayer.observeChanges(for: \.bounds, handler: {
-                old, new in
-                Swift.print("superlayer bounds changed")
-            })
-            /*
-            if superlayerObserver?.observedObject != superlayer {
-                Swift.print("setupSuperlayerObservation2")
-                superlayerObserver = nil
-                superlayerObserver = KeyValueObserver(superlayer)
-                superlayerObserver?.add(\.cornerRadius) { [weak self] old, new in
-                    Swift.print("superlayer cornerRadius changed")
-                    guard let self = self, old != new else { return }
-                    self.superlayerDidUpdate()
-                }
-                superlayerObserver?.add(\.bounds) { [weak self] old, new in
-                    Swift.print("superlayer bounds changed")
-                    guard let self = self, old != new else { return }
-                    self.superlayerDidUpdate()
-                }
-            }
-            */
-            self.superlayerDidUpdate()
-        } else {
-            superlayerObserver = nil
-        }
-    }
-    
-    internal func superlayerDidUpdate() {
-        if let superlayer = superlayer {
-            self.isUpdating = true
-          //  self.bounds = superlayer.bounds
-            
-            let frameSize = superlayer.frame.size
-            let shapeRect = CGRect(origin: .zero, size: frameSize)
-            self.bounds = shapeRect
-            self.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-
-            
-            self.cornerRadius = superlayer.cornerRadius
-            self.update()
-            self.isUpdating = false
-        }
-    }
-
-    public init(configuration: ContentConfiguration.Shadow) {
+    public init(configuration: ContentConfiguration.InnerShadow) {
         super.init()
         self.configuration = configuration
     }
@@ -93,40 +40,23 @@ public class InnerShadowLayer: CALayer {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-
-    public var radius: CGFloat {
-        get { shadowRadius }
-        set { shadowRadius = newValue
-            update()
-        }
-    }
-
-    public var offset: CGSize {
-        get { shadowOffset }
-        set { shadowOffset = newValue
-            update()
-        }
-    }
-
+    
     public var color: NSUIColor? {
         get { if let cgColor = shadowColor {
             return NSUIColor(cgColor: cgColor)
         }
-        return nil
+            return nil
         }
         set { shadowColor = newValue?.cgColor }
     }
-
-    public var configuration: ContentConfiguration.Shadow {
-        get { ContentConfiguration.Shadow(color: self.color, opacity: CGFloat(self.opacity), radius: self.radius, offset: CGPoint(x: self.offset.width, y: self.offset.height))  }
-        set {
-            self.color = newValue.color
-            self.opacity = Float(newValue.opacity)
-            self.offset = CGSize(width: newValue.offset.x, height: newValue.offset.y)
-            self.radius = newValue.radius
-        }
+    
+    public override var shadowRadius: CGFloat {
+        didSet { if !isUpdating, oldValue != shadowRadius { self.update() } }
     }
-
+    
+    public override var shadowOffset: CGSize {
+        didSet { if !isUpdating, oldValue != shadowOffset { self.update() } }
+    }
 
     internal var isUpdating: Bool = false
     override public var frame: CGRect {
@@ -163,7 +93,6 @@ public class InnerShadowLayer: CALayer {
             path.append(innerPart)
             shadowPath = path.cgPath
             masksToBounds = true
-
             backgroundColor = .clear
         }
     }

@@ -11,20 +11,24 @@ import AppKit
 import Foundation
 
 public extension NSMenu {
+    /**
+     Initializes and returns a menu having the specified menu items.
+     - Parameters items: The menu items for the menu.
+     - Returns: The initialized `NSMenu` object.
+     */
     convenience init(items: [NSMenuItem]) {
         self.init(title: "", items: items)
     }
 
+    /**
+     Initializes and returns a menu having the specified title and menu items.
+     - Parameters items: The menu items for the menu.
+     - Parameters title: The title to assign to the menu.
+     - Returns: The initialized `NSMenu` object.
+     */
     convenience init(title: String, items: [NSMenuItem]) {
         self.init(title: title)
         self.items = items
-    }
-
-    convenience init(titles: [String]) {
-        self.init()
-        for title in titles {
-            addItem(NSMenuItem(title))
-        }
     }
 }
 

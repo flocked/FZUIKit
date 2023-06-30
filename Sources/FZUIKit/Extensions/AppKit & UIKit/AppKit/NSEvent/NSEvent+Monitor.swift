@@ -30,7 +30,7 @@ public extension NSEvent {
             return NSEvent.Monitor(mask: mask, type: .local, handler: handler)
         }
 
-        public init(mask: NSEvent.EventTypeMask, type: MonitorType = .global, handler: @escaping ((NSEvent?) -> Void)) {
+        public init(mask: NSEvent.EventTypeMask, type: MonitorType = .local, handler: @escaping ((NSEvent?) -> Void)) {
             self.mask = mask
             self.handler = handler
             self.type = type

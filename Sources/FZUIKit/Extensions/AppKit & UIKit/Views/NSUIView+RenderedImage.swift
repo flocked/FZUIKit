@@ -13,10 +13,11 @@ import UIKit
 
 #if os(macOS)
 public extension NSView {
-    static var currentContext: CGContext? {
+    internal static var currentContext: CGContext? {
         return NSGraphicsContext.current?.cgContext
     }
     
+    /// Renders an image from this view.
     var renderedImage: NSImage {
         let image = NSImage(size: bounds.size)
         image.lockFocus()
@@ -29,6 +30,7 @@ public extension NSView {
         return image
     }
 
+    /// Renders a compound image from multiple views.
     static func renderedImage(from views: [NSView]) -> NSImage {
         var frame = CGRect.zero
         for view in views {
@@ -49,6 +51,7 @@ public extension NSView {
 
 #elseif canImport(UIKit)
 public extension UIView {
+    /// Renders an image from this view.
     var renderedImage: UIImage {
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
         return renderer.image { _ in

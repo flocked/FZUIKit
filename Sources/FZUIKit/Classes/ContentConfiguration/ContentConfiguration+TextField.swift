@@ -7,6 +7,9 @@
 
 #if os(macOS)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a text.
@@ -88,7 +91,7 @@ public extension ContentConfiguration {
         }
         #else
         public init(font: NSUIFont = .body,
-                    textColor: NSUIColor = .labelColor,
+                    textColor: NSUIColor = .label,
                     textColorTransform: NSUIConfigurationColorTransformer? = nil,
                     alignment: NSTextAlignment = .left,
                     lineBreakMode: NSLineBreakMode = .byWordWrapping,
@@ -102,7 +105,6 @@ public extension ContentConfiguration {
                     isEditable: Bool = false,
                     backgroundColor: NSUIColor? = nil,
                     backgroundColorTransform: NSUIConfigurationColorTransformer? = nil) {
-            self.bezelStyle = bezelStyle
             self.font = font
             self.textColor = textColor
             self.textColorTransform = textColorTransform
@@ -123,14 +125,13 @@ public extension ContentConfiguration {
         #endif
 
         internal var _resolvedBackgroundColor: NSUIColor? = nil
-        internal var _resolvedTextColor: NSUIColor = .labelColor
+        internal var _resolvedTextColor: NSUIColor = .black
         internal mutating func updateResolvedColors() {
             _resolvedBackgroundColor = resolvedBackgroundColor()
             _resolvedTextColor = resolvedTextColor()
         }
     }
 }
-#endif
 
 #if os(macOS)
 public extension NSTextField {
@@ -207,8 +208,6 @@ public extension UITextView {
         textColor = configuration._resolvedTextColor
         backgroundColor = configuration._resolvedBackgroundColor
         textAlignment = configuration.alignment
-        attributedText = attributedText.transform(using: configuration.transform)
     }
 }
-// maximumNumberOfLines
 #endif

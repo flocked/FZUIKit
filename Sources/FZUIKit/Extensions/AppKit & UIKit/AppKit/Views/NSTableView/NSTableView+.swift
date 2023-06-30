@@ -9,6 +9,12 @@
 import AppKit
 
 public extension NSTableView {
+    /**
+     Reloads the table view on the main thread.
+     - Parameters maintainingSelection: A Boolean value that indicates whether the table view should maintain it's selection after reloading.
+     - Parameters completionHandler: The handler that gets called when the table view finishes reloading.
+     
+     */
     func reloadOnMainThread(maintainingSelection: Bool = false, completionHandler: (() -> Void)? = nil) {
         DispatchQueue.main.async {
             if maintainingSelection {
@@ -27,17 +33,6 @@ public extension NSTableView {
             selectRowIndexes(selectedRowIndexes, byExtendingSelection: false)
         }
         completionHandler?()
-    }
-
-    var nonSelectedRowIndexes: IndexSet {
-        let selected = selectedRowIndexes
-        var nonSelectedRowIndexes = IndexSet()
-        for i in 0 ..< numberOfRows {
-            if selected.contains(i) == false {
-                nonSelectedRowIndexes.insert(i)
-            }
-        }
-        return nonSelectedRowIndexes
     }
 
     /**
@@ -91,50 +86,49 @@ public extension NSTableView {
         return cells
     }
     
+    /**
+     Returns the row view at the specified location.
+     
+     - Parameters location: The location of the row view.
+     - Returns: The row view, or nil if there isn't any row view at the location.
+     */
     func rowView(at location: CGPoint) -> NSTableRowView? {
         let index = self.row(at: location)
         guard index >= 0 else { return nil }
         return self.rowView(atRow: index, makeIfNecessary: false)
     }
     
+    /**
+     Returns the row view for the specified event.
+     
+     - Parameters event: The event.
+     - Returns: The row view, or nil if there isn't any row view for the event.
+     */
     func rowView(for event: NSEvent) -> NSTableRowView? {
         let location = event.location(in: self)
         return rowView(at: location)
     }
     
+    /**
+     Returns the table cell view at the specified location.
+     
+     - Parameters location: The location of the table cell view.
+     - Returns: The table cell view, or nil if there isn't any table cell view at the location.
+     */
     func cellView(at location: CGPoint) -> NSTableCellView? {
         guard let rowView = self.rowView(at: location) else { return nil }
         return rowView.cellViews.first(where: { $0.frame.contains(location) })
     }
     
+    /**
+     Returns the table cell view for the specified event.
+     
+     - Parameters event: The event.
+     - Returns: The table cell view, or nil if there isn't any table cell view for the event..
+     */
     func cellView(for event: NSEvent) -> NSTableCellView? {
         let location = event.location(in: self)
         return cellView(at: location)
-    }
-
-    static func tableRowHeight(text: ContentConfiguration.Text.FontSize, secondaryText: ContentConfiguration.Text.FontSize? = nil, textPadding: CGFloat = 0.0, verticalPadding: CGFloat = 2.0) -> CGFloat {
-        return tableRowHeight(fontSize: text.value, secondaryTextFontSize: secondaryText?.value, textPadding: textPadding, verticalPadding: verticalPadding)
-    }
-
-    static func tableRowHeight(fontSize: CGFloat, secondaryTextFontSize: CGFloat? = nil, textPadding: CGFloat = 0.0, verticalPadding: CGFloat = 2.0) -> CGFloat {
-        let textField = NSTextField()
-
-        textField.font = .systemFont(ofSize: fontSize)
-        textField.stringValue = " "
-        textField.isBezeled = false
-        textField.isEditable = false
-        textField.isSelectable = false
-        textField.drawsBackground = false
-        textField.usesSingleLineMode = true
-
-        textField.maximumNumberOfLines = 1
-        textField.lineBreakMode = .byTruncatingTail
-
-        var height = textField.fittingSize.height + (2.0 * verticalPadding)
-        if let secondaryTextFontSize = secondaryTextFontSize {
-            height = height + tableRowHeight(fontSize: secondaryTextFontSize, textPadding: 0.0, verticalPadding: 0.0) + textPadding
-        }
-        return height
     }
 }
 #endif

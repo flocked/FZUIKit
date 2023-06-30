@@ -53,6 +53,11 @@ extension NSView {
         }
     }
 
+    /**
+     An optional view whose alpha channel is used to mask a view’s content.
+
+     The view’s alpha channel determines how much of the view’s content and background shows through. Fully or partially opaque pixels allow the underlying content to show through but fully transparent pixels block that content.
+     */
     public var mask: NSView? {
         get { return getAssociatedValue(key: "_viewMaskView", object: self) }
         set {
@@ -85,7 +90,7 @@ extension NSView {
     /**
      The center point of the view's frame rectangle.
 
-     The center point is specified in points in the coordinate system of its superview. Setting this property updates the origin of the rectangle in the frame property appropriately.
+     Setting this property updates the origin of the rectangle in the frame property appropriately.
      Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform. Changes to this property can be animated.
      */
     public var center: CGPoint {
@@ -261,19 +266,37 @@ extension NSView {
         }
     }
     
+    /**
+     Marks the receiver’s entire bounds rectangle as needing to be redrawn.
+     
+     You can use this method to notify the system that your view’s contents need to be redrawn. This method makes a note of the request and returns immediately. The view is not actually redrawn until the next drawing cycle, at which point all invalidated views are updated.
+     
+     */
     public func setNeedsDisplay() {
         needsDisplay = true
     }
 
+    /**
+     Invalidates the current layout of the receiver and triggers a layout update during the next update cycle.
+
+     Calling this method lets the system know that the view’s layout needs to be updated before it is drawn. The system checks the value of this property prior to applying constraint-based layout rules for the view.
+     
+     This method makes a note of the request and returns immediately. Because this method does not force an immediate update, but instead waits for the next update cycle, you can use it to invalidate the layout of multiple views before any of those views are updated. This behavior allows you to consolidate all of your layout updates to one update cycle, which is usually better for performance.
+     */
     public func setNeedsLayout() {
         needsLayout = true
     }
 
+    /**
+     Controls whether the view’s constraints need updating.
+
+     When a property of your custom view changes in a way that would impact constraints, you can call this method to indicate that the constraints need to be updated at some point in the future. The system will then call `updateConstraints()` as part of its normal layout pass. Use this as an optimization tool to batch constraint changes. Updating constraints all at once just before they are needed ensures that you don’t needlessly recalculate constraints when multiple changes are made to your view in between layout passes.
+     */
     public func setNeedsUpdateConstraints() {
         needsUpdateConstraints = true
     }
 
-    // Returns the view controller managing the view.
+    // Returns the parent view controller managing the view.
     public var parentController: NSViewController? {
         if let responder = nextResponder as? NSViewController {
             return responder
@@ -284,8 +307,50 @@ extension NSView {
         }
     }
 
+    /// A Boolean value that indicates whether the view is visible.
     public var isVisible: Bool {
         window != nil && alphaValue != 0.0 && visibleRect != .zero
+    }
+    
+    /**
+     Scrolls the view’s closest ancestor NSClipView object animated so a point in the view lies at the origin of the clip view's bounds rectangle.
+     
+     - Parameters point: The point in the view to scroll to.
+     - Parameters animationDuration: The animation duration of the scolling.
+     */
+    func scroll(_ point: CGPoint, animationDuration: CGFloat) {
+        if animationDuration > 0.0 {
+            NSAnimationContext.runAnimationGroup {
+                context in
+                context.duration = animationDuration
+                if let enclosingScrollView = self.enclosingScrollView {
+                    enclosingScrollView.contentView.animator().setBoundsOrigin(point)
+                    enclosingScrollView.reflectScrolledClipView(enclosingScrollView.contentView)
+                }
+            }
+        } else {
+            scroll(point)
+        }
+    }
+
+    /**
+     Scrolls the view’s closest ancestor NSClipView object  the minimum distance needed animated so a specified region of the view becomes visible in the clip view.
+     
+     - Parameters rect: The rectangle to be made visible in the clip view.
+     - Parameters animationDuration: The animation duration of the scolling.
+     - Returns: `true` if any scrolling is performed; otherwise returns `false`.
+     */
+    @discardableResult
+    func scrollToVisible(_ rect: CGRect, animationDuration: CGFloat) -> Bool {
+        if animationDuration > 0.0 {
+            NSAnimationContext.runAnimationGroup {
+                context in
+                context.duration = animationDuration
+                return self.scrollToVisible(rect)
+            }
+        } else {
+            return scrollToVisible(rect)
+        }
     }
 }
 

@@ -7,5 +7,6 @@
 
 import Foundation
 
-public struct ContentConfiguration {}
+/// A collection of configurations for
+public struct ContentConfiguration { }
 

@@ -11,20 +11,14 @@ import AppKit
 import Foundation
 
 public extension NSApplication {
+    /// All visible windows on the active space.
     var visibleWindows: [NSWindow] {
         return windows.filter {
             $0.isVisible && $0.isOnActiveSpace && !$0.isFloatingPanel
         }
     }
-
-    func relaunch() {
-        let executablePath = Bundle.main.executablePath! as NSString
-        let fileSystemRepresentedPath = executablePath.fileSystemRepresentation
-        let fileSystemPath = FileManager.default.string(withFileSystemRepresentation: fileSystemRepresentedPath, length: Int(strlen(fileSystemRepresentedPath)))
-        Process.launchedProcess(launchPath: fileSystemPath, arguments: [])
-        NSApp.terminate(self)
-    }
-
+    
+    /// A boolean value that indicates whether the application is a trusted accessibility client.
     func checkAccessibilityAccess() -> Bool {
         let checkOptPrompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString
         let options = [checkOptPrompt: true]
@@ -32,6 +26,13 @@ public extension NSApplication {
         return accessEnabled
     }
 
+    /// Relaunches the application (works only for non sandboxed applications).
+    func relaunch() {
+        self.launchAnotherInstance()
+        NSApp.terminate(self)
+    }
+
+    /// Launches another instance of the application (works only for non sandboxed applications).
     func launchAnotherInstance() {
         let path = Bundle.main.bundleURL.path
         Shell.run(.bash, "open", "-n", atPath: path)

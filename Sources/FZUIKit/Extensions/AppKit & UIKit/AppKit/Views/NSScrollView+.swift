@@ -12,6 +12,11 @@ import Foundation
 import FZSwiftUtils
 
 public extension NSScrollView {
+    /**
+     The point at which the origin of the content view is offset from the origin of the scroll view.
+
+     The default value is CGPointZero.
+     */
     @objc dynamic var contentOffset: CGPoint {
         get {
             return documentVisibleRect.origin
@@ -20,64 +25,6 @@ public extension NSScrollView {
             willChangeValue(for: \.contentOffset)
             documentView?.scroll(newValue)
             didChangeValue(for: \.contentOffset)
-        }
-    }
-
-    internal var contentOffsetKVO: NotificationToken? {
-        get { getAssociatedValue(key: "_contentOffsetKVO", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "_contentOffsetKVO", object: self) }
-    }
-
-    override func addObserver(_ observer: NSObject, forKeyPath keyPath: String, options: NSKeyValueObservingOptions = [], context: UnsafeMutableRawPointer?) {
-        super.addObserver(observer, forKeyPath: keyPath, options: options, context: context)
-        var previousValue = contentView.bounds
-        if keyPath == "contentOffset" || keyPath == "contentSize", contentOffsetKVO == nil {
-            postsBoundsChangedNotifications = true
-            contentOffsetKVO = NotificationCenter.default.observe(name: NSView.boundsDidChangeNotification, object: contentView, queue: nil, using: { [weak self] _ in
-                guard let self = self else { return }
-                let newValue = self.contentView.bounds
-                if newValue.origin != previousValue.origin {
-                    willChangeValue(for: \.contentOffset)
-                    didChangeValue(for: \.contentOffset)
-                }
-                if newValue.size != previousValue.size {
-                    willChangeValue(for: \.contentSize)
-                    didChangeValue(for: \.contentSize)
-                }
-                previousValue = newValue
-            })
-        }
-    }
-
-    override func removeObserver(_ observer: NSObject, forKeyPath keyPath: String) {
-        super.removeObserver(observer, forKeyPath: keyPath)
-        if keyPath == "contentOffset", contentOffsetKVO != nil {
-            contentOffsetKVO = nil
-        }
-    }
-
-    func scroll(_ point: CGPoint, animationDuration: CGFloat) {
-        if animationDuration > 0.0 {
-            NSAnimationContext.runAnimationGroup {
-                context in
-                context.duration = animationDuration
-                self.contentView.animator().setBoundsOrigin(point)
-                self.reflectScrolledClipView(self.contentView)
-            }
-        } else {
-            scroll(point)
-        }
-    }
-
-    func scroll(_ rect: CGRect, animationDuration: CGFloat) {
-        if animationDuration > 0.0 {
-            NSAnimationContext.runAnimationGroup {
-                context in
-                context.duration = animationDuration
-                self.scrollToVisible(rect)
-            }
-        } else {
-            scrollToVisible(rect)
         }
     }
 
@@ -97,6 +44,27 @@ public extension NSScrollView {
             } else {
                 self.magnification = magnification
             }
+        }
+    }
+}
+
+public extension NSClipView {
+    /**
+     Changes the origin of the clip view’s bounds rectangle animted to newOrigin.
+
+     - Parameters newOrigin: The point in the view to scroll to.
+     - Parameters animationDuration: The animation duration of the scolling.
+     */
+    func scroll(to newOrigin: CGPoint, animationDuration: CGFloat) {
+        if animationDuration > 0.0 {
+            NSAnimationContext.runAnimationGroup {
+                context in
+                context.duration = animationDuration
+                    self.animator().setBoundsOrigin(newOrigin)
+                self.enclosingScrollView?.reflectScrolledClipView(self)
+            }
+        } else {
+            self.scroll(to: newOrigin)
         }
     }
 }

@@ -9,11 +9,12 @@
 import Cocoa
 
 public extension NSRunningApplication {
-    /// A covenience var for getting the frontmost application.
+    /// Returns the frontmost app, which is the app that receives key events.
     class var frontmostApplication: NSRunningApplication! {
         return NSWorkspace.shared.frontmostApplication
     }
 
+    /// Returns an array of running apps.
     class var runningApplications: [NSRunningApplication] {
         return NSWorkspace.shared.runningApplications
     }

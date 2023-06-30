@@ -17,7 +17,7 @@ public enum Unarchiver {
      Extracts the specified archive.
      - Parameters archive: The url to the file.
      - Parameters directory: The destionation directory where the files of the archive should be extracted to or nil if the files should be extracted to the same directory the archive is located at.
-     - Parameters overwriteFiles: A Boolean value that indicates whether existing files that get extracted from the archive should be overwritten
+     - Parameters overwriteFiles: A Boolean value that indicates whether existing files that get extracted from the archive should be overwritten.
      - Parameters deleteArchiveWhenDone: A Boolean value that indicates whether the archive should be deleted when it's files got extracted.
      - Parameters completionHandler: The handler to be called whenever the extracting is done returning the urls to the extracted files and an error if the extraction failed.
      */

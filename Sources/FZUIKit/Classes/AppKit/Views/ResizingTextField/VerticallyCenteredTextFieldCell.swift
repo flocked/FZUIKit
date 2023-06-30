@@ -23,7 +23,7 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         /// The default focus ring.
         case `default`
     }
-
+    
     /// The vertical alignment of the text.
     public enum VerticalAlignment: Equatable {
         /// The text is vertically centered.
@@ -31,15 +31,21 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         /// The default vertical text alignment.
         case `default`
     }
-
+    
     /// The focus ring type.
     public var focusType: FocusType = .default
     /// The vertical alignment of the text.
     public var verticalAlignment: VerticalAlignment = .center
-
+    
+    /// The leading padding of the cell.
+    public var leadingPadding: CGFloat = 0
+    /// The trailing padding of the cell.
+    public var trailingPadding: CGFloat = 0
+    
+    
     internal var isEditingOrSelecting = false
     //  internal var isEditingHandler: ((Bool)->())? = nil
-
+    
     override public func titleRect(forBounds rect: NSRect) -> NSRect {
         switch verticalAlignment {
         case .center:
@@ -47,10 +53,21 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
             let minimumHeight = cellSize(forBounds: rect).height
             titleRect.origin.y += (titleRect.size.height - minimumHeight) / 2
             titleRect.size.height = minimumHeight
+            titleRect = titleRectWithPadding(for: titleRect)
             return titleRect
         case .default:
-            return super.titleRect(forBounds: rect)
+            let paddedRect = titleRectWithPadding(for: rect)
+            return super.titleRect(forBounds: paddedRect)
         }
+    }
+    
+    internal func titleRectWithPadding(for rect: NSRect) -> NSRect {
+        let isLTR = self.userInterfaceLayoutDirection == .leftToRight
+        let newRect = NSRect(x: rect.origin.x + (isLTR ? self.leadingPadding : self.trailingPadding),
+                                   y: rect.origin.y,
+                                   width: rect.width - self.leadingPadding - self.trailingPadding,
+                                   height: rect.height)
+        return newRect
     }
 
     override public func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {

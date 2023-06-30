@@ -30,12 +30,14 @@ public extension NSUIView {
         removeConstraints(constraints)
     }
 
+    /// Sends the view to the front of it's superview.
     func sendToFront() {
         if let superview = superview {
             superview.addSubview(self)
         }
     }
 
+    /// Sends the view to the back of it's superview.
     func sendToBack() {
         if let superview = superview {
             #if os(macOS)
@@ -46,6 +48,11 @@ public extension NSUIView {
         }
     }
     
+    /**
+     Returns the enclosing rect for the specified subviews.
+     - Parameters subviews: The subviews for the rect.
+     - Returns: The rect enclosing all the specified subviews.
+     */
     func enclosingRect(for subviews: [NSUIView]) -> CGRect {
         var enlosingFrame = CGRect.zero
         for subview in subviews {
@@ -55,8 +62,16 @@ public extension NSUIView {
         return enlosingFrame
     }
 
+    /**
+     Inserts the subview at the specified index.
+     - Parameters view: The view to insert.
+     - Parameters index: The index of insertation.
+     */
     func insertSubview(_ view: NSUIView, at index: Int) {
-        guard index < self.subviews.count else { return }
+        guard index < self.subviews.count else {
+            self.addSubview(view)
+            return
+        }
         #if os(macOS)
         var subviews = self.subviews
         subviews.insert(view, at: index)
@@ -66,6 +81,11 @@ public extension NSUIView {
         #endif
     }
 
+    /**
+     Moves the subview to the specified index.
+     - Parameters view: The view to move.
+     - Parameters index: The index for moving.
+     */
     func moveSubview(_ view: NSUIView, to toIndex: Int) {
         if let index = subviews.firstIndex(of: view) {
             moveSubview(at: index, to: toIndex)

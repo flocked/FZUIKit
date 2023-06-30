@@ -12,8 +12,8 @@ import UIKit
 #endif
 import SwiftUI
 
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ContentConfiguration {
-    @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
     /// An object that contains the specific font, style, and weight attributes to apply to a item symbol image.
     struct SymbolConfiguration: Hashable {
         /// The font for the symbol configuration.
@@ -45,10 +45,10 @@ public extension ContentConfiguration {
         }
         
         /// The color transformer for resolving the color style.
-        public var colorTransform: NSConfigurationColorTransformer? = nil {
+        public var colorTransform: NSUIConfigurationColorTransformer? = nil {
             didSet { updateResolvedColors() } }
         
-        public init(font: FontConfiguration? = nil, colorConfiguration: ColorConfiguration? = nil, imageScale: ImageScale? = nil, colorTransform: NSConfigurationColorTransformer? = nil) {
+        public init(font: FontConfiguration? = nil, colorConfiguration: ColorConfiguration? = nil, imageScale: ImageScale? = nil, colorTransform: NSUIConfigurationColorTransformer? = nil) {
             self.font = font
             self.colorConfiguration = colorConfiguration
             self.imageScale = imageScale
@@ -217,11 +217,10 @@ public extension ContentConfiguration {
     }
 }
 
-#if os(macOS)
-@available(macOS 12, *)
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 internal extension ContentConfiguration.SymbolConfiguration {
-    func nsSymbolConfiguration() -> NSImage.SymbolConfiguration {
-        var configuration: NSImage.SymbolConfiguration
+    func nsSymbolConfiguration() -> NSUIImage.SymbolConfiguration {
+        var configuration: NSUIImage.SymbolConfiguration
         switch self.colorConfiguration {
         case .hierarchical(let color):
             configuration = .hierarchical(color)
@@ -253,7 +252,6 @@ internal extension ContentConfiguration.SymbolConfiguration {
         return configuration
     }
 }
-#endif
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 internal extension View {
@@ -295,8 +293,8 @@ public extension NSImage {
 @available(iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension UIImageView {
     func configurate(using configuration: ContentConfiguration.SymbolConfiguration) {
-        preferredSymbolConfiguration = configuration.toImageSymbolConfiguration()
-        if configuration.colorMode == .multicolor, let primary = configuration.primary {
+        preferredSymbolConfiguration = configuration.nsSymbolConfiguration()
+        if let primary = configuration._resolvedPrimaryColor {
             tintColor = primary
         }
     }
@@ -305,10 +303,7 @@ public extension UIImageView {
 @available(iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension UIImage {
     func applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSUIImage? {
-        if var image = applyingSymbolConfiguration(configuration.toImageSymbolConfiguration()) {
-            if configuration.colorMode == .multicolor, let primary = configuration.primary {
-                image = image.withTintColor(primary)
-            }
+        if let image = applyingSymbolConfiguration(configuration.nsSymbolConfiguration()) {
             return image
         }
         return nil

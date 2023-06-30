@@ -9,6 +9,7 @@
 import AppKit
 
 public extension NSTableColumn {
+    /// A Boolean value that indicates whether the column is visible.
     var isVisible: Bool {
         tableView?.visibleColumns.contains(self) ?? false
     }
