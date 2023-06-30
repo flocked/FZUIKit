@@ -148,7 +148,7 @@ public extension CALayer {
                 
                 self.borderLayer?.bounds = CGRect(.zero, shapeRect.size)
                 self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
+                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius/2.0).cgPath
                 })
             
             let frameSize = CGSize(width: self.frame.size.width-configuration.insets.width, height: self.frame.size.height-configuration.insets.height)
@@ -162,7 +162,7 @@ public extension CALayer {
             self.borderLayer?.lineJoin = CAShapeLayerLineJoin.round
             self.borderLayer?.cornerRadius = self.cornerRadius
             self.borderLayer?.lineDashPattern = configuration.dashPattern as? [NSNumber]
-            self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
+            self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius/2.0).cgPath
         }
     }
 }
