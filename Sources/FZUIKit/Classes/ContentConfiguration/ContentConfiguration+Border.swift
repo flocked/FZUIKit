@@ -143,7 +143,7 @@ public extension CALayer {
                 
                 self.borderLayer?.bounds = CGRect(.zero, shapeRect.size)
                 self.borderLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius/2.0).cgPath
+                self.borderLayer?.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: self.cornerRadius).cgPath
             }
             
             if layerBorderObserver == nil {
