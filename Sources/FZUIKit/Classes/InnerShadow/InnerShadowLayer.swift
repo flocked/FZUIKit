@@ -35,12 +35,13 @@ public class InnerShadowLayer: CALayer {
         if let superlayer = superlayer {
             Swift.print("setupSuperlayerObservation1")
             
-            self.cornerRadiusObserver = self.observeChanges(for: \.superlayer?.cornerRadius, handler: {
+            
+            self.cornerRadiusObserver = superlayer.observeChanges(for: \.cornerRadius, handler: {
                 old, new in
                 Swift.print("superlayer cornerRadius changed")
             })
             
-            self.boundsObserver = self.observeChanges(for: \.superlayer?.bounds, handler: {
+            self.boundsObserver = superlayer.observeChanges(for: \.bounds, handler: {
                 old, new in
                 Swift.print("superlayer bounds changed")
             })
