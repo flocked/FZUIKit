@@ -9,14 +9,69 @@
 
 import AppKit
 
+/// A text field that automatically resizes to fit it's text.
 public class ResizingTextField: NSTextField, NSTextFieldDelegate {
+    /// The editing state the text field.
     public enum EditState {
+        /// The user did begin editing the text.
         case didBegin
+        /// The user did end editing the text.
         case didEnd
+        /// The user did change the text.
         case changed
     }
+    
+    /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
+    public var automaticallyResizesToFit: Bool = true
+    
+    /**
+     The minimum width of the text field when it automatically resizes to fit its text.
+     
+     When the text field hits the maximum width, it will automatically grow it's height.
+     */
+    public var minWidth: CGFloat? = nil
+    
+    /**
+     The maximum width of the text field when it automatically resizes to fit its text.
 
+     When `automaticallyResizesToFit` is enabled and the text field hits the maximum width, it will automatically grow in height.
+     */
+    public var maxWidth: CGFloat? = nil
+        
+    /// A Boolean value that indicates whether the user can enter an empty text.
+    public var allowsEmptyString: Bool = false
+    /// The minimum amount of characters required when the user edits the text.
+    public var minAmountChars: Int? = nil
+    /// The maximum amount of characters allowed when the user edits the text.
+    public var maxAmountChars: Int? = nil
+    
+    /// A Boolean value that indicates whether the user is editing the text.
+    public private(set) var isEditing = false
+
+    /// The focus type of the text field.
+    public var focusType: VerticallyCenteredTextFieldCell.FocusType {
+        get { textCell?.focusType ?? .default }
+        set { textCell?.focusType = newValue }
+    }
+
+    /// The vertical alignment of the displayed text inside the text field.
+    public var verticalTextAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
+        get { textCell?.verticalAlignment ?? .default }
+        set { textCell?.verticalAlignment = newValue }
+    }
+
+    /// The handler called when the edit state changes.
     public var editingStateHandler: ((EditState) -> Void)?
+    
+    override public init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        _init()
+    }
+
+    required public init?(coder: NSCoder) {
+        super.init(coder: coder)
+        _init()
+    }
 
     override public func becomeFirstResponder() -> Bool {
         let canBecome = super.becomeFirstResponder()
@@ -54,8 +109,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         return false
     }
 
-    private(set) var isEditing = false
-
     override public class var cellClass: AnyClass? {
         get { VerticallyCenteredTextFieldCell.self }
         set { super.cellClass = newValue }
@@ -65,39 +118,20 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         cell as? VerticallyCenteredTextFieldCell
     }
 
-    public var focusType: VerticallyCenteredTextFieldCell.FocusType {
-        get { textCell?.focusType ?? .default }
-        set { textCell?.focusType = newValue }
-    }
-
-    public var verticalAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
-        get { textCell?.verticalAlignment ?? .default }
-        set { textCell?.verticalAlignment = newValue }
-    }
-
     internal var placeholderSize: NSSize? { didSet {
         if let placeholderSize_ = placeholderSize {
             placeholderSize = NSSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
         }
     }}
+    
     internal var lastContentSize = NSSize() { didSet {
         lastContentSize = NSSize(width: ceil(self.lastContentSize.width), height: ceil(self.lastContentSize.height))
     }}
 
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        _init()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        _init()
-    }
-
     internal func _init() {
         self.drawsBackground = false
         self.isBordered = false
-        self.verticalAlignment = .center
+        self.verticalTextAlignment = .center
         self.focusType = .roundedCornersRelative(0.5)
         textCell?.setWantsNotificationForMarkedText(true)
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -122,11 +156,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
             self.placeholderSize = size(placeholderString)
         }
     }
-
-    public var allowsEmptyString: Bool = false
-    public var minAmountChars: Int? = nil
-    public var maxAmountChars: Int? = nil
-    public var maxWidth: CGFloat? = nil
 
     override public var placeholderString: String? { didSet {
         guard let placeholderString = self.placeholderString else { return }
@@ -219,11 +248,9 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         self.editingStateHandler?(.changed)
     }
 
-    public var shouldAutoSize: Bool = true
-
     override public var intrinsicContentSize: NSSize {
         let intrinsicContentSize = super.intrinsicContentSize
-        if shouldAutoSize == false {
+        if automaticallyResizesToFit == false {
             return intrinsicContentSize
         }
 
@@ -236,10 +263,14 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
         var minSize = NSSize(width: minWidth, height: intrinsicContentSize.height)
         if let maxWidth = maxWidth, minSize.width >= maxWidth {
-            if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 1000)) {
+            if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 10000)) {
                 minSize.height = cellSize.height + 8.0
             }
             minSize.width = maxWidth
+        }
+        
+        if let minWidth = self.minWidth {
+            minSize.width = max(minSize.width, minWidth)
         }
 
         guard let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView
@@ -259,7 +290,11 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         }
 
         // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
-        let newWidth = ceil(size(self.stringValue).width)
+        var newWidth = ceil(size(self.stringValue).width)
+        if let minWidth = self.minWidth {
+            newWidth = max(newWidth, minWidth)
+        }
+        
         var newSize = NSSize(width: newWidth, height: intrinsicContentSize.height)
         if let maxWidth = maxWidth, newSize.width >= maxWidth {
             if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 1000)) {

@@ -23,7 +23,7 @@ public class FZTextField: NSTextField {
         set { textCell?.focusType = newValue }
     }
 
-    public var verticalAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
+    public var verticalTextAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
         get { textCell?.verticalAlignment ?? .default }
         set { textCell?.verticalAlignment = newValue }
     }

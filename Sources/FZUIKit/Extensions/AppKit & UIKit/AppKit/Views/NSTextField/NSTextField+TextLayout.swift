@@ -9,16 +9,18 @@
 import AppKit
 
 public extension NSTextField {
+    /**
+     Initializes a text field with the specified layout.
+     - Parameters layout: The text layout of the text field.
+     - Returns: An initialized text field.
+     */
     convenience init(layout: TextLayout) {
         self.init(frame: .zero)
-        textLayout = layout
+        self.textLayout = layout
+        self.maximumNumberOfLines = 0
     }
     
-    convenience init(frame: CGRect, layout: TextLayout) {
-        self.init(frame: frame)
-        textLayout = layout
-    }
-    
+    /// The text layout of the text field.
     var textLayout: TextLayout? {
         get {
             switch (lineBreakMode, cell?.wraps, cell?.isScrollable) {
@@ -44,12 +46,16 @@ public extension NSTextField {
         }
     }
 
+    /// The text layout of a text field.
     enum TextLayout: Int, CaseIterable {
+        /// The text field truncates the tail of text that exceeds it's bounds.
         case truncates = 0
+        /// The text field wraps text that exceeds it's bounds.
         case wraps = 1
+        /// The text scrolls past the text field cell.
         case scrolls = 2
 
-        public init?(lineBreakMode: NSLineBreakMode) {
+        internal init?(lineBreakMode: NSLineBreakMode) {
             guard let found = Self.allCases.first(where: { $0.lineBreakMode == lineBreakMode }) else { return nil }
             self = found
         }

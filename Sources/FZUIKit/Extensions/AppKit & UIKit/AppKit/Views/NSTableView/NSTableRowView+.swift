@@ -136,8 +136,12 @@ extension NSTableRowView {
     @objc internal static func swizzleDrawSeparator() {
         if didSwizzleDrawSeparator == false {
             didSwizzleDrawSeparator = true
-            _ = try? Swizzle(NSTableRowView.self) {
-                #selector(drawSeparator) <-> #selector(swizzled_drawSelection)
+            do {
+                try Swizzle(NSTableRowView.self) {
+                    #selector(drawSeparator) <-> #selector(swizzled_drawSelection)
+                }
+            } catch {
+                Swift.print(error)
             }
         }
     }

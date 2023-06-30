@@ -117,9 +117,13 @@ public extension NSTextField {
     @objc internal class func swizzleTextField() {
         if didSwizzleTextField == false {
             didSwizzleTextField = true
-            _ = try? Swizzle(Self.self) {
-                #selector(getter: delegate) <-> #selector(getter: swizzled_delegate)
-                #selector(setter: delegate) <-> #selector(setter: swizzled_delegate)
+            do {
+                try Swizzle(Self.self) {
+                    #selector(getter: delegate) <-> #selector(getter: swizzled_delegate)
+                    #selector(setter: delegate) <-> #selector(setter: swizzled_delegate)
+                }
+            } catch {
+                Swift.print(error)
             }
         }
     }
