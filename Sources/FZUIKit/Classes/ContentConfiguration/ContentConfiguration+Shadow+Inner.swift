@@ -121,10 +121,12 @@ public extension CALayer {
         - configuration:The configuration for configurating the shadow.
      */
     func configurate(using configuration: ContentConfiguration.InnerShadow) {
+        Swift.print("innershadow configurate", configuration.isInvisible)
         if configuration.isInvisible {
             self.innerShadowLayer?.removeFromSuperlayer()
         } else {
             if self.innerShadowLayer == nil {
+                Swift.print("innerShadowLayer add")
                 let innerShadowLayer = InnerShadowLayer()
                 self.addSublayer(innerShadowLayer)
                 innerShadowLayer.sendToBack()
