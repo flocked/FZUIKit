@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 08.06.23.
 //
 
+/*
 import Foundation
 
 #if os(macOS)
@@ -89,3 +90,4 @@ public extension UIView {
     }
 }
 #endif
+*/

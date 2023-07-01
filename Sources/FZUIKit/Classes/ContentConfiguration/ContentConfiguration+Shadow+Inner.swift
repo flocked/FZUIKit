@@ -108,39 +108,6 @@ public extension CALayer {
             }
             
             self.innerShadowLayer?.configuration = configuration
-            
-            /*
-            
-            let innerShadowLayer = self.innerShadowLayer
-            
-            let frameUpdateHandler: (()->()) = { [weak self] in
-                guard let self = self else { return }
-                let frameSize = self.frame.size
-                let shapeRect = CGRect(origin: .zero, size: frameSize)
-                
-                innerShadowLayer?.cornerRadius = self.cornerRadius
-                innerShadowLayer?.bounds = CGRect(.zero, shapeRect.size)
-                innerShadowLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-            }
-            
-            if innerShadowLayer?.layerObserver == nil {
-                innerShadowLayer?.layerObserver = KeyValueObserver(self)
-            }
-                        
-            innerShadowLayer?.layerObserver?[\.cornerRadius] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            
-            
-            innerShadowLayer?.layerObserver?[\.bounds] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-                        
-            frameUpdateHandler()
-            innerShadowLayer?.configuration = configuration
-             */
         }
     }
     

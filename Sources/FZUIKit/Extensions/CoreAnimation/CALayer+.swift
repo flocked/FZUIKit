@@ -56,12 +56,13 @@ public extension CALayer {
                 guard let self = self else { return }
                 let frameSize = layer.frame.size
                 let shapeRect = CGRect(origin: .zero, size: frameSize)
+                let position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
                 
                 self.cornerRadius = layer.cornerRadius
                 self.cornerCurve = layer.cornerCurve
-                self.bounds = CGRect(.zero, shapeRect.size)
-                self.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                self.setNeedsDisplay()
+                self.bounds = shapeRect
+                self.position = position
+                // self.setNeedsDisplay()
             }
             
             if layerObserver?.observedObject != layer {

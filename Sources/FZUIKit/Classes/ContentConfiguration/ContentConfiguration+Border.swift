@@ -78,9 +78,7 @@ public extension ContentConfiguration {
     }
 }
 
-#if os(macOS)
-@available(macOS 10.15.1, *)
-public extension NSView {
+public extension NSUIView {
     /**
      Configurates the border apperance of the view.
 
@@ -88,32 +86,16 @@ public extension NSView {
         - configuration:The configuration for configurating the apperance.
      */
     func configurate(using configuration: ContentConfiguration.Border) {
+        #if os(macOS)
         wantsLayer = true
         layer?.configurate(using: configuration)
-    }
-}
-
-#elseif canImport(UIKit)
-@available(iOS 14.0, *)
-public extension UIView {
-    /**
-     Configurates the border apperance of the view.
-
-     - Parameters:
-        - configuration:The configuration for configurating the apperance.
-     */
-    func configurate(using configuration: ContentConfiguration.Border) {
+        #elseif canImport(UIKit)
         layer.configurate(using: configuration)
+        #endif
     }
 }
-#endif
 
 public extension CALayer {
-
-    
-    internal var borderLayer: DashedBorderLayer? {
-        self.firstSublayer(type: DashedBorderLayer.self)
-    }
     /**
      Configurates the border apperance of the view.
 
@@ -129,45 +111,11 @@ public extension CALayer {
                 self.addSublayer(withConstraint: borderedLayer)
                 borderedLayer.sendToBack()
             }
-            
             self.borderLayer?.configuration = configuration
-            
-            /*
-            
-            let borderedLayer = self.borderLayer
-            
-            let frameUpdateHandler: (()->()) = { [weak self] in
-                guard let self = self else { return }
-                let frameSize = self.frame.size
-                let shapeRect = CGRect(origin: .zero, size: frameSize)
-                
-                borderedLayer?.cornerRadius = self.cornerRadius
-                borderedLayer?.bounds = CGRect(.zero, shapeRect.size)
-                borderedLayer?.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                Swift.print("borderedLayer.position", borderedLayer?.position ?? "")
-                borderedLayer?.setNeedsDisplay()
-            }
-            
-            if borderedLayer?.layerObserver == nil {
-                borderedLayer?.layerObserver = KeyValueObserver(self)
-            }
-            
-            Swift.print("borderedLayer.anchorPoint", borderedLayer?.anchorPoint ?? "")
-            
-            borderedLayer?.layerObserver?[\.cornerRadius] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            
-            
-            borderedLayer?.layerObserver?[\.bounds] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            
-            frameUpdateHandler()
-            borderedLayer?.configuration = configuration
-             */
         }
+    }
+    
+    internal var borderLayer: DashedBorderLayer? {
+        self.firstSublayer(type: DashedBorderLayer.self)
     }
 }
