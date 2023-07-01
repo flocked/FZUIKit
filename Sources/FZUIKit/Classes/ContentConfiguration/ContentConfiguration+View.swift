@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
+/*
 #if os(macOS)
 import AppKit
 public typealias VisualEffect = ContentConfiguration.VisualEffect
@@ -231,3 +232,4 @@ public extension UIView {
  }
  */
 
+*/
