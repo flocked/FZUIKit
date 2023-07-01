@@ -47,6 +47,10 @@ public class ObservingView: NSView {
         }
     }
     
+    public override var acceptsFirstResponder: Bool {
+        return false
+    }
+    
     internal func setupDragAndDrop() {
         self.registerForDraggedTypes([.fileURL, .png, .string, .tiff])
     }
