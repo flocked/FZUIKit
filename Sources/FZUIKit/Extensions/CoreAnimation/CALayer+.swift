@@ -37,6 +37,8 @@ public extension CALayer {
     /**
      Adds the specified sublayer and constraints it to the layer.
      
+     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
+     
      - Parameters layer: The layer to be added.
      */
     func addSublayer(withConstraint layer: CALayer) {
@@ -47,7 +49,7 @@ public extension CALayer {
     /**
      Constraints the layer to the specified layer.
      
-     The layer's bounds, cornerRadius and cornerCurve will be constraint to the specified layer. To remove the constraint use `removeConstraints()`.
+     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` will be constraint to the specified layer. To remove the constraints use `removeConstraints()`.
      
      - Parameters layer: The layer to constraint to.
      */
@@ -59,10 +61,10 @@ public extension CALayer {
                 let position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
                 
                 self.cornerRadius = layer.cornerRadius
+                self.maskedCorners = layer.maskedCorners
                 self.cornerCurve = layer.cornerCurve
                 self.bounds = shapeRect
                 self.position = position
-                // self.setNeedsDisplay()
             }
             
             if layerObserver?.observedObject != layer {
@@ -78,6 +80,11 @@ public extension CALayer {
                 guard old != new else { return }
             layerUpdateHandler()
             }
+        
+        layerObserver?[\.maskedCorners] = { old, new in
+                guard old != new else { return }
+            layerUpdateHandler()
+            }
             
         layerObserver?[\.bounds] = { old, new in
                 guard old != new else { return }
@@ -86,6 +93,7 @@ public extension CALayer {
         layerUpdateHandler()
     }
     
+    /// Removes the layer constraints.
     func removeConstraints() {
         self.layerObserver = nil
     }
