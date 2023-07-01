@@ -171,7 +171,13 @@ public extension CALayer {
 }
 
 public extension CALayer {
-    func constraintToSuperlayer(padding: NSDirectionalEdgeInsets = .zero) {
+    internal var superlayerObserver: KeyValueObserver<CALayer>? {
+        get { getAssociatedValue(key: "CALayer_superlayerObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "CALayer_superlayerObserver", object: self) }
+    }
+    
+    /// Constraints the layer to the superlayer.
+    func constraintToSuperlayer() {
         if let superlayer = self.superlayer {
             let frameUpdateHandler: (()->()) = { [weak self] in
                 guard let self = self else { return }
@@ -184,10 +190,9 @@ public extension CALayer {
                 self.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
                 self.setNeedsDisplay()
             }
-            var superlayerObserver: KeyValueObserver<CALayer>? = getAssociatedValue(key: "CALayer.superlayerObserver", object: self, initialValue: KeyValueObserver(superlayer))
+            
             if superlayerObserver?.observedObject != superlayer {
                 superlayerObserver = KeyValueObserver(superlayer)
-                set(associatedValue: superlayerObserver!, key: "CALayer.boundsObserver", object: self)
             }
             
             superlayerObserver?[\.cornerRadius] = { old, new in
@@ -203,14 +208,7 @@ public extension CALayer {
         }
     }
     
-    func removeConstraintToSuperlayer() {
-        
+    func removeSuperlayerConstraits() {
+        self.superlayerObserver = nil
     }
 }
-
-/*
- internal var layerObserver: KeyValueObserver<CALayer>? {
-     get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
-     set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
- }
- */

@@ -29,8 +29,19 @@ public extension NSContentUnavailableConfiguration {
         /// The image scaling.
         public var scaling: NSImageScaling = .scaleNone
         
-        /// The maximum size of the image.
-        public var maxSize: CGSize? = nil
+        /**
+         A maximum size for the image.
+         
+         The default value is CGSizeZero. Setting a width or height of zero makes the size unconstrained on that dimension. If the image exceeds maximumSize size on either dimension, the view reduces its size proportionately, maintaining aspect ratio.
+         */
+        public var maximumSize: CGSize = .zero
+        
+        internal var maximumWidth: CGFloat? {
+            maximumSize.width != 0 ? maximumSize.width : nil
+        }
+        internal var maximumHeight: CGFloat? {
+            maximumSize.height != 0 ? maximumSize.height : nil
+        }
     
         
         /// Creates image properties.
@@ -38,12 +49,12 @@ public extension NSContentUnavailableConfiguration {
                     cornerRadius: CGFloat = 0.0,
                     symbolConfiguration: SymbolConfiguration? = .font(.largeTitle),
                     scaling: NSImageScaling = .scaleNone,
-                    maxSize: CGSize? = nil) {
+                    maximumSize: CGSize = .zero) {
             self.tintColor = tintColor
             self.cornerRadius = cornerRadius
             self.symbolConfiguration = symbolConfiguration
             self.scaling = scaling
-            self.maxSize = maxSize
+            self.maximumSize = maximumSize
         }
         
     }
