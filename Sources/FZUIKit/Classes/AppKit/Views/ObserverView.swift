@@ -47,6 +47,10 @@ public class ObservingView: NSView {
         }
     }
     
+    public override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
+    }
+    
     public override var acceptsFirstResponder: Bool {
         return false
     }
