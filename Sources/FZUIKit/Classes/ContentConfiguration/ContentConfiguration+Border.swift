@@ -109,10 +109,7 @@ public extension UIView {
 #endif
 
 public extension CALayer {
-    internal var layerObserver: KeyValueObserver<CALayer>? {
-        get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
-    }
+
     
     internal var borderLayer: DashedBorderLayer? {
         self.firstSublayer(type: DashedBorderLayer.self)
@@ -129,9 +126,13 @@ public extension CALayer {
         } else {
             if self.borderLayer == nil {
                 let borderedLayer = DashedBorderLayer()
-                self.addSublayer(borderedLayer)
+                self.addSublayer(withConstraint: borderedLayer)
                 borderedLayer.sendToBack()
             }
+            
+            self.borderLayer?.configuration = configuration
+            
+            /*
             
             let borderedLayer = self.borderLayer
             
@@ -166,49 +167,7 @@ public extension CALayer {
             
             frameUpdateHandler()
             borderedLayer?.configuration = configuration
+             */
         }
-    }
-}
-
-public extension CALayer {
-    internal var superlayerObserver: KeyValueObserver<CALayer>? {
-        get { getAssociatedValue(key: "CALayer_superlayerObserver", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "CALayer_superlayerObserver", object: self) }
-    }
-    
-    /// Constraints the layer to the superlayer.
-    func constraintToSuperlayer() {
-        if let superlayer = self.superlayer {
-            let frameUpdateHandler: (()->()) = { [weak self] in
-                guard let self = self else { return }
-                let frameSize = superlayer.frame.size
-                let shapeRect = CGRect(origin: .zero, size: frameSize)
-                
-                self.cornerRadius = superlayer.cornerRadius
-                self.cornerCurve = superlayer.cornerCurve
-                self.bounds = CGRect(.zero, shapeRect.size)
-                self.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                self.setNeedsDisplay()
-            }
-            
-            if superlayerObserver?.observedObject != superlayer {
-                superlayerObserver = KeyValueObserver(superlayer)
-            }
-            
-            superlayerObserver?[\.cornerRadius] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            
-            superlayerObserver?[\.bounds] = { old, new in
-                guard old != new else { return }
-                frameUpdateHandler()
-            }
-            frameUpdateHandler()
-        }
-    }
-    
-    func removeSuperlayerConstraits() {
-        self.superlayerObserver = nil
     }
 }

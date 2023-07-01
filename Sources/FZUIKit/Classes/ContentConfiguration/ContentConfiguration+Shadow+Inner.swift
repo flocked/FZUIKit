@@ -103,9 +103,13 @@ public extension CALayer {
         } else {
             if self.innerShadowLayer == nil {
                 let innerShadowLayer = InnerShadowLayer()
-                self.addSublayer(innerShadowLayer)
+                self.addSublayer(withConstraint: innerShadowLayer)
                 innerShadowLayer.sendToBack()
             }
+            
+            self.innerShadowLayer?.configuration = configuration
+            
+            /*
             
             let innerShadowLayer = self.innerShadowLayer
             
@@ -136,6 +140,7 @@ public extension CALayer {
                         
             frameUpdateHandler()
             innerShadowLayer?.configuration = configuration
+             */
         }
     }
     

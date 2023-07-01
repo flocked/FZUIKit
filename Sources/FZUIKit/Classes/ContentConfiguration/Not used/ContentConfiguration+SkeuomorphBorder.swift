@@ -51,18 +51,6 @@ public extension NSView {
             borderLayer?.cornerCurve = properties.cornerCurve
             borderLayer?.masksToBounds = true
 
-            if let layer = self.layer, let borderLayer = borderLayer {
-                layer.addSublayer(borderLayer)
-              //  layer.addSublayer(withConstraint: <#T##CALayer#>)
-                
-
-                borderLayer.sendToBack()
-                let constraints = borderLayer.constraintTo(layer: layer)
-                constraints[0].constant = properties.width
-                constraints[1].constant = properties.width
-                constraints[2].constant = properties.width
-                constraints[3].constant = properties.width
-            }
         }
     }
 }
