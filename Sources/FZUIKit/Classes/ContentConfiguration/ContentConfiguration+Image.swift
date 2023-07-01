@@ -11,6 +11,7 @@ import AppKit
 import UIKit
 #endif
 
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ContentConfiguration {
     /// A configuration that specifies the appearance of a view's displaying images.
     struct Image: Hashable {
@@ -30,18 +31,24 @@ public extension ContentConfiguration {
             return nil
         }
 
+        /**
+         A maximum size for the image.
+         
+         The default value is CGSizeZero. Setting a width or height of zero makes the size unconstrained on that dimension. If the image exceeds maximumSize size on either dimension, the view reduces its size proportionately, maintaining aspect ratio.
+         */
         public var maximumSize: CGSize = .zero
-        public var reservedLayoutSize: CGSize = .zero
-        public var accessibilityIgnoresInvertColors: Bool = false
         /// The image scaling.
         public var scaling: CALayerContentsGravity = .resizeAspectFill
+        
+        /// The symbol configuration of the image.
+        public var symbolConfiguration: SymbolConfiguration? = nil
 
         public var cornerRadius: CGFloat = 0.0
         public var cornerShape: NSUIViewCornerShape? = nil
         public var roundedCorners: CACornerMask = .all
         public var opacity: CGFloat = 1.0
         public var border: Border = .init()
-        public var innerShadow: Shadow? = nil
+        public var innerShadow: InnerShadow? = nil
         public var outerShadow: Shadow? = nil
         /// The background color of the image.
         public var backgroundColor: NSUIColor? = nil {
@@ -70,14 +77,12 @@ public extension ContentConfiguration {
                     tintColorTransformer: NSUIConfigurationColorTransformer? = nil,
                     cornerRadius: CGFloat = 0.0,
                     maximumSize: CGSize = .zero,
-                    reservedLayoutSize: CGSize = .zero,
-                    accessibilityIgnoresInvertColors: Bool = false,
                     scaling: CALayerContentsGravity = .resizeAspectFill,
                     cornerShape: NSUIViewCornerShape? = nil,
                     roundedCorners: CACornerMask = .all,
                     opacity: CGFloat = 1.0,
                     border: Border = Border(),
-                    innerShadow: Shadow? = nil,
+                    innerShadow: InnerShadow? = nil,
                     outerShadow: Shadow? = nil,
                     backgroundColor: NSUIColor? = nil,
                     backgroundColorTransformer: NSUIConfigurationColorTransformer? = nil)
@@ -86,8 +91,6 @@ public extension ContentConfiguration {
             self.tintColorTransformer = tintColorTransformer
             self.cornerRadius = cornerRadius
             self.maximumSize = maximumSize
-            self.reservedLayoutSize = reservedLayoutSize
-            self.accessibilityIgnoresInvertColors = accessibilityIgnoresInvertColors
             self.scaling = scaling
             self.cornerShape = cornerShape
             self.roundedCorners = roundedCorners
@@ -99,16 +102,17 @@ public extension ContentConfiguration {
             self.backgroundColorTransformer = backgroundColorTransformer
         }
 
+        /*
         public static func scaled(_ scaling: CALayerContentsGravity, maxSize _: CGSize = .zero) -> Self { return Self(tintColor: nil, tintColorTransformer: nil, cornerRadius: 0.0, maximumSize: .zero, reservedLayoutSize: .zero, accessibilityIgnoresInvertColors: false, scaling: scaling) }
 
         public static func scaledTinted(_ scaling: CALayerContentsGravity, tintColor: NSUIColor) -> Self { return Self(tintColor: tintColor, tintColorTransformer: nil, cornerRadius: 0.0, maximumSize: .zero, reservedLayoutSize: .zero, accessibilityIgnoresInvertColors: false, scaling: scaling) }
 
         public static func rounded(_ cornerRadius: CGFloat, scaling: CALayerContentsGravity = .resizeAspectFill) -> Self { return Self(tintColor: nil, tintColorTransformer: nil, cornerRadius: cornerRadius, maximumSize: .zero, reservedLayoutSize: .zero, accessibilityIgnoresInvertColors: false, scaling: scaling) }
-
-        public static func `default`() -> Self { return .scaled(.resizeAspectFill) }
+*/
+        public static func `default`() -> Self { Self() }
     }
 }
-
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ImageLayer {
     /// Applys the configuration’s values to the properties of the layer.
     func configurate(using imageProperties: ContentConfiguration.Image) {
@@ -119,6 +123,7 @@ public extension ImageLayer {
 }
 
 #if os(macOS)
+@available(macOS 12.0, *)
 public extension ImageView {
     /// Applys the configuration’s values to the properties of the view.
     func configurate(using imageProperties: ContentConfiguration.Image) {
@@ -136,7 +141,7 @@ public extension ImageView {
     }
 }
 
-@available(macOS 10.15.1, *)
+@available(macOS 12.0, *)
 public extension NSImageView {
     /// Applys the configuration’s values to the properties of the view.
     func configurate(using imageProperties: ContentConfiguration.Image) {

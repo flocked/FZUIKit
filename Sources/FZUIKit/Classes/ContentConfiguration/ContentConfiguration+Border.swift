@@ -75,6 +75,9 @@ public extension ContentConfiguration {
         internal var isInvisible: Bool {
             return (self.width == 0.0 || self._resolvedColor == nil)
         }
+        internal var needsDashedBordlerLayer: Bool {
+           return (self.insets != .zero || self.dashPattern != nil)
+        }
     }
 }
 
@@ -103,9 +106,13 @@ public extension CALayer {
         - configuration:The configuration for configurating the apperance.
      */
     func configurate(using configuration: ContentConfiguration.Border) {
-        if configuration.isInvisible {
+        if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
             self.borderLayer?.removeFromSuperlayer()
-        } else {
+        }
+        
+        if configuration.needsDashedBordlerLayer {
+            self.borderColor = nil
+            self.borderWidth = 0.0
             if self.borderLayer == nil {
                 let borderedLayer = DashedBorderLayer()
                 self.addSublayer(withConstraint: borderedLayer)
@@ -113,6 +120,9 @@ public extension CALayer {
                 borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
             }
             self.borderLayer?.configuration = configuration
+        } else {
+            self.borderColor = configuration._resolvedColor?.cgColor
+            self.borderWidth = configuration.width
         }
     }
     
