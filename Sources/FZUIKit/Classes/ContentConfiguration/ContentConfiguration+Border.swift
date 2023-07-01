@@ -110,6 +110,7 @@ public extension CALayer {
                 let borderedLayer = DashedBorderLayer()
                 self.addSublayer(withConstraint: borderedLayer)
                 borderedLayer.sendToBack()
+                borderedLayer.zPosition = CGFloat.greatestFiniteMagnitude
             }
             self.borderLayer?.configuration = configuration
         }
