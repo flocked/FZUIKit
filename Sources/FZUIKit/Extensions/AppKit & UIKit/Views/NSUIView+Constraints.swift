@@ -114,6 +114,7 @@ public extension NSUIView {
             }
             constraints.append(view.leftAnchor.constraint(equalTo: self.leftAnchor, constant: padding))
             constraints.append(view.rightAnchor.constraint(equalTo: self.rightAnchor, constant: padding))
+            constraints.append(view.heightAnchor.constraint(equalToConstant: view.frame.size.height))
         default:
             constraints.append(contentsOf: [
                 .init(item: self, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: multipliers[0], constant: constants[0]),
