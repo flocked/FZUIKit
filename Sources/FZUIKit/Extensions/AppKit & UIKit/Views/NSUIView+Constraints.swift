@@ -106,15 +106,15 @@ public extension NSUIView {
         case .positioned(let position, let padding):
             switch position {
             case .top, .topLeft, .topRight:
-                constraints.append(view.topAnchor.constraint(equalTo: self.topAnchor, constant: padding))
+                constraints.append(self.topAnchor.constraint(equalTo: view.topAnchor, constant: padding))
             case .center, .centerLeft, .centerRight:
-                constraints.append(view.centerYAnchor.constraint(equalTo: self.centerYAnchor, constant: 0))
+                constraints.append(self.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 0))
             case .bottomLeft, .bottom, .bottomRight:
-                constraints.append(view.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: padding))
+                constraints.append(self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: padding))
             }
-            constraints.append(view.widthAnchor.constraint(equalTo: self.widthAnchor, constant: -(padding*2.0)))
+            constraints.append(self.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -(padding*2.0)))
             Swift.print("viewSize", self.frame.size)
-            constraints.append(view.heightAnchor.constraint(equalToConstant: self.frame.size.height))
+            constraints.append(self.heightAnchor.constraint(equalToConstant: view.frame.size.height))
         default:
             constraints.append(contentsOf: [
                 .init(item: self, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: multipliers[0], constant: constants[0]),
