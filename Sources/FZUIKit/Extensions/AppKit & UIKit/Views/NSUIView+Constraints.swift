@@ -112,13 +112,8 @@ public extension NSUIView {
             case .bottomLeft, .bottom, .bottomRight:
                 constraints.append(view.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: padding))
             }
-            switch position {
-            case .bottomLeft, .topLeft, .centerLeft:
-                constraints.append(view.leftAnchor.constraint(equalTo: self.leftAnchor, constant: padding))
-            case .topRight, .centerRight, .bottomRight:
-                constraints.append(view.rightAnchor.constraint(equalTo: self.rightAnchor, constant: padding))
-            default: break
-            }
+            constraints.append(view.leftAnchor.constraint(equalTo: self.leftAnchor, constant: padding))
+            constraints.append(view.rightAnchor.constraint(equalTo: self.rightAnchor, constant: padding))
         default:
             constraints.append(contentsOf: [
                 .init(item: self, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: multipliers[0], constant: constants[0]),
