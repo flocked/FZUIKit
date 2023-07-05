@@ -10,14 +10,28 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import SwiftUI
 
 @available(macOS 11.0, iOS 13.0, *)
 public extension NSUIHostingController {
-    convenience init(rootView: Content, ignoreSafeArea: Bool) {
+    convenience init(ignoreSafeArea: Bool, rootView: Content) {
         self.init(rootView: rootView)
 
         if ignoreSafeArea {
             disableSafeAreaInsets(true)
+        }
+    }
+    
+    convenience init(isTransparent: Bool, ignoreSafeArea: Bool = false, rootView: Content) {
+        self.init(rootView: rootView)
+
+        if ignoreSafeArea {
+            disableSafeAreaInsets(true)
+        }
+        
+        if isTransparent {
+            self.view.isOpaque = false
+            self.view.backgroundColor = .clear
         }
     }
 
@@ -53,9 +67,19 @@ public extension NSUIHostingController {
     }
 }
 
-#if canImport(UIKit)
-import SwiftUI
+#if canImport(AppKit)
+public extension NSHostingView {
+    convenience init(isTransparent: Bool, rootView: Content) {
+        self.init(rootView: rootView)
+        if isTransparent {
+            self.isOpaque = false
+            self.backgroundColor = .clear
+        }
+    }
+}
+#endif
 
+#if canImport(UIKit)
 @available(iOS 13.0, *)
 public final class UIHostingView<Content: View>: UIView {
     // MARK: - Public Properties
