@@ -112,8 +112,7 @@ public extension NSUIView {
             case .bottomLeft, .bottom, .bottomRight:
                 constraints.append(view.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: padding))
             }
-            constraints.append(view.leftAnchor.constraint(equalTo: self.leftAnchor, constant: padding))
-            constraints.append(view.rightAnchor.constraint(equalTo: self.rightAnchor, constant: padding))
+            constraints.append(view.widthAnchor.constraint(equalTo: self.widthAnchor, constant: -(padding*2.0)))
             constraints.append(view.heightAnchor.constraint(equalToConstant: view.frame.size.height))
         default:
             constraints.append(contentsOf: [
