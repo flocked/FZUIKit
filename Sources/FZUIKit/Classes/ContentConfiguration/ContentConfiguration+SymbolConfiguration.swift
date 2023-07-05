@@ -254,7 +254,7 @@ internal extension ContentConfiguration.SymbolConfiguration {
 }
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
-internal extension View {
+public extension View {
     @ViewBuilder func symbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration?) -> some View {
         if let configuration = configuration {
             self
