@@ -13,10 +13,31 @@ import UIKit
 
 public extension NSUIView {
     enum ConstraintValueMode {
+        public enum Position: Int {
+            case top
+            case topLeft
+            case topRight
+            case center
+            case centerLeft
+            case centerRight
+            case bottom
+            case bottomLeft
+            case bottomRight
+
+        }
+        
         case relative
         case absolute
         case full
         case insets(NSUIEdgeInsets)
+        case positioned(Position, padding: CGFloat = 0)
+        internal var padding: CGFloat? {
+            switch self {
+            case .positioned(_, let padding): return padding
+            default: return nil
+            }
+        }
+
         public static func insets(_ directionalEdgeInsets: NSDirectionalEdgeInsets) -> ConstraintValueMode {
             #if os(macOS)
             return .insets(directionalEdgeInsets.nsEdgeInsets)
@@ -58,6 +79,7 @@ public extension NSUIView {
     @discardableResult
     func constraint(to view: NSUIView, _ mode: ConstraintValueMode = .full) -> [NSLayoutConstraint] {
         let constants: [CGFloat]
+        
         switch mode {
         case .absolute:
             constants = calculateConstants(view)
@@ -78,11 +100,34 @@ public extension NSUIView {
         }
 
         translatesAutoresizingMaskIntoConstraints = false
-        let left: NSLayoutConstraint = .init(item: self, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: multipliers[0], constant: constants[0])
-        let bottom: NSLayoutConstraint = .init(item: self, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: multipliers[1], constant: constants[1])
-        let width: NSLayoutConstraint = .init(item: self, attribute: .width, relatedBy: .equal, toItem: view, attribute: .width, multiplier: multipliers[2], constant: constants[2])
-        let height: NSLayoutConstraint = .init(item: self, attribute: .height, relatedBy: .equal, toItem: view, attribute: .height, multiplier: multipliers[3], constant: constants[3])
-        let constraints = [left, bottom, width, height]
+        
+        var constraints: [NSLayoutConstraint] = []
+        switch mode {
+        case .positioned(let position, let padding):
+            switch position {
+            case .top, .topLeft, .topRight:
+                constraints.append(view.topAnchor.constraint(equalTo: self.topAnchor, constant: padding))
+            case .center, .centerLeft, .centerRight:
+                constraints.append(view.centerYAnchor.constraint(equalTo: self.centerYAnchor, constant: 0))
+            case .bottomLeft, .bottom, .bottomRight:
+                constraints.append(view.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: padding))
+            }
+            switch position {
+            case .bottomLeft, .topLeft, .centerLeft:
+                constraints.append(view.leftAnchor.constraint(equalTo: self.leftAnchor, constant: padding))
+            case .topRight, .centerRight, .bottomRight:
+                constraints.append(view.rightAnchor.constraint(equalTo: self.rightAnchor, constant: padding))
+            default: break
+            }
+        default:
+            constraints.append(contentsOf: [
+                .init(item: self, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: multipliers[0], constant: constants[0]),
+                .init(item: self, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: multipliers[1], constant: constants[1]),
+                .init(item: self, attribute: .width, relatedBy: .equal, toItem: view, attribute: .width, multiplier: multipliers[2], constant: constants[2]),
+                .init(item: self, attribute: .height, relatedBy: .equal, toItem: view, attribute: .height, multiplier: multipliers[3], constant: constants[3])
+            ])
+        }
+        
         NSLayoutConstraint.activate(constraints)
         return constraints
     }
