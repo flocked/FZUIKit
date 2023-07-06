@@ -169,6 +169,7 @@ public extension NSImageView {
 }
 
 #elseif canImport(UIKit)
+@available(iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension UIImageView {
     /// Applys the configuration’s values to the properties of the view.
     func configurate(using imageProperties: ContentConfiguration.Image) {

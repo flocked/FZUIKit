@@ -36,7 +36,13 @@ public class InnerShadowView: NSUIView {
 
     /// The color of the inner shadow.
     public var shadowColor: NSUIColor? {
-        get { innershadowLayer.shadowColor?.nsColor }
+        get {
+#if os(macOS)
+          return innershadowLayer.shadowColor?.nsColor
+#elseif canImport(UIKit)
+            return innershadowLayer.shadowColor?.uiColor
+#endif
+        }
         set { innershadowLayer.shadowColor = newValue?.cgColor }
     }
 

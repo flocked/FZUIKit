@@ -63,7 +63,7 @@ public extension ContentConfiguration {
             Self(color: .black, width: 2.0)
         }
         
-        public static func dashed(color: NSColor = .black, width: CGFloat = 2.0) -> Self {
+        public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0) -> Self {
             return Self(color: color, width: width, dashPattern: [2])
         }
         
