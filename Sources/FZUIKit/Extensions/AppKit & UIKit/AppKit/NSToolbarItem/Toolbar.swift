@@ -67,6 +67,12 @@ public class Toolbar: NSObject {
             }
         }
     }
+    
+    @available(macOS 11.0, *)
+    @discardableResult public func style(_ style: NSWindow.ToolbarStyle) -> Self {
+      self.style = style
+      return self
+    }
 
     public var customizationPaletteIsRunning: Bool { toolbar.customizationPaletteIsRunning }
 
@@ -74,8 +80,11 @@ public class Toolbar: NSObject {
 
     public var attachedWindow: NSWindow? {
         didSet {
+            oldValue?.toolbar = nil
             if let attachedWindow = attachedWindow {
+                Swift.print("attachedWindow.toolbar", attachedWindow.toolbar ?? "")
                 attachedWindow.toolbar = toolbar
+                Swift.print("attachedWindow.toolbar", attachedWindow.toolbar ?? "")
             }
         }
     }
