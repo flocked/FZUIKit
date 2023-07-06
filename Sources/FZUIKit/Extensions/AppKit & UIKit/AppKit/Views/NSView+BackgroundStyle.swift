@@ -26,40 +26,18 @@ extension NSControl: ViewBackgroundStyleCustomizable {
      
      The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A view may draw differently based on background characteristics. For example, a table view drawing a cell in a selected row might set the value to dark. A text cell might decide to render its text white as a result. A rating-style level indicator might draw its stars white instead of gray.
      */
-   @objc public var backgroundStyle: NSView.BackgroundStyle {
+    public var backgroundStyle: NSView.BackgroundStyle {
         get { self.cell?.backgroundStyle ?? .normal }
-        set { self.cell?.backgroundStyle = newValue
-            self.subviews.compactMap({$0 as? ViewBackgroundStyleCustomizable}).backgroundStyle = newValue
-        }
+        set { self.cell?.backgroundStyle = newValue }
     }
 }
 
 public extension NSView {
-    public var backgroundStyle: NSView.BackgroundStyle {
-        get {
-            if let view = self as? ViewBackgroundStyleCustomizable {
-                return view.backgroundStyle
-            }
-            return self.firstSubview(type: ViewBackgroundStyleCustomizable.self, depth: .max)?.backgroundStyle ?? .normal
-            set {
-                if let self = self as? ViewBackgroundStyleCustomizable {
-                    self.backgroundStyle = newValue
-                }
-                
-                self.subviews.forEach({$0.backgroundStyle = newValue })
-                
-            }
-        }
-    }
-    
-    
-    
     /// Returns the background style of the view.
     func backgroundStyle() -> NSView.BackgroundStyle {
         if let view = self as? ViewBackgroundStyleCustomizable {
             return view.backgroundStyle
         }
-        
         return self.firstSubview(type: ViewBackgroundStyleCustomizable.self, depth: .max)?.backgroundStyle ?? .normal
     }
     
