@@ -9,10 +9,10 @@ import WebKit
 import FZSwiftUtils
 
 /**
- An advanced WKWebView with properties for current url request & current cookies and handlers for didFinishLoading & cookies.
+ A WKWebView with properties for current url request & current cookies and handlers for didFinishLoading & cookies.
 
  */
-public class AdvancedWebView: WKWebView {
+public class AdvanceWebView: WKWebView {
     /// The handler that returns the current url request when the web view finishes loading a website.
     public var didFinishLoadingHandler: ((URLRequest?)->())? = nil
     
@@ -40,23 +40,6 @@ public class AdvancedWebView: WKWebView {
         return super.load(request)
     }
     
-    internal var _navigationDelegate: WKNavigationDelegate? = nil
-    internal var _uiDelegate: WKUIDelegate? = nil
-    
-    public override var uiDelegate: WKUIDelegate? {
-        get { self._uiDelegate }
-        set { self._uiDelegate = newValue
-            super.uiDelegate = self
-        }
-    }
-    
-    public override var navigationDelegate: WKNavigationDelegate? {
-        get { self._navigationDelegate }
-        set { self._navigationDelegate = newValue
-            super.navigationDelegate = self
-        }
-    }
-    
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.navigationDelegate = nil
@@ -64,7 +47,7 @@ public class AdvancedWebView: WKWebView {
     }
 }
 
-extension AdvancedWebView: WKUIDelegate  {
+extension AdvanceWebView: WKUIDelegate  {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         self.currentRequest = navigationAction.request
         let store = webView.configuration.websiteDataStore
@@ -79,9 +62,8 @@ extension AdvancedWebView: WKUIDelegate  {
     }
 }
 
-extension AdvancedWebView: WKNavigationDelegate {
+extension AdvanceWebView: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         didFinishLoadingHandler?(self.currentRequest)
-        self._navigationDelegate?.webView?(webView, didFinish: navigation)
     }
 }
