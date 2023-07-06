@@ -31,11 +31,8 @@ import FZSwiftUtils
     @discardableResult func becomeFirstResponder() -> Bool
 }
 
-extension NSUIView: FirstRespondable { }
-extension NSUIViewController: FirstRespondable { }
-
+extension NSUIView: FirstRespondable {
 #if os(macOS)
-public extension FirstRespondable where Self: NSView {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -47,9 +44,11 @@ public extension FirstRespondable where Self: NSView {
         get { (self.window?.firstResponder == self) }
         set { }
     }
+#endif
 }
 
-public extension FirstRespondable where Self: NSViewController {
+extension NSUIViewController: FirstRespondable {
+#if os(macOS)
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -61,8 +60,10 @@ public extension FirstRespondable where Self: NSViewController {
         get { (self.view.window?.firstResponder == self) }
         set { }
     }
+#endif
 }
 
+#if os(macOS)
 extension NSView {
     /**
      Attempts to make a given responder the first responder for the window.
