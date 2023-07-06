@@ -41,7 +41,10 @@ extension NSUIView: FirstRespondable {
      */
     @objc dynamic public var isFirstResponder: Bool {
         get { (self.window?.firstResponder == self) }
-        set { }
+        set {
+            willChangeValue(for: \.isFirstResponder)
+            didChangeValue(for: \.isFirstResponder)
+        }
     }
 }
 extension NSUIViewController: FirstRespondable {
@@ -54,7 +57,10 @@ extension NSUIViewController: FirstRespondable {
      */
     @objc dynamic public var isFirstResponder: Bool {
         get { (self.view.window?.firstResponder == self) }
-        set { }
+        set {
+            willChangeValue(for: \.isFirstResponder)
+            didChangeValue(for: \.isFirstResponder)
+        }
     }
 }
 
