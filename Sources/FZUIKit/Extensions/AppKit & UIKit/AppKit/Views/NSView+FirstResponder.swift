@@ -26,27 +26,26 @@ extension NSView {
         }
     }
     
+    internal var firstResponderObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "NSView_firstResponderObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "NSView_firstResponderObserver", object: self) }
+    }
+    
     internal func setupFirstResponderObserver() {
         if let firstResponderHandler = self.firstResponderHandler {
-            if firstResponderObserver == nil {
-                firstResponderObserver = self.observeChanges(for: \.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
-                    guard old != new else { return }
-                    let isFirstResponder = (new == self)
-                    guard isFirstResponder != self.previousIsFirstRespondder else { return }
-                    self.previousIsFirstRespondder = isFirstResponder
-                    self.isFirstResponder = isFirstResponder
-                    firstResponderHandler(isFirstResponder)
-                })
-            }
+            guard firstResponderObserver == nil else { return }
+            firstResponderObserver = self.observeChanges(for: \.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
+                guard old != new else { return }
+                let isFirstResponder = (new == self)
+                guard isFirstResponder != self.previousIsFirstRespondder else { return }
+                self.previousIsFirstRespondder = isFirstResponder
+                self.isFirstResponder = isFirstResponder
+                firstResponderHandler(isFirstResponder)
+            })
         } else {
             previousIsFirstRespondder = nil
             firstResponderObserver = nil
         }
-    }
-    
-    internal var firstResponderObserver: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "NSView_firstResponderObserver", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "NSView_firstResponderObserver", object: self) }
     }
 }
 #endif

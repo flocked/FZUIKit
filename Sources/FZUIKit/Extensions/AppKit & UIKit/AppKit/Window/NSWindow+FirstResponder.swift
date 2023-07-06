@@ -25,7 +25,8 @@ extension NSWindow {
     }
     
     internal func setupFirstResponderObserver() {
-        if let firstResponderHandler = self.firstResponderHandler, firstResponderObserver == nil  {
+        if let firstResponderHandler = self.firstResponderHandler {
+            guard firstResponderObserver == nil else { return }
             firstResponderObserver = self.observeChanges(for: \.firstResponder, sendInitalValue: true, handler: { old, new in
                 guard old != new else { return }
                 firstResponderHandler(new)

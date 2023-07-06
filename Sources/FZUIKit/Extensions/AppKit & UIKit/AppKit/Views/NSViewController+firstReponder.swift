@@ -26,29 +26,26 @@ extension NSViewController {
         }
     }
     
+    internal var firstResponderObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "NSViewController_firstResponderObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "NSViewController_firstResponderObserver", object: self) }
+    }
+    
     internal func setupFirstResponderObserver() {
         if let firstResponderHandler = self.firstResponderHandler {
-            if firstResponderObserver == nil {
-                firstResponderObserver = self.observeChanges(for: \.view.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
-                    guard old != new else { return }
-                    let isFirstResponder = (new == self)
-                    guard isFirstResponder != self.previousIsFirstRespondder else { return }
-                    self.previousIsFirstRespondder = isFirstResponder
-                //    self.willChangeValue(forKey: "isFirstResponder")
-                    self.isFirstResponder = isFirstResponder
-                    firstResponderHandler(isFirstResponder)
-                //    self.didChangeValue(forKey: "isFirstResponder")
-                })
-            }
+            guard firstResponderObserver == nil else { return }
+            firstResponderObserver = self.observeChanges(for: \.view.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
+                guard old != new else { return }
+                let isFirstResponder = (new == self)
+                guard isFirstResponder != self.previousIsFirstRespondder else { return }
+                self.previousIsFirstRespondder = isFirstResponder
+                self.isFirstResponder = isFirstResponder
+                firstResponderHandler(isFirstResponder)
+            })
         } else {
             previousIsFirstRespondder = nil
             firstResponderObserver = nil
         }
-    }
-    
-    internal var firstResponderObserver: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "NSViewController_firstResponderObserver", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "NSViewController_firstResponderObserver", object: self) }
     }
 }
 #endif

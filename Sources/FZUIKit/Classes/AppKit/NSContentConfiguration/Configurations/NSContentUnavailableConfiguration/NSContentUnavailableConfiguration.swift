@@ -115,6 +115,27 @@ public extension NSContentUnavailableConfiguration {
         return configuration
     }
     
+    /// Creates the default configuration for drag and drop of files.
+    static func dropFiles(fileExtensions: [String]?, buttonHandler:(()->())?) -> NSContentUnavailableConfiguration {
+        var configuration = NSContentUnavailableConfiguration()
+        configuration.textProperties.font = .system(.headline).weight(.semibold)
+        configuration.secondaryTextProperties.font = .subheadline
+        configuration.imageProperties.symbolConfiguration = .font(.largeTitle)
+        configuration.image = NSImage(systemSymbolName: "arrow.down.doc")
+        configuration.text = "Drop files here"
+        if var fileExtensions {
+            fileExtensions = fileExtensions.compactMap({"." + $0})
+            let fileExtensionString = fileExtensions.joined(by: .commaOr)
+            configuration.secondaryText = "Drop \(fileExtensionString)"
+        }
+        if let buttonHandler = buttonHandler {
+            configuration.button = .init(title: "Select files…")
+            configuration.button?.action = buttonHandler
+            configuration.button?.symbolConfiguration = .font(.subheadline)
+        }
+        return configuration
+    }
+    
 }
 
 #endif
