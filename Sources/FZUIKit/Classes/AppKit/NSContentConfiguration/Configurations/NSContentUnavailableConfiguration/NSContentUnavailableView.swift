@@ -116,8 +116,6 @@ internal extension NSContentUnavailableView {
         var imageItem: some View {
             if let image = configuration.image {
                 Image(image)
-                    .resizable()
-                    .scaledToFit()
                     .frame(maxWidth: configuration.imageProperties.maximumWidth, maxHeight: configuration.imageProperties.maximumHeight)
                     .foregroundColor(configuration.imageProperties.tintColor?.swiftUI)
                     .symbolConfiguration(configuration.imageProperties.symbolConfiguration)
