@@ -8,6 +8,7 @@ import Combine
 import CoreGraphics
 import Foundation
 import QuartzCore
+import FZSwiftUtils
 
 /**
  A timer that fires after a certain time interval has elapsed, calling a specified handler.
@@ -18,7 +19,7 @@ public class DisplayLinkTimer {
     public typealias Action = (DisplayLinkTimer) -> Void
 
     /// The number of seconds between firings of the timer.
-    public var timeInterval: TimeInterval = 0.0
+    public var timeInterval: TimeDuration = 0.0
     
     /// If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
     public var repeating = true
@@ -37,18 +38,38 @@ public class DisplayLinkTimer {
      - Parameters shouldFire: If true, the timer will fire after Initialization.
      - Returns: A new repeating Timer object, configured according to the specified parameters.
      */
-    public static func repeating(timeInterval: TimeInterval, shouldFire: Bool = true, action: @escaping Action) -> DisplayLinkTimer {
+    public static func repeating(timeInterval: TimeDuration, shouldFire: Bool = true, action: @escaping Action) -> DisplayLinkTimer {
         DisplayLinkTimer(timeInterval: timeInterval, repeating: true, shouldFire: shouldFire, action: action)
+    }
+    
+    /**
+     Returns a repeating timer object with the specified time interval.
+     - Parameters timeInterval: The number of seconds between firings of the timer.
+     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     - Returns: A new repeating Timer object, configured according to the specified parameters.
+     */
+    public static func scheduledTimer(repeating: TimeDuration, action: @escaping Action) -> DisplayLinkTimer {
+        DisplayLinkTimer(timeInterval: repeating, repeating: true, shouldFire: true, action: action)
+    }
+    
+    /**
+     Returns a repeating timer object with the specified time interval.
+     - Parameters timeInterval: The number of seconds between firings of the timer.
+     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     - Returns: A new repeating Timer object, configured according to the specified parameters.
+     */
+    public static func scheduledTimer(action: @escaping Action) -> DisplayLinkTimer {
+        DisplayLinkTimer(timeInterval: 1.0, repeating: false, shouldFire: true, action: action)
     }
 
     /**
      Initializes a timer object with the specified time interval.
-     - Parameters timeInterval: The number of seconds between firings of the timer.
+     - Parameters timeInterval: The duration between firings of the timer.
      - Parameters repeating: If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
      - Parameters shouldFire: If true, the timer will fire after Initialization.
      - Returns: A new Timer object, configured according to the specified parameters.
      */
-   public init(timeInterval: TimeInterval, repeating: Bool, shouldFire: Bool = true, action: @escaping Action) {
+   public init(timeInterval: TimeDuration, repeating: Bool, shouldFire: Bool = true, action: @escaping Action) {
         self.timeInterval = timeInterval
         self.repeating = repeating
         self.action = action
@@ -59,7 +80,7 @@ public class DisplayLinkTimer {
 
     /// The date when the timer will fire next.
     public var nextFireDate: Date? {
-        lastFireDate?.addingTimeInterval(timeInterval)
+        lastFireDate?.addingTimeInterval(timeInterval.seconds)
     }
 
     /// A Boolean value that indicates whether the timer is running.
@@ -83,9 +104,9 @@ public class DisplayLinkTimer {
                         self.previousTimestamp = frame.timestamp
                     }
                     let timeIntervalCount = frame.timestamp - self.previousTimestamp
-                    self.timeIntervalSinceLastFire = self.timeIntervalSinceLastFire + timeIntervalCount
+                    self.timeIntervalSinceLastFire += timeIntervalCount
                     self.previousTimestamp = frame.timestamp
-                    if self.timeIntervalSinceLastFire > self.timeInterval {
+                    if self.timeIntervalSinceLastFire > self.timeInterval.seconds {
                         self.timeIntervalSinceLastFire = 0.0
                         self.lastFireDate = Date()
                         self.action(self)
