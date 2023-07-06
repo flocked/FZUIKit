@@ -82,9 +82,7 @@ public class Toolbar: NSObject {
         didSet {
             oldValue?.toolbar = nil
             if let attachedWindow = attachedWindow {
-                Swift.print("attachedWindow.toolbar", attachedWindow.toolbar ?? "")
                 attachedWindow.toolbar = toolbar
-                Swift.print("attachedWindow.toolbar", attachedWindow.toolbar ?? "")
             }
         }
     }
