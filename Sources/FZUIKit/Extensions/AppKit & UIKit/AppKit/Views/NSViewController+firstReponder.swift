@@ -19,16 +19,26 @@ extension NSViewController {
         }
     }
     
+    internal var previousIsFirstRespondder: Bool? {
+        get { getAssociatedValue(key: "NSViewController_previousIsFirstRespondderr", object: self, initialValue: nil) }
+        set {
+            set(associatedValue: newValue, key: "NSViewController_previousIsFirstRespondderr", object: self)
+        }
+    }
+    
     internal func setupFirstResponderObserver() {
         if let firstResponderHandler = self.firstResponderHandler {
             if firstResponderObserver == nil {
                 firstResponderObserver = self.observeChanges(for: \.view.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
                     guard old != new else { return }
                     let isFirstResponder = (new == self)
+                    guard isFirstResponder != self.previousIsFirstRespondder else { return }
+                    self.previousIsFirstRespondder = isFirstResponder
                     firstResponderHandler(isFirstResponder)
                 })
             }
         } else {
+            previousIsFirstRespondder = nil
             firstResponderObserver = nil
         }
     }
