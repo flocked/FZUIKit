@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSViewController+.swift
 //  
 //
 //  Created by Florian Zand on 06.07.23.
@@ -9,6 +9,7 @@
 import AppKit
 
 public extension NSViewController {
+    /// Returns a window controller with initalized content view controller.
     static func windowController() -> NSWindowController {
         let viewController = Self()
         let window = NSWindow(contentViewController: viewController)
