@@ -129,8 +129,7 @@ public extension NSContentUnavailableConfiguration {
             configuration.secondaryText = "Drop \(fileExtensionString)"
         }
         if let buttonHandler = buttonHandler {
-            configuration.button = .init(title: "Select files…")
-            configuration.button?.action = buttonHandler
+            configuration.button = .init(title: "Select files…", action: buttonHandler)
             configuration.button?.symbolConfiguration = .font(.subheadline)
         }
         return configuration
