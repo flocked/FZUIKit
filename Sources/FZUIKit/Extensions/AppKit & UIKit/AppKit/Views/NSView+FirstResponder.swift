@@ -4,7 +4,7 @@
 //
 //  Created by Florian Zand on 06.07.23.
 //
-/*
+
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
@@ -49,4 +49,4 @@ extension NSView {
     }
 }
 #endif
-*/
+
