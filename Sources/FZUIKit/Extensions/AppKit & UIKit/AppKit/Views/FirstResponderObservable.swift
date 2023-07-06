@@ -15,8 +15,45 @@ public protocol FirstResponderObservable: NSResponder {
     var firstResponderHandler: ((Bool)->())? { get }
 }
 
-extension NSView: FirstResponderObservable { }
-extension NSViewController: FirstResponderObservable { }
+extension NSView: FirstResponderObservable {
+    internal func setupFirstResponderObserver() {
+        Swift.print("setupFirstResponderObserver view")
+        if let firstResponderHandler = self.firstResponderHandler {
+            if firstResponderObserver == nil {
+                firstResponderObserver = self.observeChanges(for: \.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
+                    guard old != new else { return }
+                    let isFirstResponder = (new == self)
+                    guard isFirstResponder != self.previousIsFirstRespondder else { return }
+                    self.previousIsFirstRespondder = isFirstResponder
+                    firstResponderHandler(isFirstResponder)
+                })
+            }
+        } else {
+            previousIsFirstRespondder = nil
+            firstResponderObserver = nil
+        }
+    }
+}
+
+extension NSViewController: FirstResponderObservable {
+    internal func setupFirstResponderObserver() {
+        Swift.print("setupFirstResponderObserver viewController")
+        if let firstResponderHandler = self.firstResponderHandler {
+            if firstResponderObserver == nil {
+                firstResponderObserver = self.observeChanges(for: \.view.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
+                    guard old != new else { return }
+                    let isFirstResponder = (new == self)
+                    guard isFirstResponder != self.previousIsFirstRespondder else { return }
+                    self.previousIsFirstRespondder = isFirstResponder
+                    firstResponderHandler(isFirstResponder)
+                })
+            }
+        } else {
+            previousIsFirstRespondder = nil
+            firstResponderObserver = nil
+        }
+    }
+}
 
 public extension FirstResponderObservable {
     /// A handler that gets called whenever the responder did become or resign first responder.
@@ -46,43 +83,11 @@ public extension FirstResponderObservable {
 }
 
 public extension FirstResponderObservable where Self: NSView {
-    internal func setupFirstResponderObserver() {
-        Swift.print("setupFirstResponderObserver view")
-        if let firstResponderHandler = self.firstResponderHandler {
-            if firstResponderObserver == nil {
-                firstResponderObserver = self.observeChanges(for: \.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
-                    guard old != new else { return }
-                    let isFirstResponder = (new == self)
-                    guard isFirstResponder != self.previousIsFirstRespondder else { return }
-                    self.previousIsFirstRespondder = isFirstResponder
-                    firstResponderHandler(isFirstResponder)
-                })
-            }
-        } else {
-            previousIsFirstRespondder = nil
-            firstResponderObserver = nil
-        }
-    }
+
 }
 
 public extension FirstResponderObservable where Self: NSViewController {
-    internal func setupFirstResponderObserver() {
-        Swift.print("setupFirstResponderObserver viewController")
-        if let firstResponderHandler = self.firstResponderHandler {
-            if firstResponderObserver == nil {
-                firstResponderObserver = self.observeChanges(for: \.view.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
-                    guard old != new else { return }
-                    let isFirstResponder = (new == self)
-                    guard isFirstResponder != self.previousIsFirstRespondder else { return }
-                    self.previousIsFirstRespondder = isFirstResponder
-                    firstResponderHandler(isFirstResponder)
-                })
-            }
-        } else {
-            previousIsFirstRespondder = nil
-            firstResponderObserver = nil
-        }
-    }
+
 }
 
 #endif
