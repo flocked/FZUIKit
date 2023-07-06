@@ -8,6 +8,10 @@
 import WebKit
 import FZSwiftUtils
 
+/**
+ An advanced WKWebView with properties for current url request & current cookies and handlers for didFinishLoading & cookies.
+
+ */
 public class AdvancedWebView: WKWebView {
     /// The handler that returns the current url request when the web view finishes loading a website.
     public var didFinishLoadingHandler: ((URLRequest?)->())? = nil
@@ -27,9 +31,12 @@ public class AdvancedWebView: WKWebView {
         self.uiDelegate = self
     }
     
+    internal var isIntialLoadingRequest = false
     public override func load(_ request: URLRequest) -> WKNavigation? {
+        self.isIntialLoadingRequest = true
         self.currentRequest = nil
         self.currentHTTPCookies.removeAll()
+        self.isIntialLoadingRequest = false
         return super.load(request)
     }
     
@@ -49,7 +56,7 @@ public class AdvancedWebView: WKWebView {
             super.navigationDelegate = self
         }
     }
-
+    
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.navigationDelegate = nil
@@ -64,7 +71,7 @@ extension AdvancedWebView: WKUIDelegate  {
         store.httpCookieStore.getAllCookies({cookies in
             let cookies = cookies.filter({$0.domain == self.url?.host})
             self.currentHTTPCookies = cookies
-            if (cookies.isEmpty == false) {
+            if !cookies.isEmpty {
                 self.cookiesHandler?(cookies)
             }
         })
