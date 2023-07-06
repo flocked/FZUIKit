@@ -34,7 +34,9 @@ extension NSView {
                     let isFirstResponder = (new == self)
                     guard isFirstResponder != self.previousIsFirstRespondder else { return }
                     self.previousIsFirstRespondder = isFirstResponder
+                    self.willChangeValue(forKey: "isFirstResponder")
                     firstResponderHandler(isFirstResponder)
+                    self.didChangeValue(forKey: "isFirstResponder")
                 })
             }
         } else {
