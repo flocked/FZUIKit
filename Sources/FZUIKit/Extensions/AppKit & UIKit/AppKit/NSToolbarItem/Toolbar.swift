@@ -80,6 +80,12 @@ public class Toolbar: NSObject {
         }
     }
     
+    @discardableResult
+    public func attachedWindow(_ window: NSWindow?) -> Self {
+        self.attachedWindow = attachedWindow
+        return self
+    }
+    
     public func toggleVisibility() {
         attachedWindow?.toggleToolbarShown(nil)
 

@@ -26,16 +26,6 @@ public extension NSCollectionView {
         }
     }
 
-    func displayingIndexPaths() -> [IndexPath] {
-        return displayingItems().compactMap { self.indexPath(for: $0) }.sorted()
-    }
-
-    func displayingItems() -> [NSCollectionViewItem] {
-        let visibleItems = self.visibleItems()
-        let visibleRect = self.visibleRect
-        return visibleItems.filter { NSIntersectsRect($0.view.frame, visibleRect) }
-    }
-
     func frameForItem(at indexPath: IndexPath) -> CGRect? {
         return layoutAttributesForItem(at: indexPath)?.frame
     }
