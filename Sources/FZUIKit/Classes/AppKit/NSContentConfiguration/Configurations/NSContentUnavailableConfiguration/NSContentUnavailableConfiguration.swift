@@ -119,14 +119,15 @@ public extension NSContentUnavailableConfiguration {
     static func dropFiles(fileExtensions: [String]?, buttonHandler:(()->())?) -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
         configuration.textProperties.font = .system(.headline).weight(.semibold)
-        configuration.secondaryTextProperties.font = .subheadline
-        configuration.imageProperties.symbolConfiguration = .font(.largeTitle)
+        configuration.textProperties.font = .title3
+        configuration.imageProperties.symbolConfiguration = .font(size: 40)
+        configuration.imageToTextPadding = 8
         configuration.image = NSImage(systemSymbolName: "arrow.down.doc")
         configuration.text = "Drop files here"
         if var fileExtensions {
             fileExtensions = fileExtensions.compactMap({"." + $0})
             let fileExtensionString = fileExtensions.joined(by: .commaOr)
-            configuration.secondaryText = "Drop \(fileExtensionString)"
+            configuration.secondaryText = "\(fileExtensionString) files…"
         }
         if let buttonHandler = buttonHandler {
             configuration.button = .init(title: "Select files…", action: buttonHandler)
