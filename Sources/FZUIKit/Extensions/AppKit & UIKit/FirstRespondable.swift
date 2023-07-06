@@ -40,7 +40,8 @@ extension NSUIView: FirstRespondable {
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
     @objc dynamic public var isFirstResponder: Bool {
-        (self.window?.firstResponder == self)
+        get { (self.window?.firstResponder == self) }
+        set { }
     }
 }
 extension NSUIViewController: FirstRespondable {
@@ -52,7 +53,8 @@ extension NSUIViewController: FirstRespondable {
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
     @objc dynamic public var isFirstResponder: Bool {
-        (self.view.window?.firstResponder == self)
+        get { (self.view.window?.firstResponder == self) }
+        set { }
     }
 }
 
