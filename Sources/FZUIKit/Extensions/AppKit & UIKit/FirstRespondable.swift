@@ -28,6 +28,7 @@ public protocol FirstRespondable {
 
 extension NSUIView: FirstRespondable { }
 extension NSUIViewController: FirstRespondable { }
+
 #if os(macOS)
 public extension FirstRespondable where Self: NSView {
     /**
@@ -40,12 +41,6 @@ public extension FirstRespondable where Self: NSView {
     var isFirstResponder: Bool {
         (self.window?.firstResponder == self)
     }
-    
-    /*
-    @discardableResult func makeFirstResponder() -> Bool {
-        self.window?.makeFirstResponder(self) ?? false
-    }
-     */
 }
 
 public extension FirstRespondable where Self: NSViewController {
@@ -59,15 +54,14 @@ public extension FirstRespondable where Self: NSViewController {
     var isFirstResponder: Bool {
         (self.view.window?.firstResponder == self)
     }
-    
-    /*
-    @discardableResult func makeFirstResponder() -> Bool {
-        self.view.window?.makeFirstResponder(self) ?? false
-    }
-     */
 }
 
 extension NSView {
+    /**
+     Attempts to make a given responder the first responder for the window.
+     
+     The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
+     */
    @discardableResult override open func becomeFirstResponder() -> Bool {
        if self.acceptsFirstResponder, let window = self.window {
            if window.firstResponder != self, isChangingFirstResponder == false {
@@ -80,6 +74,11 @@ extension NSView {
        return super.becomeFirstResponder()
    }
    
+    /**
+     Notifies the receiver that it’s been asked to relinquish its status as first responder in its window.
+     
+     The default implementation returns 'true', resigning first responder status. Subclasses can override this method to update state or perform some action such as unhighlighting the selection, or to return 'false', refusing to relinquish first responder status.
+     */
     @discardableResult override open func resignFirstResponder() -> Bool {
         if let window = self.window {
             if window.firstResponder == self, isChangingFirstResponder == false {
@@ -99,6 +98,11 @@ extension NSView {
 }
 
 extension NSViewController {
+    /**
+     Attempts to make a given responder the first responder for the window.
+     
+     The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
+     */
     @discardableResult override open func becomeFirstResponder() -> Bool {
        if self.acceptsFirstResponder, let window = self.view.window {
            if window.firstResponder != self, isChangingFirstResponder == false {
@@ -111,6 +115,11 @@ extension NSViewController {
        return super.becomeFirstResponder()
    }
    
+    /**
+     Notifies the receiver that it’s been asked to relinquish its status as first responder in its window.
+     
+     The default implementation returns 'true', resigning first responder status. Subclasses can override this method to update state or perform some action such as unhighlighting the selection, or to return 'false', refusing to relinquish first responder status.
+     */
     @discardableResult override open func resignFirstResponder() -> Bool {
         if let window = self.view.window {
             if window.firstResponder == self, isChangingFirstResponder == false {
@@ -129,18 +138,3 @@ extension NSViewController {
    }
 }
 #endif
-/*
-#if canImport(UIKit)
-public extension FirstRespondable where Self: UIView {
-    @discardableResult func makeFirstResponder() -> Bool {
-        self.becomeFirstResponder()
-    }
-}
-
-public extension FirstRespondable where Self: UIViewController {
-    @discardableResult func makeFirstResponder() -> Bool {
-        self.becomeFirstResponder()
-    }
-}
-#endif
-*/
