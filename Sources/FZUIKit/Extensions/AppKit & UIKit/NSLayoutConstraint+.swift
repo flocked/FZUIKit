@@ -65,6 +65,7 @@ public extension Collection where Element: NSLayoutConstraint {
     @discardableResult func constant(_ insets: NSUIEdgeInsets) -> Self {
         self.constant(insets.directional)
     }
+    
     /// Updates the constant of the constraints and returns itself.
     @discardableResult func constant(_ insets: NSDirectionalEdgeInsets) -> Self {
         self.leading?.constant(insets.leading)
