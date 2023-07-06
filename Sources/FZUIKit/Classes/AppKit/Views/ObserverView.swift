@@ -71,7 +71,7 @@ public class ObservingView: NSView {
     
     internal func initalSetup() {
         self.trackingArea.update()
-        _ = self.superviewObserver
+        _ = self._superviewObserver
     }
     
     public override func viewWillMove(toSuperview newSuperview: NSView?) {
@@ -307,7 +307,7 @@ public class ObservingView: NSView {
     internal var windowDidBecomeMainObserver: NotificationToken? = nil
     internal var windowDidResignMainObserver: NotificationToken? = nil
     
-    internal lazy var superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self]  _, new in
+    internal lazy var _superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self]  _, new in
         guard let self = self else { return }
         self.viewHandlers.didMoveToSuperview?(new)
     }
@@ -315,7 +315,7 @@ public class ObservingView: NSView {
     deinit {
         self.removeWindowKeyObserver()
         self.removeWindowMainObserver()
-        self.superviewObserver?.invalidate()
+        self._superviewObserver?.invalidate()
     }
 }
 
