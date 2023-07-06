@@ -13,7 +13,7 @@ import UIKit
 import FZSwiftUtils
 
 /// A protocol that indicating whether the conforming object is the first responder.
-public protocol FirstRespondable {
+@objc public protocol FirstRespondable {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -21,7 +21,7 @@ public protocol FirstRespondable {
 
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
-    var isFirstResponder: Bool { get }
+    @objc dynamic var isFirstResponder: Bool { get }
     #if os(macOS)
     var acceptsFirstResponder: Bool { get }
     #elseif canImport(UIKit)
@@ -31,11 +31,7 @@ public protocol FirstRespondable {
     @discardableResult func becomeFirstResponder() -> Bool
 }
 
-extension NSUIView: FirstRespondable { }
-extension NSUIViewController: FirstRespondable { }
-
-#if os(macOS)
-public extension FirstRespondable where Self: NSView {
+extension NSUIView: FirstRespondable {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -43,12 +39,11 @@ public extension FirstRespondable where Self: NSView {
 
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
-    var isFirstResponder: Bool {
+    @objc dynamic public var isFirstResponder: Bool {
         (self.window?.firstResponder == self)
     }
 }
-
-public extension FirstRespondable where Self: NSViewController {
+extension NSUIViewController: FirstRespondable {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -56,9 +51,18 @@ public extension FirstRespondable where Self: NSViewController {
 
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
-    var isFirstResponder: Bool {
+    @objc dynamic public var isFirstResponder: Bool {
         (self.view.window?.firstResponder == self)
     }
+}
+
+#if os(macOS)
+public extension FirstRespondable where Self: NSView {
+
+}
+
+public extension FirstRespondable where Self: NSViewController {
+
 }
 
 extension NSView {
