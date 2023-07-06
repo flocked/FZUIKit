@@ -41,12 +41,13 @@ public extension FirstResponderObservable {
     }
     
     internal func setupFirstResponderObserver() {
-        
+        Swift.print("setupFirstResponderObserver")
     }
 }
 
 public extension FirstResponderObservable where Self: NSView {
     internal func setupFirstResponderObserver() {
+        Swift.print("setupFirstResponderObserver view")
         if let firstResponderHandler = self.firstResponderHandler {
             if firstResponderObserver == nil {
                 firstResponderObserver = self.observeChanges(for: \.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
@@ -66,6 +67,7 @@ public extension FirstResponderObservable where Self: NSView {
 
 public extension FirstResponderObservable where Self: NSViewController {
     internal func setupFirstResponderObserver() {
+        Swift.print("setupFirstResponderObserver viewController")
         if let firstResponderHandler = self.firstResponderHandler {
             if firstResponderObserver == nil {
                 firstResponderObserver = self.observeChanges(for: \.view.superview?.window?.firstResponder, sendInitalValue: true, handler: { old, new in
