@@ -36,6 +36,14 @@ public extension NSContentUnavailableConfiguration {
         internal var hasContent: Bool {
             (self.title != nil || self.atributedTitle != nil || self.image != nil)
         }
+        
+        public static func titleButton(_ title: String, font: SymbolConfiguration.FontConfiguration = .body, action: @escaping (()->())) -> Self {
+            Self(title: title, action: action)
+        }
+        
+        public static func imageButton(_ image: NSImage, action: @escaping (()->())) -> Self {
+            Self(image: image, action: action)
+        }
     }
 }
 

@@ -14,7 +14,7 @@ import SwiftUI
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ContentConfiguration {
-    /// An object that contains the specific font, style, and weight attributes to apply to a item symbol image.
+    /// An object that contains the specific font, style, and weight attributes to apply to a object with a symbol image.
     struct SymbolConfiguration: Hashable {
         /// The font for the symbol configuration.
         public var font: FontConfiguration? = nil
@@ -125,8 +125,43 @@ public extension ContentConfiguration {
         public enum FontConfiguration: Hashable {
             /// A font with the specified point size and font weight.
             case systemFont(size: CGFloat, weight: NSUIImage.SymbolWeight? = nil)
+            
             /// A font with the specified text style and font weight.
             case textStyle(NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil)
+            
+            /// Returns a font with the weight.
+            public func weight(_ weight: NSUIImage.SymbolWeight?) -> Self {
+                switch self {
+                case .systemFont(let size, _):
+                    return .systemFont(size: size, weight: weight)
+                case .textStyle(let style, _):
+                    return .textStyle(style, weight: weight)
+                }
+            }
+            
+            /// The font you use for body text.
+            public static var body: Self { Self.textStyle(.body) }
+            /// The font you use for callouts.
+            public static var callout: Self { Self.textStyle(.callout) }
+            /// The font you use for standard captions.
+            public static var caption1: Self { Self.textStyle(.caption1) }
+            /// The font you use for alternate captions.
+            public static var caption2: Self { Self.textStyle(.caption2) }
+            /// The font you use in footnotes.
+            public static var footnote: Self { Self.textStyle(.footnote) }
+            /// The font you use for headings.
+            public static var headline: Self { Self.textStyle(.headline) }
+            /// The font you use for subheadings.
+            public static var subheadline: Self { Self.textStyle(.subheadline) }
+            /// The font you use for large titles.
+            public static var largeTitle: Self { Self.textStyle(.largeTitle) }
+            /// The font you use for first-level hierarchical headings.
+            public static var title1: Self { Self.textStyle(.title1) }
+            /// The font you use for second-level hierarchical headings.
+            public static var title2: Self { Self.textStyle(.title2) }
+            /// The font you use for third-level hierarchical headings.
+            public static var title3: Self { Self.textStyle(.title3) }
+            
             internal var swiftui: Font {
                 switch self {
                 case .textStyle(let style, weight: let weight):
@@ -167,7 +202,7 @@ public extension ContentConfiguration {
         public enum ColorConfiguration: Hashable {
             /// A color configuration by specifying a palette of colors.
             case palette(NSUIColor, NSUIColor, NSUIColor? = nil)
-            ///  A monochrome color configuration using the color you specify.
+            ///  A monochrome color configuration using the content tint color.
             case monochrome
             ///  A multicolor color configuration using the color you specify as primary color.
             case multicolor(NSUIColor)

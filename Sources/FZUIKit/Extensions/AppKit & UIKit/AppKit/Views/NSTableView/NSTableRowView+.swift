@@ -77,8 +77,10 @@ extension NSTableRowView {
     @objc internal func swizzled_drawSelection(in dirtyRect: NSRect) {
         if selectionHighlightStyle != .none {
             if let selectionColor = selectionColor {
+                let selectionRect = dirtyRect.insetBy(dx: 2.5, dy: 2.5)
                 selectionColor.setFill()
-                dirtyRect.fill()
+                let selectionPath = NSBezierPath(roundedRect: selectionRect, cornerRadius: 4.0)
+                selectionPath.fill()
             } else {
                 swizzled_drawSelection(in: dirtyRect)
             }
@@ -95,9 +97,9 @@ extension NSTableRowView {
     }
 
     internal static var didSwizzleDrawSeparator: Bool {
-        get { getAssociatedValue(key: "_didSwizzleDrawSeparator", object: self, initialValue: false) }
+        get { getAssociatedValue(key: "NSTableRowView_didSwizzleDrawSeparator", object: self, initialValue: false) }
         set {
-            set(associatedValue: newValue, key: "_didSwizzleDrawSeparator", object: self)
+            set(associatedValue: newValue, key: "NSTableRowView_didSwizzleDrawSeparator", object: self)
         }
     }
 

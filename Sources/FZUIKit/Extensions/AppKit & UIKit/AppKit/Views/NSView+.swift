@@ -9,6 +9,10 @@
 import AppKit
 import FZSwiftUtils
 
+public class AAAA: CABasicAnimation {
+    
+}
+
 extension NSView {
     public typealias ContentMode = CALayerContentsGravity
 
@@ -46,9 +50,11 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    public var maskToBounds: Bool {
+    @objc open dynamic var maskToBounds: Bool {
         get { layer?.masksToBounds ?? false }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.masksToBounds = newValue
         }
     }
@@ -58,10 +64,12 @@ extension NSView {
 
      The view’s alpha channel determines how much of the view’s content and background shows through. Fully or partially opaque pixels allow the underlying content to show through but fully transparent pixels block that content.
      */
-    public var mask: NSView? {
+    @objc open dynamic var mask: NSView? {
         get { return getAssociatedValue(key: "_viewMaskView", object: self) }
         set {
+            wantsLayer = true
             layer?.mask = nil
+            Self.swizzleAnimationForKey()
             set(associatedValue: newValue, key: "_viewMaskView", object: self)
             if let maskView = newValue {
                 wantsLayer = true
@@ -93,9 +101,11 @@ extension NSView {
      Setting this property updates the origin of the rectangle in the frame property appropriately.
      Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform. Changes to this property can be animated.
      */
-    public var center: CGPoint {
+    @objc open dynamic var center: CGPoint {
         get { frame.center }
-        set { frame.center = newValue }
+        set {
+            Self.swizzleAnimationForKey()
+            frame.center = newValue }
     }
 
     /**
@@ -107,11 +117,13 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    public var transform: CGAffineTransform {
+    @objc open dynamic var transform: CGAffineTransform {
         get { wantsLayer = true
             return layer?.affineTransform() ?? .init()
         }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.setAffineTransform(newValue)
         }
     }
@@ -123,11 +135,13 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    public var transform3D: CATransform3D {
+    @objc open dynamic var transform3D: CATransform3D {
         get { wantsLayer = true
             return layer?.transform ?? CATransform3DIdentity
         }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.transform = newValue
         }
     }
@@ -141,9 +155,11 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view.
      */
-    public var anchorPoint: CGPoint {
+    @objc open dynamic var anchorPoint: CGPoint {
         get { layer?.anchorPoint ?? .zero }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             setAnchorPoint(newValue)
         }
     }
@@ -165,7 +181,9 @@ extension NSView {
      */
     @objc open dynamic var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.cornerRadius = newValue
         }
     }
@@ -177,7 +195,9 @@ extension NSView {
      */
     @objc open dynamic var cornerCurve: CALayerCornerCurve {
         get { layer?.cornerCurve ?? .circular }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.cornerCurve = newValue
         }
     }
@@ -189,7 +209,8 @@ extension NSView {
      */
     @objc open dynamic var roundedCorners: CACornerMask {
         get { layer?.maskedCorners ?? CACornerMask() }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
             layer?.maskedCorners = newValue
         }
     }
@@ -201,7 +222,9 @@ extension NSView {
      */
     @objc open dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.borderWidth = newValue
         }
     }
@@ -215,7 +238,9 @@ extension NSView {
         get { if let cgColor = layer?.borderColor {
             return NSColor(cgColor: cgColor)
         } else { return nil } }
-        set { wantsLayer = true
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.borderColor = newValue?.cgColor
         }
     }
@@ -375,6 +400,37 @@ extension CALayerContentsGravity {
         case .left: return .left
         case .right: return .right
         default: return .scaleProportionallyToFill
+        }
+    }
+}
+
+internal extension NSView {
+    @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        switch key {
+        case "center", "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderDolor":
+            return CABasicAnimation()
+        default :
+            return self.swizzledAnimation(forKey: key)
+        }
+    }
+    
+    static var didSwizzleAnimationForKey: Bool {
+        get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "NSView_didSwizzleAnimationForKey", object: self)
+        }
+    }
+    
+    static func swizzleAnimationForKey() {
+        if didSwizzleAnimationForKey == false {
+            didSwizzleAnimationForKey = true
+            do {
+                try Swizzle(NSView.self) {
+                    #selector(animation(forKey:)) <-> #selector(swizzledAnimation(forKey:))
+                }
+            } catch {
+                Swift.print(error)
+            }
         }
     }
 }
