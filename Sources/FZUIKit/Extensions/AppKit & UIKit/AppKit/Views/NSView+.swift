@@ -405,6 +405,7 @@ extension CALayerContentsGravity {
 }
 
 internal extension NSView {
+    
     @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         switch key {
         case "center", "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderDolor":
