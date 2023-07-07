@@ -31,7 +31,7 @@ public class FinderFileProgress {
      */
     public init(url: URL, fileSize: DataSize, kind: ProgressKind) {
         self.url = url
-        progress = .file(url: url, kind: kind.operationKind, fileSize: fileSize)
+        progress = .file(url: url, kind: kind.operationKind, size: fileSize)
         state = .executing
         dateStarted = Date()
         isCancellable = false
