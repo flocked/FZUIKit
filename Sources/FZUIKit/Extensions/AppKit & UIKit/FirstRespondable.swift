@@ -59,6 +59,8 @@ extension FirstRespondable where Self: NSView {
     }
 }
 
+
+
 extension FirstRespondable where Self: NSViewController {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
@@ -121,6 +123,7 @@ extension NSViewController {
      The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
      */
     @discardableResult override open func becomeFirstResponder() -> Bool {
+        Swift.print("NSViewController becomeFirstResponder", self)
        if self.acceptsFirstResponder, let window = self.view.window {
            if window.firstResponder != self, isChangingFirstResponder == false {
                isChangingFirstResponder = true
