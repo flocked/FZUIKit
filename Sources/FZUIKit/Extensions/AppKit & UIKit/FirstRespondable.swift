@@ -13,7 +13,7 @@ import UIKit
 import FZSwiftUtils
 
 /// A protocol that indicating whether the conforming object is the first responder.
-@objc public protocol FirstRespondable {
+public protocol FirstRespondable {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -21,7 +21,7 @@ import FZSwiftUtils
 
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
-    @objc dynamic var isFirstResponder: Bool { get }
+     var isFirstResponder: Bool { get }
     #if os(macOS)
     var acceptsFirstResponder: Bool { get }
     #elseif canImport(UIKit)
@@ -33,22 +33,19 @@ import FZSwiftUtils
 
 extension NSUIView: FirstRespondable {
 #if os(macOS)
-    /**
-     Returns a Boolean value indicating whether this object is the first responder.
 
-     AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-
-     - Returns: `true if the responder is the first responder; otherwise, `false`.
-     */
-    @objc dynamic public var isFirstResponder: Bool {
-        get { (self.window?.firstResponder == self) }
-        set { }
-    }
 #endif
 }
 
 extension NSUIViewController: FirstRespondable {
 #if os(macOS)
+
+#endif
+}
+
+#if os(macOS)
+
+extension FirstRespondable where Self: NSView {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -56,14 +53,26 @@ extension NSUIViewController: FirstRespondable {
 
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
-    @objc dynamic public var isFirstResponder: Bool {
+   public var isFirstResponder: Bool {
+        get { (self.window?.firstResponder == self) }
+        set { }
+    }
+}
+
+extension FirstRespondable where Self: NSViewController {
+    /**
+     Returns a Boolean value indicating whether this object is the first responder.
+
+     AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
+
+     - Returns: `true if the responder is the first responder; otherwise, `false`.
+     */
+    public var isFirstResponder: Bool {
         get { (self.view.window?.firstResponder == self) }
         set { }
     }
-#endif
 }
 
-#if os(macOS)
 extension NSView {
     /**
      Attempts to make a given responder the first responder for the window.
