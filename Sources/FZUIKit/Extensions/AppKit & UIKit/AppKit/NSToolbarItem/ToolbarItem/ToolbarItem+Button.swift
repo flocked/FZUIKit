@@ -120,7 +120,13 @@ public extension ToolbarItem {
 
         @discardableResult
         public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
-            item.actionBlock = action
+          //  item.actionBlock = action
+            
+            self.button.actionBlock = { [weak self] _ in
+                Swift.print("Button Action")
+                guard let self = self else { return }
+                action?(self.item)
+            }
             return self
         }
 
@@ -149,6 +155,7 @@ public extension ToolbarItem {
         public convenience init(_ identifier: NSToolbarItem.Identifier, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
             // let button = Self.button(for: type)
             let button = NSButton()
+            button.bezelStyle = .texturedRounded
             button.title = ""
             button.image = image
             button.invalidateIntrinsicContentSize()
@@ -158,6 +165,7 @@ public extension ToolbarItem {
         public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
            // let button = Self.button(for: type)
             let button = NSButton()
+            button.bezelStyle = .texturedRounded
             button.title = title
             button.image = image
             button.invalidateIntrinsicContentSize()
