@@ -87,12 +87,7 @@ public class NSBackgroundView: NSView, NSContentView {
         contentView.configurate(using: appliedConfiguration.innerShadow)
         contentView.configurate(using: appliedConfiguration.border)
         
-        contentViewConstraints.padding
-                
-        contentViewConstraints[1].constant = -appliedConfiguration.insets.bottom
-        contentViewConstraints[0].constant = appliedConfiguration.insets.leading
-        contentViewConstraints[2].constant = -appliedConfiguration.insets.width
-        contentViewConstraints[3].constant = -appliedConfiguration.insets.height
+        contentViewConstraints.padding = appliedConfiguration.insets
     }
     
     required init?(coder: NSCoder) {
