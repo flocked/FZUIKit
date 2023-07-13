@@ -147,16 +147,20 @@ public extension ToolbarItem {
         }
         
         public convenience init(_ identifier: NSToolbarItem.Identifier, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
-            let button = Self.button(for: type)
+            // let button = Self.button(for: type)
+            let button = NSButton()
             button.title = ""
             button.image = image
+            button.invalidateIntrinsicContentSize()
             self.init(identifier, button: button)
         }
 
         public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
-            let button = Self.button(for: type)
+           // let button = Self.button(for: type)
+            let button = NSButton()
             button.title = title
             button.image = image
+            button.invalidateIntrinsicContentSize()
             self.init(identifier, button: button)
         }
 
