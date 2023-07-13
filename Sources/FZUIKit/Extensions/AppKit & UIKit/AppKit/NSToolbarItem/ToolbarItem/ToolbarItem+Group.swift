@@ -14,7 +14,7 @@ public extension ToolbarItem {
         public typealias ControlRepresentation = NSToolbarItemGroup.ControlRepresentation
 
         internal lazy var groupItem = NSToolbarItemGroup(identifier)
-        override internal var item: NSToolbarItem {
+        override public var item: NSToolbarItem {
             return groupItem
         }
 
