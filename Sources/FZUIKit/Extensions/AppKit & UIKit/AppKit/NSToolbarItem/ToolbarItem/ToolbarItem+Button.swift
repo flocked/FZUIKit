@@ -127,14 +127,19 @@ public extension ToolbarItem {
                 guard let self = self else { return }
                 action?(self.item)
             }
+            Swift.print("actionBlock action", self.button.actionBlock ?? "")
             return self
         }
 
         @discardableResult
         public func onAction(_ handler: @escaping () -> Void) -> Self {
-            item.actionBlock = { _ in
+            
+            self.button.actionBlock = { [weak self] _ in
+                Swift.print("Button Action")
+                guard let self = self else { return }
                 handler()
             }
+            Swift.print("actionBlock handler", self.button.actionBlock ?? "")
             return self
         }
 
