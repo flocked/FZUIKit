@@ -60,7 +60,7 @@ public extension NSUICollectionViewLayout {
         return layout
     }
 
-    static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 0.0, insets: NSDirectionalEdgeInsets = .zero, header: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil, footer: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil) -> NSUICollectionViewLayout {
+    static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil, footer: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil) -> NSUICollectionViewLayout {
         return NSUICollectionViewCompositionalLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
 
             // Item
