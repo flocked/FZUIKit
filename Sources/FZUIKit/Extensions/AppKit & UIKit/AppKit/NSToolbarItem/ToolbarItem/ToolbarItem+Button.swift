@@ -135,43 +135,37 @@ public extension ToolbarItem {
             return self
         }
 
-        internal static func button(for type: NSButton.ButtonType) -> NSButton {
+        internal static func button(for type: NSButton.BezelStyle) -> NSButton {
             let button = NSButton(frame: .zero)
             button.translatesAutoresizingMaskIntoConstraints = false
-            button.bezelStyle = .texturedRounded
-            button.setButtonType(type)
+            button.bezelStyle = type
             return button
         }
         
-        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, type: NSButton.ButtonType = .momentaryLight) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)
             button.title = title
             self.init(identifier, button: button)
         }
         
-        public convenience init(_ identifier: NSToolbarItem.Identifier, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
-            // let button = Self.button(for: type)
-            let button = NSButton()
-            button.bezelStyle = .texturedRounded
+        public convenience init(_ identifier: NSToolbarItem.Identifier, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
+            let button = Self.button(for: type)
             button.title = ""
             button.image = image
-            button.invalidateIntrinsicContentSize()
             self.init(identifier, button: button)
         }
 
-        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, image: NSImage, type: NSButton.ButtonType = .momentaryLight) {
-           // let button = Self.button(for: type)
-            let button = NSButton()
-            button.bezelStyle = .texturedRounded
+        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
+            let button = Self.button(for: type)
             button.title = title
             button.image = image
-            button.invalidateIntrinsicContentSize()
             self.init(identifier, button: button)
         }
 
         public init(_ identifier: NSToolbarItem.Identifier, button: NSButton) {
             self.button = button
             super.init(identifier)
+            self.button.invalidateIntrinsicContentSize()
             self.button.translatesAutoresizingMaskIntoConstraints = false
             self.item.view = self.button
         }
