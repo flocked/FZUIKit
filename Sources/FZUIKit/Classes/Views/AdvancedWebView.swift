@@ -50,6 +50,8 @@ public class AdvanceWebView: WKWebView {
 extension AdvanceWebView: WKUIDelegate  {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         self.currentRequest = navigationAction.request
+        self.didFinishLoadingHandler?(self.currentRequest)
+
         let store = webView.configuration.websiteDataStore
         store.httpCookieStore.getAllCookies({cookies in
             self.currentHTTPCookies = cookies
@@ -63,6 +65,5 @@ extension AdvanceWebView: WKUIDelegate  {
 
 extension AdvanceWebView: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        didFinishLoadingHandler?(self.currentRequest)
     }
 }
