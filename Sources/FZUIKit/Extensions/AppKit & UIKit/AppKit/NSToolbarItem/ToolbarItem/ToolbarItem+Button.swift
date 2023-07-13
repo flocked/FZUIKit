@@ -166,6 +166,7 @@ public extension ToolbarItem {
             self.button.translatesAutoresizingMaskIntoConstraints = false
             self.item.view = self.button
             self.button.actionBlock = { [weak self] _ in
+                Swift.print("Button Action")
                 guard let self = self else { return }
                 self.item.actionBlock?(self.item)
             }
