@@ -87,6 +87,8 @@ public class Toolbar: NSObject {
         }
     }
     
+    internal var windowObserver: NSKeyValueObservation? = nil
+    
     @discardableResult
     public func attachedWindow(_ window: NSWindow?) -> Self {
         self.attachedWindow = window

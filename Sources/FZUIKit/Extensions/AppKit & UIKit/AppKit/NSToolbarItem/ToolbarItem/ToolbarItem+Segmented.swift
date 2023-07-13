@@ -83,7 +83,7 @@ public extension ToolbarItem {
         public convenience init(
             _ identifier: NSToolbarItem.Identifier,
             type: Style,
-            switching: SwitchingMode = .selectAny,
+            switching: SwitchingMode = .selectOne,
             segmentWidths _: CGFloat? = nil,
             segments: [Segment]
         ) {
@@ -94,7 +94,7 @@ public extension ToolbarItem {
         public convenience init(
             _ identifier: NSToolbarItem.Identifier,
             type: Style = .automatic,
-            switching: SwitchingMode = .selectAny,
+            switching: SwitchingMode = .selectOne,
             segmentWidths: CGFloat? = nil,
             @NSSegmentedControl.Builder segments: () -> [Segment]
         ) {

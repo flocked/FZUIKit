@@ -170,6 +170,7 @@ public extension ToolbarItem {
                 guard let self = self else { return }
                 self.item.actionBlock?(self.item)
             }
+            Swift.print("actionBlock", self.button.actionBlock ?? "")
         }
     }
 }
