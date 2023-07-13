@@ -14,7 +14,7 @@ public extension ToolbarItem {
         internal typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
 
         internal lazy var searchItem = NSSearchToolbarItem(identifier)
-        override public var item: NSToolbarItem {
+        override internal var item: NSToolbarItem {
             return searchItem
         }
 

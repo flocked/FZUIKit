@@ -13,17 +13,19 @@ public extension ToolbarItem {
         public let button: NSPopUpButton
 
         @discardableResult
-        public func onSelect(_ handler: @escaping () -> Void) -> Self {
-            let actionBlock: ToolbarItem.ActionBlock = { _ in
-                handler()
+        public func onSelect(_ action: ToolbarItem.ActionBlock?) -> Self {
+            self.button.actionBlock = { [weak self] _ in
+                guard let self = self else { return }
+                action?(self.item)
             }
-            item.actionBlock = actionBlock
             return self
         }
 
         @discardableResult
-        public func onSelect(_ action: ToolbarItem.ActionBlock?) -> Self {
-            item.actionBlock = action
+        public func onSelect(_ handler: @escaping () -> Void) -> Self {
+            self.button.actionBlock = { _ in
+                handler()
+            }
             return self
         }
 
@@ -95,10 +97,6 @@ public extension ToolbarItem {
             super.init(identifier)
             self.button.translatesAutoresizingMaskIntoConstraints = false
             self.item.view = self.button
-            button.actionBlock = { [weak self] _ in
-                guard let self = self else { return }
-                self.item.actionBlock?(self.item)
-            }
         }
     }
 }

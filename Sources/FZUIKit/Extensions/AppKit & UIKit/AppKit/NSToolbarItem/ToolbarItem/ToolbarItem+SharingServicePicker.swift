@@ -12,7 +12,7 @@ import SwiftUI
 public extension ToolbarItem {
     class SharingServicePicker: ToolbarItem {
         internal lazy var servicePickerItem = NSSharingServicePickerToolbarItem(identifier)
-        override public var item: NSToolbarItem {
+        override internal var item: NSToolbarItem {
             return servicePickerItem
         }
 

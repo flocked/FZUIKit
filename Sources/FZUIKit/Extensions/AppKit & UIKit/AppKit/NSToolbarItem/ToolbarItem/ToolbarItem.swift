@@ -19,7 +19,7 @@ public class ToolbarItem: NSObject {
     internal var isSelectable = false
 
     internal lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
-    public var item: NSToolbarItem {
+    internal var item: NSToolbarItem {
         return rootItem
     }
 

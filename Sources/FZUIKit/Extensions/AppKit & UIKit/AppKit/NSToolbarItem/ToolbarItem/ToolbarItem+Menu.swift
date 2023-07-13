@@ -12,7 +12,7 @@ import SwiftUI
 public extension ToolbarItem {
     class Menu: ToolbarItem {
         internal lazy var menuItem: NSMenuToolbarItem = .init(identifier)
-        override public var item: NSToolbarItem {
+        override internal var item: NSToolbarItem {
             return menuItem
         }
 

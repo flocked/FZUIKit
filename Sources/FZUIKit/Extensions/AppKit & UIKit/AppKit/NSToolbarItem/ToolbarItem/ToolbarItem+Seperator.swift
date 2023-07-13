@@ -13,7 +13,7 @@ import SwiftUI
 public extension ToolbarItem {    
     class TrackingSeparator: ToolbarItem {
         internal lazy var separatorItem = NSTrackingSeparatorToolbarItem(identifier)
-        override public var item: NSToolbarItem {
+        override internal var item: NSToolbarItem {
             return separatorItem
         }
 

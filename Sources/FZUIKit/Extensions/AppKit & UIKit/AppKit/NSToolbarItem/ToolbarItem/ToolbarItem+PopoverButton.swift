@@ -107,13 +107,16 @@ public extension ToolbarItem {
 
         @discardableResult
         public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
-            item.actionBlock = action
+            self.button.actionBlock = { [weak self] _ in
+                guard let self = self else { return }
+                action?(self.item)
+            }
             return self
         }
 
         @discardableResult
         public func onAction(_ handler: @escaping () -> Void) -> Self {
-            item.actionBlock = { _ in
+            self.button.actionBlock = { _ in
                 handler()
             }
             return self
@@ -157,10 +160,6 @@ public extension ToolbarItem {
             super.init(identifier)
             self.button.translatesAutoresizingMaskIntoConstraints = false
             self.item.view = self.button
-            self.button.actionBlock = { [weak self] _ in
-                guard let self = self else { return }
-                self.showPopover()
-            }
         }
     }
 }
