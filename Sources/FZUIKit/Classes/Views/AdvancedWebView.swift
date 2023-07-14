@@ -75,5 +75,6 @@ extension AdvanceWebView: WKUIDelegate  {
 
 extension AdvanceWebView: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        Swift.debugPrint("webView.didFinishNavigation", self, navigation)
     }
 }
