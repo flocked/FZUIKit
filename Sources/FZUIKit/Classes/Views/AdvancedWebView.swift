@@ -31,6 +31,12 @@ public class AdvanceWebView: WKWebView {
         self.uiDelegate = self
     }
     
+    public override func awakeFromNib() {
+        self.navigationDelegate = self
+        self.uiDelegate = self
+        super.awakeFromNib()
+    }
+    
     internal var isIntialLoadingRequest = false
     public override func load(_ request: URLRequest) -> WKNavigation? {
         self.isIntialLoadingRequest = true
