@@ -27,19 +27,16 @@ public class AdvanceWebView: WKWebView {
     
     public init(frame: CGRect) {
         super.init(frame: frame, configuration: .init())
-        self.navigationDelegate = self
         self.uiDelegate = self
     }
     
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
         super.init(frame: frame, configuration: configuration)
-        self.navigationDelegate = self
         self.uiDelegate = self
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.navigationDelegate = self
         self.uiDelegate = self
     }
     
@@ -55,33 +52,24 @@ public class AdvanceWebView: WKWebView {
 
 extension AdvanceWebView: WKUIDelegate  {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if self.currentRequest != navigationAction.request {
+            self.didFinishLoadingHandler?(navigationAction.request)
+        }
         self.currentRequest = navigationAction.request
-        debugPrint("webView currentRequest", self, self.currentRequest ?? "")
-        self.didFinishLoadingHandler?(navigationAction.request)
 
         let store = webView.configuration.websiteDataStore
         store.httpCookieStore.getAllCookies({cookies in
-            
             guard var domain = self.currentRequest?.url?.host else { return }
             var components = domain.components(separatedBy: ".")
             if components.count > 2 {
                 domain = [components.removeLast(), components.removeLast()].reversed().joined(separator: ".")
             }
-            Swift.print("unfiltered cookies", domain, cookies)
             let cookies = cookies.filter({$0.domain.contains(domain)})
-            Swift.print("filtered cookies", domain, cookies)
-            self.currentHTTPCookies = cookies
-
-            if !cookies.isEmpty {
-                debugPrint("webView currentHTTPCookies", self, self.currentHTTPCookies)
+            if !cookies.isEmpty, cookies != self.currentHTTPCookies {
                 self.cookiesHandler?(cookies)
             }
+            self.currentHTTPCookies = cookies
         })
         decisionHandler(.allow)
-    }
-}
-
-extension AdvanceWebView: WKNavigationDelegate {
-    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
     }
 }
