@@ -54,7 +54,15 @@ extension AdvanceWebView: WKUIDelegate  {
 
         let store = webView.configuration.websiteDataStore
         store.httpCookieStore.getAllCookies({cookies in
+            
+            guard var domain = self.currentRequest?.url?.host else { return }
+            var components = domain.components(separatedBy: ".")
+            if components.count > 2 {
+                domain = [components.removeLast(), components.removeLast()].reversed().joined(separator: ".")
+            }
+            let cookies = cookies.filter({$0.domain == domain})
             self.currentHTTPCookies = cookies
+
             if !cookies.isEmpty {
                 self.cookiesHandler?(cookies)
             }
