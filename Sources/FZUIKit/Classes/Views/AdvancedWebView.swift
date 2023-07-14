@@ -42,8 +42,8 @@ public class AdvanceWebView: WKWebView {
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.navigationDelegate = nil
-        self.uiDelegate = nil
+        self.navigationDelegate = self
+        self.uiDelegate = self
     }
 }
 
@@ -75,6 +75,6 @@ extension AdvanceWebView: WKUIDelegate  {
 
 extension AdvanceWebView: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        Swift.debugPrint("webView.didFinishNavigation", self, navigation)
+        Swift.debugPrint("webView.didFinishNavigation", self, navigation ?? "")
     }
 }
