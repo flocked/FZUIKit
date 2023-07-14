@@ -25,17 +25,22 @@ public class AdvanceWebView: WKWebView {
     /// All HTTP cookies of the current url request.
     public var currentHTTPCookies: [HTTPCookie] = []
     
+    public init(frame: CGRect) {
+        super.init(frame: frame, configuration: .init())
+        self.navigationDelegate = self
+        self.uiDelegate = self
+    }
+    
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
         super.init(frame: frame, configuration: configuration)
         self.navigationDelegate = self
         self.uiDelegate = self
     }
     
-    public override func awakeFromNib() {
-        Swift.print("webview awakeFromNib")
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
         self.navigationDelegate = self
         self.uiDelegate = self
-        super.awakeFromNib()
     }
     
     internal var isIntialLoadingRequest = false
@@ -45,13 +50,6 @@ public class AdvanceWebView: WKWebView {
         self.currentHTTPCookies.removeAll()
         self.isIntialLoadingRequest = false
         return super.load(request)
-    }
-    
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        Swift.print("webview init(coder)")
-        self.navigationDelegate = self
-        self.uiDelegate = self
     }
 }
 
@@ -70,7 +68,8 @@ extension AdvanceWebView: WKUIDelegate  {
                 domain = [components.removeLast(), components.removeLast()].reversed().joined(separator: ".")
             }
             Swift.print("unfiltered cookies", domain, cookies)
-            let cookies = cookies.filter({$0.domain == domain})
+            let cookies = cookies.filter({$0.domain.contains(domain)})
+            Swift.print("filtered cookies", domain, cookies)
             self.currentHTTPCookies = cookies
 
             if !cookies.isEmpty {
