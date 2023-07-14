@@ -32,6 +32,7 @@ public class AdvanceWebView: WKWebView {
     }
     
     public override func awakeFromNib() {
+        Swift.print("webview awakeFromNib")
         self.navigationDelegate = self
         self.uiDelegate = self
         super.awakeFromNib()
@@ -48,6 +49,7 @@ public class AdvanceWebView: WKWebView {
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
+        Swift.print("webview init(coder)")
         self.navigationDelegate = self
         self.uiDelegate = self
     }
@@ -67,6 +69,7 @@ extension AdvanceWebView: WKUIDelegate  {
             if components.count > 2 {
                 domain = [components.removeLast(), components.removeLast()].reversed().joined(separator: ".")
             }
+            Swift.print("unfiltered cookies", domain, cookies)
             let cookies = cookies.filter({$0.domain == domain})
             self.currentHTTPCookies = cookies
 
@@ -81,6 +84,5 @@ extension AdvanceWebView: WKUIDelegate  {
 
 extension AdvanceWebView: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        Swift.debugPrint("webView.didFinishNavigation", self, navigation ?? "")
     }
 }
