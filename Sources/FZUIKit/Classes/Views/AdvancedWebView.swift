@@ -27,17 +27,17 @@ public class AdvanceWebView: WKWebView {
     
     public init(frame: CGRect) {
         super.init(frame: frame, configuration: .init())
-        self.uiDelegate = self
+        self.navigationDelegate = self
     }
     
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
         super.init(frame: frame, configuration: configuration)
-        self.uiDelegate = self
+        self.navigationDelegate = self
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.uiDelegate = self
+        self.navigationDelegate = self
     }
     
     internal var isIntialLoadingRequest = false
@@ -50,9 +50,9 @@ public class AdvanceWebView: WKWebView {
     }
 }
 
-extension AdvanceWebView: WKUIDelegate  {
+
+extension AdvanceWebView: WKNavigationDelegate  {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        Swift.print("advanceWebView", navigationAction.request )
         if self.currentRequest != navigationAction.request {
             self.didFinishLoadingHandler?(navigationAction.request)
         }
@@ -60,9 +60,6 @@ extension AdvanceWebView: WKUIDelegate  {
 
         let store = webView.configuration.websiteDataStore
         store.httpCookieStore.getAllCookies({cookies in
-            Swift.print("advanceWebView", cookies)
-
-            
             guard var domain = self.currentRequest?.url?.host else { return }
             var components = domain.components(separatedBy: ".")
             if components.count > 2 {
@@ -77,3 +74,5 @@ extension AdvanceWebView: WKUIDelegate  {
         decisionHandler(.allow)
     }
 }
+
+
