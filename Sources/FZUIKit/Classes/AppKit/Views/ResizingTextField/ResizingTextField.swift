@@ -60,12 +60,63 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
             self.invalidateIntrinsicContentSize() } }
     }
         
-    /// A Boolean value that indicates whether the user can enter an empty text.
-    public var allowsEmptyString: Bool = false
     /// The minimum amount of characters required when the user edits the text.
     public var minAmountChars: Int? = nil
     /// The maximum amount of characters allowed when the user edits the text.
     public var maxAmountChars: Int? = nil
+    
+    public enum AllowedCharacterss: Int {
+        case numeric
+        case alphabetic
+        case alphabeticUppercase
+        case symbols
+        case emojis
+       // static var
+    }
+        
+    /// The handler that gets called to verify a string that the user is editing. Return `true` to allow the entered string and `false` if not. The string will stay in editing state.
+    public var stringConformationHandler: ((String)->(Bool))? = nil
+    
+    /// The allowed characters the user can enter when editing.
+    public struct AllowedCharacters: OptionSet {
+        public let rawValue: UInt
+        /// Allows numeric characters (like 1, 2, etc.)
+        public static let digits = AllowedCharacters(rawValue: 1 << 0)
+        /// Allows alphabetic lowercase characters (like a, b, c, etc.)
+        public static let lowercaseLetters = AllowedCharacters(rawValue: 1 << 1)
+        /// Allows alphabetic uppercase characters (like A, B, C, etc.)
+        public static let uppercaseLetters = AllowedCharacters(rawValue: 1 << 2)
+        /// Allows symbols (like !, -, /, etc.)
+        public static let symbols = AllowedCharacters(rawValue: 1 << 3)
+        /// Allows emoji characters (like 🥰 ❤️, etc.)
+        public static let emojis = AllowedCharacters(rawValue: 1 << 4)
+        /// Allows whitespaces.
+        public static let whitespaces = AllowedCharacters(rawValue: 1 << 5)
+        /// Allows all letter characters.
+        public static let letters: AllowedCharacters = [.lowercaseLetters, .uppercaseLetters]
+        /// Allows all alphanumerics characters.
+        public static let alphanumerics: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters]
+        /// Allows all characters.
+        public static let all: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters, .symbols, .emojis, .whitespaces]
+        
+        internal func trimString<S: StringProtocol>(_ string: S) -> String {
+            var string = String(string)
+            if self.contains(.lowercaseLetters) == false { string = string.trimmingCharacters(in: .lowercaseLetters) }
+            if self.contains(.uppercaseLetters) == false { string = string.trimmingCharacters(in: .uppercaseLetters) }
+            if self.contains(.digits) == false { string = string.trimmingCharacters(in: .decimalDigits) }
+            if self.contains(.symbols) == false { string = string.trimmingCharacters(in: .symbols) }
+            if self.contains(.emojis) == false { string = string.trimmingEmojis() }
+            return string
+        }
+
+        /// Creates a swipe direction structure with the specified raw value.
+        public init(rawValue: UInt) {
+            self.rawValue = rawValue
+        }
+    }
+    
+    /// The allowed characters the user can enter when editing.
+    var allowedCharacters: AllowedCharacters = .all
     
     /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
     public var stopsEditingOnOutsideMouseDown = false {
@@ -88,7 +139,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     /// The handler called when the edit state changes.
     public var editingStateHandler: ((EditState) -> Void)?
-    
+        
     /// The location of the cursor while editing.
     public var editingCursorLocation: Int? {
         let currentEditor = self.currentEditor() as? NSTextView
@@ -126,32 +177,52 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         }
         return canBecome
     }
+    
+    internal func trimString(_ string: String) -> String {
+        self.allowedCharacters.trimString(string)
+    }
 
     internal func isConforming(_ string: String) -> Bool {
-        if string == "" && allowsEmptyString == false {
-            return false
-        } else if let minimumChars = minAmountChars, string.count < minimumChars {
+       if let minimumChars = minAmountChars, string.count < minimumChars {
             return false
         } else if let maxAmountChars = maxAmountChars, string.count > maxAmountChars {
             return false
         }
-        return true
+        return stringConformationHandler?(string) ?? true
+    }
+    
+    /// Handlers that get called whenever the user tries to confirm (Enter key) or cancel (ESC key) its editing string.
+    public struct ActionHandlers {
+        /// The handler that gets called whenever the user tries to cancel (ESC key) its string. Return `true` to allow cancellation. The string will return to it's initial value prior editing. Return `false` to to disallow cancellation. The text will stay in editing state.
+        var cancel: ((String)->(Bool))? = nil
+        /// The handler that gets called whenever the user tries to confirm (Enter key) its string. Return `true` to allow the string and `false` if not.
+        var enter: ((String)->(Bool))? = nil
     }
 
+    /// Handlers that get called whenever the user tries to conform or cancel its string.
+    public var actionHandlers = ActionHandlers()
+
     public func control(_: NSControl, textView _: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+       // let modifierFlags = NSEvent.current?.modifierFlags ?? []
+
         if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-            if isConforming(stringValue) {
-                self.window?.makeFirstResponder(nil)
-            } else {
-                NSSound.beep()
+            if actionHandlers.enter?(stringValue) ?? true {
+                if isConforming(stringValue) {
+                    self.window?.makeFirstResponder(nil)
+                } else {
+                    NSSound.beep()
+                }
             }
         } else if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
-            self.isEditing = false
-            self.stringValue = self.previousStringValue
-            self.window?.makeFirstResponder(nil)
-            self.invalidateIntrinsicContentSize()
-            return true
+            if actionHandlers.cancel?(stringValue) ?? true {
+                self.isEditing = false
+                self.stringValue = self.previousStringValue
+                self.window?.makeFirstResponder(nil)
+                self.invalidateIntrinsicContentSize()
+                return true
+            }
         }
+        
         return false
     }
 
@@ -275,16 +346,13 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     public override func textDidChange(_ notification: Notification) {
         super.textDidChange(notification)
-        if let minAmountChars = minAmountChars, self.stringValue.count < minAmountChars {
-            if previousStringValue.count > self.stringValue.count {
-                self.stringValue = previousStringValue
-                self.editingSelectedRange = self.previousSelectedRange
-            }
-        } else if let maxAmountChars = maxAmountChars, self.stringValue.count > maxAmountChars {
-            if previousStringValue.count < self.stringValue.count {
-                self.stringValue = previousStringValue
-                self.editingSelectedRange = self.previousSelectedRange
-            }
+        let trimmedString = self.trimString(self.stringValue)
+        if self.stringValue != trimmedString {
+            self.stringValue = trimmedString
+        }
+        if self.isConforming(self.stringValue) == false {
+            self.stringValue = previousStringValue
+            self.editingSelectedRange = self.previousSelectedRange
         }
         //   self.previousStringValue = self.stringValue
         self.previousSelectedRange = self.editingSelectedRange

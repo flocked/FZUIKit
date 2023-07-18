@@ -19,5 +19,13 @@ public extension NSResponder {
         }
         return chain
     }
+    
+    internal static var deleteSelectors: [Selector] {
+        [#selector(NSResponder.deleteBackward(_:)),
+         #selector(NSResponder.deleteForward(_:)),
+         #selector(NSResponder.deleteWordBackward(_:)),
+         #selector(NSResponder.deleteWordForward(_:)),
+        ]
+    }
 }
 #endif
