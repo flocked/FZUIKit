@@ -174,6 +174,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     internal func sharedInit() {
         self.drawsBackground = false
         self.isBordered = false
+        self.textLayout = .wraps
         self.verticalTextAlignment = .center
         self.focusType = .roundedCornersRelative(0.5)
         textCell?.setWantsNotificationForMarkedText(true)
