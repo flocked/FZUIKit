@@ -192,7 +192,16 @@ extension AdvanceWebView: WKDownloadDelegate {
     }
     
     public func downloadDidFinish(_ download: WKDownload) {
-        Swift.print("[AdvanceWebView] download didFinish")
+        if let downloadExpectedFileSize = downloadExpectedFileSize, let downloadLocation = downloadLocation, let data = try? Data(contentsOf: downloadLocation) {
+            if Int64(data.count) != downloadExpectedFileSize {
+                Swift.print("[AdvanceWebView] download didFinish", Int64(data.count), downloadExpectedFileSize)
+            } else {
+                Swift.print("[AdvanceWebView] download didFinish")
+            }
+        } else {
+            Swift.print("[AdvanceWebView] download didFinish")
+        }
+        
         self.download = nil
         self.downloadProgressCompletedObservation = nil
         self.downloadProgressTotalObservation = nil
