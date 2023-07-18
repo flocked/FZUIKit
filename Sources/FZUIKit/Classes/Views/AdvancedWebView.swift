@@ -92,13 +92,17 @@ extension AdvanceWebView: WKNavigationDelegate  {
     @available(macOS 11.3, *)
     public func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         download.delegate = self
+        willChangeValue(for: \.download)
         self.download = download
+        didChangeValue(for: \.download)
     }
     
     @available(macOS 11.3, *)
     public func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
         download.delegate = self
+        willChangeValue(for: \.download)
         self.download = download
+        didChangeValue(for: \.download)
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -140,13 +144,17 @@ extension AdvanceWebView: WKDownloadDelegate {
     
     public func downloadDidFinish(_ download: WKDownload) {
         Swift.print("[AdvanceWebView] download didFinish")
+        willChangeValue(for: \.download)
         self.download = nil
+        didChangeValue(for: \.download)
         self.downloadHandlers.didFinish?()
     }
     
     public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         Swift.print("[AdvanceWebView] download failed", error)
+        willChangeValue(for: \.download)
         self.download = nil
+        didChangeValue(for: \.download)
         self.downloadHandlers.didFail?(error, resumeData)
     }
     
