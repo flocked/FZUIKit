@@ -80,22 +80,24 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         public let rawValue: UInt
         /// Allows numeric characters (like 1, 2, etc.)
         public static let digits = AllowedCharacters(rawValue: 1 << 0)
+        /// Allows all letter characters.
+        public static let letters: AllowedCharacters = [.lowercaseLetters, .uppercaseLetters]
         /// Allows alphabetic lowercase characters (like a, b, c, etc.)
         public static let lowercaseLetters = AllowedCharacters(rawValue: 1 << 1)
         /// Allows alphabetic uppercase characters (like A, B, C, etc.)
         public static let uppercaseLetters = AllowedCharacters(rawValue: 1 << 2)
+        /// Allows all alphanumerics characters.
+        public static let alphanumerics: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters]
         /// Allows symbols (like !, -, /, etc.)
         public static let symbols = AllowedCharacters(rawValue: 1 << 3)
         /// Allows emoji characters (like 🥰 ❤️, etc.)
         public static let emojis = AllowedCharacters(rawValue: 1 << 4)
-        /// Allows whitespaces.
+        /// Allows whitespace characters.
         public static let whitespaces = AllowedCharacters(rawValue: 1 << 5)
-        /// Allows all letter characters.
-        public static let letters: AllowedCharacters = [.lowercaseLetters, .uppercaseLetters]
-        /// Allows all alphanumerics characters.
-        public static let alphanumerics: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters]
+        /// Allows new line characters.
+        public static let newLines = AllowedCharacters(rawValue: 1 << 6)
         /// Allows all characters.
-        public static let all: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters, .symbols, .emojis, .whitespaces]
+        public static let all: AllowedCharacters = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines]
         
         internal func trimString<S: StringProtocol>(_ string: S) -> String {
             var string = String(string)
@@ -103,6 +105,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
             if self.contains(.uppercaseLetters) == false { string = string.trimmingCharacters(in: .uppercaseLetters) }
             if self.contains(.digits) == false { string = string.trimmingCharacters(in: .decimalDigits) }
             if self.contains(.symbols) == false { string = string.trimmingCharacters(in: .symbols) }
+            if self.contains(.newLines) == false { string = string.trimmingCharacters(in: .newlines) }
             if self.contains(.emojis) == false { string = string.trimmingEmojis() }
             return string
         }
