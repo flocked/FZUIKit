@@ -8,6 +8,7 @@
 import SwiftUI
 import FZSwiftUtils
 
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct BarProgressStyle: ProgressViewStyle {
     let color: Color
     let backgroundColor: Color
@@ -26,11 +27,11 @@ public struct BarProgressStyle: ProgressViewStyle {
                 .fill(backgroundColor)
                 .frame(height: geometry.size.height)
                 .frame(width: geometry.size.width)
-                .overlay(
+                .overlay(alignment: .leading) {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(color)
                         .frame(width: geometry.size.width * progress)
-                )
+                }
         }
     }
 }
