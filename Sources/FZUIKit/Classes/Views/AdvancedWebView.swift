@@ -37,29 +37,19 @@ public class AdvanceWebView: WKWebView {
     @available(macOS 11.3, *)
     /// The handlers for downloading files.
     public var downloadHandlers: DownloadHandlers {
-        get {
-            if _downloadHandlers == nil {
-                _downloadHandlers = DownloadHandlers()
-            }
-            return _downloadHandlers as! DownloadHandlers
-        }
-        set {  _downloadHandlers = newValue }
+        get {  return getAssociatedValue(key: "AdvanceWebView_downloadHandlers", object: self, initialValue: DownloadHandlers()) }
+        set { set(associatedValue: newValue, key: "AdvanceWebView_downloadHandlers", object: self) }
     }
-    private var _downloadHandlers: Any? = nil
     private var downloadLocation: URL? = nil
     private var downloadStartDate = Date()
     private var finderFileDownloadProgress: Progress?
 
-    
     @available(macOS 11.3, *)
     /// The current download.
     @objc dynamic public var download: WKDownload? {
-        get {
-            return _download as? WKDownload
-        }
-        set {  _download = newValue }
+        get {  return getAssociatedValue(key: "AdvanceWebView_download", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "AdvanceWebView_download", object: self) }
     }
-    private var _download: Any? = nil
     
     internal var downloadProgressTotalObservation: NSKeyValueObservation? = nil
     internal var downloadProgressCompletedObservation: NSKeyValueObservation? = nil
@@ -95,7 +85,6 @@ public class AdvanceWebView: WKWebView {
         return super.load(request)
     }
 }
-
 
 extension AdvanceWebView: WKNavigationDelegate  {
     @available(macOS 11.3, *)
@@ -211,6 +200,7 @@ extension AdvanceWebView: WKDownloadDelegate {
     
     public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         Swift.print("[AdvanceWebView] download failed", error)
+        
         if let downloadLocation = self.downloadLocation, FileManager.default.fileExists(at: downloadLocation) {
             do {
                 try FileManager.default.removeItem(at: downloadLocation)
