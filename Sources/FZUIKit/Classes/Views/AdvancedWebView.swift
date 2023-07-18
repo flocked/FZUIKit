@@ -21,7 +21,7 @@ public class AdvanceWebView: WKWebView {
     
     @available(macOS 11.3, *)
     /// The handlers for downloading files.
-    struct DownloadHandlers {
+    public struct DownloadHandlers {
         /// The handler that determines whether a url request should be downloaded.
         public var shouldDownload: ((URLRequest)->(Bool))? = nil
         /// The handler that determines the file location of a finished download.
@@ -34,7 +34,7 @@ public class AdvanceWebView: WKWebView {
     
     @available(macOS 11.3, *)
     /// The handlers for downloading files.
-    var downloadHandlers: DownloadHandlers {
+    public var downloadHandlers: DownloadHandlers {
         get {
             if _downloadHandlers == nil {
                 _downloadHandlers = DownloadHandlers()
