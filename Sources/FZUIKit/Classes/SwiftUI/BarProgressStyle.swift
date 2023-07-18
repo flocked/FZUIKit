@@ -47,7 +47,7 @@ public struct BarProgressLabelStyle: ProgressViewStyle {
     let cornerRadius: CGFloat
     let padding: CGFloat
             
-    public init(color: Color = .accentColor, backgroundColor: Color = .gray, font: Font = .headline, textColor: Color = .white, alignment: Alignment = .leading, unit: String = "%", range: ClosedRange<Double> = 0...100, padding: CGFloat = 6.0, cornerRadius: CGFloat = 10.0) {
+    public init(color: Color = .accentColor, backgroundColor: Color = .gray, font: Font = .headline, textColor: Color = .white, alignment: Alignment = .leading, unit: String = "%", range: ClosedRange<Double> = 0...100, padding: CGFloat = 6.0, cornerRadius: CGFloat = 6.0) {
         self.color = color
         self.backgroundColor = backgroundColor
         self.font = font
