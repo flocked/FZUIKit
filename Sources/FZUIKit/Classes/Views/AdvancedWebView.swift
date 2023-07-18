@@ -100,6 +100,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
         download.delegate = self
         willChangeValue(for: \.download)
         self.download = download
+        Swift.print("navigationResponse didBecome", download, download.progress)
         self.downloadHandlers.progressA?(download.progress)
         self.downloadProgressTotalObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {
             old, new in
@@ -120,6 +121,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
         download.delegate = self
         willChangeValue(for: \.download)
         self.download = download
+        Swift.print("navigationResponse download", download, download.progress)
         self.downloadHandlers.progressA?(download.progress)
         self.downloadProgressTotalObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {
             old, new in
