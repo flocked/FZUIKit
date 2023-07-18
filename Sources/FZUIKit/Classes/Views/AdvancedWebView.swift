@@ -44,6 +44,17 @@ public class AdvanceWebView: WKWebView {
         set {  _downloadHandlers = newValue }
     }
     private var _downloadHandlers: Any? = nil
+    
+    @available(macOS 11.3, *)
+    /// The current download.
+    @objc dynamic public var download: WKDownload? {
+        get {
+            return _download as? WKDownload
+        }
+        set {  _download = newValue }
+    }
+    private var _download: Any? = nil
+    
 
     /// The current url request.
     public var currentRequest: URLRequest? = nil
@@ -81,11 +92,13 @@ extension AdvanceWebView: WKNavigationDelegate  {
     @available(macOS 11.3, *)
     public func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         download.delegate = self
+        self.download = download
     }
     
     @available(macOS 11.3, *)
     public func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
         download.delegate = self
+        self.download = download
     }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -127,11 +140,13 @@ extension AdvanceWebView: WKDownloadDelegate {
     
     public func downloadDidFinish(_ download: WKDownload) {
         Swift.print("[AdvanceWebView] download didFinish")
+        self.download = nil
         self.downloadHandlers.didFinish?()
     }
     
     public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         Swift.print("[AdvanceWebView] download failed", error)
+        self.download = nil
         self.downloadHandlers.didFail?(error, resumeData)
     }
     
@@ -139,5 +154,4 @@ extension AdvanceWebView: WKDownloadDelegate {
         Swift.print("[AdvanceWebView] download willPerformHTTPRedirection", response, response.url ?? "")
         decisionHandler(.allow)
     }
-    
 }
