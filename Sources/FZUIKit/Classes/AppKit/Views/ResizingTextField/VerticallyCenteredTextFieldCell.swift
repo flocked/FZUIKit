@@ -33,7 +33,11 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
     }
     
     /// The focus ring type.
-    public var focusType: FocusType = .default
+    public var focusType: FocusType = .default {
+        didSet { guard oldValue != focusType else { return }
+            
+        }
+    }
     /// The vertical alignment of the text.
     public var verticalAlignment: VerticalAlignment = .center
     
@@ -90,6 +94,7 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         guard focusType != FocusType.none else {
             return
         }
+        Swift.print("drawFocusRingMask", focusType)
 
         var cornerRadius: CGFloat = 0
         switch focusType {
