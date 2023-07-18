@@ -22,7 +22,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     }
     
     /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
-    public var automaticallyResizesToFit: Bool = true
+    @IBInspectable public var automaticallyResizesToFit: Bool = true
     
     /// Indicates how the text field should resize for fitting the placeholder.
     public var resizesToFitPlaceholder: PlaceHolderResizeOption = .emptyText {
@@ -117,7 +117,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     var allowedCharacters: AllowedCharacters = .all
     
     /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
-    public var stopsEditingOnOutsideMouseDown = false {
+    @IBInspectable public var stopsEditingOnOutsideMouseDown = false {
         didSet { self.setupMouseDownMonitor() } }
     
     /// A Boolean value that indicates whether the user is editing the text.
