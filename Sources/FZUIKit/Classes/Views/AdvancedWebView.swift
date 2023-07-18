@@ -32,7 +32,6 @@ public class AdvanceWebView: WKWebView {
         public var didFail: ((_ error: Error, _ resumeData: Data?)->())? = nil
         /// The handler that gets called whenever the download progresses.
         public var progress: ((_ current: Int64, _ total: Int64)->())? = nil
-        public var progressA: ((_ progress: Progress)->())? = nil
     }
     
     @available(macOS 11.3, *)
@@ -47,6 +46,10 @@ public class AdvanceWebView: WKWebView {
         set {  _downloadHandlers = newValue }
     }
     private var _downloadHandlers: Any? = nil
+    private var downloadLocation: URL? = nil
+    private var downloadStartDate = Date()
+    private var finderFileDownloadProgress: Progress?
+
     
     @available(macOS 11.3, *)
     /// The current download.
@@ -59,7 +62,7 @@ public class AdvanceWebView: WKWebView {
     private var _download: Any? = nil
     
     internal var downloadProgressTotalObservation: NSKeyValueObservation? = nil
-    internal var downloadProgressCurrentObservation: NSKeyValueObservation? = nil
+    internal var downloadProgressCompletedObservation: NSKeyValueObservation? = nil
 
 
     /// The current url request.
@@ -97,46 +100,63 @@ public class AdvanceWebView: WKWebView {
 extension AdvanceWebView: WKNavigationDelegate  {
     @available(macOS 11.3, *)
     public func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
-        download.delegate = self
-        willChangeValue(for: \.download)
-        self.download = download
-        Swift.print("navigationResponse didBecome", download, download.progress)
-        self.downloadHandlers.progressA?(download.progress)
-        self.downloadProgressTotalObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {
-            old, new in
-            if let progress = self.download?.progress {
-                self.downloadHandlers.progress?(progress.completedUnitCount, progress.totalUnitCount)
-            }
-        })
-        self.downloadProgressCurrentObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {  old, new in
-            if let progress = self.download?.progress {
-                self.downloadHandlers.progress?(progress.completedUnitCount, progress.totalUnitCount)
-            }
-        })
-        didChangeValue(for: \.download)
+        self.setupDownload(download)
+    }
+        
+    @available(macOS 11.3, *)
+    public func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
+        self.setupDownload(download)
     }
     
     @available(macOS 11.3, *)
-    public func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
+    internal func setupDownload(_ download: WKDownload) {
         download.delegate = self
-        willChangeValue(for: \.download)
         self.download = download
-        Swift.print("navigationResponse download", download, download.progress)
-        self.downloadHandlers.progressA?(download.progress)
+        Swift.print("navigationResponse didBecome", download, download.progress)
+
         self.downloadProgressTotalObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {
             old, new in
             if let progress = self.download?.progress {
+                self.updateDownloadProgress()
                 self.downloadHandlers.progress?(progress.completedUnitCount, progress.totalUnitCount)
             }
         })
-        self.downloadProgressCurrentObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {  old, new in
+        self.downloadProgressCompletedObservation = download.observeChanges(for: \.progress.completedUnitCount, handler: {  old, new in
             if let progress = self.download?.progress {
+                self.updateDownloadProgress()
                 self.downloadHandlers.progress?(progress.completedUnitCount, progress.totalUnitCount)
             }
         })
-        didChangeValue(for: \.download)
+        self.updateDownloadProgress()
     }
     
+    @available(macOS 11.3, *)
+    internal func updateDownloadProgress() {
+        self.download?.progress.updateEstimatedTimeRemaining(dateStarted: self.downloadStartDate)
+        guard self.download != nil else {
+            finderFileDownloadProgress?.cancel()
+            finderFileDownloadProgress = nil
+            return
+        }
+        
+        if finderFileDownloadProgress == nil, let downloadLocation = self.downloadLocation, let totalBytes = self.download?.progress.totalUnitCount {
+            finderFileDownloadProgress = Progress(parent: nil, userInfo: [
+                .fileOperationKindKey: Progress.FileOperationKind.downloading,
+                .fileURLKey: downloadLocation])
+            finderFileDownloadProgress?.isCancellable = true
+            finderFileDownloadProgress?.isPausable = false
+            finderFileDownloadProgress?.kind = .file
+            finderFileDownloadProgress?.totalUnitCount = totalBytes
+            finderFileDownloadProgress?.publish()
+        }
+        
+        guard let downloadProgress = self.download?.progress else { return }
+        finderFileDownloadProgress?.totalUnitCount = downloadProgress.totalUnitCount
+        finderFileDownloadProgress?.estimatedTimeRemaining = downloadProgress.estimatedTimeRemaining
+        finderFileDownloadProgress?.throughput = downloadProgress.throughput
+        finderFileDownloadProgress?.completedUnitCount = downloadProgress.completedUnitCount
+    }
+        
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if self.currentRequest != navigationAction.request {
             self.didFinishLoadingHandler?(navigationAction.request)
@@ -159,6 +179,9 @@ extension AdvanceWebView: WKNavigationDelegate  {
        
         if #available(macOS 11.3, *) {
             let shouldDownload = downloadHandlers.shouldDownload?(navigationAction.request) ?? false
+            if shouldDownload == false {
+                downloadLocation = nil
+            }
             decisionHandler(shouldDownload ? .download : .allow)
         } else {
             decisionHandler(.allow)
@@ -170,27 +193,35 @@ extension AdvanceWebView: WKNavigationDelegate  {
 extension AdvanceWebView: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
         Swift.print("[AdvanceWebView] download suggestedFilename", suggestedFilename)
-        let url = self.downloadHandlers.downloadLocation?(suggestedFilename) ?? nil
-        completionHandler(url)
+        self.downloadLocation = self.downloadHandlers.downloadLocation?(suggestedFilename) ?? nil
+        if downloadLocation != nil {
+            self.downloadStartDate = Date()
+        }
+        completionHandler(self.downloadLocation)
     }
     
     public func downloadDidFinish(_ download: WKDownload) {
         Swift.print("[AdvanceWebView] download didFinish")
-        willChangeValue(for: \.download)
         self.download = nil
-        self.downloadProgressCurrentObservation = nil
+        self.downloadProgressCompletedObservation = nil
         self.downloadProgressTotalObservation = nil
-        didChangeValue(for: \.download)
+        self.updateDownloadProgress()
         self.downloadHandlers.didFinish?()
     }
     
     public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         Swift.print("[AdvanceWebView] download failed", error)
-        willChangeValue(for: \.download)
+        if let downloadLocation = self.downloadLocation, FileManager.default.fileExists(at: downloadLocation) {
+            do {
+                try FileManager.default.removeItem(at: downloadLocation)
+            } catch {
+                Swift.print(error)
+            }
+        }
         self.download = nil
-        self.downloadProgressCurrentObservation = nil
+        self.updateDownloadProgress()
+        self.downloadProgressCompletedObservation = nil
         self.downloadProgressTotalObservation = nil
-        didChangeValue(for: \.download)
         self.downloadHandlers.didFail?(error, resumeData)
     }
     
