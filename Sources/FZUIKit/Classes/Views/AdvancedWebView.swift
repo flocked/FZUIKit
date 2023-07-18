@@ -231,3 +231,14 @@ extension AdvanceWebView: WKDownloadDelegate {
         decisionHandler(.allow)
     }
 }
+
+/*
+@available(macOS 11.3, *)
+public extension WKDownload {
+    /// The expected content size of the download.
+    var expectedContentSize: Int64? {
+        get {  return getAssociatedValue(key: "WKDownload_expectedContentSize", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "WKDownload_expectedContentSize", object: self) }
+    }
+}
+*/
