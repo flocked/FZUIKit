@@ -32,6 +32,7 @@ public class AdvanceWebView: WKWebView {
         public var didFail: ((_ error: Error, _ resumeData: Data?)->())? = nil
         /// The handler that gets called whenever the download progresses.
         public var progress: ((_ current: Int64, _ total: Int64)->())? = nil
+        public var progressA: ((_ progress: Progress)->())? = nil
     }
     
     @available(macOS 11.3, *)
@@ -99,6 +100,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
         download.delegate = self
         willChangeValue(for: \.download)
         self.download = download
+        self.downloadHandlers.progressA?(download.progress)
         self.downloadProgressTotalObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {
             old, new in
             if let progress = self.download?.progress {
@@ -118,6 +120,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
         download.delegate = self
         willChangeValue(for: \.download)
         self.download = download
+        self.downloadHandlers.progressA?(download.progress)
         self.downloadProgressTotalObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {
             old, new in
             if let progress = self.download?.progress {
