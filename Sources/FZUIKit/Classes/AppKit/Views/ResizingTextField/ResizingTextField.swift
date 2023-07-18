@@ -160,12 +160,29 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     
     override public init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        _init()
+        sharedInit()
     }
 
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        _init()
+        sharedInit()
+    }
+    
+    internal func sharedInit() {
+        self.drawsBackground = false
+        self.isBordered = false
+        self.verticalTextAlignment = .center
+        self.focusType = .roundedCornersRelative(0.5)
+        textCell?.setWantsNotificationForMarkedText(true)
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.delegate = self
+        
+        self.cell?.isScrollable = true
+        self.cell?.wraps = true
+        self.lineBreakMode = .byTruncatingTail
+
+        self.lastContentSize = stringValueSize()
+        self.placeholderSize = placeholderStringSize()
     }
 
     override public func becomeFirstResponder() -> Bool {
@@ -240,33 +257,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     internal var lastContentSize = NSSize() { didSet {
         lastContentSize = NSSize(width: ceil(self.lastContentSize.width), height: ceil(self.lastContentSize.height))
     }}
-
-    internal func _init() {
-        self.drawsBackground = false
-        self.isBordered = false
-        self.verticalTextAlignment = .center
-        self.focusType = .roundedCornersRelative(0.5)
-        textCell?.setWantsNotificationForMarkedText(true)
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.delegate = self
-
-        #if DEBUG
-        // self.wantsLayer = true
-        // self.layer?.setBorder(with: NSColor.red.cgColor)
-        #endif
-    }
-
-    override public func awakeFromNib() {
-        super.awakeFromNib()
-        self._init()
-        // If you use `.byClipping`, the width calculation does not seem to be done correctly.
-        self.cell?.isScrollable = true
-        self.cell?.wraps = true
-        self.lineBreakMode = .byTruncatingTail
-
-        self.lastContentSize = stringValueSize()
-        self.placeholderSize = placeholderStringSize()
-    }
     
     override public var stringValue: String { didSet {
         guard !self.isEditing else { return }
@@ -427,14 +417,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     internal var mouseDownMonitor: Any? = nil
     internal func setupMouseDownMonitor() {
-        if isEditing {
-            self.addMouseDownMonitor()
-        } else {
-            self.removeMouseDownMonitor()
-        }
-    }
-    internal func addMouseDownMonitor() {
-        if mouseDownMonitor == nil, stopsEditingOnOutsideMouseDown {
+        if stopsEditingOnOutsideMouseDown, mouseDownMonitor == nil {
             mouseDownMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown, handler: { event in
                 let point = event.location(in: self)
                 if self.bounds.contains(point) == false {
@@ -447,11 +430,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
                 }
                 return event
             })
-        }
-    }
-
-    internal func removeMouseDownMonitor() {
-        if let mouseDownMonitor = mouseDownMonitor {
+        } else if stopsEditingOnOutsideMouseDown == false, let mouseDownMonitor = mouseDownMonitor {
             NSEvent.removeMonitor(mouseDownMonitor)
             self.mouseDownMonitor = nil
         }
