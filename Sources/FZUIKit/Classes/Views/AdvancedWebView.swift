@@ -41,6 +41,7 @@ public class AdvanceWebView: WKWebView {
         set { set(associatedValue: newValue, key: "AdvanceWebView_downloadHandlers", object: self) }
     }
     private var downloadLocation: URL? = nil
+    private var downloadExpectedFileSize: Int64? = nil
     private var downloadStartDate = Date()
     private var finderFileDownloadProgress: Progress?
 
@@ -181,7 +182,8 @@ extension AdvanceWebView: WKNavigationDelegate  {
 @available(macOS 11.3, *)
 extension AdvanceWebView: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
-        Swift.print("[AdvanceWebView] download suggestedFilename", suggestedFilename)
+        Swift.print("[AdvanceWebView] download downloadLocation", suggestedFilename, response.expectedContentLength)
+        self.downloadExpectedFileSize = response.expectedContentLength
         self.downloadLocation = self.downloadHandlers.downloadLocation?(suggestedFilename) ?? nil
         if downloadLocation != nil {
             self.downloadStartDate = Date()
