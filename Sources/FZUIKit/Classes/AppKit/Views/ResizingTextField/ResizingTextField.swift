@@ -73,9 +73,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         case emojis
        // static var
     }
-        
-    /// The handler that gets called to verify a string that the user is editing. Return `true` to allow the entered string and `false` if not. The string will stay in editing state.
-    public var stringConformationHandler: ((String)->(Bool))? = nil
+
     
     /// The allowed characters the user can enter when editing.
     public struct AllowedCharacters: OptionSet {
@@ -188,7 +186,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         } else if let maxAmountChars = maxAmountChars, string.count > maxAmountChars {
             return false
         }
-        return stringConformationHandler?(string) ?? true
+        return self.actionHandlers.confirm?(string) ?? true
     }
     
     /// Handlers that get called whenever the user tries to confirm (Enter key) or cancel (ESC key) its editing string.
@@ -196,7 +194,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         /// The handler that gets called whenever the user tries to cancel (ESC key) its string. Return `true` to allow cancellation. The string will return to it's initial value prior editing. Return `false` to to disallow cancellation. The text will stay in editing state.
         var cancel: ((String)->(Bool))? = nil
         /// The handler that gets called whenever the user tries to confirm (Enter key) its string. Return `true` to allow the string and `false` if not.
-        var enter: ((String)->(Bool))? = nil
+        var confirm: ((String)->(Bool))? = nil
     }
 
     /// Handlers that get called whenever the user tries to conform or cancel its string.
@@ -206,13 +204,11 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
        // let modifierFlags = NSEvent.current?.modifierFlags ?? []
 
         if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-            if actionHandlers.enter?(stringValue) ?? true {
                 if isConforming(stringValue) {
                     self.window?.makeFirstResponder(nil)
                 } else {
                     NSSound.beep()
                 }
-            }
         } else if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
             if actionHandlers.cancel?(stringValue) ?? true {
                 self.isEditing = false
