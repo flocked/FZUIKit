@@ -166,7 +166,6 @@ extension AdvanceWebView: WKNavigationDelegate  {
             }
             self.currentHTTPCookies = cookies
         })
-       
         if #available(macOS 11.3, *) {
             let shouldDownload = downloadHandlers.shouldDownload?(navigationAction.request) ?? false
             if shouldDownload == false {
