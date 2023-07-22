@@ -1,5 +1,5 @@
 //
-//  NSView+Nib.swift
+//  Nibloadable.swift
 //
 //
 //  Created by Florian Zand on 05.03.23.

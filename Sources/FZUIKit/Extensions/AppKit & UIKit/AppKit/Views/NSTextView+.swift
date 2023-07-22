@@ -1,9 +1,12 @@
 //
 //  NSTextView+.swift
 //  
-//
+//  Parts taken from:
 //  Taken from: https://github.com/boinx/BXUIKit
 //  Copyright ©2017-2018 Peter Baumgartner. All rights reserved.
+//
+//  Created by Florian Zand on 19.10.21.
+// 
 
 #if os(macOS)
 

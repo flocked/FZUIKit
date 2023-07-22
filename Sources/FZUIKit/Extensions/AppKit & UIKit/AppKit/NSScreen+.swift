@@ -1,9 +1,8 @@
 //
-//  NSScreen+Extension.swift
-//  Resizer
+//  NSScreen+.swift
+//
 //
 //  Created by Florian Zand on 10.07.22.
-//  Copyright © 2022 MuffinStory. All rights reserved.
 //
 
 #if os(macOS)

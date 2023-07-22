@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSWindowTabGroup+.swift
 //
 //
 //  Created by Florian Zand on 02.09.22.

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSRunningApplication+.swift
 //
 //
 //  Created by Florian Zand on 02.11.22.

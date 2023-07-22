@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSTintConfiguration.swift
 //
 //
 //  Created by Florian Zand on 24.10.22.

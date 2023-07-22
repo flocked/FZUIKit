@@ -1,6 +1,6 @@
 //
-//  NSWindow+.swift
-//  FZExtensions
+//  UIView+.swift
+//  
 //
 //  Created by Florian Zand on 12.08.22.
 //

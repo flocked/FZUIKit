@@ -1,6 +1,6 @@
 //
 //  NSTextField+Editing.swift
-//  Tester
+//  
 //
 //  Created by Florian Zand on 30.03.23.
 //

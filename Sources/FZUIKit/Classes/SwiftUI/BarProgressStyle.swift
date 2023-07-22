@@ -1,6 +1,6 @@
 //
 //  BarProgressStyle.swift
-//  ProgressStyle
+//  
 //
 //  Created by Florian Zand on 18.07.23.
 //

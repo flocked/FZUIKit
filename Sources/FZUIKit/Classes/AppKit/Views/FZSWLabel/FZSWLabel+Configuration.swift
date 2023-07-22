@@ -1,6 +1,6 @@
 //
 //  FZSWLabel+Configuration.swift
-//  FZSWLabel+Configuration
+//  
 //
 //  Created by Florian Zand on 11.10.22.
 //

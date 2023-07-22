@@ -1,3 +1,10 @@
+//
+//  NSMenu+MenuItemHostingView.swift
+//
+//
+//  Created by Florian Zand on 09.04.23.
+//
+
 #if os(macOS)
 import Cocoa
 import SwiftUI

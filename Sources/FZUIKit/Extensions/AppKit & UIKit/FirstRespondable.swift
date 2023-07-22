@@ -1,6 +1,6 @@
 //
 //  FirstRespondable.swift
-//  Example
+//  
 //
 //  Created by Florian Zand on 06.07.23.
 //

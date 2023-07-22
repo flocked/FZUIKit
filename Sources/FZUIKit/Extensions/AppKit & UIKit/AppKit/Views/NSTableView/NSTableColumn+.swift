@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSTableColumn+.swift
 //
 //
 //  Created by Florian Zand on 19.05.23.

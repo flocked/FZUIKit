@@ -1,3 +1,10 @@
+//
+//  RatingView.swift
+//
+//
+//  Created by Florian Zand on 18.06.23.
+//
+
 #if os(macOS)
 
 import AppKit

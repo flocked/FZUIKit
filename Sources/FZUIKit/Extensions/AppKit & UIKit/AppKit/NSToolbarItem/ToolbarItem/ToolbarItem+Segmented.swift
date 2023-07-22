@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ToolbarItem+Segmented.swift
 //
 //
 //  Created by Florian Zand on 09.04.23.

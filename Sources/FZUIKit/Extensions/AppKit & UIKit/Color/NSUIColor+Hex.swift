@@ -1,8 +1,11 @@
 //
 //  NSUIColor+Hex.swift
 //
+// Parts taken from:
 //  https://github.com/CodeEditApp
 //  Created by Lukas Pistrol on 23.03.22.
+//
+//  Created by Florian Zand on 06.10.22.
 //
 
 import FZSwiftUtils

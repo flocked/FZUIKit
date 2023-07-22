@@ -1,6 +1,6 @@
 //
-//  NSView+DragDrop.swift
-//  Tester
+//  NSView+DragAndDrop.swift
+//  
 //
 //  Created by Florian Zand on 05.04.23.
 //

@@ -1,5 +1,5 @@
 //
-//  ContentTransformer+Color.swift
+//  ContentTransformer+AttributedString.swift
 //
 //
 //  Created by Florian Zand on 31.03.23.

@@ -1,6 +1,6 @@
 //
 //  NSScrollView+.swift
-//  FZCollection
+//  
 //
 //  Created by Florian Zand on 22.05.22.
 //

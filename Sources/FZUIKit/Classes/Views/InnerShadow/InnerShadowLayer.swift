@@ -1,6 +1,6 @@
 //
 //  InnerShadowLayer.swift
-//  FZExtensions
+//  
 //
 //  Created by Florian Zand on 16.09.21.
 //

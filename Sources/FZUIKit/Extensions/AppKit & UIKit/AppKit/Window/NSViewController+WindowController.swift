@@ -1,5 +1,5 @@
 //
-//  NSViewController+.swift
+//  NSViewController+WindowController.swift
 //  
 //
 //  Created by Florian Zand on 06.07.23.

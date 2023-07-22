@@ -1,3 +1,10 @@
+//
+//  NSMenu+MenuItem.swift
+//
+//
+//  Created by Florian Zand on 08.06.23.
+//
+
 #if os(macOS)
 import Cocoa
 

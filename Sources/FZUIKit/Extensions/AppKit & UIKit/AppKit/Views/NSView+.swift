@@ -1,6 +1,6 @@
 //
-//  NSView+Extensions.swift
-//  SelectableArray
+//  NSView+.swift
+//  
 //
 //  Created by Florian Zand on 19.10.21.
 //

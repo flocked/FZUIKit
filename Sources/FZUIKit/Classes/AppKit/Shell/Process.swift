@@ -1,8 +1,8 @@
 //
-//  Process.swift
-//  SwiftShell
+//  Shell+Process.swift
 //
-//  Created by Kåre Morstøl on 06/04/2018.
+//
+//  Copyright (c) 2015 Kåre Morstøl, NotTooBad Software (nottoobadsoftware.com)
 //
 
 #if os(macOS)

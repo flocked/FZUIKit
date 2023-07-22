@@ -1,6 +1,6 @@
 //
 //  NSPopupButton.swift
-//  FZCollection
+//  
 //
 //  Created by Florian Zand on 29.05.22.
 //

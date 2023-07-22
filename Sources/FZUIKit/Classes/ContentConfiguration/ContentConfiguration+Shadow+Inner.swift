@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ContentConfiguration+Shadow+Inner.swift
 //  
 //
 //  Created by Florian Zand on 30.06.23.

@@ -1,6 +1,6 @@
 //
-//  NSApper.swift
-//  NewImageViewer
+//  NSAppearance+.swift
+//  
 //
 //  Created by Florian Zand on 06.08.22.
 //

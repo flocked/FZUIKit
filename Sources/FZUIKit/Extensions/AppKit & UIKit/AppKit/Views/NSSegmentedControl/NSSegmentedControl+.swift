@@ -1,6 +1,6 @@
 //
 //  NSSegmentedControl+.swift
-//  FZExtensions
+//  
 //
 //  Created by Florian Zand on 18.08.22.
 //

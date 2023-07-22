@@ -1,7 +1,10 @@
 //
 //  NSColor+HSL.swift
 //
+// Parts taken from:
 // Copyright 2015-present Yannick Loriot.
+//
+//  Created by Florian Zand on 06.10.22.
 //
 //
 

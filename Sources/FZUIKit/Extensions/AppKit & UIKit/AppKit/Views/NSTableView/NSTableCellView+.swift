@@ -1,5 +1,5 @@
 //
-//  NSTableCellViewü.swift
+//  NSTableCellView.swift
 //
 //
 //  Created by Florian Zand on 03.04.23.

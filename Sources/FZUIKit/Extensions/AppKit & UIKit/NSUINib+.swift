@@ -1,6 +1,6 @@
 //
-//  NSMenu+.swift
-//  FZExtensions
+//  NSUINib+.swift
+//
 //
 //  Created by Florian Zand on 06.06.22.
 //

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ObserverView.swift
 //  
 //
 //  Created by Florian Zand on 19.05.23.

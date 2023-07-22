@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSToolbarItem+.swift
 //
 //
 //  Created by Florian Zand on 15.09.22.

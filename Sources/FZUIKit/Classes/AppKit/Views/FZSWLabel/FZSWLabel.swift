@@ -1,6 +1,6 @@
 //
 //  FZSWLabel.swift
-//  FZSWLabel
+//
 //
 //  Created by Florian Zand on 11.10.22.
 //

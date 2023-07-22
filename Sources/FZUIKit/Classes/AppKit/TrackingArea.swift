@@ -1,9 +1,11 @@
 //
 //  TrackingArea.swift
-//  TrackingArea
+//  
 //
 //  Adopted from:
 //  Copyright © 2023 Darren Ford. All rights reserved.
+//
+//  Created by Florian Zand on 19.05.23.
 //
 
 #if os(macOS)

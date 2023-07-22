@@ -1,3 +1,10 @@
+//
+//  ActionBlock.swift
+//
+//
+//  Created by Florian Zand on 30.05.22.
+//
+
 #if os(macOS)
 
 import Cocoa

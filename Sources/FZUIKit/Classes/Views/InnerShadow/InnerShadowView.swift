@@ -1,6 +1,6 @@
 //
 //  InnerShadowView.swift
-//  FZExtensions
+//  
 //
 //  Created by Florian Zand on 03.09.22.
 //

@@ -1,6 +1,6 @@
 //
-//  NSBezierpath+.swift
-//  FZExtensions
+//  NSUIBezierpath+.swift
+//
 //
 //  Created by Florian Zand on 07.06.22.
 //

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  QLThumbnailGenerator+.swift
 //
 //
 //  Created by Florian Zand on 30.11.22.

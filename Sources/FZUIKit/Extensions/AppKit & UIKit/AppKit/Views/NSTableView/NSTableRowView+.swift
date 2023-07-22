@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSTableRowView+.swift
 //
 //
 //  Created by Florian Zand on 26.01.23.

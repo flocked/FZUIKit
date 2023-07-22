@@ -1,6 +1,6 @@
 //
 //  FZSWLabel+ContentView.swift
-//  FZSWLabel+ContentView
+//  
 //
 //  Created by Florian Zand on 11.10.22.
 //

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSToolbar+Builder.swift
 //
 //
 //  Created by Florian Zand on 09.04.23.

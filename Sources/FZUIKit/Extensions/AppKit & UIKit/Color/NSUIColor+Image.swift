@@ -1,9 +1,11 @@
 //
-//  UIImageColors.swift
-//  https://github.com/jathu/UIImageColors
+//  NSUIColor+Image.swift
 //
+// Parts taken from:
+//  https://github.com/jathu/UIImageColors
 //  Created by Jathu Satkunarajah (@jathu) on 2015-06-11 - Toronto
-//  Based on Cocoa version by Panic Inc. - Portland
+//
+//  Created by Florian Zand on 06.10.22.
 //
 
 import FZSwiftUtils

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSCursor+.swift
 //
 //
 //  Created by Florian Zand on 14.11.22.

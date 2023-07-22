@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSStatusItem+.swift
 //
 //
 //  Created by Florian Zand on 10.04.23.

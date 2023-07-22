@@ -1,6 +1,6 @@
 //
 //  NSEvent+.swift
-//  FZCollection
+//  
 //
 //  Created by Florian Zand on 08.05.22.
 //

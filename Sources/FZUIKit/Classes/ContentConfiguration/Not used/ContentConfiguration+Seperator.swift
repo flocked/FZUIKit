@@ -1,3 +1,4 @@
+/*
 //
 //  ContentConfiguration+Seperator.swift
 //
@@ -40,3 +41,4 @@ public extension ContentConfiguration {
 }
 
 #endif
+*/

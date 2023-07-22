@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSCollectionLayoutSection+.swift
 //
 //
 //  Created by Florian Zand on 29.08.22.

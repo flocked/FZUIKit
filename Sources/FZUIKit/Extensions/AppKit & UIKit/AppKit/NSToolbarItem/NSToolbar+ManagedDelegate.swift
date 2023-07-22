@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSToolbar+ManagedDelegate.swift
 //  
 //
 //  Created by Florian Zand on 18.06.23.

@@ -1,8 +1,8 @@
 //
-//  File.swift
+//  Shell.swift
 //
 //
-//  Created by Florian Zand on 24.02.23.
+//  Copyright (c) 2015 Kåre Morstøl, NotTooBad Software (nottoobadsoftware.com)
 //
 
 #if os(macOS)

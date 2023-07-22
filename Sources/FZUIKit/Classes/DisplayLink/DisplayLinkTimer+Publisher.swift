@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DisplayLinkTimer+Publisher.swift
 //
 //
 //  Created by Florian Zand on 14.10.22.

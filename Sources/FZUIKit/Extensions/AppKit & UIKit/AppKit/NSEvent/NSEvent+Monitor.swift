@@ -3,7 +3,6 @@
 //
 //
 //  Created by Florian Zand on 08.09.22.
-//  Copyright © 2022 MuffinStory. All rights reserved.
 //
 
 #if os(macOS)

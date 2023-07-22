@@ -1,9 +1,11 @@
 //
 //  NSUICollectionViewLayout+Waterfall.swift
-//  PinterestSwift
 //
+//  Parts taken from:
 //  Created by Nicholas Tau on 6/30/14.
 //  Copyright (c) 2014 Nicholas Tau. All rights reserved.
+// 
+//  Created by Florian Zand on 06.06.22.
 //
 
 #if os(macOS)

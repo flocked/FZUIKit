@@ -1,5 +1,5 @@
 //
-//  NSViewController+firstReponder.swift
+//  NSViewController+FirstReponder.swift
 //
 //
 //  Created by Florian Zand on 06.07.23.

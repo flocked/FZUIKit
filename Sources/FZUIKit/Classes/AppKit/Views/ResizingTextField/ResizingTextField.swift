@@ -1,5 +1,5 @@
 //
-//  Fitting.swift
+//  ResizingTextField.swift
 //
 //
 //  Created by Florian Zand on 18.05.22.

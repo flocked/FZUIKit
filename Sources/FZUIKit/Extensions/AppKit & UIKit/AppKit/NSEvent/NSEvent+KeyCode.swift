@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSEvent+KeyCode.swift
 //
 //
 //  Created by Florian Zand on 19.05.23.

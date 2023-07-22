@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ToolbarItem+Seperator.swift
 //
 //
 //  Created by Florian Zand on 09.04.23.

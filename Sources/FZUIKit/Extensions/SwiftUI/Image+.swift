@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Image+.swift
 //
 //
 //  Created by Florian Zand on 30.09.22.

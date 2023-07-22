@@ -1,6 +1,6 @@
 //
-//  NSCollectionViewCompo.swift
-//  FZExtensions
+//  CompositionalLayout+.swift
+//  
 //
 //  Created by Florian Zand on 07.06.22.
 //

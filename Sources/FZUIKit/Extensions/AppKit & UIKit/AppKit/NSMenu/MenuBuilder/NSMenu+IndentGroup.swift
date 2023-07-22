@@ -1,9 +1,10 @@
 //
-//  IndentGroup.swift
+//  NSMenu+IndentGroup.swift
 //
 //
-//  Created by Jed Fox on 6/19/21.
+//  Created by Florian Zand on 08.06.23.
 //
+
 #if os(macOS)
 import Cocoa
 
