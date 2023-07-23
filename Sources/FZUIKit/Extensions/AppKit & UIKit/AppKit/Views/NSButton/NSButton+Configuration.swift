@@ -109,30 +109,30 @@ public extension NSButton {
 
         public var image: NSImage? = nil
 
-        public var imageColorTransformer: NSConfigurationColorTransformer? = nil
+        public var imageColorTransformer: ColorTransformer? = nil
 
         public var preferredSymbolConfigurationForImage: NSImage.SymbolConfiguration? = nil
 
         /// Shows an activity indicator in place of an image. Its placement is controlled by the imagePlacement property.
         public var showsActivityIndicator: Bool = false
 
-        public var activityIndicatorColorTransformer: NSConfigurationColorTransformer? = nil
+        public var activityIndicatorColorTransformer: ColorTransformer? = nil
 
         public var title: String? = nil
 
         public var attributedTitle: AttributedString? = nil
 
-        public var titleTextAttributesTransformer: NSConfigurationTextAttributesTransformer? = nil
+        public var titleTextAttributesTransformer: TextAttributesTransformer? = nil
 
         public var subtitle: String? = nil
 
         public var attributedSubtitle: AttributedString? = nil
 
-        public var subtitleTextAttributesTransformer: NSConfigurationTextAttributesTransformer? = nil
+        public var subtitleTextAttributesTransformer: TextAttributesTransformer? = nil
 
         public var indicator: NSButton.Configuration.Indicator = .none
 
-        public var indicatorColorTransformer: NSConfigurationColorTransformer? = nil
+        public var indicatorColorTransformer: ColorTransformer? = nil
 
         /// By default the button's content region is inset from its bounds based on the button's styling properties. The contentInsets are an additional inset applied afterwards.
         public var contentInsets: NSDirectionalEdgeInsets = .zero

@@ -1,5 +1,5 @@
 //
-//  ContentTransformer+AttributedString.swift
+//  ContentTransform+AttributedString.swift
 //
 //
 //  Created by Florian Zand on 31.03.23.
@@ -12,7 +12,7 @@ import FZSwiftUtils
 /**
  A transformer that generates a modified output attributed string from an input attributed string.
  */
-public struct AttributedStringTransformer: ContentTransformer {
+public struct AttributedStringTransformer: ContentTransform {
     /// The transform closure of the text transformer.
     public let transform: (AttributedString) -> AttributedString
     /// The identifier of the transformer.
@@ -43,7 +43,7 @@ public struct AttributedStringTransformer: ContentTransformer {
 /**
  A transformer that generates a modified output attributed string from an input attributed string.
  */
-public struct NSAttributedStringTransformer: ContentTransformer {
+public struct NSAttributedStringTransformer: ContentTransform {
     /// The transform closure of the text transformer.
     public let transform: (NSAttributedString) -> NSAttributedString
     /// The identifier of the transformer.

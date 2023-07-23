@@ -12,7 +12,7 @@ import Foundation
 /**
  Defines a text transformation that can affect the visual appearance of a string.
  */
-public struct NSConfigurationTextAttributesTransformer: ContentTransformer {
+public struct NSConfigurationTextAttributesTransformer: ContentTransform {
     /// A closure that defines the text transformation.
     public let transform: (AttributeContainer) -> AttributeContainer
     /// The identifier of the transformer.
@@ -31,7 +31,7 @@ public struct NSConfigurationTextAttributesTransformer: ContentTransformer {
 /**
  Defines a text transformation that can affect the visual appearance of a string.
  */
-public struct UIConfigurationHashingTextAttributesTransformer: ContentTransformer {
+public struct UIConfigurationHashingTextAttributesTransformer: ContentTransform {
     /// A closure that defines the text transformation.
     public let transform: (AttributeContainer) -> AttributeContainer
     /// The identifier of the transformer.

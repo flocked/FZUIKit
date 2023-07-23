@@ -9,14 +9,14 @@
 import AppKit
 import FZSwiftUtils
 
-public extension NSWindow {
+extension NSWindow {
     /// A Boolean value that indicates whether the window is fullscreen.
-    var isFullscreen: Bool {
+    public var isFullscreen: Bool {
         styleMask.contains(.fullScreen)
     }
 
     /// the index of the window tab or nil if the window isn't a tab.
-    var tabIndex: Int? {
+    public var tabIndex: Int? {
         tabbedWindows?.firstIndex(of: self)
     }
 
@@ -27,7 +27,7 @@ public extension NSWindow {
         - point: The new position of the window’s bottom-left corner in screen coordinates.
         - screen: The screen on which the window’s frame gets moved.
      */
-    func setFrameOrigin(_ point: CGPoint, on screen: NSScreen) {
+    public func setFrameOrigin(_ point: CGPoint, on screen: NSScreen) {
         let screenFrame = screen.frame
         var origin = point
         origin.x = screenFrame.origin.x + point.x
@@ -42,7 +42,7 @@ public extension NSWindow {
      
      - Parameters screen: The screen for centering the window.
      */
-    func center(on screen: NSScreen) {
+    public func center(on screen: NSScreen) {
         var frame = self.frame
         frame.center = screen.frame.center
         setFrame(frame, display: true)
@@ -53,7 +53,7 @@ public extension NSWindow {
      
      This method attempts to size the window to match the current screen aspect ratio and dimensions. It will not exceed 1024 x 900.
      */
-    func resizeToScreenAspectRatio() {
+    public func resizeToScreenAspectRatio() {
         guard let screen = NSScreen.main else {
             return
         }
@@ -62,23 +62,7 @@ public extension NSWindow {
         newSize.width = frame.height * aspectRatio
         if newSize.width < minSize.width {
             newSize.width = minSize.width
-            //    newSize.height =
         }
-
-        /*
-         let minWindowSize = NSSize(width: 800, height: 600)
-         let maxWindowSize = NSSize(width: 1024, height: 900)
-         let fraction: CGFloat = 0.6
-
-         let screenSize = NSScreen.main?.visibleFrame.size ?? minWindowSize
-
-         screenSize.aspectRatio
-
-         let width = min(screenSize.width * fraction, maxWindowSize.width)
-         let height = min(screenSize.height * fraction, maxWindowSize.height)
-
-         setContentSize(NSSize(width: ceil(width), height: ceil(height)))
-          */
     }
     
     /**
@@ -86,7 +70,7 @@ public extension NSWindow {
      
      Takes into account the tab bar, as well as transparent title bars and full size content.
      */
-    var titleBarHeight: CGFloat {
+    public var titleBarHeight: CGFloat {
         let frameHeight = contentView?.frame.height ?? frame.height
         let contentLayoutRectHeight = contentLayoutRect.height
 
@@ -94,7 +78,7 @@ public extension NSWindow {
     }
 
     /// A Boolean value that indicates whether the tab bar is visible.
-    var isTabBarVisible: Bool {
+    public var isTabBarVisible: Bool {
         if #available(OSX 10.13, *) {
             // be extremely careful here. Just *accessing* the tabGroup property can
             // affect NSWindow's tabbing behavior
@@ -113,7 +97,7 @@ public extension NSWindow {
      
      This value will be zero if the tab bar isn't visible.
      */
-    var tabBarHeight: CGFloat {
+    public var tabBarHeight: CGFloat {
         // hard-coding this isn't excellent, but I don't know
         // of another way to determine it without messing around
         // with hidden windows.
@@ -124,7 +108,7 @@ public extension NSWindow {
      Runs the specified handler without animating the window.
      - Parameters block: The handler to be used.
      */
-    func withAnimationDisabled(block: () -> Void) {
+    public func withAnimationDisabled(block: () -> Void) {
         let currentBehavior = animationBehavior
 
         animationBehavior = .none
@@ -137,13 +121,13 @@ public extension NSWindow {
     }
 }
 
-public extension NSWindow {
+extension NSWindow {
     /**
      The window’s visual effect background.
      
      The property adds a NSVisualEffectView as background to the window’s contentView. The default value is nil.
       */
-    var visualEffect: ContentConfiguration.VisualEffect? {
+    public var visualEffect: ContentConfiguration.VisualEffect? {
         get { return contentView?.visualEffect }
         set { contentView?.visualEffect = newValue
             appearance = visualEffect?.appearance ?? appearance
@@ -155,9 +139,10 @@ public extension NSWindow {
 
      Using this property turns the window’s content view into a layer-backed view.
      */
-    var cornerRadius: CGFloat? {
-        get { getAssociatedValue(key: "_windowCornerRadius", object: self, initialValue: nil) }
+    @objc open dynamic var cornerRadius: CGFloat {
+        get { getAssociatedValue(key: "_windowCornerRadius", object: self, initialValue: -1) }
         set {
+            Self.swizzleAnimationForKey()
             set(associatedValue: newValue, key: "_windowCornerRadius", object: self)
             updateCornerRadius()
         }
@@ -168,9 +153,10 @@ public extension NSWindow {
 
      Using this property turns the window’s content view into a layer-backed view.
      */
-    var cornerCurve: CALayerCornerCurve {
+    @objc open dynamic var cornerCurve: CALayerCornerCurve {
         get { contentView?.layer?.cornerCurve ?? .circular }
         set {
+            Self.swizzleAnimationForKey()
             contentView?.wantsLayer = true
             contentView?.layer?.cornerCurve = newValue
         }
@@ -181,9 +167,10 @@ public extension NSWindow {
 
      Using this property turns the window’s content view into a layer-backed view.
      */
-    var borderWidth: CGFloat {
+    @objc open dynamic var borderWidth: CGFloat {
         get { contentView?.layer?.borderWidth ?? 0.0 }
         set {
+            Self.swizzleAnimationForKey()
             contentView?.wantsLayer = true
             contentView?.layer?.borderWidth = newValue
         }
@@ -194,7 +181,7 @@ public extension NSWindow {
 
      Using this property turns the window’s content view into a layer-backed view.
      */
-    var borderColor: NSColor? {
+    @objc open dynamic var borderColor: NSColor? {
         get {
             if let cgColor = contentView?.layer?.borderColor {
                 return NSColor(cgColor: cgColor)
@@ -202,13 +189,14 @@ public extension NSWindow {
             return nil
         }
         set {
+            Self.swizzleAnimationForKey()
             contentView?.wantsLayer = true
             contentView?.layer?.borderColor = newValue?.cgColor
         }
     }
 
     internal func updateCornerRadius() {
-        if let cornerRadius = cornerRadius {
+        if cornerRadius >= 0 {
             backgroundColor = .clear
             isOpaque = false
             styleMask.insert(.borderless)
@@ -222,6 +210,37 @@ public extension NSWindow {
             backgroundColor = .windowBackgroundColor
             contentView?.layer?.cornerRadius = 0.0
             contentView?.layer?.cornerCurve = .circular
+        }
+    }
+}
+
+internal extension NSWindow {
+    @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        switch key {
+        case "cornerRadius", "roundedCorners", "borderWidth", "borderColor":
+            return CABasicAnimation()
+        default:
+            return self.swizzledAnimation(forKey: key)
+        }
+    }
+    
+    static var didSwizzleAnimationForKey: Bool {
+        get { getAssociatedValue(key: "NSWindow_didSwizzleAnimationForKey", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "NSWindow_didSwizzleAnimationForKey", object: self)
+        }
+    }
+    
+    static func swizzleAnimationForKey() {
+        if didSwizzleAnimationForKey == false {
+            didSwizzleAnimationForKey = true
+            do {
+                try Swizzle(NSWindow.self) {
+                    #selector(animation(forKey:)) <-> #selector(swizzledAnimation(forKey:))
+                }
+            } catch {
+                Swift.print(error)
+            }
         }
     }
 }

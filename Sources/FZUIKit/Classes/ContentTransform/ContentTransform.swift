@@ -1,5 +1,5 @@
 //
-//  ContentTransformer.swift
+//  ContentTransform.swift
 //
 //
 //  Created by Florian Zand on 30.03.23.
@@ -7,12 +7,9 @@
 
 import Foundation
 
-public struct ContentTransformers {
-    
-}
 
 /// A  protocol for a transformer that generates a modified output from an input.
-public protocol ContentTransformer: Hashable, Identifiable {
+public protocol ContentTransform: Hashable, Identifiable {
     /// The content type.
     associatedtype Content
     /// The block that transform the content.
@@ -28,7 +25,7 @@ public protocol ContentTransformer: Hashable, Identifiable {
     init(_ id: String, _ transform: @escaping ((Content) -> Content))
 }
 
-public extension ContentTransformer {
+public extension ContentTransform {
     /**
      Initalizes the transformer with the specified transform block.
      - Parameters transform: The block that transform a content.
@@ -138,6 +135,6 @@ public extension ContentTransformer {
     }
 }
 
-public extension ContentTransformer where Self: AnyObject {
+public extension ContentTransform where Self: AnyObject {
     var id: String { return ObjectIdentifier(self).debugDescription }
 }

@@ -1,5 +1,5 @@
 //
-//  ContentTransformer+Image.swift
+//  ContentTransform+Image.swift
 //
 //
 //  Created by Florian Zand on 31.03.23.
@@ -15,7 +15,7 @@ import FZSwiftUtils
 /**
  A transformer that generates a modified output image from an input image.
  */
-public struct ImageTransformer: ContentTransformer {
+public struct ImageTransformer: ContentTransform {
     /// The transform closure of the image transformer.
     public let transform: (NSUIImage) -> NSUIImage
     /// The identifier of the transformer.

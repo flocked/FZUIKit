@@ -45,7 +45,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         }
     }
     /// The color transformer of the background color.
-    public var colorTransformer: NSConfigurationColorTransformer? = nil {
+    public var colorTransformer: ColorTransformer? = nil {
         didSet {
             if self.colorTransformer != oldValue {
                 self.updateResolvedColors()
@@ -109,7 +109,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     
     /// Creates a cell background configuration.
     public init(color: NSColor? = nil,
-                colorTransformer: NSConfigurationColorTransformer? = nil,
+                colorTransformer: ColorTransformer? = nil,
                 image: NSImage? = nil,
                 imageScaling: CALayerContentsGravity = .center,
                 view: NSView? = nil,
