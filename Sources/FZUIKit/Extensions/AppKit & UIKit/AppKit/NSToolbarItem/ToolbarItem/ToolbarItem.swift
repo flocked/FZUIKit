@@ -17,6 +17,7 @@ public class ToolbarItem: NSObject {
     
     internal var isDefault = true
     internal var isSelectable = false
+    internal var isImmovableItem = false
 
     internal lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
     internal var item: NSToolbarItem {
@@ -105,7 +106,7 @@ public extension ToolbarItem {
      */
     @discardableResult
     func isImmovable(_ isImmovable: Bool) -> Self {
-        set(\.item.isImmovableItem, to: isImmovable)
+        set(\.isImmovableItem, to: isImmovable)
     }
 
     /// The tooltip to display when someone hovers over the item in the toolbar.

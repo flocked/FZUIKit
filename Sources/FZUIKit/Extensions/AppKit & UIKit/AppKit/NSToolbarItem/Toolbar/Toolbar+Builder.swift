@@ -9,14 +9,6 @@
 import AppKit
 
 public extension Toolbar {
-    convenience init(
-        _ identifier: NSToolbar.Identifier,
-        allowsUserCustomization: Bool = false,
-        @Builder builder: () -> [ToolbarItem]
-    ) {
-        self.init(identifier, allowsUserCustomization: allowsUserCustomization, items: builder())
-    }
-
     @resultBuilder
     enum Builder {
         public static func buildBlock(_ block: [ToolbarItem]...) -> [ToolbarItem] {

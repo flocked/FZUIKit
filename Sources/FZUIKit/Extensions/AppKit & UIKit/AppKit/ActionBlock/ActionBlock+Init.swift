@@ -15,8 +15,6 @@ fileprivate let TargetActionProtocolAssociatedObjectKey = UnsafeMutablePointer<I
 public extension NSMenuItem {
     convenience init(_ title: String, action: @escaping ActionBlock) {
         self.init(title: title, action: action)
-        state = state
-        image = image
     }
 
     convenience init(title: String, action: @escaping ActionBlock) {
