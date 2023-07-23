@@ -16,6 +16,7 @@ public extension NSCollectionView {
     func displayingIndexPaths() -> [IndexPath] {
         return displayingItems().compactMap { self.indexPath(for: $0) }.sorted()
     }
+    
     /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
     func displayingItems() -> [NSCollectionViewItem] {
         let visibleItems = self.visibleItems()
@@ -24,13 +25,12 @@ public extension NSCollectionView {
         return visibleItems.filter { NSIntersectsRect($0.view.frame, visibleRect) }
     }
     
-    /**
-     Handlers that get called whenever the collection view is displaying new items (e.g. when the enclosing scrollview gets scrolled to new items).
-     */
+    /// Handlers that get called whenever the collection view is displaying new items (e.g. when the enclosing scrollview gets scrolled to new items).
     var displayingItemsHandlers: DisplayingItemsHandlers {
         get { getAssociatedValue(key: "NSCollectionView_displayingItemsHandlers", object: self, initialValue: DisplayingItemsHandlers()) }
         set {
             set(associatedValue: newValue, key: "NSCollectionView_displayingItemsHandlers", object: self)
+            setupDisplayingItemsTracking()
         }
     }
     

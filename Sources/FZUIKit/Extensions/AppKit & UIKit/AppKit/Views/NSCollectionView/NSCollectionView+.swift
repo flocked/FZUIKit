@@ -48,21 +48,6 @@ public extension NSCollectionView {
         return indexPaths
     }
 
-    /*
-    var allIndexPaths: [IndexPath] {
-        var indexPaths = [IndexPath]()
-        for section in 0 ..< numberOfSections {
-            indexPaths.append(contentsOf: self.indexPaths(for: section))
-        }
-        return indexPaths
-    }
-
-    var nonSelectedIndexPaths: [IndexPath] {
-        let selected = selectionIndexPaths
-        return allIndexPaths.filter { selected.contains($0) == false }
-    }
-     */
-
     func scrollToTop() {
         enclosingScrollView?.scrollToBeginningOfDocument(nil)
     }
@@ -95,23 +80,18 @@ public extension NSCollectionView {
 public extension NSCollectionView {
     typealias SavedScrollPosition = NSScrollView.SavedScrollPosition
     
+    /// Saves the current scroll position.
     func saveScrollPosition() -> SavedScrollPosition {
         return SavedScrollPosition(bounds: bounds, visible: visibleRect)
     }
 
-    func restoreScrollPosition(_ saved: SavedScrollPosition) {
-        let oldBounds = saved.bounds
-        let oldVisible = saved.visible
-        let oldY = oldVisible.midY
-        let oldH = oldBounds.height
-        guard oldH > 0.0 else { return }
-
-        let fraction = (oldY - oldBounds.minY) / oldH
-        let newBounds = bounds
-        var newVisible = visibleRect
-        let newY = newBounds.minY + fraction * newBounds.height
-        newVisible.origin.y = newY - 0.5 * newVisible.height
-        scroll(newVisible.origin)
+    /**
+     Restores the specified saved scroll position.
+     
+     - Parameters scrollPosition: The scroll position to restore.
+     */
+    func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
+        self.enclosingScrollView?.restoreScrollPosition(scrollPosition)
     }
 }
 

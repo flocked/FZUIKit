@@ -15,10 +15,7 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
     static func sectionHeader(height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = false) -> NSCollectionLayoutBoundarySupplementaryItem {
         let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                 heightDimension: height)
-        let item = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: layoutSize,
-            elementKind: NSUICollectionView.ElementKind.sectionHeader, alignment: .top
-        )
+        let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: layoutSize, elementKind: NSUICollectionView.ElementKind.sectionHeader, alignment: .top)
 
         item.zIndex = .max
         item.pinToVisibleBounds = floating
@@ -26,12 +23,8 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
     }
 
     static func sectionFooter(height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = false) -> NSCollectionLayoutBoundarySupplementaryItem {
-        let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                heightDimension: height)
-        let item = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: layoutSize,
-            elementKind: NSUICollectionView.ElementKind.sectionFooter, alignment: .bottom
-        )
+        let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: height)
+        let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: layoutSize, elementKind: NSUICollectionView.ElementKind.sectionFooter, alignment: .bottom)
 
         item.zIndex = .max
         item.pinToVisibleBounds = floating
@@ -39,30 +32,67 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
     }
 
     static func sectionBackground() -> NSCollectionLayoutBoundarySupplementaryItem {
-        return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)),
-                                                           elementKind: NSUICollectionView.ElementKind.sectionBackground,
-                                                           containerAnchor: .init(edges: .all))
+        return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)), elementKind: NSUICollectionView.ElementKind.sectionBackground, containerAnchor: .init(edges: .all))
     }
 
     static func itemBackground() -> NSCollectionLayoutBoundarySupplementaryItem {
-        return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)),
-                                                           elementKind: NSUICollectionView.ElementKind.itemBackground,
-                                                           containerAnchor: .init(edges: .all))
+        return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)),  elementKind: NSUICollectionView.ElementKind.itemBackground, containerAnchor: .init(edges: .all))
+    }
+}
+
+public extension NSCollectionLayoutBoundarySupplementaryItem {
+    static var bottomSeperatorLine: NSCollectionLayoutBoundarySupplementaryItem {
+        return seperatorLine(kind: .topLine)
     }
     
-    /*
-    static func topSeperator(using properties: ContentConfiguration.Seperator) -> NSCollectionLayoutBoundarySupplementaryItem {
-        let lineItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(properties.height))
-        let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: lineItemSize, elementKind: NSCollectionView.ElementKind.itemTopSeperator, alignment: .top)
-        item.contentInsets = properties.insets
+    static var topSeperatorLine: NSCollectionLayoutBoundarySupplementaryItem {
+        return seperatorLine(kind: .topLine)
+    }
+    
+    internal static func seperatorLine(kind: SupplementaryKind) -> NSCollectionLayoutBoundarySupplementaryItem {
+        let lineItemHeight: CGFloat = 1.0
+        let lineItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.92), heightDimension: .absolute(lineItemHeight))
+        let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: lineItemSize, elementKind: kind.rawValue, alignment: kind.alignment)
+        let supplementaryItemContentInsets = NSDirectionalEdgeInsets(top: 0, leading: 4, bottom: 0, trailing: 4)
+        item.contentInsets = supplementaryItemContentInsets
         return item
     }
+    
+    internal enum SupplementaryKind: String {
+        case topLine
+        case bottomLine
 
-    static func bottomSeperator(using properties: ContentConfiguration.Seperator) -> NSCollectionLayoutBoundarySupplementaryItem {
-        let lineItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(properties.height))
-        let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: lineItemSize, elementKind: NSCollectionView.ElementKind.itemBottomSeperator, alignment: .bottom)
-        item.contentInsets = properties.insets
-        return item
+        var alignment: NSRectAlignment {
+            switch self {
+            case .topLine: return .top
+            case .bottomLine: return .bottom
+            }
+        }
     }
-     */
+    
+    enum ItemType {
+        case normal(height: CGFloat)
+        case pinToTop(height: CGFloat)
+
+        fileprivate var pinToVisibleBounds: Bool {
+            switch self {
+            case .normal: return false
+            case .pinToTop: return true
+            }
+        }
+
+        fileprivate var height: CGFloat {
+            switch self {
+            case let .normal(height): return height
+            case let .pinToTop(height): return height
+            }
+        }
+
+        func item(elementKind: String) -> NSCollectionLayoutBoundarySupplementaryItem {
+            let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(height))
+            let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize, elementKind: elementKind, alignment: .top)
+            item.pinToVisibleBounds = pinToVisibleBounds
+            return item
+        }
+    }
 }

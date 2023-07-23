@@ -19,8 +19,7 @@ public extension NSUICollectionViewLayout {
 
         var itemSupplementaryItems = [NSCollectionLayoutBoundarySupplementaryItem]()
         if seperatorLine {
-            let seperatorItem = NSUICollectionViewCompositionalLayout.seperatorLine(kind: .bottomLine)
-            itemSupplementaryItems.append(seperatorItem)
+            itemSupplementaryItems.append(.bottomSeperatorLine)
         }
         let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: itemSupplementaryItems)
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
@@ -57,7 +56,7 @@ public extension NSUICollectionViewLayout {
         return layout
     }
 
-    static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil, footer: NSUICollectionViewCompositionalLayout.SupplementaryItemType? = nil) -> NSUICollectionViewLayout {
+    static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
         return NSUICollectionViewCompositionalLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
 
             // Item
