@@ -39,7 +39,6 @@ extension NSViewController {
                 let isFirstResponder = (new == self)
                 guard isFirstResponder != self.previousIsFirstRespondder else { return }
                 self.previousIsFirstRespondder = isFirstResponder
-                self.isFirstResponder = isFirstResponder
                 firstResponderHandler(isFirstResponder)
             })
         } else {

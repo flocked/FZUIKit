@@ -13,7 +13,7 @@ import UIKit
 import FZSwiftUtils
 
 /// A protocol that indicating whether the conforming object is the first responder.
-public protocol FirstRespondable {
+public protocol FirstRespondable: NSUIResponder {
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
@@ -55,7 +55,6 @@ extension FirstRespondable where Self: NSView {
      */
    public var isFirstResponder: Bool {
         get { (self.window?.firstResponder == self) }
-        set { }
     }
 }
 
@@ -71,7 +70,6 @@ extension FirstRespondable where Self: NSViewController {
      */
     public var isFirstResponder: Bool {
         get { (self.view.window?.firstResponder == self) }
-        set { }
     }
 }
 
