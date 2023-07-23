@@ -154,6 +154,15 @@ public extension ToolbarItem {
             button.image = image
             self.init(identifier, button: button)
         }
+        
+        @available(macOS 11.0, *)
+        public convenience init?(_ identifier: NSToolbarItem.Identifier, symbolName: String, type: NSButton.BezelStyle = .texturedRounded) {
+            guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
+            let button = Self.button(for: type)
+            button.title = ""
+            button.image = image
+            self.init(identifier, button: button)
+        }
 
         public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)

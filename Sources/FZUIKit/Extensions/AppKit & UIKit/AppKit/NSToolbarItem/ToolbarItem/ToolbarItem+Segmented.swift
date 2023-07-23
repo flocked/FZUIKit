@@ -72,23 +72,12 @@ public extension ToolbarItem {
             return self
         }
 
-        internal static func segmentedControl(segments: [Segment], switching: SwitchingMode, type: Style) -> NSSegmentedControl {
-            let segmentedControl = NSSegmentedControl(segments: segments, switching: switching, style: type)
+        internal static func segmentedControl(switching: SwitchingMode, type: Style, @NSSegmentedControl.Builder segments: () -> [Segment]) -> NSSegmentedControl {
+            let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
             segmentedControl.segmentDistribution = .fit
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
             return segmentedControl
-        }
-
-        public convenience init(
-            _ identifier: NSToolbarItem.Identifier,
-            type: Style,
-            switching: SwitchingMode = .selectOne,
-            segmentWidths _: CGFloat? = nil,
-            segments: [Segment]
-        ) {
-            let segmentedControl = Self.segmentedControl(segments: segments, switching: switching, type: type)
-            self.init(identifier, segmentedControl: segmentedControl)
         }
 
         public convenience init(
@@ -98,7 +87,7 @@ public extension ToolbarItem {
             segmentWidths: CGFloat? = nil,
             @NSSegmentedControl.Builder segments: () -> [Segment]
         ) {
-            let segmentedControl = NSSegmentedControl(segments: segments(), switching: switching, style: type)
+            let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
             self.init(identifier, segmentedControl: segmentedControl)
         }
 

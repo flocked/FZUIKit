@@ -8,44 +8,17 @@
 import AppKit
 
 public extension NSSegmentedControl {
-    /**
-     Creates a segmented control with the specified segments.
-     
-     - Parameters switching: The tracking behavior of the segmented control.
-     - Parameters style: The visual style of the segmented control.
-     - Parameters segments: The segments.
-     - Returns: An initialized `NSSegmentedControl` object.
-     */
-    convenience init(
-        switching: NSSegmentedControl.SwitchTracking = .selectOne,
-        style: NSSegmentedControl.Style = .automatic,
-        @Builder segments: () -> [Segment]
-    ) {
-        self.init(segments: segments(), switching: switching, style: style)
-    }
-
-    /**
-     Creates a segmented control with the specified segments.
-     
-     - Parameters frame: The frame rectangle for the segmented control.
-     - Parameters switching: The tracking behavior of the segmented control.
-     - Parameters style: The visual style of the segmented control.
-     - Parameters segments: The segments.
-     - Returns: An initialized `NSSegmentedControl` object.
-     */
-    convenience init(
-        frame: CGRect,
-        switching: NSSegmentedControl.SwitchTracking = .selectOne,
-        style: NSSegmentedControl.Style = .automatic,
-        @Builder segments: () -> [Segment]
-    ) {
-        self.init(frame: frame, segments: segments(), switching: switching, style: style)
-    }
-
     @resultBuilder
     enum Builder {
         public static func buildBlock(_ block: [Segment]...) -> [Segment] {
             block.flatMap { $0 }
+        }
+        
+        public static func buildOptional(_ item: Segment?) -> [Segment] {
+            if let item = item {
+                return [item]
+            }
+           return []
         }
 
         public static func buildOptional(_ item: [Segment]?) -> [Segment] {

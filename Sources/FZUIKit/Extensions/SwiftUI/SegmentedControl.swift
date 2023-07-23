@@ -24,8 +24,8 @@ public struct SegmentedControl: NSViewRepresentable {
 
     public typealias NSViewType = NSSegmentedControl
 
-    public func segments(_ segments: [NSSegmentedControl.Segment]) -> Self {
-        self.segments = segments
+    public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegmentedControl.Segment]) -> Self {
+        self.segments = segments()
         return self
     }
 
@@ -39,10 +39,10 @@ public struct SegmentedControl: NSViewRepresentable {
         return self
     }
 
-    @State public var segments: [NSSegmentedControl.Segment] = []
-    @State public var trackingMode: NSSegmentedControl.SwitchTracking = .selectOne
-    @State public var indexOfSelectedSegment: Int = 0
-    @State public var style: NSSegmentedControl.Style = .automatic
+    @State public private(set) var segments: [NSSegmentedControl.Segment] = []
+    @State public private(set) var trackingMode: NSSegmentedControl.SwitchTracking = .selectOne
+    @State public private(set) var indexOfSelectedSegment: Int = 0
+    @State public private(set) var style: NSSegmentedControl.Style = .automatic
 
     public func makeNSView(context: Context) -> NSSegmentedControl {
         let segmentedControl = NSSegmentedControl(segments: segments)
@@ -68,25 +68,21 @@ public struct SegmentedControl: NSViewRepresentable {
     public func makeCoordinator() -> Coordinator {
         return Coordinator(segmentedControl: self)
     }
-
-    /*
-     public init(segments: [NSSegmentedControl.Segment] = [], trackingMode: NSSegmentedControl.SwitchTracking = .selectOne, indexOfSelectedSegment: Int = 0, style: NSSegmentedControl.Style = .automatic) {
-
-         self.segments = segments
-         self.trackingMode = trackingMode
-         self.indexOfSelectedSegment = indexOfSelectedSegment
-         self.style = style
-
-     }
-     */
 }
 
 struct SegmentedControl_Preview: PreviewProvider {
     static var previews: some View {
-        SegmentedControl(segments: ["Segment 1", "Segment 2"])
+        SegmentedControl()
+            .trackingMode(.selectOne)
+            .style(.texturedRounded)
+            .segments() {
+                NSSegmentedControl.Segment("Segment 1")
+                    .isSelected(true)
+                NSSegmentedControl.Segment("Segment 2")
+                NSSegmentedControl.Segment("Segment 3")
+            }
             .previewLayout(PreviewLayout.sizeThatFits)
             .padding()
-        //   .previewDisplayName("Default preview")
     }
 }
 

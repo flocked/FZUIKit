@@ -191,38 +191,9 @@ public extension NSUISegmentedControl {
 
          - Returns: A `NSSegmentedControl.Segment` object.
          */
-        public init(_ title: String, isSelected: Bool = false) {
-            self.title = title
-            self.isSelected = isSelected
-            self.image = nil
-        }
-
-        /**
-         Creates a new segment with the specified title.
-
-         - Parameters:
-            - title: The title of the segment.
-
-         - Returns: A `NSSegmentedControl.Segment` object.
-         */
-        public init(title: String, isSelected: Bool = false) {
+        public init(_ title: String) {
             self.title = title
             self.image = nil
-            self.isSelected = isSelected
-        }
-
-        /**
-         Creates a new segment with the specified title.
-
-         - Parameters:
-            - image: The image of the segment.
-
-         - Returns: A `NSSegmentedControl.Segment` object.
-         */
-        public init(image: NSImage, isSelected: Bool = false) {
-            self.title = nil
-            self.image = image
-            self.isSelected = isSelected
         }
 
         /**
@@ -233,10 +204,9 @@ public extension NSUISegmentedControl {
 
          - Returns: A `NSSegmentedControl.Segment` object.
          */
-        public init(_ image: NSImage, isSelected: Bool = false) {
+        public init(_ image: NSImage) {
             self.title = nil
             self.image = image
-            self.isSelected = isSelected
         }
 
         @available(macOS 11.0, *)
@@ -248,13 +218,12 @@ public extension NSUISegmentedControl {
 
          - Returns: A `NSSegmentedControl.Segment` object with a image based on the name you specify,  otherwise nil if the method couldn’t find a suitable image with the system symbol name.
          */
-        public init?(symbolName: String, isSelected: Bool = false) {
+        public init?(symbolName: String) {
             guard let image = NSImage(systemSymbolName: symbolName) else {
                 return nil
             }
             self.title = nil
             self.image = image
-            self.isSelected = isSelected
         }
 
         /**
@@ -266,10 +235,9 @@ public extension NSUISegmentedControl {
 
          - Returns: A `NSSegmentedControl.Segment` object.
          */
-        public init(title: String, image: NSImage, isSelected: Bool = false) {
+        public init(title: String, image: NSImage) {
             self.title = title
             self.image = image
-            self.isSelected = isSelected
         }
 
         /**
@@ -304,38 +272,41 @@ public extension NSUISegmentedControl {
 
 public extension NSSegmentedControl {
     /**
-     Creates a segmented control with segments.
-
-     - Parameters:
-        - segments: An array of NSSegmentedControl.Segment objects.
-        - switching: The type of tracking behavior the control exhibits.
-        - style: The visual style used to display the control.
-
-     - Returns: A `NSSegmentedControl` object.
+     Creates a segmented control with the specified segments.
+     
+     - Parameters switching: The tracking behavior of the segmented control.
+     - Parameters style: The visual style of the segmented control.
+     - Parameters segments: An array of segments.
+     - Returns: An initialized `NSSegmentedControl` object.
      */
-    convenience init(segments: [Segment], switching: NSSegmentedControl.SwitchTracking = .selectOne, style: NSSegmentedControl.Style = .automatic) {
+    convenience init(
+        switching: NSSegmentedControl.SwitchTracking = .selectOne,
+        style: NSSegmentedControl.Style = .automatic,
+        segments: [Segment]
+    ) {
         self.init(frame: .zero)
         segmentStyle = style
         trackingMode = switching
         self.segments = segments
     }
-
+    
     /**
-     Creates a segmented control with segments.
-
-     - Parameters:
-        -  frame: The frame rectangle for the view, measured in points.
-        - segments: An array of NSSegmentedControl.Segment objects.
-        - switching: The type of tracking behavior the control exhibits.
-        - style: The visual style used to display the control.
-
-     - Returns: A `NSSegmentedControl object.
+     Creates a segmented control with the specified segments.
+     
+     - Parameters switching: The tracking behavior of the segmented control.
+     - Parameters style: The visual style of the segmented control.
+     - Parameters segments: The segments.
+     - Returns: An initialized `NSSegmentedControl` object.
      */
-    convenience init(frame: CGRect, segments: [Segment], switching: NSSegmentedControl.SwitchTracking = .selectOne, style: NSSegmentedControl.Style = .automatic) {
-        self.init(frame: frame)
+    convenience init(
+        switching: NSSegmentedControl.SwitchTracking = .selectOne,
+        style: NSSegmentedControl.Style = .automatic,
+        @Builder segments: () -> [Segment]
+    ) {
+        self.init(frame: .zero)
         segmentStyle = style
         trackingMode = switching
-        self.segments = segments
+        self.segments = segments()
     }
 
     /// Returns all segments displayed by the segmented control.
