@@ -11,22 +11,32 @@ import AppKit
 import Foundation
 
 public extension NSCollectionView {
+    /**
+     The frame of the item at the specified index path.
+     - Parameters indexPath: The index path of the item.
+     - Returns: The frame of the item or nil if no item exists at the specified path.
+     */
     func frameForItem(at indexPath: IndexPath) -> CGRect? {
         return layoutAttributesForItem(at: indexPath)?.frame
     }
 
+    /**
+     The item item at the specified location.
+     - Parameters location: The location of the item.
+     - Returns: The item or nil if no item exists at the specified location.
+     */
     func item(at location: CGPoint) -> NSCollectionViewItem? {
         if let indexPath = indexPathForItem(at: location) {
             return item(at: indexPath)
         }
         return nil
     }
-    
-    func item(for event: NSEvent) -> NSCollectionViewItem? {
-        let location = event.location(in: self)
-        return item(at: location)
-    }
 
+    /**
+     The item index paths for the specified section.
+     - Parameters section: The section of the items.
+     - Returns: The item index paths.
+     */
     func indexPaths(for section: Int) -> [IndexPath] {
         var indexPaths = [IndexPath]()
         if numberOfSections > section {
@@ -38,6 +48,7 @@ public extension NSCollectionView {
         return indexPaths
     }
 
+    /*
     var allIndexPaths: [IndexPath] {
         var indexPaths = [IndexPath]()
         for section in 0 ..< numberOfSections {
@@ -50,6 +61,7 @@ public extension NSCollectionView {
         let selected = selectionIndexPaths
         return allIndexPaths.filter { selected.contains($0) == false }
     }
+     */
 
     func scrollToTop() {
         enclosingScrollView?.scrollToBeginningOfDocument(nil)
