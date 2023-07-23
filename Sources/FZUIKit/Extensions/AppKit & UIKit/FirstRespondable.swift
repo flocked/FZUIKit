@@ -21,7 +21,7 @@ public protocol FirstRespondable: NSUIResponder {
 
      - Returns: `true if the responder is the first responder; otherwise, `false`.
      */
-     var isFirstResponder: Bool { get }
+    var isFirstResponder: Bool { get }
     #if os(macOS)
     var acceptsFirstResponder: Bool { get }
     #elseif canImport(UIKit)
