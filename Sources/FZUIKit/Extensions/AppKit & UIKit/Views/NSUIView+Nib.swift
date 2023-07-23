@@ -48,8 +48,23 @@ public extension NSUIView {
     }
 }
 
-public enum NibLoadingError: Error {
+/// Nib loading errors.
+public enum NibLoadingError: Error, CustomStringConvertible {
+    /// Nib file not found.
     case nibNotFound
+    /// Nib top level object not found
     case topLevelObjectNotFound
+    /// Nib multiple top level objects found
     case multipleTopLevelObjectsFound
+    
+    public var description: String {
+        switch self {
+        case .nibNotFound:
+            return "[Nib Error] Nib file not found"
+        case .topLevelObjectNotFound:
+            return "[Nib Error] Top level object not found"
+        case .multipleTopLevelObjectsFound:
+            return "[Nib Error] Multiple top level objects found"
+        }
+    }
 }

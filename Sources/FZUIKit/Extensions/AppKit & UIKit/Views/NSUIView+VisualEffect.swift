@@ -13,40 +13,40 @@ import UIKit
 
 public extension NSUIView {
     /**
-      The views’s visual effect background.
-
+     The visual effect background of the view.
+     
      The property adds a visual effect view as background to the view. The default value is nil.
-      */
+     */
     var visualEffect: ContentConfiguration.VisualEffect? {
         get {
-            return _visualEffectView?.contentProperties
+            return visualEffectBackgroundView?.contentProperties
         }
         set {
             if let newValue = newValue {
-                if let visualEffectView = _visualEffectView {
+                if let visualEffectView = visualEffectBackgroundView {
                     visualEffectView.contentProperties = newValue
                 } else {
-                    _visualEffectView = TaggedVisualEffectView()
-                    _visualEffectView?.constraint(to: self)
-                    _visualEffectView?.contentProperties = newValue
+                    visualEffectBackgroundView = TaggedVisualEffectView()
+                    visualEffectBackgroundView?.constraint(to: self)
+                    visualEffectBackgroundView?.contentProperties = newValue
                 }
-                #if os(macOS)
+#if os(macOS)
                 if let appearance = newValue.appearance {
                     self.appearance = appearance
                 }
-                #endif
+#endif
             } else {
-                _visualEffectView = nil
+                visualEffectBackgroundView = nil
             }
         }
     }
-
-    internal var _visualEffectView: TaggedVisualEffectView? {
+    
+    internal var visualEffectBackgroundView: TaggedVisualEffectView? {
         get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView
         }
         set {
-            if self._visualEffectView != newValue {
-                self._visualEffectView?.removeFromSuperview()
+            if self.visualEffectBackgroundView != newValue {
+                self.visualEffectBackgroundView?.removeFromSuperview()
             }
             if let newValue = newValue {
                 insertSubview(newValue, at: 0)
@@ -61,11 +61,11 @@ internal extension NSView {
         public static var Tag: Int {
             return 3_443_024
         }
-
+        
         override var tag: Int {
             return Self.Tag
         }
-
+        
         public var contentProperties: ContentConfiguration.VisualEffect {
             get {
                 return ContentConfiguration.VisualEffect(material: material, blendingMode: blendingMode, state: state, isEmphasized: isEmphasized, maskImage: maskImage, appearance: appearance)
@@ -88,7 +88,7 @@ internal extension UIView {
         public var contentProperties: ContentConfiguration.VisualEffect = .init(style: nil) {
             didSet { updateEffect() }
         }
-
+        
         internal func updateEffect() {
             if let newStyle = contentProperties.style {
                 switch newStyle {
@@ -102,14 +102,14 @@ internal extension UIView {
                 effect = nil
             }
         }
-
+        
         public static var Tag: Int {
             return 3_443_024
         }
-
+        
         override var tag: Int {
             get { return Self.Tag }
-            set {}
+            set { }
         }
     }
 }

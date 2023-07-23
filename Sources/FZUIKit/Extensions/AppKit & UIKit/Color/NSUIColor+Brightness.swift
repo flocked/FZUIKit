@@ -14,6 +14,11 @@ import UIKit
 #endif
 
 public extension NSUIColor {
+    /**
+     Tints the color by the specified amount.
+     - Parameters amount: The amount of tint.
+     - Returns: The tinted color object.
+     */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS)
         return blended(withFraction: amount, of: .white) ?? self
@@ -22,6 +27,11 @@ public extension NSUIColor {
         #endif
     }
 
+    /**
+     Shades the color by the specified amount.
+     - Parameters amount: The amount of shade.
+     - Returns: The shaded color object.
+     */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS)
         return blended(withFraction: amount, of: .black) ?? self
@@ -30,6 +40,11 @@ public extension NSUIColor {
         #endif
     }
 
+    /**
+     Brightens the color by the specified amount.
+     - Parameters amount: The amount of brightness.
+     - Returns: The brightened color object.
+     */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS)
         let color = self.withSupportedColorSpace() ?? self
@@ -39,18 +54,38 @@ public extension NSUIColor {
         #endif
     }
 
+    /**
+     Darkens the color by the specified amount.
+     - Parameters amount: The amount of darken.
+     - Returns: The darkened color object.
+     */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
         return HSL(color: self).darkened(amount: amount).toColor()
     }
 
-    final func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
+    /**
+     Saturates the color by the specified amount.
+     - Parameters amount: The amount of saturation.
+     - Returns: The saturated color object.
+     */
+    func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
         return HSL(color: self).saturated(amount: amount).toColor()
     }
 
+    /**
+     Desaturates the color by the specified amount.
+     - Parameters amount: The amount of desaturation.
+     - Returns: The desaturated color object.
+     */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
         return HSL(color: self).desaturated(amount: amount).toColor()
     }
 
+    /**
+     A grayscaled representation of the color.
+     - Parameters mode: The grayscale mode.
+     - Returns: The grayscaled color.
+     */
     func grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
         let (r, g, b, a) = rgbaComponents()
 

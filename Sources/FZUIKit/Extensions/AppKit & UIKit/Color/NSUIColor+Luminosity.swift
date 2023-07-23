@@ -14,6 +14,7 @@ import UIKit
 #endif
 
 public extension NSUIColor {
+    /// The brightness of the color.
     var brightness: CGFloat {
         #if os(macOS)
         let color: NSUIColor? = usingColorSpace(.deviceRGB)
@@ -30,6 +31,7 @@ public extension NSUIColor {
         #endif
     }
 
+    /// The luminance of the color.
     var luminance: CGFloat {
         let components = rgbaComponents()
         let componentsArray = [components.red, components.green, components.blue].map { val -> CGFloat in
@@ -40,6 +42,7 @@ public extension NSUIColor {
         return (0.2126 * componentsArray[0]) + (0.7152 * componentsArray[1]) + (0.0722 * componentsArray[2])
     }
 
+    /// The luminosity of the color.
     var luminosity: CGFloat {
         #if os(macOS)
         var color: NSUIColor = self
@@ -57,7 +60,13 @@ public extension NSUIColor {
         return ((minRGB + maxRGB) / 2)
     }
 
-    func withLuminosity(_ newLuminosity: CGFloat) -> NSUIColor {
+    /**
+     Returns a new color object with the specified luminosity value.
+     
+     - Parameters luminosity: The luminosity value of the new color object, specified as a value from 0.0 to 1.0. Luminosity values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Returns: The new color object.
+     */
+    func withLuminosity(_ luminosity: CGFloat) -> NSUIColor {
         // 1 - Convert the RGB values to the range 0-1
         #if os(macOS)
         let coreColour = CIColor(color: self)!
@@ -72,7 +81,7 @@ public extension NSUIColor {
         guard let minRGB = rgb.min(), let maxRGB = rgb.max() else { return self }
 
         // 3 - Now calculate the Luminace value by adding the max and min values and divide by 2.
-        var luminosity = (minRGB + maxRGB) / 2
+        var _luminosity = (minRGB + maxRGB) / 2
 
         // 4 - The next step is to find the Saturation.
         // 4a - if min and max RGB are the same, we have 0 saturation
@@ -81,9 +90,9 @@ public extension NSUIColor {
         // 5 - Now we know that there is Saturation we need to do check the level of the Luminance in order to select the correct formula.
         //     If Luminance is smaller then 0.5, then Saturation = (max-min)/(max+min)
         //     If Luminance is bigger then 0.5. then Saturation = ( max-min)/(2.0-max-min)
-        if luminosity <= 0.5 {
+        if _luminosity <= 0.5 {
             saturation = (maxRGB - minRGB) / (maxRGB + minRGB)
-        } else if luminosity > 0.5 {
+        } else if _luminosity > 0.5 {
             saturation = (maxRGB - minRGB) / (2.0 - maxRGB - minRGB)
         } else {
             // 0 if we are equal RGBs
@@ -113,26 +122,26 @@ public extension NSUIColor {
         }
 
         // we want to convert the luminosity. So we will.
-        luminosity = newLuminosity
+        _luminosity = luminosity
 
         // Now we need to convert back to RGB
 
         // 1 - If there is no Saturation it means that it’s a shade of grey. So in that case we just need to convert the Luminance and set R,G and B to that level.
         if saturation == 0 {
-            return NSUIColor(red: 1.0 * luminosity, green: 1.0 * luminosity, blue: 1.0 * luminosity, alpha: alpha)
+            return NSUIColor(red: 1.0 * _luminosity, green: 1.0 * _luminosity, blue: 1.0 * _luminosity, alpha: alpha)
         }
 
         // 2 - If Luminance is smaller then 0.5 (50%) then temporary_1 = Luminance x (1.0+Saturation)
         //     If Luminance is equal or larger then 0.5 (50%) then temporary_1 = Luminance + Saturation – Luminance x Saturation
         var temporaryVariableOne: CGFloat = 0
-        if luminosity < 0.5 {
-            temporaryVariableOne = luminosity * (1 + saturation)
+        if _luminosity < 0.5 {
+            temporaryVariableOne = _luminosity * (1 + saturation)
         } else {
-            temporaryVariableOne = luminosity + saturation - luminosity * saturation
+            temporaryVariableOne = _luminosity + saturation - _luminosity * saturation
         }
 
         // 3 - Final calculated temporary variable
-        let temporaryVariableTwo = 2 * luminosity - temporaryVariableOne
+        let temporaryVariableTwo = 2 * _luminosity - temporaryVariableOne
 
         // 4 - The next step is to convert the 360 degrees in a circle to 1 by dividing the angle by 360
         let convertedHue = hue / 360

@@ -29,30 +29,30 @@ public enum UIViewCornerShape: Hashable {
 
 public extension NSUIView {
     var cornerShape: NSUIViewCornerShape? {
-        get { getAssociatedValue(key: "_viewCornerShape", object: self, initialValue: nil) }
+        get { getAssociatedValue(key: "NSView_cornerShape", object: self, initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "_viewCornerShape", object: self)
+            set(associatedValue: newValue, key: "NSView_cornerShape", object: self)
             if let newValue = newValue {
                 if newValue != .rectangle {
-                    if cornerShapeBoundsKVO == nil {
-                        cornerShapeBoundsKVO = observeChanges(for: \.bounds) { [weak self] _, _ in
+                    if cornerShapeBoundsObserver == nil {
+                        cornerShapeBoundsObserver = observeChanges(for: \.bounds) { [weak self] _, _ in
                             self?.updateCornerShape()
                         }
                     }
                 } else {
-                    cornerShapeBoundsKVO?.invalidate()
-                    cornerShapeBoundsKVO = nil
+                    cornerShapeBoundsObserver?.invalidate()
+                    cornerShapeBoundsObserver = nil
                 }
             } else {
-                cornerShapeBoundsKVO?.invalidate()
-                cornerShapeBoundsKVO = nil
+                cornerShapeBoundsObserver?.invalidate()
+                cornerShapeBoundsObserver = nil
             }
         }
     }
 
-    internal var cornerShapeBoundsKVO: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "view_cornerShape_bounds_KVO", object: self) }
-        set { set(associatedValue: newValue, key: "view_cornerShape_bounds_KVO", object: self) }
+    internal var cornerShapeBoundsObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "view_cornerShapeBoundsObserver", object: self) }
+        set { set(associatedValue: newValue, key: "view_cornerShapeBoundsObserver", object: self) }
     }
     
     internal func updateCornerShape() {

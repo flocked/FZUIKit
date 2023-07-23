@@ -47,7 +47,7 @@ extension NSView {
     }
 
     /**
-     An optional view whose alpha channel is used to mask a view’s content.
+     The view whose alpha channel is used to mask a view’s content.
 
      The view’s alpha channel determines how much of the view’s content and background shows through. Fully or partially opaque pixels allow the underlying content to show through but fully transparent pixels block that content.
      
@@ -156,7 +156,7 @@ extension NSView {
     }
     
     /**
-     The view’s corner radius.
+     The corner radius of the view.
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
@@ -170,7 +170,7 @@ extension NSView {
     }
 
     /**
-     The view’s corner curve.
+     The corner curve of the view.
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
@@ -184,7 +184,7 @@ extension NSView {
     }
 
     /**
-     The view’s rounded corners.
+     The rounded corners of the view.
 
      Using this property turns the view into a layer-backed view.
      */
@@ -197,7 +197,7 @@ extension NSView {
     }
 
     /**
-     The view’s border width.
+     The border width of the view.
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
@@ -211,7 +211,7 @@ extension NSView {
     }
 
     /**
-     The view’s border color.
+     The border color of the view.
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
@@ -279,7 +279,7 @@ extension NSView {
         needsUpdateConstraints = true
     }
 
-    /// Returns the parent view controller managing the view.
+    /// The parent view controller managing the view.
     public var parentController: NSViewController? {
         if let responder = nextResponder as? NSViewController {
             return responder

@@ -47,7 +47,7 @@ public typealias NSUILayoutPriority = NSLayoutConstraint.Priority
 public typealias NSUIUserInterfaceLayoutOrientation = NSUserInterfaceLayoutOrientation
 public typealias NSUIViewRepresentable = NSViewRepresentable
 public typealias NSUIResponder = NSResponder
-
+public typealias NSUIControl = NSControl
 
 #elseif canImport(UIKit)
 import UIKit
@@ -85,5 +85,6 @@ public typealias NSUILayoutPriority = UILayoutPriority
 public typealias NSUIUserInterfaceLayoutOrientation = NSLayoutConstraint.Axis
 public typealias NSUIViewRepresentable = UIViewRepresentable
 public typealias NSUIResponder = UIResponder
+public typealias NSUIControl = UIControl
 
 #endif
