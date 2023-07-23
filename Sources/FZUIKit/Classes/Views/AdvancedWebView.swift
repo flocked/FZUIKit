@@ -25,7 +25,7 @@ public class AdvanceWebView: WKWebView {
         /// The handler that determines whether a url request should be downloaded.
         public var shouldDownload: ((URLRequest)->(Bool))? = nil
         /// The handler that determines the file location of a finished download.
-        public var downloadLocation: ((_ suggestedFilename: String)->(URL?))? = nil
+        public var downloadLocation: ((_ response: URLResponse, _ suggestedFilename: String)->(URL?))? = nil
         /// The handler that gets called whenever a download finishes.
         public var didFinish: (()->())? = nil
         /// The handler that gets called whenever a download failed.
@@ -183,7 +183,7 @@ extension AdvanceWebView: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
         Swift.print("[AdvanceWebView] download downloadLocation", suggestedFilename, response.expectedContentLength)
         self.downloadExpectedFileSize = response.expectedContentLength
-        self.downloadLocation = self.downloadHandlers.downloadLocation?(suggestedFilename) ?? nil
+        self.downloadLocation = self.downloadHandlers.downloadLocation?(response, suggestedFilename) ?? nil
         if downloadLocation != nil {
             self.downloadStartDate = Date()
         }
