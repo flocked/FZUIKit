@@ -189,7 +189,7 @@ public extension NSUISegmentedControl {
          - Parameters:
             - title: The title of the segment.
 
-         - Returns: A NSSegmentedControl.Segment object.
+         - Returns: A `NSSegmentedControl.Segment` object.
          */
         public init(_ title: String, isSelected: Bool = false) {
             self.title = title
@@ -203,7 +203,7 @@ public extension NSUISegmentedControl {
          - Parameters:
             - title: The title of the segment.
 
-         - Returns: A NSSegmentedControl.Segment object.
+         - Returns: A `NSSegmentedControl.Segment` object.
          */
         public init(title: String, isSelected: Bool = false) {
             self.title = title
@@ -217,7 +217,7 @@ public extension NSUISegmentedControl {
          - Parameters:
             - image: The image of the segment.
 
-         - Returns: A NSSegmentedControl.Segment object.
+         - Returns: A `NSSegmentedControl.Segment` object.
          */
         public init(image: NSImage, isSelected: Bool = false) {
             self.title = nil
@@ -231,7 +231,7 @@ public extension NSUISegmentedControl {
          - Parameters:
             - image: The image of the segment.
 
-         - Returns: A NSSegmentedControl.Segment object.
+         - Returns: A `NSSegmentedControl.Segment` object.
          */
         public init(_ image: NSImage, isSelected: Bool = false) {
             self.title = nil
@@ -246,7 +246,7 @@ public extension NSUISegmentedControl {
          - Parameters:
             - systemSymbolName: The name of the system symbol image.
 
-         - Returns: A NSSegmentedControl.Segment object with a image based on the name you specify,  otherwise nil if the method couldn’t find a suitable image with the system symbol name.
+         - Returns: A `NSSegmentedControl.Segment` object with a image based on the name you specify,  otherwise nil if the method couldn’t find a suitable image with the system symbol name.
          */
         public init?(symbolName: String, isSelected: Bool = false) {
             guard let image = NSImage(systemSymbolName: symbolName) else {
@@ -264,7 +264,7 @@ public extension NSUISegmentedControl {
             - title: The title of the segment.
             - image: The image of the segment.
 
-         - Returns: A NSSegmentedControl.Segment object.
+         - Returns: A `NSSegmentedControl.Segment` object.
          */
         public init(title: String, image: NSImage, isSelected: Bool = false) {
             self.title = title
@@ -278,7 +278,7 @@ public extension NSUISegmentedControl {
          - Parameters:
             - stringLiteral: The title of the segment.
 
-         - Returns: A NSSegmentedControl.Segment object.
+         - Returns: A `NSSegmentedControl.Segment` object.
          */
         public required init(stringLiteral value: String) {
             self.title = value
@@ -311,7 +311,7 @@ public extension NSSegmentedControl {
         - switching: The type of tracking behavior the control exhibits.
         - style: The visual style used to display the control.
 
-     - Returns: A NSSegmentedControl object.
+     - Returns: A `NSSegmentedControl` object.
      */
     convenience init(segments: [Segment], switching: NSSegmentedControl.SwitchTracking = .selectOne, style: NSSegmentedControl.Style = .automatic) {
         self.init(frame: .zero)
@@ -329,7 +329,7 @@ public extension NSSegmentedControl {
         - switching: The type of tracking behavior the control exhibits.
         - style: The visual style used to display the control.
 
-     - Returns: A NSSegmentedControl object.
+     - Returns: A `NSSegmentedControl object.
      */
     convenience init(frame: CGRect, segments: [Segment], switching: NSSegmentedControl.SwitchTracking = .selectOne, style: NSSegmentedControl.Style = .automatic) {
         self.init(frame: frame)

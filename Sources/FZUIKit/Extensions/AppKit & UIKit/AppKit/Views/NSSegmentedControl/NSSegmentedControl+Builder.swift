@@ -8,6 +8,14 @@
 import AppKit
 
 public extension NSSegmentedControl {
+    /**
+     Creates a segmented control with the specified segments.
+     
+     - Parameters switching: The tracking behavior of the segmented control.
+     - Parameters style: The visual style of the segmented control.
+     - Parameters segments: The segments.
+     - Returns: An initialized `NSSegmentedControl` object.
+     */
     convenience init(
         switching: NSSegmentedControl.SwitchTracking = .selectOne,
         style: NSSegmentedControl.Style = .automatic,
@@ -16,6 +24,15 @@ public extension NSSegmentedControl {
         self.init(segments: segments(), switching: switching, style: style)
     }
 
+    /**
+     Creates a segmented control with the specified segments.
+     
+     - Parameters frame: The frame rectangle for the segmented control.
+     - Parameters switching: The tracking behavior of the segmented control.
+     - Parameters style: The visual style of the segmented control.
+     - Parameters segments: The segments.
+     - Returns: An initialized `NSSegmentedControl` object.
+     */
     convenience init(
         frame: CGRect,
         switching: NSSegmentedControl.SwitchTracking = .selectOne,

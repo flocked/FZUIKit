@@ -11,7 +11,6 @@ import AppKit
 import FZSwiftUtils
 
 extension NSToolbar {
-    
     /**
      Creates a managed toolbar with the specified identifier and toolbar items.
 

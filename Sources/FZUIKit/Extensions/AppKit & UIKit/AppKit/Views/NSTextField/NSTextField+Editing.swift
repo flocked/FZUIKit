@@ -10,61 +10,82 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSTextField {
-    typealias EditingHandler = (_ state: EditingState, _ stringValue: String) -> Void
+    /// The editing state of a text field.
     enum EditingState {
+        /// Editing of the text started.
         case isStarted
+        /// The text did update.
         case didUpdate
+        /// Editing of the text did end.
         case isEnded
     }
 
+    /// The action to perform when the user pressed the escape key.
     enum EscapeKeyAction {
+        /// No action.
         case none
+        /// Ends editing the text.
         case endEditing
+        /// Ends editing the text and resets it to the the state before editing.
         case endEditingAndReset
     }
 
+    /// The action to perform when the user pressed the enter key.
     enum EnterKeyAction {
+        /// No action.
         case none
+        /// Ends editing the text.
         case endEditing
     }
 
     private(set) var editingState: EditingState {
-        get { getAssociatedValue(key: "_textFieldEditingState", object: self, initialValue: .isEnded) }
+        get {
+            bridgeTextField()
+            return getAssociatedValue(key: "NSTextField_editingState", object: self, initialValue: .isEnded) }
         set {
-            set(associatedValue: newValue, key: "_textFieldEditingState", object: self)
+            set(associatedValue: newValue, key: "NSTextField_editingState", object: self)
             editingHandler?(self.editingState, stringValue)
         }
     }
 
-    var editingHandler: EditingHandler? {
-        get { getAssociatedValue(key: "_textFieldEditingHandler", object: self, initialValue: nil) }
+    /// The handler that gets called when the editing state updates.
+    var editingHandler: ((_ state: EditingState, _ stringValue: String) -> ())? {
+        get { getAssociatedValue(key: "NSTextField_editingHandler", object: self, initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "_textFieldEditingHandler", object: self)
-            bridgeTextField()
+            set(associatedValue: newValue, key: "NSTextField_editingHandler", object: self)
+            if newValue != nil {
+                bridgeTextField()
+            }
         }
     }
 
+    /// The action to perform when the user pressed the enter key.
     var actionAtEnterKeyDown: EnterKeyAction {
-        get { getAssociatedValue(key: "_textFieldEnterKeyAction", object: self, initialValue: .none) }
+        get { getAssociatedValue(key: "NSTextField_actionAtEnterKeyDown", object: self, initialValue: .none) }
         set {
-            set(associatedValue: newValue, key: "_textFieldEnterKeyAction", object: self)
-            bridgeTextField()
+            set(associatedValue: newValue, key: "NSTextField_actionAtEnterKeyDown", object: self)
+            if newValue == .endEditing {
+                bridgeTextField()
+            }
         }
     }
 
+    /// The action to perform when the user pressed the escpae key.
     var actionAtEscapeKeyDown: EscapeKeyAction {
-        get { getAssociatedValue(key: "_textFieldEscapeKeyAction", object: self, initialValue: .none) }
+        get { getAssociatedValue(key: "NSTextFIeld_actionAtEscapeKeyDown", object: self, initialValue: .none) }
         set {
-            set(associatedValue: newValue, key: "_textFieldEscapeKeyAction", object: self)
-            bridgeTextField()
-            //  Self.swizzleTextField()
+            set(associatedValue: newValue, key: "NSTextFIeld_actionAtEscapeKeyDown", object: self)
+            if newValue != .none {
+                bridgeTextField()
+            }
         }
     }
 
+    /// The maximum numbers of characters of the string value.
     var maximumNumberOfCharacters: Int? {
-        get { getAssociatedValue(key: "_textFieldMaximumNumberOfCharacters", object: self, initialValue: nil) }
+        get { getAssociatedValue(key: "NSTextField_maximumNumberOfCharacters", object: self, initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "_textFieldMaximumNumberOfCharacters", object: self)
+            set(associatedValue: newValue, key: "NSTextField_maximumNumberOfCharacters", object: self)
             if let maxCharCount = newValue, stringValue.count > maxCharCount {
                 stringValue = String(stringValue.prefix(maxCharCount))
             }
@@ -73,8 +94,8 @@ public extension NSTextField {
     }
 
     internal var startStringValue: String {
-        get { getAssociatedValue(key: "_textFieldStartStringValue", object: self, initialValue: stringValue) }
-        set { set(associatedValue: newValue, key: "_textFieldStartStringValue", object: self)
+        get { getAssociatedValue(key: "NSTextField_startStringValue", object: self, initialValue: stringValue) }
+        set { set(associatedValue: newValue, key: "NSTextField_startStringValue", object: self)
         }
     }
 
@@ -85,8 +106,8 @@ public extension NSTextField {
     }
 
     internal var delegateBridge: DelegateProxy? {
-        get { getAssociatedValue(key: "_textFieldDelegateProxy", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "_textFieldDelegateProxy", object: self)
+        get { getAssociatedValue(key: "NSTextField_delegateBridge", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "NSTextField_delegateBridge", object: self)
         }
     }
 

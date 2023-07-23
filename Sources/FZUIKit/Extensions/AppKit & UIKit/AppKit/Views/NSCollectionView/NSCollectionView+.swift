@@ -11,21 +11,6 @@ import AppKit
 import Foundation
 
 public extension NSCollectionView {
-    enum ElementKind {
-        public static let itemTopSeperator: String = "ElementKindItemTopSeperator"
-        public static let itemBottomSeperator: String = "ElementKindBottomSeperator"
-        public static let itemBackground: String = "ElementKindItemBackground"
-        public static let groupBackground: String = "ElementKindGroumBackground"
-        public static let sectionBackground: String = "ElementKindSectionBackground"
-        public static var sectionHeader: String {
-            return NSCollectionView.elementKindSectionHeader
-        }
-
-        public static var sectionFooter: String {
-            return NSCollectionView.elementKindSectionFooter
-        }
-    }
-
     func frameForItem(at indexPath: IndexPath) -> CGRect? {
         return layoutAttributesForItem(at: indexPath)?.frame
     }

@@ -12,7 +12,7 @@ public extension NSTextField {
     /**
      Initializes a text field with the specified layout.
      - Parameters layout: The text layout of the text field.
-     - Returns: An initialized text field.
+     - Returns: An initialized `NSTextField`.
      */
     convenience init(layout: TextLayout) {
         self.init(frame: .zero)

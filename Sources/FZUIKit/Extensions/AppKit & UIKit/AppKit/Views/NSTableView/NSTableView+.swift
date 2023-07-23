@@ -13,7 +13,6 @@ public extension NSTableView {
      Reloads the table view on the main thread.
      - Parameters maintainingSelection: A Boolean value that indicates whether the table view should maintain it's selection after reloading.
      - Parameters completionHandler: The handler that gets called when the table view finishes reloading.
-     
      */
     func reloadOnMainThread(maintainingSelection: Bool = false, completionHandler: (() -> Void)? = nil) {
         DispatchQueue.main.async {
@@ -55,8 +54,8 @@ public extension NSTableView {
 
      - Returns: The array of row views corresponding to the currently visible row views.
      */
-    func visibleRows(makeIfNecessary: Bool) -> [NSTableRowView] {
-        return visibleRowIndexes().compactMap { self.rowView(atRow: $0, makeIfNecessary: makeIfNecessary) }
+    func visibleRows() -> [NSTableRowView] {
+        return visibleRowIndexes().compactMap { self.rowView(atRow: $0, makeIfNecessary: false) }
     }
 
     /**
@@ -73,12 +72,12 @@ public extension NSTableView {
 
      - Returns: The array of row views corresponding to the currently visible cell view.
      */
-    func visibleCells(for column: NSTableColumn, makeIfNecessary: Bool) -> [NSTableCellView] {
+    func visibleCells(for column: NSTableColumn) -> [NSTableCellView] {
         let rowIndexes = visibleRowIndexes()
         var cells = [NSTableCellView]()
         if let columnIndex = tableColumns.firstIndex(of: column) {
             for rowIndex in rowIndexes {
-                if let cellView = view(atColumn: columnIndex, row: rowIndex, makeIfNecessary: makeIfNecessary) as? NSTableCellView {
+                if let cellView = view(atColumn: columnIndex, row: rowIndex, makeIfNecessary: false) as? NSTableCellView {
                     cells.append(cellView)
                 }
             }
@@ -99,17 +98,6 @@ public extension NSTableView {
     }
     
     /**
-     Returns the row view for the specified event.
-     
-     - Parameters event: The event.
-     - Returns: The row view, or nil if there isn't any row view for the event.
-     */
-    func rowView(for event: NSEvent) -> NSTableRowView? {
-        let location = event.location(in: self)
-        return rowView(at: location)
-    }
-    
-    /**
      Returns the table cell view at the specified location.
      
      - Parameters location: The location of the table cell view.
@@ -118,17 +106,6 @@ public extension NSTableView {
     func cellView(at location: CGPoint) -> NSTableCellView? {
         guard let rowView = self.rowView(at: location) else { return nil }
         return rowView.cellViews.first(where: { $0.frame.contains(location) })
-    }
-    
-    /**
-     Returns the table cell view for the specified event.
-     
-     - Parameters event: The event.
-     - Returns: The table cell view, or nil if there isn't any table cell view for the event..
-     */
-    func cellView(for event: NSEvent) -> NSTableCellView? {
-        let location = event.location(in: self)
-        return cellView(at: location)
     }
 }
 #endif

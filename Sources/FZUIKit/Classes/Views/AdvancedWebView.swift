@@ -34,7 +34,7 @@ public class AdvanceWebView: WKWebView {
         public var progress: ((_ current: Int64, _ total: Int64)->())? = nil
     }
     
-    @available(macOS 11.3, *)
+    @available(macOS 11.3, iOS 14.5, *)
     /// The handlers for downloading files.
     public var downloadHandlers: DownloadHandlers {
         get {  return getAssociatedValue(key: "AdvanceWebView_downloadHandlers", object: self, initialValue: DownloadHandlers()) }
@@ -45,7 +45,7 @@ public class AdvanceWebView: WKWebView {
     private var downloadStartDate = Date()
     private var finderFileDownloadProgress: Progress?
 
-    @available(macOS 11.3, *)
+    @available(macOS 11.3, iOS 14.5, *)
     /// The current download.
     @objc dynamic public var download: WKDownload? {
         get {  return getAssociatedValue(key: "AdvanceWebView_download", object: self, initialValue: nil) }
@@ -88,17 +88,17 @@ public class AdvanceWebView: WKWebView {
 }
 
 extension AdvanceWebView: WKNavigationDelegate  {
-    @available(macOS 11.3, *)
+    @available(macOS 11.3, iOS 14.5, *)
     public func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         self.setupDownload(download)
     }
         
-    @available(macOS 11.3, *)
+    @available(macOS 11.3, iOS 14.5, *)
     public func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
         self.setupDownload(download)
     }
     
-    @available(macOS 11.3, *)
+    @available(macOS 11.3, iOS 14.5, *)
     internal func setupDownload(_ download: WKDownload) {
         download.delegate = self
         self.download = download
@@ -120,7 +120,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
         self.updateDownloadProgress()
     }
     
-    @available(macOS 11.3, *)
+    @available(macOS 11.3, iOS 14.5, *)
     internal func updateDownloadProgress() {
         self.download?.progress.updateEstimatedTimeRemaining(dateStarted: self.downloadStartDate)
         guard self.download != nil else {
@@ -129,6 +129,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
             return
         }
         
+#if os(macOS)
         if finderFileDownloadProgress == nil, let downloadLocation = self.downloadLocation, let totalBytes = self.download?.progress.totalUnitCount {
             finderFileDownloadProgress = Progress(parent: nil, userInfo: [
                 .fileOperationKindKey: Progress.FileOperationKind.downloading,
@@ -139,6 +140,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
             finderFileDownloadProgress?.totalUnitCount = totalBytes
             finderFileDownloadProgress?.publish()
         }
+#endif
         
         guard let downloadProgress = self.download?.progress else { return }
         finderFileDownloadProgress?.totalUnitCount = downloadProgress.totalUnitCount
@@ -166,7 +168,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
             }
             self.currentHTTPCookies = cookies
         })
-        if #available(macOS 11.3, *) {
+        if #available(macOS 11.3, iOS 14.5, *) {
             let shouldDownload = downloadHandlers.shouldDownload?(navigationAction.request) ?? false
             if shouldDownload == false {
                 downloadLocation = nil
@@ -178,7 +180,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
     }
 }
 
-@available(macOS 11.3, *)
+@available(macOS 11.3, iOS 14.5, *)
 extension AdvanceWebView: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
         Swift.print("[AdvanceWebView] download downloadLocation", suggestedFilename, response.expectedContentLength)

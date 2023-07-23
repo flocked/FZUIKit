@@ -10,23 +10,49 @@ import AppKit
 import Foundation
 
 public extension NSPopUpButton {
-    convenience init(items: [NSMenuItem], action: ActionBlock? = nil) {
+    /**
+     Creates a popup button with the specified menu items.
+     
+     - Parameters items: An array of menu items.
+     - Parameters pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
+     - Parameters action: The action block of the button.
+     - Returns: An initialized `NSPopUpButton` object.
+     */
+    convenience init(items: [NSMenuItem], pullsDown: Bool = false, action: ActionBlock? = nil) {
         self.init()
         self.items = items
         actionBlock = action
     }
 
-    convenience init(titles: [String], action: ActionBlock? = nil) {
+    /**
+     Creates a popup button with the titles.
+     
+     - Parameters titles: An array of titles.
+     - Parameters pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
+     - Parameters action: The action block of the button.
+     - Returns: An initialized `NSPopUpButton` object.
+     */
+    convenience init(titles: [String], pullsDown: Bool = false, action: ActionBlock? = nil) {
         self.init()
         items = titles.compactMap { NSMenuItem($0) }
         actionBlock = action
     }
 
-    convenience init(pullsDown: Bool = true, @MenuBuilder _ items: () -> [NSMenuItem]) {
+    /**
+     Creates a popup button with the titles.
+     
+     - Parameters pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
+     - Parameters items: The menu items of the popup button.
+     - Returns: An initialized `NSPopUpButton` object.
+     */
+    convenience init(pullsDown: Bool = false, @MenuBuilder items: () -> [NSMenuItem]) {
         self.init()
         self.items = items()
     }
 
+    /**
+     The menu items.
+     */
     var items: [NSMenuItem] {
         get {
             return menu?.items ?? []

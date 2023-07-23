@@ -7,6 +7,9 @@
 
 #if os(macOS)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 public extension NSCollectionLayoutBoundarySupplementaryItem {
     static func sectionHeader(height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = false) -> NSCollectionLayoutBoundarySupplementaryItem {
@@ -14,7 +17,7 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
                                                 heightDimension: height)
         let item = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: layoutSize,
-            elementKind: NSCollectionView.ElementKind.sectionHeader, alignment: .top
+            elementKind: NSUICollectionView.ElementKind.sectionHeader, alignment: .top
         )
 
         item.zIndex = .max
@@ -27,7 +30,7 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
                                                 heightDimension: height)
         let item = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: layoutSize,
-            elementKind: NSCollectionView.ElementKind.sectionFooter, alignment: .bottom
+            elementKind: NSUICollectionView.ElementKind.sectionFooter, alignment: .bottom
         )
 
         item.zIndex = .max
@@ -37,13 +40,13 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
 
     static func sectionBackground() -> NSCollectionLayoutBoundarySupplementaryItem {
         return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)),
-                                                           elementKind: NSCollectionView.ElementKind.sectionBackground,
+                                                           elementKind: NSUICollectionView.ElementKind.sectionBackground,
                                                            containerAnchor: .init(edges: .all))
     }
 
     static func itemBackground() -> NSCollectionLayoutBoundarySupplementaryItem {
         return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)),
-                                                           elementKind: NSCollectionView.ElementKind.itemBackground,
+                                                           elementKind: NSUICollectionView.ElementKind.itemBackground,
                                                            containerAnchor: .init(edges: .all))
     }
     
@@ -63,4 +66,3 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
     }
      */
 }
-#endif

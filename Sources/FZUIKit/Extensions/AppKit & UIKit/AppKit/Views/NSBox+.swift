@@ -13,6 +13,7 @@ import Foundation
 public extension NSBox {
     /**
      Returns a horizontal line with the specified width.
+     
      - Parameters width: The width of the line.
      - Returns: A horizontal line.
      */
@@ -24,6 +25,7 @@ public extension NSBox {
 
     /**
      Returns a vertical line with the specified height.
+     
      - Parameters width: The height of the line.
      - Returns: A vertical line.
      */

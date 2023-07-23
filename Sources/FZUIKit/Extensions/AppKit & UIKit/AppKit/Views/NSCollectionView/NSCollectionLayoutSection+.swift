@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 29.08.22.
 //
 
-import Foundation
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
