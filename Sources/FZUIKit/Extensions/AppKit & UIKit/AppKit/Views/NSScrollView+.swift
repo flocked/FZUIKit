@@ -18,29 +18,32 @@ public extension NSScrollView {
      The default value is CGPointZero.
      */
     @objc dynamic var contentOffset: CGPoint {
-        get {
-            return documentVisibleRect.origin
-        }
-        set {
-            willChangeValue(for: \.contentOffset)
-            documentView?.scroll(newValue)
-            didChangeValue(for: \.contentOffset)
-        }
+        get { return documentVisibleRect.origin }
+        set {  documentView?.scroll(newValue) }
     }
 
-    func setMagnification(_ magnification: CGFloat, centeredAt: CGPoint? = nil, animationDuration: TimeInterval?) {
+    /**
+     Magnify the content by the given amount and optionally center the result on the given point.
+     
+     - Parameters magnification: The amount by which to magnify the content.
+     - Parameters point: The point (in content view space) on which to center magnification, or nil if the magnification shouldn't be centered.
+     - Parameters animationDuration: The animation duration of the magnification, or nil if the magnification shouldn't be animated.
+
+     */
+    func setMagnification(_ magnification: CGFloat, centeredAt point: CGPoint? = nil, animationDuration: TimeInterval?) {
         if let animationDuration = animationDuration, animationDuration != 0.0 {
             NSAnimationContext.runAnimationGroup {
                 context in
                 context.duration = animationDuration
-                if let centeredAt = centeredAt {
-                    self.scroll(centeredAt, animationDuration: animationDuration)
+                if let point = point {
+                    self.animator().setMagnification(magnification, centeredAt: point)
+                } else {
+                    self.animator().magnification = magnification
                 }
-                self.animator().magnification = magnification
             }
         } else {
-            if let centeredAt = centeredAt {
-                setMagnification(magnification, centeredAt: centeredAt)
+            if let point = point {
+                self.setMagnification(magnification, centeredAt: point)
             } else {
                 self.magnification = magnification
             }
@@ -70,18 +73,25 @@ public extension NSClipView {
 }
 
 public extension NSScrollView {
+    /// A saved scroll position.
     struct SavedScrollPosition {
         internal let bounds: CGRect
         internal let visible: CGRect
     }
 
+    /// Saves the current scroll position.
     func saveScrollPosition() -> SavedScrollPosition {
         return SavedScrollPosition(bounds: bounds, visible: visibleRect)
     }
 
-    func restoreScrollPosition(_ saved: SavedScrollPosition) {
-        let oldBounds = saved.bounds
-        let oldVisible = saved.visible
+    /**
+     Restores the specified saved scroll position.
+     
+     - Parameters scrollPosition: The scroll position to restore.
+     */
+    func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
+        let oldBounds = scrollPosition.bounds
+        let oldVisible = scrollPosition.visible
         let oldY = oldVisible.midY
         let oldH = oldBounds.height
         guard oldH > 0.0 else { return }

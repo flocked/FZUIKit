@@ -9,13 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
-public class AAAA: CABasicAnimation {
-    
-}
-
 extension NSView {
-    public typealias ContentMode = CALayerContentsGravity
-
     /**
      The frame rectangle, which describes the view’s location and size in its window’s coordinate system.
 
@@ -34,13 +28,6 @@ extension NSView {
         return window?.convertToScreen(frameInWindow)
     }
 
-    public var contentMode: ContentMode {
-        get { layer?.contentsGravity ?? .center }
-        set { wantsLayer = true
-            layer?.contentsGravity = newValue
-        }
-    }
-
     /**
      A Boolean value that determines whether subviews are confined to the bounds of the view.
 
@@ -48,7 +35,7 @@ extension NSView {
 
      The default value is false.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var maskToBounds: Bool {
         get { layer?.masksToBounds ?? false }
@@ -63,6 +50,8 @@ extension NSView {
      An optional view whose alpha channel is used to mask a view’s content.
 
      The view’s alpha channel determines how much of the view’s content and background shows through. Fully or partially opaque pixels allow the underlying content to show through but fully transparent pixels block that content.
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var mask: NSView? {
         get { return getAssociatedValue(key: "_viewMaskView", object: self) }
@@ -99,7 +88,9 @@ extension NSView {
      The center point of the view's frame rectangle.
 
      Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform. Changes to this property can be animated.
+     Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform.
+     
+     The value can be animated via `animator()`.
      */
     @objc open dynamic var center: CGPoint {
         get { frame.center }
@@ -115,7 +106,7 @@ extension NSView {
      Transformations occur relative to the view's anchor point. By default, the anchor point is equal to the center point of the frame rectangle. To change the anchor point, modify the anchorPoint property of the view's underlying CALayer object.
      Changes to this property can be animated.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var transform: CGAffineTransform {
         get { wantsLayer = true
@@ -133,7 +124,7 @@ extension NSView {
 
      The default value of this property is CATransform3DIdentity.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var transform3D: CATransform3D {
         get { wantsLayer = true
@@ -153,7 +144,7 @@ extension NSView {
 
      All geometric manipulations to the view occur about the specified point. For example, applying a rotation transform to a view with the default anchor point causes the view to rotate around its center. Changing the anchor point to a different location causes the view to rotate around that new point.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var anchorPoint: CGPoint {
         get { layer?.anchorPoint ?? .zero }
@@ -163,21 +154,11 @@ extension NSView {
             setAnchorPoint(newValue)
         }
     }
-
-    internal var alpha: CGFloat {
-        get { guard let cgValue = layer?.opacity else { return 1.0 }
-            return CGFloat(cgValue)
-        }
-        set {
-            wantsLayer = true
-            layer?.opacity = Float(newValue)
-        }
-    }
-
+    
     /**
      The view’s corner radius.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
@@ -191,7 +172,7 @@ extension NSView {
     /**
      The view’s corner curve.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var cornerCurve: CALayerCornerCurve {
         get { layer?.cornerCurve ?? .circular }
@@ -218,7 +199,7 @@ extension NSView {
     /**
      The view’s border width.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
@@ -232,7 +213,7 @@ extension NSView {
     /**
      The view’s border color.
 
-     Using this property turns the view into a layer-backed view.
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var borderColor: NSColor? {
         get { if let cgColor = layer?.borderColor {
@@ -243,26 +224,6 @@ extension NSView {
             Self.swizzleAnimationForKey()
             layer?.borderColor = newValue?.cgColor
         }
-    }
-
-    internal func setAnchorPoint(_ anchorPoint: CGPoint) {
-        guard let layer = layer else { return }
-        var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
-        var oldPoint = CGPoint(bounds.size.width * layer.anchorPoint.x, bounds.size.height * layer.anchorPoint.y)
-
-        newPoint = newPoint.applying(layer.affineTransform())
-        oldPoint = oldPoint.applying(layer.affineTransform())
-
-        var position = layer.position
-
-        position.x -= oldPoint.x
-        position.x += newPoint.x
-
-        position.y -= oldPoint.y
-        position.y += newPoint.y
-
-        layer.position = position
-        layer.anchorPoint = anchorPoint
     }
 
     /**
@@ -294,8 +255,7 @@ extension NSView {
     /**
      Marks the receiver’s entire bounds rectangle as needing to be redrawn.
      
-     You can use this method to notify the system that your view’s contents need to be redrawn. This method makes a note of the request and returns immediately. The view is not actually redrawn until the next drawing cycle, at which point all invalidated views are updated.
-     
+     A convinient way of `needsDisplay = true`.
      */
     public func setNeedsDisplay() {
         needsDisplay = true
@@ -304,9 +264,7 @@ extension NSView {
     /**
      Invalidates the current layout of the receiver and triggers a layout update during the next update cycle.
 
-     Calling this method lets the system know that the view’s layout needs to be updated before it is drawn. The system checks the value of this property prior to applying constraint-based layout rules for the view.
-     
-     This method makes a note of the request and returns immediately. Because this method does not force an immediate update, but instead waits for the next update cycle, you can use it to invalidate the layout of multiple views before any of those views are updated. This behavior allows you to consolidate all of your layout updates to one update cycle, which is usually better for performance.
+     A convinient way of `needsLayout = true`.
      */
     public func setNeedsLayout() {
         needsLayout = true
@@ -315,21 +273,18 @@ extension NSView {
     /**
      Controls whether the view’s constraints need updating.
 
-     When a property of your custom view changes in a way that would impact constraints, you can call this method to indicate that the constraints need to be updated at some point in the future. The system will then call `updateConstraints()` as part of its normal layout pass. Use this as an optimization tool to batch constraint changes. Updating constraints all at once just before they are needed ensures that you don’t needlessly recalculate constraints when multiple changes are made to your view in between layout passes.
+     A convinient way of `needsUpdateConstraints = true`.
      */
     public func setNeedsUpdateConstraints() {
         needsUpdateConstraints = true
     }
 
-    // Returns the parent view controller managing the view.
+    /// Returns the parent view controller managing the view.
     public var parentController: NSViewController? {
         if let responder = nextResponder as? NSViewController {
             return responder
-        } else if let responder = nextResponder as? NSView {
-            return responder.parentController
-        } else {
-            return nil
         }
+        return (nextResponder as? NSView)?.parentController
     }
 
     /// A Boolean value that indicates whether the view is visible.
@@ -376,6 +331,37 @@ extension NSView {
             scrollToVisible(rect)
         }
     }
+    
+    // Sets the anchor point of the view’s bounds rectangle while retaining the position.
+    internal func setAnchorPoint(_ anchorPoint: CGPoint) {
+        guard let layer = layer else { return }
+        var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
+        var oldPoint = CGPoint(bounds.size.width * layer.anchorPoint.x, bounds.size.height * layer.anchorPoint.y)
+
+        newPoint = newPoint.applying(layer.affineTransform())
+        oldPoint = oldPoint.applying(layer.affineTransform())
+
+        var position = layer.position
+
+        position.x -= oldPoint.x
+        position.x += newPoint.x
+
+        position.y -= oldPoint.y
+        position.y += newPoint.y
+
+        layer.position = position
+        layer.anchorPoint = anchorPoint
+    }
+    
+    internal var alpha: CGFloat {
+        get { guard let cgValue = layer?.opacity else { return 1.0 }
+            return CGFloat(cgValue)
+        }
+        set {
+            wantsLayer = true
+            layer?.opacity = Float(newValue)
+        }
+    }
 }
 
 public extension NSView.AutoresizingMask {
@@ -384,7 +370,7 @@ public extension NSView.AutoresizingMask {
     static let all: NSView.AutoresizingMask = [.height, .width, .minYMargin, .minXMargin, .maxXMargin, .maxYMargin]
 }
 
-extension CALayerContentsGravity {
+internal extension CALayerContentsGravity {
     var viewLayerContentsPlacement: NSView.LayerContentsPlacement {
         switch self {
         case .topLeft: return .topLeft
@@ -405,7 +391,6 @@ extension CALayerContentsGravity {
 }
 
 internal extension NSView {
-    
     @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         switch key {
         case "center", "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask":

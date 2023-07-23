@@ -35,12 +35,6 @@ extension CMTime: Codable {
         try container.encode(epoch, forKey: .epoch)
     }
 
-    func test() {
-        var time = CMTime(seconds: 4)
-        time.flags = .hasBeenRounded
-        time.epoch = .max
-    }
-
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let value = try container.decode(Int64.self, forKey: .value)
