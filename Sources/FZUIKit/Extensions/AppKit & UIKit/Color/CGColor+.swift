@@ -14,6 +14,12 @@ import UIKit
 #endif
 
 public extension CGColor {
+    /**
+     Creates a color object with the specified alpha component.
+
+     - Parameters alpha: The opacity value of the new color object, specified as a value from 0.0 to 1.0. Alpha values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Returns: The new `CGColor` object.
+     */
     func alpha(_ alpha: CGFloat) -> CGColor {
         return copy(alpha: alpha) ?? self
     }
@@ -42,11 +48,13 @@ public extension CGColor {
     }
 
     #if os(macOS)
+    /// Returns a `NSColor` representation of the color.
     var nsColor: NSColor? {
         return NSColor(cgColor: self)
     }
 
     #elseif canImport(UIKit)
+    /// Returns a `UIColor` representation of the color.
     var uiColor: UIColor? {
         return UIColor(cgColor: self)
     }
@@ -61,6 +69,7 @@ extension CGColor: CustomStringConvertible {
 
 #if canImport(UIKit)
 public extension CGColor {
+    /// The clear color in the Generic gray color space.
     static var clear: CGColor {
         return UIColor.clear.cgColor
     }

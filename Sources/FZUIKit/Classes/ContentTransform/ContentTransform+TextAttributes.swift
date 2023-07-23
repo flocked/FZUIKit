@@ -1,5 +1,5 @@
 //
-//  ContentTransform+AttributeContainer.swift
+//  ContentTransform+TextAttributes.swift
 //  
 //
 //  Created by Florian Zand on 26.05.23.
@@ -15,10 +15,10 @@ public struct TextAttributesTransformer: ContentTransform {
     /// The identifier of the transformer.
     public let id: String
     
-    /// Creates a new text attributes transformer with the specified id and closure.
-    public init(_ id: String, _ transform: @escaping (AttributeContainer) -> AttributeContainer) {
+    /// Creates a new text attributes transformer with the specified identifier and closure.
+    public init(_ identifier: String, _ transform: @escaping (AttributeContainer) -> AttributeContainer) {
         self.transform = transform
-        self.id = id
+        self.id = identifier
     }
 }
 

@@ -132,4 +132,3 @@ public extension CALayer {
             shadowOpacity = Float(configuration.opacity)
     }
 }
-

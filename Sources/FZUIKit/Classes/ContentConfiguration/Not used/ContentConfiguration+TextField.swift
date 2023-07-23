@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 04.04.23.
 //
 
+/*
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -211,3 +212,4 @@ public extension UITextView {
     }
 }
 #endif
+*/

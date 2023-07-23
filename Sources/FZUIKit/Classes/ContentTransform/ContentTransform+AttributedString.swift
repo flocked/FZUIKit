@@ -19,9 +19,9 @@ public struct AttributedStringTransformer: ContentTransform {
     public let id: String
 
     /// Creates a text transformer with the specified identifier and closure.
-    public init(_ id: String, _ transform: @escaping (AttributedString) -> AttributedString) {
+    public init(_ identifier: String, _ transform: @escaping (AttributedString) -> AttributedString) {
         self.transform = transform
-        self.id = id
+        self.id = identifier
     }
     
     /// Creates a color transformer that generates a capitalized version of the attributed string.

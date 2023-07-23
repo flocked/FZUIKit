@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 03.06.23.
 //
 
+
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -345,3 +346,4 @@ public extension UIImage {
     }
 }
 #endif
+

@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 /// A  protocol for a transformer that generates a modified output from an input.
 public protocol ContentTransform: Hashable, Identifiable {
     /// The content type.

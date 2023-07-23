@@ -22,9 +22,9 @@ public struct ImageTransformer: ContentTransform {
     public let id: String
 
     /// Creates a image transformer with the specified identifier and closure.
-    public init(_ id: String, _ transform: @escaping (NSUIImage) -> NSUIImage) {
+    public init(_ identifier: String, _ transform: @escaping (NSUIImage) -> NSUIImage) {
         self.transform = transform
-        self.id = id
+        self.id = identifier
     }
 
     public static func opacity(_ value: CGFloat) -> Self {

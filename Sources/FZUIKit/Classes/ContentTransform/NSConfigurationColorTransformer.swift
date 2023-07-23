@@ -21,9 +21,9 @@ public struct NSConfigurationColorTransformer: ContentTransform {
     public let id: String
 
     /// Creates a color transformer with the specified identifier and closure.
-    public init(_ id: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
+    public init(_ identifier: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
         self.transform = transform
-        self.id = id
+        self.id = identifier
     }
 
     /// Creates a color transformer that generates a version of the color.with modified opacity.

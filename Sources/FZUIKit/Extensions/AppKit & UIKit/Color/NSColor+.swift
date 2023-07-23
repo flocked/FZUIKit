@@ -21,12 +21,19 @@ public extension NSColor {
         })
     }
 
+    /// Returns the dynamic light and dark colors.
     var dynamicColors: (light: NSColor, dark: NSColor) {
         let light = self.resolvedColor(for: .aqua)
         let dark = self.resolvedColor(for: .darkAqua)
         return (light, dark)
     }
 
+    /**
+     Generates the resolved color for the specified appearance,.
+     
+     - Parameters appearance: The appearance of the resolved color.
+     - Returns: A `NSColor` for the appearance.
+     */
     func resolvedColor(for appearance: NSAppearance? = nil) -> NSColor {
         var color = self
         if type == .catalog {
@@ -46,6 +53,7 @@ public extension NSColor {
         return color
     }
 
+    /// Creates a new color object with the supported color space.
     func withSupportedColorSpace() -> NSColor? {
         let supportedColorSpaces: [NSColorSpace] = [.extendedSRGB, .sRGB, .deviceRGB, .genericRGB, .adobeRGB1998, .displayP3]
         let needsConverting: Bool
@@ -64,10 +72,6 @@ public extension NSColor {
             return nil
         }
         return self
-    }
-
-    static var label: NSColor {
-        return NSColor.labelColor
     }
 }
 #endif
