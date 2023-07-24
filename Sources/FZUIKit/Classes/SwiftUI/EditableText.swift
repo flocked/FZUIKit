@@ -14,30 +14,39 @@ public struct EditableText: View {
     @State var editProcessGoing = false { didSet{ newValue = text } }
     
     let onEditEnd: (String) -> Void
+    let alignment: Alignment
     
-    public init(_ txt: Binding<String>, onEditEnd: @escaping (String) -> Void) {
+    var multilineTextAlignment: TextAlignment {
+        switch alignment {
+        case .leading: return .leading
+        case .center: return .center
+        case .trailing: return .trailing
+        default: return .leading
+        }
+    }
+    
+    public init(_ txt: Binding<String>, alignment: Alignment = .leading, onEditEnd: @escaping (String) -> Void) {
         _text = txt
         self.onEditEnd = onEditEnd
+        self.alignment = alignment
     }
     
     @ViewBuilder
     public var body: some View {
-        ZStack {
-            // Text variation of View
+        ZStack(alignment: alignment) {
             Text(text)
+                .multilineTextAlignment(multilineTextAlignment)
                 .opacity(editProcessGoing ? 0 : 1)
             
-            // TextField for edit mode of View
             TextField("", text: $newValue,
-                          onEditingChanged: { _ in },
-                          onCommit: { text = newValue; editProcessGoing = false; onEditEnd(text) } )
-                .opacity(editProcessGoing ? 1 : 0)
+                      onEditingChanged: { _ in },
+                      onCommit: { text = newValue; editProcessGoing = false; onEditEnd(text) } )
+            .multilineTextAlignment(multilineTextAlignment)
+            .opacity(editProcessGoing ? 1 : 0)
         }
-        // Enable EditMode on double tap
         .onTapGesture(count: 2, perform: { editProcessGoing = true } )
-        // Exit from EditMode on Esc key press
-        #if os(macOS)
+#if os(macOS)
         .onExitCommand(perform: { editProcessGoing = false; newValue = text })
-        #endif
+#endif
     }
 }
