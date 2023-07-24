@@ -43,7 +43,7 @@ public class Toolbar: NSObject {
      
      - Returns: The initialized `Toolbar` object.
      */
-    convenience init(
+    public convenience init(
         _ identifier: NSToolbar.Identifier,
         allowsUserCustomization: Bool = true,
         @Builder items: () -> [ToolbarItem]
