@@ -14,6 +14,14 @@ import SwiftUI
 
 @available(macOS 11.0, iOS 13.0, *)
 public extension NSUIHostingController {
+    /**
+     Creates a hosting controller object that wraps the specified SwiftUI view.
+     
+     - Parameters ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
+     - Parameters rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+     
+     - Returns: The hosting controller object.
+     */
     convenience init(ignoreSafeArea: Bool, rootView: Content) {
         self.init(rootView: rootView)
 
@@ -22,6 +30,15 @@ public extension NSUIHostingController {
         }
     }
     
+    /**
+     Creates a hosting controller object that wraps the specified SwiftUI view.
+     
+     - Parameters isTransparent: A Boolean value that indicates whether the hosting controller view is transparent.
+     - Parameters ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
+     - Parameters rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+     
+     - Returns: The hosting controller object.
+     */
     convenience init(isTransparent: Bool, ignoreSafeArea: Bool = false, rootView: Content) {
         self.init(rootView: rootView)
 
@@ -35,6 +52,11 @@ public extension NSUIHostingController {
         }
     }
 
+    /**
+     Disables the safe area insets of the view.
+     
+     - Parameters disable: A Boolean value that indicates whether the view should ignore save area insets.
+     */
     func disableSafeAreaInsets(_ disable: Bool) {
         setSafeAreaInsets((disable == true) ? .zero : nil)
     }
@@ -69,6 +91,14 @@ public extension NSUIHostingController {
 
 #if canImport(AppKit)
 public extension NSHostingView {
+    /**
+     Creates a hosting view object that wraps the specified SwiftUI view.
+     
+     - Parameters isTransparent: A Boolean value that indicates whether the view is transparent.
+     - Parameters rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+     
+     - Returns: The hosting view object.
+     */
     convenience init(isTransparent: Bool, rootView: Content) {
         self.init(rootView: rootView)
         if isTransparent {
@@ -78,74 +108,3 @@ public extension NSHostingView {
     }
 }
 #endif
-
-#if canImport(UIKit)
-@available(iOS 13.0, *)
-public final class UIHostingView<Content: View>: UIView {
-    // MARK: - Public Properties
-
-    public var rootView: Content {
-        get { hostingController.rootView }
-        set { hostingController.rootView = newValue }
-    }
-
-    // MARK: - Private Properties
-
-    private let hostingController: UIHostingController<Content>
-    private var hostingView: UIView { hostingController.view }
-
-    // MARK: - Initialization
-
-    @available(*, unavailable)
-    public required init?(coder _: NSCoder) {
-        fatalError("init?(coder:) unavailable")
-    }
-
-    public init(rootView: Content) {
-        hostingController = UIHostingController(rootView: rootView)
-        super.init(frame: .zero)
-        setup()
-    }
-
-    override public func sizeThatFits(_ size: CGSize) -> CGSize {
-        return hostingView.sizeThatFits(size)
-    }
-
-    override public func didMoveToWindow() {
-        if let parentController = parentController {
-            parentController.addChild(hostingController)
-            hostingController.didMove(toParent: parentController)
-        } else {
-            hostingController.willMove(toParent: nil)
-            hostingController.removeFromParent()
-        }
-    }
-
-    private func setup() {
-        hostingView.backgroundColor = .clear
-        hostingView.translatesAutoresizingMaskIntoConstraints = false
-
-        addSubview(hostingView)
-
-        NSLayoutConstraint.activate([
-            hostingView.topAnchor.constraint(equalTo: topAnchor),
-            hostingView.rightAnchor.constraint(equalTo: rightAnchor),
-            hostingView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            hostingView.leftAnchor.constraint(equalTo: leftAnchor),
-        ])
-    }
-}
-#endif
-
-
-/*
- internal class HitHostingView<Content: View>: NSHostingView<Content> {
-     override func hitTest(_ point: NSPoint) -> NSView? {
-         guard let hitTest = super.hitTest(point) else {
-             return self.firstSuperview(for: NSCollectionView.self) }
-         return hitTest
-     }
- }
-
-
- */

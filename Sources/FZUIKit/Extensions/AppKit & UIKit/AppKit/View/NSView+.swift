@@ -33,8 +33,6 @@ extension NSView {
 
      Setting this value to true causes subviews to be clipped to the bounds of the view. If set to false, subviews whose frames extend beyond the visible bounds of the view aren’t clipped.
 
-     The default value is false.
-
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var maskToBounds: Bool {

@@ -14,7 +14,8 @@ import UIKit
 #endif
 
 public extension NSUIStackView {
-    func reverseArrancedSubviews() {
+    /// Reverses the order of the arranged subviews.
+    func reverseArrangedSubviews() {
         let arrangedViews = arrangedSubviews.reversed()
         for arrangedView in arrangedViews {
             removeArrangedSubview(arrangedView)

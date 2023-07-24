@@ -14,28 +14,45 @@ import UIKit
 import QuickLookThumbnailing
 
 public extension QLThumbnailGenerator {
-    enum RequestStatus {
-        case processing
-        case pendingCancelled
-        case pendingGeneration
-        case preparingGeneration
-    }
-
+    /**
+     Cancels the generation of a thumbnail for tje given requests.
+     
+     - Parameters requests: The thumbnail creation requests that you want to cancel.
+     */
     func cancel(_ requests: [QLThumbnailGenerator.Request]) {
         requests.forEach { self.cancel($0) }
     }
-
-    var requests: [(request: QLThumbnailGenerator.Request, status: RequestStatus)] {
-        var requests: [(request: QLThumbnailGenerator.Request, status: RequestStatus)] = []
-        processingRequests.forEach { requests.append((request: $0, status: .processing)) }
-        pendingCancelledRequests.forEach { requests.append((request: $0, status: .pendingCancelled)) }
-        pendingGenerationRequests.forEach { requests.append((request: $0, status: .pendingGeneration)) }
-        preparingGenerationRequests.forEach { requests.append((request: $0, status: .preparingGeneration)) }
-
-        return requests
+    
+    /// Cancels the generation of all thumbnail requests.
+    func cancelAllRequests() {
+        self.cancel(processingRequests)
+        self.cancel(pendingGenerationRequests)
+        self.cancel(preparingGenerationRequests)
     }
 
-    var processingRequests: [QLThumbnailGenerator.Request] {
+    /// All thumbnail requests.
+    var requests: [RequestStatus: [QLThumbnailGenerator.Request]] {
+        var requests: [RequestStatus: [QLThumbnailGenerator.Request]] = [:]
+        requests[.processing] = processingRequests
+        requests[.pendingCancelled] = pendingCancelledRequests
+        requests[.pendingGeneration] = pendingGenerationRequests
+        requests[.preparingGeneration] = preparingGenerationRequests
+        return requests
+    }
+    
+    /// The status of the request
+    enum RequestStatus: Int {
+        /// The request is pending generation.
+        case pendingGeneration
+        /// The request is preparing for generation.
+        case preparingGeneration
+        /// The request is currently processed.
+        case processing
+        /// The request is pending cancellation.
+        case pendingCancelled
+    }
+
+    internal var processingRequests: [QLThumbnailGenerator.Request] {
         if let dic = value(forKey: "requests") as? NSDictionary {
             return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
         }
@@ -43,14 +60,14 @@ public extension QLThumbnailGenerator {
         return ((value(forKey: "requests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
     }
 
-    var pendingCancelledRequests: [QLThumbnailGenerator.Request] {
+    internal var pendingCancelledRequests: [QLThumbnailGenerator.Request] {
         if let dic = value(forKey: "pendingCancelledRequests") as? NSDictionary {
             return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
         }
         return ((value(forKey: "pendingCancelledRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
     }
 
-    var pendingGenerationRequests: [QLThumbnailGenerator.Request] {
+    internal var pendingGenerationRequests: [QLThumbnailGenerator.Request] {
         if let dic = value(forKey: "pendingGenerationRequests") as? NSDictionary {
             return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
         }
@@ -58,16 +75,16 @@ public extension QLThumbnailGenerator {
         return ((value(forKey: "pendingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
     }
 
-    var preparingGenerationRequests: [QLThumbnailGenerator.Request] {
+    internal var preparingGenerationRequests: [QLThumbnailGenerator.Request] {
         if let dic = value(forKey: "preparingGenerationRequests") as? NSDictionary {
             return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
         }
-
         return ((value(forKey: "preparingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap { $0.value }
     }
 }
 
 public extension QLThumbnailGenerator.Request {
+    /// The URL of the file for which you want to create a thumbnail.
     var fileURL: URL {
         get { value(forKey: "fileURL") as! URL }
         set { setValue(newValue, forKey: "fileURL") }

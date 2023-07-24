@@ -1,5 +1,5 @@
 //
-//  UIContentConfiguration+Stateles.swift
+//  UIContentConfiguration+Stateless.swift
 //  
 //
 //  Created by Florian Zand on 01.07.23.

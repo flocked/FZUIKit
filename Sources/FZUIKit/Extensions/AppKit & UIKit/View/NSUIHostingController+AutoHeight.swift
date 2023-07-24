@@ -13,7 +13,6 @@ import UIKit
 import SwiftUI
 
 class AutoHeightHostingController<Content>: NSUIHostingController<Content> where Content: View {
-    
     override init(rootView: Content) {
         super.init(rootView: rootView)
         self.view.backgroundColor = .clear
