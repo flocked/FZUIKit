@@ -41,6 +41,7 @@ public struct EditableText: View {
             TextField("", text: $newValue,
                       onEditingChanged: { _ in },
                       onCommit: { text = newValue; editProcessGoing = false; onEditEnd(text) } )
+            .textFieldStyle(.plain)
             .multilineTextAlignment(multilineTextAlignment)
             .opacity(editProcessGoing ? 1 : 0)
         }
