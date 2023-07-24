@@ -55,7 +55,7 @@ public extension ContentConfiguration {
         /// Sets the image scale of the symbol configuration.
         public func imageScale(_ scale: ImageScale?) -> Self {
             var configuration = self
-            configuration.imageScale = imageScale
+            configuration.imageScale = scale
             return configuration
         }
         
