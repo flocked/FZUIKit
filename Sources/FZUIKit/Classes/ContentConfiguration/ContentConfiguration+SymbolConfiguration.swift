@@ -15,51 +15,70 @@ import SwiftUI
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ContentConfiguration {
-    /// An object that contains the specific font, style, and weight attributes to apply to a object with a symbol image.
+    /// An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
     struct SymbolConfiguration: Hashable {
-        /// The font for the symbol configuration.
+        /// The font of the symbol configuration.
         public var font: FontConfiguration? = nil
         
         /// The color configuration of the symbol configuration.
         public var colorConfiguration: ColorConfiguration? = nil {
             didSet { updateResolvedColors() } }
         
+        /// The color transformer for resolving the color style.
+        public var colorTransform: NSUIConfigurationColorTransformer? = nil {
+            didSet { updateResolvedColors() } }
+        
         /// The image scaling of the symbol configuration.
         public var imageScale: ImageScale? = nil
         
-        public func imageScale(_ scale: ImageScale?) -> Self {
-            var configuration = self
-            configuration.imageScale = imageScale
-            return configuration
-        }
-        
+        /// Sets the font of the symbol configuration.
         public func font(_ font: FontConfiguration?) -> Self {
             var configuration = self
             configuration.font = font
             return configuration
         }
         
+        /// Sets the color configuration of the symbol configuration.
         public func colorConfiguration(_ configuration: ColorConfiguration?) -> Self {
             var newConfiguration = self
             newConfiguration.colorConfiguration = configuration
             return newConfiguration
         }
         
-        /// The color transformer for resolving the color style.
-        public var colorTransform: NSUIConfigurationColorTransformer? = nil {
-            didSet { updateResolvedColors() } }
+        /// Sets the color transformer of the symbol configuration.
+        public func colorTransformer(_ transformer: NSUIConfigurationColorTransformer?) -> Self {
+            var newConfiguration = self
+            newConfiguration.colorTransform = transformer
+            return newConfiguration
+        }
         
-        public init(font: FontConfiguration? = nil, colorConfiguration: ColorConfiguration? = nil, imageScale: ImageScale? = nil, colorTransform: NSUIConfigurationColorTransformer? = nil) {
+        /// Sets the image scale of the symbol configuration.
+        public func imageScale(_ scale: ImageScale?) -> Self {
+            var configuration = self
+            configuration.imageScale = imageScale
+            return configuration
+        }
+        
+        /**
+         Creates a symbol configuration.
+         
+         - Parameters font: The font.
+         - Parameters colorConfiguration: The color configuration.
+         - Parameters colorTransform: The color transformer.
+         - Parameters imageScale: The image scaling.
+         
+         - Returns: a symbol configuration object.
+         */
+        public init(font: FontConfiguration? = nil, colorConfiguration: ColorConfiguration? = nil, colorTransform: NSUIConfigurationColorTransformer? = nil, imageScale: ImageScale? = nil) {
             self.font = font
             self.colorConfiguration = colorConfiguration
-            self.imageScale = imageScale
             self.colorTransform = colorTransform
+            self.imageScale = imageScale
             self.updateResolvedColors()
         }
         
-        
         /// Creates a configuration with a monochrome color configuration.
-        public static func monochrome() -> SymbolConfiguration {
+        public static var monochrome: SymbolConfiguration {
             SymbolConfiguration(colorConfiguration: .monochrome)
         }
         
@@ -85,7 +104,7 @@ public extension ContentConfiguration {
         
         /// Creates a configuration with the specified font size and weight.
         public static func font(size: CGFloat, weight: NSUIImage.SymbolWeight = .regular) -> SymbolConfiguration {
-            SymbolConfiguration(font: .systemFont(size: size, weight: weight))
+            SymbolConfiguration(font: .system(size: size, weight: weight))
         }
         
         /// Generates the resolved primary color for the specified color style, using the color style and color transformer.
@@ -112,7 +131,6 @@ public extension ContentConfiguration {
             return nil
         }
         
-   
         internal var _resolvedPrimaryColor: NSUIColor? = nil
         internal var _resolvedSecondaryColor: NSUIColor? = nil
         internal var _resolvedTertiaryColor: NSUIColor? = nil
@@ -122,21 +140,31 @@ public extension ContentConfiguration {
             _resolvedTertiaryColor = resolvedTertiaryColor()
         }
         
-        /// Constants that specify the font of a symbol image.
+        /// The font of a symbol image.
         public enum FontConfiguration: Hashable {
             /// A font with the specified point size and font weight.
-            case systemFont(size: CGFloat, weight: NSUIImage.SymbolWeight? = nil)
+            case system(size: CGFloat, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
             
             /// A font with the specified text style and font weight.
-            case textStyle(NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil)
+            case textStyle(NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
             
-            /// Returns a font with the weight.
+            /// Sets the weight of the font.
             public func weight(_ weight: NSUIImage.SymbolWeight?) -> Self {
                 switch self {
-                case .systemFont(let size, _):
-                    return .systemFont(size: size, weight: weight)
-                case .textStyle(let style, _):
-                    return .textStyle(style, weight: weight)
+                case .system(let size, _, let design):
+                    return .system(size: size, weight: weight, design: design)
+                case .textStyle(let style, _, let design):
+                    return .textStyle(style, weight: weight, design: design)
+                }
+            }
+            
+            /// Sets the design of the font.
+            public func design(_ design: NSUIFontDescriptor.SystemDesign) -> Self {
+                switch self {
+                case .system(let size, let weight, _):
+                    return .system(size: size, weight: weight, design: design)
+                case .textStyle(let style, let weight, _):
+                    return .textStyle(style, weight: weight, design: design)
                 }
             }
             
@@ -165,10 +193,10 @@ public extension ContentConfiguration {
             
             internal var swiftui: Font {
                 switch self {
-                case .textStyle(let style, weight: let weight):
-                    return Font.system(style.swiftUI).weight(weight?.swiftUI ?? .regular)
-                case .systemFont(size: let size, weight: let weight):
-                    return Font.system(size: size).weight(weight?.swiftUI ?? .regular)
+                case .textStyle(let style, weight: let weight, design: let design):
+                    return Font.system(style.swiftUI, design: design.swiftUI).weight(weight?.swiftUI ?? .regular)
+                case .system(size: let size, weight: let weight, design: let design):
+                    return Font.system(size: size, design: design.swiftUI).weight(weight?.swiftUI ?? .regular)
                 }
             }
         }
@@ -271,10 +299,10 @@ internal extension ContentConfiguration.SymbolConfiguration {
         }
         
         switch self.font {
-            case .systemFont(size: let size, weight: let weight):
+        case .system(size: let size, weight: let weight, design: _):
                 configuration = configuration.font(size: size)
                 configuration = configuration.weight(weight)
-            case .textStyle(let style, weight: let weight):
+        case .textStyle(let style, weight: let weight, design: _):
                 configuration = configuration.font(style)
                 configuration = configuration.weight(weight)
             case .none:
@@ -346,4 +374,3 @@ public extension UIImage {
     }
 }
 #endif
-

@@ -123,7 +123,8 @@ public extension NSUIFont {
         ])
     }
 
-    func italic() -> NSUIFont {
+    /// The font with a italic style.
+    var italic: NSUIFont {
         #if os(macOS)
         includingSymbolicTraits(.italic)
         #else
@@ -131,7 +132,8 @@ public extension NSUIFont {
         #endif
     }
 
-    func monospaced() -> NSUIFont {
+    /// The font characters with same width.
+    var monospaced: NSUIFont {
         #if os(macOS)
         includingSymbolicTraits(.monoSpace)
         #else
@@ -139,7 +141,8 @@ public extension NSUIFont {
         #endif
     }
 
-    func bold() -> NSUIFont {
+    /// The font with a bold style.
+    var bold: NSUIFont {
         #if os(macOS)
         includingSymbolicTraits(.bold)
         #else
@@ -147,6 +150,78 @@ public extension NSUIFont {
         #endif
     }
 
+    /// The font with a serif design.
+    var serif: NSUIFont {
+        if let descriptor = fontDescriptor.withDesign(.serif) {
+            return NSUIFont(descriptor: descriptor, size: 0) ?? self
+        }
+        return self
+    }
+
+    /// The font with a rounded appearance.
+    var rounded: NSUIFont {
+        if let descriptor = fontDescriptor.withDesign(.rounded) {
+            return NSUIFont(descriptor: descriptor, size: 0) ?? self
+        }
+        return self
+    }
+
+    func leading(_ leading: FontLeading) -> NSUIFont {
+        switch leading {
+        case .standard:
+            #if os(macOS)
+            return withoutSymbolicTraits([.looseLeading, .tightLeading])
+            #else
+            return withoutSymbolicTraits([.traitLooseLeading, .traitTightLeading])
+            #endif
+        case .loose:
+            #if os(macOS)
+            return includingSymbolicTraits(.looseLeading, without: .tightLeading)
+            #else
+            return includingSymbolicTraits(.traitLooseLeading, without: .traitTightLeading)
+            #endif
+        case .tight:
+            #if os(macOS)
+            return includingSymbolicTraits(.tightLeading, without: .looseLeading)
+            #else
+            return includingSymbolicTraits(.traitTightLeading, without: .traitLooseLeading)
+            #endif
+        }
+    }
+
+    func width(_ width: Width) -> NSUIFont {
+        switch width {
+        case .standard:
+            #if os(macOS)
+            return withoutSymbolicTraits([.expanded, .condensed])
+            #else
+            return withoutSymbolicTraits([.traitExpanded, .traitCondensed])
+            #endif
+        case .expanded:
+            #if os(macOS)
+            return includingSymbolicTraits( .expanded , without: .condensed)
+            #else
+            return includingSymbolicTraits(.traitExpanded, without: .traitCondensed)
+            #endif
+        default:
+            #if os(macOS)
+            return includingSymbolicTraits( .condensed , without: .expanded)
+            #else
+            return includingSymbolicTraits(.traitCondensed, without: .traitExpanded)
+            #endif
+        }
+    }
+
+    /// The font leading.
+    enum FontLeading {
+        /// The font uses a standard leading value.
+        case standard
+        /// The font uses a leading value that’s greater than the default.
+        case loose
+        /// The font uses a leading value that’s less than the default.
+        case tight
+    }
+    
     func symbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
         var descriptor = fontDescriptor.withSymbolicTraits(symbolicTraits)
         #if os(macOS)
@@ -156,28 +231,7 @@ public extension NSUIFont {
         #endif
     }
 
-    func serif() -> NSUIFont? {
-        if let descriptor = fontDescriptor.withDesign(.serif) {
-            return NSUIFont(descriptor: descriptor, size: 0)
-        }
-        return nil
-    }
-
-    func rounded() -> NSUIFont? {
-        if let descriptor = fontDescriptor.withDesign(.rounded) {
-            return NSUIFont(descriptor: descriptor, size: 0)
-        }
-        return nil
-    }
-
-    func leading(_ leading: Leading) -> NSUIFont {
-        #if os(macOS)
-        includingSymbolicTraits(leading == .loose ? .looseLeading : .tightLeading, without: leading != .loose ? .looseLeading : .tightLeading)
-        #else
-        includingSymbolicTraits(leading == .loose ? .traitLooseLeading : .traitTightLeading, without: leading != .loose ? .traitLooseLeading : .traitTightLeading)
-        #endif
-    }
-
+    
     internal func includingSymbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits, without: NSUIFontDescriptor.SymbolicTraits? = nil) -> NSUIFont {
         var traits = fontDescriptor.symbolicTraits
         guard traits.contains(symbolicTraits) == false else { return self }
@@ -193,34 +247,6 @@ public extension NSUIFont {
         guard traits.contains(symbolicTraits) == true else { return self }
         traits.remove(symbolicTraits)
         return self.symbolicTraits(symbolicTraits)
-    }
-
-    func width(_ width: FontWidth) -> NSUIFont {
-        switch width {
-        case .standard:
-            #if os(macOS)
-            return withoutSymbolicTraits([.expanded, .condensed])
-            #else
-            return withoutSymbolicTraits([.traitCondensed, .traitExpanded])
-            #endif
-        default:
-            #if os(macOS)
-            return includingSymbolicTraits(width == .condensed ? .condensed : .expanded, without: width == .expanded ? .condensed : .expanded)
-            #else
-            return includingSymbolicTraits(width == .condensed ? .traitCondensed : .traitExpanded, without: width == .expanded ? .traitCondensed : .traitExpanded)
-            #endif
-        }
-    }
-
-    enum Leading {
-        case loose
-        case tight
-    }
-
-    enum FontWidth {
-        case condensed
-        case expanded
-        case standard
     }
 
     internal func addingAttributes(_ attributes: [NSUIFontDescriptor.AttributeName: Any]) -> NSUIFont {
