@@ -430,9 +430,9 @@ public extension View {
     @ViewBuilder func symbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration?) -> some View {
         if let configuration = configuration {
             self
+                .imageScale(configuration.imageScale?.swiftui)
                 .symbolRenderingMode(configuration.colorConfiguration?.renderingMode)
                 .foregroundStyle(configuration.colorConfiguration?.primary?.swiftUI, configuration.colorConfiguration?.secondary?.swiftUI, configuration.colorConfiguration?.tertiary?.swiftUI)
-                .imageScale(configuration.imageScale?.swiftui)
                 .font(configuration.font?.swiftui)
         } else {
             self
