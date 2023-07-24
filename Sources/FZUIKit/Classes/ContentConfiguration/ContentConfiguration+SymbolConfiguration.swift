@@ -484,6 +484,7 @@ extension ContentConfiguration.SymbolConfiguration: KeyValueCodable {
         case "_resolvedPrimaryColor": return _resolvedPrimaryColor
         case "_resolvedSecondaryColor": return _resolvedSecondaryColor
         case "_resolvedTertiaryColor": return _resolvedTertiaryColor
+        case "nsUI": return nsUI()
         default: return nil
         }
     }
