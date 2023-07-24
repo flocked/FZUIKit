@@ -12,6 +12,7 @@ import AppKit
 import UIKit
 #endif
 import SwiftUI
+import FZSwiftUtils
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ContentConfiguration {
@@ -474,3 +475,20 @@ public extension UIImage {
     }
 }
 #endif
+
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+extension ContentConfiguration.SymbolConfiguration: KeyValueCodable {
+    public func value(for key: String) -> Any? {
+        Swift.print("valueFor", key)
+        switch key {
+        case "_resolvedPrimaryColor": return _resolvedPrimaryColor
+        case "_resolvedSecondaryColor": return _resolvedSecondaryColor
+        case "_resolvedTertiaryColor": return _resolvedTertiaryColor
+        default: return nil
+        }
+    }
+    
+    public func call(_ name: String, values: [Any?]) {
+        Swift.print("call", name, values)
+    }
+}
