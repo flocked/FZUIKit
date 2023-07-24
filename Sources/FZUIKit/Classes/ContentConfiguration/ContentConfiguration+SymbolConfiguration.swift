@@ -487,8 +487,4 @@ extension ContentConfiguration.SymbolConfiguration: KeyValueCodable {
         default: return nil
         }
     }
-    
-    public func call(_ name: String, values: [Any?]) {
-        
-    }
 }
