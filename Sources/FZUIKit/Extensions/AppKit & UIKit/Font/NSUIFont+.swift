@@ -153,7 +153,11 @@ public extension NSUIFont {
     /// The font with a serif design.
     var serif: NSUIFont {
         if let descriptor = fontDescriptor.withDesign(.serif) {
-            return NSUIFont(descriptor: descriptor, size: 0) ?? self
+            #if os(macOS)
+                return NSUIFont(descriptor: descriptor, size: 0) ?? self
+            #elseif canImport(UIKit)
+                return NSUIFont(descriptor: descriptor, size: 0)
+            #endif
         }
         return self
     }
@@ -161,7 +165,11 @@ public extension NSUIFont {
     /// The font with a rounded appearance.
     var rounded: NSUIFont {
         if let descriptor = fontDescriptor.withDesign(.rounded) {
+        #if os(macOS)
             return NSUIFont(descriptor: descriptor, size: 0) ?? self
+        #elseif canImport(UIKit)
+            return NSUIFont(descriptor: descriptor, size: 0)
+        #endif
         }
         return self
     }
@@ -188,8 +196,10 @@ public extension NSUIFont {
             #endif
         }
     }
+    
+    
 
-    func width(_ width: Width) -> NSUIFont {
+    func width(_ width: FontWidth) -> NSUIFont {
         switch width {
         case .standard:
             #if os(macOS)
@@ -203,13 +213,24 @@ public extension NSUIFont {
             #else
             return includingSymbolicTraits(.traitExpanded, without: .traitCondensed)
             #endif
-        default:
+            default:
             #if os(macOS)
             return includingSymbolicTraits( .condensed , without: .expanded)
             #else
             return includingSymbolicTraits(.traitCondensed, without: .traitExpanded)
             #endif
         }
+    }
+    
+    /// The font width.
+    enum FontWidth {
+        /// The font uses a standard leading value.
+        case compressed
+        /// The font uses a leading value that’s greater than the default.
+        case condensed
+        /// The font uses a leading value that’s less than the default.
+        case expanded
+        case standard
     }
 
     /// The font leading.

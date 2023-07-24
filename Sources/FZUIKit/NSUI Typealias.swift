@@ -48,6 +48,7 @@ public typealias NSUIUserInterfaceLayoutOrientation = NSUserInterfaceLayoutOrien
 public typealias NSUIViewRepresentable = NSViewRepresentable
 public typealias NSUIResponder = NSResponder
 public typealias NSUIControl = NSControl
+public typealias NSUIImageView = NSImageView
 
 #elseif canImport(UIKit)
 import UIKit
@@ -86,5 +87,6 @@ public typealias NSUIUserInterfaceLayoutOrientation = NSLayoutConstraint.Axis
 public typealias NSUIViewRepresentable = UIViewRepresentable
 public typealias NSUIResponder = UIResponder
 public typealias NSUIControl = UIControl
+public typealias NSUIImageView = UIImageView
 
 #endif
