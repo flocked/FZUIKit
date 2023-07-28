@@ -276,6 +276,13 @@ extension NSView {
     public func setNeedsUpdateConstraints() {
         needsUpdateConstraints = true
     }
+    
+    /// A convinient way of `wantsLayer = true`.
+    @discardableResult
+    public func setWantsLayer() -> Self {
+        wantsLayer = true
+        return self
+    }
 
     /// The parent view controller managing the view.
     public var parentController: NSViewController? {

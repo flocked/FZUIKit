@@ -20,6 +20,7 @@ public protocol Sizable {
 }
 
 extension NSUIView: Sizable { }
+// extension NSUIControl: Sizable { }
 
 
 public extension Sizable where Self: NSUIView {
@@ -105,7 +106,7 @@ extension NSHostingController: Sizable {
 public extension Sizable where Self: NSUIView {
     /// The minimum size of the view that satisfies the constraints it holds.
     var fittingSize: CGSize {
-        sizeThatFits(CGSize(width: 10000, height: 10000))
+        sizeThatFits(CGSize(width: 100000, height: 100000))
     }
 }
 #endif
