@@ -21,7 +21,7 @@ import UIKit
 
  Example usage:
  ```
- Wave.animateWith(spring: spring) {
+ Wave.animate(withSpring: spring) {
  myView.animator.center = CGPoint(x: 100, y: 100)
  myView.animator.alpha = 0.5
  }
