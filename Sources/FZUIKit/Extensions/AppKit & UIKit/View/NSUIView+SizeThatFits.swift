@@ -81,6 +81,20 @@ public extension Sizable where Self: NSView {
     }
 }
 
+/*
+extension NSUIImageView: Sizable {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        guard let imageSize = self.image?.size else { return }
+        switch self.contentMode {
+        case .scaleAspectFill:
+        case .scaleAspectFit:
+        case .scaleToFill:
+        case .fit
+        }
+    }
+}
+*/
+
 extension NSHostingController: Sizable {
     /// The minimum size of the view that satisfies the constraints it holds.
     public var fittingSize: CGSize {
