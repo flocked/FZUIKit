@@ -260,7 +260,7 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
 @available(macOS 11.3, iOS 14.5, *)
 extension AdvanceWebView.Delegate: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
-        Swift.debugPrint("[AdvanceWebView] download downloadLocation", suggestedFilename, response.expectedContentLength)
+        Swift.debugPrint("[AdvanceWebView] download suggestedFilename", suggestedFilename, response.expectedContentLength)
         let downloadLocation = webview.downloadHandlers.downloadLocation?(response, suggestedFilename)
         if let downloadLocation = downloadLocation, FileManager.default.fileExists(at: downloadLocation) {
             switch webview.downloadStrategy {
