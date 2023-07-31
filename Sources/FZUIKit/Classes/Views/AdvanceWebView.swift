@@ -90,13 +90,7 @@ public class AdvanceWebView: WKWebView {
         self.delegate = Delegate(webview: self)
     }
     
-    internal var isIntialLoadingRequest = false
     public override func load(_ request: URLRequest) -> WKNavigation? {
-        self.isIntialLoadingRequest = true
-        self.currentRequest = nil
-        self._currentHTTPCookies.removeAll()
-        self.isIntialLoadingRequest = false
-
         if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
             awaitingRequests.append(request)
             sequentialOperationQueue.addOperation {
@@ -109,6 +103,8 @@ public class AdvanceWebView: WKWebView {
             }
             return nil
         } else {
+            self.currentRequest = nil
+            self._currentHTTPCookies.removeAll()
             sequentialOperationQueue.maxConcurrentOperationCount = 0
             return super.load(request)
         }
