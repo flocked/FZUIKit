@@ -49,9 +49,7 @@ public class AdvanceWebView: WKWebView {
     }
     
     internal let _currentHTTPCookies = SynchronizedArray<HTTPCookie>()
-    
     internal var delegate: Delegate!
-    
     internal let awaitingRequests = SynchronizedArray<URLRequest>()
     internal let awaitingDownloadRequests = SynchronizedArray<URLRequest>()
     internal let sequentialOperationQueue = OperationQueue(maxConcurrentOperationCount: 1)
