@@ -25,7 +25,7 @@ public class AdvanceWebView: WKWebView {
         public var didStart: ((WKDownload)->())? = nil
         /// The handler that gets called whenever a download finishes.
         public var didFinish: ((WKDownload)->())? = nil
-        /// The handler that gets called whenever a download failed and decides if a failed download should be tried downloading again.
+        /// The handler that gets called whenever a download failed and determines whether a failed download should be tried downloading again.
         public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?)->(Bool))? = nil
     }
     
