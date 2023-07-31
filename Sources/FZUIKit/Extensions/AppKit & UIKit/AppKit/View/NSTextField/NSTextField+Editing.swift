@@ -144,7 +144,7 @@ public extension NSTextField {
                     #selector(setter: delegate) <-> #selector(setter: swizzled_delegate)
                 }
             } catch {
-                Swift.print(error)
+                Swift.debugPrint(error)
             }
         }
     }

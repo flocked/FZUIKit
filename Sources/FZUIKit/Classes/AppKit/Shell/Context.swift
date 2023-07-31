@@ -75,9 +75,9 @@ private func createTempdirectory() -> String {
         try FileManager.default.createDirectory(atPath: tempdirectory.path, withIntermediateDirectories: true, attributes: nil)
         return tempdirectory.path + "/"
     } catch let error as NSError {
-        Swift.print("Could not create new temporary directory \(tempdirectory)", error)
+        Swift.debugPrint("Could not create new temporary directory \(tempdirectory)", error)
     } catch {
-        Swift.print("Unexpected error", error)
+        Swift.debugPrint("Unexpected error", error)
     }
     //  FileManager.default.temporaryDirectory
     return "/"
@@ -118,7 +118,7 @@ public final class MainContext: ShellContext, CommandRunning {
         get { return FileManager.default.currentDirectoryPath + "/" }
         set {
             if !FileManager.default.changeCurrentDirectoryPath(newValue) {
-                Swift.print("Could not change the working directory to \(newValue)")
+                Swift.debugPrint("Could not change the working directory to \(newValue)")
                 //       exit(errormessage: "Could not change the working directory to \(newValue)")
             }
         }

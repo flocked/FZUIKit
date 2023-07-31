@@ -187,7 +187,7 @@ public class StdoutStream: WritableStream {
     public static var `default`: StdoutStream { StdoutStream() }
 
     public func write(_ x: String) {
-        Swift.print(x, terminator: "")
+        Swift.debugPrint(x, terminator: "")
     }
 
     public func close() {}

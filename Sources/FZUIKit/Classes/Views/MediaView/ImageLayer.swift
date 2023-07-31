@@ -239,7 +239,7 @@ public class ImageLayer: CALayer {
                     self.animationDuration = duration
                     self.images = allFrames.compactMap { NSImage(cgImage: $0.image) }
                 } catch {
-                    Swift.print(error)
+                    Swift.debugPrint(error)
                 }
             }
         }

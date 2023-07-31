@@ -239,7 +239,7 @@ internal extension NSWindow {
                     #selector(animation(forKey:)) <-> #selector(swizzledAnimation(forKey:))
                 }
             } catch {
-                Swift.print(error)
+                Swift.debugPrint(error)
             }
         }
     }

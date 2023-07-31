@@ -227,7 +227,7 @@ public class PrintedAsyncCommand {
         do {
             try process.launchThrowably()
         } catch {
-            Swift.print(error)
+            Swift.debugPrint(error)
             //	exit(errormessage: error, file: file, line: line)
         }
     }

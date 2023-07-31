@@ -134,7 +134,7 @@ public extension NSTextField {
                  startIndex = endIndex
                  var range = startIndex..<endIndex
                  lines.append(range)
-                 Swift.print(line, lineString)
+                 Swift.debugPrint(line, lineString)
              //    lines[line] = lineString
                  previousHeight = fittingSize.height
                  line = line + 1

@@ -113,7 +113,7 @@ public extension NSUIView {
                 constraints.append(self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: padding))
             }
             constraints.append(self.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -(padding*2.0)))
-            Swift.print("viewSize", self.frame.size)
+            Swift.debugPrint("viewSize", self.frame.size)
             constraints.append(self.heightAnchor.constraint(equalToConstant: view.frame.size.height))
         default:
             constraints.append(contentsOf: [
