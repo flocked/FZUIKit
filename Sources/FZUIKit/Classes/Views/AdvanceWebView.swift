@@ -299,6 +299,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                 completionHandler(downloadLocation)
             }
         } else {
+            Swift.debugPrint("[AdvanceWebView] download", suggestedFilename, response.expectedContentLength)
             completionHandler(downloadLocation)
         }
     }
