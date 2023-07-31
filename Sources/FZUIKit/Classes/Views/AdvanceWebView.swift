@@ -58,7 +58,6 @@ public class AdvanceWebView: WKWebView {
         
     public init(frame: CGRect) {
         super.init(frame: frame, configuration: .init())
-        self.delegate = Delegate(webview: self)
     }
     
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
@@ -201,8 +200,7 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
                 self.webview.cookiesHandler?(cookies)
             }
             self.webview._currentHTTPCookies.removeAll()
-            self.webview._currentHTTPCookies.append(<#T##element: HTTPCookie##HTTPCookie#>)
-            self.webview._currentHTTPCookies = cookies
+            self.webview._currentHTTPCookies.append(contentsOf: cookies)
         })
         let shouldDownload = self.webview.downloadHandlers.shouldDownload?(navigationAction.request) ?? false
         if shouldDownload {
