@@ -33,6 +33,9 @@ public class AdvanceWebView: WKWebView {
     /// The handlers for downloading files.
     public var downloadHandlers = DownloadHandlers()
     
+    /// The progress of all downloads.
+    public let downloadProgress = DownloadProgress()
+    
     /// The current downloads.
     public let downloads = SynchronizedArray<WKDownload>()
     
@@ -168,6 +171,7 @@ internal extension AdvanceWebView {
                 old, new in
                 download.progress.updateEstimatedTimeRemaining()
             })
+            self.webview.downloadProgress.addChild(download.progress)
             self.webview.downloadHandlers.didStart?(download)
             self.webview.sequentialOperationQueue.maxConcurrentOperationCount = 1
         }
@@ -250,12 +254,14 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
     public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         Swift.debugPrint("[AdvanceWebView] download failed", error, download.originalRequest?.url ?? "")
         if let index = webview.downloads.firstIndex(of: download) {
+            webview.downloadProgress.removeChild(download.progress)
             webview.downloads.remove(at: index)
         }
         if webview.downloadHandlers.didFail?(download, error, resumeData) ?? false {
             guard let resumeData = resumeData else { return }
             self.webview.resumeDownload(fromResumeData: resumeData, completionHandler: { download in
                 Swift.debugPrint("[AdvanceWebView] download retry", download.originalRequest?.url ?? "")
+                self.webview.downloadProgress.addChild(download.progress)
                 self.webview.downloads.append(download)
             })
         }
@@ -264,6 +270,26 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
     public func download(_ download: WKDownload, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, decisionHandler: @escaping (WKDownload.RedirectPolicy) -> Void) {
         Swift.debugPrint("[AdvanceWebView] download willPerformHTTPRedirection", response, response.url ?? "")
         decisionHandler(.allow)
+    }
+}
+
+@available(macOS 11.3, iOS 14.5, *)
+public extension AdvanceWebView {
+    class DownloadProgress: MutableProgress {
+        /// The downloading progresses.
+        public var downloading: [Progress] {
+            self.children.filter({$0.isFinished == false})
+        }
+        
+        /// The throughput of the downloads.
+        public var downloadThroughput: DataSize {
+            DataSize(self.downloading.compactMap({$0.throughput}).sum())
+        }
+        
+        /// The estimated time remaining for the downloads.
+        public var downloadEstimatedTimeRemaining: TimeDuration {
+            TimeDuration(self.downloading.compactMap({$0.estimatedTimeRemaining}).sum())
+        }
     }
 }
 
