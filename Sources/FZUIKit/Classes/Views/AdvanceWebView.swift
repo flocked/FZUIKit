@@ -20,6 +20,8 @@ public class AdvanceWebView: WKWebView {
         public var shouldDownload: ((URLRequest)->(Bool))? = nil
         /// The handler that determines the file location of a finished download.
         public var downloadLocation: ((_ response: URLResponse, _ suggestedFilename: String)->(URL?))? = nil
+        /// The handler that handles the authentication challenge for a download.
+        public var authentication: ((_ download: WKDownload, _ challenge: URLAuthenticationChallenge)->(disposition: URLSession.AuthChallengeDisposition, credential: URLCredential?))? = nil
         /// The handler that gets called whenever a download starts.
         public var didStart: ((WKDownload)->())? = nil
         /// The handler that gets called whenever a download finishes.
@@ -228,6 +230,15 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
         completionHandler(downloadLocation)
     }
     
+    func download(_ download: WKDownload, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        if let authentication = webview.downloadHandlers.authentication?(download, challenge) {
+            completionHandler(authentication.disposition, authentication.credential)
+        } else {
+            completionHandler(.performDefaultHandling, nil)
+        }
+    }
+    
+        
     public func downloadDidFinish(_ download: WKDownload) {
         Swift.debugPrint("[AdvanceWebView] download didFinish", download.originalRequest?.url ?? "")
         if let index = webview.downloads.firstIndex(of: download) {
