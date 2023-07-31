@@ -220,10 +220,12 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
     }
         
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        Swift.print("decidePolicyFor", navigationAction.request.url ?? "")
         let oldCurrentRequest = webview.currentRequest
         webview.currentRequest = navigationAction.request
         let store = webView.configuration.websiteDataStore
         store.httpCookieStore.getAllCookies({cookies in
+            Swift.print("httpCookieStore.getAllCookies", cookies.count)
             guard var domain = self.webview.currentRequest?.url?.host else { return }
             var components = domain.components(separatedBy: ".")
             if components.count > 2 {
