@@ -19,7 +19,7 @@ public class AdvanceWebView: WKWebView {
     /// The handler that returns the current HTTP cookies when the web view finishes loading a website.
     public var cookiesHandler: (([HTTPCookie]) -> ())? = nil
     
-    @available(macOS 11.3, *)
+    @available(macOS 11.3, iOS 14.5, *)
     /// The handlers for downloading files.
     public struct DownloadHandlers {
         /// The handler that determines whether a url request should be downloaded.
@@ -27,11 +27,13 @@ public class AdvanceWebView: WKWebView {
         /// The handler that determines the file location of a finished download.
         public var downloadLocation: ((_ response: URLResponse, _ suggestedFilename: String)->(URL?))? = nil
         /// The handler that gets called whenever a download finishes.
-        public var didFinish: (()->())? = nil
+        public var didStart: ((_ download: WKDownload)->())? = nil
+        /// The handler that gets called whenever a download finishes.
+        public var didFinish: ((_ download: WKDownload)->())? = nil
         /// The handler that gets called whenever a download failed.
-        public var didFail: ((_ error: Error, _ resumeData: Data?)->())? = nil
+        public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?)->())? = nil
         /// The handler that gets called whenever the download progresses.
-        public var progress: ((_ current: Int64, _ total: Int64)->())? = nil
+        public var progress: ((_ download: WKDownload, _ progress: Progress)->())? = nil
     }
     
     @available(macOS 11.3, iOS 14.5, *)
@@ -52,8 +54,7 @@ public class AdvanceWebView: WKWebView {
         set { set(associatedValue: newValue, key: "AdvanceWebView_download", object: self) }
     }
     
-    internal var downloadProgressTotalObservation: NSKeyValueObservation? = nil
-    internal var downloadProgressCompletedObservation: NSKeyValueObservation? = nil
+    internal var downloadProgressObservation: NSKeyValueObservation? = nil
 
 
     /// The current url request.
@@ -91,11 +92,13 @@ extension AdvanceWebView: WKNavigationDelegate  {
     @available(macOS 11.3, iOS 14.5, *)
     public func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         self.setupDownload(download)
+        self.downloadHandlers.didStart?(download)
     }
         
     @available(macOS 11.3, iOS 14.5, *)
     public func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
         self.setupDownload(download)
+        self.downloadHandlers.didStart?(download)
     }
     
     @available(macOS 11.3, iOS 14.5, *)
@@ -104,22 +107,16 @@ extension AdvanceWebView: WKNavigationDelegate  {
         self.download = download
         Swift.print("navigationResponse didBecome", download, download.progress)
 
-        self.downloadProgressTotalObservation = download.observeChanges(for: \.progress.totalUnitCount, handler: {
+        self.downloadProgressObservation = download.observeChanges(for: \.progress.fractionCompleted, handler: {
             old, new in
             if let progress = self.download?.progress {
-                self.updateDownloadProgress()
-                self.downloadHandlers.progress?(progress.completedUnitCount, progress.totalUnitCount)
+            //    download.progress.updateEstimatedTimeRemaining(dateStarted: self.downloadStartDate)
+                self.downloadHandlers.progress?(download, download.progress)
             }
         })
-        self.downloadProgressCompletedObservation = download.observeChanges(for: \.progress.completedUnitCount, handler: {  old, new in
-            if let progress = self.download?.progress {
-                self.updateDownloadProgress()
-                self.downloadHandlers.progress?(progress.completedUnitCount, progress.totalUnitCount)
-            }
-        })
-        self.updateDownloadProgress()
+       // self.updateDownloadProgress()
     }
-    
+    /*
     @available(macOS 11.3, iOS 14.5, *)
     internal func updateDownloadProgress() {
         self.download?.progress.updateEstimatedTimeRemaining(dateStarted: self.downloadStartDate)
@@ -128,6 +125,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
             finderFileDownloadProgress = nil
             return
         }
+     
         
 #if os(macOS)
         if finderFileDownloadProgress == nil, let downloadLocation = self.downloadLocation, let totalBytes = self.download?.progress.totalUnitCount {
@@ -148,6 +146,7 @@ extension AdvanceWebView: WKNavigationDelegate  {
         finderFileDownloadProgress?.throughput = downloadProgress.throughput
         finderFileDownloadProgress?.completedUnitCount = downloadProgress.completedUnitCount
     }
+     */
         
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if self.currentRequest != navigationAction.request {
@@ -204,10 +203,9 @@ extension AdvanceWebView: WKDownloadDelegate {
         }
         
         self.download = nil
-        self.downloadProgressCompletedObservation = nil
-        self.downloadProgressTotalObservation = nil
-        self.updateDownloadProgress()
-        self.downloadHandlers.didFinish?()
+        self.downloadProgressObservation = nil
+        // self.updateDownloadProgress()
+        self.downloadHandlers.didFinish?(download)
     }
     
     public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
@@ -221,10 +219,9 @@ extension AdvanceWebView: WKDownloadDelegate {
             }
         }
         self.download = nil
-        self.updateDownloadProgress()
-        self.downloadProgressCompletedObservation = nil
-        self.downloadProgressTotalObservation = nil
-        self.downloadHandlers.didFail?(error, resumeData)
+      //  self.updateDownloadProgress()
+        self.downloadProgressObservation = nil
+        self.downloadHandlers.didFail?(download, error, resumeData)
     }
     
     public func download(_ download: WKDownload, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, decisionHandler: @escaping (WKDownload.RedirectPolicy) -> Void) {
