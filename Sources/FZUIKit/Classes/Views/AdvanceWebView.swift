@@ -30,8 +30,21 @@ public class AdvanceWebView: WKWebView {
         public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?)->(Bool))? = nil
     }
     
+    /// The download strategy.
+    public enum DownloadStrategy: Int, Hashable {
+        /// Deletes an existing file at the suggested download location.
+        case delete
+        /// Doesn't download a file if it exists at the suggested download location.
+        case ignore
+        /// Resume downloading a file if it exists at the suggested download location.
+        case resume
+    }
+    
     /// The handlers for downloading files.
     public var downloadHandlers = DownloadHandlers()
+    
+    /// The download strategy.
+    public var downloadStrategy: DownloadStrategy = .resume
     
     /// The progress of all downloads.
     public let downloadProgress = DownloadProgress()
@@ -255,7 +268,42 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
         Swift.debugPrint("[AdvanceWebView] download downloadLocation", suggestedFilename, response.expectedContentLength)
         let downloadLocation = webview.downloadHandlers.downloadLocation?(response, suggestedFilename)
-        completionHandler(downloadLocation)
+        if let downloadLocation = downloadLocation, FileManager.default.fileExists(at: downloadLocation) {
+            switch webview.downloadStrategy {
+            case .delete:
+                do {
+                    try FileManager.default.removeItem(at: downloadLocation)
+                    completionHandler(downloadLocation)
+                } catch {
+                    Swift.print(error)
+                    completionHandler(nil)
+                }
+            case .ignore:
+                completionHandler(nil)
+            case .resume:
+                guard download.originalRequest?.allHTTPHeaderFields?["Range"] == nil else {
+                    completionHandler(downloadLocation)
+                    return
+                }
+                if let fileSize = downloadLocation.resources.fileSize?.bytes, fileSize < response.expectedContentLength {
+                    var request: URLRequest? = nil
+                    if let _request = download.originalRequest {
+                        request = _request
+                    } else if let url = response.url {
+                        request = URLRequest(url: url)
+                    }
+                    if var request = request {
+                        request.addRangeHeader(for: downloadLocation)
+                        self.webview.startDownload(request)
+                    } else {
+                        completionHandler(nil)
+                    }
+                }
+                completionHandler(downloadLocation)
+            }
+        } else {
+            completionHandler(downloadLocation)
+        }
     }
     
     func download(_ download: WKDownload, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
