@@ -269,7 +269,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                     try FileManager.default.removeItem(at: downloadLocation)
                     completionHandler(downloadLocation)
                 } catch {
-                    Swift.print(error)
+                    Swift.debugPrint(error)
                     completionHandler(nil)
                 }
             case .ignore:
