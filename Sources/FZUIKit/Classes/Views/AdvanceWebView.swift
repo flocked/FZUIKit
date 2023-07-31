@@ -248,8 +248,7 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
             handler()
         }
         
-        let shouldDownload = self.webview.downloadHandlers.shouldDownload?(navigationAction.request) ?? false
-        if shouldDownload {
+        if self.webview.downloadHandlers.shouldDownload?(navigationAction.request) ?? false {
             decisionHandler(.download)
         } else {
             decisionHandler(.allow)
