@@ -25,10 +25,8 @@ public class AdvanceWebView: WKWebView {
         public var didStart: ((WKDownload)->())? = nil
         /// The handler that gets called whenever a download finishes.
         public var didFinish: ((WKDownload)->())? = nil
-        /// The handler that gets called whenever a download failed.
-        public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?)->())? = nil
-        /// The handler that decides if a failed download should be tried downloading again.
-        public var retry: ((_ download: WKDownload)->(Bool))? = nil
+        /// The handler that gets called whenever a download failed and decides if a failed download should be tried downloading again.
+        public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?)->(Bool))? = nil
     }
     
     @available(macOS 11.3, iOS 14.5, *)
@@ -239,8 +237,8 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
         if let index = webview.downloads.firstIndex(of: download) {
             webview.downloads.remove(at: index)
         }
-        webview.downloadHandlers.didFail?(download, error, resumeData)
-        if let resumeData = resumeData, webview.downloadHandlers.retry?(download) ?? false {
+        if webview.downloadHandlers.didFail?(download, error, resumeData) ?? false {
+            guard let resumeData = resumeData else { return }
             self.webview.resumeDownload(fromResumeData: resumeData, completionHandler: { download in
                 Swift.debugPrint("[AdvanceWebView] download retry", download.originalRequest?.url ?? "")
                 self.webview.downloads.append(download)
