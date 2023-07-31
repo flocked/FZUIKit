@@ -37,11 +37,15 @@ public class AdvanceWebView: WKWebView {
     /// The handler that returns the current url request when the web view finishes loading a website.
     public var requestHandler: ((URLRequest?)->())? = nil
     
+    /// The handlers that get called when the webview requests a specific url.
+    public var urlHandlers = SynchronizedDictionary<URL, ()->()>()
+    
     /// The handler that returns the current HTTP cookies when the web view finishes loading a website.
     public var cookiesHandler: (([HTTPCookie]) -> ())? = nil
 
     /// The current url request.
     public var currentRequest: URLRequest? = nil
+        
     
     /// All HTTP cookies of the current url request.
     public var currentHTTPCookies: [HTTPCookie] {
@@ -181,11 +185,8 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
     }
         
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if webview.currentRequest != navigationAction.request {
-            webview.requestHandler?(navigationAction.request)
-        }
+        let oldCurrentRequest = webview.currentRequest
         webview.currentRequest = navigationAction.request
-
         let store = webView.configuration.websiteDataStore
         store.httpCookieStore.getAllCookies({cookies in
             guard var domain = self.webview.currentRequest?.url?.host else { return }
@@ -200,6 +201,15 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
             self.webview._currentHTTPCookies.removeAll()
             self.webview._currentHTTPCookies.append(contentsOf: cookies)
         })
+        
+        if oldCurrentRequest != navigationAction.request {
+            webview.requestHandler?(navigationAction.request)
+        }
+        
+        if let url = navigationAction.request.url, let handler = self.webview.urlHandlers[url] {
+            handler()
+        }
+        
         let shouldDownload = self.webview.downloadHandlers.shouldDownload?(navigationAction.request) ?? false
         if shouldDownload {
             decisionHandler(.download)
