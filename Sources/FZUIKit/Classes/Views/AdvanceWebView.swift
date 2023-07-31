@@ -65,7 +65,12 @@ public class AdvanceWebView: WKWebView {
     public var currentRequest: URLRequest? = nil
     
     /// All HTTP cookies of the current url request.
-    public var currentHTTPCookies: [HTTPCookie] = []
+    @objc public dynamic fileprivate(set) var currentHTTPCookies: [HTTPCookie] {
+        get { _currentHTTPCookies.synchronized }
+        set { }
+    }
+    
+    internal var _currentHTTPCookies = SynchronizedArray<HTTPCookie>()
     
     internal var delegate: Delegate!
     internal let awaitingRequests = SynchronizedArray<URLRequest>()
@@ -82,25 +87,21 @@ public class AdvanceWebView: WKWebView {
     public init() {
         super.init(frame: .zero, configuration: .init())
         self.delegate = Delegate(webview: self)
-        Swift.print("init", configuration, delegate.webview)
     }
     
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
         super.init(frame: frame, configuration: configuration)
         self.delegate = Delegate(webview: self)
-        Swift.print("init frame Configuration", delegate.webview)
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.delegate = Delegate(webview: self)
-        Swift.print("init coder", delegate.webview)
     }
     
     public override func load(_ request: URLRequest) -> WKNavigation? {
         if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
             awaitingRequests.append(request)
-            Swift.print("load add", request.url ?? request)
             sequentialOperationQueue.addOperation {
                 if let first = self.awaitingRequests.first {
                     self.awaitingRequests.remove(at: 0)
@@ -111,9 +112,8 @@ public class AdvanceWebView: WKWebView {
             }
             return nil
         } else {
-            Swift.print("load", request.url ?? request)
             self.currentRequest = nil
-            self.currentHTTPCookies.removeAll()
+            self._currentHTTPCookies.removeAll()
             sequentialOperationQueue.maxConcurrentOperationCount = 0
             return super.load(request)
         }
@@ -232,12 +232,10 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
     }
         
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        Swift.print("decidePolicyFor", navigationAction.request.url ?? "")
         let oldCurrentRequest = webview.currentRequest
         webview.currentRequest = navigationAction.request
         let store = webView.configuration.websiteDataStore
         store.httpCookieStore.getAllCookies({cookies in
-            Swift.print("httpCookieStore.getAllCookies", cookies.count)
             guard var domain = self.webview.currentRequest?.url?.host else { return }
             var components = domain.components(separatedBy: ".")
             if components.count > 2 {
@@ -247,6 +245,9 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
             if !cookies.isEmpty, cookies != self.webview.currentHTTPCookies {
                 self.webview.cookiesHandler?(cookies)
             }
+            
+            self.webview._currentHTTPCookies.removeAll()
+            self.webview._currentHTTPCookies.append(contentsOf: cookies)
             self.webview.currentHTTPCookies = cookies
         })
         
