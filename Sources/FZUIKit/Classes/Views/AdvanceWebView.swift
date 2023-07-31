@@ -65,11 +65,8 @@ public class AdvanceWebView: WKWebView {
     public var currentRequest: URLRequest? = nil
     
     /// All HTTP cookies of the current url request.
-    public var currentHTTPCookies: [HTTPCookie] {
-        get { _currentHTTPCookies.synchronized }
-    }
+    public var currentHTTPCookies: [HTTPCookie] = []
     
-    internal let _currentHTTPCookies = SynchronizedArray<HTTPCookie>()
     internal var delegate: Delegate!
     internal let awaitingRequests = SynchronizedArray<URLRequest>()
     internal let awaitingDownloadRequests = SynchronizedArray<URLRequest>()
@@ -104,7 +101,7 @@ public class AdvanceWebView: WKWebView {
             return nil
         } else {
             self.currentRequest = nil
-            self._currentHTTPCookies.removeAll()
+            self.currentHTTPCookies.removeAll()
             sequentialOperationQueue.maxConcurrentOperationCount = 0
             return super.load(request)
         }
@@ -236,8 +233,7 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
             if !cookies.isEmpty, cookies != self.webview.currentHTTPCookies {
                 self.webview.cookiesHandler?(cookies)
             }
-            self.webview._currentHTTPCookies.removeAll()
-            self.webview._currentHTTPCookies.append(contentsOf: cookies)
+            self.webview.currentHTTPCookies = cookies
         })
         
         if oldCurrentRequest != navigationAction.request {
