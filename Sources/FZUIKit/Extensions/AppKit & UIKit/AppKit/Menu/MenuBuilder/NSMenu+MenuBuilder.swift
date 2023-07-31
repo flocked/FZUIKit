@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 
 /// A function builder type that produces an array of `NSMenuItem`s.
 @resultBuilder

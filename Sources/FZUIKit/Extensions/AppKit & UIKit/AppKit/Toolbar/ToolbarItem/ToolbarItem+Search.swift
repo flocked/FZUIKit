@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 
 @available(macOS 11.0, *)
 public extension ToolbarItem {

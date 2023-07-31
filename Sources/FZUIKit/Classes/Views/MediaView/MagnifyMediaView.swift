@@ -7,7 +7,7 @@
 
 #if os(macOS)
 import AVKit
-import Cocoa
+import AppKit
 import Foundation
 import FZSwiftUtils
 

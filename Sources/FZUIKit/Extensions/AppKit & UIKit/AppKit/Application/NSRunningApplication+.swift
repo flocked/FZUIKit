@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 
 public extension NSRunningApplication {
     /// Returns the frontmost app, which is the app that receives key events.

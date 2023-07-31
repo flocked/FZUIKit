@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 
 public extension NSMenu {
     /// A container that increases the `indentationLevel` of its content by one.

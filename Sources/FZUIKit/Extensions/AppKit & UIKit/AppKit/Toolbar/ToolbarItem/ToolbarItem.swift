@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 
 // public protocol ToolbarItem: NSToolbarItem { }
 

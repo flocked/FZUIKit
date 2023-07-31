@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 import SwiftUI
 
 @available(macOS 11.0, *)

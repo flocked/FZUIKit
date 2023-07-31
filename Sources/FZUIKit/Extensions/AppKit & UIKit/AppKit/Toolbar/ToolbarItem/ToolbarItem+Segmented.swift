@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 import FZSwiftUtils
 
 public extension ToolbarItem {

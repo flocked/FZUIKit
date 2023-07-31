@@ -7,7 +7,7 @@
 
 #if os(macOS)
 
-import Cocoa
+import AppKit
 import Foundation
 
 public protocol TargetActionProtocol: AnyObject {

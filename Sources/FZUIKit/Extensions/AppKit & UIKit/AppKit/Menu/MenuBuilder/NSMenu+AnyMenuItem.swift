@@ -6,7 +6,7 @@
 //
 
 #if os(macOS)
-import Cocoa
+import AppKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
