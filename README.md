@@ -2,6 +2,8 @@
 
 Swift AppKit/UIKit extensions and useful Classes & utilities.
 
+*For a full documentation take a look at the included documentation accessible via Xcodes documentation browser.*
+
 ## Notable Extensions & Classes
 
 ### ContentConfiguration
