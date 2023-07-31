@@ -61,6 +61,7 @@ public class AdvanceWebView: WKWebView {
     internal var delegate: Delegate!
     internal let awaitingRequests = SynchronizedArray<URLRequest>()
     internal let awaitingDownloadRequests = SynchronizedArray<URLRequest>()
+    internal let awaitingResumeDatas = SynchronizedArray<Data>()
     internal let sequentialOperationQueue = OperationQueue(maxConcurrentOperationCount: 1)
         
     public init(frame: CGRect) {
@@ -149,6 +150,29 @@ public class AdvanceWebView: WKWebView {
                 self.delegate.setupDownload(download)
                 completionHandler(download)
             })
+        }
+    }
+    
+    public override func resumeDownload(fromResumeData resumeData: Data, completionHandler: @escaping (WKDownload) -> Void) {
+        if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
+            awaitingResumeDatas.append(resumeData)
+            sequentialOperationQueue.addOperation {
+                if let first = self.awaitingResumeDatas.first {
+                    self.awaitingResumeDatas.remove(at: 0)
+                    DispatchQueue.main.async {
+                        self.resumeDownload(fromResumeData: first) { download in
+                            self.delegate.setupDownload(download)
+                            completionHandler(download)
+                        }
+                    }
+                }
+            }
+        } else {
+            sequentialOperationQueue.maxConcurrentOperationCount = 0
+            super.resumeDownload(fromResumeData: resumeData) { download in
+                self.delegate.setupDownload(download)
+                completionHandler(download)
+            }
         }
     }
 }
@@ -261,8 +285,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
             guard let resumeData = resumeData else { return }
             self.webview.resumeDownload(fromResumeData: resumeData, completionHandler: { download in
                 Swift.debugPrint("[AdvanceWebView] download retry", download.originalRequest?.url ?? "")
-                self.webview.downloadProgress.addChild(download.progress)
-                self.webview.downloads.append(download)
+
             })
         }
     }
