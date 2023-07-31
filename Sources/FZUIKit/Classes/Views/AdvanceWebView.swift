@@ -80,16 +80,19 @@ public class AdvanceWebView: WKWebView {
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
         super.init(frame: frame, configuration: configuration)
         self.delegate = Delegate(webview: self)
+        Swift.print("init frame", delegate.webview)
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.delegate = Delegate(webview: self)
+        Swift.print("init coder", delegate.webview)
     }
     
     public override func load(_ request: URLRequest) -> WKNavigation? {
         if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
             awaitingRequests.append(request)
+            Swift.print("load add", request.url ?? request)
             sequentialOperationQueue.addOperation {
                 if let first = self.awaitingRequests.first {
                     self.awaitingRequests.remove(at: 0)
@@ -100,6 +103,7 @@ public class AdvanceWebView: WKWebView {
             }
             return nil
         } else {
+            Swift.print("load", request.url ?? request)
             self.currentRequest = nil
             self.currentHTTPCookies.removeAll()
             sequentialOperationQueue.maxConcurrentOperationCount = 0
