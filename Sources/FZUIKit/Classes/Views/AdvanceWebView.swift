@@ -74,14 +74,15 @@ public class AdvanceWebView: WKWebView {
     internal let sequentialOperationQueue = OperationQueue(maxConcurrentOperationCount: 1)
         
     public init(frame: CGRect) {
-        Swift.print("init frame")
         super.init(frame: frame, configuration: .init())
         self.delegate = Delegate(webview: self)
+        Swift.print("init frame", configuration, delegate.webview)
     }
     
     public init() {
-        Swift.print("init")
         super.init(frame: .zero, configuration: .init())
+        self.delegate = Delegate(webview: self)
+        Swift.print("init", configuration, delegate.webview)
     }
     
     public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
