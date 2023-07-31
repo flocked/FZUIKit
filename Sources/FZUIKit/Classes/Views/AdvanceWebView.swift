@@ -54,7 +54,7 @@ public class AdvanceWebView: WKWebView {
     
     /// All HTTP cookies of the current url request.
     public var currentHTTPCookies: [HTTPCookie] {
-        get { _currentHTTPCookies.synchronizedArray }
+        get { _currentHTTPCookies.sync }
     }
     
     internal let _currentHTTPCookies = SynchronizedArray<HTTPCookie>()

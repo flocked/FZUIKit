@@ -9,3 +9,5 @@ DerivedData/
 .netrc
 *.resolved
 *.resolved
+Package.resolved
+*.resolved
