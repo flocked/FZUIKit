@@ -117,31 +117,17 @@ extension AdvanceWebView: WKNavigationDelegate  {
     
     @available(macOS 11.3, iOS 14.5, *)
     internal func updateDownloadProgress() {
-        self.download?.progress.updateEstimatedTimeRemaining(dateStarted: self.downloadStartDate)
-        guard self.download != nil else {
-            finderFileDownloadProgress?.cancel()
-            finderFileDownloadProgress = nil
-            return
-        }
-        
+        self.download?.progress.updateEstimatedTimeRemaining()
 #if os(macOS)
-        if finderFileDownloadProgress == nil, let downloadLocation = self.downloadLocation, let totalBytes = self.download?.progress.totalUnitCount {
-            finderFileDownloadProgress = Progress(parent: nil, userInfo: [
-                .fileOperationKindKey: Progress.FileOperationKind.downloading,
-                .fileURLKey: downloadLocation])
-            finderFileDownloadProgress?.isCancellable = true
-            finderFileDownloadProgress?.isPausable = false
-            finderFileDownloadProgress?.kind = .file
-            finderFileDownloadProgress?.totalUnitCount = totalBytes
-            finderFileDownloadProgress?.publish()
-        }
-#endif
-        
-        guard let downloadProgress = self.download?.progress else { return }
-        finderFileDownloadProgress?.totalUnitCount = downloadProgress.totalUnitCount
-        finderFileDownloadProgress?.estimatedTimeRemaining = downloadProgress.estimatedTimeRemaining
-        finderFileDownloadProgress?.throughput = downloadProgress.throughput
-        finderFileDownloadProgress?.completedUnitCount = downloadProgress.completedUnitCount
+            guard self.download != nil else {
+                self.download?.progress.unpublish()
+                return
+            }
+            
+            guard let downloadLocation = self.downloadLocation, let progress = self.download?.progress, progress.fileURL != downloadLocation else { return }
+            progress.fileURL = downloadLocation
+            progress.publish()
+            #endif
     }
         
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
