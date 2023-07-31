@@ -63,7 +63,6 @@ public class AdvanceWebView: WKWebView {
 
     /// The current url request.
     public var currentRequest: URLRequest? = nil
-        
     
     /// All HTTP cookies of the current url request.
     public var currentHTTPCookies: [HTTPCookie] {
