@@ -81,7 +81,6 @@ public class AdvanceWebView: WKWebView {
     public init(frame: CGRect) {
         super.init(frame: frame, configuration: .init())
         self.delegate = Delegate(webview: self)
-        Swift.print("init frame", configuration, delegate.webview)
     }
     
     public init() {
