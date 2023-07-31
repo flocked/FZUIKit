@@ -14,7 +14,6 @@ import FZSwiftUtils
  */
 @available(macOS 11.3, iOS 14.5, *)
 public class AdvanceWebView: WKWebView {
-    @available(macOS 11.3, iOS 14.5, *)
     /// The handlers for downloading files.
     public struct DownloadHandlers {
         /// The handler that determines whether a url request should be downloaded.
@@ -29,12 +28,8 @@ public class AdvanceWebView: WKWebView {
         public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?)->(Bool))? = nil
     }
     
-    @available(macOS 11.3, iOS 14.5, *)
     /// The handlers for downloading files.
-    public var downloadHandlers: DownloadHandlers {
-        get {  return getAssociatedValue(key: "AdvanceWebView_downloadHandlers", object: self, initialValue: DownloadHandlers()) }
-        set { set(associatedValue: newValue, key: "AdvanceWebView_downloadHandlers", object: self) }
-    }
+    public var downloadHandlers = DownloadHandlers()
     
     /// The current downloads.
     public let downloads = SynchronizedArray<WKDownload>()
@@ -159,7 +154,6 @@ internal extension AdvanceWebView {
             self.webview.navigationDelegate = self
         }
         
-        @available(macOS 11.3, iOS 14.5, *)
         func setupDownload(_ download: WKDownload) {
             download.delegate = self
             self.webview.downloads.append(download)
@@ -175,13 +169,11 @@ internal extension AdvanceWebView {
 
 @available(macOS 11.3, iOS 14.5, *)
 extension AdvanceWebView.Delegate: WKNavigationDelegate {
-    @available(macOS 11.3, iOS 14.5, *)
     public func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
         Swift.debugPrint("navigationResponse didBecome", download.originalRequest?.url ?? "")
         self.setupDownload(download)
     }
         
-    @available(macOS 11.3, iOS 14.5, *)
     public func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
         Swift.debugPrint("navigationResponse didBecome", download.originalRequest?.url ?? "")
         self.setupDownload(download)
