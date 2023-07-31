@@ -266,6 +266,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
             switch webview.downloadStrategy {
             case .delete:
                 do {
+                    Swift.debugPrint("[AdvanceWebView] download delete", suggestedFilename, response.expectedContentLength)
                     try FileManager.default.removeItem(at: downloadLocation)
                     completionHandler(downloadLocation)
                 } catch {
@@ -273,6 +274,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                     completionHandler(nil)
                 }
             case .ignore:
+                Swift.debugPrint("[AdvanceWebView] download ignore", suggestedFilename, response.expectedContentLength)
                 completionHandler(nil)
             case .resume:
                 guard download.originalRequest?.allHTTPHeaderFields?["Range"] == nil else {
@@ -287,6 +289,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                         request = URLRequest(url: url)
                     }
                     if var request = request {
+                        Swift.debugPrint("[AdvanceWebView] download resume", suggestedFilename, response.expectedContentLength)
                         request.addRangeHeader(for: downloadLocation)
                         self.webview.startDownload(request)
                     } else {
@@ -359,9 +362,14 @@ public extension AdvanceWebView {
 }
 
 @available(macOS 11.3, iOS 14.5, *)
-internal extension WKDownload {
-    var downloadObservation: NSKeyValueObservation? {
+extension WKDownload {
+    internal var downloadObservation: NSKeyValueObservation? {
         get { getAssociatedValue(key: "downloadObservation", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "downloadObservation", object: self) }
+    }
+    
+    internal var fileDestinationURL: URL? {
+        get { getAssociatedValue(key: "fileDestinationURL", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "fileDestinationURL", object: self) }
     }
 }
