@@ -399,7 +399,7 @@ public extension ContentConfiguration {
 }
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
-internal extension ContentConfiguration.SymbolConfiguration {
+public extension ContentConfiguration.SymbolConfiguration {
     func nsUI() -> NSUIImage.SymbolConfiguration {
         var configuration: NSUIImage.SymbolConfiguration
         switch self.colorConfiguration {
