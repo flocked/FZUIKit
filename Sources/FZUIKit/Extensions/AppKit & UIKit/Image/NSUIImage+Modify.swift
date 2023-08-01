@@ -28,6 +28,16 @@ public extension NSUIImage {
         return resized(to: size)
     }
     
+    func resized(toWidth width: CGFloat) -> NSImage {
+        let size = self.size.scaled(toWidth: width)
+        return resized(to: size)
+    }
+    
+    func resized(toHeight height: CGFloat) -> NSImage {
+        let size = self.size.scaled(toHeight: height)
+        return resized(to: size)
+    }
+    
     func resized(toFill size: CGSize) -> NSImage {
         let size = self.size.scaled(toFill: size)
         return resized(to: size)
@@ -122,6 +132,16 @@ public extension NSUIImage {
     
     func resized(toFill size: CGSize) -> NSUIImage? {
         let size = self.size.scaled(toFill: size)
+        return resized(to: size)
+    }
+    
+    func resized(toWidth width: CGFloat) -> NSUIImage? {
+        let size = self.size.scaled(toWidth: width)
+        return resized(to: size)
+    }
+    
+    func resized(toHeight height: CGFloat) -> NSUIImage? {
+        let size = self.size.scaled(toHeight: height)
         return resized(to: size)
     }
     
