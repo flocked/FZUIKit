@@ -13,7 +13,13 @@ import UIKit
 import FZSwiftUtils
 
 public extension ContentConfiguration {
-    /// A configuration that specifies the appearance of a border.
+    /**
+     A configuration that specifies the appearance of a border.
+     
+     On AppKit `NSView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Border)`.
+     
+     On UIKit `UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Border)`.
+     */
     struct Border: Hashable {
         
         /// The color of the border.

@@ -13,7 +13,13 @@ import UIKit
 import FZSwiftUtils
 
 public extension ContentConfiguration {
-    /// A configuration that specifies the appearance of a inner shadow.
+    /**
+     A configuration that specifies the appearance of an inner shadow.
+     
+     On AppKit `NSView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.InnerShadow)`.
+     
+     On UIKit `UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.InnerShadow)`.
+     */
     struct InnerShadow: Hashable {
         /// The color of the shadow.
         public var color: NSUIColor? = .shadowColor {

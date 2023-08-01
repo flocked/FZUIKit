@@ -68,7 +68,7 @@ internal extension NSView {
         
         public var contentProperties: ContentConfiguration.VisualEffect {
             get {
-                return ContentConfiguration.VisualEffect(material: material, blendingMode: blendingMode, state: state, isEmphasized: isEmphasized, maskImage: maskImage, appearance: appearance)
+                return ContentConfiguration.VisualEffect(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage)
             }
             set {
                 material = newValue.material

@@ -16,7 +16,15 @@ import FZSwiftUtils
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ContentConfiguration {
-    /// An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
+    /**
+     An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
+     
+     On AppKit `NSImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.SymbolConfiguration)`.
+     A configuration can also be applied to a `NSImage` via `withSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
+`
+     On UIKit `UIImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.SymbolConfiguration)`.
+     A configuration can also be applied to a `UIImage` via `applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
+     */
     struct SymbolConfiguration: Hashable {
         /// The font of the symbol configuration.
         public var font: FontConfiguration? = nil
