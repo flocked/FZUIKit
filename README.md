@@ -6,9 +6,12 @@ Swift AppKit/UIKit extensions and useful Classes & utilities.
 
 ## Notable Extensions & Classes
 
-### ContentConfiguration
-A port of UIContentConfiguration to AppKit.
-- **NSHostingConfiguration**: A content configuration suitable for hosting a hierarchy of SwiftUI views.
+### NSContentConfiguration & NSContentView
+A port of UIContentConfiguration & UIContentView to AppKit.
+
+#### NSHostingConfiguration
+A content configuration suitable for hosting a hierarchy of SwiftUI views.
+
 ```
 let configuration = NSHostingConfiguration() {
     Label("Your account", systemImage: "folder.circle")
@@ -16,7 +19,10 @@ let configuration = NSHostingConfiguration() {
 
 collectionViewItem.contentConfiguration = configuration
 ```
-- **NSBackgroundConfiguration**: A content configuration suitable for backgrounds.
+
+#### NSBackgroundConfiguration
+A content configuration suitable for backgrounds.
+
 ```
 var configuration = NSBackgroundConfiguration()
 
@@ -27,7 +33,10 @@ configuration.imageProperties.tintColor = .purple
 
 let backgroundView = NSBackgroundView(configuration: configuration)
 ```
-- **NSContentUnavailableConfiguration**: A content configuration for a content-unavailable view. It is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. 
+
+#### NSContentUnavailableConfiguration
+A content configuration for a content-unavailable view. It is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. 
+
 ```
 let configuration = NSContentUnavailableConfiguration.loading() // A loading view that is displaying a spinning indicator.
 
@@ -38,14 +47,27 @@ let loadingView = NSContentUnavailableView(configuration: configuration)
 ```
 
 ### NSView backgroundColor
-A background color property that automatically adjusts on light/dark mode changes.
+A background color of the view that automatically adjusts on light/dark mode changes.
 
 ```
 view.backgroundColor = .systemRed
 ```
 
+### NSView additional properties
+Additional `NSView` properties that can be all animated via the views `animator()`:
+- `cornerRadius: CGFloat`
+- `cornerCurve: CALayerCornerCurve`
+- `roundedCorners: CACornerMask`
+- `borderWidth: CGFloat`
+- `borderColor: NSColor? `
+- `mask: NSView?`
+- `center: CGPoint`
+- `transform: CGAffineTransform`
+- `transform3D: CATransform3D`
+- `anchorPoint: CGPoint`
+
 ### AVPlayer looping
-Easy looping of AVPlayer.
+Easy looping of `AVPlayer`.
 
 ```
 player.isLooping = true
@@ -53,6 +75,7 @@ player.isLooping = true
 
 ### NSImage preparingForDisplay & preparingThumbnail
 An UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
+
 ```
 // prepared decoded image for better performance
 if let preparedImage = await image.preparingForDisplay() {
@@ -69,11 +92,11 @@ image.preparingThumbnail(of: maxThumbnailSize) { thumbnailImage in
 ```
 
 ### ContentConfiguration
-Configurate several aspects of views, windows, etc. Examples:
+Configurates several aspects of views, windows, etc. Examples:
 - VisualEffect
 ```
-window.visualEffect = .darkAqua
-view.visualEffect = .vibrantLight
+window.visualEffect = .darkAqua()
+view.visualEffect = .vibrantLight(blendingMode: .withinWindow)
 ```
 - Shadow
 ```

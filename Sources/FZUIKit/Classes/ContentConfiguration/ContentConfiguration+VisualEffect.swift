@@ -68,6 +68,7 @@ public extension ContentConfiguration {
          */
         public var maskImage: NSImage?
         
+        /// Initalizes a visual effect configuration.
         public init(material: Material,
                     blendingMode: BlendingMode,
                     appearance: NSAppearance? = nil,
@@ -83,33 +84,33 @@ public extension ContentConfiguration {
             self.maskImage = maskImage
         }
         
-        /// A visual effect with the specified appearance.
+        /// A visual effect configuration with the specified appearance.
         public static func appearance(_ appearanceName: NSAppearance.Name, blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> VisualEffect {
             return VisualEffect(material: material, blendingMode: blendingMode, appearance: NSAppearance(named: appearanceName))
         }
 
-        /// A visual effect with a light system appearance.
+        /// A visual effect configuration with a light system appearance.
         public static func light(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.aqua, blendingMode: blendingMode, material: material) }
 
-        /// A visual effect with a dark system appearance.
+        /// A visual effect configuration with a dark system appearance.
         public static func dark(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.darkAqua, blendingMode: blendingMode, material: material) }
 
-        /// A visual effect with a light vibrant appearance.
+        /// A visual effect configuration with a light vibrant appearance.
         public static func vibrantLight(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.vibrantLight, blendingMode: blendingMode, material: material) }
 
-        /// A visual effect with a dark vibrant appearance.
+        /// A visual effect configuration with a dark vibrant appearance.
         public static func vibrantDark(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.vibrantDark, blendingMode: blendingMode, material: material) }
         
-        /// A visual effect with a high-contrast version of the standard light system appearance.
+        /// A visual effect configuration with a high-contrast version of the standard light system appearance.
         public static func accessibilityHighContrastAqua(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastAqua, blendingMode: blendingMode, material: material) }
         
-        /// A visual effect with a high-contrast version of the standard dark system appearance.
+        /// A visual effect configuration with a high-contrast version of the standard dark system appearance.
         public static func accessibilityHighContrastDarkAqua(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastDarkAqua, blendingMode: blendingMode, material: material) }
         
-        /// A visual effect with a high-contrast version of the light vibrant appearance.
+        /// A visual effect configuration with a high-contrast version of the light vibrant appearance.
         public static func accessibilityHighContrastVibrantLight(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastVibrantLight, blendingMode: blendingMode, material: material) }
         
-        /// A visual effect with a high-contrast version of the dark vibrant appearance.
+        /// A visual effect configuration with a high-contrast version of the dark vibrant appearance.
         public static func accessibilityHighContrastVibrantDark(_ blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastVibrantDark, blendingMode: blendingMode, material: material) }
         
         /*

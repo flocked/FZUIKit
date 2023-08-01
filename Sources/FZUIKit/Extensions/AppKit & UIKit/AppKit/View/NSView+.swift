@@ -116,7 +116,7 @@ extension NSView {
             layer?.setAffineTransform(newValue)
         }
     }
-
+    
     /**
      The three-dimensional transform to apply to the view.
 

@@ -53,6 +53,7 @@ public extension ContentConfiguration {
             _resolvedColor = resolvedColor()
         }
 
+        /// Initalizes an inner shadow configuration.
         public init(color: NSUIColor? = .shadowColor,
                     opacity: CGFloat = 0.3,
                     radius: CGFloat = 2.0,
@@ -65,16 +66,23 @@ public extension ContentConfiguration {
             self.updateResolvedColor()
         }
 
+        /// A configuration without inner shadow.
         public static func none() -> Self { return Self(color: nil, opacity: 0.0) }
-        public static func `default`() -> Self { return Self() }
-        public static func black() -> Self { return Self(color: .black) }
+        
+        /// A default configuration for a black inner shadow.
+        public static func `default`(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { return Self(opacity: opacity, radius: radius, offset: offset) }
+        
+        /// A configuration for a black inner shadow.
+        public static func black(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { return Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
+        
         #if os(macOS)
-        public static func accentColor() -> Self { return Self(color: .controlAccentColor) }
+        /// A configuration for a accent color inner shadow.
+        public static func accentColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { return Self(color: .controlAccentColor, opacity: opacity, radius: radius, offset: offset) }
         #endif
-        public static func color(_ color: NSUIColor) -> Self {
-            var value = Self()
-            value.color = color
-            return value
+        
+        /// A configuration for an inner shadow with the specified color.
+        public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
+            return Self(color: color, opacity: opacity, radius: radius, offset: offset)
         }
     }
 }

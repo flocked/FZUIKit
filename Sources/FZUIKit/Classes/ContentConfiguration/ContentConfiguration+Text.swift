@@ -110,13 +110,14 @@ public extension ContentConfiguration {
             _resolvedTextColor = resolvedTextColor()
         }
         
-        internal init() {
+        /// Initalizes a text configuration.
+        public init() {
             
         }
         
         /**
-         Specifies a system font to use, along with the size, weight, and any design parameters you want applied to the text.
-         
+         A text configuration with a system font for the specified point size, weight and design.
+
          - Parameters size: The size of the font.
          - Parameters weight: The weight of the font.
          - Parameters design: The design of the font.
@@ -129,7 +130,7 @@ public extension ContentConfiguration {
         }
         
         /**
-         Specifies a system font to use, along with the size, weight, and any design parameters you want applied to the text.
+         A text configuration with a system font for the specified text style, weight and design.
          
          - Parameters style: The style of the font.
          - Parameters weight: The weight of the font.
@@ -142,14 +143,14 @@ public extension ContentConfiguration {
             return properties
         }
         
-        /// A default configuration for a primary text.
+        /// A default text configuration for a primary text.
         public static var primary: Self {
             var text = Text()
             text.numberOfLines = 1
             return text
         }
         
-        /// A default configuration for a secondary text.
+        /// A default text configuration for a secondary text.
         public static var secondary: Self {
             var text = Text()
             text.font = .callout
@@ -162,7 +163,7 @@ public extension ContentConfiguration {
             return text
         }
         
-        /// A default configuration for a tertiary text.
+        /// A default text configuration for a tertiary text.
         public static var tertiary: Self {
             var text = Text()
             text.font = .callout
@@ -243,6 +244,7 @@ public extension ContentConfiguration {
             return text
         }
         
+        /// Applies the specified alignment to the configuration.
         public func alignment(_ alignment: NSTextAlignment) -> Self {
             var text = self
             text.alignment = alignment

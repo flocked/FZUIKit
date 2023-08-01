@@ -47,6 +47,7 @@ public extension ContentConfiguration {
         /// The insets of the border.
         public var insets: NSDirectionalEdgeInsets = .init(0)
         
+        /// Initalizes a border configuration.
         public init(color: NSUIColor? = nil,
                     colorTransformer: ColorTransformer? = nil,
                     width: CGFloat = 0.0,
@@ -61,14 +62,22 @@ public extension ContentConfiguration {
             self.updateResolvedColor()
         }
 
+        /// A border configuration without a border.
         public static func none() -> Self {
             return Self()
         }
         
-        public static func black() -> Self {
-            Self(color: .black, width: 2.0)
+        /// A configuration for a black border.
+        public static func black(width: CGFloat = 2.0) -> Self {
+            Self(color: .black, width: width)
         }
         
+        /// A configuration for a border with the specified color.
+        public static func color(_ color: NSUIColor, width: CGFloat = 2.0) -> Self {
+            Self(color: color, width: width)
+        }
+        
+        /// A configuration for a dashed border with the specified color.
         public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0) -> Self {
             return Self(color: color, width: width, dashPattern: [2])
         }
