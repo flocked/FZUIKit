@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 25.05.23.
 //
 
+/*
 import Foundation
 
 #if os(macOS)
@@ -45,3 +46,4 @@ public struct UIConfigurationHashingTextAttributesTransformer: ContentTransform 
 }
 
 #endif
+*/

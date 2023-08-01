@@ -27,7 +27,7 @@ public extension ContentConfiguration {
             didSet { updateResolvedColor() } }
         
         /// The color transformer for resolving the border color.
-        public var colorTransformer: NSUIConfigurationColorTransformer? = nil {
+        public var colorTransformer: ColorTransformer? = nil {
             didSet { updateResolvedColor() } }
         
         /// Generates the resolved border color for the specified border color, using the border color and color transformer.
@@ -48,7 +48,7 @@ public extension ContentConfiguration {
         public var insets: NSDirectionalEdgeInsets = .init(0)
         
         public init(color: NSUIColor? = nil,
-                    colorTransformer: NSUIConfigurationColorTransformer? = nil,
+                    colorTransformer: ColorTransformer? = nil,
                     width: CGFloat = 0.0,
                     dashPattern: [CGFloat]? = nil,
                     insets: NSDirectionalEdgeInsets = .init(0))

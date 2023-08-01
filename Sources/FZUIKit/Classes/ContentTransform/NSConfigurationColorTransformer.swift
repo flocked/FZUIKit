@@ -4,7 +4,7 @@
 //
 //  Created by Florian Zand on 02.09.22.
 //
-
+/*
 #if os(macOS)
 import AppKit
 /**
@@ -116,3 +116,4 @@ public struct UIConfigurationHashingColorTransformer: ContentTransform {
 }
 
 #endif
+*/
