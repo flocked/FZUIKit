@@ -19,18 +19,6 @@ public extension NSView {
     
     /// Renders an image from this view.
     var renderedImage: NSImage {
-        /*
-        self.wantsLayer = true
-        let image = NSImage(size: bounds.size)
-        image.lockFocus()
-
-        if let context = Self.currentContext {
-            layer?.render(in: context)
-        }
-
-        image.unlockFocus()
-        */
-        
         let rep = self.bitmapImageRepForCachingDisplay(in: self.bounds)!
         self.cacheDisplay(in: self.bounds, to: rep)
 
