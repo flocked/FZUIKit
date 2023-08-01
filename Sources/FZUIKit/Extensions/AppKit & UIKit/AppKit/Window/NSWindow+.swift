@@ -129,7 +129,10 @@ extension NSWindow {
       */
     public var visualEffect: ContentConfiguration.VisualEffect? {
         get { return contentView?.visualEffect }
-        set { contentView?.visualEffect = newValue
+        set {
+            var newValue = newValue
+            newValue?.blendingMode = .behindWindow
+            contentView?.visualEffect = newValue
             appearance = visualEffect?.appearance ?? appearance
         }
     }
