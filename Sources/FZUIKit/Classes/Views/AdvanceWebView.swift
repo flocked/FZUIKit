@@ -71,7 +71,6 @@ public class AdvanceWebView: WKWebView {
     }
     
     internal var _currentHTTPCookies = SynchronizedArray<HTTPCookie>()
-    
     internal var delegate: Delegate!
     internal let awaitingRequests = SynchronizedArray<URLRequest>()
     internal let awaitingDownloadRequests = SynchronizedArray<URLRequest>()
@@ -278,6 +277,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                 do {
                     Swift.debugPrint("[AdvanceWebView] download delete", suggestedFilename, response.expectedContentLength)
                     try FileManager.default.removeItem(at: downloadLocation)
+                    download.fileDestinationURL = downloadLocation
                     completionHandler(downloadLocation)
                 } catch {
                     Swift.debugPrint(error)
@@ -287,11 +287,11 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                 Swift.debugPrint("[AdvanceWebView] download ignore", suggestedFilename, response.expectedContentLength)
                 completionHandler(nil)
             case .resume:
-                guard download.originalRequest?.allHTTPHeaderFields?["Range"] == nil else {
+                guard download.originalRequest?.allHTTPHeaderFields?["Range"] == nil, let fileSize = downloadLocation.resources.fileSize?.bytes, fileSize < response.expectedContentLength else {
+                    download.fileDestinationURL = downloadLocation
                     completionHandler(downloadLocation)
                     return
                 }
-                if let fileSize = downloadLocation.resources.fileSize?.bytes, fileSize < response.expectedContentLength {
                     var request: URLRequest? = nil
                     if let _request = download.originalRequest {
                         request = _request
@@ -300,16 +300,16 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                     }
                     if var request = request {
                         Swift.debugPrint("[AdvanceWebView] download resume", suggestedFilename, response.expectedContentLength)
+                        completionHandler(nil)
                         request.addRangeHeader(for: downloadLocation)
                         self.webview.startDownload(request)
                     } else {
                         completionHandler(nil)
                     }
-                }
-                completionHandler(downloadLocation)
             }
         } else {
             Swift.debugPrint("[AdvanceWebView] download", suggestedFilename, response.expectedContentLength)
+            download.fileDestinationURL = downloadLocation
             completionHandler(downloadLocation)
         }
     }
