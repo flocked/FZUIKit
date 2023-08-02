@@ -21,21 +21,6 @@ public extension WKWebView {
         }
     }
     
-    /// Returns the html string of the current website.
-    func htmlString() -> String? {
-        var htmlString: String? = nil
-        let group = DispatchGroup()
-        group.enter()
-        DispatchQueue.global(qos: .default).async {
-            self.htmlString(completion: { string in
-                htmlString = string
-                group.leave()
-            })
-           }
-           group.wait()
-           return htmlString
-    }
-    
     /**
      Loads the web content that the specified URL references and navigates to that content.
      
