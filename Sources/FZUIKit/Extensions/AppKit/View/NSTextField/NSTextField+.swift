@@ -14,6 +14,10 @@ public extension NSTextField {
         get { self.cell?.truncatesLastVisibleLine ?? false }
         set { self.cell?.truncatesLastVisibleLine = newValue }
     }
+    
+    var hasKeyboardFocus: Bool {
+        return currentEditor() == window?.firstResponder
+      }
 
     func textRect(forBounds bounds: CGRect, maximumNumberOfLines: Int) -> CGRect {
         let _maximumNumberOfLines = self.maximumNumberOfLines

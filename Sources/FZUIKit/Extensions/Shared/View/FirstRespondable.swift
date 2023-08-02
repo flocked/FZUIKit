@@ -58,7 +58,11 @@ extension FirstRespondable where Self: NSView {
     }
 }
 
-
+extension FirstRespondable where Self: NSTextField {
+    public var isFirstResponder: Bool {
+         get { currentEditor() == window?.firstResponder }
+     }
+}
 
 extension FirstRespondable where Self: NSViewController {
     /**

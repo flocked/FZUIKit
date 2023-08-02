@@ -86,58 +86,14 @@ public class NSBackgroundView: NSView, NSContentView {
         contentView.configurate(using: appliedConfiguration.shadow)
         contentView.configurate(using: appliedConfiguration.innerShadow)
         contentView.configurate(using: appliedConfiguration.border)
-        
-        contentViewConstraints.padding = appliedConfiguration.insets
+
+        contentViewConstraints.constant(appliedConfiguration.insets)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
-
-public extension Collection where Element: NSLayoutConstraint, Index == Int  {
-    var padding: NSDirectionalEdgeInsets {
-        get {
-            var insets = NSDirectionalEdgeInsets(top: 0, leading: leftAnchor?.constant ?? 0, bottom: bottomAnchor?.constant ?? 0, trailing: 0)
-            insets.width = widthAnchor?.constant ?? 0
-            insets.height = heightAnchor?.constant ?? 0
-            return insets
-        }
-        set {
-            leftAnchor?.constant = newValue.leading
-            bottomAnchor?.constant = newValue.bottom
-            widthAnchor?.constant = -newValue.width
-            heightAnchor?.constant = -newValue.height
-        }
-    }
-    
-    var leftAnchor: NSLayoutConstraint? {
-        guard let constraint = self[safe: 0], constraint.firstAttribute == .left else { return nil }
-        return constraint
-    }
-    
-    var bottomAnchor: NSLayoutConstraint? {
-        guard let constraint = self[safe: 1], constraint.firstAttribute == .bottom else { return nil }
-        return constraint
-    }
-    
-    var widthAnchor: NSLayoutConstraint? {
-        guard let constraint = self[safe: 2], constraint.firstAttribute == .width else { return nil }
-        return constraint
-    }
-    
-    var heightAnchor: NSLayoutConstraint? {
-        guard let constraint = self[safe: 3], constraint.firstAttribute == .height else { return nil }
-        return constraint
-    }
-}
-
-/*
- let left: NSLayoutConstraint = .init(item: self, attribute: .left, relatedBy: .equal, toItem: view, attribute: .left, multiplier: multipliers[0], constant: constants[0])
- let bottom: NSLayoutConstraint = .init(item: self, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: multipliers[1], constant: constants[1])
- let width: NSLayoutConstraint = .init(item: self, attribute: .width, relatedBy: .equal, toItem: view, attribute: .width, multiplier: multipliers[2], constant: constants[2])
- let height: NSLayoutConstraint = .init(item: self, attribute: .height, relatedBy: .equal, toItem: view, attribut
- */
 
 #endif
 
