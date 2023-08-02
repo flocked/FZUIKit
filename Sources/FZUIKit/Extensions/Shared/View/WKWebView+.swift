@@ -9,14 +9,31 @@ import WebKit
 
 public extension WKWebView {
     /**
-     Returns html string of the current website to the specified completion block.
+     Returns the html string of the current website to the specified completion block.
      - Parameters completion: The handler that returns the htmlString, or `nil` if no htmlString is available.
      */
     func htmlString(completion: @escaping ((String?)->()))  {
-        self.evaluateJavaScript("document.body.innerHTML") { result, error in
-            let htmlString = result as? String
-            completion(htmlString)
+        DispatchQueue.main.async {
+            self.evaluateJavaScript("document.body.innerHTML") { result, error in
+                let htmlString = result as? String
+                completion(htmlString)
+            }
         }
+    }
+    
+    /// Returns the html string of the current website.
+    func htmlString() -> String? {
+        var htmlString: String? = nil
+        let group = DispatchGroup()
+        group.enter()
+        DispatchQueue.global(qos: .default).async {
+            self.htmlString(completion: { string in
+                htmlString = string
+                group.leave()
+            })
+           }
+           group.wait()
+           return htmlString
     }
     
     /**
