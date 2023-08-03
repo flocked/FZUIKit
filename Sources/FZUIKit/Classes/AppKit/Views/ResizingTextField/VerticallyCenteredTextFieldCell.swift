@@ -94,7 +94,6 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         guard focusType != FocusType.none else {
             return
         }
-        Swift.debugPrint("drawFocusRingMask", focusType)
 
         var cornerRadius: CGFloat = 0
         switch focusType {
