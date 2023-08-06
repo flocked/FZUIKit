@@ -66,8 +66,8 @@ Additional `NSView` properties that can be all animated via the views `animator(
 - `transform3D: CATransform3D`
 - `anchorPoint: CGPoint`
 - `animate(duration: TimeInterval, timingFunction: CAMediaTimingFunction, animations: @escaping (Self) -> Void, completion: (() -> Void)?)`
-Animates the views properties
 ```
+// Animates the views properties
 view.animate(duration: 0.5) {
     $0.cornerRadius = 4.0
     $0.borderWidth = 2.0
@@ -75,12 +75,12 @@ view.animate(duration: 0.5) {
 }
 ```
 
-### AVPlayer looping
-Easy looping of `AVPlayer`.
-
+### AVPlayer extensions
+- `isLooping`: Easy looping of the playing item.
 ```
 player.isLooping = true
 ```
+- `state`: The current playback state of the player (.isPaused, .isStopped, .isPlaying, .error(Error))
 
 ### NSImage preparingForDisplay & preparingThumbnail
 An UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.

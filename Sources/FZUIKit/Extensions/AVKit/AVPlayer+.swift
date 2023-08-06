@@ -50,8 +50,8 @@ extension AVPlayer {
 }
 
 public extension AVPlayer {
-    /// The state of hte player.
-    enum State: String {
+    /// The playback state of the player.
+    enum State: Hashable {
         /// The player is playing.
         case isPlaying
         /// The player is paused.
@@ -59,12 +59,30 @@ public extension AVPlayer {
         /// The player is stopped.
         case isStopped
         /// The player has an error.
-        case error
+        case error(Error)
+        
+        public static func == (lhs: AVPlayer.State, rhs: AVPlayer.State) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            switch self {
+            case .isPlaying:
+                hasher.combine(0)
+            case .isPaused:
+                hasher.combine(2)
+            case .isStopped:
+                hasher.combine(3)
+            case .error(_):
+                hasher.combine(4)
+            }
+        }
     }
 
+    /// The current playback state.
     var state: State {
-        if error != nil {
-            return .error
+        if let error = error {
+            return .error(error)
         } else {
             if (rate == 0) && currentTime() != .zero {
                 return .isPaused
