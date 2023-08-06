@@ -55,6 +55,7 @@ view.backgroundColor = .systemRed
 
 ### NSView additional properties
 Additional `NSView` properties that can be all animated via the views `animator()`:
+-  `backgroundColor: NSColor?`
 - `cornerRadius: CGFloat`
 - `cornerCurve: CALayerCornerCurve`
 - `roundedCorners: CACornerMask`
@@ -65,6 +66,14 @@ Additional `NSView` properties that can be all animated via the views `animator(
 - `transform: CGAffineTransform`
 - `transform3D: CATransform3D`
 - `anchorPoint: CGPoint`
+- `animate(duration: TimeInterval, timingFunction: CAMediaTimingFunction, animations: @escaping (Self) -> Void, completion: (() -> Void)?)`: Animates the views properties.
+```
+view.animate(duration: 0.5) {
+$0.cornerRadius = 4.0
+$0.borderWidth = 2.0
+$0.borderColor = .controlAccentColor
+}
+```
 
 ### AVPlayer looping
 Easy looping of `AVPlayer`.
