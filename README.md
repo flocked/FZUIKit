@@ -96,11 +96,11 @@ Configurates several aspects of views, windows, etc. Examples:
 - VisualEffect
 ```
 window.visualEffect = .darkAqua()
-view.visualEffect = .vibrantLight(blendingMode: .withinWindow)
+view.visualEffect = .vibrantLight()
 ```
-- Shadow/InnerShadow
+- Shadow/InnerShadow:
 ```
-let shadow = ContentConfiguration.Shadow(opacity: 0.5, radius: 2.0)
+let shadow = ContentConfiguration.Shadow(color: .black, opacity: 0.5, radius: 2.0)
 view.configurate(using: shadow)
 ```
 - Border
