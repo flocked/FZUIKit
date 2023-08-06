@@ -82,22 +82,22 @@ public extension ContentConfiguration {
         
         #if os(macOS)
         /// The color of the text.
-        public var textColor: NSUIColor = .labelColor {
+        public var color: NSUIColor = .labelColor {
             didSet { updateResolvedTextColor() } }
         #elseif canImport(UIKit)
         /// The color of the text.
-        public var textColor: NSUIColor = .label {
+        public var color: NSUIColor = .label {
             didSet { updateResolvedTextColor() } }
         #endif
         
         
         /// The color transformer of the text color.
-        public var textColorTansform: ColorTransformer? = nil {
+        public var colorTansform: ColorTransformer? = nil {
             didSet { updateResolvedTextColor() } }
         
-        /// Generates the resolved text color for the specified text color, using the color and color transformer.
-        public func resolvedTextColor() -> NSUIColor {
-            textColorTansform?(textColor) ?? textColor
+        /// Generates the resolved text color, using the text color and color transformer.
+        public func resolvedColor() -> NSUIColor {
+            colorTansform?(color) ?? color
         }
         
         #if os(macOS)
@@ -107,7 +107,7 @@ public extension ContentConfiguration {
         #endif
         
         internal mutating func updateResolvedTextColor() {
-            _resolvedTextColor = resolvedTextColor()
+            _resolvedTextColor = resolvedColor()
         }
         
         /// Initalizes a text configuration.
@@ -155,9 +155,9 @@ public extension ContentConfiguration {
             var text = Text()
             text.font = .callout
             #if os(macOS)
-            text.textColor = .secondaryLabelColor
+            text.color = .secondaryLabelColor
             #elseif canImport(UIKit)
-            text.textColor = .secondaryLabel
+            text.color = .secondaryLabel
             #endif
             text.swiftUIFont = .callout
             return text
@@ -168,9 +168,9 @@ public extension ContentConfiguration {
             var text = Text()
             text.font = .callout
             #if os(macOS)
-            text.textColor = .secondaryLabelColor
+            text.color = .secondaryLabelColor
             #elseif canImport(UIKit)
-            text.textColor = .tertiaryLabel
+            text.color = .tertiaryLabel
             #endif
             text.swiftUIFont = .callout
             return text
@@ -266,8 +266,8 @@ extension ContentConfiguration.Text: Hashable {
         hasher.combine(alignment)
         hasher.combine(isEditable)
         hasher.combine(isSelectable)
-        hasher.combine(textColor)
-        hasher.combine(textColorTansform)
+        hasher.combine(color)
+        hasher.combine(colorTansform)
     }
 }
 
