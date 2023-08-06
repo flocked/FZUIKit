@@ -223,6 +223,31 @@ extension NSView {
             layer?.borderColor = newValue?.cgColor
         }
     }
+    
+    /**
+     The background color of the view that is animatable.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc open dynamic var backgroundColorAnimatable: NSColor? {
+        get { getAssociatedValue(key: "_viewBackgroundColor", object: self) }
+        set {
+            wantsLayer = true
+            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
+            Self.swizzleAnimationForKey()
+            if newValue != nil {
+                if _effectiveAppearanceKVO == nil {
+                    _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
+                        self?.updateBackgroundColor()
+                    }
+                }
+            } else {
+                _effectiveAppearanceKVO?.invalidate()
+                _effectiveAppearanceKVO = nil
+            }
+            layer?.backgroundColor = newValue?.cgColor
+        }
+    }
 
     /**
      Adds a tracking area to the view.
@@ -398,7 +423,7 @@ internal extension CALayerContentsGravity {
 internal extension NSView {
     @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         switch key {
-        case "center", "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask":
+        case "center", "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "backgroundColorAnimatable":
             return CABasicAnimation()
         default:
             return self.swizzledAnimation(forKey: key)
