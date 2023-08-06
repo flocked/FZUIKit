@@ -24,7 +24,7 @@ public protocol NSConfigurationState {
 
  Create a custom state key if you want to define a custom state to include in a configuration state.
  
- ```
+ ```swift
  // Declare a custom key for a custom isArchived state.
  extension NSConfigurationStateCustomKey {
      static let isArchived = NSConfigurationStateCustomKey("com.my-app.MyItem.isArchived")

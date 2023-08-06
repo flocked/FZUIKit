@@ -19,7 +19,7 @@ public extension NSUIView {
      Use the `animator` property to set any animatable properties on a `UIView` in an ``Wave.animateWith(...)`` animation block.
 
      Example usage:
-     ```
+     ```swift
      Wave.animateWith(spring: spring) {
         myView.animator.center = CGPoint(x: 100, y: 100)
         myView.animator.alpha = 0.5

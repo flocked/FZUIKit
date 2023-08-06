@@ -24,7 +24,7 @@ public extension NSImage {
 
       AppKit doesn’t associate the prepared image with the original, or with any related variants from an asset catalog. If your app environment dynamically changes display traits, listen for changes in the trait environment and prepare new images when the environment changes.
 
-      ```
+      ```swift
      func collectionView(_ collectionView: NSCollectionView, willDisplay item: NSCollectionViewItem, forRepresentedObjectAt indexPath: IndexPath) {
           guard let imageItem = item as? ImageItem else {
               fatalError("Expected `\(ImageItem.self)` type for reuseIdentifier \(reuseIdentifier). Check the configuration in Main.storyboard.")
@@ -89,7 +89,7 @@ public extension NSImage {
         - completionHandler: The closure to call when the function finishes preparing the image. This completion handler takes one parameter:
         -  image: A new version of the image object for display. If the system can’t decode the image, the parameter value is nil.
 
-     ```
+     ```swift
      func collectionView( _ collectionView: NSCollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         for path in indexPaths {
             let item = models[path.item]
@@ -128,7 +128,7 @@ public extension NSImage {
      - Parameters:
         - size: The desired size of the thumbnail.
 
-     ```
+     ```swift
      func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath
          indexPath: NSIndexPath) -> NSCollectionViewItem {
         let item = self.collectionView.makeItemWithIdentifier("imageItem", forIndexPath: indexPath)
@@ -182,7 +182,7 @@ public extension NSImage {
         - completionHandler: The completion handler to call when the thumbnail is ready. The handler executes on a background thread. The completion handler takes the following parameters:
         -  thumbnail: A new thumbnail image. This parameter is nil if the original image isn’t backed by a CGImage or if the image data is corrupt or malformed.
 
-     ```
+     ```swift
      func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath
          indexPath: NSIndexPath) -> NSCollectionViewItem {
         let item = self.collectionView.makeItemWithIdentifier("imageItem", forIndexPath: indexPath)

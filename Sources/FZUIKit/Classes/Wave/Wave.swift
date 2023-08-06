@@ -14,12 +14,11 @@ public enum Wave {
     /**
      Performs animations based on the `Spring` value provided.
 
-     **Note**: For animations to work correctly, you must set values on the view's `animator`, not just the view itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+     Note: For animations to work correctly, you must set values on the view's `animator`, not just the view itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`
 
      For a full list of the various `UIView` animatable properties that Wave supports, see `ViewAnimator`.
 
-     **Example Usage:**
-     ```
+     ```swift
      let box = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
      view.addSubview(box)
      box.backgroundColor = .systemMint

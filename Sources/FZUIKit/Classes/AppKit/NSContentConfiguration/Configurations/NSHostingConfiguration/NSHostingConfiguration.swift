@@ -14,7 +14,7 @@ import FZSwiftUtils
 
  Use a value of this type, which conforms to the NSContentConfiguration protocol, with a NSCollectionViewItem or NSTableCellView to host a hierarchy of SwiftUI views in a collection or table view, respectively. For example, the following shows a stack with an image and text inside the cell:
  
- ```
+ ```swift
  myItem.contentConfiguration = NSHostingConfiguration {
      HStack {
          Image(systemName: "star").foregroundStyle(.purple)
@@ -26,7 +26,7 @@ import FZSwiftUtils
  
  You can also customize the background of the containing item. The following example draws a blue background:
 
- ```
+ ```swift
  myItem.contentConfiguration = NSHostingConfiguration {
      HStack {
          Image(systemName: "star").foregroundStyle(.purple)
@@ -84,7 +84,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
      
      The following example sets a custom view to the background of the cell:
      
-     ```
+     ```swift
      NSHostingConfiguration {
          Text("My Contents")
      }
@@ -109,7 +109,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
 
      The following example sets a custom view to the background of the cell:
      
-     ```
+     ```swift
      NSHostingConfiguration {
          Text("My Contents")
      }
@@ -136,7 +136,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
      
      Use this modifier to replace the default margins applied to the root of the configuration. The following example creates 10 points of space between the content and the background on the leading edge and 20 points of space on the trailing edge:
      
-     ```
+     ```swift
      NSHostingConfiguration {
          Text("My Contents")
      }
@@ -166,7 +166,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
      
      Use this modifier to replace the default margins applied to the root of the configuration. The following example creates 10 points of space between the content and the background on the leading edge and 20 points of space on the trailing edge:
      
-     ```
+     ```swift
      NSHostingConfiguration {
          Text("My Contents")
      }
@@ -197,7 +197,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
 
      Use this modifier to indicate that a configuration’s associated cell can be resized to a specific minimum. The following example allows the cell to be compressed to zero size:
      
-     ```
+     ```swift
      NSHostingConfiguration {
          Text("My Contents")
      }

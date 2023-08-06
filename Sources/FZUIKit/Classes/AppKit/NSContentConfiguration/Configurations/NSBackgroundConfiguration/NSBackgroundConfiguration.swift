@@ -13,7 +13,7 @@ import FZSwiftUtils
 /**
  A content configuration suitable for backgrounds.
 
- ```
+ ```swift
  var configuration = NSBackgroundConfiguration()
 
  // Customize appearance.
@@ -106,7 +106,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     public static func clear() -> NSBackgroundConfiguration {
         return NSBackgroundConfiguration()
     }
-    
+        
     /// Creates a cell background configuration.
     public init(color: NSColor? = nil,
                 colorTransformer: ColorTransformer? = nil,

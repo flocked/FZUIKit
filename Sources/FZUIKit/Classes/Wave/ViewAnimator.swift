@@ -20,7 +20,7 @@ import UIKit
  In an Wave animation block, change these values to create an animation, like so:
 
  Example usage:
- ```
+ ```swift
  Wave.animate(withSpring: spring) {
  myView.animator.center = CGPoint(x: 100, y: 100)
  myView.animator.alpha = 0.5

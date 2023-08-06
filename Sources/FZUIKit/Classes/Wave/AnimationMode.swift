@@ -13,7 +13,7 @@
 
  For example, the example below animates a circle from left to right:
 
- ```
+ ```swift
  Wave.animate(spring: spring, mode: .animated) {
     circle.animator.center = CGPoint(x: 500, y: 100)
  }
@@ -21,7 +21,7 @@
 
  Suppose while the animation is running, you decide that the circle should snap to its final position.
  Simply calling:
- ```
+ ```swift
  circle.center = CGPoint(x: 500, y: 100)
  ```
 
@@ -29,7 +29,7 @@
 
  For this to snap to its final `center` value correctly, we need to use a `nonAnimated` mode:
 
- ```
+ ```swift
  Wave.animate(spring: spring, mode: .nonAnimated) {
     circle.animator.center = CGPoint(x: 500, y: 100)
  }
