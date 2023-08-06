@@ -98,30 +98,34 @@ Configurates several aspects of views, windows, etc. Examples:
 window.visualEffect = .darkAqua()
 view.visualEffect = .vibrantLight(blendingMode: .withinWindow)
 ```
-- Shadow
+- Shadow/InnerShadow
 ```
-let shadowConfiguration = ContentConfiguration.Shadow(opacity: 0.5, radius: 2.0)
-view.configurate(using: shadowConfiguration)
+let shadow = ContentConfiguration.Shadow(opacity: 0.5, radius: 2.0)
+view.configurate(using: shadow)
 ```
 - Border
 ```
-let borderConfiguration = ContentConfiguration.Border(color: .black, width: 1.0)
-view.configurate(using: borderConfiguration)
+let border = ContentConfiguration.Border(color: .black, width: 1.0)
+view.configurate(using: border)
+```
+- SymbolConfiguration: A simplified version UIImage/NSImage.SymbolConfiguration
+```
+let symbolConfiguration: ContentConfiguration.SymbolConfiguration = .hierarchical(.red).font(.body).imageScale(.large)
+imageView.configurate(using: symbolConfiguration)
 ```
 - Text
 ```
-let textField = NSTextField()
-let textConfiguration = ContentConfiguration.Text(font: .ystemFont(ofSize: 12), textColor: .red, numberOfLines: 1)
-textField.configurate(using: textConfiguration)
+let text = ContentConfiguration.Text(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
+textField.configurate(using: text)
 ```
 
 ### NSSegmentedControl Segments
-Configurate the segments of a NSSegmentedControl.
+Configurates the segments of a NSSegmentedControl.
 ```
 let segmentedControl = NSSegmentedControl() {
-    Segment("Segment 1", isSelected: true)
+    Segment("Segment 1").isSelected(true)
     Segment("Segment 2"), 
-    Segment(NSImage(named: "Image")!)
+    Segment(NSImage(named: "myImage")!)
     Segment(symbolName: "photo")
 }
 ```
@@ -142,6 +146,7 @@ let toolbar = Toolbar("ToolbarIdentifier") {
         Search("SearchItem")
             .onSearch() { searchField, stringValue, state in /// Searching }
 }
+toolbar.attachedWindow = window
 ```
 
 ### NSMenu
@@ -163,10 +168,30 @@ let menu = NSMenu() {
 ```
 
 ### DateTextFieldLabel
-A NSTextField that displays a date either absolute or relative.
+A text field with a date property that automatically updates its string baased on date. It can show the date absolute or relative.
 ```
 let textField = DateTextField(date: Date())
 textField.dateDisplayMode = .relative // It displays e.g. "2 mins ago"
 textField.dateDisplayMode = .absolute // It displays e.g. "04.04.2023 10:20pm"
 ```
- with a date property that automatically updates its string baased on date. It can show the date absolute or relative.
+
+### ResizingTextField
+A `NSTextField` that automatically resizes to fit it's text.
+```
+let textField = ResizingTextField(string: "Some string")
+textField.automaticallyResizesToFit = true
+textField.maxWidth = 200 // The max width of the text field when resizing.
+textField.editingStateHandler // A handler that gets called whenever the state of editing changes
+textField.allowedCharacters = [.alphanumerics, .emojis] // The allowed characters when editing the string
+textField.minAmountChars = 5 // The minimum amount of characters when editing the string
+```
+
+### ImageView
+An advanced `NSImageView` that supports scaleToFill, multiple images, gif animation speed, etc.
+```
+let imageView = ImageView()
+imageView.image = myGifImage
+imageView.imageScaling = .resizeAspectFill // scaleToFill
+imageView.animationDuration = 3.0 /// gif animation speed
+
+```

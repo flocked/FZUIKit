@@ -22,7 +22,11 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     }
     
     /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
-    @IBInspectable public var automaticallyResizesToFit: Bool = true
+    @IBInspectable public var automaticallyResizesToFit: Bool = true {
+        didSet {
+                self.invalidateIntrinsicContentSize()
+        }
+    }
     
     /// Indicates how the text field should resize for fitting the placeholder.
     public var resizesToFitPlaceholder: PlaceHolderResizeOption = .emptyText {
@@ -64,15 +68,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     public var minAmountChars: Int? = nil
     /// The maximum amount of characters allowed when the user edits the text.
     public var maxAmountChars: Int? = nil
-    
-    public enum AllowedCharacterss: Int {
-        case numeric
-        case alphabetic
-        case alphabeticUppercase
-        case symbols
-        case emojis
-       // static var
-    }
+
 
     
     /// The allowed characters the user can enter when editing.
@@ -354,7 +350,6 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     public override var intrinsicContentSize: NSSize {
         let intrinsicContentSize = super.intrinsicContentSize
         guard automaticallyResizesToFit else { return intrinsicContentSize }
-
         let minWidth: CGFloat!
         if !self.stringValue.isEmpty {
             minWidth = self.lastContentSize.width
