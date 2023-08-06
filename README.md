@@ -55,7 +55,6 @@ view.backgroundColor = .systemRed
 
 ### NSView additional properties
 Additional `NSView` properties that can be all animated via the views `animator()`:
--  `backgroundColor: NSColor?`
 - `cornerRadius: CGFloat`
 - `cornerCurve: CALayerCornerCurve`
 - `roundedCorners: CACornerMask`
