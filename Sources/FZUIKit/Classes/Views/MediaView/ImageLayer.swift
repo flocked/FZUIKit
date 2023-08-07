@@ -30,7 +30,7 @@ public class ImageLayer: CALayer {
                     setGif(image: newImage)
                 } else {
                     if #available(macOS 12.0, iOS 13.0, *) {
-                        if newImage.isSymbolImage, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
+                        if newImage.isSymbolImage, needsSymbolConfiguration, let updatedImage = applyingSymbolConfiguration(to: newImage) {
                             self.images = [updatedImage]
                         } else {
                             self.images = [newImage]
@@ -41,7 +41,7 @@ public class ImageLayer: CALayer {
                 }
                 #else
                 if #available(iOS 15.0, *) {
-                    if newImage.isSymbolImage, let symbolConfiguration = symbolConfiguration, let updatedImage = newImage.applyingSymbolConfiguration(symbolConfiguration) {
+                    if newImage.isSymbolImage, needsSymbolConfiguration, let updatedImage = applyingSymbolConfiguration(to: newImage) {
                         self.images = [updatedImage]
                     } else {
                         self.images = [newImage]
@@ -76,10 +76,18 @@ public class ImageLayer: CALayer {
             }
         }
     }
+    
+    internal var needsSymbolConfiguration: Bool {
+        if #available(macOS 12.0, *) {
+           return self.contentTintColor != nil || self.symbolConfiguration != nil
+        } else {
+            return false
+        }
+    }
 
     internal func updateDisplayingImageSymbolConfiguration() {
         if #available(macOS 12.0, iOS 15.0, *) {
-                if let image = self.displayingImage, image.isSymbolImage, let updatedImage = applyingSymbolConfiguration(to: image) {
+                if needsSymbolConfiguration, let image = self.displayingImage, image.isSymbolImage, let updatedImage = applyingSymbolConfiguration(to: image) {
                     self.images[self.currentIndex] = updatedImage
                     self.updateDisplayingImage()
             }
