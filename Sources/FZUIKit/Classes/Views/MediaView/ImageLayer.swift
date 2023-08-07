@@ -93,6 +93,66 @@ public class ImageLayer: CALayer {
             }
         }
     }
+    
+    internal var maskLayer: CALayer? = nil
+    internal func updateImage() {
+        guard let displayingImage = self.displayingImage else { return }
+        if displayingImage.isTemplate {
+            if #available(macOS 12.0, *) {
+                if displayingImage.isSymbolImage, symbolConfiguration != nil {
+                    updateSymbolImage()
+                } else if contentTintColor != nil {
+                    updateTintedTemplateImage()
+                } else {
+                    updateNormalImage()
+                }
+            } else {
+                if contentTintColor != nil {
+                    updateTintedTemplateImage()
+                } else {
+                    updateNormalImage()
+                }
+            }
+
+        } else {
+            self.updateNormalImage()
+        }
+    }
+    
+    internal func updateSymbolImage() {
+        guard let displayingImage = displayingImage else {
+            updateNormalImage()
+            return
+        }
+        self.backgroundColor = nil
+        self.mask = nil
+        if #available(macOS 12.0, *) {
+            self.contents = applyingSymbolConfiguration(to: displayingImage)
+        } else {
+            self.contents = displayingImage
+        }
+    }
+    
+    internal func updateTintedTemplateImage() {
+        guard let contentTintColor = contentTintColor, let displayingImage = displayingImage else {
+            updateNormalImage()
+            return
+        }
+        if maskLayer == nil {
+            maskLayer = CALayer()
+            maskLayer?.frame = self.bounds
+            self.mask = maskLayer
+        }
+        maskLayer?.contents = displayingImage
+        self.backgroundColor = contentTintColor.cgColor
+    }
+    
+    internal func updateNormalImage() {
+        self.backgroundColor = nil
+        self.mask = nil
+        self.contents = displayingImage
+        maskLayer = nil
+    }
 
     @available(macOS 12.0, iOS 15.0, *)
     internal func applyingSymbolConfiguration(to image: NSUIImage) -> NSUIImage? {

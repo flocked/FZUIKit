@@ -56,13 +56,28 @@ public extension NSImage {
 }
 
 public extension NSImage {
+    /**
+     Returns a new version of the image with a tint color.
+     
+     For bitmap images, this method draws the background tint color followed by the image contents using the `NSCompositingOperation.sourceAtop` mode. For symbol images, this method returns an image that always uses the specified tint color.
+     
+     - Parameters color: The tint color to apply to the image.
+     - Returns: A new version of the image that incorporates the specified tint color.
+     */
     func withTintColor(_ color: NSColor) -> NSImage {
+        if #available(macOS 12.0, *) {
+        if self.isSymbolImage {
+             return self.withSymbolConfiguration(.init(paletteColors: [color])) ?? self
+            }
+        }
+            
         let image = copy() as! NSImage
         image.lockFocus()
         color.set()
         let imageRect = NSRect(origin: NSZeroPoint, size: image.size)
         imageRect.fill(using: .sourceAtop)
         image.unlockFocus()
+        image.isTemplate = false
         return image
     }
 
