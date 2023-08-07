@@ -79,11 +79,9 @@ public class ImageLayer: CALayer {
 
     internal func updateDisplayingImageSymbolConfiguration() {
         if #available(macOS 12.0, iOS 15.0, *) {
-            if contentTintColor != nil {
                 if let image = self.displayingImage, image.isSymbolImage, let updatedImage = applyingSymbolConfiguration(to: image) {
                     self.images[self.currentIndex] = updatedImage
                     self.updateDisplayingImage()
-                }
             }
         }
     }
@@ -91,18 +89,6 @@ public class ImageLayer: CALayer {
     @available(macOS 12.0, iOS 15.0, *)
     internal func applyingSymbolConfiguration(to image: NSUIImage) -> NSUIImage? {
         var configuration: NSUIImage.SymbolConfiguration? = nil
-        /*
-         if let symbolConfiguration = symbolConfiguration {
-         configuration = symbolConfiguration
-         }
-
-         if let contentTintColor = contentTintColor {
-         let tintConfiguration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
-         configuration = configuration?.applying(tintConfiguration) ?? tintConfiguration
-
-         }
-         */
-
         #if os(macOS)
         if let contentTintColor = contentTintColor?.resolvedColor() {
             configuration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
