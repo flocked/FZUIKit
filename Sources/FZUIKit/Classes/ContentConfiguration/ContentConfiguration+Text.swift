@@ -35,7 +35,7 @@ public extension ContentConfiguration {
         public var alignment: NSTextAlignment = .left
         
         /// The technique for wrapping and truncating the text.
-        public var lineBreakMode: NSLineBreakMode = .byCharWrapping
+        public var lineBreakMode: NSLineBreakMode = .byWordWrapping
         
         #if canImport(UIKit)
         /// A Boolean value that determines whether the label reduces the text’s font size to fit the title string into the label’s bounding rectangle.
