@@ -243,14 +243,6 @@ public extension ContentConfiguration {
             text.swiftUIFont = .title3
             return text
         }
-        
-        /// Applies the specified alignment to the configuration.
-        public func alignment(_ alignment: NSTextAlignment) -> Self {
-            var text = self
-            text.alignment = alignment
-            return text
-        }
-        
     }
 }
 
