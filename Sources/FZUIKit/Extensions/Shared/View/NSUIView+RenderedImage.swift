@@ -17,7 +17,7 @@ public extension NSView {
         return NSGraphicsContext.current?.cgContext
     }
     
-    /// Renders an image from this view.
+    /// Renders an image of this view.
     var renderedImage: NSImage {
         let rep = self.bitmapImageRepForCachingDisplay(in: self.bounds)!
         self.cacheDisplay(in: self.bounds, to: rep)
@@ -49,7 +49,7 @@ public extension NSView {
 
 #elseif canImport(UIKit)
 public extension UIView {
-    /// Renders an image from this view.
+    /// Renders an image of this view.
     var renderedImage: UIImage {
         let renderer = UIGraphicsImageRenderer(size: bounds.size)
         return renderer.image { _ in

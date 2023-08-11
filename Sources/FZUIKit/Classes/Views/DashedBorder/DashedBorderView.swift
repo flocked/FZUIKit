@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-/// A view that displays a inner shadow.
+/// A view with a dashed border.
 public class DashedBorderView: NSUIView {
     internal static let Tag = 435_234_364
 

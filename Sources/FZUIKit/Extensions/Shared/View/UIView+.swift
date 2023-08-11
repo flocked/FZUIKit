@@ -57,6 +57,7 @@ public extension UIView {
 }
 
 extension UIView.ContentMode: CaseIterable {
+    /// All content modes.
     public static var allCases: [UIView.ContentMode] = [.scaleToFill, .scaleAspectFit, .scaleAspectFill, .redraw, .center, .top, .bottom, .left, .right, .topLeft, .topRight, .bottomLeft, .bottomRight]
 }
 

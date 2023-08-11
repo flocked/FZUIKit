@@ -13,7 +13,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-/// A CALayer that displays a dashed border.
+/// A layer with a dashed border.
 public class DashedBorderLayer: CALayer {
     /// The insets of the border.
     public var borderInsets: NSDirectionalEdgeInsets = .init(0) {

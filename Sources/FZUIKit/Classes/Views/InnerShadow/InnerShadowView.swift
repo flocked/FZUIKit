@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-/// A view that displays a inner shadow.
+/// A view with an inner shadow.
 public class InnerShadowView: NSUIView {
     internal static let Tag = 435_234_364
 

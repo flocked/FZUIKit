@@ -332,7 +332,7 @@ public extension UILabel {
      */
     func configurate(using configuration: ContentConfiguration.Text) {
         self.numberOfLines = configuration.numberOfLines
-        self.textColor = configuration.textColor
+        self.textColor = configuration.color
         self.font = configuration.font
         self.lineBreakMode = configuration.lineBreakMode
         self.textAlignment = configuration.alignment
@@ -354,7 +354,7 @@ public extension UITextField {
      - configuration:The configuration for configurating the label.
      */
     func configurate(using configuration: ContentConfiguration.Text) {
-        self.textColor = configuration.textColor
+        self.textColor = configuration.color
         self.font = configuration.font
         self.textAlignment = configuration.alignment
         

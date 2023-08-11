@@ -9,12 +9,14 @@ import AVFoundation
 import Foundation
 
 public extension AVAsset {
+    /// The natural dimensions of a video asset.
     var videoNaturalSize: CGSize? {
         guard let track = tracks(withMediaType: AVMediaType.video).first else { return nil }
         let size = track.naturalSize.applying(track.preferredTransform)
         return CGSize(width: abs(size.width), height: abs(size.height))
     }
 
+    /// The orientation of a video asset.
     var videoOrientation: VideoOrientation? {
         guard let aspectRatio = videoNaturalSize?.aspectRatio else { return nil }
         if aspectRatio == 1.0 {
@@ -26,6 +28,49 @@ public extension AVAsset {
         }
     }
 
+    /// The codec of a video asset.
+    var videoCodec: AVAssetTrack.VideoCodec? {
+        self.tracks.compactMap({$0.videoCodec}).first
+    }
+
+    /// The codec string of a video asset.
+    var videoCodecString: String? {
+        self.tracks.compactMap({$0.videoCodecString}).first
+    }
+
+    /// The sample rate of a asset with audio track.
+    var audioSampleRate: Float64? {
+        return tracks.compactMap { $0.audioSampleRate }.first
+    }
+
+    /// The number of audio channels.
+    var audioChannels: Int? {
+        return tracks.compactMap { $0.audioChannels }.max()
+    }
+
+    /// The video orientation.
+    enum VideoOrientation: String {
+        /// Vertical orientation.
+        case vertical
+        /// Horizontal orientation.
+        case horizontal
+        /// Square orientation.
+        case square
+    }
+}
+
+public extension AVAssetTrack {
+    /// The codec of a video track.
+    enum VideoCodec: String {
+        /// avc1 codec.
+        case avc1
+        /// hvc1 codec.
+        case hvc1
+        /// mp4v codec.
+        case mp4v
+    }
+    
+    /// The codec of a video track.
     var videoCodec: VideoCodec? {
         switch videoCodecString {
         case "avc1":
@@ -38,37 +83,17 @@ public extension AVAsset {
             return nil
         }
     }
-
+    
+    /// The codec of a video track.
     var videoCodecString: String? {
-        let formatDescriptions = tracks.flatMap { $0.formatDescriptions }
+        let formatDescriptions = self.formatDescriptions
         let mediaSubtypes = formatDescriptions
             .filter { CMFormatDescriptionGetMediaType($0 as! CMFormatDescription) == kCMMediaType_Video }
             .map { CMFormatDescriptionGetMediaSubType($0 as! CMFormatDescription).string }
         return mediaSubtypes.first
     }
-
-    var audioSampleRate: Float64? {
-        return tracks.compactMap { $0.audioSampleRate }.first
-    }
-
-    var audioChannels: Int? {
-        return tracks.compactMap { $0.audioChannels }.max()
-    }
-
-    enum VideoOrientation: String {
-        case vertical
-        case horizontal
-        case square
-    }
-
-    enum VideoCodec: String {
-        case avc1
-        case hvc1
-        case mp4v
-    }
-}
-
-public extension AVAssetTrack {
+    
+    /// The sample rate of an audio track.
     var audioSampleRate: Float64? {
         for item in (formatDescriptions as? [CMAudioFormatDescription]) ?? [] {
             let basic = CMAudioFormatDescriptionGetStreamBasicDescription(item)
@@ -79,14 +104,15 @@ public extension AVAssetTrack {
         return nil
     }
 
-    var audioChannels: Int {
+    /// The number of channels of an audio track.
+    var audioChannels: Int? {
         for item in (formatDescriptions as? [CMAudioFormatDescription]) ?? [] {
             let basic = CMAudioFormatDescriptionGetStreamBasicDescription(item)
             if let channelsCount = basic?.pointee.mChannelsPerFrame, channelsCount != 0 {
                 return Int(channelsCount)
             }
         }
-        return 0
+        return nil
     }
 }
 

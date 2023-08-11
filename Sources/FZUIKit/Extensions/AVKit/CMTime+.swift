@@ -10,10 +10,12 @@ import Foundation
 import FZSwiftUtils
 
 public extension CMTime {
+    /// Creates a time that represents number of seconds.
     init(seconds: Double) {
         self = CMTime(seconds: seconds, preferredTimescale: CMTimeScale(1.0))
     }
 
+    /// Creates a time that represents the duration.
     init(duration: TimeDuration) {
         self = CMTime(seconds: duration.seconds, preferredTimescale: CMTimeScale(1.0))
     }
@@ -45,4 +47,4 @@ extension CMTime: Codable {
     }
 }
 
-extension CMTimeFlags: Codable {}
+extension CMTimeFlags: Codable { }

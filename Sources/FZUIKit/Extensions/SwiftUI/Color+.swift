@@ -14,6 +14,7 @@ import UIKit
 #endif
 
 public extension NSUIColor {
+    /// A SwiftUI representation of the color.
     var swiftUI: Color {
         return Color(self)
     }
@@ -37,10 +38,25 @@ public extension Color {
         opacity(0.15)
     }
 
+    /// A random color.
     static func random() -> Color {
         return Color(NSUIColor.random())
     }
+    
+    /// A random pastel color.
+    static func randomPastel() -> Color {
+        return Color(NSUIColor.randomPastel())
+    }
 
+    /**
+     Creates a new color from the current mixed with with the specified color and amount.
+     
+     - Parameters:
+     - color: The color to mix.
+     - amount: The amount of the color to mix with the current color.
+     
+     - Returns: The new mixed color.
+     */
     func mixed(with color: Color, by amount: CGFloat = 0.5) -> Color {
         let amount = amount.clamped(max: 1.0)
         let nsUIColor = NSUIColor(self)
@@ -50,18 +66,28 @@ public extension Color {
         return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)))
         #endif
     }
-
+    
+    /**
+     Brightens the color by the specified amount.
+     - Parameters amount: The amount of brightness.
+     - Returns: The brightened color.
+     */
     func lighter(by amount: CGFloat = 0.2) -> Color {
         let amount = amount.clamped(max: 1.0)
         return brightness(1.0 + amount)
     }
 
+    /**
+     Darkens the color by the specified amount.
+     - Parameters amount: The amount of darken.
+     - Returns: The darkened color.
+     */
     func darkened(by amount: CGFloat = 0.2) -> Color {
         let amount = amount.clamped(max: 1.0)
         return brightness(1.0 - amount)
     }
 
-    func brightness(_ amount: CGFloat) -> Color {
+    internal func brightness(_ amount: CGFloat) -> Color {
         var amount = amount
         if amount > 1.0 {
             amount = amount - 1.0

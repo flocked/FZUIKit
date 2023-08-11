@@ -51,7 +51,7 @@ extension FirstRespondable where Self: NSView {
 
      AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
 
-     - Returns: `true if the responder is the first responder; otherwise, `false`.
+     - Returns: `true` if the responder is the first responder; otherwise, `false`.
      */
    public var isFirstResponder: Bool {
         get { (self.window?.firstResponder == self) }
@@ -59,6 +59,13 @@ extension FirstRespondable where Self: NSView {
 }
 
 extension FirstRespondable where Self: NSTextField {
+    /**
+     Returns a Boolean value indicating whether this textfield is the first responder.
+
+     AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
+
+     - Returns: `true` if the responder is the first responder; otherwise, `false`.
+     */
     public var isFirstResponder: Bool {
          get { currentEditor() == window?.firstResponder }
      }
@@ -70,7 +77,7 @@ extension FirstRespondable where Self: NSViewController {
 
      AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
 
-     - Returns: `true if the responder is the first responder; otherwise, `false`.
+     - Returns: `true` if the responder is the first responder; otherwise, `false`.
      */
     public var isFirstResponder: Bool {
         get { (self.view.window?.firstResponder == self) }

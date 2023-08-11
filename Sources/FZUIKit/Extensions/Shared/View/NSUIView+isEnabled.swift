@@ -8,7 +8,9 @@
 #if os(macOS)
 import AppKit
 
-public protocol Enablable {
+/// A protocol for views that can be enabled.
+public protocol Enablable: NSUIView {
+    /// A Boolean value that indicates whether the view is enabled.
     var isEnabled: Bool { get set }
 }
 

@@ -14,7 +14,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-/// A CALayer that displays a inner shadow.
+/// A layer with an inner shadow.
 public class InnerShadowLayer: CALayer {
     
 #if os(macOS)

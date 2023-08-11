@@ -17,6 +17,18 @@ import UIKit
 
 
 public extension NSBezierPath {
+    /**
+     Creates and returns a new Bézier path object with a rectangular path rounded at the specified corners.
+     
+     This method creates a closed subpath, proceeding in a clockwise direction (relative to the default coordinate system) as it creates the necessary line and curve segments.
+     
+     - Parameters:
+     - rect: The rectangle that defines the basic shape of the path.
+     - corners: A bitmask value that identifies the corners that you want rounded. You can use this parameter to round only a subset of the corners of the rectangle.
+     - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+
+     - Returns: A new path object with the rounded rectangular path.
+     */
     convenience init(roundedRect rect: NSRect, byRoundingCorners corners: NSRectCorner, cornerRadius radius: CGFloat) {
          
          self.init()
@@ -35,11 +47,27 @@ public extension NSBezierPath {
          self.close()
      }
 
-
+    /**
+     Creates and returns a new Bézier path object with a rounded rectangular path.
+     
+     This method creates a closed subpath, proceeding in a clockwise direction (relative to the default coordinate system) as it creates the necessary line and curve segments.
+     
+     - Parameters:
+     - rect: The rectangle that defines the basic shape of the path.
+     - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+     
+     - Returns: A new path object with the rounded rectangular path.
+     */
     convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat) {
         self.init(roundedRect: rect, byRoundingCorners: .allCorners, cornerRadius: cornerRadius)
     }
 
+    /**
+     Creates and returns a new Bézier path object with the contents of a Core Graphics path.
+          
+     - Parameters cgPath: The Core Graphics path from which to obtain the initial path information. If this parameter is nil, the method raises an exception.
+     - Returns: A new path object with the specified path information.
+     */
     convenience init(cgPath: CGPath) {
         self.init()
         cgPath.applyWithBlock { elementPointer in
@@ -68,17 +96,19 @@ public extension NSBezierPath {
                       controlPoint2: midPoint)
             case .closeSubpath:
                 close()
-            @unknown default:
+             default:
                 break
             }
         }
     }
-/**
- The Core Graphics representation of the path.
 
- This property contains a snapshot of the path at any given point in time. Getting this property returns an immutable path object that you can pass to Core Graphics functions. The path object itself is owned by the UIBezierPath object and is valid only until you make further modifications to the path.
- You can set the value of this property to a path you built using the functions of the Core Graphics framework. When setting a new path, this method makes a copy of the path you provide.
- */
+    /**
+     The Core Graphics representation of the path.
+
+     This property contains a snapshot of the path at any given point in time. Getting this property returns an immutable path object that you can pass to Core Graphics functions. The path object itself is owned by the `NSBezierPath` object and is valid only until you make further modifications to the path.
+     
+     You can set the value of this property to a path you built using the functions of the Core Graphics framework. When setting a new path, this method makes a copy of the path you provide.
+     */
     var cgPath: CGPath {
         let path = CGMutablePath()
         var points = [CGPoint](repeating: .zero, count: 3)
@@ -97,7 +127,7 @@ public extension NSBezierPath {
                 )
             case .closePath:
                 path.closeSubpath()
-            @unknown default:
+            default:
                 break
             }
         }
@@ -168,6 +198,13 @@ public extension NSBezierPath {
         return transform
     }
 
+    /**
+     Returns a new path which is rotated by the specified radians.
+     
+     - Parameters radians: The radians of rotation.
+     - Parameters centerPoint: The center point of the rotation.
+     - Returns: A new path rotated path.
+     */
     func rotating(byRadians radians: Double, centerPoint point: CGPoint) -> Self {
         let path = self.copy() as! Self
 
@@ -184,6 +221,18 @@ public extension NSBezierPath {
 
 #if canImport(UIKit)
 public extension NSUIBezierPath {
+    /**
+     Creates and returns a new Bézier path object with a rectangular path rounded at the specified corners.
+     
+     This method creates a closed subpath, proceeding in a clockwise direction (relative to the default coordinate system) as it creates the necessary line and curve segments.
+     
+     - Parameters:
+     - rect: The rectangle that defines the basic shape of the path.
+     - corners: A bitmask value that identifies the corners that you want rounded. You can use this parameter to round only a subset of the corners of the rectangle.
+     - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+
+     - Returns: A new path object with the rounded rectangular path.
+     */
     convenience init(roundedRect rect: CGRect, byRoundingCorners corners: NSUIRectCorner, cornerRadius: CGFloat) {
         self.init(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: cornerRadius, height: cornerRadius))
     }
@@ -228,11 +277,31 @@ public extension NSUIRectCorner {
 
 #if os(macOS)
 public extension NSBezierPath {
+    /**
+     Creates and returns a new Bézier path object for a contact shadow with the specified shadow size and distance.
+          
+     - Parameters:
+     - rect: The rectangle that defines the basic shape of the path.
+     - shadowSize: The size of the shadow.
+     - shadowDistance: The distance of the shadow.
+
+     - Returns: A new path object for a contact shadow.
+     */
     static func contactShadow(rect: CGRect, shadowSize: CGFloat = 20, shadowDistance: CGFloat = 0) -> NSBezierPath {
         let contactRect = CGRect(x: -shadowSize, y: (rect.height - (shadowSize * 0.4)) + shadowDistance, width: rect.width + shadowSize * 2, height: shadowSize)
         return NSBezierPath(ovalIn: contactRect)
     }
+    
+    /**
+     Creates and returns a new Bézier path object for a depth shadow with the specified shadow size and distance.
+          
+     - Parameters:
+     - rect: The rectangle that defines the basic shape of the path.
+     - shadowSize: The size of the shadow.
+     - shadowDistance: The distance of the shadow.
 
+     - Returns: A new path object for a depth shadow.
+     */
     static func depthShadow(rect: CGRect, shadowWidth: CGFloat = 1.2, shadowHeight: CGFloat = 0.5, shadowRadius: CGFloat = 5, shadowOffsetX: CGFloat = 0) -> NSBezierPath {
         let shadowPath = NSBezierPath()
         shadowPath.move(to: CGPoint(x: shadowRadius / 2, y: rect.height - shadowRadius / 2))
@@ -242,6 +311,16 @@ public extension NSBezierPath {
         return shadowPath
     }
 
+    /**
+     Creates and returns a new Bézier path object for a flat shadow with the specified shadow size and distance.
+          
+     - Parameters:
+     - rect: The rectangle that defines the basic shape of the path.
+     - shadowSize: The size of the shadow.
+     - shadowDistance: The distance of the shadow.
+
+     - Returns: A new path object for a flat shadow.
+     */
     static func flatShadow(rect: CGRect, shadowOffsetX: CGFloat = 2000) -> NSBezierPath {
         // how far the bottom of the shadow should be offset
         let shadowPath = NSBezierPath()
@@ -254,6 +333,16 @@ public extension NSBezierPath {
         return shadowPath
     }
 
+    /**
+     Creates and returns a new Bézier path object for a flat behind shadow with the specified shadow size and distance.
+          
+     - Parameters:
+     - rect: The rectangle that defines the basic shape of the path.
+     - shadowSize: The size of the shadow.
+     - shadowDistance: The distance of the shadow.
+
+     - Returns: A new path object for a flat behind shadow.
+     */
     static func flatShadowBehind(rect: CGRect, shadowOffsetX: CGFloat = 2000) -> NSBezierPath {
         // how far the bottom of the shadow should be offset
         let shadowPath = NSBezierPath()

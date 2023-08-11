@@ -78,7 +78,7 @@ public class ImageLayer: CALayer {
     }
     
     internal var needsSymbolConfiguration: Bool {
-        if #available(macOS 12.0, *) {
+        if #available(macOS 12.0, iOS 15.0, *) {
            return self.contentTintColor != nil || self.symbolConfiguration != nil
         } else {
             return false
@@ -97,8 +97,9 @@ public class ImageLayer: CALayer {
     internal var maskLayer: CALayer? = nil
     internal func updateImage() {
         guard let displayingImage = self.displayingImage else { return }
+        #if os(macOS)
         if displayingImage.isTemplate {
-            if #available(macOS 12.0, *) {
+            if #available(macOS 12.0, iOS 15.0, *) {
                 if displayingImage.isSymbolImage, symbolConfiguration != nil {
                     updateSymbolImage()
                 } else if contentTintColor != nil {
@@ -113,10 +114,26 @@ public class ImageLayer: CALayer {
                     updateNormalImage()
                 }
             }
-
         } else {
             self.updateNormalImage()
         }
+        #elseif canImport(UIKit)
+        if #available(macOS 12.0, iOS 15.0, *) {
+            if displayingImage.isSymbolImage, symbolConfiguration != nil {
+                updateSymbolImage()
+            } else if contentTintColor != nil {
+                updateTintedTemplateImage()
+            } else {
+                updateNormalImage()
+            }
+        } else {
+            if contentTintColor != nil {
+                updateTintedTemplateImage()
+            } else {
+                updateNormalImage()
+            }
+        }
+        #endif
     }
     
     internal func updateSymbolImage() {
@@ -126,7 +143,7 @@ public class ImageLayer: CALayer {
         }
         self.backgroundColor = nil
         self.mask = nil
-        if #available(macOS 12.0, *) {
+        if #available(macOS 12.0, iOS 15.0, *) {
             self.contents = applyingSymbolConfiguration(to: displayingImage)
         } else {
             self.contents = displayingImage
@@ -307,7 +324,7 @@ public class ImageLayer: CALayer {
     }
 
     private func updateDisplayingImage() {
-        CATransaction.perform(animated: false, animations: {
+        CATransaction.perform(duration: 0.0, animations: {
             self.contents = displayingImage
         })
     }
@@ -460,13 +477,13 @@ public class ImageLayer: CALayer {
             case .none:
                 return nil
             case let .push(duration):
-                return CATransition(.push, duration)
+                return CATransition(.push, duration: duration)
             case let .fade(duration):
-                return CATransition(.fade, duration)
+                return CATransition(.fade, duration: duration)
             case let .moveIn(duration):
-                return CATransition(.moveIn, duration)
+                return CATransition(.moveIn, duration: duration)
             case let .reveal(duration):
-                return CATransition(.reveal, duration)
+                return CATransition(.reveal,  duration: duration)
             }
         }
     }

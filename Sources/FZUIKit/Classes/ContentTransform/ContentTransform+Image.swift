@@ -28,7 +28,7 @@ public struct ImageTransformer: ContentTransform {
     }
 
     public static func opacity(_ value: CGFloat) -> Self {
-        return Self("opacity: \(value)") { $0.opacity(value) }
+        return Self("opacity: \(value)") { $0.withOpacity(value) }
     }
 
     public static func tintColor(_ color: NSUIColor) -> Self {
@@ -36,7 +36,7 @@ public struct ImageTransformer: ContentTransform {
     }
 
     public static func color(_ color: NSUIColor) -> Self {
-        return Self("tintColor: \(color)") { _ in NSUIImage(color: color) }
+        return Self("tintColor: \(color)") { _ in NSUIImage(color: color, size: CGSize(1, 1)) }
     }
 
     @available(macOS 10.15, iOS 15.0, *)
@@ -50,7 +50,7 @@ public struct ImageTransformer: ContentTransform {
     }
 
     public static func rounded(radius: CGFloat) -> Self {
-        return Self("roundedCorners: \(radius)") { $0.rounded(radius: radius) }
+        return Self("roundedCorners: \(radius)") { $0.rounded(cornerRadius: radius) }
     }
 
     public static var rounded: Self {

@@ -128,7 +128,7 @@ public extension NSUIColor {
         return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: brightness, alpha: hsba.alpha)
     }
 
-    /// Creates a random color.
+    /// A random color.
     static func random() -> NSUIColor {
         return NSUIColor(hue: CGFloat.random(in: 0.0 ... 1.0), saturation: 0.6, lightness: 0.5)
         /*
@@ -136,7 +136,7 @@ public extension NSUIColor {
           */
     }
 
-    /// Creates a random pastel color.
+    /// A random pastel color.
     static func randomPastel() -> NSUIColor {
         return NSUIColor(hue: CGFloat.random(in: 0.0 ... 1.0), saturation: 0.8, lightness: 0.8)
     }

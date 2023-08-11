@@ -22,12 +22,14 @@ public extension Image {
 #if os(macOS)
 import AppKit
 public extension Image {
+    /// Creates a SwiftUI image from an AppKit image instance.
     init(_ nsImage: NSImage) {
         self = nsImage.swiftui
     }
 }
 
 public extension NSImage {
+    /// A SwiftUI representation of the image.
     var swiftui: Image {
         if #available(macOS 11.0, *), let symbolName = self.symbolName {
                return Image(systemName: symbolName)

@@ -412,7 +412,11 @@ public extension ContentConfiguration.SymbolConfiguration {
         case .multicolor(let color):
             configuration = .multicolor(color)
         case .none:
+            #if os(macOS)
+            configuration = .init()
+            #else
             configuration = .unspecified
+            #endif
         }
         
         switch self.font {

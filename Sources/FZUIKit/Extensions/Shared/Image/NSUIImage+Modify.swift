@@ -13,6 +13,7 @@ import UIKit
 
 #if os(macOS)
 public extension NSUIImage {
+    /// Returns the image resized to the specified size.
     func resized(to size: CGSize) -> NSImage {
         let scaledImage = NSImage(size: size)
         scaledImage.cacheMode = .never
@@ -23,26 +24,19 @@ public extension NSUIImage {
         return scaledImage
     }
     
+    /// Returns the image resized to fit the specified size.
     func resized(toFit size: CGSize) -> NSImage {
         let size = self.size.scaled(toFit: size)
         return resized(to: size)
     }
     
-    func resized(toWidth width: CGFloat) -> NSImage {
-        let size = self.size.scaled(toWidth: width)
-        return resized(to: size)
-    }
-    
-    func resized(toHeight height: CGFloat) -> NSImage {
-        let size = self.size.scaled(toHeight: height)
-        return resized(to: size)
-    }
-    
+    /// Returns the image resized to fill the specified size.
     func resized(toFill size: CGSize) -> NSImage {
         let size = self.size.scaled(toFill: size)
         return resized(to: size)
     }
-        
+    
+    /// Returns the image as circle.
     func rounded() -> NSImage {
         let image = NSImage(size: size)
         image.lockFocus()
@@ -55,7 +49,8 @@ public extension NSUIImage {
         return image
     }
     
-    func rounded(radius: CGFloat) -> NSImage {
+    /// Returns the image rounded with the specified corner radius.
+    func rounded(cornerRadius: CGFloat) -> NSImage {
         let rect = NSRect(origin: NSPoint.zero, size: size)
         if
             let cgImage = cgImage,
@@ -68,7 +63,7 @@ public extension NSUIImage {
                                     bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue)
         {
             context.beginPath()
-            context.addPath(CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil))
+            context.addPath(CGPath(roundedRect: rect, cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil))
             context.closePath()
             context.clip()
             context.draw(cgImage, in: rect)
@@ -79,7 +74,8 @@ public extension NSUIImage {
         }
         return self
     }
-        
+    
+    /// Returns the image rotated to the specified degree.
     func rotated(degrees: Float) -> NSImage {
         let degrees = CGFloat(degrees)
         var imageBounds = NSZeroRect; imageBounds.size = size
@@ -105,7 +101,8 @@ public extension NSUIImage {
         return rotatedImage
     }
     
-    func opacity(_ value: CGFloat) -> NSUIImage {
+    /// Returns the image with the specified opacity value.
+    func withOpacity(_ value: CGFloat) -> NSUIImage {
         let opacityImage = NSImage(size: size)
         opacityImage.cacheMode = .never
         opacityImage.lockFocus()
@@ -118,6 +115,7 @@ public extension NSUIImage {
 #elseif canImport(UIKit)
 
 public extension NSUIImage {
+    /// Returns the image resized to the specified size.
     func resized(to size: CGSize) -> NSUIImage? {
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         defer { UIGraphicsEndImageContext() }
@@ -125,32 +123,26 @@ public extension NSUIImage {
         return UIGraphicsGetImageFromCurrentImageContext()
     }
     
+    /// Returns the image resized to fit the specified size.
     func resized(toFit size: CGSize) -> NSUIImage? {
         let size = self.size.scaled(toFit: size)
         return resized(to: size)
     }
     
+    /// Returns the image resized to fill the specified size.
     func resized(toFill size: CGSize) -> NSUIImage? {
         let size = self.size.scaled(toFill: size)
         return resized(to: size)
     }
     
-    func resized(toWidth width: CGFloat) -> NSUIImage? {
-        let size = self.size.scaled(toWidth: width)
-        return resized(to: size)
-    }
-    
-    func resized(toHeight height: CGFloat) -> NSUIImage? {
-        let size = self.size.scaled(toHeight: height)
-        return resized(to: size)
-    }
-    
+    /// Returns the image as circle.
     func rounded() -> NSUIImage {
         let maxRadius = min(size.width, size.height)
-        return rounded(radius: maxRadius)
+        return rounded(cornerRadius: maxRadius)
     }
     
-    func rounded(radius: CGFloat) -> NSUIImage {
+    /// Returns the image rounded with the specified corner radius.
+    func rounded(cornerRadius: CGFloat) -> NSUIImage {
         let widthRatio: CGFloat = 1.0
         let heightRatio: CGFloat = 1.0
         
@@ -161,7 +153,6 @@ public extension NSUIImage {
             height: size.height * scaleFactor
         )
         
-        let cornerRadius: CGFloat = radius
         let newRect = CGRect(origin: .zero, size: scaledImageSize)
         let renderer = UIGraphicsImageRenderer(size: newRect.size)
         
@@ -172,6 +163,7 @@ public extension NSUIImage {
         return scaledImage
     }
     
+    /// Returns the image rotated to the specified degree.
     func rotated(degrees: Float) -> NSUIImage {
         var newSize = CGRect(origin: CGPoint.zero, size: size).applying(CGAffineTransform(rotationAngle: CGFloat(degrees))).size
         newSize.width = floor(newSize.width)
@@ -190,7 +182,8 @@ public extension NSUIImage {
         return newImage!
     }
     
-    func opacity(_ value: CGFloat) -> NSUIImage {
+    /// Returns the image with the specified opacity value.
+    func withOpacity(_ value: CGFloat) -> NSUIImage {
         return UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { _ in
             draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: value)
         }
