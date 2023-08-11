@@ -243,6 +243,15 @@ public extension NSUIFont {
         case tight
     }
     
+    func design(_ design: NSUIFontDescriptor.SystemDesign) -> NSUIFont {
+        let descriptor = self.fontDescriptor.withDesign(design)!
+        #if os(macOS)
+        return NSUIFont(descriptor: descriptor, size: self.pointSize)!
+        #else
+        return NSUIFont(descriptor: descriptor, size: self.pointSize)
+        #endif
+    }
+    
     func symbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
         var descriptor = fontDescriptor.withSymbolicTraits(symbolicTraits)
         #if os(macOS)
