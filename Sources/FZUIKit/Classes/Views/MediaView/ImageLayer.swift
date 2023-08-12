@@ -14,14 +14,14 @@ import UIKit
 import Combine
 import FZSwiftUtils
 
-public class ImageLayer: CALayer {
-    public var contentTintColor: NSUIColor? = nil {
+open class ImageLayer: CALayer {
+    open var contentTintColor: NSUIColor? = nil {
         didSet {
             updateDisplayingImageSymbolConfiguration()
         }
     }
 
-    public var image: NSUIImage? {
+    open var image: NSUIImage? {
         get { images.first }
         set {
             if let newImage = newValue {
@@ -57,14 +57,14 @@ public class ImageLayer: CALayer {
         }
     }
 
-    public var displayingImage: NSUIImage? {
+    open var displayingImage: NSUIImage? {
         if currentIndex > -1 && currentIndex < images.count {
             return images[currentIndex]
         }
         return nil
     }
 
-    public var images: [NSUIImage] = [] {
+    open var images: [NSUIImage] = [] {
         didSet {
             if isAnimating && !isAnimatable {
                 stopAnimating()
@@ -344,14 +344,14 @@ public class ImageLayer: CALayer {
         return (images.count > 1)
     }
 
-    public var fittingSize: CGSize {
+    open var fittingSize: CGSize {
         if let imageSize = images.first?.size {
             return imageSize
         }
         return .zero
     }
 
-    public func sizeThatFits(_ size: CGSize) -> CGSize {
+    open func sizeThatFits(_ size: CGSize) -> CGSize {
         if let imageSize = images.first?.size {
             if imageSize.width <= size.width && imageSize.height <= size.height {
                 return imageSize
@@ -372,7 +372,7 @@ public class ImageLayer: CALayer {
         return .zero
     }
 
-    public func sizeToFit() {
+    open func sizeToFit() {
         frame.size = fittingSize
     }
 
@@ -396,17 +396,17 @@ public class ImageLayer: CALayer {
         self.images = images
     }
 
-    override init() {
+    public override init() {
         super.init()
         sharedInit()
     }
 
-    override init(layer: Any) {
+    public override init(layer: Any) {
         super.init(layer: layer)
         sharedInit()
     }
 
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }
