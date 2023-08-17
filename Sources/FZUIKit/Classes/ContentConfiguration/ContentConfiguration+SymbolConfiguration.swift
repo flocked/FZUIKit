@@ -401,7 +401,18 @@ public extension ContentConfiguration {
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension ContentConfiguration.SymbolConfiguration {
-    func nsUI() -> NSUIImage.SymbolConfiguration {
+    #if os(macOS)
+    /// Returns a `NSImage.SymbolConfiguration` representation.
+    func nsSymbolConfiguration() -> NSUIImage.SymbolConfiguration {
+        return self.nsUI()
+    }
+    #elseif canImport(UIKit)
+    /// Returns a `UIImage.SymbolConfiguration` representation.
+    func uiSymbolConfiguration() -> NSUIImage.SymbolConfiguration {
+        return self.nsUI()
+    }
+    #endif
+    internal func nsUI() -> NSUIImage.SymbolConfiguration {
         var configuration: NSUIImage.SymbolConfiguration
         switch self.colorConfiguration {
         case .hierarchical(let color):
