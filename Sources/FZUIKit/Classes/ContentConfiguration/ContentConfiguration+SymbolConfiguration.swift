@@ -114,7 +114,7 @@ public extension ContentConfiguration {
         
         /// Creates a configuration with the specified font size and weight.
         public static func font(size: CGFloat, weight: NSUIImage.SymbolWeight = .regular) -> SymbolConfiguration {
-            SymbolConfiguration(font: .system(size: size, weight: weight))
+            SymbolConfiguration(font: .systemFont(size: size, weight: weight))
         }
         
         /// Generates the resolved primary color for the specified color style, using the color style and color transformer.
@@ -153,7 +153,7 @@ public extension ContentConfiguration {
         /// The font of a symbol image.
         public enum FontConfiguration: Hashable {
             /// A font with the specified point size and font weight.
-            case system(size: CGFloat, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
+            case systemFont(size: CGFloat, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
             
             /// A font with the specified text style and font weight.
             case textStyle(NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
@@ -161,8 +161,8 @@ public extension ContentConfiguration {
             /// Sets the weight of the font.
             public func weight(_ weight: NSUIImage.SymbolWeight?) -> Self {
                 switch self {
-                case .system(let size, _, let design):
-                    return .system(size: size, weight: weight, design: design)
+                case .systemFont(let size, _, let design):
+                    return .systemFont(size: size, weight: weight, design: design)
                 case .textStyle(let style, _, let design):
                     return .textStyle(style, weight: weight, design: design)
                 }
@@ -171,8 +171,8 @@ public extension ContentConfiguration {
             /// Sets the design of the font.
             public func design(_ design: NSUIFontDescriptor.SystemDesign) -> Self {
                 switch self {
-                case .system(let size, let weight, _):
-                    return .system(size: size, weight: weight, design: design)
+                case .systemFont(let size, let weight, _):
+                    return .systemFont(size: size, weight: weight, design: design)
                 case .textStyle(let style, let weight, _):
                     return .textStyle(style, weight: weight, design: design)
                 }
@@ -205,7 +205,7 @@ public extension ContentConfiguration {
                 switch self {
                 case .textStyle(let style, weight: let weight, design: let design):
                     return Font.system(style.swiftUI, design: design.swiftUI).weight(weight?.swiftUI ?? .regular)
-                case .system(size: let size, weight: let weight, design: let design):
+                case .systemFont(size: let size, weight: let weight, design: let design):
                     return Font.system(size: size, design: design.swiftUI).weight(weight?.swiftUI ?? .regular)
                 }
             }
@@ -324,7 +324,7 @@ public extension ContentConfiguration.SymbolConfiguration {
         }
         
         switch self.font {
-        case .system(size: let size, weight: let weight, design: _):
+        case .systemFont(size: let size, weight: let weight, design: _):
                 configuration = configuration.font(size: size)
                 configuration = configuration.weight(weight)
         case .textStyle(let style, weight: let weight, design: _):
