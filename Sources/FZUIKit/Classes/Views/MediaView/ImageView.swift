@@ -117,6 +117,10 @@ public class ImageView: NSView {
     override public func makeBackingLayer() -> CALayer {
         return imageLayer
     }
+    
+    internal var _displayingImage: NSUIImage? {
+        return self.imageLayer._displayingImage
+    }
 
     public var displayingImage: NSUIImage? {
         return self.imageLayer.displayingImage

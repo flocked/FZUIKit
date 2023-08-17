@@ -59,7 +59,7 @@ open class ImageLayer: CALayer {
     
     internal var _displayingImage: NSUIImage? {
         if let displayingImage = self.displayingImage {
-            if #available(macOS 12.0, iOS 13.0, *) {
+            if #available(macOS 12.0, iOS 15.0, *) {
                 if displayingImage.isSymbolImage, needsSymbolConfiguration {
                    return applyingSymbolConfiguration(to: displayingImage) ?? displayingImage
                 }

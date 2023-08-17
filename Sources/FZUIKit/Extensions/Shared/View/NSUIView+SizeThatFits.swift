@@ -13,114 +13,139 @@ import UIKit
 #endif
 
 public protocol Sizable {
-    /// Returns the original proposal, with nil components replaced by a small positive value.
+    /**
+     Asks the view to calculate and return the size that best fits the specified size.
+     
+     The default implementation of this method returns the existing size of the view. Subclasses can override this method to return a custom value based on the desired layout of any subviews.
+     
+     This method does not resize the receiver.
+     
+     - Parameters size:  The size for which the view should calculate its best-fitting size.
+     - Returns: A new size that fits the receiver’s subviews.
+     */
     func sizeThatFits(_ size: CGSize) -> CGSize
+    /**
+     Resizes and moves the receiver view so it just encloses its subviews.
+
+     Call this method when you want to resize the current view so that it uses the most appropriate amount of space.
+     
+     You should not override this method. If you want to change the default sizing information for your view, override the `sizeThatFits(_:)` instead. That method performs any needed calculations and returns them to this method, which then makes the change.
+     */
+    func sizeToFit()
+    
     /// The minimum size of the view that satisfies the constraints it holds.
     var fittingSize: CGSize { get }
 }
 
 extension NSUIView: Sizable { }
-// extension NSUIControl: Sizable { }
-
 
 public extension Sizable where Self: NSUIView {
-    /// Resizes and moves the receiver view so it just encloses its subviews fitting the size.
-
-    func sizeToFit(size: CGSize) {
-        frame.size = sizeThatFits(size)
+    var fittingSize: CGSize {
+        sizeThatFits(CGSize(width: 100000, height: 100000))
     }
     
-    /// Resizes and moves the receiver view so it just encloses its subviews.
     func sizeToFit() {
-        frame.size = fittingSize
+        self.frame.size = self.sizeThatFits(CGSize(NSUIView.noIntrinsicMetric, NSUIView.noIntrinsicMetric))
     }
     
-    /// Resizes and moves the receiver view so it fit's the specified width and height.
-    func sizeToFit(width: CGFloat?, height: CGFloat?) {
-        frame.size = sizeThatFits(width: width, height: height)
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return self.frame.size
+        /*
+        let rect = self.subviews.compactMap({$0.frame}).union()
+        if rect.origin.x < 0 {
+            frame.origin.x =  frame.origin.x+rect.origin.x
+        }
+        if rect.origin.y < 0 {
+            frame.origin.y =  frame.origin.x+rect.origin.y
+        }
+        if rect.size != .zero {
+            frame.size = rect.size
+        } else if self.intrinsicContentSize != CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
+            frame.size = self.intrinsicContentSize
+        } else if fittingSize != .zero {
+            frame.size = fittingSize
+        }
+         */
     }
-    
-    /// Returns the original proposal, with nil components replaced by a small positive value.
+}
+
+public extension Sizable where Self: NSUIView {
+    /// Asks the view to calculate and return the size that best fits the specified width and height.
     func sizeThatFits(width: CGFloat?, height: CGFloat?) -> CGSize {
         return sizeThatFits(CGSize(width: width ?? NSUIView.noIntrinsicMetric, height: height ?? NSUIView.noIntrinsicMetric))
     }
 }
 
-#if os(macOS)
-public extension Sizable where Self: NSView {
-    /// Returns the original proposal, with nil components replaced by a small positive value.
-    func sizeThatFits(_ size: CGSize) -> CGSize {
-        var fittingSize: CGSize? = nil
-        
-        let originalWidthConstraint: NSLayoutConstraint? = self.constraints.first(where: {$0.firstAttribute == .width
-            || $0.secondAttribute == .width
-        })
-        let originalHeightConstraint: NSLayoutConstraint? = self.constraints.first(where: {$0.firstAttribute == .height
-            || $0.secondAttribute == .height
-        })
-        
-        let widthConstraint = (size.width != NSUIView.noIntrinsicMetric) ? self.widthAnchor.constraint(equalToConstant: (size.width == .infinity) ? 100000 : size.width) : nil
-        let heightConstraint = (size.width != NSUIView.noIntrinsicMetric) ? self.heightAnchor.constraint(equalToConstant: (size.height == .infinity) ? 100000 : size.height) : nil
-        
-        if widthConstraint != nil {
-            originalWidthConstraint?.isActive = false
-        }
-        
-        if heightConstraint != nil {
-            originalHeightConstraint?.isActive = false
-        }
-        
-        widthConstraint?.isActive = true
-        heightConstraint?.isActive = true
-        fittingSize = self.fittingSize
-        widthConstraint?.isActive = false
-        heightConstraint?.isActive = false
-        originalWidthConstraint?.isActive = true
-        originalHeightConstraint?.isActive = true
-        return fittingSize ?? self.fittingSize
-    }
-}
-
-/*
-extension NSUIImageView: Sizable {
-    func sizeThatFits(_ size: CGSize) -> CGSize {
-        guard let imageSize = self.image?.size else { return }
-        switch self.contentMode {
-        case .scaleAspectFill:
-        case .scaleAspectFit:
-        case .scaleToFill:
-        case .fit
-        }
-    }
-}
-*/
-
-extension NSHostingController: Sizable {
-    /// The minimum size of the view that satisfies the constraints it holds.
+extension NSUIHostingController: Sizable {
     public var fittingSize: CGSize {
         return view.fittingSize
     }
     
-    /// Returns the original proposal, with nil components replaced by a small positive value.
     public func sizeThatFits(_ size: CGSize) -> CGSize {
         return sizeThatFits(in: size)
-    }
-    
-    public func sizeToFit(size: CGSize) {
-        view.frame.size = sizeThatFits(size)
     }
     
     public func sizeToFit() {
         view.frame.size = fittingSize
     }
 }
-#endif
 
-#if canImport(UIKit)
-public extension Sizable where Self: NSUIView {
-    /// The minimum size of the view that satisfies the constraints it holds.
-    var fittingSize: CGSize {
-        sizeThatFits(CGSize(width: 100000, height: 100000))
+#if os(macOS)
+public extension Sizable where Self: ResizingTextField {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return self.intrinsicContentSize
+    }
+}
+
+public extension Sizable where Self: NSTextField {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        if size.height == NSView.noIntrinsicMetric, size.width != NSView.noIntrinsicMetric {
+            let compression = self.contentCompressionResistancePriority(for: .horizontal)
+            let maxWidth = self.preferredMaxLayoutWidth
+            self.setContentCompressionResistancePriority(.fittingSizeCompression, for: .horizontal)
+            self.preferredMaxLayoutWidth = size.width
+            self.invalidateIntrinsicContentSize()
+            let intrinsicContentSize = self.intrinsicContentSize
+            self.setContentCompressionResistancePriority(compression, for: .horizontal)
+            self.preferredMaxLayoutWidth = maxWidth
+            self.invalidateIntrinsicContentSize()
+            return intrinsicContentSize
+        }
+        self.invalidateIntrinsicContentSize()
+        let intrinsicContentSize = intrinsicContentSize
+        if intrinsicContentSize != CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
+            return intrinsicContentSize
+        }
+        return self.frame.size
+    }
+}
+
+public extension Sizable where Self: NSImageView {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return image?.size ?? self.frame.size
+    }
+}
+
+public extension Sizable where Self: ImageView {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        if let imageSize = displayingImage?.size {
+            switch imageScaling {
+            case .resizeAspect, .resize:
+                if size == CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
+                    return imageSize
+                } else {
+                    return imageSize.scaled(toFit: size)
+                }
+            case .resizeAspectFill:
+                if size == CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
+                    return imageSize
+                } else {
+                    return imageSize.scaled(toFill: size)
+                }
+            default: return imageSize
+            }
+        }
+        return self.frame.size
     }
 }
 #endif
