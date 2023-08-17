@@ -28,10 +28,9 @@ public extension NSUICollectionViewLayout {
             return
         }
         collectionView.performBatchUpdates({
-            CATransaction.perform(animated: true, duration: CGFloat(duration), animations: {
+            CATransaction.perform(duration: CGFloat(duration)) {
                 collectionView.performBatchUpdates({})
-            }, completinonHandler: nil)
-
+            }
         })
 #endif
     }

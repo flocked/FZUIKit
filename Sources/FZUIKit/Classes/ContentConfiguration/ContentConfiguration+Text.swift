@@ -118,13 +118,14 @@ public extension ContentConfiguration {
         /**
          A text configuration with a system font for the specified point size, weight and design.
 
-         - Parameters size: The size of the font.
-         - Parameters weight: The weight of the font.
-         - Parameters design: The design of the font.
+         - Parameters:
+            - size: The size of the font.
+            - weight: The weight of the font.
+            - design: The design of the font.
          */
         public static func system(size: CGFloat, weight: NSUIFont.Weight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Text  {
             var properties = Text()
-            properties.font = .system(size: size, weight: weight, design: design)
+            properties.font = .systemFont(ofSize: size, weight: weight, design: design)
             properties.swiftUIFont = .system(size: size, design: design.swiftUI).weight(weight.swiftUI)
             return properties
         }
@@ -132,13 +133,14 @@ public extension ContentConfiguration {
         /**
          A text configuration with a system font for the specified text style, weight and design.
          
-         - Parameters style: The style of the font.
-         - Parameters weight: The weight of the font.
-         - Parameters design: The design of the font.
+         - Parameters:
+            - style: The style of the font.
+            - weight: The weight of the font.
+            - design: The design of the font.
          */
         public static func system(_ style: NSUIFont.TextStyle = .body, weight: NSUIFont.Weight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Text {
             var properties = Text()
-            properties.font = .system(style, design: design).weight(weight)
+            properties.font = .systemFont(style, design: design).weight(weight)
             properties.swiftUIFont = .system(style.swiftUI, design: design.swiftUI).weight(weight.swiftUI)
             return properties
         }
@@ -283,6 +285,20 @@ internal extension NSTextAlignment {
     }
 }
 
+@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
+public extension Text {
+    @ViewBuilder
+    func configurate(using properties: ContentConfiguration.Text) -> some View {
+        self
+        .font(Font(properties.font))
+        .foregroundColor(Color(properties.color))
+        .lineLimit(properties.numberOfLines == 0 ? nil : properties.numberOfLines)
+        .multilineTextAlignment(properties.alignment.swiftUIMultiline)
+        .frame(alignment: properties.alignment.swiftUI)
+    }
+}
+
+
 #if os(macOS)
 @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public extension NSTextField {
@@ -290,7 +306,7 @@ public extension NSTextField {
      Configurates the text field.
      
      - Parameters:
-     - configuration:The configuration for configurating the text field.
+        - configuration:The configuration for configurating the text field.
      */
     func configurate(using configuration: ContentConfiguration.Text) {
         self.maximumNumberOfLines = configuration.numberOfLines
@@ -309,7 +325,7 @@ public extension NSTextView {
      Configurates the text view.
      
      - Parameters:
-     - configuration:The configuration for configurating the text view.
+        - configuration:The configuration for configurating the text view.
      */
     func configurate(using configuration: ContentConfiguration.Text) {
         self.textContainer?.maximumNumberOfLines = configuration.numberOfLines
@@ -328,7 +344,7 @@ public extension UILabel {
      Configurates the label.
      
      - Parameters:
-     - configuration:The configuration for configurating the label.
+        - configuration:The configuration for configurating the label.
      */
     func configurate(using configuration: ContentConfiguration.Text) {
         self.numberOfLines = configuration.numberOfLines
@@ -351,7 +367,7 @@ public extension UITextField {
      Configurates the label.
      
      - Parameters:
-     - configuration:The configuration for configurating the label.
+        - configuration:The configuration for configurating the label.
      */
     func configurate(using configuration: ContentConfiguration.Text) {
         self.textColor = configuration.color

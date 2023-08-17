@@ -13,8 +13,8 @@ public extension View {
      Sets the alignment of a text view.
      
      - Parameters:
-     - textAlignment: The alignment of the text.
-     - autoWidth: A Boolean value that indicates whether the text should fit its width automatically.
+        - textAlignment: The alignment of the text.
+        - autoWidth: A Boolean value that indicates whether the text should fit its width automatically.
      */
     func textAlignment(_ textAlignment: TextAlignment, autoWidth: Bool = true) -> some View {
         modifier(TextAlignmentModifier(textAlignment: textAlignment, autoWidth: autoWidth))

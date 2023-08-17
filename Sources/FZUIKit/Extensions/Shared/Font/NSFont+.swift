@@ -9,12 +9,14 @@
 import AppKit
 @available(macOS 11.0, *)
 extension NSFont.TextStyle: CaseIterable {
+    /// A collection of all text style values.
     public static var allCases: [Self] {
         [.body, .subheadline, .headline, .caption1, .caption2, .callout, .footnote, .title1, .title2, .title3, .largeTitle]
     }
 }
 
 public extension NSFont {
+    /// The height, in points, of text lines.
     var lineHeight: CGFloat {
         var attributes = fontDescriptor.fontAttributes
         var font = self
@@ -34,15 +36,28 @@ public extension NSFont {
         // return self.boundingRectForFont.size.height
     }
 
-    static func systemFont(ofTableRowSize tableRowSize: NSTableView.RowSizeStyle) -> NSFont {
-        return .systemFont(ofSize: systemFontSize(forTableRowSize: tableRowSize))
+    /**
+     Returns the standard system font for the specified table row size and weight.
+     
+     - Parameters:
+        - size: The table row size.
+     */
+    static func systemFont(forTableRowSize size: NSTableView.RowSizeStyle) -> NSFont {
+        return .systemFont(ofSize: systemFontSize(forTableRowSize: size))
     }
 
-    static func systemFont(ofTableRowSize tableRowSize: NSTableView.RowSizeStyle, weight: NSFont.Weight) -> NSFont {
-        return .systemFont(ofSize: systemFontSize(forTableRowSize: tableRowSize), weight: weight)
+    /**
+     Returns the standard system font for the specified table row size and weight.
+     
+     - Parameters:
+        - size: The table row size.
+        - weight: The weight of the font.
+     */
+    static func systemFont(forTableRowSize size: NSTableView.RowSizeStyle, weight: NSFont.Weight) -> NSFont {
+        return .systemFont(ofSize: systemFontSize(forTableRowSize: size), weight: weight)
     }
 
-    static func systemFontSize(forTableRowSize tableRowSize: NSTableView.RowSizeStyle) -> CGFloat {
+    internal static func systemFontSize(forTableRowSize tableRowSize: NSTableView.RowSizeStyle) -> CGFloat {
         switch tableRowSize {
         case .small:
             return 11.0
@@ -70,6 +85,7 @@ public extension NSFont {
         return withSize(newPointSize)
     }
 
+    
     func sized(toFit text: String, width: CGFloat) -> NSFont {
         let font = withSize(1)
         var textSize = text.size(withAttributes: [.font: font])

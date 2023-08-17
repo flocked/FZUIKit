@@ -108,7 +108,7 @@ public extension NSContentUnavailableConfiguration {
     /// Creates the default configuration for searches that return no results.
     static func search() -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
-        configuration.textProperties.font = .system(.headline).weight(.semibold)
+        configuration.textProperties.font = .headline.weight(.semibold)
         configuration.secondaryTextProperties.font = .subheadline
         configuration.imageProperties.symbolConfiguration = .font(.largeTitle)
         configuration.image = NSImage(systemSymbolName: "magnifyingglass")
@@ -118,7 +118,7 @@ public extension NSContentUnavailableConfiguration {
     /// Creates the default configuration for drag and drop of files.
     static func dropFiles(fileExtensions: [String]?, buttonHandler:(()->())?) -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
-        configuration.textProperties.font = .system(.headline).weight(.semibold)
+        configuration.textProperties.font = .headline.weight(.semibold)
         configuration.textProperties.font = .title3
         configuration.imageProperties.symbolConfiguration = .font(size: 40)
         configuration.imageToTextPadding = 8

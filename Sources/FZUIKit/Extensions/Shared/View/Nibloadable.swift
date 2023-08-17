@@ -69,8 +69,8 @@ public extension Nibloadable {
      Initalizes the object from a nib with the specified name.
      
      - Parameters:
-     - nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
-     - bundle: The bundle in which to search for the nib file. If you specify `nil`, this method looks for the nib file in the main bundle.
+        - nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
+        - bundle: The bundle in which to search for the nib file. If you specify `nil`, this method looks for the nib file in the main bundle.
      
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
@@ -87,8 +87,8 @@ public extension Nibloadable {
      Initalizes the object from the storyboard.
      
      - Parameters:
-     - name: The name of the storyboard which holds the object.
-     - identifier: The storyboard identifier of the object. If you specify `nil`, the object's class name is used as identifier.
+        - name: The name of the storyboard which holds the object.
+        - identifier: The storyboard identifier of the object. If you specify `nil`, the object's class name is used as identifier.
      
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
@@ -102,8 +102,8 @@ public extension Nibloadable {
      Initalizes the object from the specified storyboard.
      
      - Parameters:
-     - storyboard: The storyboard which holds the object.
-     - identifier: The storyboard identifier of the object. If you specify `nil`, the object's class name is used as identifier.
+        - storyboard: The storyboard which holds the object.
+        - identifier: The storyboard identifier of the object. If you specify `nil`, the object's class name is used as identifier.
      
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */

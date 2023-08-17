@@ -196,7 +196,7 @@ public extension NSImage {
      }
      ```
      */
-    func preparingThumbnail(of size: CGSize, completionHandler: @escaping (NSImage?) -> Void) {
+    func preparingThumbnail(of size: CGSize, completionHandler: @escaping (_ thumbnail: NSImage?) -> Void) {
         guard let source = ImageSource(image: self) else {
             completionHandler(nil)
             return

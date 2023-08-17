@@ -43,8 +43,11 @@ public extension NSMenuItem {
 
     /**
      Initializes and returns a menu item with the view.
-     - Parameters view: The view of the menu item.
-     - Parameters showsHighlight: A boolean value that indicates whether menu item should highlight on interaction.
+     
+     - Parameters:
+        - view: The view of the menu item.
+        - showsHighlight: A boolean value that indicates whether menu item should highlight on interaction.
+     
      - Returns: An instance of `NSMenuItem`.
      */
     convenience init(view: NSView, showsHighlight: Bool = true) {
@@ -60,8 +63,11 @@ public extension NSMenuItem {
 
     /**
      Initializes and returns a menu item with the `SwiftUI` view.
-     - Parameters view: The view of the menu item.
-     - Parameters showsHighlight: A boolean value that indicates whether menu item should highlight on interaction.
+     
+     - Parameters:
+        - view: The view of the menu item.
+        - showsHighlight: A boolean value that indicates whether menu item should highlight on interaction.
+     
      - Returns: An instance of `NSMenuItem`.
      */
     convenience init<V: View>(showsHighlight: Bool = true, view: V) {
@@ -71,8 +77,11 @@ public extension NSMenuItem {
 
     /**
      Initializes and returns a menu item with the specified title and submenu containing the specified menu items.
-     - Parameters title: The title for the menu item.
-     - Parameters items: The items of the submenu.
+     
+     - Parameters:
+        - title: The title for the menu item.
+        - items: The items of the submenu.
+     
      - Returns: An instance of `NSMenuItem`.
      */
     convenience init(title: String,

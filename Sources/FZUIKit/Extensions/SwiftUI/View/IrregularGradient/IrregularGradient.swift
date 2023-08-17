@@ -14,9 +14,9 @@ public struct IrregularGradient<Background: View>: View {
      Creates a irregular gradient view with the specified colors, background and animation speed.
      
      - Parameters:
-     - colors: The colors of the blobs in the gradient.
-     - background:  The background view of the gradient.
-     - speed: The speed at which the blobs move, if they're moving.
+        - colors: The colors of the blobs in the gradient.
+        - background:  The background view of the gradient.
+        - speed: The speed at which the blobs move, if they're moving.
      */
     public init(colors: [Color],
                 background: @autoclosure @escaping () -> Background,
@@ -30,9 +30,9 @@ public struct IrregularGradient<Background: View>: View {
      Creates a irregular gradient view with the specified color blobs, background and animation speed.
      
      - Parameters:
-     - colorBlobs: The color blobs in the gradient.
-     - background:  The background view of the gradient.
-     - speed: The speed at which the blobs move, if they're moving.
+        - colorBlobs: The color blobs in the gradient.
+        - background:  The background view of the gradient.
+        - speed: The speed at which the blobs move, if they're moving.
      */
     public init(colorBlobs: [ColorBlob],
                 background: @autoclosure @escaping () -> Background,
@@ -92,9 +92,9 @@ public extension IrregularGradient where Background == Color {
      Creates a irregular gradient view with the specified colors, background color and animation speed.
      
      - Parameters:
-     - colors: The colors of the blobs in the gradient.
-     - backgroundColor:  The background color of the gradient.
-     - speed: The speed at which the blobs move, if they're moving.
+        - colors: The colors of the blobs in the gradient.
+        - backgroundColor:  The background color of the gradient.
+        - speed: The speed at which the blobs move, if they're moving.
      */
     init(colors: [Color],
          backgroundColor: Color = .clear,

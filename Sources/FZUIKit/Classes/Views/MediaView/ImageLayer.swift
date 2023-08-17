@@ -1,6 +1,6 @@
 //
-//  NewImageLayer.swift
-//  FZCollection
+//  ImageLayer.swift
+//
 //
 //  Created by Florian Zand on 30.05.22.
 //
@@ -55,6 +55,18 @@ open class ImageLayer: CALayer {
                 images = []
             }
         }
+    }
+    
+    internal var _displayingImage: NSUIImage? {
+        if let displayingImage = self.displayingImage {
+            if #available(macOS 12.0, iOS 13.0, *) {
+                if displayingImage.isSymbolImage, needsSymbolConfiguration {
+                   return applyingSymbolConfiguration(to: displayingImage) ?? displayingImage
+                }
+            }
+            return displayingImage
+        }
+        return nil
     }
 
     open var displayingImage: NSUIImage? {
@@ -325,7 +337,7 @@ open class ImageLayer: CALayer {
 
     private func updateDisplayingImage() {
         CATransaction.perform(duration: 0.0, animations: {
-            self.contents = displayingImage
+            self.contents = self._displayingImage
         })
     }
 

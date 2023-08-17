@@ -11,6 +11,7 @@ import AppKit
 import UIKit
 #endif
 import FZSwiftUtils
+import SwiftUI
 
 public extension ContentConfiguration {
     /**
@@ -84,6 +85,20 @@ public extension ContentConfiguration {
         public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
             return Self(color: color, opacity: opacity, radius: radius, offset: offset)
         }
+    }
+}
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+public extension BackgroundStyle {
+    /**
+     Creates a inner shadow style with the specified configuration.
+
+     - Parameters:
+        - configuration:The configuration for configurating the apperance.
+     */
+    func shadowConfiguration(_ configuration: ContentConfiguration.InnerShadow) -> some ShapeStyle {
+          self
+            .shadow(.inner(color: configuration.resolvedColor(withOpacity: true)?.swiftUI ?? .black.opacity(0.0), radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y))
     }
 }
 

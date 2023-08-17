@@ -11,6 +11,7 @@ import AppKit
 import UIKit
 #endif
 import FZSwiftUtils
+import SwiftUI
 
 public extension ContentConfiguration {
     /**
@@ -87,12 +88,47 @@ public extension ContentConfiguration {
     }
 }
 
+public extension View {
+    @ViewBuilder
+    /**
+     Configurates the shadow of the view.
+
+     - Parameters:
+        - configuration:The configuration for configurating the apperance.
+     */
+    func configurate(using configuration: ContentConfiguration.Shadow) -> some View {
+        if configuration.isInvisible == false, let color = configuration.resolvedColor(withOpacity: true)?.swiftUI {
+            self
+                .shadow(color: color, radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y)
+        } else {
+            self
+        }
+
+    }
+}
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+public extension BackgroundStyle {
+    /**
+     Creates a shadow style with the specified configuration.
+
+     - Parameters:
+        - configuration:The configuration for configurating the apperance.
+     */
+    func shadowConfiguration(_ configuration: ContentConfiguration.Shadow) -> some ShapeStyle {
+          self
+            .shadow(.drop(color: configuration.resolvedColor(withOpacity: true)?.swiftUI ?? .black.opacity(0.0), radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y))
+    }
+}
+
 public extension NSShadow {
+    /// Creates a shadow with the specified shadow configuration.
     convenience init(configuration: ContentConfiguration.Shadow) {
         self.init()
         self.configurate(using: configuration)
     }
     
+    /// Configurates the shadow.
     func configurate(using configuration: ContentConfiguration.Shadow) {
         self.shadowColor = configuration.resolvedColor(withOpacity: true)
         self.shadowOffset = CGSize(width: configuration.offset.x, height: configuration.offset.y)
@@ -101,6 +137,7 @@ public extension NSShadow {
 }
 
 public extension NSMutableAttributedString {
+    /// Configurates the shadow of the attributed string.
     func configurate(using configuration: ContentConfiguration.Shadow) {
         var attributes = self.attributes(at: 0, effectiveRange: nil)
         attributes[.shadow] = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
@@ -110,6 +147,7 @@ public extension NSMutableAttributedString {
 
 @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
 public extension AttributedString {
+    /// Configurates the shadow of the attributed string.
     mutating func configurate(using configuration: ContentConfiguration.Shadow) {
         self.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
     }
@@ -120,7 +158,7 @@ public extension NSUIView {
      Configurates the shadow of the view.
 
      - Parameters:
-        - configuration:The configuration for configurating the shadow.
+     - configuration:The configuration of the shadow.
      */
     func configurate(using configuration: ContentConfiguration.Shadow) {
 #if os(macOS)
@@ -137,7 +175,7 @@ public extension CALayer {
      Configurates the shadow of the layer.
 
      - Parameters:
-        - configuration:The configuration for configurating the shadow.
+        - configuration:The configuration of the shadow.
      */
     func configurate(using configuration: ContentConfiguration.Shadow) {
             shadowColor = configuration._resolvedColor?.cgColor

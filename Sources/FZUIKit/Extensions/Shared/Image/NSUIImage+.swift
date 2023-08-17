@@ -48,8 +48,8 @@ public extension NSUIImage {
      Creates an image object with the specified color and size.
 
      - Parameters:
-     - color: The color of the image.
-     - size: The size of the image.
+        - color: The color of the image.
+        - size: The size of the image.
      
      - Returns: The image object with the specified color.
      */
@@ -67,8 +67,8 @@ public extension NSUIImage {
      Creates an image object with the specified color and size.
 
      - Parameters:
-     - color: The color of the image.
-     - size: The size of the image.
+        - color: The color of the image.
+        - size: The size of the image.
      
      - Returns: The image object with the specified color.
      */

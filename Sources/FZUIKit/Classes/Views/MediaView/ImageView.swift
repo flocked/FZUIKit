@@ -1,6 +1,6 @@
 //
-//  NewImageVIew.swift
-//  FZCollection
+//  ImageView.swift
+//  
 //
 //  Created by Florian Zand on 30.05.22.
 //
@@ -120,6 +120,37 @@ public class ImageView: NSView {
 
     public var displayingImage: NSUIImage? {
         return self.imageLayer.displayingImage
+    }
+    
+    internal var symbolImageView: NSImageView? = nil
+    public override func alignmentRect(forFrame frame: NSRect) -> NSRect {
+        if #available(macOS 12.0, *) {
+            if let symbolConfiguration = self.symbolConfiguration, let displayingImage = displayingImage, displayingImage.isSymbolImage == true  {
+                if symbolImageView == nil {
+                    symbolImageView = NSImageView(frame: self.frame)
+                }
+                symbolImageView?.frame = self.frame
+                symbolImageView?.symbolConfiguration = symbolConfiguration
+                symbolImageView?.image = displayingImage
+                return symbolImageView?.alignmentRect(forFrame: frame) ?? super.alignmentRect(forFrame: frame)
+            }
+        }
+        return super.alignmentRect(forFrame: frame)
+    }
+    
+    public override func frame(forAlignmentRect alignmentRect: NSRect) -> NSRect {
+        if #available(macOS 12.0, *) {
+            if let symbolConfiguration = self.symbolConfiguration, let displayingImage = displayingImage, displayingImage.isSymbolImage == true  {
+                if symbolImageView == nil {
+                    symbolImageView = NSImageView(frame: self.frame)
+                }
+                symbolImageView?.frame = self.frame
+                symbolImageView?.symbolConfiguration = symbolConfiguration
+                symbolImageView?.image = displayingImage
+                return symbolImageView?.frame(forAlignmentRect: alignmentRect) ?? super.frame(forAlignmentRect: alignmentRect)
+            }
+        }
+        return super.frame(forAlignmentRect: alignmentRect)
     }
 
     override public var intrinsicContentSize: CGSize {

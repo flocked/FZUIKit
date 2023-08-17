@@ -208,8 +208,8 @@ public extension NSImage {
      Creates a symbol image with the system symbol name and symbol configuration.
      
      - Parameters:
-     -  systemSymbolName: The name of the system symbol image.
-     - configuration: The symbol configuration.
+        -  systemSymbolName: The name of the system symbol image.
+        - configuration: The symbol configuration.
      
      - Returns: A symbol image based on the name you specify; otherwise `nil` if the method couldn’t find a suitable image.
      */
@@ -221,9 +221,9 @@ public extension NSImage {
      Creates a symbol image with the system symbol name and symbol configuration.
      
      - Parameters:
-     - systemSymbolName: The name of the system symbol image.
-     - description: The accessibility description for the symbol image, if any.
-     - configuration: The symbol configuration.
+        - systemSymbolName: The name of the system symbol image.
+        - description: The accessibility description for the symbol image, if any.
+        - configuration: The symbol configuration.
      
      - Returns: A symbol image based on the name you specify; otherwise `nil` if the method couldn’t find a suitable image.
      */
@@ -270,17 +270,29 @@ public extension NSUIFont.Weight {
 */
 @available(macOS 11.0, *)
 public extension NSImage {
+    /// Constants that indicate which weight variant of a symbol image to use.
     enum SymbolWeight: Int, CaseIterable {
+        /// An unspecified symbol image weight.
         case unspecified = 0
+        /// An ultralight weight.
         case ultraLight
+        /// A thin weight.
         case thin
+        /// A light weight.
         case light
+        /// A regular weight.
         case regular
+        /// A medium weight.
         case medium
+        /// A semibold weight.
         case semibold
+        /// A bold weight.
         case bold
+        /// A heavy weight.
         case heavy
+        /// A black weight.
         case black
+        /// The font weight for the specified symbol weight.
         func fontWeight() -> NSFont.Weight {
             switch self {
             case .unspecified: return .init(rawValue: CGFloat.greatestFiniteMagnitude)
@@ -294,6 +306,25 @@ public extension NSImage {
             case .heavy: return .heavy
             case .black: return .black
             }
+        }
+    }
+}
+
+@available(macOS 11.0, *)
+public extension NSFont.Weight {
+    /// Provides the corresponding symbol weight for this font weight.
+    func symbolWeight() -> NSImage.SymbolWeight {
+        switch self {
+        case .ultraLight: return .ultraLight
+        case .thin: return .thin
+        case .light: return .light
+        case .regular: return .regular
+        case .medium: return .medium
+        case .semibold: return .semibold
+        case .bold: return .bold
+        case .heavy: return .heavy
+        case .black: return .black
+        default: return .regular
         }
     }
 }
@@ -367,19 +398,19 @@ public extension Image {
 }
 
 @available(macOS 12.0, *)
-extension NSImage.SymbolConfiguration {
+internal extension NSImage.SymbolConfiguration {
     struct Modifier: ImageModifier {
         let configuration: NSImage.SymbolConfiguration
         @ViewBuilder
         func body(image: SwiftUI.Image) -> some View {
-            image.symbolRenderingMode(configuration.mode?.symbolRendering)
+            image.symbolRenderingMode(configuration.colorConfiguration?.symbolRendering)
                 .font(configuration.uiFont)
                 .imageScale(configuration.scale?.swiftUI)
                 .foregroundStyle(configuration.primary?.swiftUI, configuration.secondary?.swiftUI, configuration.tertiary?.swiftUI)
         }
     }
 
-    enum Mode: String {
+     enum ColorConfiguration: String {
         case monochrome
         case multicolor
         case hierarchical
@@ -394,7 +425,7 @@ extension NSImage.SymbolConfiguration {
         }
     }
 
-    var mode: Mode? {
+    var colorConfiguration: ColorConfiguration? {
         #if os(macOS)
         if colors?.isEmpty == false, let type = value(forKey: "paletteType") as? Int {
             if type == 1 {

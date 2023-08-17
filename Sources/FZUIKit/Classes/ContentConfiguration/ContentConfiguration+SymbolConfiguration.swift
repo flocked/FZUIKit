@@ -71,10 +71,11 @@ public extension ContentConfiguration {
         /**
          Creates a symbol configuration.
          
-         - Parameters font: The font.
-         - Parameters colorConfiguration: The color configuration.
-         - Parameters colorTransform: The color transformer.
-         - Parameters imageScale: The image scaling.
+         - Parameters:
+            - font: The font.
+            - colorConfiguration: The color configuration.
+            - colorTransform: The color transformer.
+            - imageScale: The image scaling.
          
          - Returns: a symbol configuration object.
          */
@@ -440,6 +441,31 @@ public extension ContentConfiguration.SymbolConfiguration {
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension View {
+    /**
+     Configurates symbol images within this view.
+
+     - Parameters:
+        - tintColor: The tint color of the symbol images.
+     - configuration: The configuration for the symbol images.
+     */
+    @ViewBuilder func symbolConfiguration(tintColor: Color?, configuration: ContentConfiguration.SymbolConfiguration?) -> some View {
+        if let configuration = configuration {
+            self
+                .imageScale(configuration.imageScale?.swiftui)
+                .symbolRenderingMode(configuration.colorConfiguration?.renderingMode)
+                .foregroundStyle(tintColor ?? configuration.colorConfiguration?.primary?.swiftUI, configuration.colorConfiguration?.secondary?.swiftUI, configuration.colorConfiguration?.tertiary?.swiftUI)
+                .font(configuration.font?.swiftui)
+        } else {
+            self
+        }
+    }
+    
+    /**
+     Configurates symbol images within this view.
+
+     - Parameters:
+        - configuration: The configuration for the symbol images.
+     */
     @ViewBuilder func symbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration?) -> some View {
         if let configuration = configuration {
             self
@@ -455,6 +481,7 @@ public extension View {
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension NSUIImageView {
+    /// Configurates the image view with the specified symbol configuration.
     func configurate(using configuration: ContentConfiguration.SymbolConfiguration) {
         #if os(macOS)
         symbolConfiguration = configuration.nsUI()
@@ -469,21 +496,22 @@ public extension NSUIImageView {
 #if os(macOS)
 @available(macOS 12.0, *)
 public extension NSImage {
+    /// Creates a new symbol image with the specified configuration.
     func withSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSImage? {
-        if let image = withSymbolConfiguration(configuration.nsUI()) {
-            return image
-        }
-        return nil
+        withSymbolConfiguration(configuration.nsUI())
     }
 }
 #elseif canImport(UIKit)
 @available(iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension UIImage {
+    /// Returns a new version of the current image, replacing the current configuration attributes with the specified attributes.
+    func withConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSUIImage? {
+        withConfiguration(configuration.nsUI())
+    }
+    
+    /// Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
     func applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSUIImage? {
-        if let image = applyingSymbolConfiguration(configuration.nsUI()) {
-            return image
-        }
-        return nil
+        applyingSymbolConfiguration(configuration.nsUI())
     }
 }
 #endif

@@ -13,10 +13,12 @@ import FZSwiftUtils
 public extension NSButton {
     /**
      Sets the content tint color to use for the specified state.
-     - Parameters color: The content tint color to use for the specified state.
-     - Parameters state: The state that uses the specified color. The possible values are described in NSControl.StateValue.
      
      If a color is not specified for a state, it defaults to the contentTintColor value.
+     
+     - Parameters:
+        - color: The content tint color to use for the specified state.
+        - state: The state that uses the specified color. The possible values are described in NSControl.StateValue.
      */
     func setContentTintColor(_ color: NSColor?, for state: NSControl.StateValue) {
         stateContentTintColor[state] = color
@@ -39,10 +41,12 @@ public extension NSButton {
     @available(macOS 11.0, *)
     /**
      Sets the symbol configuration for a button state.
-     - Parameters color: The symbol configuration for the specified state.
-     - Parameters configuration: The state that uses the specified symbol configuration. The possible values are described in NSControl.StateValue.
      
      If a symbol configuration is not specified for a state, it defaults to the symbolConfiguration value.
+     
+     - Parameters:
+        - color: The symbol configuration for the specified state.
+        - configuration: The state that uses the specified symbol configuration. The possible values are described in NSControl.StateValue.
      */
     func setSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration?, for state: NSControl.StateValue) {
         stateSymbolConfiguration[state] = configuration

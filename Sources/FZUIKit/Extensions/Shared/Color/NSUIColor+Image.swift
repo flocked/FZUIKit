@@ -17,13 +17,18 @@ import UIKit
 #endif
 
 public extension NSUIImage {
+    /// The colors of an image.
     struct ImageColors {
+        /// The background color of the image.
         public let background: NSUIColor
+        /// The primary color of the image.
         public let primary: NSUIColor
+        /// The secondary color of the image.
         public let secondary: NSUIColor
+        /// The detail color of the image.
         public let detail: NSUIColor
 
-        public init(background: NSUIColor, primary: NSUIColor, secondary: NSUIColor, detail: NSUIColor) {
+        internal init(background: NSUIColor, primary: NSUIColor, secondary: NSUIColor, detail: NSUIColor) {
             self.background = background
             self.primary = primary
             self.secondary = secondary
@@ -31,6 +36,7 @@ public extension NSUIImage {
         }
     }
 
+    /// The quality at which the main colors of an image should be analysed. A higher value takes longer to analyse.
     enum ImageColorsQuality: CGFloat {
         case lowest = 50 // 50px
         case low = 100 // 100px
@@ -49,28 +55,34 @@ public extension NSUIImage {
 }
 
 public extension CGImage {
-    typealias ImageColorsQuality = NSUIImage.ImageColorsQuality
-    typealias ImageColors = NSUIImage.ImageColors
-
-    func getColors(quality: ImageColorsQuality = .high) -> ImageColors? {
+    /**
+     Returns the main colors of the image.
+     
+     - Parameters quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
+     */
+    func getColors(quality: NSUIImage.ImageColorsQuality = .high) -> NSUIImage.ImageColors? {
         return NSUIImage(cgImage: self).getColors(quality: quality)
     }
 
-    func getColors(quality: ImageColorsQuality = .high, _ completion: @escaping (ImageColors?) -> Void) {
+    /**
+     Analysis the main colors of the image asynchronously on a background thread.
+     
+     - Parameters:
+        - quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
+        - completion: The completion handler to call when the analysation is ready. The completion handler takes the following parameters:
+        -  colors: The main colors of the image.
+     */
+    func getColors(quality: NSUIImage.ImageColorsQuality = .high, _ completion: @escaping (_ colors: NSUIImage.ImageColors?) -> Void) {
         NSUIImage(cgImage: self).getColors(quality: quality, completion)
     }
 }
 
 extension NSUIImage {
-    public func getColors(quality: ImageColorsQuality = .high, _ completion: @escaping (ImageColors?) -> Void) {
-        DispatchQueue.global().async {
-            let result = self.getColors(quality: quality)
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }
-    }
-
+    /**
+     Returns the main colors of the image.
+     
+     - Parameters quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
+     */
     public func getColors(quality: ImageColorsQuality = .high) -> ImageColors? {
         var scaleDownSize: CGSize = size
         if quality != .highest {
@@ -202,6 +214,23 @@ extension NSUIImage {
             secondary: proposed[2].uicolor,
             detail: proposed[3].uicolor
         )
+    }
+    
+    /**
+     Analysis the main colors of the image asynchronously on a background thread.
+     
+     - Parameters:
+        - quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
+        - completion: The completion handler to call when the analysation is ready. The completion handler takes the following parameters:
+        -  colors: The main colors of the image.
+     */
+    public func getColors(quality: ImageColorsQuality = .high, _ completion: @escaping (ImageColors?) -> Void) {
+        DispatchQueue.global().async {
+            let result = self.getColors(quality: quality)
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
     }
 
     #if os(OSX)

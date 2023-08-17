@@ -13,9 +13,11 @@ public extension NSPopUpButton {
     /**
      Creates a popup button with the specified menu items.
      
-     - Parameters items: An array of menu items.
-     - Parameters pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
-     - Parameters action: The action block of the button.
+     - Parameters:
+        - items: An array of menu items.
+        - pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
+        - action: The action block of the button.
+     
      - Returns: An initialized `NSPopUpButton` object.
      */
     convenience init(items: [NSMenuItem], pullsDown: Bool = false, action: ActionBlock? = nil) {
@@ -27,9 +29,11 @@ public extension NSPopUpButton {
     /**
      Creates a popup button with the titles.
      
-     - Parameters titles: An array of titles.
-     - Parameters pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
-     - Parameters action: The action block of the button.
+     - Parameters:
+        - titles: An array of titles.
+        - pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
+        - action: The action block of the button.
+     
      - Returns: An initialized `NSPopUpButton` object.
      */
     convenience init(titles: [String], pullsDown: Bool = false, action: ActionBlock? = nil) {
@@ -41,8 +45,10 @@ public extension NSPopUpButton {
     /**
      Creates a popup button with the titles.
      
-     - Parameters pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
-     - Parameters items: The menu items of the popup button.
+     - Parameters:
+        - pullsDown: `true` if you want the receiver to display a pull-down menu; otherwise, `false` if you want it to display a pop-up menu.
+        - items: The menu items of the popup button.
+     
      - Returns: An initialized `NSPopUpButton` object.
      */
     convenience init(pullsDown: Bool = false, @MenuBuilder items: () -> [NSMenuItem]) {

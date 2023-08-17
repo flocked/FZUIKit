@@ -51,8 +51,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified title and menu.
      
-     - Parameters title: The title to be displayed.
-     - Parameters menu: The menu of the items.
+     - Parameters:
+        - title: The title to be displayed.
+        - menu: The menu of the items.
+     
      - Returns: Returns  the status item.
      */
     convenience init(title: String, menu: NSMenu) {
@@ -64,8 +66,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified title and menu items.
      
-     - Parameters title: The title to be displayed.
-     - Parameters items: The menu items for the status item.
+     - Parameters:
+        - title: The title to be displayed.
+        - items: The menu items for the status item.
+     
      - Returns: Returns  the status item.
      */
     convenience init(title: String, @MenuBuilder items: () -> [NSMenuItem]) {
@@ -75,8 +79,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified title and action.
      
-     - Parameters title: The title to be displayed.
-     - Parameters action: The handler to be called when the status item gets clicked.
+     - Parameters:
+        - title: The title to be displayed.
+        - action: The handler to be called when the status item gets clicked.
+     
      - Returns: Returns  the status item.
      */
     convenience init(title: String, action: @escaping NSButton.ActionBlock) {
@@ -88,8 +94,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified image and menu.
      
-     - Parameters image: The image to be displayed.
-     - Parameters menu: The menu of the items.
+     - Parameters:
+        - image: The image to be displayed.
+        - menu: The menu of the items.
+     
      - Returns: Returns  the status item.
      */
     convenience init(image: NSImage, menu: NSMenu) {
@@ -101,8 +109,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified image and menu.
      
-     - Parameters image: The image to be displayed.
-     - Parameters items: The menu items for the status item.
+     - Parameters:
+        - image: The image to be displayed.
+        - items: The menu items for the status item.
+     
      - Returns: Returns  the status item.
      */
     convenience init(image: NSImage, @MenuBuilder items: () -> [NSMenuItem]) {
@@ -112,8 +122,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified image and action.
      
-     - Parameters image: The image to be displayed.
-     - Parameters action: The handler to be called when the status item gets clicked.
+     - Parameters:
+        - image: The image to be displayed.
+        - action: The handler to be called when the status item gets clicked.
+     
      - Returns: Returns  the status item.
      */
     convenience init(image: NSImage, action: @escaping NSButton.ActionBlock) {
@@ -126,8 +138,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified symbol image and menu items.
      
-     - Parameters symbolName: The symbol name of the image to be displayed.
-     - Parameters items: The menu items for the status item.
+     - Parameters:
+        - symbolName: The symbol name of the image to be displayed.
+        - items: The menu items for the status item.
+     
      - Returns: Returns  the status item.
      */
     convenience init?(symbolName: String, @MenuBuilder items: () -> [NSMenuItem]) {
@@ -141,8 +155,10 @@ public extension NSStatusItem {
     /**
      Creates a status item with the specified symbol image and action.
      
-     - Parameters symbolName: The symbol name of the image to be displayed.
-     - Parameters action: The handler to be called when the status item gets clicked.
+     - Parameters:
+        - symbolName: The symbol name of the image to be displayed.
+        - action: The handler to be called when the status item gets clicked.
+     
      - Returns: Returns  the status item.
      */
     convenience init?(symbolName: String, action: @escaping NSButton.ActionBlock) {

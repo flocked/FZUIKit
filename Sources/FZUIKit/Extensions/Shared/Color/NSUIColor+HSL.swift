@@ -18,6 +18,15 @@ import AppKit
 #endif
 
 public extension NSUIColor {
+    /**
+     Creates a color object with the specified hue, saturation, lightness, and alpha channel values.
+
+     - Parameters:
+        - hue: The hue of the color.
+        - saturation: The saturation of the color.
+        - lightness: The lightness of the color.
+        - alpha: The alpha channel value of the color.
+     */
     convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
         let color = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
         let components = color.rgbaComponents()
@@ -74,6 +83,7 @@ internal struct HSL {
         return NSUIColor(red: r, green: g, blue: b, alpha: a)
     }
 
+    /// The RGBA components.
     func rgbaComponents() -> (CGFloat, CGFloat, CGFloat, CGFloat) {
         let m2 = l <= 0.5 ? l * (s + 1.0) : (l + s) - (l * s)
         let m1 = (l * 2.0) - m2

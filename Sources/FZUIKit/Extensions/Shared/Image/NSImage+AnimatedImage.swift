@@ -16,8 +16,8 @@ public extension NSImage {
      This method loads a series of files by appending a series of numbers to the base file name provided in the name parameter. For example, if the name parameter had ‘image’ as its contents, this method would attempt to load images from files with the names ‘image0’, ‘image1’ and so on all the way up to ‘image1024’. All images included in the animated image should share the same size and scale.
      
      - Parameters:
-     - name: The full or partial path to the file (sans suffix).
-     - duration: The duration of the animation.
+        - name: The full or partial path to the file (sans suffix).
+        - duration: The duration of the animation.
      
      - Returns: A new image object.
      */
@@ -35,8 +35,8 @@ public extension NSImage {
      Creates and returns an animated image from the specified images.
           
      - Parameters:
-     - images: The images for the animated image.
-     - duration: The duration of the animation.
+        - images: The images for the animated image.
+        - duration: The duration of the animation.
      
      - Returns: A new image object.
      */

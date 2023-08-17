@@ -323,10 +323,11 @@ extension NSView {
     }
     
     /**
-     Scrolls the view’s closest ancestor NSClipView object animated so a point in the view lies at the origin of the clip view's bounds rectangle.
+     Scrolls the view’s closest ancestor `NSClipView object animated so a point in the view lies at the origin of the clip view's bounds rectangle.
      
-     - Parameters point: The point in the view to scroll to.
-     - Parameters animationDuration: The animation duration of the scolling.
+     - Parameters:
+        - point: The point in the view to scroll to.
+        - animationDuration: The animation duration of the scolling.
      */
     func scroll(_ point: CGPoint, animationDuration: CGFloat) {
         if animationDuration > 0.0 {
@@ -346,8 +347,9 @@ extension NSView {
     /**
      Scrolls the view’s closest ancestor NSClipView object  the minimum distance needed animated so a specified region of the view becomes visible in the clip view.
      
-     - Parameters rect: The rectangle to be made visible in the clip view.
-     - Parameters animationDuration: The animation duration of the scolling.
+     - Parameters:
+        - rect: The rectangle to be made visible in the clip view.
+        - animationDuration: The animation duration of the scolling.
      */
     func scrollToVisible(_ rect: CGRect, animationDuration: CGFloat) {
         if animationDuration > 0.0 {
@@ -362,7 +364,7 @@ extension NSView {
         }
     }
     
-    // Sets the anchor point of the view’s bounds rectangle while retaining the position.
+    /// Sets the anchor point of the view’s bounds rectangle while retaining the position.
     internal func setAnchorPoint(_ anchorPoint: CGPoint) {
         guard let layer = layer else { return }
         var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
@@ -395,8 +397,11 @@ extension NSView {
 }
 
 public extension NSView.AutoresizingMask {
+    /// A empy autoresizing mask.
     static let none: NSView.AutoresizingMask = []
+    /// An autoresizing mask with flexible size.
     static let flexibleSize: NSView.AutoresizingMask = [.height, .width]
+    /// An autoresizing mask with flexible size and fixed margins.
     static let all: NSView.AutoresizingMask = [.height, .width, .minYMargin, .minXMargin, .maxXMargin, .maxYMargin]
 }
 

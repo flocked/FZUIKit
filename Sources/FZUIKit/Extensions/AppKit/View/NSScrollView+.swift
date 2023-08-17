@@ -25,9 +25,10 @@ public extension NSScrollView {
     /**
      Magnify the content by the given amount and optionally center the result on the given point.
      
-     - Parameters magnification: The amount by which to magnify the content.
-     - Parameters point: The point (in content view space) on which to center magnification, or nil if the magnification shouldn't be centered.
-     - Parameters animationDuration: The animation duration of the magnification, or nil if the magnification shouldn't be animated.
+     - Parameters:
+        - magnification: The amount by which to magnify the content.
+        - point: The point (in content view space) on which to center magnification, or nil if the magnification shouldn't be centered.
+        - animationDuration: The animation duration of the magnification, or nil if the magnification shouldn't be animated.
 
      */
     func setMagnification(_ magnification: CGFloat, centeredAt point: CGPoint? = nil, animationDuration: TimeInterval?) {
@@ -55,8 +56,9 @@ public extension NSClipView {
     /**
      Changes the origin of the clip view’s bounds rectangle animted to newOrigin.
 
-     - Parameters newOrigin: The point in the view to scroll to.
-     - Parameters animationDuration: The animation duration of the scolling.
+     - Parameters:
+        - newOrigin: The point in the view to scroll to.
+        - animationDuration: The animation duration of the scolling.
      */
     func scroll(to newOrigin: CGPoint, animationDuration: CGFloat) {
         if animationDuration > 0.0 {

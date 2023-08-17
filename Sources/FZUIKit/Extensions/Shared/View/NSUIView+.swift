@@ -64,8 +64,10 @@ public extension NSUIView {
 
     /**
      Inserts the subview at the specified index.
-     - Parameters view: The view to insert.
-     - Parameters index: The index of insertation.
+     
+     - Parameters:
+        - view: The view to insert.
+        - index: The index of insertation.
      */
     func insertSubview(_ view: NSUIView, at index: Int) {
         guard index < self.subviews.count else {
@@ -85,8 +87,8 @@ public extension NSUIView {
      Moves the specified subview to the index.
      
      - Parameters:
-     - view: The view to move.
-     - index: The index for moving.
+        - view: The view to move.
+        - index: The index for moving.
      */
     func moveSubview(_ subview: NSUIView, to toIndex: Int) {
         if let index = subviews.firstIndex(of: subview) {
@@ -98,8 +100,8 @@ public extension NSUIView {
      Moves the specified subviews to the index.
      
      - Parameters:
-     - subviews: The subviews to move.
-     - toIndex: The index for moving.
+        - subviews: The subviews to move.
+        - toIndex: The index for moving.
      */
     func moveSubviews(_ subviews: [NSUIView], to toIndex: Int, reorder: Bool = false) {
         var indexSet = IndexSet()
@@ -117,8 +119,8 @@ public extension NSUIView {
      Moves the subview at the specified index to another index.
      
      - Parameters:
-     - index: The index of the subview to move.
-     - toIndex: The index to where the subview should be moved.
+        - index: The index of the subview to move.
+        - toIndex: The index to where the subview should be moved.
      */
     func moveSubview(at index: Int, to toIndex: Int) {
         moveSubviews(at: IndexSet(integer: index), to: toIndex)
@@ -128,8 +130,8 @@ public extension NSUIView {
      Moves subviews at the specified indexes to another index.
      
      - Parameters:
-     - indexes: The indexes of the subviews to move.
-     - toIndex: The index where the subviews should be moved to.
+        - indexes: The indexes of the subviews to move.
+        - toIndex: The index where the subviews should be moved to.
      */
     func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {
         let subviewsCount = subviews.count
@@ -203,8 +205,8 @@ public extension NSUIView {
     An array of all subviews matching the specified view type.
 
      - Parameters:
-     - type: The type of subviews.
-     - depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
+        - type: The type of subviews.
+        - depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
      */
     func subviews<V>(type _: V.Type, depth: Int = 0) -> [V] {
         self.subviews(depth: depth).compactMap({$0 as? V})
@@ -214,8 +216,8 @@ public extension NSUIView {
     An array of all subviews matching the specified predicte.
 
      - Parameters:
-     - predicate: The predicate to match.
-     - depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
+        - predicate: The predicate to match.
+        - depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
      */
     func subviews(where predicate: (NSUIView)->(Bool), depth: Int = 0) -> [NSUIView] {
         self.subviews(depth: depth).filter({predicate($0) == true})
@@ -225,8 +227,8 @@ public extension NSUIView {
      Removes all subviews matching the specified view type.
 
      - Parameters:
-     - type: The type of subviews to remove.
-     - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
+        - type: The type of subviews to remove.
+        - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
      */
     func removeSubviews(type: NSUIView.Type, depth: Int = 0) {
         subviews(type: type, depth: depth).forEach { $0.removeFromSuperview() }
@@ -236,8 +238,8 @@ public extension NSUIView {
      Removes all subviews matching the specified predicate.
      
      - Parameters:
-     - predicate: The predicate to match.
-     - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
+        - predicate: The predicate to match.
+        - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
      */
     func removeSubviews(where predicate: (NSUIView)->(Bool), depth: Int = 0) {
         subviews(where: predicate, depth: depth).forEach { $0.removeFromSuperview() }

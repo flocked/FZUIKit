@@ -11,8 +11,10 @@ import AppKit
 public extension NSTableView {
     /**
      Reloads the table view on the main thread.
-     - Parameters maintainingSelection: A Boolean value that indicates whether the table view should maintain it's selection after reloading.
-     - Parameters completionHandler: The handler that gets called when the table view finishes reloading.
+     
+     - Parameters:
+        - maintainingSelection: A Boolean value that indicates whether the table view should maintain it's selection after reloading.
+        - completionHandler: The handler that gets called when the table view finishes reloading.
      */
     func reloadOnMainThread(maintainingSelection: Bool = false, completionHandler: (() -> Void)? = nil) {
         DispatchQueue.main.async {

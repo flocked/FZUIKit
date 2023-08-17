@@ -19,7 +19,7 @@ public class DisplayLinkTimer {
     public typealias Action = (DisplayLinkTimer) -> Void
 
     /// The number of seconds between firings of the timer.
-    public var timeInterval: TimeDuration = 0.0
+    public var timeInterval: TimeDuration = .seconds(0.0)
     
     /// If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
     public var repeating = true
@@ -34,8 +34,11 @@ public class DisplayLinkTimer {
 
     /**
      Returns a repeating timer object with the specified time interval.
-     - Parameters timeInterval: The number of seconds between firings of the timer.
-     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     
+     - Parameters:
+        - timeInterval: The number of seconds between firings of the timer.
+        - shouldFire: If true, the timer will fire after Initialization.
+     
      - Returns: A new repeating Timer object, configured according to the specified parameters.
      */
     public static func repeating(timeInterval: TimeDuration, shouldFire: Bool = true, action: @escaping Action) -> DisplayLinkTimer {
@@ -44,8 +47,11 @@ public class DisplayLinkTimer {
     
     /**
      Returns a repeating timer object with the specified time interval.
-     - Parameters timeInterval: The number of seconds between firings of the timer.
-     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     
+     - Parameters:
+        - timeInterval: The number of seconds between firings of the timer.
+        - shouldFire: If true, the timer will fire after Initialization.
+     
      - Returns: A new repeating Timer object, configured according to the specified parameters.
      */
     public static func scheduledTimer(repeating: TimeDuration, action: @escaping Action) -> DisplayLinkTimer {
@@ -54,19 +60,25 @@ public class DisplayLinkTimer {
     
     /**
      Returns a repeating timer object with the specified time interval.
-     - Parameters timeInterval: The number of seconds between firings of the timer.
-     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     
+     - Parameters:
+        - timeInterval: The number of seconds between firings of the timer.
+        - shouldFire: If true, the timer will fire after Initialization.
+     
      - Returns: A new repeating Timer object, configured according to the specified parameters.
      */
     public static func scheduledTimer(action: @escaping Action) -> DisplayLinkTimer {
-        DisplayLinkTimer(timeInterval: 1.0, repeating: false, shouldFire: true, action: action)
+        DisplayLinkTimer(timeInterval: .seconds(1.0), repeating: false, shouldFire: true, action: action)
     }
 
     /**
      Initializes a timer object with the specified time interval.
-     - Parameters timeInterval: The duration between firings of the timer.
-     - Parameters repeating: If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
-     - Parameters shouldFire: If true, the timer will fire after Initialization.
+     
+     - Parameters:
+        - timeInterval: The duration between firings of the timer.
+        - repeating: If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
+        - shouldFire: If true, the timer will fire after Initialization.
+     
      - Returns: A new Timer object, configured according to the specified parameters.
      */
    public init(timeInterval: TimeDuration, repeating: Bool, shouldFire: Bool = true, action: @escaping Action) {

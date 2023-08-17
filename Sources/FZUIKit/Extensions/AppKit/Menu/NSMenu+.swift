@@ -22,8 +22,11 @@ public extension NSMenu {
 
     /**
      Initializes and returns a menu having the specified title and menu items.
-     - Parameters items: The menu items for the menu.
-     - Parameters title: The title to assign to the menu.
+     
+     - Parameters:
+        - items: The menu items for the menu.
+        - title: The title to assign to the menu.
+     
      - Returns: The initialized `NSMenu` object.
      */
     convenience init(title: String, items: [NSMenuItem]) {

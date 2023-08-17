@@ -17,8 +17,11 @@ public protocol ContentTransform: Hashable, Identifiable {
     var id: String { get }
     /**
      Initalizes the transformer with the specified identifier and transform block.
-     - Parameters id: The identifier of the transformer.
-     - Parameters transform: The block that transform a content.
+     
+     - Parameters:
+     - id: The identifier of the transformer.
+     - transform: The block that transform a content.
+     
      - Returns: The content transformer..
      */
     init(_ id: String, _ transform: @escaping ((Content) -> Content))

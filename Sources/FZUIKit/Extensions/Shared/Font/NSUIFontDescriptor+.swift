@@ -11,23 +11,27 @@ import AppKit
 import UIKit
 #endif
 
-extension NSUIFontDescriptor.TraitKey {
+public extension NSUIFontDescriptor.TraitKey {
     enum Design: String {
         case rounded = "NSCTFontUIFontDesignRounded"
         case monospaced = "NSCTFontUIFontDesignMonospaced"
         case serif = "NSCTFontUIFontDesignSerif"
     }
 
+    /// The normalized design value.
     static var design: Self {
         return .init(rawValue: "NSCTFontUIFontDesignTrait")
     }
 }
 
-extension NSUIFontDescriptor.AttributeName {
+
+public extension NSUIFontDescriptor.AttributeName {
+    /// An optional string object that specifies the font size category.
     static var sizeCategory: Self {
         return .init(rawValue: "NSCTFontSizeCategoryAttribute")
     }
 
+    /// An optional string object that specifies the font UI usage.
     static var uiUsage: Self {
         return .init(rawValue: "NSCTFontUIUsageAttribute")
     }

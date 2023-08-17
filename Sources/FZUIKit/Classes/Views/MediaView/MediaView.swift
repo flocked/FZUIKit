@@ -1,6 +1,6 @@
 //
-//  NewImageVIew.swift
-//  FZCollection
+//  MediaView.swift
+//
 //
 //  Created by Florian Zand on 30.05.22.
 //

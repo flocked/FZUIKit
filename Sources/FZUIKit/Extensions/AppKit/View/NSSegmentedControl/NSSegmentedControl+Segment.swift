@@ -274,9 +274,11 @@ public extension NSSegmentedControl {
     /**
      Creates a segmented control with the specified segments.
      
-     - Parameters switching: The tracking behavior of the segmented control.
-     - Parameters style: The visual style of the segmented control.
-     - Parameters segments: An array of segments.
+     - Parameters:
+        - switching: The tracking behavior of the segmented control.
+        - style: The visual style of the segmented control.
+        - segments: An array of segments.
+     
      - Returns: An initialized `NSSegmentedControl` object.
      */
     convenience init(
@@ -293,9 +295,11 @@ public extension NSSegmentedControl {
     /**
      Creates a segmented control with the specified segments.
      
-     - Parameters switching: The tracking behavior of the segmented control.
-     - Parameters style: The visual style of the segmented control.
-     - Parameters segments: The segments.
+     - Parameters:
+        - switching: The tracking behavior of the segmented control.
+        - style: The visual style of the segmented control.
+        - segments: The segments.
+     
      - Returns: An initialized `NSSegmentedControl` object.
      */
     convenience init(

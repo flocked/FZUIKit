@@ -78,7 +78,7 @@ public class EmphasizedBorderLayer: CALayer {
     }
     
     internal func sharedInit() {
-        emphasizedBorderLayer.borderColor = NSColor.white.withAlphaComponent(0.5).cgColor
+        emphasizedBorderLayer.borderColor = NSUIColor.white.withAlphaComponent(0.5).cgColor
         self.addSublayer(emphasizedBorderLayer)
     }
 }

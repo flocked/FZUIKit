@@ -8,6 +8,14 @@
 #if os(macOS)
 import AppKit
 public extension NSColor {
+    /**
+     Creates a dynamic catalog color with the specified light and dark color.
+     
+     - Parameters:
+        - name: The name of the color.
+        - light: The light color.
+        - dark: The dark color.
+     */
     convenience init(name: NSColor.Name? = nil,
                      light lightModeColor: @escaping @autoclosure () -> NSColor,
                      dark darkModeColor: @escaping @autoclosure () -> NSColor)

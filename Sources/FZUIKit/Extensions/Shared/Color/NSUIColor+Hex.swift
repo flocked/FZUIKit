@@ -17,7 +17,7 @@ import UIKit
 #endif
 
 public extension NSUIColor {
-    /// nitializes a `Color` from a HEX String (e.g.: `#1D2E3F`) and an optional alpha value.
+    /// Initializes a color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
     convenience init(hex: String, alpha: CGFloat = 1.0) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -29,7 +29,7 @@ public extension NSUIColor {
         self.init(hex: Int(int), alpha: alpha)
     }
 
-    /// Initializes a `Color` from an HEX Int  (e.g.: `0x1D2E3F`)and an optional alpha value.
+    /// Initializes a color from an hex Integer  (e.g. `0x1D2E3F`) and an optional alpha value.
     convenience init(hex: Int, alpha: CGFloat = 1.0) {
         let r = (hex >> 16) & 0xFF
         let g = (hex >> 8) & 0xFF
@@ -40,7 +40,7 @@ public extension NSUIColor {
         self.init(red: red, green: green, blue: blue, alpha: alpha)
     }
 
-    /// Returns an Int representing the `NSColor` in hex format (e.g.: 0x112233)
+    /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
     var hex: Int {
         guard let components = cgColor.components, components.count >= 3 else { return 0 }
         let red = lround(Double(components[0]) * 255.0) << 16
@@ -49,7 +49,7 @@ public extension NSUIColor {
         return red | green | blue
     }
 
-    /// Returns a HEX String representing the `NSColor` (e.g.: #112233)
+    /// Returns a hex string representing the color (e.g. `#112233`)
     var hexString: String {
         let color = hex
         return "#" + String(format: "%06x", color)

@@ -14,9 +14,10 @@ public class Toolbar: NSObject {
     /**
      Creates a newly toolbar with the specified identifier.
      
-     - Parameters identifier: A string used by the class to identify the kind of the toolbar.
-     - Parameters allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
-     - Parameters items: An array of toolbar items.
+     - Parameters:
+        - identifier: A string used by the class to identify the kind of the toolbar.
+        - allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
+        - items: An array of toolbar items.
      
      - Returns: The initialized `Toolbar` object.
      */
@@ -37,9 +38,10 @@ public class Toolbar: NSObject {
     /**
      Creates a newly toolbar with the specified identifier.
      
-     - Parameters identifier: A string used by the class to identify the kind of the toolbar.
-     - Parameters allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
-     - Parameters items: The toolbar items.
+     - Parameters:
+        - identifier: A string used by the class to identify the kind of the toolbar.
+        - allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
+        - items: The toolbar items.
      
      - Returns: The initialized `Toolbar` object.
      */

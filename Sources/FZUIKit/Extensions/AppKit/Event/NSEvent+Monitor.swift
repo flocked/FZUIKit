@@ -20,8 +20,10 @@ public extension NSEvent {
      
      Note that your handler will not be called for events that are sent to your own application.
      
-     - Parameters mask: An event mask specifying which events you wish to monitor. See NSEvent.EventTypeMask for possible values.
-     - Parameters handler: The event handler block object. It is passed the event to monitor. You are unable to change the event, merely observe it.
+     - Parameters:
+        - mask: An event mask specifying which events you wish to monitor. See NSEvent.EventTypeMask for possible values.
+        - handler: The event handler block object. It is passed the event to monitor. You are unable to change the event, merely observe it.
+     
      - Returns: The event monitor object.
      */
     static func globalMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent?) -> Void)) -> Monitor {
@@ -35,8 +37,10 @@ public extension NSEvent {
      
      Your handler will not be called for events that are consumed by nested event-tracking loops such as control tracking, menu tracking, or window dragging; only events that are dispatched through the applications `sendEvent(_:)` method will be passed to your handler.
      
-     - Parameters mask: An event mask specifying which events you wish to monitor. See `NSEvent.EventTypeMask` for possible values.
-     - Parameters handler: The event handler block object. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return nil to stop the dispatching of the event.
+     - Parameters:
+        - mask: An event mask specifying which events you wish to monitor. See `NSEvent.EventTypeMask` for possible values.
+        - handler: The event handler block object. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return nil to stop the dispatching of the event.
+     
      - Returns: The event monitor object.
      */
     static func localMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent?) -> (NSEvent?))) -> Monitor {

@@ -21,10 +21,10 @@ extension IrregularGradient {
          Creates a color blob with the specified color, position, scale and opacity.
          
          - Parameters:
-         - color: The color of the blob.
-         - position:  The position of the blob. If `nil` a random position will be generated.
-         - scale: The scale of the blob. If `nil` a random scale will be generated.
-         - opacity: The opacity of blob. If `nil` a random opacity will be generated.
+            - color: The color of the blob.
+            - position:  The position of the blob. If `nil` a random position will be generated.
+            - scale: The scale of the blob. If `nil` a random scale will be generated.
+            - opacity: The opacity of blob. If `nil` a random opacity will be generated.
          */
         public init(color: Color, position: UnitPoint? = nil, scale: CGSize? = nil, opacity: CGFloat? = nil) {
             self.color = color

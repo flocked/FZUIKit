@@ -10,11 +10,25 @@
 import AppKit
 
 public extension NSTextField {
+    /// Returns the number of lines.
+    var currentNumberOfLines: Int {
+        guard let font = self.font else { return -1 }
+        let maxSize = CGSize(width: frame.size.width, height: CGFloat(Float.infinity))
+        let charSize = font.lineHeight
+        self.attributedStringValue.boundingRect(with: maxSize, context: nil)
+        let stringValue = self.stringValue as NSString
+        let textSize = stringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+        let linesRoundedUp = Int(ceil(textSize.height/charSize))
+        return linesRoundedUp
+    }
+    
+    /// A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
     var truncatesLastVisibleLine: Bool {
         get { self.cell?.truncatesLastVisibleLine ?? false }
         set { self.cell?.truncatesLastVisibleLine = newValue }
     }
     
+    /// A Boolean value indicating whether the text field has keyboard focus.
     var hasKeyboardFocus: Bool {
         return currentEditor() == window?.firstResponder
       }
@@ -32,6 +46,7 @@ public extension NSTextField {
         return .zero
     }
 
+    /// A Boolean value indicating whether the text field is truncating the text.
     var isTruncatingText: Bool {
         var bounds = self.bounds
         let textSize = textRect(forBounds: bounds, maximumNumberOfLines: maximumNumberOfLines).size
@@ -40,21 +55,39 @@ public extension NSTextField {
         return textSize != fullSize
     }
 
-    enum LineOption {
+    /// Option how to count the lines of a text field.
+    enum LineCountOption {
+        /// Returns all lines
         case all
+        /// Returns lines upto the maximum number of lines.
         case limitToMaxNumberOfLines
     }
 
-    func linesCount(_ optiom: LineOption = .limitToMaxNumberOfLines) -> Int {
-        return rangesOfLines(optiom).count
+    /**
+     The number of lines.
+     
+     - Parameters option: Option how to count the lines. The default value is `limitToMaxNumberOfLines`.
+     */
+    func linesCount(_ option: LineCountOption = .limitToMaxNumberOfLines) -> Int {
+        return rangesOfLines(option).count
     }
 
-    func lines(_ option: LineOption = .limitToMaxNumberOfLines) -> [String] {
+    /**
+     An array of strings of the lines.
+
+     - Parameters option: Option which lines should be returned. The default value is `limitToMaxNumberOfLines`.
+     */
+    func lines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [String] {
         let ranges = rangesOfLines(option)
         return ranges.compactMap { String(self.stringValue[$0]) }
     }
 
-    func rangesOfLines(_ option: LineOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
+    /**
+     An array of string ranges of the lines.
+     
+     - Parameters option: Option which line ranges should be returned. The default value is `limitToMaxNumberOfLines`.
+     */
+    func rangesOfLines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
         let stringValue = self.stringValue
         let linebreakMode = lineBreakMode
         if linebreakMode != .byCharWrapping || linebreakMode != .byWordWrapping, maximumNumberOfLines != 1 {
@@ -158,4 +191,30 @@ public extension NSTextField {
      self.lineBreakMode = _lineBreakMode
      return lines
  }
+ */
+
+/*
+ //
+ //  UILabel+.swift
+ //
+ //
+ //  Created by Florian Zand on 17.08.23.
+ //
+
+ #if canImport(UIKit)
+ import UIKit
+
+ extension UILabel {
+     /// Returns the number of lines.
+     var numberOfLines: Int {
+         let maxSize = CGSize(width: frame.size.width, height: CGFloat(Float.infinity))
+         let charSize = font.lineHeight
+         let text = (self.text ?? "") as NSString
+         let textSize = text.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
+         let linesRoundedUp = Int(ceil(textSize.height/charSize))
+         return linesRoundedUp
+     }
+ }
+ #endif
+
  */

@@ -17,8 +17,9 @@ public extension NSUIHostingController {
     /**
      Creates a hosting controller object that wraps the specified SwiftUI view.
      
-     - Parameters ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
-     - Parameters rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+     - Parameters:
+        - ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
+        - rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
      
      - Returns: The hosting controller object.
      */
@@ -33,9 +34,10 @@ public extension NSUIHostingController {
     /**
      Creates a hosting controller object that wraps the specified SwiftUI view.
      
-     - Parameters isTransparent: A Boolean value that indicates whether the hosting controller view is transparent.
-     - Parameters ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
-     - Parameters rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+     - Parameters:
+        - isTransparent: A Boolean value that indicates whether the hosting controller view is transparent.
+        - ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
+        - rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
      
      - Returns: The hosting controller object.
      */
@@ -94,8 +96,9 @@ public extension NSHostingView {
     /**
      Creates a hosting view object that wraps the specified SwiftUI view.
      
-     - Parameters isTransparent: A Boolean value that indicates whether the view is transparent.
-     - Parameters rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+     - Parameters:
+        - isTransparent: A Boolean value that indicates whether the view is transparent.
+        - rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
      
      - Returns: The hosting view object.
      */

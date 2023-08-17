@@ -12,6 +12,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import SwiftUI
 
 public extension CGColor {
     /**
@@ -24,6 +25,7 @@ public extension CGColor {
         return copy(alpha: alpha) ?? self
     }
 
+    /// Returns a color from a pattern image.
     static func fromImage(_ image: NSUIImage) -> CGColor {
         let drawPattern: CGPatternDrawPatternCallback = { info, context in
             let image = Unmanaged<NSUIImage>.fromOpaque(info!).takeUnretainedValue()
@@ -59,6 +61,18 @@ public extension CGColor {
         return UIColor(cgColor: self)
     }
     #endif
+    
+    /// Returns a `Color` representation of the color.
+    var swiftUI: Color? {
+        #if os(macOS)
+        if let color = NSUIColor(cgColor: self) {
+            return Color(color)
+        }
+        return nil
+#elseif canImport(UIKit)
+        Color(UIColor(cgColor: self))
+#endif
+    }
 }
 
 extension CGColor: CustomStringConvertible {

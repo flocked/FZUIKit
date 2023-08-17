@@ -52,8 +52,8 @@ public extension Color {
      Creates a new color from the current mixed with with the specified color and amount.
      
      - Parameters:
-     - color: The color to mix.
-     - amount: The amount of the color to mix with the current color.
+        - color: The color to mix.
+        - amount: The amount of the color to mix with the current color.
      
      - Returns: The new mixed color.
      */
@@ -69,6 +69,7 @@ public extension Color {
     
     /**
      Brightens the color by the specified amount.
+     
      - Parameters amount: The amount of brightness.
      - Returns: The brightened color.
      */
@@ -79,6 +80,7 @@ public extension Color {
 
     /**
      Darkens the color by the specified amount.
+     
      - Parameters amount: The amount of darken.
      - Returns: The darkened color.
      */

@@ -23,9 +23,9 @@ public extension NSBezierPath {
      This method creates a closed subpath, proceeding in a clockwise direction (relative to the default coordinate system) as it creates the necessary line and curve segments.
      
      - Parameters:
-     - rect: The rectangle that defines the basic shape of the path.
-     - corners: A bitmask value that identifies the corners that you want rounded. You can use this parameter to round only a subset of the corners of the rectangle.
-     - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+        - rect: The rectangle that defines the basic shape of the path.
+        - corners: A bitmask value that identifies the corners that you want rounded. You can use this parameter to round only a subset of the corners of the rectangle.
+        - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
 
      - Returns: A new path object with the rounded rectangular path.
      */
@@ -53,8 +53,8 @@ public extension NSBezierPath {
      This method creates a closed subpath, proceeding in a clockwise direction (relative to the default coordinate system) as it creates the necessary line and curve segments.
      
      - Parameters:
-     - rect: The rectangle that defines the basic shape of the path.
-     - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+        - rect: The rectangle that defines the basic shape of the path.
+        - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
      
      - Returns: A new path object with the rounded rectangular path.
      */
@@ -137,8 +137,10 @@ public extension NSBezierPath {
     /**
     Returns a new Bézier path object with a rounded rectangular path.
 
-     - Parameters rect: The rectangle that defines the basic shape of the path.
-     - Parameters cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+     - Parameters:
+        - rect: The rectangle that defines the basic shape of the path.
+        - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+     
      - Returns: A new path object with the rounded rectangular path.
     */
     static func superellipse(in rect: CGRect, cornerRadius: Double) -> Self {
@@ -201,8 +203,9 @@ public extension NSBezierPath {
     /**
      Returns a new path which is rotated by the specified radians.
      
-     - Parameters radians: The radians of rotation.
-     - Parameters centerPoint: The center point of the rotation.
+     - Parameters:
+        - radians: The radians of rotation.
+        - centerPoint: The center point of the rotation.
      - Returns: A new path rotated path.
      */
     func rotating(byRadians radians: Double, centerPoint point: CGPoint) -> Self {
@@ -227,9 +230,9 @@ public extension NSUIBezierPath {
      This method creates a closed subpath, proceeding in a clockwise direction (relative to the default coordinate system) as it creates the necessary line and curve segments.
      
      - Parameters:
-     - rect: The rectangle that defines the basic shape of the path.
-     - corners: A bitmask value that identifies the corners that you want rounded. You can use this parameter to round only a subset of the corners of the rectangle.
-     - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
+        - rect: The rectangle that defines the basic shape of the path.
+        - corners: A bitmask value that identifies the corners that you want rounded. You can use this parameter to round only a subset of the corners of the rectangle.
+        - cornerRadius: The radius of each corner oval. A value of 0 results in a rectangle without rounded corners. Values larger than half the rectangle’s width or height are clamped appropriately to half the width or height.
 
      - Returns: A new path object with the rounded rectangular path.
      */
@@ -281,9 +284,9 @@ public extension NSBezierPath {
      Creates and returns a new Bézier path object for a contact shadow with the specified shadow size and distance.
           
      - Parameters:
-     - rect: The rectangle that defines the basic shape of the path.
-     - shadowSize: The size of the shadow.
-     - shadowDistance: The distance of the shadow.
+        - rect: The rectangle that defines the basic shape of the path.
+        - shadowSize: The size of the shadow.
+        - shadowDistance: The distance of the shadow.
 
      - Returns: A new path object for a contact shadow.
      */
@@ -296,9 +299,9 @@ public extension NSBezierPath {
      Creates and returns a new Bézier path object for a depth shadow with the specified shadow size and distance.
           
      - Parameters:
-     - rect: The rectangle that defines the basic shape of the path.
-     - shadowSize: The size of the shadow.
-     - shadowDistance: The distance of the shadow.
+        - rect: The rectangle that defines the basic shape of the path.
+        - shadowSize: The size of the shadow.
+        - shadowDistance: The distance of the shadow.
 
      - Returns: A new path object for a depth shadow.
      */
@@ -315,9 +318,9 @@ public extension NSBezierPath {
      Creates and returns a new Bézier path object for a flat shadow with the specified shadow size and distance.
           
      - Parameters:
-     - rect: The rectangle that defines the basic shape of the path.
-     - shadowSize: The size of the shadow.
-     - shadowDistance: The distance of the shadow.
+        - rect: The rectangle that defines the basic shape of the path.
+        - shadowSize: The size of the shadow.
+        - shadowDistance: The distance of the shadow.
 
      - Returns: A new path object for a flat shadow.
      */
@@ -337,9 +340,9 @@ public extension NSBezierPath {
      Creates and returns a new Bézier path object for a flat behind shadow with the specified shadow size and distance.
           
      - Parameters:
-     - rect: The rectangle that defines the basic shape of the path.
-     - shadowSize: The size of the shadow.
-     - shadowDistance: The distance of the shadow.
+        - rect: The rectangle that defines the basic shape of the path.
+        - shadowSize: The size of the shadow.
+        - shadowDistance: The distance of the shadow.
 
      - Returns: A new path object for a flat behind shadow.
      */
