@@ -291,7 +291,7 @@ public extension Text {
     func configurate(using properties: ContentConfiguration.Text) -> some View {
         self
         .font(Font(properties.font))
-        .foregroundColor(Color(properties.color))
+        .foregroundColor(Color(properties._resolvedTextColor))
         .lineLimit(properties.numberOfLines == 0 ? nil : properties.numberOfLines)
         .multilineTextAlignment(properties.alignment.swiftUIMultiline)
         .frame(alignment: properties.alignment.swiftUI)
@@ -348,7 +348,7 @@ public extension UILabel {
      */
     func configurate(using configuration: ContentConfiguration.Text) {
         self.numberOfLines = configuration.numberOfLines
-        self.textColor = configuration.color
+        self.textColor = configuration._resolvedTextColor
         self.font = configuration.font
         self.lineBreakMode = configuration.lineBreakMode
         self.textAlignment = configuration.alignment
@@ -370,7 +370,7 @@ public extension UITextField {
         - configuration:The configuration for configurating the label.
      */
     func configurate(using configuration: ContentConfiguration.Text) {
-        self.textColor = configuration.color
+        self.textColor = configuration._resolvedTextColor
         self.font = configuration.font
         self.textAlignment = configuration.alignment
         
