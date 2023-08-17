@@ -418,16 +418,3 @@ public extension UIImage {
     }
 }
 #endif
-
-@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
-extension ContentConfiguration.SymbolConfiguration: KeyValueCodable {
-    public func value(for key: String) -> Any? {
-        switch key {
-        case "_resolvedPrimaryColor": return _resolvedPrimaryColor
-        case "_resolvedSecondaryColor": return _resolvedSecondaryColor
-        case "_resolvedTertiaryColor": return _resolvedTertiaryColor
-        case "nsUI": return nsUI()
-        default: return nil
-        }
-    }
-}
