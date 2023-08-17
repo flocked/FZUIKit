@@ -34,9 +34,9 @@ public class MediaView: NSView {
         }
     }
 
-    public var contentTintColor: NSColor? {
-        get { imageView.contentTintColor }
-        set { imageView.contentTintColor = newValue }
+    public var tintColor: NSColor? {
+        get { imageView.tintColor }
+        set { imageView.tintColor = newValue }
     }
 
     public var loopVideos: Bool = true

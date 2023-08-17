@@ -26,9 +26,9 @@ open class MagnifyMediaView: NSView {
         set { mediaView.overlayView = newValue }
     }
 
-    open var contentTintColor: NSColor? {
-        get { mediaView.contentTintColor }
-        set { mediaView.contentTintColor = newValue }
+    open var tintColor: NSColor? {
+        get { mediaView.tintColor }
+        set { mediaView.tintColor = newValue }
     }
 
     open var doubleClickZoomFactor: CGFloat = 0.5

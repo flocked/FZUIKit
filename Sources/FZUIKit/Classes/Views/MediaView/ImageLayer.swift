@@ -15,206 +15,60 @@ import Combine
 import FZSwiftUtils
 
 open class ImageLayer: CALayer {
-    open var contentTintColor: NSUIColor? = nil {
-        didSet {
-            updateDisplayingImageSymbolConfiguration()
-        }
-    }
-
+    /// The image displayed in the image view.
     open var image: NSUIImage? {
-        get { images.first }
+        get { images.count == 1 ? images.first : nil }
         set {
             if let newImage = newValue {
-                #if os(macOS)
-                if newImage.isAnimated {
-                    setGif(image: newImage)
-                } else {
-                    if #available(macOS 12.0, iOS 13.0, *) {
-                        if newImage.isSymbolImage, needsSymbolConfiguration, let updatedImage = applyingSymbolConfiguration(to: newImage) {
-                            self.images = [updatedImage]
-                        } else {
-                            self.images = [newImage]
-                        }
-                    } else {
-                        images = [newImage]
-                    }
-                }
-                #else
-                if #available(iOS 15.0, *) {
-                    if newImage.isSymbolImage, needsSymbolConfiguration, let updatedImage = applyingSymbolConfiguration(to: newImage) {
-                        self.images = [updatedImage]
-                    } else {
-                        self.images = [newImage]
-                    }
+                if newImage.isAnimated, newImage.framesCount > 1 {
+                    self.setGifImage(newImage)
                 } else {
                     images = [newImage]
                 }
-                #endif
-
             } else {
                 images = []
             }
         }
     }
     
-    internal var _displayingImage: NSUIImage? {
-        if let displayingImage = self.displayingImage {
-            if #available(macOS 12.0, iOS 15.0, *) {
-                if displayingImage.isSymbolImage, needsSymbolConfiguration {
-                   return applyingSymbolConfiguration(to: displayingImage) ?? displayingImage
-                }
-            }
-            return displayingImage
-        }
-        return nil
-    }
-
-    open var displayingImage: NSUIImage? {
-        if currentIndex > -1 && currentIndex < images.count {
-            return images[currentIndex]
-        }
-        return nil
-    }
-
+    /// The images displayed in the image layer.
     open var images: [NSUIImage] = [] {
         didSet {
             if isAnimating && !isAnimatable {
                 stopAnimating()
             }
             setFrame(to: .first)
-            updateDisplayingImage()
             if isAnimatable && !isAnimating && autoAnimates {
                 startAnimating()
             }
         }
     }
     
-    internal var needsSymbolConfiguration: Bool {
-        if #available(macOS 12.0, iOS 15.0, *) {
-           return self.contentTintColor != nil || self.symbolConfiguration != nil
-        } else {
-            return false
-        }
-    }
-
-    internal func updateDisplayingImageSymbolConfiguration() {
-        if #available(macOS 12.0, iOS 15.0, *) {
-                if needsSymbolConfiguration, let image = self.displayingImage, image.isSymbolImage, let updatedImage = applyingSymbolConfiguration(to: image) {
-                    self.images[self.currentIndex] = updatedImage
-                    self.updateDisplayingImage()
-            }
-        }
-    }
+    /// The currently displaying image.
+    open fileprivate(set) var displayingImage: NSUIImage? = nil
     
-    internal var maskLayer: CALayer? = nil
-    internal func updateImage() {
-        guard let displayingImage = self.displayingImage else { return }
-        #if os(macOS)
-        if displayingImage.isTemplate {
-            if #available(macOS 12.0, iOS 15.0, *) {
-                if displayingImage.isSymbolImage, symbolConfiguration != nil {
-                    updateSymbolImage()
-                } else if contentTintColor != nil {
-                    updateTintedTemplateImage()
-                } else {
-                    updateNormalImage()
+#if os(macOS)
+/// Displays the specified GIF image.
+internal func setGifImage(_ image: NSImage) {
+    if image.isAnimated, let frames = image.frames {
+        Task {
+            var duration = 0.0
+            do {
+                let allFrames = try frames.collect()
+                for frame in allFrames {
+                    duration = duration + (frame.duration ?? ImageSource.defaultFrameDuration)
                 }
-            } else {
-                if contentTintColor != nil {
-                    updateTintedTemplateImage()
-                } else {
-                    updateNormalImage()
-                }
-            }
-        } else {
-            self.updateNormalImage()
-        }
-        #elseif canImport(UIKit)
-        if #available(macOS 12.0, iOS 15.0, *) {
-            if displayingImage.isSymbolImage, symbolConfiguration != nil {
-                updateSymbolImage()
-            } else if contentTintColor != nil {
-                updateTintedTemplateImage()
-            } else {
-                updateNormalImage()
-            }
-        } else {
-            if contentTintColor != nil {
-                updateTintedTemplateImage()
-            } else {
-                updateNormalImage()
+                self.animationDuration = duration
+                self.images = allFrames.compactMap { NSImage(cgImage: $0.image) }
+            } catch {
+                Swift.debugPrint(error)
             }
         }
-        #endif
     }
+}
+#endif
     
-    internal func updateSymbolImage() {
-        guard let displayingImage = displayingImage else {
-            updateNormalImage()
-            return
-        }
-        self.backgroundColor = nil
-        self.mask = nil
-        if #available(macOS 12.0, iOS 15.0, *) {
-            self.contents = applyingSymbolConfiguration(to: displayingImage)
-        } else {
-            self.contents = displayingImage
-        }
-    }
-    
-    internal func updateTintedTemplateImage() {
-        guard let contentTintColor = contentTintColor, let displayingImage = displayingImage else {
-            updateNormalImage()
-            return
-        }
-        if maskLayer == nil {
-            maskLayer = CALayer()
-            maskLayer?.frame = self.bounds
-            self.mask = maskLayer
-        }
-        maskLayer?.contents = displayingImage
-        self.backgroundColor = contentTintColor.cgColor
-    }
-    
-    internal func updateNormalImage() {
-        self.backgroundColor = nil
-        self.mask = nil
-        self.contents = displayingImage
-        maskLayer = nil
-    }
-
-    @available(macOS 12.0, iOS 15.0, *)
-    internal func applyingSymbolConfiguration(to image: NSUIImage) -> NSUIImage? {
-        var configuration: NSUIImage.SymbolConfiguration? = nil
-        #if os(macOS)
-        if let contentTintColor = contentTintColor?.resolvedColor() {
-            configuration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
-        }
-        #else
-        if let contentTintColor = contentTintColor {
-            configuration = NSUIImage.SymbolConfiguration.palette(contentTintColor)
-        }
-        #endif
-
-        if let symbolConfiguration = symbolConfiguration {
-            configuration = configuration?.applying(symbolConfiguration) ?? symbolConfiguration
-        }
-
-        if let configuration = configuration {
-            return image.applyingSymbolConfiguration(configuration)
-        }
-        return nil
-    }
-
-    internal var _symbolConfiguration: Any? = nil
-    @available(macOS 12.0, iOS 15.0, *)
-    public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
-        get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
-        set { _symbolConfiguration = newValue
-            updateDisplayingImageSymbolConfiguration()
-        }
-    }
-
+    /// The scaling of the image.
     public var imageScaling: CALayerContentsGravity {
         get {
             return contentsGravity
@@ -223,76 +77,40 @@ open class ImageLayer: CALayer {
             contentsGravity = newValue
         }
     }
-
-    public var autoAnimates: Bool = true {
+    
+    /// A color used to tint template images.
+    open var tintColor: NSUIColor? = nil {
         didSet {
-            if isAnimatable && !isAnimating && autoAnimates {
-                startAnimating()
-            }
+            updateDisplayingImage()
         }
     }
-
-    public var animationDuration: TimeInterval = 0.0
-
-    public var isAnimating: Bool {
-        return (displayLink != nil)
-    }
-
-    private var dlPreviousTimestamp: TimeInterval = 0.0
-    private var dlCount: TimeInterval = 0.0
-    public func startAnimating() {
-        if isAnimatable {
-            if !isAnimating {
-                dlPreviousTimestamp = 0.0
-                dlCount = 0.0
-                displayLink = DisplayLink.shared.sink(receiveValue: { [weak self]
-                    frame in
-                        if let self = self {
-                            let timeIntervalCount = frame.timestamp - self.dlPreviousTimestamp
-                            self.dlCount = self.dlCount + timeIntervalCount
-                            if self.dlCount > self.timerInterval * 2.0 {
-                                self.dlCount = 0.0
-                                self.setFrame(to: .next)
-                                self.dlPreviousTimestamp = frame.timestamp
-                            }
-                        }
-                })
-            }
+    
+    /// The symbol configuration to use when rendering the image.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
+    public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
+        get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
+        set { _symbolConfiguration = newValue
+            updateDisplayingImage()
         }
     }
-
-    public func pauseAnimating() {
-        displayLink?.cancel()
-        displayLink = nil
-    }
-
-    public func stopAnimating() {
-        displayLink?.cancel()
-        displayLink = nil
-        setFrame(to: .first)
-    }
-
-    public func toggleAnimating() {
-        if isAnimatable {
-            if isAnimating {
-                pauseAnimating()
-            } else {
-                startAnimating()
-            }
-        }
-    }
-
+    
     public enum FrameOption {
         case first
         case last
         case random
         case next
         case previous
+        case index(Int)
     }
 
+    /// Sets the displaying image to the specified option.
     public func setFrame(to option: FrameOption) {
         if images.isEmpty == false {
             switch option {
+            case .index(let index):
+                if index >= 0, index < images.count {
+                    currentIndex = index
+                }
             case .first:
                 currentIndex = 0
             case .last:
@@ -309,35 +127,128 @@ open class ImageLayer: CALayer {
         }
     }
 
-    #if os(macOS)
-    public func setGif(image: NSImage) {
-        if let frames = image.frames {
-            Task {
-                var duration = 0.0
-                do {
-                    let allFrames = try frames.collect()
-                    for frame in allFrames {
-                        duration = duration + (frame.duration ?? ImageSource.defaultFrameDuration)
-                    }
-                    self.animationDuration = duration
-                    self.images = allFrames.compactMap { NSImage(cgImage: $0.image) }
-                } catch {
-                    Swift.debugPrint(error)
-                }
+    /// Starts animating the images in the receiver.
+    public func startAnimating() {
+        if isAnimatable {
+            if !isAnimating {
+                timerPreviousTimestamp = 0.0
+                timerCurrentInterval = 0.0
+                displayLink = DisplayLink.shared.sink(receiveValue: { [weak self]
+                    frame in
+                        if let self = self {
+                            let timeIntervalCount = frame.timestamp - self.timerPreviousTimestamp
+                            self.timerCurrentInterval = self.timerCurrentInterval + timeIntervalCount
+                            if self.timerCurrentInterval > self.timerInterval * 2.0 {
+                                self.timerCurrentInterval = 0.0
+                                self.setFrame(to: .next)
+                                self.timerPreviousTimestamp = frame.timestamp
+                            }
+                        }
+                })
             }
         }
     }
-    #endif
+
+    /// Pauses animating the images in the receiver.
+    public func pauseAnimating() {
+        displayLink?.cancel()
+        displayLink = nil
+    }
+
+    /// Stops animating the images in the receiver.
+    public func stopAnimating() {
+        displayLink?.cancel()
+        displayLink = nil
+        setFrame(to: .first)
+    }
+
+    /// Toggles the animation.
+    public func toggleAnimating() {
+        if isAnimatable {
+            if isAnimating {
+                pauseAnimating()
+            } else {
+                startAnimating()
+            }
+        }
+    }
+    
+    /// The amount of time it takes to go through one cycle of the images.
+    public var animationDuration: TimeInterval = 0.0
+
+    /// Returns a Boolean value indicating whether the animation is running.
+    public var isAnimating: Bool {
+        return (displayLink != nil)
+    }
+    
+    /// A Boolean value indicating whether animatable images should automatically start animating.
+    public var autoAnimates: Bool = true {
+        didSet {
+            if isAnimatable && !isAnimating && autoAnimates {
+                startAnimating()
+            }
+        }
+    }
 
     private var currentIndex = 0 {
         didSet {
             updateDisplayingImage()
         }
     }
+    
+    internal var needsSymbolConfiguration: Bool {
+        if #available(macOS 12.0, iOS 15.0, *) {
+           return self.tintColor != nil || self.symbolConfiguration != nil
+        } else {
+            return false
+        }
+    }
+    
+    internal var maskLayer: CALayer? = nil
 
-    private func updateDisplayingImage() {
+    @available(macOS 12.0, iOS 15.0, *)
+    internal func applyingSymbolConfiguration(to image: NSUIImage) -> NSUIImage? {
+        var configuration: NSUIImage.SymbolConfiguration? = nil
+        #if os(macOS)
+        if let tintColor = tintColor?.resolvedColor() {
+            configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
+        }
+        #else
+        if let tintColor = tintColor {
+            configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
+        }
+        #endif
+
+        if let symbolConfiguration = symbolConfiguration {
+            configuration = configuration?.applying(symbolConfiguration) ?? symbolConfiguration
+        }
+
+        if let configuration = configuration {
+            return image.applyingSymbolConfiguration(configuration)
+        }
+        return nil
+    }
+
+    internal var _symbolConfiguration: Any? = nil
+
+    private var timerPreviousTimestamp: TimeInterval = 0.0
+    private var timerCurrentInterval: TimeInterval = 0.0
+
+    internal func updateDisplayingImage() {
+        if currentIndex > -1 && currentIndex < images.count {
+            let displayingImage = images[currentIndex]
+            if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *) {
+                if displayingImage.isSymbolImage, needsSymbolConfiguration {
+                    self.displayingImage = applyingSymbolConfiguration(to: displayingImage) ?? displayingImage
+                }
+            }
+            self.displayingImage = displayingImage
+        } else {
+            self.displayingImage = nil
+        }
+        
         CATransaction.perform(duration: 0.0, animations: {
-            self.contents = self._displayingImage
+            self.contents = self.displayingImage
         })
     }
 
@@ -357,10 +268,7 @@ open class ImageLayer: CALayer {
     }
 
     open var fittingSize: CGSize {
-        if let imageSize = images.first?.size {
-            return imageSize
-        }
-        return .zero
+        self.displayingImage?.size ?? .zero
     }
 
     open func sizeThatFits(_ size: CGSize) -> CGSize {
@@ -498,5 +406,11 @@ open class ImageLayer: CALayer {
                 return CATransition(.reveal,  duration: duration)
             }
         }
+    }
+}
+
+extension ImageLayer.FrameOption: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: Int) {
+        self = .index(value)
     }
 }

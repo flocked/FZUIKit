@@ -10,34 +10,34 @@ import AppKit
 import Foundation
 
 public class ImageView: NSView {
-    public var contentTintColor: NSColor? {
-        get { self.imageLayer.contentTintColor }
-        set { self.imageLayer.contentTintColor = newValue }
-    }
-
-    override public func viewDidChangeEffectiveAppearance() {
-        super.viewDidChangeEffectiveAppearance()
-        imageLayer.updateDisplayingImageSymbolConfiguration()
-    }
-
+    /// The image displayed in the image view.
     public var image: NSImage? {
         get {
             imageLayer.image
         }
         set {
             imageLayer.image = newValue
+            self.invalidateIntrinsicContentSize()
         }
     }
 
+    /// The images displayed in the image view.
     public var images: [NSImage] {
         get {
             imageLayer.images
         }
         set {
             imageLayer.images = newValue
+            self.invalidateIntrinsicContentSize()
         }
     }
+    
+    /// The currently displaying image.
+    public var displayingImage: NSUIImage? {
+        return self.imageLayer.displayingImage
+    }
 
+    /// The scaling of the image.
     public var imageScaling: CALayerContentsGravity {
         get {
             imageLayer.imageScaling
@@ -47,22 +47,52 @@ public class ImageView: NSView {
             layerContentsPlacement = newValue.viewLayerContentsPlacement
         }
     }
+    
+    /// A color used to tint template images.
+    public var tintColor: NSColor? {
+        get { self.imageLayer.tintColor }
+        set { self.imageLayer.tintColor = newValue }
+    }
 
+    /// The symbol configuration to use when rendering the image.
     @available(macOS 12.0, iOS 13.0, *)
     public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { imageLayer.symbolConfiguration }
         set { imageLayer.symbolConfiguration = newValue }
     }
-
-    public var autoAnimates: Bool {
-        get {
-            imageLayer.autoAnimates
-        }
-        set {
-            imageLayer.autoAnimates = newValue
-        }
+    
+    /// Sets the displaying image to the specified option.
+    public func setFrame(to option: ImageLayer.FrameOption) {
+        imageLayer.setFrame(to: option)
+        self.invalidateIntrinsicContentSize()
     }
 
+    /// Starts animating the images in the receiver.
+    public func startAnimating() {
+        imageLayer.startAnimating()
+    }
+
+    /// Pauses animating the images in the receiver.
+    public func pauseAnimating() {
+        imageLayer.pauseAnimating()
+    }
+
+    /// Stops animating the images in the receiver.
+    public func stopAnimating() {
+        imageLayer.stopAnimating()
+    }
+
+    /// Toggles the animation.
+    public func toggleAnimating() {
+        imageLayer.toggleAnimating()
+    }
+    
+    /// Returns a Boolean value indicating whether the animation is running.
+    public var isAnimating: Bool {
+        return imageLayer.isAnimating
+    }
+
+    /// The amount of time it takes to go through one cycle of the images.
     public var animationDuration: TimeInterval {
         get {
             imageLayer.animationDuration
@@ -71,33 +101,15 @@ public class ImageView: NSView {
             imageLayer.animationDuration = newValue
         }
     }
-
-    public var isAnimating: Bool {
-        return imageLayer.isAnimating
-    }
-
-    public func startAnimating() {
-        imageLayer.startAnimating()
-    }
-
-    public func pauseAnimating() {
-        imageLayer.pauseAnimating()
-    }
-
-    public func stopAnimating() {
-        imageLayer.stopAnimating()
-    }
-
-    public func toggleAnimating() {
-        imageLayer.toggleAnimating()
-    }
-
-    public func setFrame(to option: ImageLayer.FrameOption) {
-        imageLayer.setFrame(to: option)
-    }
-
-    public func setGif(image: NSImage) {
-        imageLayer.setGif(image: image)
+    
+    /// A Boolean value indicating whether animatable images should automatically start animating.
+    public var autoAnimates: Bool {
+        get {
+            imageLayer.autoAnimates
+        }
+        set {
+            imageLayer.autoAnimates = newValue
+        }
     }
 
     override public var fittingSize: NSSize {
@@ -116,14 +128,6 @@ public class ImageView: NSView {
 
     override public func makeBackingLayer() -> CALayer {
         return imageLayer
-    }
-    
-    internal var _displayingImage: NSUIImage? {
-        return self.imageLayer._displayingImage
-    }
-
-    public var displayingImage: NSUIImage? {
-        return self.imageLayer.displayingImage
     }
     
     internal var symbolImageView: NSImageView? = nil
@@ -159,6 +163,11 @@ public class ImageView: NSView {
 
     override public var intrinsicContentSize: CGSize {
         return displayingImage?.size ?? CGSize(width: NSUIView.noIntrinsicMetric, height: NSUIView.noIntrinsicMetric)
+    }
+    
+    override public func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        imageLayer.updateDisplayingImage()
     }
 
     public init(image: NSImage) {
