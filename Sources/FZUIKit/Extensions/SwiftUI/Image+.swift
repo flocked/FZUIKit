@@ -45,7 +45,7 @@ public extension NSUIImage {
             return Image(nsImage: self)
         }
         #elseif canImport(UIKit)
-        if self.isTemplate {
+        if self.renderingMode == .alwaysTemplate || self.isSymbolImage {
             return Image(uiImage: self).renderingMode(.template)
         } else {
             return Image(uiImage: self)

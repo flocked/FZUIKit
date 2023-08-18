@@ -38,6 +38,12 @@ public extension NSLayoutConstraint {
 }
 
 public extension Collection where Element: NSLayoutConstraint {
+    /// Activates the constraints and returns itself.
+    @discardableResult func activate() -> Self {
+        self.forEach({ $0.activate() })
+        return self
+    }
+    
     #if os(macOS)
     /// Updates the active state of the constraints and returns itself.
     @discardableResult func activate(_ active: Bool, animated: Bool = false) -> Self {

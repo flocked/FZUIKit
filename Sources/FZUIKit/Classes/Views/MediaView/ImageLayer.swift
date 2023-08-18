@@ -20,11 +20,15 @@ open class ImageLayer: CALayer {
         get { images.count == 1 ? images.first : nil }
         set {
             if let newImage = newValue {
+                #if os(macOS)
                 if newImage.isAnimated, newImage.framesCount > 1 {
                     self.setGifImage(newImage)
                 } else {
                     images = [newImage]
                 }
+                #else
+                images = [newImage]
+                #endif
             } else {
                 images = []
             }
