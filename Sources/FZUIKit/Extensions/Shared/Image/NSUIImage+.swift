@@ -15,6 +15,10 @@ import FZSwiftUtils
 public extension NSUIImage {
     /// The symbol name of the image.
     var symbolName: String? {
+        getAssociatedValue(key: "imageSymbolName", object: self, initialValue: self._symbolName)
+    }
+    
+    internal var _symbolName: String? {
         #if os(macOS)
         let description = String(describing: self)
         return description.matches(between: "symbol = ", and: ">").compactMap({$0.string}).first
@@ -23,7 +27,7 @@ public extension NSUIImage {
         let str = String(strSeq)
         guard let name = str.split(separator: ":").last else { return nil }
         return String(name)
-        #endif
+    #endif
     }
     
     /// The color at the specified pixel location.
