@@ -17,6 +17,7 @@ import UniformTypeIdentifiers
 #if os(macOS)
 public extension NSImage {
     /// A Boolean value that indicates whether the image is a symbol.
+    @available(macOS 11.0, *)
     var isSymbolImage: Bool {
         return (symbolName != nil)
     }

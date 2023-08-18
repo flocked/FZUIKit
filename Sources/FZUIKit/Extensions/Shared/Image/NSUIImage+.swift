@@ -14,6 +14,7 @@ import FZSwiftUtils
 
 public extension NSUIImage {
     /// The symbol name of the image.
+    @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
         if let symbolName: String = getAssociatedValue(key: "imageSymbolName", object: self) {
             return symbolName
@@ -26,12 +27,12 @@ public extension NSUIImage {
     internal var _symbolName: String? {
         #if os(macOS)
         let description = String(describing: self)
-        return description.matches(between: "symbol = ", and: ">").compactMap({$0.string}).first
+        return description.matches(between: "symbol = ", and: ">").first?.string
         #else
         guard isSymbolImage, let strSeq = "\(String(describing: self))".split(separator: ")").first else { return nil }
         let str = String(strSeq)
         guard let name = str.split(separator: ":").last else { return nil }
-        return String(name)
+        return String(name).trimmingCharacters(in: .whitespacesAndNewlines)
     #endif
     }
     
