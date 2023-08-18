@@ -19,6 +19,7 @@ open class ImageLayer: CALayer {
     open var image: NSUIImage? {
         get { images.count == 1 ? images.first : nil }
         set {
+            guard newValue != self.image else { return }
             if let newImage = newValue {
                 #if os(macOS)
                 if newImage.isAnimated, newImage.framesCount > 1 {

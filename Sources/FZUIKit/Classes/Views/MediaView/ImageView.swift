@@ -131,38 +131,33 @@ public class ImageView: NSView {
     }
     
     internal var symbolImageView: NSImageView? = nil
-    public override func alignmentRect(forFrame frame: NSRect) -> NSRect {
-        if #available(macOS 12.0, *) {
-            if let symbolConfiguration = self.symbolConfiguration, let displayingImage = displayingImage, displayingImage.isSymbolImage == true  {
-                if symbolImageView == nil {
-                    symbolImageView = NSImageView(frame: self.frame)
-                }
-                symbolImageView?.frame = self.frame
-                symbolImageView?.symbolConfiguration = symbolConfiguration
-                symbolImageView?.image = displayingImage
-                return symbolImageView?.alignmentRect(forFrame: frame) ?? super.alignmentRect(forFrame: frame)
-            }
+    internal func updateSymbolImageView() {
+        if symbolImageView == nil {
+            symbolImageView = NSImageView(frame: self.frame)
         }
-        return super.alignmentRect(forFrame: frame)
+        symbolImageView?.frame = self.frame
+        if #available(macOS 12.0, *) {
+            symbolImageView?.symbolConfiguration = self.symbolConfiguration
+        }
+        symbolImageView?.image = displayingImage
+    }
+    
+    public override func alignmentRect(forFrame frame: NSRect) -> NSRect {
+        updateSymbolImageView()
+        let alignmentRect = symbolImageView?.alignmentRect(forFrame: frame) ?? super.alignmentRect(forFrame: frame)
+        symbolImageView?.image = nil
+        return alignmentRect
     }
     
     public override func frame(forAlignmentRect alignmentRect: NSRect) -> NSRect {
-        if #available(macOS 12.0, *) {
-            if let symbolConfiguration = self.symbolConfiguration, let displayingImage = displayingImage, displayingImage.isSymbolImage == true  {
-                if symbolImageView == nil {
-                    symbolImageView = NSImageView(frame: self.frame)
-                }
-                symbolImageView?.frame = self.frame
-                symbolImageView?.symbolConfiguration = symbolConfiguration
-                symbolImageView?.image = displayingImage
-                return symbolImageView?.frame(forAlignmentRect: alignmentRect) ?? super.frame(forAlignmentRect: alignmentRect)
-            }
-        }
-        return super.frame(forAlignmentRect: alignmentRect)
+        updateSymbolImageView()
+        let frameForAlignmentRect = symbolImageView?.frame(forAlignmentRect: alignmentRect) ?? super.frame(forAlignmentRect: alignmentRect)
+        symbolImageView?.image = nil
+        return frameForAlignmentRect
     }
 
     override public var intrinsicContentSize: CGSize {
-        return displayingImage?.size ?? CGSize(width: NSUIView.noIntrinsicMetric, height: NSUIView.noIntrinsicMetric)
+        return displayingImage?.alignmentRect.size ?? super.intrinsicContentSize
     }
     
     override public func viewDidChangeEffectiveAppearance() {
