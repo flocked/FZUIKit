@@ -86,6 +86,7 @@ internal func setGifImage(_ image: NSImage) {
     /// A color used to tint template images.
     open var tintColor: NSUIColor? = nil {
         didSet {
+            guard oldValue != tintColor else { return }
             updateDisplayingImage()
         }
     }
@@ -94,7 +95,9 @@ internal func setGifImage(_ image: NSImage) {
     @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
     public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
-        set { _symbolConfiguration = newValue
+        set {
+            guard newValue != symbolConfiguration else { return }
+            _symbolConfiguration = newValue
             updateDisplayingImage()
         }
     }
