@@ -10,6 +10,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public extension NSLayoutConstraint {
     /// Activates the constraint and returns itself.
@@ -37,12 +38,62 @@ public extension NSLayoutConstraint {
 }
 
 public extension Collection where Element: NSLayoutConstraint {
-    /// Activates the constraints and returns itself.
-    @discardableResult func activate() -> Self  {
-        self.forEach({ $0.activate() })
+    #if os(macOS)
+    /// Updates the active state of the constraints and returns itself.
+    @discardableResult func activate(_ active: Bool, animated: Bool = false) -> Self {
+        if animated == false {
+            self.forEach({ $0.activate(active) })
+        } else {
+            self.forEach({ $0.animator().activate(active) })
+        }
         return self
     }
     
+    /// Updates the priority of the constraints and returns itself.
+    @discardableResult func priority(_ priority: NSUILayoutPriority, animated: Bool = false) -> Self {
+        if animated == false {
+            self.forEach({$0.priority(priority) })
+        } else {
+            self.forEach({$0.animator().priority(priority) })
+        }
+        return self
+    }
+
+    /// Updates the constant of the constraints and returns itself.
+    @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> Self {
+        if animated == false {
+            self.forEach({$0.constant(constant) })
+        } else {
+            self.forEach({$0.animator().constant(constant) })
+        }
+        return self
+    }
+    
+    /// Updates the constant of the constraints and returns itself.
+    @discardableResult func constant(_ insets: NSUIEdgeInsets, animated: Bool = false) -> Self {
+        self.constant(insets.directional, animated: animated)
+    }
+    
+    /// Updates the constant of the constraints and returns itself.
+    @discardableResult func constant(_ insets: NSDirectionalEdgeInsets, animated: Bool = false) -> Self {
+        if animated == false {
+            self.leading?.constant(insets.leading)
+            self.trailing?.constant(-insets.trailing)
+            self.bottom?.constant(-insets.bottom)
+            self.top?.constant(insets.top)
+            self.width?.constant(-insets.width)
+            self.height?.constant(-insets.height)
+        } else {
+            self.leading?.animator().constant(insets.leading)
+            self.trailing?.animator().constant(-insets.trailing)
+            self.bottom?.animator().constant(-insets.bottom)
+            self.top?.animator().constant(insets.top)
+            self.width?.animator().constant(-insets.width)
+            self.height?.animator().constant(-insets.height)
+        }
+        return self
+    }
+    #else
     /// Updates the active state of the constraints and returns itself.
     @discardableResult func activate(_ active: Bool) -> Self {
         self.forEach({ $0.activate(active) })
@@ -76,6 +127,7 @@ public extension Collection where Element: NSLayoutConstraint {
         self.height?.constant(-insets.height)
         return self
     }
+    #endif
     
     /// The leading or left constraint.
     var leading: NSLayoutConstraint? { self.first(where: {$0.firstAttribute == .leading || $0.firstAttribute == .left}) }
