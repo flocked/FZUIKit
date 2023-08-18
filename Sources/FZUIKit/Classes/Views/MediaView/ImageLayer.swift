@@ -276,28 +276,38 @@ internal func setGifImage(_ image: NSImage) {
     }
 
     open var fittingSize: CGSize {
-        self.displayingImage?.size ?? .zero
+        self.displayingImage?.alignmentRect.size ?? .zero
     }
 
     open func sizeThatFits(_ size: CGSize) -> CGSize {
-        if let imageSize = images.first?.size {
-            if imageSize.width <= size.width && imageSize.height <= size.height {
-                return imageSize
-            } else {
-                switch imageScaling {
-                case .resizeAspect:
-                    if size.width == .infinity {
-                        return imageSize.scaled(toHeight: size.height)
-                    } else if size.height == .infinity {
-                        return imageSize.scaled(toWidth: size.width)
-                    }
-                    return imageSize.scaled(toFit: size)
+        if let imageSize = displayingImage?.alignmentRect.size {
+            return imageSize.scaled(toFit: size)
+        }
+        return self.bounds.size
+    /*
+            switch imageScaling {
+            case .resize, .resizeAspect:
+                switch (size.width, size.height) {
+                case (NSView.noIntrinsicMetric, NSView.noIntrinsicMetric):
+                    return imageSize
+                case (NSView.noIntrinsicMetric, let height):
+                    return imageSize.scaled(toHeight: height)
+                case (let width, NSView.noIntrinsicMetric):
+                    return imageSize.scaled(toWidth: width)
                 default:
-                    return size
+                    return imageScaling == .resize ? size : imageSize.scaled(toFit: size)
                 }
+            case .resizeAspectFill:
+                if size == CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
+                    return imageSize
+                } else {
+                    return imageSize.scaled(toFill: size)
+                }
+            default: return imageSize
             }
         }
-        return .zero
+        return self.frame.size
+*/
     }
 
     open func sizeToFit() {

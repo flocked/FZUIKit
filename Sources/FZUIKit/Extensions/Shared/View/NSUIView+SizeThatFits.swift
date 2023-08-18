@@ -125,27 +125,4 @@ public extension Sizable where Self: NSImageView {
         return image?.size ?? self.frame.size
     }
 }
-
-public extension Sizable where Self: ImageView {
-    func sizeThatFits(_ size: CGSize) -> CGSize {
-        if let imageSize = displayingImage?.size {
-            switch imageScaling {
-            case .resizeAspect, .resize:
-                if size == CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
-                    return imageSize
-                } else {
-                    return imageSize.scaled(toFit: size)
-                }
-            case .resizeAspectFill:
-                if size == CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
-                    return imageSize
-                } else {
-                    return imageSize.scaled(toFill: size)
-                }
-            default: return imageSize
-            }
-        }
-        return self.frame.size
-    }
-}
 #endif
