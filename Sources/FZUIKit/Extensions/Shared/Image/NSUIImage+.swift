@@ -16,7 +16,6 @@ public extension NSUIImage {
     /// The symbol name of the image.
     var symbolName: String? {
         if let symbolName: String = getAssociatedValue(key: "imageSymbolName", object: self) {
-            Swift.print("symbolName found")
             return symbolName
         }
         let symbolName = _symbolName
