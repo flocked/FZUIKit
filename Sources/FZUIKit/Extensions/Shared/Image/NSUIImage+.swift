@@ -15,7 +15,13 @@ import FZSwiftUtils
 public extension NSUIImage {
     /// The symbol name of the image.
     var symbolName: String? {
-        getAssociatedValue(key: "imageSymbolName", object: self, initialValue: self._symbolName)
+        if let symbolName: String = getAssociatedValue(key: "imageSymbolName", object: self) {
+            Swift.print("symbolName found")
+            return symbolName
+        }
+        let symbolName = _symbolName
+        set(associatedValue: symbolName, key: "imageSymbolName", object: self)
+        return symbolName
     }
     
     internal var _symbolName: String? {
