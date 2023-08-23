@@ -27,6 +27,21 @@ extension NSView {
     public var frameOnScreen: CGRect? {
         return window?.convertToScreen(frameInWindow)
     }
+    
+    /**
+     Embeds the view in a scroll view and returns that scroll view.
+     
+     If the view is already emedded in a scroll view, it will return that.
+     
+     The scroll view can be accessed via the view's `enclosingScrollView` property.
+     */
+    @discardableResult
+    public func addEnclosingScrollView() -> NSScrollView {
+        guard self.enclosingScrollView == nil else { return self.enclosingScrollView! }
+        let scrollView = NSScrollView()
+        scrollView.documentView = self
+        return scrollView
+    }
 
     /**
      A Boolean value that determines whether subviews are confined to the bounds of the view.
