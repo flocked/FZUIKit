@@ -85,7 +85,7 @@ public extension ContentConfiguration {
         }
         
         /// A visual effect configuration with the specified appearance.
-        public static func appearance(_ appearanceName: NSAppearance.Name, blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> VisualEffect {
+        internal static func appearance(_ appearanceName: NSAppearance.Name, blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> VisualEffect {
             return VisualEffect(material: material, blendingMode: blendingMode, appearance: NSAppearance(named: appearanceName))
         }
 
@@ -101,6 +101,7 @@ public extension ContentConfiguration {
         /// A visual effect configuration with a dark vibrant appearance.
         public static func vibrantDark(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.vibrantDark, blendingMode: blendingMode, material: material) }
         
+        /*
         /// A visual effect configuration with a high-contrast version of the standard light system appearance.
         public static func accessibilityHighContrastAqua(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastAqua, blendingMode: blendingMode, material: material) }
         
@@ -112,6 +113,7 @@ public extension ContentConfiguration {
         
         /// A visual effect configuration with a high-contrast version of the dark vibrant appearance.
         public static func accessibilityHighContrastVibrantDark(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastVibrantDark, blendingMode: blendingMode, material: material) }
+        */
     }
 }
 
