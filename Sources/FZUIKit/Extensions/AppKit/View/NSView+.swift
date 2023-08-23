@@ -32,7 +32,7 @@ extension NSView {
      Embeds the view in a scroll view and returns that scroll view.
      
      If the view is already emedded in a scroll view, it will return that.
-     
+
      The scroll view can be accessed via the view's `enclosingScrollView` property.
      */
     @discardableResult

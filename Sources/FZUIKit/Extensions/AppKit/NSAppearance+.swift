@@ -50,6 +50,24 @@ public extension NSAppearance {
     static var accessibilityHighContrastVibrantLight: NSAppearance {
         return NSAppearance(named: .accessibilityHighContrastVibrantLight)!
     }
+    
+    /**
+     A Boolean value that indicates whether the appearance is light.
+     
+     The following appearances are light: `aqua`, `vibrantLight`, `accessibilityHighContrastAqua` and `accessibilityHighContrastVibrantLight`.
+     */
+    var isLightAppearance: Bool {
+        return [.vibrantLight, .aqua, .accessibilityHighContrastAqua, . accessibilityHighContrastVibrantLight].contains(self.name)
+    }
+    
+    /**
+     A Boolean value that indicates whether the appearance is dark.
+     
+     The following appearances are dark: `darkAqua`, `vibrantDark`, `accessibilityHighContrastDarkAqua` and `accessibilityHighContrastVibrantDark`.
+     */
+    var isDarkAppearance: Bool {
+        return [.vibrantDark, .darkAqua, .accessibilityHighContrastDarkAqua, . accessibilityHighContrastVibrantDark].contains(self.name)
+    }
 }
 
 #endif
