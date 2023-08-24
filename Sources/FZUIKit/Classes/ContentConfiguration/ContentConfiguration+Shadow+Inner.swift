@@ -32,7 +32,7 @@ public extension ContentConfiguration {
         
         /// Generates the resolved shadow color for the specified shadow color, using the shadow color and color transformer.
         public func resolvedColor(withOpacity: Bool = false) -> NSUIColor? {
-            if let color = color {
+            if let color = withOpacity == true ? color?.withAlphaComponent(opacity) : color {
                 return colorTransform?(color) ?? color
             }
             return nil
