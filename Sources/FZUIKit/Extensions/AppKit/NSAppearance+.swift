@@ -56,7 +56,7 @@ public extension NSAppearance {
      
      The following appearances are light: `aqua`, `vibrantLight`, `accessibilityHighContrastAqua` and `accessibilityHighContrastVibrantLight`.
      */
-    var isLightAppearance: Bool {
+    var isLight: Bool {
         return [.vibrantLight, .aqua, .accessibilityHighContrastAqua, . accessibilityHighContrastVibrantLight].contains(self.name)
     }
     
@@ -65,7 +65,7 @@ public extension NSAppearance {
      
      The following appearances are dark: `darkAqua`, `vibrantDark`, `accessibilityHighContrastDarkAqua` and `accessibilityHighContrastVibrantDark`.
      */
-    var isDarkAppearance: Bool {
+    var isDark: Bool {
         return [.vibrantDark, .darkAqua, .accessibilityHighContrastDarkAqua, . accessibilityHighContrastVibrantDark].contains(self.name)
     }
 }
