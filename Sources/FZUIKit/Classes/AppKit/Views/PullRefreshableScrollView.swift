@@ -114,9 +114,9 @@ public class PullRefreshableScrollView: NSScrollView {
         }
     }
 
-    internal lazy var top = TopEdgeParameters(self, edge: .top)
-    internal lazy var bottom = BottomEdgeParameters(self, edge: .bottom)
-    internal lazy var params: [ViewEdge: EdgeParameters & EdgeScrollBehavior] = [.top: top, .bottom: bottom]
+    internal lazy var topEdge = TopEdgeParameters(self, edge: .top)
+    internal lazy var bottomEdge = BottomEdgeParameters(self, edge: .bottom)
+    internal lazy var params: [ViewEdge: EdgeParameters & EdgeScrollBehavior] = [.top: topEdge, .bottom: bottomEdge]
 
     override public func viewDidMoveToWindow() {
         verticalScrollElasticity = .allowed
@@ -133,35 +133,35 @@ public class PullRefreshableScrollView: NSScrollView {
     }
 
     internal func accessoryViewsUpdated() {
-        placeAccessoryView(top.accessoryView, onEdge: .top)
-        placeAccessoryView(bottom.accessoryView, onEdge: .bottom)
+        placeAccessoryView(topEdge.accessoryView, onEdge: .top)
+        placeAccessoryView(bottomEdge.accessoryView, onEdge: .bottom)
     }
 
     @objc internal func scrollViewFrameChanged(_: NSNotification) {
         guard let documentView = documentView else { return }
         let contentRect = documentView.frame
 
-        if let view = top.accessoryView {
+        if let view = topEdge.accessoryView {
             view.frame = NSMakeRect(0, contentRect.minY - view.frame.height, contentRect.size.width, view.frame.height)
         }
 
-        if let view = bottom.accessoryView {
+        if let view = bottomEdge.accessoryView {
             view.frame = NSMakeRect(0, contentRect.height, contentRect.size.width, view.frame.height)
         }
     }
 
     @objc internal func clipViewBoundsChanged(_: NSNotification) {
-        if top.viewState != .stuck, top.enabled {
-            let top = self.top.isOverThreshold
+        if topEdge.viewState != .stuck, topEdge.enabled {
+            let top = self.topEdge.isOverThreshold
             if top {
-                self.top.viewState = .overpulled
+                self.topEdge.viewState = .overpulled
             }
         }
 
-        if bottom.viewState != .stuck, bottom.enabled {
-            let bottom = self.bottom.isOverThreshold
+        if bottomEdge.viewState != .stuck, bottomEdge.enabled {
+            let bottom = self.bottomEdge.isOverThreshold
             if bottom {
-                self.bottom.viewState = .overpulled
+                self.bottomEdge.viewState = .overpulled
             }
         }
     }
@@ -189,12 +189,12 @@ public class PullRefreshableScrollView: NSScrollView {
 
     override public func scrollWheel(with theEvent: NSEvent) {
         if theEvent.phase == .began {
-            if top.viewState != .stuck && top.enabled && theEvent.scrollingDeltaY > 0 && verticalScroller!.doubleValue == 0 {
-                top.viewState = .elastic
+            if topEdge.viewState != .stuck && topEdge.enabled && theEvent.scrollingDeltaY > 0 && verticalScroller!.doubleValue == 0 {
+                topEdge.viewState = .elastic
             }
 
-            if bottom.viewState != .stuck && bottom.enabled && theEvent.scrollingDeltaY < 0 && verticalScroller!.doubleValue == 1 {
-                bottom.viewState = .elastic
+            if bottomEdge.viewState != .stuck && bottomEdge.enabled && theEvent.scrollingDeltaY < 0 && verticalScroller!.doubleValue == 1 {
+                bottomEdge.viewState = .elastic
             }
         }
 
@@ -203,40 +203,40 @@ public class PullRefreshableScrollView: NSScrollView {
         let clipView = contentView
         let bounds = clipView.bounds
 
-        if top.viewState == .elastic {
-            let minimumScroll = abs(top.minimumScroll)
+        if topEdge.viewState == .elastic {
+            let minimumScroll = abs(topEdge.minimumScroll)
             let scrollValue = abs(bounds.origin.y).clamped(max: minimumScroll)
             updateHandlers.didUpdate?(.top, viewFor(edge: .top), Double(100 * scrollValue / minimumScroll))
         }
 
-        if bottom.viewState == .elastic {
-            let minimumScroll = abs(bottom.minimumScroll) - bounds.size.height
+        if bottomEdge.viewState == .elastic {
+            let minimumScroll = abs(bottomEdge.minimumScroll) - bounds.size.height
             let scrollValue = abs(bounds.origin.y).clamped(max: minimumScroll)
-            let accessoryHeight = bottom.accessoryView?.frame.size.height ?? 0
+            let accessoryHeight = bottomEdge.accessoryView?.frame.size.height ?? 0
             let percentage = Double(100 * (accessoryHeight - (minimumScroll - scrollValue)) / accessoryHeight)
             updateHandlers.didUpdate?(.bottom, viewFor(edge: .bottom), percentage)
         }
 
         if theEvent.phase == .ended {
-            if top.enabled && top.isOverThreshold && top.viewState != .stuck {
-                top.viewState = .stuck
-            } else if top.viewState != .stuck {
-                top.viewState = .none
+            if topEdge.enabled && topEdge.isOverThreshold && topEdge.viewState != .stuck {
+                topEdge.viewState = .stuck
+            } else if topEdge.viewState != .stuck {
+                topEdge.viewState = .none
             }
 
-            if bottom.enabled && bottom.isOverThreshold && bottom.viewState != .stuck {
-                bottom.viewState = .stuck
-            } else if bottom.viewState != .stuck {
-                bottom.viewState = .none
+            if bottomEdge.enabled && bottomEdge.isOverThreshold && bottomEdge.viewState != .stuck {
+                bottomEdge.viewState = .stuck
+            } else if bottomEdge.viewState != .stuck {
+                bottomEdge.viewState = .none
             }
         }
 
         if theEvent.momentumPhase == .ended {
-            if top.viewState != .stuck {
-                top.viewState = .none
+            if topEdge.viewState != .stuck {
+                topEdge.viewState = .none
             }
-            if bottom.viewState != .stuck {
-                bottom.viewState = .none
+            if bottomEdge.viewState != .stuck {
+                bottomEdge.viewState = .none
             }
         }
     }
@@ -270,16 +270,16 @@ public class PullRefreshableScrollView: NSScrollView {
 
     public func endAction(onEdge edge: ViewEdge) {
         if edge == .top {
-            top.resetScroll()
+            topEdge.resetScroll()
         }
         if edge == .bottom {
-            bottom.resetScroll()
+            bottomEdge.resetScroll()
         }
     }
 
     public func endActions() {
-        top.resetScroll()
-        bottom.resetScroll()
+        topEdge.resetScroll()
+        bottomEdge.resetScroll()
     }
 }
 
@@ -356,12 +356,12 @@ public class PullRefreshableClipView: NSClipView {
     override public var documentRect: NSRect {
         // this expands the scrollable area to include the accessory views, making scrollers match the full scrollable range – scrolling works as usual and feels less clunky
         var docRect = super.documentRect
-        if top.viewState == .stuck {
-            docRect.size.height += (top.accessoryView?.frame.size.height ?? 0)
-            docRect.origin.y -= (top.accessoryView?.frame.size.height ?? 0)
+        if topEdge.viewState == .stuck {
+            docRect.size.height += (topEdge.accessoryView?.frame.size.height ?? 0)
+            docRect.origin.y -= (topEdge.accessoryView?.frame.size.height ?? 0)
         }
-        if bottom.viewState == .stuck {
-            docRect.size.height += (bottom.accessoryView?.frame.size.height ?? 0)
+        if bottomEdge.viewState == .stuck {
+            docRect.size.height += (bottomEdge.accessoryView?.frame.size.height ?? 0)
         }
         return docRect
     }
@@ -370,18 +370,18 @@ public class PullRefreshableClipView: NSClipView {
         let proposedNewOrigin = proposedBounds.origin
         var constrained = super.constrainBoundsRect(proposedBounds)
         let scrollValue = proposedNewOrigin.y // this is the y value where the top of the document view is
-        let isTopOver = scrollValue <= top.minimumScroll
-        let isBottomOver = scrollValue >= top.minimumScroll
+        let isTopOver = scrollValue <= topEdge.minimumScroll
+        let isBottomOver = scrollValue >= topEdge.minimumScroll
 
-        if top.viewState == .stuck && scrollValue <= 0 { // if the accessory view is open
+        if topEdge.viewState == .stuck && scrollValue <= 0 { // if the accessory view is open
             constrained.origin.y = proposedNewOrigin.y
             if isTopOver { // and if we are scrolled above the refresh view
                 // this check ensures that there is no weird effect while scrolling if the accessory view is open
-                constrained.origin.y = top.minimumScroll // constrain us to the refresh view
+                constrained.origin.y = topEdge.minimumScroll // constrain us to the refresh view
             }
         }
 
-        if bottom.viewState == .stuck && scrollValue >= 0 { // if the accessory view is open
+        if bottomEdge.viewState == .stuck && scrollValue >= 0 { // if the accessory view is open
             constrained.size.height = proposedBounds.height
             if isBottomOver { // and if we are scrolled above the refresh view
                 // but nothing to do, the documentRect change is enough
@@ -395,12 +395,12 @@ public class PullRefreshableClipView: NSClipView {
         return (super.enclosingScrollView as? PullRefreshableScrollView) ?? nil
     }
 
-    var top: PullRefreshableScrollView.TopEdgeParameters {
-        return enclosingScrollView!.top
+    var topEdge: PullRefreshableScrollView.TopEdgeParameters {
+        return enclosingScrollView!.topEdge
     }
 
-    var bottom: PullRefreshableScrollView.BottomEdgeParameters {
-        return enclosingScrollView!.bottom
+    var bottomEdge: PullRefreshableScrollView.BottomEdgeParameters {
+        return enclosingScrollView!.bottomEdge
     }
 }
 #endif
