@@ -38,30 +38,21 @@ public extension NSPasteboard {
         self.writeObjects(writings)
     }
     
-    /**
-     Returns images for the pasteboard.
-     - Returns: The array of images or nil if no images are available.
-     */
-    func images() -> [NSImage]? {
+    /// Returns images for the pasteboard or `nil` if no images are available.
+    var images: [NSImage]? {
         guard let images = readObjects(forClasses: [NSImage.self], options: nil) as? [NSImage] else {
             return nil
         }
         return images.count == 0 ? nil : images
     }
     
-    /**
-     Returns a string for the pasteboard.
-     - Returns: The string or nil if no string is available.
-     */
-    func string() -> String? {
+    /// Returns a string for the pasteboard or `nil` if no string is available.
+    var string: String? {
         return self.pasteboardItems?.compactMap({$0.string(forType: .string)}).first
     }
     
-    /**
-     Returns file urls for the pasteboard.
-     - Returns: The array of file urls or nil if no urls are available.
-     */
-    func fileURLs() -> [URL]? {
+    /// Returns file urls for the pasteboard or `nil` if no urls are available.
+    var fileURLs: [URL]? {
         guard let objs = self.readObjects(forClasses: [NSURL.self], options: nil) as? [NSURL] else {
             return nil
         }
@@ -71,28 +62,19 @@ public extension NSPasteboard {
 }
 
 public extension NSDraggingInfo {
-    /**
-     Returns images for the dragging info.
-     - Returns: The array of images or nil if no images are available.
-     */
-    func images() -> [NSImage]? {
-        self.draggingPasteboard.images()
+    /// Returns images for the dragging info or `nil` if no images are available.
+    var images: [NSImage]? {
+        self.draggingPasteboard.images
     }
     
-    /**
-     Returns a string for thedragging info.
-     - Returns: The string or nil if no string is available.
-     */
-    func string() -> String? {
-        self.draggingPasteboard.string()
+    /// Returns a string for the dragging info or `nil` if no string is available.
+    var string: String? {
+        self.draggingPasteboard.string
     }
     
-    /**
-     Returns file urls for the dragging info.
-     - Returns: The array of file urls or nil if no urls are available.
-     */
-    func fileURLs() -> [URL]? {
-        self.draggingPasteboard.fileURLs()
+    /// Returns file urls for the dragging info or `nil` if no urls are available.
+    var fileURLs: [URL]? {
+        self.draggingPasteboard.fileURLs
     }
 }
 #endif

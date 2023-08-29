@@ -10,6 +10,19 @@
 import AppKit
 
 public extension NSTextField {
+    /// The y-coordinate of the baseline for the topmost line of text.
+    var firstBaselineY: CGFloat? {
+        // the baseline for the topmost line of text in the view.
+        guard let font = self.font else { return nil }
+        return frame.origin.y + font.ascender
+    }
+    
+    /// The y-coordinate of the ascender line for the topmost line of text.
+    var ascenderLineY: CGFloat? {
+        guard let font = self.font else { return nil }
+        return frame.origin.y + font.ascender - font.capHeight
+     }
+    
     /// Returns the number of lines.
     var currentNumberOfLines: Int {
         guard let font = self.font else { return -1 }

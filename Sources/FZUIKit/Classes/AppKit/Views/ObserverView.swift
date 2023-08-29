@@ -160,15 +160,15 @@ public class ObservingView: NSView {
     
     internal func pasteboardWritings(for sender: NSDraggingInfo) -> [PasteboardWriting] {
         var items = [PasteboardWriting]()
-        if let fileURLs = sender.draggingPasteboard.fileURLs() {
+        if let fileURLs = sender.draggingPasteboard.fileURLs {
             items.append(contentsOf: fileURLs)
         }
         
-        if let string = sender.draggingPasteboard.string() {
+        if let string = sender.draggingPasteboard.string {
             items.append(string)
         }
         
-        if let images = sender.draggingPasteboard.images() {
+        if let images = sender.draggingPasteboard.images {
             items.append(contentsOf: images)
         }
         return items

@@ -50,22 +50,6 @@ public extension Sizable where Self: NSUIView {
     
     func sizeThatFits(_ size: CGSize) -> CGSize {
         return self.frame.size
-        /*
-        let rect = self.subviews.compactMap({$0.frame}).union()
-        if rect.origin.x < 0 {
-            frame.origin.x =  frame.origin.x+rect.origin.x
-        }
-        if rect.origin.y < 0 {
-            frame.origin.y =  frame.origin.x+rect.origin.y
-        }
-        if rect.size != .zero {
-            frame.size = rect.size
-        } else if self.intrinsicContentSize != CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
-            frame.size = self.intrinsicContentSize
-        } else if fittingSize != .zero {
-            frame.size = fittingSize
-        }
-         */
     }
 }
 
@@ -91,38 +75,24 @@ extension NSUIHostingController: Sizable {
 }
 
 #if os(macOS)
+public extension Sizable where Self: NSTextField {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        if size.width != NSView.noIntrinsicMetric, size.width > 0, let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: 100000)) {
+            return CGSize(size.width, cellSize.height)
+        }
+        return self.fittingSize
+    }
+}
+
 public extension Sizable where Self: ResizingTextField {
     func sizeThatFits(_ size: CGSize) -> CGSize {
         return self.intrinsicContentSize
     }
 }
 
-public extension Sizable where Self: NSTextField {
-    func sizeThatFits(_ size: CGSize) -> CGSize {
-        if size.height == NSView.noIntrinsicMetric, size.width != NSView.noIntrinsicMetric {
-            let compression = self.contentCompressionResistancePriority(for: .horizontal)
-            let maxWidth = self.preferredMaxLayoutWidth
-            self.setContentCompressionResistancePriority(.fittingSizeCompression, for: .horizontal)
-            self.preferredMaxLayoutWidth = size.width
-            self.invalidateIntrinsicContentSize()
-            let intrinsicContentSize = self.intrinsicContentSize
-            self.setContentCompressionResistancePriority(compression, for: .horizontal)
-            self.preferredMaxLayoutWidth = maxWidth
-            self.invalidateIntrinsicContentSize()
-            return intrinsicContentSize
-        }
-        self.invalidateIntrinsicContentSize()
-        let intrinsicContentSize = intrinsicContentSize
-        if intrinsicContentSize != CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric) {
-            return intrinsicContentSize
-        }
-        return self.frame.size
-    }
-}
-
 public extension Sizable where Self: NSImageView {
     func sizeThatFits(_ size: CGSize) -> CGSize {
-        return image?.size ?? self.frame.size
+        return image?.size ?? self.bounds.size
     }
 }
 #endif
