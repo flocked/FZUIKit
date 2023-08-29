@@ -41,7 +41,7 @@ extension NSUIView: Sizable { }
 
 public extension Sizable where Self: NSUIView {
     var fittingSize: CGSize {
-        sizeThatFits(CGSize(width: 100000, height: 100000))
+        sizeThatFits(CGSize(width: 1000000, height: 1000000))
     }
     
     func sizeToFit() {
