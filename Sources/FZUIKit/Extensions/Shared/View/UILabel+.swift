@@ -9,8 +9,8 @@
 import UIKit
 
 extension UILabel {
-    /// Returns the number of lines.
-    var currentNumberOfLines: Int {
+    /// Returns the number of visible lines.
+    var numberOfVisibleLines: Int {
         guard let font = self.font else { return -1 }
         let maxSize = CGSize(width: frame.size.width, height: CGFloat(Float.infinity))
         let charSize = font.lineHeight

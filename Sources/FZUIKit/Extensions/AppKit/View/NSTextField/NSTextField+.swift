@@ -23,8 +23,8 @@ public extension NSTextField {
         return frame.origin.y + font.ascender - font.capHeight
      }
     
-    /// Returns the number of lines.
-    var currentNumberOfLines: Int {
+    /// Returns the number of visible lines.
+    var numberOfVisibleLines: Int {
         guard let font = self.font else { return -1 }
         let maxSize = CGSize(width: frame.size.width, height: CGFloat(Float.infinity))
         let charSize = font.lineHeight
@@ -100,6 +100,7 @@ public extension NSTextField {
         let ranges = rangesOfLines(option)
         return ranges.compactMap { String(self.stringValue[$0]) }
     }
+    
 
     /**
      An array of string ranges of the lines.
@@ -108,6 +109,7 @@ public extension NSTextField {
      */
     func rangesOfLines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
         let stringValue = self.stringValue
+        let attributedStringValue = self.attributedStringValue
         let linebreakMode = lineBreakMode
         if linebreakMode != .byCharWrapping || linebreakMode != .byWordWrapping, maximumNumberOfLines != 1 {
             lineBreakMode = .byCharWrapping
@@ -120,8 +122,37 @@ public extension NSTextField {
         var lineRanges: [Range<String.Index>] = []
         var boundsSize = bounds.size
         boundsSize.height = .infinity
+        let singleLineSize = self.textSize(forSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude), maximumNumberOfLines: 1)
+        let size = self.textSize(forSize: self.bounds.size, maximumNumberOfLines: nil)
+        attributedStringValue.attributedSubstring(from: NSRange(location: 0, length: 1))
+        for index in 0..<attributedStringValue.string.count {
+            let partialString = attributedStringValue[0...index]
+            self.attributedStringValue = partialString
+            let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
+            if didStart == false {
+                previousHeight = height
+                didStart = true
+            } else {
+                nextIndex = stringValue.index(after: nextIndex)
+                if height > previousHeight {
+                    let endIndex = nextIndex
+                    let range = startIndex ..< endIndex
+                    startIndex = endIndex
+                    lineRanges.append(range)
+                    previousHeight = height
+                } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
+                    if self.maximumNumberOfLines == 0 || option == .all || lineRanges.count < self.maximumNumberOfLines {
+                        let endIndex = stringValue.endIndex
+                        let range = startIndex ..< endIndex
+                        lineRanges.append(range)
+                    }
+                }
+            }
+        }
+        
         stringValue.forEach { char in
             partialString = partialString + String(char)
+            
             self.stringValue = partialString
             let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
             if didStart == false {
