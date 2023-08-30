@@ -115,7 +115,8 @@ open class MagnifyMediaView: NSView {
         set {
             mediaView.mediaURL = newValue
             mediaView.frame.size = mediaView.intrinsicContentSize
-            updateMagnification(reset: true)
+            magnification = 1
+            updateMagnification()
         }
     }
 
@@ -124,7 +125,8 @@ open class MagnifyMediaView: NSView {
         set {
             mediaView.image = newValue
             mediaView.frame.size = mediaView.intrinsicContentSize
-            updateMagnification(reset: true)
+            magnification = 1
+            updateMagnification()
         }
     }
 
@@ -133,7 +135,8 @@ open class MagnifyMediaView: NSView {
         set {
             mediaView.images = newValue
             mediaView.frame.size = mediaView.intrinsicContentSize
-            updateMagnification(reset: true)
+            magnification = 1
+            updateMagnification()
         }
     }
 
@@ -148,7 +151,8 @@ open class MagnifyMediaView: NSView {
         set {
             mediaView.asset = newValue
             mediaView.frame.size = mediaView.intrinsicContentSize
-            updateMagnification(reset: true)
+            magnification = 1
+            updateMagnification()
         }
     }
 
@@ -238,6 +242,7 @@ open class MagnifyMediaView: NSView {
         set { scrollView.allowsMagnification = newValue }
     }
 
+    /*
     open var magnification: CGFloat {
         get { scrollView.magnification }
         set { setMagnification(newValue) }
@@ -252,6 +257,8 @@ open class MagnifyMediaView: NSView {
         get { self.scrollView.maxMagnification }
         set { self.scrollView.maxMagnification = newValue }
     }
+    
+    */
 
     override open var enclosingScrollView: NSScrollView? {
         return scrollView
@@ -266,6 +273,7 @@ open class MagnifyMediaView: NSView {
         updateMagnification()
     }
     
+    /*
     private func updateMagnification(reset: Bool = false) {
         let mediaViewSize =  mediaView.intrinsicContentSize
         Swift.print("updateMagnification", self.bounds.size)
@@ -287,6 +295,50 @@ open class MagnifyMediaView: NSView {
         scrollView.maxMagnification = maxMagnification
         let newMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
         scrollView.magnification = reset ? scrollView.minMagnification : (scrollView.minMagnification + (newMagnificationRange * percentage))
+    }
+     */
+    
+    private var _magnification: CGFloat = 1.0
+    private var _minMagnification: CGFloat = 1.0
+    private var _maxMagnification: CGFloat = 3.0
+    
+    public var minMagnification: CGFloat {
+        get { _minMagnification }
+        set { guard newValue != minMagnification else { return }
+            _minMagnification = newValue
+            updateMagnification()
+        }
+    }
+    
+    public var maxMagnification: CGFloat {
+        get { _maxMagnification }
+        set { guard newValue != maxMagnification else { return }
+            _maxMagnification = newValue
+            updateMagnification()
+        }
+    }
+    
+    public var magnification: CGFloat {
+        get { _magnification }
+        set { guard newValue != _magnification else { return }
+            _magnification = newValue
+            updateMagnification()
+        }
+    }
+    
+   private func updateMagnification() {
+        let mediaViewSize =  mediaView.intrinsicContentSize
+        if mediaViewSize.height > mediaViewSize.width {
+            scrollView.minMagnification = (self.bounds.height*_minMagnification) / mediaViewSize.height
+            scrollView.maxMagnification = (self.bounds.height*_maxMagnification) / mediaViewSize.height
+        } else {
+            scrollView.minMagnification = (self.bounds.height*_minMagnification) / mediaViewSize.width
+            scrollView.maxMagnification = (self.bounds.height*_maxMagnification) / mediaViewSize.width
+        }
+        let magnificationRange = _maxMagnification - _minMagnification
+        let scrollViewMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
+        let percentage = (_magnification - _minMagnification) / magnificationRange
+        scrollView.magnification = (scrollView.minMagnification + (scrollViewMagnificationRange * percentage))
     }
 
     public init(mediaURL: URL) {
