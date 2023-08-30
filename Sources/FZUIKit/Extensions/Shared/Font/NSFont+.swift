@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 @available(macOS 11.0, *)
 extension NSFont.TextStyle: CaseIterable {
     /// A collection of all text style values.
@@ -35,6 +36,21 @@ public extension NSFont {
     internal var leadingReal: CGFloat {
         let ctFont = self.cleanedFont as CTFont
         return CTFontGetLeading(ctFont)
+    }
+    
+    internal var spc: CGFloat? {
+        if let spc: CGFloat = getAssociatedValue(key: "spc", object: self) {
+            return spc
+        }
+        let components = String(describing: self).components(separatedBy: "spc=")
+        if components.count == 2 {
+            var value = components[1]
+            value.removeLast()
+            let spc = CGFloat(value)
+            FZSwiftUtils.set(associatedValue: spc, key: "spc", object: self)
+           return spc
+        }
+        return nil
     }
     
     internal var cleanedFont: NSFont {

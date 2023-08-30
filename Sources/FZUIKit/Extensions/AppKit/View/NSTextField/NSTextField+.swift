@@ -10,18 +10,24 @@
 import AppKit
 
 public extension NSTextField {
-    /// The y-coordinate of the baseline for the topmost line of text.
+    /// The y-coordinate of the baseline for the topmost line of the text.
     var firstBaselineY: CGFloat? {
-        // the baseline for the topmost line of text in the view.
         guard let font = self.font else { return nil }
-        return frame.origin.y + font.ascender
+        let defaultLineHeight = lineHeight
+        let cellFrame = self.cellFrame ?? self.frame
+        guard cellFrame.height >= defaultLineHeight else { return nil }
+        let height = font.spc ?? defaultLineHeight-font.ascenderReal
+        return cellFrame.origin.y + cellFrame.height - defaultLineHeight + height
     }
     
-    /// The y-coordinate of the ascender line for the topmost line of text.
-    var ascenderLineY: CGFloat? {
+    /// The y-coordinate of the baseline for the last visible line of the text.
+    var lastBaselineY: CGFloat? {
         guard let font = self.font else { return nil }
-        return frame.origin.y + font.ascender - font.capHeight
-     }
+        guard let lastLineFrame = self.lineFrames().last else { return nil }
+        let defaultLineHeight = lineHeight
+        let height = font.spc ?? defaultLineHeight-font.ascenderReal
+        return lastLineFrame.origin.y + height
+    }
     
     /// Returns the number of visible lines.
     var numberOfVisibleLines: Int {
@@ -101,6 +107,40 @@ public extension NSTextField {
         return ranges.compactMap { String(self.stringValue[$0]) }
     }
     
+    /// An array of frames for all visible lines.
+    func lineFrames() -> [CGRect] {
+        var lineFrames: [CGRect] = []
+        guard self.font != nil else { return [] }
+        let defaultLineHeight = lineHeight
+        let frame = self.cellFrame ?? self.frame
+        for index in 0..<self.numberOfVisibleLines-1 {
+            var lineFrame = frame
+            lineFrame.size.height = defaultLineHeight
+            lineFrame.topLeft = frame.topLeft
+            lineFrame.origin.y =  lineFrame.origin.y - (CGFloat(index)*defaultLineHeight)
+            lineFrames.append(lineFrame)
+        }
+        return lineFrames
+    }
+        
+    /// The height of a singe line.
+    internal var lineHeight: CGFloat {
+        guard font != nil else { return 0 }
+        if stringValue == "" {
+            stringValue = " "
+            let height = self.attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
+            stringValue = ""
+            return height
+        }
+        return self.attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
+    }
+    
+    /// The frame of the text cell.
+    internal var cellFrame: CGRect? {
+        let frame = self.isBezeled == false ? frame : frame.insetBy(dx: 0, dy: 1)
+        return self.cell?.drawingRect(forBounds: frame)
+    }
+    
 
     /**
      An array of string ranges of the lines.
@@ -122,8 +162,6 @@ public extension NSTextField {
         var lineRanges: [Range<String.Index>] = []
         var boundsSize = bounds.size
         boundsSize.height = .infinity
-        let singleLineSize = self.textSize(forSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude), maximumNumberOfLines: 1)
-        let size = self.textSize(forSize: self.bounds.size, maximumNumberOfLines: nil)
         attributedStringValue.attributedSubstring(from: NSRange(location: 0, length: 1))
         for index in 0..<attributedStringValue.string.count {
             let partialString = attributedStringValue[0...index]
