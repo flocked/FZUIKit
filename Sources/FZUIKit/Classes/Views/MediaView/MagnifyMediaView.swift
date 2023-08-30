@@ -308,6 +308,14 @@ open class MagnifyMediaView: NSView {
         super.init(coder: coder)
         sharedInit()
     }
+    
+    public var backgroundColor: NSUIColor? {
+        get { self.layer?.backgroundColor?.nsColor }
+        set {
+            self.layer?.backgroundColor = newValue?.cgColor
+            self.enclosingScrollView?.backgroundColor = newValue
+        }
+    }
 
     private func sharedInit() {
         wantsLayer = true
