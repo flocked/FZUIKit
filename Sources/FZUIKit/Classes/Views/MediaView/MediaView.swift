@@ -86,6 +86,7 @@ public class MediaView: NSView {
                 hideImageView()
                 hideVideoView()
             }
+            self.invalidateIntrinsicContentSize()
         }
     }
 
@@ -125,6 +126,7 @@ public class MediaView: NSView {
                 mediaURL = nil
                 mediaType = nil
             }
+            self.invalidateIntrinsicContentSize()
         }
     }
 
@@ -145,6 +147,7 @@ public class MediaView: NSView {
                 mediaURL = nil
                 mediaType = nil
             }
+            self.invalidateIntrinsicContentSize()
         }
     }
 
@@ -162,6 +165,7 @@ public class MediaView: NSView {
                 mediaURL = nil
                 mediaType = nil
             }
+            self.invalidateIntrinsicContentSize()
         }
     }
 
