@@ -267,16 +267,20 @@ open class MagnifyMediaView: NSView {
     }
     
     private func updateMagnification(reset: Bool = false) {
-        let imageViewSize =  mediaView.intrinsicContentSize
+        let mediaViewSize =  mediaView.intrinsicContentSize
+        Swift.print("updateMagnification", self.bounds.size)
+        Swift.print("mediaView.intrinsicContentSize", mediaView.intrinsicContentSize)
         let minMagnification: CGFloat
         let maxMagnification: CGFloat
-        if imageViewSize.height > imageViewSize.width {
-            minMagnification = self.bounds.height / imageViewSize.height
-            maxMagnification = self.bounds.height*3 / imageViewSize.height
+        if mediaViewSize.height > mediaViewSize.width {
+            minMagnification = self.bounds.height / mediaViewSize.height
+            maxMagnification = self.bounds.height*3 / mediaViewSize.height
         } else {
-            minMagnification = self.bounds.width / imageViewSize.width
-            maxMagnification = self.bounds.width*3 / imageViewSize.width
+            minMagnification = self.bounds.width / mediaViewSize.width
+            maxMagnification = self.bounds.width*3 / mediaViewSize.width
         }
+        Swift.print("minMagnification", minMagnification, maxMagnification)
+        
         let magnificationRange = scrollView.maxMagnification - scrollView.minMagnification
         let percentage = (scrollView.magnification - scrollView.minMagnification) / magnificationRange
         scrollView.minMagnification = minMagnification
@@ -310,6 +314,7 @@ open class MagnifyMediaView: NSView {
         mediaView.wantsLayer = true
         mediaView.frame = bounds
         scrollView.frame = bounds
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(scrollView)
 
         scrollView.contentView = CenteredClipView()
