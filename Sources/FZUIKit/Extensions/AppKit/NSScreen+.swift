@@ -107,23 +107,18 @@ public extension NSScreen {
     @discardableResult
     static func disableScreenSleep() -> Bool {
         guard _screenSleepIsDisabled == false else { return true }
-        let reason = "Unknown reason"
-        let noSleepReturn = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep as CFString,
+        _screenSleepIsDisabled = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep as CFString,
                                                 IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                                                reason as CFString,
-                                                &noSleepAssertionID)
-        _screenSleepIsDisabled = (noSleepReturn == kIOReturnSuccess)
-        return noSleepReturn == kIOReturnSuccess
+                                                  "Unknown reason" as CFString,
+                                                &noSleepAssertionID) == kIOReturnSuccess
+        return _screenSleepIsDisabled
     }
 
     /// Enables screen sleep and returns a Boolean value that indicates whether enabling succeeded.
     @discardableResult
     static func enableScreenSleep() -> Bool {
         guard _screenSleepIsDisabled == true else { return true }
-        let success = IOPMAssertionRelease(noSleepAssertionID) == kIOReturnSuccess
-        if success {
-            _screenSleepIsDisabled = false
-        }
+        _screenSleepIsDisabled = !(IOPMAssertionRelease(noSleepAssertionID) == kIOReturnSuccess)
         return _screenSleepIsDisabled == false
     }
     
