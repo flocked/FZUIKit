@@ -320,7 +320,7 @@ open class MagnifyMediaView: NSView {
     
     public var magnification: CGFloat {
         get { _magnification }
-        set { guard newValue != _magnification else { return }
+        set { guard newValue != _magnification, newValue >= minMagnification, newValue <= maxMagnification   else { return }
             _magnification = newValue
             updateMagnification()
         }
