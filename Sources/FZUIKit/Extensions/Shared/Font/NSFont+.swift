@@ -18,6 +18,26 @@ extension NSFont.TextStyle: CaseIterable {
 public extension NSFont {
     /// The height, in points, of text lines.
     var lineHeight: CGFloat {
+        let ctFont = self.cleanedFont as CTFont
+        return CTFontGetAscent(ctFont) + CTFontGetDescent(ctFont) + CTFontGetLeading(ctFont)
+    }
+    
+    internal var descenderReal: CGFloat {
+        let ctFont = self.cleanedFont as CTFont
+        return CTFontGetDescent(ctFont)
+    }
+    
+    internal var ascenderReal: CGFloat {
+        let ctFont = self.cleanedFont as CTFont
+        return CTFontGetAscent(ctFont)
+    }
+    
+    internal var leadingReal: CGFloat {
+        let ctFont = self.cleanedFont as CTFont
+        return CTFontGetLeading(ctFont)
+    }
+    
+    internal var cleanedFont: NSFont {
         var attributes = fontDescriptor.fontAttributes
         var font = self
         if attributes[.sizeCategory] != nil {
@@ -31,9 +51,7 @@ public extension NSFont {
             }
             font = NSFont(descriptor: NSUIFontDescriptor(fontAttributes: attributes), size: pointSize)!
         }
-        let ctFont = font as CTFont
-        return CTFontGetAscent(ctFont) + CTFontGetDescent(ctFont) + CTFontGetLeading(ctFont)
-        // return self.boundingRectForFont.size.height
+        return font
     }
 
     /**
