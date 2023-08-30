@@ -44,16 +44,25 @@ public extension NSTextField {
     /// A Boolean value indicating whether the text field has keyboard focus.
     var hasKeyboardFocus: Bool {
         return currentEditor() == window?.firstResponder
-      }
+    }
 
-    func textRect(forBounds bounds: CGRect, maximumNumberOfLines: Int) -> CGRect {
+    /**
+     Returns the size of the current string value for the specified size and maximum number of lines.
+     - Parameters:
+        - size: The size.
+        - maximumNumberOfLines: The maximum number of lines of `nil` to use the current specified maximum number.
+     
+     - Returns: Returns the size of the current string value.
+     */
+    func textSize(forSize size: CGSize, maximumNumberOfLines: Int? = nil) -> CGSize {
         let _maximumNumberOfLines = self.maximumNumberOfLines
-        self.maximumNumberOfLines = maximumNumberOfLines
+        let bounds = CGRect(origin: .zero, size: size)
+        self.maximumNumberOfLines = maximumNumberOfLines ?? self.maximumNumberOfLines
         if let cell = cell {
             let rect = cell.drawingRect(forBounds: bounds)
             let cellSize = cell.cellSize(forBounds: rect)
             self.maximumNumberOfLines = _maximumNumberOfLines
-            return CGRect(origin: .zero, size: cellSize)
+            return cellSize
         }
         self.maximumNumberOfLines = _maximumNumberOfLines
         return .zero
@@ -61,11 +70,8 @@ public extension NSTextField {
 
     /// A Boolean value indicating whether the text field is truncating the text.
     var isTruncatingText: Bool {
-        var bounds = self.bounds
-        let textSize = textRect(forBounds: bounds, maximumNumberOfLines: maximumNumberOfLines).size
-        bounds.size = CGSize(width: bounds.size.width, height: CGFloat.infinity)
-        let fullSize = textRect(forBounds: bounds, maximumNumberOfLines: 0).size
-        return textSize != fullSize
+        guard let cell = cell else { return false }
+        return cell.expansionFrame(withFrame: self.frame, in: self) != .zero
     }
 
     /// Option how to count the lines of a text field.
@@ -117,7 +123,7 @@ public extension NSTextField {
         stringValue.forEach { char in
             partialString = partialString + String(char)
             self.stringValue = partialString
-            let height = self.textRect(forBounds: CGRect(origin: .zero, size: boundsSize), maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).size.height
+            let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
             if didStart == false {
                 previousHeight = height
                 didStart = true

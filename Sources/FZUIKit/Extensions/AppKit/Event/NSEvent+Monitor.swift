@@ -26,7 +26,7 @@ public extension NSEvent {
      
      - Returns: The event monitor object.
      */
-    static func globalMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent?) -> Void)) -> Monitor {
+    static func globalMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> Monitor {
         return Monitor.global(for: mask, handler: handler)
     }
 
@@ -43,7 +43,7 @@ public extension NSEvent {
      
      - Returns: The event monitor object.
      */
-    static func localMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent?) -> (NSEvent?))) -> Monitor {
+    static func localMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> Monitor {
         return Monitor.local(for: mask, handler: handler)
     }
 }
@@ -66,11 +66,11 @@ public extension NSEvent {
             case local
         }
 
-        internal static func global(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent?) -> Void)) -> NSEvent.Monitor {
+        internal static func global(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> NSEvent.Monitor {
             return NSEvent.Monitor(mask: mask, type: .global, handler: handler)
         }
 
-        internal static func local(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent?) -> (NSEvent?))) -> NSEvent.Monitor {
+        internal static func local(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> NSEvent.Monitor {
             return NSEvent.Monitor(mask: mask, type: .local, handler: handler)
         }
 
