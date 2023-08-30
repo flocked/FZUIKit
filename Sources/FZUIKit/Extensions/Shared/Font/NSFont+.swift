@@ -38,7 +38,7 @@ public extension NSFont {
         return CTFontGetLeading(ctFont)
     }
     
-    internal var spc: CGFloat? {
+    var spc: CGFloat? {
         if let spc: CGFloat = getAssociatedValue(key: "spc", object: self) {
             return spc
         }
