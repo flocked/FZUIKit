@@ -120,30 +120,26 @@ public class AdvanceWebView: WKWebView {
     /**
      Starts to download the resource at the URL.
 
-     - Parameters request: An object that encapsulates a URL and other parameters that you need to download a resource from a webpage.
+     - Parameters url: The URL to download a resource from a webpage.
      */
-    public func startDownload(_ url: String) {
-        guard let url = URL(string: url) else { return }
-        self.startDownload(URLRequest(url: url))
+    public func startDownload(_ url: URL, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String)->(URL), completionHandler: @escaping (WKDownload) -> Void) {
+        self.startDownload(URLRequest(url: url), fileURLHandler: fileURLHandler, completionHandler: completionHandler)
     }
-    
-    /**
-     Starts to download the resource at the URL.
-
-     - Parameters request: An object that encapsulates a URL and other parameters that you need to download a resource from a webpage.
-     */
-    public func startDownload(_ url: URL) {
-        self.startDownload(URLRequest(url: url))
-    }
-    
+        
     /**
      Starts to download the resource at the URL in the request.
 
      - Parameters request: An object that encapsulates a URL and other parameters that you need to download a resource from a webpage.
      */
-    public func startDownload(_ request: URLRequest) {
-        self.startDownload(using: request, completionHandler: { _ in  })
+    public func startDownload(_ request: URLRequest, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String)->(URL), completionHandler: @escaping (WKDownload) -> Void) {
+        downloadFileURLHandlers[request] = fileURLHandler
+        self.startDownload(using: request, completionHandler: { download in
+            self.downloadFileURLHandlers[request] = nil
+            completionHandler(download)
+        })
     }
+        
+    internal let downloadFileURLHandlers = SynchronizedDictionary<URLRequest, (URLResponse, String)->(URL)>()
     
     public override func startDownload(using request: URLRequest, completionHandler: @escaping (WKDownload) -> Void) {
         if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
@@ -270,7 +266,12 @@ extension AdvanceWebView.Delegate: WKNavigationDelegate {
 extension AdvanceWebView.Delegate: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
         Swift.debugPrint("[AdvanceWebView] download suggestedFilename", suggestedFilename, response.expectedContentLength)
-        let downloadLocation = webview.downloadHandlers.downloadLocation?(response, suggestedFilename)
+        var downloadLocation: URL? = nil
+        if let request = download.originalRequest, let handler = webview.downloadFileURLHandlers[request] {
+            downloadLocation = handler(response, suggestedFilename)
+        } else {
+            downloadLocation = webview.downloadHandlers.downloadLocation?(response, suggestedFilename)
+        }
         if let downloadLocation = downloadLocation, FileManager.default.fileExists(at: downloadLocation) {
             switch webview.downloadStrategy {
             case .delete:
@@ -302,7 +303,7 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
                         Swift.debugPrint("[AdvanceWebView] download resume", suggestedFilename, response.expectedContentLength)
                         completionHandler(nil)
                         request.addRangeHeader(for: downloadLocation)
-                        self.webview.startDownload(request)
+                        self.webview.startDownload(using: request, completionHandler: { _ in  })
                     } else {
                         completionHandler(nil)
                     }
@@ -333,6 +334,14 @@ extension AdvanceWebView.Delegate: WKDownloadDelegate {
     
     public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
         Swift.debugPrint("[AdvanceWebView] download failed", error, download.originalRequest?.url ?? "")
+        if let resumeData = resumeData, download.retryAmount > 0, let request = download.originalRequest, let fileDestinationURL = download.fileDestinationURL {
+            self.webview.downloadFileURLHandlers[request] = {_, _ in return fileDestinationURL }
+            self.webview.resumeDownload(fromResumeData: resumeData, completionHandler: {
+                newDownload in
+                newDownload.retryAmount = download.retryAmount - 1
+                self.webview.downloadFileURLHandlers[request] = nil
+            })
+        }
         if let index = webview.downloads.firstIndex(of: download) {
             webview.downloadProgress.removeChild(download.progress)
             webview.downloads.remove(at: index)
@@ -377,6 +386,11 @@ extension WKDownload {
     internal var downloadObservation: NSKeyValueObservation? {
         get { getAssociatedValue(key: "downloadObservation", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "downloadObservation", object: self) }
+    }
+    
+    public var retryAmount: Int {
+        get { getAssociatedValue(key: "retryAmount", object: self, initialValue: 0) }
+        set { set(associatedValue: newValue, key: "retryAmount", object: self) }
     }
     
     internal var fileDestinationURL: URL? {

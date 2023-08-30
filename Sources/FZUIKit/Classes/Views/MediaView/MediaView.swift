@@ -53,6 +53,16 @@ public class MediaView: NSView {
             videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: contentScaling) ?? .resizeAspectFill
         }
     }
+    
+    public override var intrinsicContentSize: NSSize {
+        if let imageSize = imageView.displayingImage?.alignmentRect.size {
+            return imageSize
+        }
+        if mediaType == .video, let videoSize = asset?.videoNaturalSize {
+            return videoSize
+        }
+        return .zero
+    }
 
     public private(set) var mediaType: URL.FileType? = nil
 

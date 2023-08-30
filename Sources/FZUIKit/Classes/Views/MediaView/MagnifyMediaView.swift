@@ -114,8 +114,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.mediaURL }
         set {
             mediaView.mediaURL = newValue
-            scrollView.contentView.frame.size = bounds.size
-            setMagnification(1.0)
+            mediaView.frame.size = mediaView.intrinsicContentSize
+            updateMagnification(reset: true)
         }
     }
 
@@ -123,8 +123,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.image }
         set {
             mediaView.image = newValue
-            scrollView.contentView.frame.size = bounds.size
-            setMagnification(1.0)
+            mediaView.frame.size = mediaView.intrinsicContentSize
+            updateMagnification(reset: true)
         }
     }
 
@@ -132,8 +132,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.images }
         set {
             mediaView.images = newValue
-            scrollView.contentView.frame.size = bounds.size
-            setMagnification(1.0)
+            mediaView.frame.size = mediaView.intrinsicContentSize
+            updateMagnification(reset: true)
         }
     }
 
@@ -147,8 +147,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.asset }
         set {
             mediaView.asset = newValue
-            scrollView.contentView.frame.size = bounds.size
-            setMagnification(1.0)
+            mediaView.frame.size = mediaView.intrinsicContentSize
+            updateMagnification(reset: true)
         }
     }
 
@@ -257,6 +257,33 @@ open class MagnifyMediaView: NSView {
         return scrollView
     }
     
+    private var boundsSize = CGSize(-1, -1)
+    open override func layout() {
+        super.layout()
+        guard self.bounds.size != boundsSize else { return }
+        self.boundsSize = self.bounds.size
+        scrollView.frame.size = self.bounds.size
+        updateMagnification()
+    }
+    
+    private func updateMagnification(reset: Bool = false) {
+        let imageViewSize =  mediaView.intrinsicContentSize
+        let minMagnification: CGFloat
+        let maxMagnification: CGFloat
+        if imageViewSize.height > imageViewSize.width {
+            minMagnification = self.bounds.height / imageViewSize.height
+            maxMagnification = self.bounds.height*3 / imageViewSize.height
+        } else {
+            minMagnification = self.bounds.width / imageViewSize.width
+            maxMagnification = self.bounds.width*3 / imageViewSize.width
+        }
+        let magnificationRange = scrollView.maxMagnification - scrollView.minMagnification
+        let percentage = (scrollView.magnification - scrollView.minMagnification) / magnificationRange
+        scrollView.minMagnification = minMagnification
+        scrollView.maxMagnification = maxMagnification
+        let newMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
+        scrollView.magnification = reset ? scrollView.minMagnification : (scrollView.minMagnification + (newMagnificationRange * percentage))
+    }
 
     public init(mediaURL: URL) {
         super.init(frame: .zero)
@@ -282,25 +309,16 @@ open class MagnifyMediaView: NSView {
         wantsLayer = true
         mediaView.wantsLayer = true
         mediaView.frame = bounds
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.frame = bounds
         addSubview(scrollView)
-
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
-        scrollView.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
 
         scrollView.contentView = CenteredClipView()
 
         scrollView.contentView.frame.size = CGSize(width: 50, height: 50)
         scrollView.drawsBackground = false
 
-        mediaView.frame = scrollView.contentView.bounds
-        mediaView.autoresizingMask = .all
-
         scrollView.documentView = mediaView
+        mediaView.constraint(to: scrollView.contentView)
 
         allowsMagnification = true
         contentScaling = .resizeAspect
@@ -308,6 +326,12 @@ open class MagnifyMediaView: NSView {
         maxMagnification = 3.0
         backgroundColor = .black
         enclosingScrollView?.backgroundColor = .black
+    }
+}
+
+fileprivate class CenteredScrollView: NSScrollView {
+    override func smartMagnify(with event: NSEvent) {
+        super.smartMagnify(with: event)
     }
 }
 
