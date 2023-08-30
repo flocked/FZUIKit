@@ -120,7 +120,7 @@ public extension NSUIView {
                 .init(item: self, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: multipliers[0], constant: constants[0]),
                 .init(item: self, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: multipliers[1], constant: constants[1]),
                 .init(item: self, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: multipliers[2], constant: constants[2]),
-                .init(item: self, attribute: .height, relatedBy: .equal, toItem: view, attribute: .height, multiplier: multipliers[3], constant: constants[3])
+                .init(item: self, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: multipliers[3], constant: constants[3])
             ])
         }
         
