@@ -369,6 +369,7 @@ open class MagnifyMediaView: NSView {
         }
     }
 
+    private var magnificationObserver: NSKeyValueObservation? = nil
     private func sharedInit() {
         wantsLayer = true
         mediaView.wantsLayer = true
@@ -376,6 +377,14 @@ open class MagnifyMediaView: NSView {
         scrollView.frame = bounds
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(scrollView)
+        
+        magnificationObserver = scrollView.observeChanges(for: \.magnification, handler: { oldValue,newValue in
+            guard oldValue != newValue else { return }
+            let magnificationRange = self.scrollView.maxMagnification - self.scrollView.minMagnification
+            let percentage = (self.scrollView.magnification - self.scrollView.minMagnification) / magnificationRange
+            let range = self._maxMagnification - self._minMagnification
+            self._magnification = self._minMagnification + (percentage * range)
+        })
 
         scrollView.contentView = CenteredClipView()
 
