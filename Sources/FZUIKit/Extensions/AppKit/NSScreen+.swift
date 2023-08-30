@@ -8,6 +8,8 @@
 #if os(macOS)
 import AppKit
 import CoreGraphics
+import IOKit.pwr_mgt
+import FZSwiftUtils
 
 public extension NSScreen {
     /**
@@ -99,6 +101,40 @@ public extension NSScreen {
             }
         }
         return returnScreen
+    }
+
+    /// Disables screen sleep and returns a Boolean value that indicates whether disabling succeeded.
+    @discardableResult
+    static func disableScreenSleep() -> Bool {
+        guard _screenSleepIsDisabled == false else { return true }
+        let reason = "Unknown reason"
+        let noSleepReturn = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep as CFString,
+                                                IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                                                reason as CFString,
+                                                &noSleepAssertionID)
+        _screenSleepIsDisabled = (noSleepReturn == kIOReturnSuccess)
+        return noSleepReturn == kIOReturnSuccess
+    }
+
+    /// Enables screen sleep and returns a Boolean value that indicates whether enabling succeeded.
+    @discardableResult
+    static func enableScreenSleep() -> Bool {
+        guard _screenSleepIsDisabled == true else { return true }
+        let success = IOPMAssertionRelease(noSleepAssertionID) == kIOReturnSuccess
+        if success {
+            _screenSleepIsDisabled = false
+        }
+        return _screenSleepIsDisabled == false
+    }
+    
+    private static var _screenSleepIsDisabled: Bool {
+        get { getAssociatedValue(key: "screenSleepIsDisabled", object: self, initialValue: false) }
+        set { set(associatedValue: newValue, key: "screenSleepIsDisabled", object: self) }
+    }
+    
+    private static var noSleepAssertionID: IOPMAssertionID {
+        get { getAssociatedValue(key: "noSleepAssertionID", object: self, initialValue: 0) }
+        set { set(associatedValue: newValue, key: "noSleepAssertionID", object: self) }
     }
 }
 #endif
