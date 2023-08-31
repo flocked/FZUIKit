@@ -332,7 +332,9 @@ open class MagnifyMediaView: NSView {
         let magnificationRange = _maxMagnification - _minMagnification
         let scrollViewMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
         let percentage = (_magnification - _minMagnification) / magnificationRange
-        scrollView.magnification = (scrollView.minMagnification + (scrollViewMagnificationRange * percentage))
+       let value = (scrollView.minMagnification + (scrollViewMagnificationRange * percentage))
+       guard value >= scrollView.minMagnification, value <= scrollView.maxMagnification else { return }
+        scrollView.magnification = value
     }
 
     public init(mediaURL: URL) {
@@ -390,8 +392,8 @@ open class MagnifyMediaView: NSView {
 
         allowsMagnification = true
         contentScaling = .resizeAspect
-        minMagnification = 1.0
-        maxMagnification = 3.0
+        scrollView.minMagnification = 1.0
+        scrollView.maxMagnification = 3.0
         backgroundColor = .black
         enclosingScrollView?.backgroundColor = .black
     }
