@@ -61,6 +61,11 @@ public extension ToolbarItem {
         
         public init(_ identifier: NSToolbarItem.Identifier, maxWidth: CGFloat) {
             super.init(identifier)
+            self.searchField.actionBlock = { [weak self] _ in
+                guard let self = self else { return }
+                self.item.actionBlock?(self.item)
+            }
+            self.searchField.delegate = self
             self.searchField.translatesAutoresizingMaskIntoConstraints = false
             self.searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
         }
