@@ -260,8 +260,9 @@ open class MagnifyMediaView: NSView {
         updateMagnification()
     }
     
-    /*
+    
     private func updateMagnification(reset: Bool = false) {
+        guard self.bounds.size != .zero else { return }
         let mediaViewSize =  mediaView.intrinsicContentSize
         Swift.print("updateMagnification", self.bounds.size)
         Swift.print("mediaView.intrinsicContentSize", mediaView.intrinsicContentSize)
@@ -283,7 +284,6 @@ open class MagnifyMediaView: NSView {
         let newMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
         scrollView.magnification = reset ? scrollView.minMagnification : (scrollView.minMagnification + (newMagnificationRange * percentage))
     }
-     */
     
     private var _magnification: CGFloat = 1.0
     private var _minMagnification: CGFloat = 1.0
