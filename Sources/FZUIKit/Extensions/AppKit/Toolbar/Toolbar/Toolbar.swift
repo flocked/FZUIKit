@@ -210,7 +210,7 @@ public class Toolbar: NSObject {
 
 extension Toolbar: NSToolbarDelegate {
     public func toolbarDefaultItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-        return items.filter { $0.isDefault }
+        return _items.filter { $0.isDefault }
             .map { $0.identifier }
     }
 

@@ -56,16 +56,22 @@ public extension NSCollectionView {
         enclosingScrollView?.scrollToEndOfDocument(nil)
     }
 
-    func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animated: Bool, completion: ((Bool) -> Void)? = nil) {
-        if animated == true {
-            performBatchUpdates({
+    /**
+     Changes the collection view layout animated.
+     - Parameters:
+        - layout: The new collection view layout.
+        - animationDuration: The animation duration.
+        - completion: The completion handler that gets called when the animation is completed.
+     */
+    func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animationDuration: CGFloat, completion: (() -> ())? = nil) {
+        if animationDuration > 0.0 {
+            NSAnimationContext.runAnimationGroup({ context in
+                context.duration = animationDuration
                 self.animator().collectionViewLayout = layout
-            }, completionHandler: { completed in
-                completion?(completed)
-            })
+            }, completionHandler: { completion?() })
         } else {
             collectionViewLayout = layout
-            completion?(true)
+            completion?()
         }
     }
 
