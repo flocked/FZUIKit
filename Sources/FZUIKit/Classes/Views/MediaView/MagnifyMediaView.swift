@@ -260,7 +260,7 @@ open class MagnifyMediaView: NSView {
         updateMagnification()
     }
     
-    
+    /*
     private func updateMagnification(reset: Bool = false) {
         guard self.bounds.size != .zero else { return }
         let mediaViewSize =  mediaView.intrinsicContentSize
@@ -284,6 +284,7 @@ open class MagnifyMediaView: NSView {
         let newMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
         scrollView.magnification = reset ? scrollView.minMagnification : (scrollView.minMagnification + (newMagnificationRange * percentage))
     }
+    */
     
     private var _magnification: CGFloat = 1.0
     private var _minMagnification: CGFloat = 1.0
@@ -321,8 +322,11 @@ open class MagnifyMediaView: NSView {
     }
     
    private func updateMagnification() {
-       /*
+       guard self.bounds.size != .zero else { return }
+       Swift.print("updateMagnification")
         let mediaViewSize =  mediaView.intrinsicContentSize
+       Swift.print("mediaViewSize", mediaViewSize)
+       guard mediaViewSize != .zero else { return }
         if mediaViewSize.height > mediaViewSize.width {
             scrollView.minMagnification = (self.bounds.height*_minMagnification) / mediaViewSize.height
             scrollView.maxMagnification = (self.bounds.height*_maxMagnification) / mediaViewSize.height
@@ -330,13 +334,18 @@ open class MagnifyMediaView: NSView {
             scrollView.minMagnification = (self.bounds.height*_minMagnification) / mediaViewSize.width
             scrollView.maxMagnification = (self.bounds.height*_maxMagnification) / mediaViewSize.width
         }
+       Swift.print("sss 1", mediaViewSize)
         let magnificationRange = _maxMagnification - _minMagnification
+       Swift.print("sss 2", mediaViewSize)
         let scrollViewMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
+       Swift.print("sss 3", mediaViewSize)
         let percentage = (_magnification - _minMagnification) / magnificationRange
+       Swift.print("sss 4", mediaViewSize)
        let value = (scrollView.minMagnification + (scrollViewMagnificationRange * percentage))
+       Swift.print("sss 5", mediaViewSize)
        guard value >= scrollView.minMagnification, value <= scrollView.maxMagnification else { return }
         scrollView.magnification = value
-        */
+        
     }
 
     public init(mediaURL: URL) {
