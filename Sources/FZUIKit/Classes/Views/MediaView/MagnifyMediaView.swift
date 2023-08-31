@@ -321,6 +321,7 @@ open class MagnifyMediaView: NSView {
     }
     
    private func updateMagnification() {
+       /*
         let mediaViewSize =  mediaView.intrinsicContentSize
         if mediaViewSize.height > mediaViewSize.width {
             scrollView.minMagnification = (self.bounds.height*_minMagnification) / mediaViewSize.height
@@ -335,6 +336,7 @@ open class MagnifyMediaView: NSView {
        let value = (scrollView.minMagnification + (scrollViewMagnificationRange * percentage))
        guard value >= scrollView.minMagnification, value <= scrollView.maxMagnification else { return }
         scrollView.magnification = value
+        */
     }
 
     public init(mediaURL: URL) {
