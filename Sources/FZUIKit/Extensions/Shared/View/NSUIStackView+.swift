@@ -22,4 +22,19 @@ public extension NSUIStackView {
             addArrangedSubview(arrangedView)
         }
     }
+    
+    /// Removes all arranged subviews.
+    func removeAllArrangedSubviews() {
+        arrangedSubviews.forEach({ self.removeArrangedSubview($0) })
+    }
+    
+    /// The array of views arranged by the stack view.
+    var arrangedViews: [NSView] {
+        get { self.arrangedSubviews }
+        set {
+            guard arrangedSubviews != newValue else { return }
+            self.removeAllArrangedSubviews()
+            newValue.forEach({ self.addArrangedSubview($0) })
+        }
+    }
 }
