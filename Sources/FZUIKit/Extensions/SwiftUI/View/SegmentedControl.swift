@@ -24,7 +24,7 @@ public struct SegmentedControl: NSViewRepresentable {
 
     public typealias NSViewType = NSSegmentedControl
 
-    public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegmentedControl.Segment]) -> Self {
+    public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
         self.segments = segments()
         return self
     }
@@ -39,7 +39,7 @@ public struct SegmentedControl: NSViewRepresentable {
         return self
     }
 
-    @State public private(set) var segments: [NSSegmentedControl.Segment] = []
+    @State public private(set) var segments: [NSSegment] = []
     @State public private(set) var trackingMode: NSSegmentedControl.SwitchTracking = .selectOne
     @State public private(set) var indexOfSelectedSegment: Int = 0
     @State public private(set) var style: NSSegmentedControl.Style = .automatic
@@ -76,10 +76,10 @@ struct SegmentedControl_Preview: PreviewProvider {
             .trackingMode(.selectOne)
             .style(.texturedRounded)
             .segments() {
-                NSSegmentedControl.Segment("Segment 1")
+                NSSegment("Segment 1")
                     .isSelected(true)
-                NSSegmentedControl.Segment("Segment 2")
-                NSSegmentedControl.Segment("Segment 3")
+                NSSegment("Segment 2")
+                NSSegment("Segment 3")
             }
             .previewLayout(PreviewLayout.sizeThatFits)
             .padding()

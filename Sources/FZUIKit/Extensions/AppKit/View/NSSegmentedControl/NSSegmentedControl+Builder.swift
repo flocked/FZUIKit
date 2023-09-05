@@ -10,59 +10,59 @@ import AppKit
 public extension NSSegmentedControl {
     @resultBuilder
     enum Builder {
-        public static func buildBlock(_ block: [Segment]...) -> [Segment] {
+        public static func buildBlock(_ block: [NSSegment]...) -> [NSSegment] {
             block.flatMap { $0 }
         }
         
-        public static func buildOptional(_ item: Segment?) -> [Segment] {
+        public static func buildOptional(_ item: NSSegment?) -> [NSSegment] {
             if let item = item {
                 return [item]
             }
            return []
         }
 
-        public static func buildOptional(_ item: [Segment]?) -> [Segment] {
+        public static func buildOptional(_ item: [NSSegment]?) -> [NSSegment] {
             item ?? []
         }
 
-        public static func buildEither(first: [Segment]?) -> [Segment] {
+        public static func buildEither(first: [NSSegment]?) -> [NSSegment] {
             first ?? []
         }
 
-        public static func buildEither(second: [Segment]?) -> [Segment] {
+        public static func buildEither(second: [NSSegment]?) -> [NSSegment] {
             second ?? []
         }
 
-        public static func buildArray(_ components: [[Segment]]) -> [Segment] {
+        public static func buildArray(_ components: [[NSSegment]]) -> [NSSegment] {
             components.flatMap { $0 }
         }
 
-        public static func buildExpression(_ expr: [Segment]?) -> [Segment] {
+        public static func buildExpression(_ expr: [NSSegment]?) -> [NSSegment] {
             expr ?? []
         }
 
-        public static func buildExpression(_ expr: Segment?) -> [Segment] {
+        public static func buildExpression(_ expr: NSSegment?) -> [NSSegment] {
             expr.map { [$0] } ?? []
         }
 
-        public static func buildExpression(_ expr: [NSImage]?) -> [Segment] {
-            return expr?.map { Segment($0) } ?? []
+        public static func buildExpression(_ expr: [NSImage]?) -> [NSSegment] {
+            return expr?.map { NSSegment($0) } ?? []
         }
 
-        public static func buildExpression(_ expr: NSImage?) -> [Segment] {
+        public static func buildExpression(_ expr: NSImage?) -> [NSSegment] {
             if let image = expr {
-                return [Segment(image)]
+                return [NSSegment(image)]
             }
             return []
         }
 
-        public static func buildExpression(_ expr: [String]?) -> [Segment] {
-            return expr?.map { Segment($0) } ?? []
+        public static func buildExpression(_ expr: [String]?) -> [NSSegment] {
+            return expr?.map { NSSegment($0) } ?? []
         }
 
-        public static func buildExpression(_ expr: String?) -> [Segment] {
+        public static func buildExpression(_ expr: String?) -> [NSSegment] {
             if let string = expr {
-                return [Segment(string)]
+                return [NSSegment(string)]
             }
             return []
         }

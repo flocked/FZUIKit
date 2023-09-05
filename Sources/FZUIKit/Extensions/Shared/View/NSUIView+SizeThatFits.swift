@@ -87,10 +87,9 @@ public extension Sizable where Self: NSTextField {
 public extension Sizable where Self: NSButton {
     func sizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = self.fittingSize
-        var styles: [NSButton.BezelStyle] = [.inline, .recessed, .regularSquare, .roundRect, .rounded, .shadowlessSquare]
-        self.setButtonType(<#T##type: NSButton.ButtonType##NSButton.ButtonType#>)
-        styles = [.helpButton, .disclosure, .roundedDisclosure, .circular]
-        if size.width > fittingSize.width {
+        let styles: [NSButton.BezelStyle] = [.helpButton, .disclosure, .roundedDisclosure, .circular, .smallSquare]
+        let buttonType = self.buttonType.rawValue
+        if size.width > fittingSize.width, styles.contains(where: {$0.rawValue == buttonType}) == false {
             fittingSize.width = size.width
         }
         return fittingSize

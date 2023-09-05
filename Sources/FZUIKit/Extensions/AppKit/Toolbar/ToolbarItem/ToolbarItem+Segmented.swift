@@ -12,12 +12,11 @@ import FZSwiftUtils
 public extension ToolbarItem {
     class Segmented: ToolbarItem {
         public typealias SwitchingMode = NSSegmentedControl.SwitchTracking
-        public typealias Segment = NSSegmentedControl.Segment
         public typealias Style = NSSegmentedControl.Style
 
         public let segmentedControl: NSSegmentedControl
 
-        public var segments: [Segment] {
+        public var segments: [NSSegment] {
             get { segmentedControl.segments }
             set { segmentedControl.segments = newValue }
         }
@@ -41,13 +40,13 @@ public extension ToolbarItem {
         }
 
         @discardableResult
-        public func segments(_ segments: [Segment]) -> Self {
+        public func segments(_ segments: [NSSegment]) -> Self {
             segmentedControl.segments = segments
             return self
         }
 
         @discardableResult
-        public func onSelection(_ handler: @escaping ([Segment]) -> Void) -> Self {
+        public func onSelection(_ handler: @escaping ([NSSegment]) -> Void) -> Self {
             self.segmentedControl.actionBlock = { [weak self] segment in
                 guard let self = self else { return }
                 var selected = self.segments.filter { $0.isSelected }
@@ -72,7 +71,7 @@ public extension ToolbarItem {
             return self
         }
 
-        internal static func segmentedControl(switching: SwitchingMode, type: Style, @NSSegmentedControl.Builder segments: () -> [Segment]) -> NSSegmentedControl {
+        internal static func segmentedControl(switching: SwitchingMode, type: Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
             let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
             segmentedControl.segmentDistribution = .fit
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
@@ -85,7 +84,7 @@ public extension ToolbarItem {
             type: Style = .automatic,
             switching: SwitchingMode = .selectOne,
             segmentWidths: CGFloat? = nil,
-            @NSSegmentedControl.Builder segments: () -> [Segment]
+            @NSSegmentedControl.Builder segments: () -> [NSSegment]
         ) {
             let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
             self.init(identifier, segmentedControl: segmentedControl)
