@@ -77,15 +77,108 @@ extension NSUIHostingController: Sizable {
 #if os(macOS)
 public extension Sizable where Self: NSTextField {
     func sizeThatFits(_ size: CGSize) -> CGSize {
-        if size.width != NSView.noIntrinsicMetric, size.width > 0, let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: 100000)) {
+        if size.width != NSView.noIntrinsicMetric, size.width > 0, let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: CGFloat.greatestFiniteMagnitude)) {
             return CGSize(size.width, cellSize.height)
         }
         return self.fittingSize
     }
 }
 
+public extension Sizable where Self: NSButton {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return self.fittingSize
+    }
+}
+
+public extension Sizable where Self: NSSegmentedControl {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return self.fittingSize
+    }
+}
+
+public extension Sizable where Self: NSSwitch {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return self.fittingSize
+    }
+}
+
+public extension Sizable where Self: NSProgressIndicator {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        var fittingSize = self.fittingSize
+        if self.style == .spinning {
+            return fittingSize
+        }
+        if size.width > 0, size.width.isFinite{
+            fittingSize.width = size.width
+        }
+        return fittingSize
+    }
+}
+
+public extension Sizable where Self: NSLevelIndicator {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        var fittingSize = self.fittingSize
+        if size.width > 0, size.width.isFinite{
+            fittingSize.width = size.width
+        }
+        return fittingSize
+    }
+}
+
+public extension Sizable where Self: NSSlider {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        var fittingSize = self.fittingSize
+        if self.isVertical == false, size.width > 0, size.width.isFinite{
+            fittingSize.width = size.width
+        } else if self.isVertical, size.height > 0, size.height.isFinite{
+            fittingSize.height = size.height
+        }
+        return fittingSize
+    }
+}
+
+public extension Sizable where Self: NSStepper {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return self.fittingSize
+    }
+}
+
+public extension Sizable where Self: NSComboBox {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return self.fittingSize
+    }
+}
+
+/*
+public extension Sizable where Self: NSStackView {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        if constraints.isEmpty, translatesAutoresizingMaskIntoConstraints == false {
+            if self.orientation == .vertical {
+                if size.width != NSView.noIntrinsicMetric, size.width > 0 {
+                    let width = self.widthAnchor.constraint(equalToConstant: size.width).activate()
+                    let fittingSize = self.fittingSize
+                    width.activate(false)
+                    return fittingSize
+                }
+            } else {
+                if size.height != NSView.noIntrinsicMetric, size.height > 0 {
+                    let height = self.heightAnchor.constraint(equalToConstant: size.height).activate()
+                    let fittingSize = self.fittingSize
+                    height.activate(false)
+                    return fittingSize
+                }
+            }
+        }
+        return self.fittingSize
+    }
+}
+ */
+
 public extension Sizable where Self: ResizingTextField {
     func sizeThatFits(_ size: CGSize) -> CGSize {
+        if size.width != NSView.noIntrinsicMetric, size.width > 0, let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: CGFloat.greatestFiniteMagnitude)) {
+            return CGSize(size.width, cellSize.height)
+        }
         return self.intrinsicContentSize
     }
 }
