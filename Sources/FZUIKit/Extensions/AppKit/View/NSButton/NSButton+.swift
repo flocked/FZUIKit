@@ -11,6 +11,17 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSButton {
+    /// The button type which affects its user interface and behavior when clicked.
+    var buttonType: ButtonType {
+        get {
+            if let rawValue: UInt = self.cell?.value(forKey: "_buttonType") as? UInt, let buttonType = NSButton.ButtonType(rawValue: rawValue) {
+                return buttonType
+            }
+            return .momentaryPushIn
+        }
+        set { setButtonType(newValue) }
+    }
+    
     /**
      Sets the content tint color to use for the specified state.
      

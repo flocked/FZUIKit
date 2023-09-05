@@ -86,13 +86,24 @@ public extension Sizable where Self: NSTextField {
 
 public extension Sizable where Self: NSButton {
     func sizeThatFits(_ size: CGSize) -> CGSize {
-        return self.fittingSize
+        var fittingSize = self.fittingSize
+        var styles: [NSButton.BezelStyle] = [.inline, .recessed, .regularSquare, .roundRect, .rounded, .shadowlessSquare]
+        self.setButtonType(<#T##type: NSButton.ButtonType##NSButton.ButtonType#>)
+        styles = [.helpButton, .disclosure, .roundedDisclosure, .circular]
+        if size.width > fittingSize.width {
+            fittingSize.width = size.width
+        }
+        return fittingSize
     }
 }
 
 public extension Sizable where Self: NSSegmentedControl {
     func sizeThatFits(_ size: CGSize) -> CGSize {
-        return self.fittingSize
+        var fittingSize = self.fittingSize
+        if size.width > fittingSize.width {
+            fittingSize.width = size.width
+        }
+        return fittingSize
     }
 }
 
@@ -108,7 +119,7 @@ public extension Sizable where Self: NSProgressIndicator {
         if self.style == .spinning {
             return fittingSize
         }
-        if size.width > 0, size.width.isFinite{
+        if size.width > fittingSize.width {
             fittingSize.width = size.width
         }
         return fittingSize
@@ -118,7 +129,7 @@ public extension Sizable where Self: NSProgressIndicator {
 public extension Sizable where Self: NSLevelIndicator {
     func sizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = self.fittingSize
-        if size.width > 0, size.width.isFinite{
+        if size.width > fittingSize.width {
             fittingSize.width = size.width
         }
         return fittingSize
@@ -128,9 +139,9 @@ public extension Sizable where Self: NSLevelIndicator {
 public extension Sizable where Self: NSSlider {
     func sizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = self.fittingSize
-        if self.isVertical == false, size.width > 0, size.width.isFinite{
+        if self.isVertical == false, size.width > fittingSize.width {
             fittingSize.width = size.width
-        } else if self.isVertical, size.height > 0, size.height.isFinite{
+        } else if self.isVertical, size.height > fittingSize.height {
             fittingSize.height = size.height
         }
         return fittingSize
@@ -145,7 +156,11 @@ public extension Sizable where Self: NSStepper {
 
 public extension Sizable where Self: NSComboBox {
     func sizeThatFits(_ size: CGSize) -> CGSize {
-        return self.fittingSize
+        var fittingSize = self.fittingSize
+        if size.width > fittingSize.width {
+            fittingSize.width = size.width
+        }
+        return fittingSize
     }
 }
 
