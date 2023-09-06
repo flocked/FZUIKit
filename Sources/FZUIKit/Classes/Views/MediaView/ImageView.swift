@@ -162,8 +162,8 @@ open class ImageView: NSView {
         return frameForAlignmentRect
     }
 
-    override open var intrinsicContentSize: CGSize {
-        return displayingImage?.alignmentRect.size ?? super.intrinsicContentSize
+    open override var intrinsicContentSize: CGSize {
+        return imageLayer.displayingSymbolImage?.size ?? displayingImage?.size ?? .zero
     }
     
     public override func viewDidChangeEffectiveAppearance() {

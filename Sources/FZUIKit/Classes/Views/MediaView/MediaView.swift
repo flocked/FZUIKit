@@ -55,8 +55,8 @@ public class MediaView: NSView {
     }
     
     public override var intrinsicContentSize: NSSize {
-        if let imageSize = imageView.displayingImage?.alignmentRect.size {
-            return imageSize
+        if imageView.displayingImage != nil {
+            return imageView.intrinsicContentSize
         }
         if mediaType == .video, let videoSize = asset?.videoNaturalSize {
             return videoSize
