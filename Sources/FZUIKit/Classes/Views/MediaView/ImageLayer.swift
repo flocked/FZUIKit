@@ -234,10 +234,15 @@ private func setAnimatedImage(_ image: NSImage) {
                     image = image.applyingSymbolConfiguration(configuration) ?? image
                 }
             }
+          //  self.contents = image
+            CATransaction.begin()
             self.contents = image
+            CATransaction.commit()
         } else {
             self.contents = nil
         }
+
+
         /*
          CATransaction.perform(duration: 0.0, animations: {
              self.contents = self.displayingImage
@@ -347,7 +352,6 @@ private func setAnimatedImage(_ image: NSImage) {
             if let transition = self.transition.caTransition, transition.duration != 0.0 {
                 self.add(transition, forKey: "transition")
             }
-            //  updateTransitionAnimation()
         }
     }
 
