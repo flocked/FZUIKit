@@ -166,9 +166,14 @@ open class ImageView: NSView {
         return displayingImage?.alignmentRect.size ?? super.intrinsicContentSize
     }
     
-    override public func viewDidChangeEffectiveAppearance() {
+    public override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         imageLayer.updateDisplayingImage()
+    }
+    
+    public override func viewDidChangeBackingProperties() {
+        guard let window = self.window else { return }
+        imageLayer.contentsScale = window.backingScaleFactor
     }
     
     public init() {

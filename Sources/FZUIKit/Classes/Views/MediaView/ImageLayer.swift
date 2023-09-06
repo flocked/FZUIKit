@@ -241,11 +241,6 @@ private func setAnimatedImage(_ image: NSImage) {
         } else {
             self.contents = nil
         }
-        /*
-         CATransaction.perform(duration: 0.0, animations: {
-             self.contents = self.displayingImage
-         })
-         */
     }
 
     private var displayLink: AnyCancellable? = nil
