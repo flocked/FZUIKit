@@ -214,8 +214,10 @@ private func setAnimatedImage(_ image: NSImage) {
     private var timerPreviousTimestamp: TimeInterval = 0.0
     private var timerCurrentInterval: TimeInterval = 0.0
     
+    internal var displayingSymbolImage: NSImage? = nil
     internal func updateDisplayingImage() {
         if var image = self.displayingImage {
+            displayingSymbolImage = nil
             if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage == true {
                 var configuration: NSImage.SymbolConfiguration? = nil
                 #if os(macOS)
@@ -232,6 +234,7 @@ private func setAnimatedImage(_ image: NSImage) {
                 }
                 if let configuration = configuration {
                     image = image.applyingSymbolConfiguration(configuration) ?? image
+                    displayingSymbolImage = image
                 }
             }
             self.contents = image
@@ -261,6 +264,7 @@ private func setAnimatedImage(_ image: NSImage) {
     }
 
     open var fittingSize: CGSize {
+        self.displayingSymbolImage?.alignmentRect.size ??
         self.displayingImage?.alignmentRect.size ?? .zero
     }
 
@@ -346,49 +350,6 @@ private func setAnimatedImage(_ image: NSImage) {
             self.removeAnimation(forKey: "transition")
             if let transition = self.transition.caTransition, transition.duration != 0.0 {
                 self.add(transition, forKey: nil)
-            }
-        }
-    }
-
-    /*
-     private func updateTransitionAnimation() {
-     if let transition = self.transition.caTransition, transition.duration != 0.0 {
-     self.removeAnimation(forKey: "transition")
-     self.transitionAnimation = transition
-     } else {
-     self.transitionAnimation = nil
-     }
-     }
-     */
-
-    public struct Trans {
-        var type: TransitionType = .fade
-        var duration: CGFloat = 0.1
-        internal var caTransition: CATransition? {
-            guard duration != 0.0 else { return nil }
-            let transition = CATransition()
-            transition.type = type.caTransitionType
-            transition.duration = duration
-            return transition
-        }
-
-        public enum TransitionType {
-            case push
-            case fade
-            case moveIn
-            case reveal
-
-            internal var caTransitionType: CATransitionType {
-                switch self {
-                case .push:
-                    return .push
-                case .fade:
-                    return .fade
-                case .moveIn:
-                    return .moveIn
-                case .reveal:
-                    return .reveal
-                }
             }
         }
     }
