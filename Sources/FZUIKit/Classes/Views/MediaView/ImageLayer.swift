@@ -235,9 +235,9 @@ private func setAnimatedImage(_ image: NSImage) {
                 }
             }
           //  self.contents = image
-            CATransaction.begin()
-            self.contents = image
-            CATransaction.commit()
+            CATransaction.perform(duration: 0.2, animations: {
+                self.contents = image
+            })
         } else {
             self.contents = nil
         }
