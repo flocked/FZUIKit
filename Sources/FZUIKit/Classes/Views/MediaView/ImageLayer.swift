@@ -259,8 +259,8 @@ private func setAnimatedImage(_ image: NSImage) {
     }
 
     open var fittingSize: CGSize {
-        self.displayingSymbolImage?.size ??
-        self.displayingImage?.size ?? .zero
+        self.displayingSymbolImage?.alignmentRect.size ??
+        self.displayingImage?.alignmentRect.size ?? .zero
     }
 
     open func sizeThatFits(_ size: CGSize) -> CGSize {
