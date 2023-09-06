@@ -130,8 +130,8 @@ open class ImageView: NSView {
         return imageLayer
     }
     
-    internal var symbolImageView: NSImageView? = nil
-    internal func updateSymbolImageView() {
+    private var symbolImageView: NSImageView? = nil
+    private func updateSymbolImageView() {
         if symbolImageView == nil {
             symbolImageView = NSImageView(frame: self.frame)
         }
@@ -164,25 +164,16 @@ open class ImageView: NSView {
         super.viewDidChangeEffectiveAppearance()
         imageLayer.updateDisplayingImage()
     }
+    
+    public init() {
+        super.init(frame: .zero)
+        self.sharedInit()
+    }
 
     public init(image: NSImage) {
         super.init(frame: .zero)
+        self.sharedInit()
         self.image = image
-    }
-
-    public init(image: NSImage, frame: CGRect) {
-        super.init(frame: frame)
-        self.image = image
-    }
-
-    public init(images: [NSImage]) {
-        super.init(frame: .zero)
-        self.images = images
-    }
-
-    public init(images: [NSImage], frame: CGRect) {
-        super.init(frame: frame)
-        self.images = images
     }
 
     override public init(frame frameRect: NSRect) {
@@ -200,11 +191,5 @@ open class ImageView: NSView {
         imageScaling = .resizeAspect
         //     self.layerContentsRedrawPolicy = .onSetNeedsDisplay
     }
-
-    /*
-     public override var wantsUpdateLayer: Bool {
-     return true
-     }
-     */
 }
 #endif

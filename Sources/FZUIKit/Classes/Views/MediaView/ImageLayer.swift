@@ -22,8 +22,8 @@ open class ImageLayer: CALayer {
             guard newValue != self.image else { return }
             if let newImage = newValue {
                 #if os(macOS)
-                if newImage.isAnimated, newImage.framesCount > 1 {
-                    self.setGifImage(newImage)
+                if newImage.isAnimated {
+                    self.setAnimatedImage(newImage)
                 } else {
                     images = [newImage]
                 }
@@ -50,11 +50,14 @@ open class ImageLayer: CALayer {
     }
     
     /// The currently displaying image.
-    open fileprivate(set) var displayingImage: NSUIImage? = nil
+    open var displayingImage: NSUIImage? {
+        guard currentImageIndex >= 0, currentImageIndex < images.count else { return nil }
+        return images[currentImageIndex]
+    }
     
 #if os(macOS)
 /// Displays the specified GIF image.
-internal func setGifImage(_ image: NSImage) {
+private func setAnimatedImage(_ image: NSImage) {
     if image.isAnimated, let frames = image.frames {
         Task {
             var duration = 0.0
@@ -117,21 +120,21 @@ internal func setGifImage(_ image: NSImage) {
             switch option {
             case .index(let index):
                 if index >= 0, index < images.count {
-                    currentIndex = index
+                    currentImageIndex = index
                 }
             case .first:
-                currentIndex = 0
+                currentImageIndex = 0
             case .last:
-                currentIndex = images.count - 1
+                currentImageIndex = images.count - 1
             case .random:
-                currentIndex = Int.random(in: 0 ... images.count - 1)
+                currentImageIndex = Int.random(in: 0 ... images.count - 1)
             case .next:
-                currentIndex = currentIndex.nextLooped(in: 0 ... images.count - 1)
+                currentImageIndex = currentImageIndex.nextLooped(in: 0 ... images.count - 1)
             case .previous:
-                currentIndex = currentIndex.previousLooped(in: 0 ... images.count - 1)
+                currentImageIndex = currentImageIndex.previousLooped(in: 0 ... images.count - 1)
             }
         } else {
-            currentIndex = -1
+            currentImageIndex = -1
         }
     }
 
@@ -198,66 +201,48 @@ internal func setGifImage(_ image: NSImage) {
         }
     }
 
-    private var currentIndex = 0 {
+    private var currentImageIndex = 0 {
         didSet {
             updateDisplayingImage()
         }
     }
     
-    internal var needsSymbolConfiguration: Bool {
-        if #available(macOS 12.0, iOS 15.0, *) {
-           return self.tintColor != nil || self.symbolConfiguration != nil
-        } else {
-            return false
-        }
-    }
-    
     internal var maskLayer: CALayer? = nil
 
-    @available(macOS 12.0, iOS 15.0, *)
-    internal func applyingSymbolConfiguration(to image: NSUIImage) -> NSUIImage? {
-        var configuration: NSUIImage.SymbolConfiguration? = nil
-        #if os(macOS)
-        if let tintColor = tintColor?.resolvedColor() {
-            configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
-        }
-        #else
-        if let tintColor = tintColor {
-            configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
-        }
-        #endif
-
-        if let symbolConfiguration = symbolConfiguration {
-            configuration = configuration?.applying(symbolConfiguration) ?? symbolConfiguration
-        }
-
-        if let configuration = configuration {
-            return image.applyingSymbolConfiguration(configuration)
-        }
-        return nil
-    }
-
-    internal var _symbolConfiguration: Any? = nil
+    private var _symbolConfiguration: Any? = nil
 
     private var timerPreviousTimestamp: TimeInterval = 0.0
     private var timerCurrentInterval: TimeInterval = 0.0
-
+    
     internal func updateDisplayingImage() {
-        if currentIndex > -1 && currentIndex < images.count {
-            let displayingImage = images[currentIndex]
-            if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *) {
-                if displayingImage.isSymbolImage, needsSymbolConfiguration {
-                    self.displayingImage = applyingSymbolConfiguration(to: displayingImage) ?? displayingImage
+        if var image = self.displayingImage {
+            if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage == true {
+                var configuration: NSImage.SymbolConfiguration? = nil
+                #if os(macOS)
+                if let tintColor = tintColor?.resolvedColor() {
+                    configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
+                }
+                #else
+                if let tintColor = tintColor {
+                    configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
+                }
+                #endif
+                if let symbolConfiguration = self.symbolConfiguration {
+                    configuration = configuration?.applying(symbolConfiguration) ?? symbolConfiguration
+                }
+                if let configuration = configuration {
+                    image = image.applyingSymbolConfiguration(configuration) ?? image
                 }
             }
-            self.displayingImage = displayingImage
+            self.contents = image
         } else {
-            self.displayingImage = nil
+            self.contents = nil
         }
-        
-        CATransaction.perform(duration: 0.0, animations: {
-            self.contents = self.displayingImage
-        })
+        /*
+         CATransaction.perform(duration: 0.0, animations: {
+             self.contents = self.displayingImage
+         })
+         */
     }
 
     private var displayLink: AnyCancellable? = nil
