@@ -111,6 +111,12 @@ open class ImageView: NSView {
             imageLayer.autoAnimates = newValue
         }
     }
+    
+    /// The transition animation when changing images.
+    open var transition: ImageLayer.Transition {
+        get { imageLayer.transition }
+        set { imageLayer.transition = newValue }
+    }
 
     override open var fittingSize: NSSize {
         return imageLayer.fittingSize

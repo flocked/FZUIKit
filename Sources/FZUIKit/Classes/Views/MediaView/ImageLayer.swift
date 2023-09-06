@@ -339,8 +339,14 @@ private func setAnimatedImage(_ image: NSImage) {
         contentsGravity = .resizeAspect
     }
 
+    /// The transition animation when changing images.
     public var transition: Transition = .none {
         didSet {
+            guard oldValue != transition else { return }
+            self.removeAnimation(forKey: "transition")
+            if let transition = self.transition.caTransition, transition.duration != 0.0 {
+                self.add(transition, forKey: "transition")
+            }
             //  updateTransitionAnimation()
         }
     }
@@ -388,7 +394,7 @@ private func setAnimatedImage(_ image: NSImage) {
         }
     }
 
-    public enum Transition {
+    public enum Transition: Hashable {
         case none
         case push(CGFloat)
         case fade(CGFloat)
