@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 08.09.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -96,3 +97,4 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
         }
     }
 }
+#endif

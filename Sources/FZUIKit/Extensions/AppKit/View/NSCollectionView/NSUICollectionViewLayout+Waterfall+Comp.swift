@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 22.08.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 #if os(macOS)
 import AppKit
@@ -111,3 +112,4 @@ public class LayoutItemProvider {
             .offset ?? 0
     }
 }
+#endif

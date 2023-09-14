@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 24.03.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -34,3 +35,4 @@ public extension NSUIImage {
         return data as Data
     }
 }
+#endif

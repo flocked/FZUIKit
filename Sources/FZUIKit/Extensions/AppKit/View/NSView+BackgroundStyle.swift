@@ -9,8 +9,6 @@
 import AppKit
 import FZSwiftUtils
 
-
-
 /**
  A protocol for views and cells with background style.
  

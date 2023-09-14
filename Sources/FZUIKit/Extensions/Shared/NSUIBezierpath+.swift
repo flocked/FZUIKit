@@ -242,6 +242,7 @@ public extension NSUIBezierPath {
 }
 #endif
 
+#if os(macOS) || os(iOS) || os(tvOS)
 public extension NSUIRectCorner {
     init(_ cornerMask: CACornerMask) {
         var corner = NSUIRectCorner()
@@ -277,6 +278,7 @@ public extension NSUIRectCorner {
         return cornerMask
     }
 }
+#endif
 
 #if os(macOS)
 public extension NSBezierPath {

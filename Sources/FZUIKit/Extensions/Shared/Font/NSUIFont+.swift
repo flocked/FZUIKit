@@ -176,6 +176,7 @@ public extension NSUIFont {
     }
 
     /// The font with a serif design.
+    @available(macOS 15.0, iOS 13.0, tvOS 13.0, watchOS 7.0, *)
     var serif: NSUIFont {
         if let descriptor = fontDescriptor.withDesign(.serif) {
             #if os(macOS)
@@ -318,7 +319,7 @@ public extension NSUIFont {
     }
 }
 
-#if os(tvOS)
+#if os(tvOS) || os(watchOS)
 internal extension NSUIFont {
     static var systemFontSize: CGFloat {
         return UIFont.preferredFont(forTextStyle: .body).pointSize

@@ -8,6 +8,7 @@
 //  Created by Florian Zand on 06.06.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import FZSwiftUtils
 #if os(macOS)
 import AppKit
@@ -341,3 +342,4 @@ public extension NSUICollectionViewLayout.WaterfallLayout {
         case fromSafeArea
     }
 }
+#endif

@@ -5,9 +5,10 @@
 //  Created by Florian Zand on 03.02.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
-#elseif canImport(FZUIKit)
+#elseif canImport(UIKit)
 import UIKit
 #endif
 
@@ -117,4 +118,5 @@ internal extension UIView {
         }
     }
 }
+#endif
 #endif

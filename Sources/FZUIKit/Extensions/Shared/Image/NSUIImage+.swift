@@ -72,7 +72,7 @@ public extension NSUIImage {
         resizingMode = .stretch
         capInsets = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
-#else
+#elseif os(iOS) || os(tvOS)
     /**
      Creates an image object with the specified color and size.
 

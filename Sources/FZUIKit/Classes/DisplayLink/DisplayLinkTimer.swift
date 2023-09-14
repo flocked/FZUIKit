@@ -4,6 +4,8 @@
 //
 //  Created by Florian Zand on 02.06.22.
 //
+
+#if os(macOS) || os(iOS) || os(tvOS)
 import Combine
 import CoreGraphics
 import Foundation
@@ -144,6 +146,8 @@ public class DisplayLinkTimer {
         displayLink = nil
     }
 }
+
+#endif
 
 /*
 extension DisplayLinkTimer {

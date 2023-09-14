@@ -338,7 +338,7 @@ public extension NSFont.Weight {
 #endif
 
 
-@available(macOS 12.0, iOS 14.0, tvOS 14.0, *)
+@available(macOS 12.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 internal extension NSUIImage.SymbolConfiguration {
     static var colorsValueKey: String {
         #if os(macOS)

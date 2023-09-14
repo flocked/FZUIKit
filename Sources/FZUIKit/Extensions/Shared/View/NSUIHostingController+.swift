@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 06.10.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -110,4 +111,5 @@ public extension NSHostingView {
         }
     }
 }
+#endif
 #endif

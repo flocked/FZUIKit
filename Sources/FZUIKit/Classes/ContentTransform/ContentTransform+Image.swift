@@ -27,18 +27,19 @@ public struct ImageTransformer: ContentTransform {
         self.id = identifier
     }
 
-    public static func opacity(_ value: CGFloat) -> Self {
-        return Self("opacity: \(value)") { $0.withOpacity(value) }
-    }
-
     public static func tintColor(_ color: NSUIColor) -> Self {
         return Self("tintColor: \(color)") { $0.withTintColor(color) }
     }
 
+    #if os(macOS) || os(iOS) || os(tvOS)
     public static func color(_ color: NSUIColor) -> Self {
         return Self("tintColor: \(color)") { _ in NSUIImage(color: color, size: CGSize(1, 1)) }
     }
-
+    
+    public static func opacity(_ value: CGFloat) -> Self {
+        return Self("opacity: \(value)") { $0.withOpacity(value) }
+    }
+    
     @available(macOS 10.15, iOS 15.0, tvOS 15.0, *)
     public static func thumbnail(size: CGSize) -> Self {
         return Self("thumbnail: \(size)") { $0.preparingThumbnail(of: size) ?? $0 }
@@ -48,7 +49,7 @@ public struct ImageTransformer: ContentTransform {
     public static var preparedForDisplay: Self {
         return Self("preparedForDisplay") { $0.preparingForDisplay() ?? $0 }
     }
-
+    
     public static func rounded(radius: CGFloat) -> Self {
         return Self("roundedCorners: \(radius)") { $0.rounded(cornerRadius: radius) }
     }
@@ -56,6 +57,7 @@ public struct ImageTransformer: ContentTransform {
     public static var rounded: Self {
         return Self("rounded") { $0.rounded() }
     }
+    #endif
 
     public static func rotated(degrees: Float) -> Self {
         return Self("rotated: \(degrees)") { $0.rotated(degrees: degrees) }

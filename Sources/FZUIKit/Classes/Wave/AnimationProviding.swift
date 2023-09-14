@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
 internal protocol AnimationProviding {
@@ -24,3 +25,4 @@ internal protocol AnimationProviding {
 
     var relativePriority: Int { get set }
 }
+#endif

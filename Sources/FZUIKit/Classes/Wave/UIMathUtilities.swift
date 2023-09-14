@@ -5,8 +5,9 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
-#if canImport(UIKit)
+#if os(iOS) || os(tvOS)
 import UIKit
 public let NormalScrollDecelerationRate = UIScrollView.DecelerationRate.normal.rawValue
 #elseif os(macOS)
@@ -101,3 +102,4 @@ public func clip<T: FloatingPoint>(value: T, lower: T, upper: T) -> T {
 public func clipUnit<T: FloatingPoint>(value: T) -> T {
     clip(value: value, lower: 0, upper: 1)
 }
+#endif

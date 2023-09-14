@@ -7,6 +7,7 @@
 
 import FZSwiftUtils
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -116,3 +117,4 @@ public extension Nibloadable {
         #endif
     }
 }
+#endif

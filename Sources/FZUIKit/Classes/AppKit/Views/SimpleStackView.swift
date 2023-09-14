@@ -7,11 +7,12 @@
 
 #if os(macOS)
 import AppKit
-#elseif canImport(UIKit)
+#elseif os(iOS) || os(tvOS)
 import UIKit
 #endif
 import FZSwiftUtils
 
+#if os(macOS) || os(iOS) || os(tvOS)
 /**
  A view that arranges an array of views horizontally or vertically and updates their placement and sizing when the window size changes.
  
@@ -271,3 +272,4 @@ public class SimpleStackView: NSUIView {
         NSLayoutConstraint.activate(viewConstraints)
     }
 }
+#endif

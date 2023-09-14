@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 5/26/20.
 //
 
+#if canImport(QuartzCore)
+
 import Foundation
 import QuartzCore
 
@@ -108,3 +110,5 @@ public extension CALayer {
         }
     }
 }
+
+#endif

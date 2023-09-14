@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 06.10.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import FZSwiftUtils
 
 #if os(macOS)
@@ -186,3 +187,4 @@ internal extension CGFloat {
         }
     }
 }
+#endif

@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 5/17/20.
 //
 
+#if canImport(QuartzCore)
+
 import QuartzCore
 import simd
 
@@ -60,3 +62,5 @@ extension simd_quatd: Interpolatable {
         return simd_slerp(self, to, fraction)
     }
 }
+
+#endif

@@ -135,6 +135,26 @@ public extension NSUIImage {
         return resized(to: size)
     }
     
+    /// Returns the image rotated to the specified degree.
+    func rotated(degrees: Float) -> NSUIImage {
+        var newSize = CGRect(origin: CGPoint.zero, size: size).applying(CGAffineTransform(rotationAngle: CGFloat(degrees))).size
+        newSize.width = floor(newSize.width)
+        newSize.height = floor(newSize.height)
+        
+        UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
+        let context = UIGraphicsGetCurrentContext()!
+        
+        context.translateBy(x: newSize.width / 2, y: newSize.height / 2)
+        context.rotate(by: CGFloat(degrees))
+        draw(in: CGRect(x: -size.width / 2, y: -size.height / 2, width: size.width, height: size.height))
+        
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage!
+    }
+    
+    #if os(iOS) || os(tvOS)
     /// Returns the image as circle.
     func rounded() -> NSUIImage {
         let maxRadius = min(size.width, size.height)
@@ -163,30 +183,12 @@ public extension NSUIImage {
         return scaledImage
     }
     
-    /// Returns the image rotated to the specified degree.
-    func rotated(degrees: Float) -> NSUIImage {
-        var newSize = CGRect(origin: CGPoint.zero, size: size).applying(CGAffineTransform(rotationAngle: CGFloat(degrees))).size
-        newSize.width = floor(newSize.width)
-        newSize.height = floor(newSize.height)
-        
-        UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
-        
-        context.translateBy(x: newSize.width / 2, y: newSize.height / 2)
-        context.rotate(by: CGFloat(degrees))
-        draw(in: CGRect(x: -size.width / 2, y: -size.height / 2, width: size.width, height: size.height))
-        
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return newImage!
-    }
-    
     /// Returns the image with the specified opacity value.
     func withOpacity(_ value: CGFloat) -> NSUIImage {
         return UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { _ in
             draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: value)
         }
     }
+    #endif
 }
 #endif

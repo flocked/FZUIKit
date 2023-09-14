@@ -5,14 +5,12 @@
 //  Created by Florian Zand on 30.11.22.
 //
 
+#if os(macOS) || os(iOS)
 #if os(macOS)
 import AppKit
 #elseif os(iOS)
 import UIKit
 #endif
-
-#if os(macOS) || os(iOS)
-
 import QuickLookThumbnailing
 
 public extension QLThumbnailGenerator {

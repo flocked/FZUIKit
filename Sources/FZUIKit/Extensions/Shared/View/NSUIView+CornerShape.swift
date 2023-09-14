@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 21.10.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import FZSwiftUtils
 
 #if os(macOS)
@@ -82,3 +83,4 @@ public extension NSUIView {
         }
     }
 }
+#endif

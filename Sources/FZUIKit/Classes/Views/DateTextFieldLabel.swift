@@ -132,7 +132,7 @@ public class DateTextField: NSTextField {
     }
 }
 
-#elseif canImport(UIKit)
+#elseif os(iOS) || os(tvOS)
 import UIKit
 /// A UILabel that displays a date either absolute or relative.
 public class DateLabel: UILabel {

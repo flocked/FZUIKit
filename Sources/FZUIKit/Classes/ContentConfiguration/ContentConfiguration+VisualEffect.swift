@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 public extension ContentConfiguration {
@@ -214,4 +215,5 @@ public extension UIVisualEffectView {
         }
     }
 }
+#endif
 #endif

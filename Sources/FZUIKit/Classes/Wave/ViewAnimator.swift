@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import CoreGraphics
 import Foundation
 
@@ -541,3 +542,4 @@ extension ViewAnimator {
         view.animations[AnimatableProperty.cornerRadius] as? SpringAnimator<CGFloat>
     }
 }
+#endif

@@ -14,7 +14,7 @@ import UIKit
 import SwiftUI
 import FZSwiftUtils
 
-@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 public extension ContentConfiguration {
     /**
      An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
@@ -293,7 +293,7 @@ public extension ContentConfiguration {
     }
 }
 
-@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 public extension ContentConfiguration.SymbolConfiguration {
     #if os(macOS)
     /// Returns a `NSImage.SymbolConfiguration` representation.
@@ -344,7 +344,7 @@ public extension ContentConfiguration.SymbolConfiguration {
     }
 }
 
-@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 public extension View {
     /**
      Configurates symbol images within this view.
@@ -384,6 +384,7 @@ public extension View {
     }
 }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension NSUIImageView {
     /// Configurates the image view with the specified symbol configuration.
@@ -397,6 +398,7 @@ public extension NSUIImageView {
         #endif
     }
 }
+#endif
 
 #if os(macOS)
 @available(macOS 12.0, *)
@@ -407,7 +409,7 @@ public extension NSImage {
     }
 }
 #elseif canImport(UIKit)
-@available(iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+@available(iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 public extension UIImage {
     /// Returns a new version of the current image, replacing the current configuration attributes with the specified attributes.
     func withConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration) -> NSUIImage? {

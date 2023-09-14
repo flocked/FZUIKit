@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 22.08.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -144,4 +145,5 @@ public extension LayoutItem {
         return pinEdges(to: item2, insets: .init(top: inset, left: inset, bottom: inset, right: inset), alignment: alignment)
     }
 }
+#endif
 #endif

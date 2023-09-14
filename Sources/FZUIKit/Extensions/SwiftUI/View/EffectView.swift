@@ -90,7 +90,7 @@ public struct EffectView: NSViewRepresentable {
     }
 }
 
-#elseif canImport(UIKit)
+#elseif os(iOS) || os(tvOS)
 import UIKit
 
 @available(iOS 13, *)

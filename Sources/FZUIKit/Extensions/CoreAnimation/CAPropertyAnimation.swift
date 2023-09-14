@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 13.05.22.
 //
 
+#if canImport(QuartzCore)
 import QuartzCore
 
 public extension CAPropertyAnimation {
@@ -42,3 +43,4 @@ public extension CALayer {
         }
     }
 }
+#endif

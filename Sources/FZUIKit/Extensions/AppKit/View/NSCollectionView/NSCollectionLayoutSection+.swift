@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 29.08.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -33,3 +34,4 @@ public extension NSCollectionLayoutSection {
         addSupplementaryItem(NSUICollectionView.elementKindSectionHeader, height: height, floating: floating, alignment: .top)
     }
 }
+#endif

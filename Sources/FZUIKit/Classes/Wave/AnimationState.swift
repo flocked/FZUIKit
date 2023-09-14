@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 /**
  The current state of an `Animation`.
  */
@@ -24,3 +25,4 @@ public enum AnimationState {
      */
     case ended
 }
+#endif

@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
+#if canImport(QuartzCore)
 import QuartzCore.CoreAnimation
 
 public extension CACornerMask {
@@ -75,3 +76,4 @@ extension CACornerMask: Hashable {
         hasher.combine(rawValue)
     }
 }
+#endif

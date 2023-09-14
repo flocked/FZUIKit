@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 26.05.23.
 //
 
+#if canImport(QuartzCore)
 import QuartzCore
 
 public extension CAMediaTimingFunction {
@@ -19,3 +20,4 @@ public extension CAMediaTimingFunction {
     /// Ease-in-ease-out pacing, which causes an animation to begin slowly, accelerate through the middle of its duration, and then slow again before completing.
     static var easeInEaseOut: CAMediaTimingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
 }
+#endif

@@ -6,7 +6,6 @@
 //
 
 #if os(macOS) || os(iOS)
-
 import WebKit
 
 public extension WKWebView {

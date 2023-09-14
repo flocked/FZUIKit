@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 16.03.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -245,3 +246,4 @@ public extension NSUIView {
         subviews(where: predicate, depth: depth).forEach { $0.removeFromSuperview() }
     }
 }
+#endif

@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 16.03.23.
 //
 
-import AVKit
+import CoreMedia
 import Foundation
 import FZSwiftUtils
 

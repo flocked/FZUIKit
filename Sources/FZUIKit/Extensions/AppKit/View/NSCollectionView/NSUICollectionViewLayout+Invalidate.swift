@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 23.08.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import FZSwiftUtils
 #if os(macOS)
 import AppKit
@@ -35,3 +36,4 @@ public extension NSUICollectionViewLayout {
 #endif
     }
 }
+#endif

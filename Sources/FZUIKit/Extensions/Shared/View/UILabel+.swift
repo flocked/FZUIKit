@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 17.08.23.
 //
 
-#if canImport(UIKit)
+#if os(iOS) || os(tvOS)
 import UIKit
 
 extension UILabel {

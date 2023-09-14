@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 09.06.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -42,3 +43,4 @@ public struct ContainerView<Content: NSUIView>: NSUIViewRepresentable {
     }
 #endif
 }
+#endif

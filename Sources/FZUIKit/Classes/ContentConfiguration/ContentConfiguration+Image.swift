@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 01.08.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -132,3 +133,4 @@ public extension NSUIImageView {
         }
     }
 }
+#endif

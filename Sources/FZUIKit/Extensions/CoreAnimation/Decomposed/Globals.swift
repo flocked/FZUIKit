@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 5/20/20.
 //
 
+#if canImport(QuartzCore)
+
 import QuartzCore
 
 // The amount of accuracy that should be used when comparing floating point values.
@@ -16,3 +18,5 @@ internal let DisableActions = { (changes: () -> Void) in
     changes()
     CATransaction.commit()
 }
+
+#endif

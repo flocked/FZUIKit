@@ -11,6 +11,7 @@ import AppKit
 import UIKit
 #endif
 
+#if os(macOS) || os(iOS) || os(tvOS)
 public extension NSUICollectionView {
     /// Supplementary view kinds.
     enum ElementKind {
@@ -34,3 +35,4 @@ public extension NSUICollectionView {
         }
     }
 }
+#endif

@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 06.06.22.
 //
 
+#if canImport(QuartzCore)
 import QuartzCore
 
 public extension CATransaction {
@@ -28,3 +29,4 @@ public extension CATransaction {
         CATransaction.commit()
     }
 }
+#endif

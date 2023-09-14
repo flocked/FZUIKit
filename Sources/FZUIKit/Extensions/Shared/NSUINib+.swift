@@ -21,7 +21,7 @@ public extension NSNib {
     }
 }
 
-#elseif canImport(UIKit)
+#elseif os(iOS) || os(tvOS)
 import UIKit
 public extension UINib {
     /**

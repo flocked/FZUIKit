@@ -8,7 +8,7 @@
 import SwiftUI
 
 public extension View {
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     @ViewBuilder
     func background<S: ShapeStyle>(_ style: S?, ignoresSafeAreaEdges edges: Edge.Set = .all) -> some View {
         if let style = style {
@@ -56,7 +56,7 @@ public extension View {
         }
     }
 
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     @ViewBuilder
     func foregroundStyle(_ primary: Color?, _ secondary: Color?, _ tertiary: Color?) -> some View {
         if let primary = primary {

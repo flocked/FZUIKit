@@ -20,8 +20,9 @@ public extension NSUIColor {
     }
 }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 public extension Color {
-    @available(macOS 11.0, iOS 14.0, *)
+    @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
     init(light lightModeColor: @escaping @autoclosure () -> Color,
          dark darkModeColor: @escaping @autoclosure () -> Color)
     {
@@ -31,8 +32,9 @@ public extension Color {
         ))
     }
 }
+#endif
 
-@available(macOS 11.0, iOS 14.0, *)
+@available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
 public extension Color {
     var secondary: Color {
         opacity(0.15)

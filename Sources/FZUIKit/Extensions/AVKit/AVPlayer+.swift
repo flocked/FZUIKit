@@ -5,9 +5,9 @@
 //  Created by Florian Zand on 07.08.22.
 //
 
-import AVKit
 import Foundation
 import FZSwiftUtils
+import AVFoundation
 
 extension AVPlayer {
     /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
@@ -151,6 +151,7 @@ public extension AVPlayer {
     }
 }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 public extension AVLayerVideoGravity {
     init?(caLayerContentsGravity: CALayerContentsGravity) {
         switch caLayerContentsGravity {
@@ -165,3 +166,5 @@ public extension AVLayerVideoGravity {
         }
     }
 }
+
+#endif

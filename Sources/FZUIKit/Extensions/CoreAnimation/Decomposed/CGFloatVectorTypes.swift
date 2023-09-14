@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 5/18/20.
 //
 
+#if canImport(QuartzCore)
+
 import Foundation
 import QuartzCore
 import simd
@@ -233,3 +235,5 @@ extension CGQuaternion: Equatable {
             abs(rhs.storage.angle - lhs.storage.angle) < accuracy
     }
 }
+
+#endif

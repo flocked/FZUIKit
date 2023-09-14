@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 19.06.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -55,6 +56,8 @@ public class AutoHeightHostingController<Content>: NSUIHostingController<Content
     }
     #endif
 }
+
+#endif
 
 /*
 #if os(macOS)

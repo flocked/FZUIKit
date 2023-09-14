@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 5/16/20.
 //
 
+#if canImport(QuartzCore)
+
 import QuartzCore
 import simd
 
@@ -396,3 +398,5 @@ extension CATransform3D: Interpolatable {
         return CATransform3D(_decomposed().lerp(to: to._decomposed(), fraction: Double(fraction)).recomposed())
     }
 }
+
+#endif

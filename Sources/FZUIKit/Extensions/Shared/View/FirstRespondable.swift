@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 06.07.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -165,4 +166,5 @@ extension NSViewController {
        set { set(associatedValue: newValue, key: "NSViewController_isChangingFirstResponder", object: self) }
    }
 }
+#endif
 #endif

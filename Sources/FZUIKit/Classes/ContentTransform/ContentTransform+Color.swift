@@ -84,7 +84,7 @@ public struct ColorTransformer: ContentTransform {
         return Self("systemEffect: \(systemEffect.rawValue)") { $0.withSystemEffect(systemEffect) }
     }
 
-    #elseif canImport(UIKit)
+    #elseif os(iOS) || os(tvOS)
     public static var preferredTint: Self {
         Self("preferredTint", UIConfigurationColorTransformer.preferredTint.transform)
     }

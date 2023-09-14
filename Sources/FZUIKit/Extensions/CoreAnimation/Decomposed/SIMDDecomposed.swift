@@ -7,6 +7,8 @@
 
 // Loose adaption of https://opensource.apple.com/source/WebCore/WebCore-7604.1.38.1.6/platform/graphics/transforms/TransformationMatrix.cpp.auto.html
 
+#if canImport(QuartzCore)
+
 import QuartzCore
 import simd
 
@@ -660,3 +662,5 @@ extension matrix_float4x4: Interpolatable {
 private func simd_linear_combination(_ ascl: Double, _ a: simd_double3, _ bscl: Double, _ b: simd_double3) -> simd_double3 {
     return simd_double3((ascl * a[0]) + (bscl * b[0]), (ascl * a[1]) + (bscl * b[1]), (ascl * a[2]) + (bscl * b[2]))
 }
+
+#endif

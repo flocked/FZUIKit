@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 02.06.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -386,4 +387,5 @@ public extension UITextField {
       //  self.showsExpansionTextWhenTruncated = configuration.showsExpansionTextWhenTruncated
     }
 }
+#endif
 #endif

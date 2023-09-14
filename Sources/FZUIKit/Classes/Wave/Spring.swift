@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import CoreGraphics
 import Foundation
 #if os(macOS)
@@ -182,3 +183,4 @@ extension Spring: CustomStringConvertible {
         """
     }
 }
+#endif

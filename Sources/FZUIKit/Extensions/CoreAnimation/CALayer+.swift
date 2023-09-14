@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 07.06.22.
 //
 
-import QuartzCore
+// import QuartzCore
 
 #if os(macOS)
 import AppKit
@@ -14,6 +14,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+#if os(macOS) || os(iOS) || os(tvOS)
 public extension CALayer {
     /// Sends the layer to the front of it's superlayer.
     func sendToFront() {
@@ -21,7 +22,7 @@ public extension CALayer {
         removeFromSuperlayer()
         superlayer.addSublayer(self)
     }
-
+    
     /// Sends the layer to the back of it's superlayer.
     func sendToBack() {
         guard let superlayer = superlayer else { return }
@@ -54,42 +55,42 @@ public extension CALayer {
      - Parameters layer: The layer to constraint to.
      */
     func constraintTo(layer: CALayer) {
-            let layerUpdateHandler: (()->()) = { [weak self] in
-                guard let self = self else { return }
-                let frameSize = layer.frame.size
-                let shapeRect = CGRect(origin: .zero, size: frameSize)
-                let position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-                
-                self.cornerRadius = layer.cornerRadius
-                self.maskedCorners = layer.maskedCorners
-                self.cornerCurve = layer.cornerCurve
-                self.bounds = shapeRect
-                self.position = position
-            }
+        let layerUpdateHandler: (()->()) = { [weak self] in
+            guard let self = self else { return }
+            let frameSize = layer.frame.size
+            let shapeRect = CGRect(origin: .zero, size: frameSize)
+            let position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
             
-            if layerObserver?.observedObject != layer {
-                layerObserver = KeyValueObserver(layer)
-            }
-            
+            self.cornerRadius = layer.cornerRadius
+            self.maskedCorners = layer.maskedCorners
+            self.cornerCurve = layer.cornerCurve
+            self.bounds = shapeRect
+            self.position = position
+        }
+        
+        if layerObserver?.observedObject != layer {
+            layerObserver = KeyValueObserver(layer)
+        }
+        
         layerObserver?[\.cornerRadius] = { old, new in
-                guard old != new else { return }
+            guard old != new else { return }
             layerUpdateHandler()
-            }
+        }
         
         layerObserver?[\.cornerCurve] = { old, new in
-                guard old != new else { return }
+            guard old != new else { return }
             layerUpdateHandler()
-            }
+        }
         
         layerObserver?[\.maskedCorners] = { old, new in
-                guard old != new else { return }
+            guard old != new else { return }
             layerUpdateHandler()
-            }
-            
+        }
+        
         layerObserver?[\.bounds] = { old, new in
-                guard old != new else { return }
+            guard old != new else { return }
             layerUpdateHandler()
-            }
+        }
         layerUpdateHandler()
     }
     
@@ -102,31 +103,31 @@ public extension CALayer {
         get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
     }
-
+    
     /*
-    @discardableResult
-    func addSublayer(withConstraint layer: CALayer) -> [NSLayoutConstraint] {
-        addSublayer(layer)
-        layer.cornerRadius = cornerRadius
-        layer.maskedCorners = maskedCorners
-        layer.masksToBounds = true
-        return layer.constraintTo(layer: self)
-    }
-
-    @discardableResult
-    func constraintTo(layer: CALayer) -> [NSLayoutConstraint] {
-        frame = layer.bounds
-        let constrains = [
-            NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0),
-            NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0),
-        ]
-        constrains.forEach { $0.isActive = true }
-        return constrains
-    }
-    */
-
+     @discardableResult
+     func addSublayer(withConstraint layer: CALayer) -> [NSLayoutConstraint] {
+     addSublayer(layer)
+     layer.cornerRadius = cornerRadius
+     layer.maskedCorners = maskedCorners
+     layer.masksToBounds = true
+     return layer.constraintTo(layer: self)
+     }
+     
+     @discardableResult
+     func constraintTo(layer: CALayer) -> [NSLayoutConstraint] {
+     frame = layer.bounds
+     let constrains = [
+     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0),
+     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0),
+     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0),
+     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0),
+     ]
+     constrains.forEach { $0.isActive = true }
+     return constrains
+     }
+     */
+    
     func removeSublayers(type: CALayer.Type) {
         if let sublayers = sublayers {
             for sublayer in sublayers {
@@ -136,16 +137,15 @@ public extension CALayer {
             }
         }
     }
-
-    #if os(macOS)
-    internal var parentView: NSView? {
-        if let view = delegate as? NSView {
+    
+    internal var parentView: NSUIView? {
+        if let view = delegate as? NSUIView {
             return view
         }
         return superlayer?.parentView
     }
-    #endif
 }
+#endif
 
 #if os(macOS)
 public extension CAAutoresizingMask {

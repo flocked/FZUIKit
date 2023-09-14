@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 30.05.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -410,3 +411,4 @@ extension ImageLayer.FrameOption: ExpressibleByIntegerLiteral {
         self = .index(value)
     }
 }
+#endif

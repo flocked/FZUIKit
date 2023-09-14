@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 14.10.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Combine
 import SwiftUI
 
@@ -14,3 +16,5 @@ public extension SwiftUI.View {
         return SubscriptionView(content: self, publisher: publisher, action: action)
     }
 }
+
+#endif

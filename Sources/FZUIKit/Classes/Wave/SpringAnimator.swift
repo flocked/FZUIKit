@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
 public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
@@ -272,3 +273,4 @@ extension SpringAnimator: CustomStringConvertible {
         """
     }
 }
+#endif

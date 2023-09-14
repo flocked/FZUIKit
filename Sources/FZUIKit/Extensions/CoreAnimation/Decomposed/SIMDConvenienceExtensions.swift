@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 5/19/20.
 //
 
+#if canImport(QuartzCore)
+
 import simd
 
 // Perspective
@@ -143,3 +145,5 @@ public extension simd_float4x4 {
         self.init(simd_float4(matrix[0]), simd_float4(matrix[1]), simd_float4(matrix[2]), simd_float4(matrix[3]))
     }
 }
+
+#endif

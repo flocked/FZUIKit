@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 22.08.22.
 //
 
+#if canImport(QuartzCore)
+
 import QuartzCore
 
 public extension CATransition {
@@ -41,3 +43,4 @@ public extension CATransition {
         return transition
     }
 }
+#endif

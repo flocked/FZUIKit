@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
+#if os(iOS) || os(tvOS)
 public extension UIColor {
     /**
      Creates a dynamic catalog color with the specified light and dark color.
@@ -41,6 +42,7 @@ public extension UIColor {
         return (light, dark)
     }
 }
+#endif
 
 public extension UIColor {
     /**

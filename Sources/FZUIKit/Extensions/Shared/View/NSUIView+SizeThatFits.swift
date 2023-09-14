@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 21.10.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 import SwiftUI
@@ -202,4 +203,5 @@ public extension Sizable where Self: NSImageView {
         return image?.size ?? self.bounds.size
     }
 }
+#endif
 #endif

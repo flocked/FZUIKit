@@ -5,6 +5,7 @@
 //  Some parts are taken from https://github.com/boinx/BXUIKit
 //  Copyright ©2018 Peter Baumgartner. All rights reserved.
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -165,3 +166,4 @@ public extension Collection where Element: NSLayoutConstraint {
     /// The firstBaseline constraint.
     var firstBaseline: NSLayoutConstraint? { self.first(where: {$0.firstAttribute == .firstBaseline}) }
 }
+#endif

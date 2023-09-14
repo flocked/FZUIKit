@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import CoreGraphics
 import Foundation
 
@@ -63,3 +64,4 @@ public enum Wave {
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
 }
+#endif

@@ -5,6 +5,8 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+
+#if os(macOS) || os(iOS) || os(tvOS)
 #if canImport(UIKit)
 import UIKit
 #elseif os(macOS)
@@ -51,3 +53,4 @@ public extension NSUIView {
         }
     }
 }
+#endif

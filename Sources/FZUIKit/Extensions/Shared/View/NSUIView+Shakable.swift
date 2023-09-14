@@ -42,7 +42,7 @@ public protocol Shakable: NSAnimatablePropertyContainer {
 extension NSWindow: Shakable {}
 extension NSView: Shakable {}
 
-#elseif canImport(UIKit)
+#elseif os(iOS) || os(tvOS)
 import UIKit
 public extension UIView {
     /// Shakes the view.

@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 5/21/20.
 //
 
+#if canImport(QuartzCore)
+
 import Foundation
 import QuartzCore
 
@@ -81,3 +83,5 @@ public extension CGVector3 {
         self.init(CGFloat(xy), CGFloat(xz), CGFloat(yz))
     }
 }
+
+#endif

@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import CoreGraphics
 import Foundation
 
@@ -85,3 +86,4 @@ extension CGRect: SpringInterpolatable, VelocityProviding {
         return (value: newValue, velocity: newVelocity)
     }
 }
+#endif

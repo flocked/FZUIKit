@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 21.10.22.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -182,3 +183,4 @@ public extension NSUIView {
         return [x, y, width, height]
     }
 }
+#endif

@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Combine
 import Foundation
 #if os(macOS)
@@ -134,3 +135,4 @@ extension AnimationController {
         }
     }
 }
+#endif

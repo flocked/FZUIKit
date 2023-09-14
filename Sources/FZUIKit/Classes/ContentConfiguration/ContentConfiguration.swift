@@ -9,4 +9,3 @@ import Foundation
 
 /// A collection of configurations for
 public struct ContentConfiguration { }
-
