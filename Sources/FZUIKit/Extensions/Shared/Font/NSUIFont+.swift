@@ -92,6 +92,7 @@ public extension NSUIFont {
         return .systemFont(ofSize: NSUIFont.systemFontSize + 11)
     }
 
+    #if os(macOS) || os(iOS)
     /// A font with the large title text style.
     static var largeTitle: NSUIFont {
         if #available(macOS 11.0, iOS 12.2, tvOS 12.2, watchOS 5.2, *) {
@@ -99,6 +100,7 @@ public extension NSUIFont {
         }
         return .systemFont(ofSize: NSUIFont.systemFontSize + 17)
     }
+    #endif
 }
 
 public extension NSUIFont {
@@ -315,3 +317,11 @@ public extension NSUIFont {
         #endif
     }
 }
+
+#if os(tvOS)
+internal extension NSUIFont {
+    static var systemFontSize: CGFloat {
+        return UIFont.preferredFont(forTextStyle: .body).pointSize
+    }
+}
+#endif

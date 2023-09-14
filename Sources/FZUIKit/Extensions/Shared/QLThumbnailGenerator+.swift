@@ -7,9 +7,11 @@
 
 #if os(macOS)
 import AppKit
-#elseif canImport(UIKit)
+#elseif os(iOS)
 import UIKit
 #endif
+
+#if os(macOS) || os(iOS)
 
 import QuickLookThumbnailing
 
@@ -90,3 +92,5 @@ public extension QLThumbnailGenerator.Request {
         set { setValue(newValue, forKey: "fileURL") }
     }
 }
+
+#endif

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+
+@available(macOS 15.0, iOS 13.0, tvOS 16.0, *)
 public struct EditableText: View {
     @Binding var text: String
     @State private var newValue: String = ""

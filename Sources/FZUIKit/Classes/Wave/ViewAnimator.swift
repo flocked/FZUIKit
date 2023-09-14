@@ -10,7 +10,7 @@ import Foundation
 
 #if os(macOS)
 import AppKit
-#elseif os(iOS)
+#elseif canImport(UIKit)
 import UIKit
 #endif
 
@@ -235,7 +235,7 @@ public class ViewAnimator {
             animation.target = targetValue
             animation.valueChanged = { [weak self] size in
                 guard let strongSelf = self else { return }
-                #if os(iOS)
+                #if canImport(UIKit)
                 strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
                 #elseif os(macOS)
                 strongSelf.view.bounds.size = size

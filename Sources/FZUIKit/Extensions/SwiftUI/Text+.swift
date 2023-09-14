@@ -19,6 +19,7 @@ public extension Text {
     }
 }
 
+#if os(macOS) || os(iOS)
 @available(iOS 15.0, macOS 12.0, *)
 public extension View {
     /// Controls whether text can be selected.
@@ -41,3 +42,4 @@ public struct DynamicTextSelection: ViewModifier {
         }
     }
 }
+#endif

@@ -70,6 +70,17 @@ public extension NSImage {
         guard let source = ImageSource(image: self) else { return nil }
         return source.animationDuration
     }
+    
+    /**
+     The number of times that an animated image should play through its frames before stopping.
+     
+     A value of 0 means the animated image repeats forever.
+     */
+    var animationLoopCount: Int? {
+        guard let source = ImageSource(image: self), source.count > 1 else { return nil }
+        return source.properties()?.loopCount ?? source.properties(at: 0)?.loopCount
+    }
+
 
     /// The images of an animated (e.g. GIF) image.
     var images: [NSUIImage]? {

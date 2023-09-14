@@ -44,7 +44,9 @@ public extension NSUIFontDescriptor {
             case let str where str.contains("Caption2"): return .caption2
             case let str where str.contains("Headline"): return .headline
             case let str where str.contains("Subhead"): return .subheadline
+                #if os(macOS) || os(iOS)
             case let str where str.contains("Title0"): return .largeTitle
+                #endif
             case let str where str.contains("Title1"): return .title1
             case let str where str.contains("Title2"): return .title2
             case let str where str.contains("Title3"): return .title3

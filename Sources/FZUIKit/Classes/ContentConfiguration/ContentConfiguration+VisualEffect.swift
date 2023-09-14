@@ -134,7 +134,7 @@ public extension NSVisualEffectView {
     }
 }
 
-#elseif canImport(UIKit)
+#elseif os(iOS)
 import UIKit
 public extension ContentConfiguration {
     /**
@@ -188,4 +188,30 @@ public extension UIVisualEffectView {
     }
 }
 
+#elseif os(tvOS)
+import UIKit
+public extension ContentConfiguration {
+    struct VisualEffect: Hashable {
+        public var style: UIBlurEffect.Style? = nil
+        public init(style: UIBlurEffect.Style? = nil) {
+            self.style = style
+        }
+    }
+}
+
+public extension UIVisualEffectView {
+    /**
+     Configurates the visual effect view with the specified configuration.
+
+     - Parameters:
+        - configuration:The configuration for configurating the visual effect view.
+     */
+    func configurate(using configuration: ContentConfiguration.VisualEffect) {
+        if let style = configuration.style {
+            effect = UIBlurEffect(style: style)
+        } else {
+            effect = nil
+        }
+    }
+}
 #endif

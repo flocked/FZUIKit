@@ -21,7 +21,11 @@ open class ImageView: NSView {
         }
     }
 
-    /// The images displayed in the image view.
+    /**
+     The images displayed in the image view.
+     
+     Setting this property to an array with multiple images will remove the image represented by the image property.
+     */
     open var images: [NSImage] {
         get {
             imageLayer.images
@@ -32,19 +36,26 @@ open class ImageView: NSView {
         }
     }
     
-    /// The currently displaying image.
+    /// The currently displayed image.
     open var displayingImage: NSUIImage? {
         return self.imageLayer.displayingImage
     }
 
     /// The scaling of the image.
     open var imageScaling: CALayerContentsGravity {
-        get {
-            imageLayer.imageScaling
+        get { imageLayer.imageScaling }
+        set { imageLayer.imageScaling = newValue
+              layerContentsPlacement = newValue.viewLayerContentsPlacement
         }
-        set {
-            imageLayer.imageScaling = newValue
-            layerContentsPlacement = newValue.viewLayerContentsPlacement
+    }
+    
+    open override func layout() {
+        if imageLayer.frame.size != self.bounds.size {
+            NSAnimationContext.runAnimationGroup {
+                context in
+                context.duration = 0.0
+                imageLayer.frame.size = self.bounds.size
+            }
         }
     }
     
@@ -67,22 +78,22 @@ open class ImageView: NSView {
         self.invalidateIntrinsicContentSize()
     }
 
-    /// Starts animating the images in the receiver.
+    /// Starts animating the images.
     open func startAnimating() {
         imageLayer.startAnimating()
     }
 
-    /// Pauses animating the images in the receiver.
+    /// Pauses animating the images.
     open func pauseAnimating() {
         imageLayer.pauseAnimating()
     }
 
-    /// Stops animating the images in the receiver.
+    /// Stops animating the images and displays the first image.
     open func stopAnimating() {
         imageLayer.stopAnimating()
     }
 
-    /// Toggles the animation.
+    /// Toggles animating the images.
     open func toggleAnimating() {
         imageLayer.toggleAnimating()
     }
@@ -92,23 +103,81 @@ open class ImageView: NSView {
         return imageLayer.isAnimating
     }
 
-    /// The amount of time it takes to go through one cycle of the images.
+    /**
+     The amount of time it takes to go through one cycle of the images.
+     
+     The time duration is measured in seconds. The default value of this property is 0.0, which causes the image view to use a duration equal to the number of images multiplied by 1/30th of a second. Thus, if you had 30 images, the duration would be 1 second.
+     */
     open var animationDuration: TimeInterval {
-        get {
-            imageLayer.animationDuration
-        }
-        set {
-            imageLayer.animationDuration = newValue
-        }
+        get {  imageLayer.animationDuration }
+        set { imageLayer.animationDuration = newValue }
+    }
+    
+    /**
+     Specifies the number of times to repeat the animation.
+     
+     The default value is 0, which specifies to repeat the animation indefinitely.
+     */
+    open var animationRepeatCount: Int {
+        get { imageLayer.animationRepeatCount }
+        set { imageLayer.animationRepeatCount = newValue }
     }
     
     /// A Boolean value indicating whether animatable images should automatically start animating.
-    open var autoAnimates: Bool {
-        get {
-            imageLayer.autoAnimates
+    internal var autoAnimates: Bool {
+        get { imageLayer.autoAnimates }
+        set { imageLayer.autoAnimates = newValue }
+    }
+    
+    public enum AnimationOption: Int {
+        /// Images don't animate automatically.
+        case none
+        /// Images automatically start animating.
+        case automatic
+        /// Images start animating when the mouse enteres and stop animating when the mouse exists the view.
+        case mouseHover
+        /// A mouse down toggles animating the images.
+        case mouseDown
+    }
+    
+    public var animationOption: AnimationOption = .automatic {
+        didSet {
+            self.imageLayer.autoAnimates = (animationOption == .automatic)
+            self.updateTrackingAreas()
         }
-        set {
-            imageLayer.autoAnimates = newValue
+    }
+    
+    private func setupMouse() {
+        self.updateTrackingAreas()
+    }
+    
+    internal var trackingArea: NSTrackingArea? = nil
+    open override func updateTrackingAreas() {
+        if let trackingArea = self.trackingArea {
+            self.removeTrackingArea(trackingArea)
+            self.trackingArea = nil
+        }
+        if self.animationOption == .mouseHover {
+            self.trackingArea = NSTrackingArea(rect: self.bounds, options: [.mouseEnteredAndExited, .activeAlways ], owner: nil)
+            self.addTrackingArea(trackingArea!)
+        }
+    }
+    
+    open override func mouseEntered(with event: NSEvent) {
+        if animationOption == .mouseHover {
+            self.startAnimating()
+        }
+    }
+    
+    open override func mouseExited(with event: NSEvent) {
+        if animationOption == .mouseHover {
+            self.stopAnimating()
+        }
+    }
+    
+    open override func mouseDown(with event: NSEvent) {
+        if animationOption == .mouseDown {
+            self.toggleAnimating()
         }
     }
     
@@ -132,9 +201,11 @@ open class ImageView: NSView {
 
     private let imageLayer = ImageLayer()
 
+    /*
     override public func makeBackingLayer() -> CALayer {
         return imageLayer
     }
+    */
     
     private var symbolImageView: NSImageView? = nil
     private func updateSymbolImageView() {
@@ -199,6 +270,7 @@ open class ImageView: NSView {
 
     private func sharedInit() {
         wantsLayer = true
+        self.layer?.addSublayer(imageLayer)
         imageScaling = .resizeAspect
         //     self.layerContentsRedrawPolicy = .onSetNeedsDisplay
     }

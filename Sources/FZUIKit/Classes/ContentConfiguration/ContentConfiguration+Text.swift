@@ -221,12 +221,14 @@ public extension ContentConfiguration {
             text.swiftUIFont = .subheadline
             return text
         }
+        #if os(macOS) || os(iOS)
         /// Text configuration with a font for large titles.
         public static var largeTitle: Self {
             var text = Self.system(.largeTitle)
             text.swiftUIFont = .largeTitle
             return text
         }
+        #endif
         /// Text configuration with a font for titles.
         public static var title1: Self {
             var text = Self.system(.title1)

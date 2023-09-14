@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
+#if os(macOS) || os(iOS)
 import WebKit
 import FZSwiftUtils
 
@@ -398,3 +399,5 @@ extension WKDownload {
         set { set(associatedValue: newValue, key: "fileDestinationURL", object: self) }
     }
 }
+
+#endif

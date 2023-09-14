@@ -29,7 +29,7 @@ public extension NSUIStackView {
     }
     
     /// The array of views arranged by the stack view.
-    var arrangedViews: [NSView] {
+    var arrangedViews: [NSUIView] {
         get { self.arrangedSubviews }
         set {
             guard arrangedSubviews != newValue else { return }

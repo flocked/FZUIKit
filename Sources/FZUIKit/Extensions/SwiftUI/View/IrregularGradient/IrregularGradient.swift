@@ -124,8 +124,10 @@ internal struct IrregularGradient_Previews: PreviewProvider {
                 HStack {
                     Toggle("Animate", isOn: $animate)
                         .padding()
-                    Slider(value: $speed, in: 0.0 ... 1.0)
+                    #if os(macOS) || os(iOS)
+                     Slider(value: $speed, in: 0.0 ... 1.0)
                         .padding()
+                    #endif
                 }
             }
             .padding(25)

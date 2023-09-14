@@ -39,12 +39,12 @@ public struct ImageTransformer: ContentTransform {
         return Self("tintColor: \(color)") { _ in NSUIImage(color: color, size: CGSize(1, 1)) }
     }
 
-    @available(macOS 10.15, iOS 15.0, *)
+    @available(macOS 10.15, iOS 15.0, tvOS 15.0, *)
     public static func thumbnail(size: CGSize) -> Self {
         return Self("thumbnail: \(size)") { $0.preparingThumbnail(of: size) ?? $0 }
     }
 
-    @available(macOS 10.15, iOS 15.0, *)
+    @available(macOS 10.15, iOS 15.0, tvOS 15.0, *)
     public static var preparedForDisplay: Self {
         return Self("preparedForDisplay") { $0.preparingForDisplay() ?? $0 }
     }

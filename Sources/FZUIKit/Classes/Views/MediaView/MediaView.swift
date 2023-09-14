@@ -22,6 +22,26 @@ public class MediaView: NSView {
         get { imageView.autoAnimates }
         set { imageView.autoAnimates = newValue }
     }
+    
+    /**
+     The amount of time it takes to go through one cycle of the images.
+     
+     The time duration is measured in seconds. The default value of this property is 0.0, which causes the image view to use a duration equal to the number of images multiplied by 1/30th of a second. Thus, if you had 30 images, the duration would be 1 second.
+     */
+    public var animationDuration: TimeInterval {
+        get {  imageView.animationDuration }
+        set { imageView.animationDuration = newValue }
+    }
+    
+    /**
+     Specifies the number of times to repeat the animation.
+     
+     The default value is 0, which specifies to repeat the animation indefinitely.
+     */
+    public var animationRepeatCount: Int {
+        get { imageView.animationRepeatCount }
+        set { imageView.animationRepeatCount = newValue }
+    }
 
     public var overlayView: NSView? = nil {
         didSet {
@@ -130,6 +150,7 @@ public class MediaView: NSView {
         }
     }
 
+    /// The image displayed in the media view.
     public var image: NSImage? {
         get {
             if mediaType == .image || mediaType == .gif { return imageView.image }
@@ -151,6 +172,7 @@ public class MediaView: NSView {
         }
     }
 
+    /// The images displayed in the media view.
     public var images: [NSImage] {
         get { return imageView.images }
         set {

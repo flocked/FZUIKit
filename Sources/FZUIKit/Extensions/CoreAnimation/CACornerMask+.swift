@@ -34,7 +34,7 @@ public extension CACornerMask {
         .layerMinXMaxYCorner,
         .layerMaxXMaxYCorner,
     ]
-    #elseif os(iOS)
+    #elseif canImport(UIKit)
     /// The bottom left corner.
     static let bottomLeft = CACornerMask.layerMinXMaxYCorner
     /// The bottom right corner.

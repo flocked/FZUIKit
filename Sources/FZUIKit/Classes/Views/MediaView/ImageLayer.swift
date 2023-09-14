@@ -15,7 +15,7 @@ import Combine
 import FZSwiftUtils
 
 open class ImageLayer: CALayer {
-    /// The image displayed in the image view.
+    /// The image displayed in the image layer.
     open var image: NSUIImage? {
         get { images.count == 1 ? images.first : nil }
         set {
@@ -36,7 +36,11 @@ open class ImageLayer: CALayer {
         }
     }
     
-    /// The images displayed in the image layer.
+    /**
+     The images displayed in the image layer.
+     
+     Setting this property to an array with multiple images will remove the image represented by the image property.
+     */
     open var images: [NSUIImage] = [] {
         didSet {
             if isAnimating && !isAnimatable {
@@ -56,9 +60,10 @@ open class ImageLayer: CALayer {
     }
     
 #if os(macOS)
-/// Displays the specified GIF image.
+/// Displays the specified animated image.
 private func setAnimatedImage(_ image: NSImage) {
     if image.isAnimated, let frames = image.frames {
+        self.animationRepeatCount = image.animationLoopCount ?? 0
         Task {
             var duration = 0.0
             do {
@@ -95,7 +100,7 @@ private func setAnimatedImage(_ image: NSImage) {
     }
     
     /// The symbol configuration to use when rendering the image.
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
     public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
         set {
@@ -110,7 +115,9 @@ private func setAnimatedImage(_ image: NSImage) {
         case last
         case random
         case next
+        case nextLooped
         case previous
+        case previousLooped
         case index(Int)
     }
 
@@ -129,8 +136,12 @@ private func setAnimatedImage(_ image: NSImage) {
             case .random:
                 currentImageIndex = Int.random(in: 0 ... images.count - 1)
             case .next:
+                currentImageIndex = currentImageIndex.next(in: 0 ... images.count - 1)
+            case .nextLooped:
                 currentImageIndex = currentImageIndex.nextLooped(in: 0 ... images.count - 1)
             case .previous:
+                currentImageIndex = currentImageIndex.previous(in: 0 ... images.count - 1)
+            case .previousLooped:
                 currentImageIndex = currentImageIndex.previousLooped(in: 0 ... images.count - 1)
             }
         } else {
@@ -144,6 +155,7 @@ private func setAnimatedImage(_ image: NSImage) {
             if !isAnimating {
                 timerPreviousTimestamp = 0.0
                 timerCurrentInterval = 0.0
+                timerCurrentLoopCount = 0
                 displayLink = DisplayLink.shared.sink(receiveValue: { [weak self]
                     frame in
                         if let self = self {
@@ -151,7 +163,15 @@ private func setAnimatedImage(_ image: NSImage) {
                             self.timerCurrentInterval = self.timerCurrentInterval + timeIntervalCount
                             if self.timerCurrentInterval > self.timerInterval * 2.0 {
                                 self.timerCurrentInterval = 0.0
-                                self.setFrame(to: .next)
+                                self.setFrame(to: .nextLooped)
+                                if self.animationRepeatCount != 0, self.currentImageIndex == 0 {
+                                    self.timerCurrentLoopCount += 1
+                                }
+                                if self.animationRepeatCount != 0, self.timerCurrentLoopCount >= self.animationRepeatCount {
+                                    self.displayLink?.cancel()
+                                    self.displayLink = nil
+                                    self.timerCurrentLoopCount = 0
+                                }
                                 self.timerPreviousTimestamp = frame.timestamp
                             }
                         }
@@ -166,7 +186,7 @@ private func setAnimatedImage(_ image: NSImage) {
         displayLink = nil
     }
 
-    /// Stops animating the images in the receiver.
+    /// Stops animating the images and displays the first image.
     public func stopAnimating() {
         displayLink?.cancel()
         displayLink = nil
@@ -184,8 +204,19 @@ private func setAnimatedImage(_ image: NSImage) {
         }
     }
     
-    /// The amount of time it takes to go through one cycle of the images.
+    /**
+     The amount of time it takes to go through one cycle of the images.
+     
+     The time duration is measured in seconds. The default value of this property is 0.0, which causes the image layer to use a duration equal to the number of images multiplied by 1/30th of a second. Thus, if you had 30 images, the duration would be 1 second.
+     */
     public var animationDuration: TimeInterval = 0.0
+    
+    /**
+     Specifies the number of times to repeat the animation.
+     
+     The default value is 0, which specifies to repeat the animation indefinitely.
+     */
+    public var animationRepeatCount: Int = 0
 
     /// Returns a Boolean value indicating whether the animation is running.
     public var isAnimating: Bool {
@@ -213,13 +244,14 @@ private func setAnimatedImage(_ image: NSImage) {
 
     private var timerPreviousTimestamp: TimeInterval = 0.0
     private var timerCurrentInterval: TimeInterval = 0.0
+    private var timerCurrentLoopCount: Int = 0
     
-    internal var displayingSymbolImage: NSImage? = nil
+    internal var displayingSymbolImage: NSUIImage? = nil
     internal func updateDisplayingImage() {
         if var image = self.displayingImage {
             displayingSymbolImage = nil
             if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage == true {
-                var configuration: NSImage.SymbolConfiguration? = nil
+                var configuration: NSUIImage.SymbolConfiguration? = nil
                 #if os(macOS)
                 if let tintColor = tintColor?.resolvedColor() {
                     configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
@@ -351,23 +383,23 @@ private func setAnimatedImage(_ image: NSImage) {
 
     public enum Transition: Hashable {
         case none
-        case push(CGFloat)
-        case fade(CGFloat)
-        case moveIn(CGFloat)
-        case reveal(CGFloat)
+        case fade(duration: CGFloat)
+        case push(duration: CGFloat, direction: CATransitionSubtype)
+        case moveIn(duration: CGFloat, direction: CATransitionSubtype)
+        case reveal(duration: CGFloat, direction: CATransitionSubtype)
 
         fileprivate var caTransition: CATransition? {
             switch self {
             case .none:
                 return nil
-            case let .push(duration):
-                return CATransition(.push, duration: duration)
+            case let .push(duration, direction):
+                return .push(duration: duration, direction: direction)
             case let .fade(duration):
-                return CATransition(.fade, duration: duration)
-            case let .moveIn(duration):
-                return CATransition(.moveIn, duration: duration)
-            case let .reveal(duration):
-                return CATransition(.reveal,  duration: duration)
+                return .fade(duration: duration)
+            case let .moveIn(duration, direction):
+                return .moveIn(duration: duration, direction: direction)
+            case let .reveal(duration, direction):
+                return .reveal(duration: duration, direction: direction)
             }
         }
     }

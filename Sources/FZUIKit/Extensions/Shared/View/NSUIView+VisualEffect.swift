@@ -7,7 +7,7 @@
 
 #if os(macOS)
 import AppKit
-#elseif canImport(UIKit)
+#elseif canImport(FZUIKit)
 import UIKit
 #endif
 
@@ -91,6 +91,7 @@ internal extension UIView {
         
         internal func updateEffect() {
             if let newStyle = contentProperties.style {
+                #if os(iOS)
                 switch newStyle {
                 case let .vibrancy(vibrancy, blur: blurStyle):
                     let blurEffect = UIBlurEffect(style: blurStyle)
@@ -98,6 +99,9 @@ internal extension UIView {
                 case let .blur(blurStyle):
                     effect = UIBlurEffect(style: blurStyle)
                 }
+                #elseif os(tvOS)
+                effect = UIBlurEffect(style: newStyle)
+                #endif
             } else {
                 effect = nil
             }

@@ -5,7 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
-#if os(iOS)
+#if canImport(UIKit)
 import UIKit
 #elseif os(macOS)
 import AppKit

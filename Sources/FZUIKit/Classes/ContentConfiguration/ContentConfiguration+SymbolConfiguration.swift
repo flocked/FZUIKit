@@ -192,8 +192,10 @@ public extension ContentConfiguration {
             public static var headline: Self { Self.textStyle(.headline) }
             /// The font you use for subheadings.
             public static var subheadline: Self { Self.textStyle(.subheadline) }
+            #if os(macOS) || os(iOS)
             /// The font you use for large titles.
             public static var largeTitle: Self { Self.textStyle(.largeTitle) }
+            #endif
             /// The font you use for first-level hierarchical headings.
             public static var title1: Self { Self.textStyle(.title1) }
             /// The font you use for second-level hierarchical headings.

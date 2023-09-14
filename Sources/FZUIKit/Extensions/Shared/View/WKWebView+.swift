@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 06.07.23.
 //
 
+#if os(macOS) || os(iOS)
+
 import WebKit
 
 public extension WKWebView {
@@ -49,3 +51,4 @@ public extension WKWebView {
         return self.load(url)
     }
 }
+#endif
