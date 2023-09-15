@@ -10,11 +10,11 @@ import UIKit
 
 public extension UICollectionViewDiffableDataSource {
     /**
-     Creates a diffable data source with the specified cell provider, and connects it to the specified collection view.
+     Creates a diffable data source with the specified cell registration, and connects it to the specified collection view.
      
      - Parameters:
         - collectionView: The initialized collection view object to connect to the diffable data source.
-        - itemRegistration: A item registration that creates, configurate and returns each of the items for the collection view from the data the diffable data source provides.
+        - cellRegistration: A cell registration that creates, configurate and returns each of the cells for the collection view from the data the diffable data source provides.
      */
     convenience init<Cell: UICollectionViewCell>(collectionView: UICollectionView, cellRegistration: UICollectionView.CellRegistration<Cell, ItemIdentifierType>) {
         self.init(collectionView: collectionView, cellProvider: { collectionView,indexPath,itemIdentifier in
