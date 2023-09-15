@@ -53,7 +53,6 @@ public extension NSTextField {
         var string = ""
         for character in attributedStringValue.string {
             string += String(character)
-            
             let range = attributedStringValue.range(of: string)
             self.attributedStringValue = attributedStringValue[range]
             let newHeight = self.intrinsicContentSize.height
