@@ -41,6 +41,31 @@ public extension NSTextField {
         return linesRoundedUp
     }
     
+    /**
+     Returns the number of visible lines.
+     
+     ``AppKit/NSTextField/numberOfVisibleLines`` sometimes returns the wrong number of visible lines. This property always returns the correct number, but takes longer to calculate.
+     */
+    var numberOfVisibleLinesAlt: Int {
+        var numberOfVisibleLines = 0
+        let attributedStringValue = self.attributedStringValue
+        var height: CGFloat = 0
+        var string = ""
+        for character in attributedStringValue.string {
+            string += String(character)
+            
+            let range = attributedStringValue.range(of: string)
+            self.attributedStringValue = attributedStringValue[range]
+            let newHeight = self.intrinsicContentSize.height
+            if newHeight != height {
+                height = newHeight
+                numberOfVisibleLines += 1
+            }
+        }
+        self.attributedStringValue = attributedStringValue
+        return numberOfVisibleLines
+    }
+    
     /// A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
     var truncatesLastVisibleLine: Bool {
         get { self.cell?.truncatesLastVisibleLine ?? false }
