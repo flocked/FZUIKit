@@ -167,6 +167,32 @@ public class Toolbar: NSObject {
         }
     }
     
+    /**
+     Inserts an item into the toolbar at the specified index.
+     
+     Any changes you make to the toolbar appear in all `Toolbar` objects with the same identifier.
+     
+     - Parameters:
+        - item: The toolbar item to insert.
+        - index: The index at which to insert the item.
+     
+     */
+    public func insertItem(_ item: ToolbarItem, at index: Int) {
+        self.toolbar.insertItem(withItemIdentifier: item.identifier, at: index)
+    }
+    
+    /**
+     Removes the item at the specified index in the toolbar.
+     
+     Any changes you make to the toolbar appear in all `Toolbar` objects with the same identifier.
+     
+     - Parameters index: The index of the item to remove.
+     
+     */
+    public func removeItem(at index: Int) {
+        self.toolbar.removeItem(at: index)
+    }
+    
     /// Toolbar item handlers.
     public struct ItemHandlers {
         /// Handler that gets called when the selected item changed.
