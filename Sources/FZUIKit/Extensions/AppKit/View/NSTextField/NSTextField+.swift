@@ -32,39 +32,15 @@ public extension NSTextField {
     /// Returns the number of visible lines.
     var numberOfVisibleLines: Int {
         guard let font = self.font else { return -1 }
-        let maxSize = CGSize(width: frame.size.width, height: CGFloat(Float.infinity))
         let charSize = font.lineHeight
-        self.attributedStringValue.boundingRect(with: maxSize, context: nil)
-        let stringValue = self.stringValue as NSString
-        let textSize = stringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
-        let linesRoundedUp = Int(ceil(textSize.height/charSize))
-        return linesRoundedUp
-    }
-    
-    /**
-     Returns the number of visible lines.
-     
-     ``AppKit/NSTextField/numberOfVisibleLines`` sometimes returns the wrong number of visible lines. This property always returns the correct number, but takes longer to calculate.
-     */
-    var numberOfVisibleLinesAlt: Int {
-        var numberOfVisibleLines = 0
-        let attributedStringValue = self.attributedStringValue
-        var height: CGFloat = 0
-        var string = ""
-        for character in attributedStringValue.string {
-            string += String(character)
-            let range = attributedStringValue.range(of: string)
-            self.attributedStringValue = attributedStringValue[range]
-            let newHeight = self.intrinsicContentSize.height
-            if newHeight != height {
-                height = newHeight
-                numberOfVisibleLines += 1
-            }
+        let textSize = self.attributedStringValue.boundingRect(with: self.bounds.size, options: .usesLineFragmentOrigin)
+        var numberOfVisibleLines = Int((textSize.height/charSize).rounded(.down))
+        if maximumNumberOfLines != 0, numberOfVisibleLines > maximumNumberOfLines {
+            numberOfVisibleLines = maximumNumberOfLines
         }
-        self.attributedStringValue = attributedStringValue
         return numberOfVisibleLines
     }
-    
+        
     /// A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
     var truncatesLastVisibleLine: Bool {
         get { self.cell?.truncatesLastVisibleLine ?? false }
@@ -330,3 +306,40 @@ public extension NSTextField {
  #endif
 
  */
+
+
+/*
+/**
+ Returns the number of visible lines.
+ 
+ ``AppKit/NSTextField/numberOfVisibleLines`` sometimes returns the wrong number of visible lines. This property always returns the correct number, but takes longer to calculate.
+ */
+var numberOfVisibleLinesAlt: Int {
+ let maxSize = CGSize(width: self.bounds.width, height: CGFloat.infinity)
+ var numberOfVisibleLines = 0
+ let attributedStringValue = self.attributedStringValue
+ var height: CGFloat = 0
+ var string = ""
+ for character in attributedStringValue.string {
+     string += String(character)
+     let range = attributedStringValue.range(of: string)
+     self.attributedStringValue = attributedStringValue[range]
+     let boundingRect = self.attributedStringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
+     if boundingRect.height != height {
+         if boundingRect.height < self.frame.size.height {
+             height = boundingRect.height
+             numberOfVisibleLines = numberOfVisibleLines + 1
+             if numberOfVisibleLines == self.maximumNumberOfLines {
+                 self.attributedStringValue = attributedStringValue
+                 return numberOfVisibleLines
+             }
+         } else {
+             self.attributedStringValue = attributedStringValue
+             return numberOfVisibleLines
+         }
+     }
+ }
+ self.attributedStringValue = attributedStringValue
+ return numberOfVisibleLines
+}
+*/
