@@ -189,14 +189,7 @@ public extension Sizable where Self: NSStackView {
 }
  */
 
-public extension Sizable where Self: ResizingTextField {
-    func sizeThatFits(_ size: CGSize) -> CGSize {
-        if size.width != NSView.noIntrinsicMetric, size.width > 0, let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: CGFloat.greatestFiniteMagnitude)) {
-            return CGSize(size.width, cellSize.height)
-        }
-        return self.intrinsicContentSize
-    }
-}
+
 
 public extension Sizable where Self: NSImageView {
     func sizeThatFits(_ size: CGSize) -> CGSize {

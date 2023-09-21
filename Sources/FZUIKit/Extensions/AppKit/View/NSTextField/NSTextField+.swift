@@ -33,7 +33,10 @@ public extension NSTextField {
     var numberOfVisibleLines: Int {
         guard let font = self.font else { return -1 }
         let charSize = font.lineHeight
-        let textSize = self.attributedStringValue.boundingRect(with: self.bounds.size, options: .usesLineFragmentOrigin)
+        
+        let framesetter = CTFramesetterCreateWithAttributedString(self.attributedStringValue)
+        let textSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRange(), nil, CGSize(self.bounds.width, CGFloat.greatestFiniteMagnitude), nil)
+        
         var numberOfVisibleLines = Int((textSize.height/charSize).rounded(.down))
         if maximumNumberOfLines != 0, numberOfVisibleLines > maximumNumberOfLines {
             numberOfVisibleLines = maximumNumberOfLines
@@ -139,6 +142,35 @@ public extension NSTextField {
     internal var cellFrame: CGRect? {
         let frame = self.isBezeled == false ? frame : frame.insetBy(dx: 0, dy: 1)
         return self.cell?.drawingRect(forBounds: frame)
+    }
+    
+    var numberOfVisibleLinesAlt: Int {
+     let maxSize = CGSize(width: self.bounds.width, height: CGFloat.infinity)
+     var numberOfVisibleLines = 0
+     let attributedStringValue = self.attributedStringValue
+     var height: CGFloat = 0
+     var string = ""
+     for character in attributedStringValue.string {
+         string += String(character)
+         let range = attributedStringValue.range(of: string)
+         self.attributedStringValue = attributedStringValue[range]
+         let boundingRect = self.attributedStringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
+         if boundingRect.height != height {
+             if boundingRect.height < self.frame.size.height {
+                 height = boundingRect.height
+                 numberOfVisibleLines = numberOfVisibleLines + 1
+                 if numberOfVisibleLines == self.maximumNumberOfLines {
+                     self.attributedStringValue = attributedStringValue
+                     return numberOfVisibleLines
+                 }
+             } else {
+                 self.attributedStringValue = attributedStringValue
+                 return numberOfVisibleLines
+             }
+         }
+     }
+     self.attributedStringValue = attributedStringValue
+     return numberOfVisibleLines
     }
     
 
@@ -342,4 +374,24 @@ var numberOfVisibleLinesAlt: Int {
  self.attributedStringValue = attributedStringValue
  return numberOfVisibleLines
 }
+ 
+ func rangesOfLinesAA() {
+     let maxSize = self.bounds.size
+     var lineCount = 0
+     let attributedStringValue = self.attributedStringValue
+     var height: CGFloat = 0
+     var string = ""
+     var partialString = ""
+     var lineRanges: [Range<String.Index>] = []
+     for character in attributedStringValue.string {
+         string += String(character)
+         partialString += String(character)
+         let range = attributedStringValue.range(of: string)
+         let partialAttributedString = attributedStringValue[range]
+         let boundingRect = partialAttributedString.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
+         if boundingRect.height != height {
+             attributedStringValue.string.range(of: string)
+         }
+     }
+ }
 */

@@ -544,7 +544,7 @@ extension NSView {
 
     /// A Boolean value that indicates whether the view is visible.
     public var isVisible: Bool {
-        window != nil && alphaValue != 0.0 && visibleRect != .zero
+        window != nil && alphaValue != 0.0 && visibleRect != .zero && isHidden == false
     }
     
     /**
