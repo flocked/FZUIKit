@@ -32,8 +32,12 @@ public extension NSLayoutConstraint {
     }
 
     /// Updates the constant of the constraint and returns itself.
-    @discardableResult func constant(_ constant: CGFloat) -> NSLayoutConstraint {
-        self.constant = constant
+    @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> NSLayoutConstraint {
+        if animated {
+            self.animator().constant = constant
+        } else {
+            self.constant = constant
+        }
         return self
     }
 }
@@ -68,11 +72,7 @@ public extension Collection where Element: NSLayoutConstraint {
 
     /// Updates the constant of the constraints and returns itself.
     @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> Self {
-        if animated == false {
-            self.forEach({$0.constant(constant) })
-        } else {
-            self.forEach({$0.animator().constant(constant) })
-        }
+        self.forEach({$0.constant(constant, animated: animated) })
         return self
     }
     
@@ -83,21 +83,12 @@ public extension Collection where Element: NSLayoutConstraint {
     
     /// Updates the constant of the constraints and returns itself.
     @discardableResult func constant(_ insets: NSDirectionalEdgeInsets, animated: Bool = false) -> Self {
-        if animated == false {
-            self.leading?.constant(insets.leading)
-            self.trailing?.constant(-insets.trailing)
-            self.bottom?.constant(-insets.bottom)
-            self.top?.constant(insets.top)
-            self.width?.constant(-insets.width)
-            self.height?.constant(-insets.height)
-        } else {
-            self.leading?.animator().constant(insets.leading)
-            self.trailing?.animator().constant(-insets.trailing)
-            self.bottom?.animator().constant(-insets.bottom)
-            self.top?.animator().constant(insets.top)
-            self.width?.animator().constant(-insets.width)
-            self.height?.animator().constant(-insets.height)
-        }
+        self.leading?.constant(insets.leading, animated: animated)
+        self.trailing?.constant(-insets.trailing, animated: animated)
+        self.bottom?.constant(-insets.bottom, animated: animated)
+        self.top?.constant(insets.top, animated: animated)
+        self.width?.constant(-insets.width, animated: animated)
+        self.height?.constant(-insets.height, animated: animated)
         return self
     }
     #else

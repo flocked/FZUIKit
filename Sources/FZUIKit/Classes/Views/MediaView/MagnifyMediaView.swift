@@ -1,6 +1,6 @@
 //
-//  Magnee.swift
-//  CombTest
+//  MagnifyMediaView.swift
+//  
 //
 //  Created by Florian Zand on 30.05.22.
 //
@@ -100,11 +100,6 @@ open class MagnifyMediaView: NSView {
     }
 
     open func setMagnification(_ magnification: CGFloat, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
-        guard magnification >= minMagnification, magnification <= maxMagnification else { return }
-        let range = self.maxMagnification - self.minMagnification
-        let percentage = (magnification - self.minMagnification) / range
-        let scrollViewRange = scrollView.maxMagnification - scrollView.minMagnification
-        let magnification = scrollView.minMagnification + (scrollViewRange * percentage)
         scrollView.setMagnification(magnification, centeredAt: centeredAt, animationDuration: animationDuration)
         if magnification == 1.0 {
             scrollElasticity = .none
@@ -119,9 +114,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.mediaURL }
         set {
             mediaView.mediaURL = newValue
-            mediaView.frame.size = mediaView.intrinsicContentSize
-            magnification = 1
-            updateMagnification()
+        //    scrollView.contentView.frame.size = bounds.size
+            setMagnification(1.0)
         }
     }
 
@@ -129,9 +123,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.image }
         set {
             mediaView.image = newValue
-            mediaView.frame.size = mediaView.intrinsicContentSize
-            magnification = 1
-            updateMagnification()
+          //  scrollView.contentView.frame.size = bounds.size
+            setMagnification(1.0)
         }
     }
 
@@ -139,9 +132,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.images }
         set {
             mediaView.images = newValue
-            mediaView.frame.size = mediaView.intrinsicContentSize
-            magnification = 1
-            updateMagnification()
+          //  scrollView.contentView.frame.size = bounds.size
+            setMagnification(1.0)
         }
     }
 
@@ -155,9 +147,8 @@ open class MagnifyMediaView: NSView {
         get { return mediaView.asset }
         set {
             mediaView.asset = newValue
-            mediaView.frame.size = mediaView.intrinsicContentSize
-            magnification = 1
-            updateMagnification()
+         //   scrollView.contentView.frame.size = bounds.size
+            setMagnification(1.0)
         }
     }
 
@@ -174,6 +165,45 @@ open class MagnifyMediaView: NSView {
     open var videoPlaybackOption: MediaView.VideoPlaybackOption {
         get { mediaView.videoPlaybackOption }
         set { mediaView.videoPlaybackOption = newValue }
+    }
+    
+    public func seek(to interval: TimeDuration) {
+        mediaView.seek(to: interval)
+    }
+    
+    public func seek(toPercentage percentage: Double) {
+        mediaView.seek(toPercentage: percentage)
+
+    }
+    
+    public var videoPlaybackTime: TimeDuration {
+        get { mediaView.videoPlaybackTime }
+        set { mediaView.videoPlaybackTime = newValue }
+    }
+    
+    public var videoDuration: TimeDuration {
+        get { mediaView.videoDuration }
+    }
+
+    
+    public var videoPlaybackPosition: Double {
+        get { mediaView.videoPlaybackPosition }
+        set { mediaView.videoPlaybackPosition = newValue }
+    }
+    
+    public var videoPlaybackPositionHandler: ((TimeDuration)->())? {
+        get { mediaView.videoPlaybackPositionHandler }
+        set { mediaView.videoPlaybackPositionHandler = newValue }
+    }
+    
+    open override var menu: NSMenu? {
+        get { mediaView.menu }
+        set { mediaView.menu = newValue }
+    }
+
+    public var player: AVPlayer? {
+        get { mediaView.videoView.player }
+        set { mediaView.videoView.player = newValue }
     }
 
     open var autoAnimatesImages: Bool {
@@ -247,82 +277,40 @@ open class MagnifyMediaView: NSView {
         set { scrollView.allowsMagnification = newValue }
     }
 
+    open var magnification: CGFloat {
+        get { scrollView.magnification }
+        set { setMagnification(newValue) }
+    }
+
+    open var minMagnification: CGFloat {
+        get { scrollView.minMagnification }
+        set { scrollView.minMagnification = newValue }
+    }
+
+    open var maxMagnification: CGFloat {
+        get { self.scrollView.maxMagnification }
+        set { self.scrollView.maxMagnification = newValue }
+    }
+
     override open var enclosingScrollView: NSScrollView? {
         return scrollView
     }
     
-    private var boundsSize = CGSize(-1, -1)
-    open override func layout() {
-        super.layout()
-        guard self.bounds.size != boundsSize else { return }
-        self.boundsSize = self.bounds.size
-        scrollView.frame.size = self.bounds.size
-        updateMagnification()
+    public init() {
+        super.init(frame: .zero)
+        sharedInit()
     }
     
-    private var _magnification: CGFloat = 1.0
-    private var _minMagnification: CGFloat = 1.0
-    private var _maxMagnification: CGFloat = 3.0
-    
-    public var minMagnification: CGFloat {
-        get { _minMagnification }
-        set { guard newValue != minMagnification else { return }
-            _minMagnification = newValue
-            updateMagnification()
-        }
-    }
-    
-    public var maxMagnification: CGFloat {
-        get { _maxMagnification }
-        set { guard newValue != maxMagnification else { return }
-            _maxMagnification = newValue
-            updateMagnification()
-        }
-    }
-    
-    public var magnification: CGFloat {
-        get { _magnification }
-        set { guard newValue != _magnification, newValue >= minMagnification, newValue <= maxMagnification   else { return }
-            _magnification = newValue
-            if magnification == 1.0 {
-                scrollElasticity = .none
-                hasScrollers = false
-            } else {
-                hasScrollers = true
-                scrollElasticity = .automatic
-            }
-            updateMagnification()
-        }
-    }
-    
-   private func updateMagnification() {
-       guard self.bounds.size != .zero else { return }
-        let mediaViewSize =  mediaView.intrinsicContentSize
-       guard mediaViewSize != .zero else { return }
-        if mediaViewSize.height > mediaViewSize.width {
-            scrollView.minMagnification = (self.bounds.height*_minMagnification) / mediaViewSize.height
-            scrollView.maxMagnification = (self.bounds.height*_maxMagnification) / mediaViewSize.height
-        } else {
-            scrollView.minMagnification = (self.bounds.height*_minMagnification) / mediaViewSize.width
-            scrollView.maxMagnification = (self.bounds.height*_maxMagnification) / mediaViewSize.width
-        }
-        let magnificationRange = _maxMagnification - _minMagnification
-        let scrollViewMagnificationRange = scrollView.maxMagnification - scrollView.minMagnification
-        let percentage = (_magnification - _minMagnification) / magnificationRange
-       let value = (scrollView.minMagnification + (scrollViewMagnificationRange * percentage))
-       guard value >= scrollView.minMagnification, value <= scrollView.maxMagnification else { return }
-        scrollView.magnification = value
-        
-    }
-
     public init(mediaURL: URL) {
         super.init(frame: .zero)
+        sharedInit()
         self.mediaURL = mediaURL
     }
-
-    public init(frame: CGRect, mediaURL: URL) {
-        super.init(frame: frame)
-        self.mediaURL = mediaURL
+    
+    public init(image: NSImage) {
+        super.init(frame: .zero)
+        sharedInit()
+        self.image = image
     }
 
     override public init(frame frameRect: NSRect) {
@@ -335,51 +323,35 @@ open class MagnifyMediaView: NSView {
         sharedInit()
     }
     
-    public var backgroundColor: NSUIColor? {
-        get { self.layer?.backgroundColor?.nsColor }
-        set {
-            self.layer?.backgroundColor = newValue?.cgColor
-            self.enclosingScrollView?.backgroundColor = newValue
-        }
+    open override func layout() {
+        super.layout()
+        scrollView.frame.size = self.bounds.size
+        scrollView.documentView?.frame.size = self.bounds.size
     }
 
-    private var magnificationObserver: NSKeyValueObservation? = nil
     private func sharedInit() {
         wantsLayer = true
         mediaView.wantsLayer = true
         mediaView.frame = bounds
         scrollView.frame = bounds
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(scrollView)
         
-        magnificationObserver = scrollView.observeChanges(for: \.magnification, handler: { oldValue,newValue in
-            guard oldValue != newValue else { return }
-            let magnificationRange = self.scrollView.maxMagnification - self.scrollView.minMagnification
-            let percentage = (self.scrollView.magnification - self.scrollView.minMagnification) / magnificationRange
-            let range = self._maxMagnification - self._minMagnification
-            self._magnification = self._minMagnification + (percentage * range)
-        })
+        addSubview(scrollView)
 
         scrollView.contentView = CenteredClipView()
 
-        scrollView.contentView.frame.size = CGSize(width: 50, height: 50)
         scrollView.drawsBackground = false
 
+        mediaView.frame = scrollView.contentView.bounds
+        mediaView.autoresizingMask = .all
+
         scrollView.documentView = mediaView
-        mediaView.constraint(to: scrollView.contentView)
 
         allowsMagnification = true
         contentScaling = .resizeAspect
-        scrollView.minMagnification = 1.0
-        scrollView.maxMagnification = 3.0
+        minMagnification = 1.0
+        maxMagnification = 3.0
         backgroundColor = .black
         enclosingScrollView?.backgroundColor = .black
-    }
-}
-
-fileprivate class CenteredScrollView: NSScrollView {
-    override func smartMagnify(with event: NSEvent) {
-        super.smartMagnify(with: event)
     }
 }
 #endif
