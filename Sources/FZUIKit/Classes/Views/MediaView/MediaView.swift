@@ -121,9 +121,6 @@ public class MediaView: NSView {
                 self.pause()
                 mediaType = .video
                 videoSize = asset.videoNaturalSize
-                if videoView.player == nil {
-                    videoView.player = AVPlayer()
-                }
                 let item = AVPlayerItem(asset: asset)
                 videoView.player?.pause()
                 videoView.player?.replaceCurrentItem(with: item)
@@ -252,6 +249,21 @@ public class MediaView: NSView {
         get { videoView.player?.currentItem?.playbackPercentage ?? .zero }
         set { videoView.player?.seek(toPercentage: newValue) }
     }
+    
+    internal var playbackObserver: Any? = nil
+    public var videoPlaybackPositionHandler: ((TimeDuration)->())? {
+        didSet {
+            if let playbackObserver = self.playbackObserver {
+                videoView.player?.removeTimeObserver(playbackObserver)
+                self.playbackObserver = nil
+            }
+            if let videoPlaybackPositionHandler = self.videoPlaybackPositionHandler {
+                self.playbackObserver = videoView.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1), queue: nil, using: { time in
+                    videoPlaybackPositionHandler(.seconds(time.seconds))
+                })
+            }
+        }
+    }
 
     override public var fittingSize: NSSize {
         if mediaURL?.fileType == .image || mediaURL?.fileType == .gif {
@@ -372,6 +384,7 @@ public class MediaView: NSView {
         contentScaling = .resizeAspectFill
         addSubview(withConstraint: imageView)
         addSubview(withConstraint: videoView)
+        videoView.player = AVPlayer()
     }
 }
 

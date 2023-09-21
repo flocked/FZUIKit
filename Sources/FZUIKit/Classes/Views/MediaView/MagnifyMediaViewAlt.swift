@@ -190,6 +190,12 @@ open class MagnifyMediaViewAlt: NSView {
         get { mediaView.videoPlaybackPosition }
         set { mediaView.videoPlaybackPosition = newValue }
     }
+    
+    var videoPlaybackPositionHandler: ((TimeDuration)->())? {
+        get { mediaView.videoPlaybackPositionHandler }
+        set { mediaView.videoPlaybackPositionHandler = newValue }
+    }
+    
 
     open var autoAnimatesImages: Bool {
         get { mediaView.autoAnimatesImages }
