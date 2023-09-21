@@ -238,18 +238,15 @@ public class MediaView: NSView {
         }
     }
     
-    public var currentVideoTime: TimeDuration {
+    public var videoPlaybackTime: TimeDuration {
         get { guard let seconds = videoView.player?.currentItem?.currentTime().seconds else { return .zero }
             return .seconds(seconds) }
         set { videoView.player?.seek(to: newValue) }
     }
     
-    public var currentVideoPercentage: Double {
-        get { guard let seconds = videoView.player?.currentItem?.currentTime().seconds else { return .zero }
-            
-            
-        }
-        set { videoView.player?.seek(to: newValue) }
+    public var videoPlaybackPosition: Double {
+        get { videoView.player?.currentItem?.playbackPercentage ?? .zero }
+        set { videoView.player?.seek(toPercentage: newValue) }
     }
 
     override public var fittingSize: NSSize {
