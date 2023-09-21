@@ -114,7 +114,7 @@ open class MagnifyMediaViewAlt: NSView {
         get { return mediaView.mediaURL }
         set {
             mediaView.mediaURL = newValue
-            scrollView.contentView.frame.size = bounds.size
+        //    scrollView.contentView.frame.size = bounds.size
             setMagnification(1.0)
         }
     }
@@ -123,7 +123,7 @@ open class MagnifyMediaViewAlt: NSView {
         get { return mediaView.image }
         set {
             mediaView.image = newValue
-            scrollView.contentView.frame.size = bounds.size
+          //  scrollView.contentView.frame.size = bounds.size
             setMagnification(1.0)
         }
     }
@@ -132,7 +132,7 @@ open class MagnifyMediaViewAlt: NSView {
         get { return mediaView.images }
         set {
             mediaView.images = newValue
-            scrollView.contentView.frame.size = bounds.size
+          //  scrollView.contentView.frame.size = bounds.size
             setMagnification(1.0)
         }
     }
@@ -147,7 +147,7 @@ open class MagnifyMediaViewAlt: NSView {
         get { return mediaView.asset }
         set {
             mediaView.asset = newValue
-            scrollView.contentView.frame.size = bounds.size
+         //   scrollView.contentView.frame.size = bounds.size
             setMagnification(1.0)
         }
     }
@@ -281,6 +281,7 @@ open class MagnifyMediaViewAlt: NSView {
     open override func layout() {
         super.layout()
         scrollView.frame.size = self.bounds.size
+        scrollView.documentView?.frame.size = self.bounds.size
     }
 
     private func sharedInit() {
@@ -293,7 +294,6 @@ open class MagnifyMediaViewAlt: NSView {
 
         scrollView.contentView = CenteredClipView()
 
-        scrollView.contentView.frame.size = CGSize(width: 50, height: 50)
         scrollView.drawsBackground = false
 
         mediaView.frame = scrollView.contentView.bounds
