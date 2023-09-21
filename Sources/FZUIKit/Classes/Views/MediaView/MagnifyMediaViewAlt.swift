@@ -259,16 +259,19 @@ open class MagnifyMediaViewAlt: NSView {
     
     public init() {
         super.init(frame: .zero)
+        sharedInit()
     }
-
+    
     public init(mediaURL: URL) {
         super.init(frame: .zero)
+        sharedInit()
         self.mediaURL = mediaURL
     }
-
-    public init(frame: CGRect, mediaURL: URL) {
-        super.init(frame: frame)
-        self.mediaURL = mediaURL
+    
+    public init(image: NSImage) {
+        super.init(frame: .zero)
+        sharedInit()
+        self.image = image
     }
 
     override public init(frame frameRect: NSRect) {
