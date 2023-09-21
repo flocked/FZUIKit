@@ -121,6 +121,9 @@ public class MediaView: NSView {
                 self.pause()
                 mediaType = .video
                 videoSize = asset.videoNaturalSize
+                if videoView.player == nil {
+                    videoView.player = AVPlayer()
+                }
                 let item = AVPlayerItem(asset: asset)
                 videoView.player?.pause()
                 videoView.player?.replaceCurrentItem(with: item)
@@ -388,7 +391,6 @@ public class MediaView: NSView {
         contentScaling = .resizeAspectFill
         addSubview(withConstraint: imageView)
         addSubview(withConstraint: videoView)
-        videoView.player = AVPlayer()
     }
 }
 
