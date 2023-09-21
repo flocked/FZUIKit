@@ -277,20 +277,19 @@ open class MagnifyMediaViewAlt: NSView {
         super.init(coder: coder)
         sharedInit()
     }
+    
+    open override func layout() {
+        super.layout()
+        scrollView.frame.size = self.bounds.size
+    }
 
     private func sharedInit() {
         wantsLayer = true
         mediaView.wantsLayer = true
         mediaView.frame = bounds
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.frame = bounds
+        
         addSubview(scrollView)
-
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
-        scrollView.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
-        scrollView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
 
         scrollView.contentView = CenteredClipView()
 
