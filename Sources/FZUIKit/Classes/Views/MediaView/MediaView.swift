@@ -244,6 +244,10 @@ public class MediaView: NSView {
         set { videoView.player?.seek(to: newValue) }
     }
     
+    public var videoDuration: TimeDuration {
+        get { .seconds(videoView.player?.currentItem?.duration.seconds ?? 0)}
+    }
+    
     public var videoPlaybackPosition: Double {
         get { videoView.player?.currentItem?.playbackPercentage ?? .zero }
         set { videoView.player?.seek(toPercentage: newValue) }

@@ -181,6 +181,11 @@ open class MagnifyMediaViewAlt: NSView {
         set { mediaView.videoPlaybackTime = newValue }
     }
     
+    public var videoDuration: TimeDuration {
+        get { mediaView.videoDuration }
+    }
+
+    
     public var videoPlaybackPosition: Double {
         get { mediaView.videoPlaybackPosition }
         set { mediaView.videoPlaybackPosition = newValue }
