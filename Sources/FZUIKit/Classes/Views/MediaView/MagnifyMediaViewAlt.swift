@@ -195,6 +195,11 @@ open class MagnifyMediaViewAlt: NSView {
         get { mediaView.videoPlaybackPositionHandler }
         set { mediaView.videoPlaybackPositionHandler = newValue }
     }
+    
+    open override var menu: NSMenu? {
+        get { mediaView.menu }
+        set { mediaView.menu = newValue }
+    }
 
     public var player: AVPlayer? {
         get { mediaView.videoView.player }
