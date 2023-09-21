@@ -225,6 +225,32 @@ public class MediaView: NSView {
         }
         return false
     }
+    
+    public func seek(to interval: TimeDuration) {
+        if self.mediaType == .video {
+            videoView.player?.seek(to: interval)
+        }
+    }
+    
+    public func seek(toPercentage percentage: Double) {
+        if self.mediaType == .video {
+            videoView.player?.seek(toPercentage: percentage)
+        }
+    }
+    
+    public var currentVideoTime: TimeDuration {
+        get { guard let seconds = videoView.player?.currentItem?.currentTime().seconds else { return .zero }
+            return .seconds(seconds) }
+        set { videoView.player?.seek(to: newValue) }
+    }
+    
+    public var currentVideoPercentage: Double {
+        get { guard let seconds = videoView.player?.currentItem?.currentTime().seconds else { return .zero }
+            
+            
+        }
+        set { videoView.player?.seek(to: newValue) }
+    }
 
     override public var fittingSize: NSSize {
         if mediaURL?.fileType == .image || mediaURL?.fileType == .gif {
