@@ -166,6 +166,25 @@ open class MagnifyMediaViewAlt: NSView {
         get { mediaView.videoPlaybackOption }
         set { mediaView.videoPlaybackOption = newValue }
     }
+    
+    public func seek(to interval: TimeDuration) {
+        mediaView.seek(to: interval)
+    }
+    
+    public func seek(toPercentage percentage: Double) {
+        mediaView.seek(toPercentage: percentage)
+
+    }
+    
+    public var videoPlaybackTime: TimeDuration {
+        get { mediaView.videoPlaybackTime }
+        set { mediaView.videoPlaybackTime = newValue }
+    }
+    
+    public var videoPlaybackPosition: Double {
+        get { mediaView.videoPlaybackPosition }
+        set { mediaView.videoPlaybackPosition = newValue }
+    }
 
     open var autoAnimatesImages: Bool {
         get { mediaView.autoAnimatesImages }
