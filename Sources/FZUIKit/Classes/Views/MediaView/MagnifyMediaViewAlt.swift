@@ -257,6 +257,9 @@ open class MagnifyMediaViewAlt: NSView {
         return scrollView
     }
     
+    public init() {
+        super.init(frame: .zero)
+    }
 
     public init(mediaURL: URL) {
         super.init(frame: .zero)
