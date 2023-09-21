@@ -261,12 +261,8 @@ public class MediaView: NSView {
                 self.playbackObserver = nil
             }
             if let videoPlaybackPositionHandler = self.videoPlaybackPositionHandler {
-                self.playbackObserver = videoView.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1), queue: nil, using: { time in
-                    if time.seconds == 0.0 {
-                        videoPlaybackPositionHandler(.zero)
-                    } else {
-                        videoPlaybackPositionHandler(.seconds(time.seconds))
-                    }
+                self.playbackObserver = videoView.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds:0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: .main, using: { time in
+                    videoPlaybackPositionHandler(.seconds(time.seconds))
                 })
             }
         }
