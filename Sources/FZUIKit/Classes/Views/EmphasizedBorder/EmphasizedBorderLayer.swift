@@ -16,11 +16,7 @@ import UIKit
 /// A layer with a emphasized border.
 public class EmphasizedBorderLayer: CALayer {
     public override var cornerRadius: CGFloat {
-        didSet {
-            emphasizedBorderLayer.cornerRadius = self.cornerRadius
-            let diff = self.frame.size.height / (self.frame.size.height - (self.borderWidth * 2))
-            emphasizedBorderLayer.cornerRadius = self.cornerRadius * diff
-        }
+        didSet {  emphasizedBorderLayer.cornerRadius = self.cornerRadius }
     }
     
     public override var maskedCorners: CACornerMask {
@@ -32,37 +28,21 @@ public class EmphasizedBorderLayer: CALayer {
     }
     
     public override var borderWidth: CGFloat {
-        didSet {
-            emphasizedBorderLayer.borderWidth = self.borderWidth
-            self.layoutBorderedLayer()
-        }
+        didSet { emphasizedBorderLayer.borderWidth = self.borderWidth * 2 }
     }
     
     public override func layoutSublayers() {
-        self.layoutBorderedLayer()
         super.layoutSublayers()
+        emphasizedBorderLayer.frame = self.bounds
     }
 
     override public func display() {
         super.display()
-        layoutBorderedLayer()
+        emphasizedBorderLayer.frame = self.bounds
     }
     
     internal let emphasizedBorderLayer = CALayer()
     
-    internal func layoutBorderedLayer() {
-        var emphasizedBorderFrame: CGRect = .zero
-        emphasizedBorderFrame.size.width = self.frame.size.width - (self.borderWidth * 2)
-        emphasizedBorderFrame.size.height = self.frame.size.height - (self.borderWidth * 2)
-        emphasizedBorderFrame.origin.x = self.borderWidth
-        emphasizedBorderFrame.origin.y = self.borderWidth
-        emphasizedBorderLayer.frame = emphasizedBorderFrame
-        
-        let diff = (self.frame.size.height - (self.borderWidth )) / self.frame.size.height
-        emphasizedBorderLayer.cornerRadius = self.cornerRadius * diff
-      //  emphasizedBorderLayer.scale = CGPoint(x: diff, y: diff)
-    }
-        
     public override init() {
         super.init()
         self.sharedInit()
@@ -80,6 +60,7 @@ public class EmphasizedBorderLayer: CALayer {
     
     internal func sharedInit() {
         emphasizedBorderLayer.borderColor = NSUIColor.white.withAlphaComponent(0.5).cgColor
+        emphasizedBorderLayer.frame = self.bounds
         self.addSublayer(emphasizedBorderLayer)
     }
 }
