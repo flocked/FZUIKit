@@ -701,6 +701,13 @@ internal extension NSView {
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
                 let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
                     if NSViewAnimationKeys.contains(key) {
+                        
+                        let springAnimation = CASpringAnimation()
+                        springAnimation.damping = 14
+                        springAnimation.initialVelocity = 5
+                        springAnimation.fillMode = CAMediaTimingFillMode.forwards
+                        return springAnimation
+                        
                         let animation = CABasicAnimation()
                         animation.timingFunction = .default
                         return animation
@@ -731,3 +738,14 @@ private let NSViewTransitionKeys = ["NSAnimationTriggerOrderIn", "NSAnimationTri
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow"]
 
 #endif
+
+/*
+ let basicAnimation = CASpringAnimation(keyPath: "position")
+ basicAnimation.fromValue = NSValue(cgPoint: initialPos)
+ basicAnimation.toValue = NSValue(cgPoint: finalPos)
+ basicAnimation.duration = basicAnimation.settlingDuration
+ basicAnimation.damping = 14
+ basicAnimation.initialVelocity = 5
+ basicAnimation.isRemovedOnCompletion = false
+ basicAnimation.fillMode = CAMediaTimingFillMode.forwards
+ */
