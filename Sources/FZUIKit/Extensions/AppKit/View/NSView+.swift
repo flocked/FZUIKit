@@ -692,12 +692,12 @@ internal extension NSView {
             guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
                 let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
-                    let animationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow"]
-                    if animationKeys.contains(key) {
+                    if NSViewAnimationKeys.contains(key) {
                         let animation = CABasicAnimation()
+                        animation.timingFunction = .default
                         return animation
                     }
-                    if key == "NSAnimationTriggerOrderOut" || key == "NSAnimationTriggerOrderIn" {
+                    if NSViewTransitionKeys.contains(key) {
                         let transition: CATransition = .fade()
                         transition.timingFunction = .default
                         return transition
@@ -719,4 +719,7 @@ internal extension NSView {
         }
     }
 }
+private let NSViewTransitionKeys = ["NSAnimationTriggerOrderIn", "NSAnimationTriggerOrderOut", "hidden"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow"]
+
 #endif
