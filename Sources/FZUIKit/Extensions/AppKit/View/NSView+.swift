@@ -720,7 +720,7 @@ internal extension NSView {
         if animationKeys.contains(key) {
             let animation = CABasicAnimation()
             self.savedAnimations.append(animation)
-            return CABasicAnimation()
+            return animation
         }
         return self.swizzledAnimation(forKey: key)
     }
