@@ -426,8 +426,7 @@ public class ViewAnimator {
     /// The translation transform of the attached view.
     public var translation: CGPoint {
         get {
-            let currentTranslation = CGPoint(x: view.transform.tx, y: view.transform.ty)
-            return runningTranslationAnimator?.target ?? currentTranslation
+            return runningTranslationAnimator?.target ?? self.view.layer?.translation ?? CGPoint(x: 0, y: 0)
         }
         set {
             guard let settings = AnimationController.shared.currentAnimationParameters else {
@@ -437,7 +436,7 @@ public class ViewAnimator {
                 return
             }
 
-            let initialValue = CGPoint(x: view.transform.tx, y: view.transform.ty)
+            let initialValue = self.view.layer?.translation ?? CGPoint(x: 0, y: 0)
             let targetValue = newValue
 
             let animationType = AnimatableProperty.translation
@@ -451,10 +450,7 @@ public class ViewAnimator {
             animation.valueChanged = { [weak self] value in
                 guard let strongSelf = self else { return }
 
-                var transform = strongSelf.view.transform
-                transform.tx = value.x
-                transform.ty = value.y
-                strongSelf.view.transform = transform
+                strongSelf.view.layer?.translation = value
             }
 
             animation.completion = { [weak self] event in
