@@ -443,6 +443,10 @@ extension NSView {
         set {
             wantsLayer = true
             swizzleAnimationForKey()
+            var newValue = newValue
+            if newValue == nil, String(describing: self).contains("NSViewAnimator") {
+                newValue = .clear
+            }
             layer?.borderColor = newValue?.cgColor
         }
     }
@@ -457,6 +461,10 @@ extension NSView {
         set {
             wantsLayer = true
             swizzleAnimationForKey()
+            var newValue = newValue
+            if newValue == nil, String(describing: self).contains("NSViewAnimator") {
+                newValue = .clear
+            }
             layer?.borderColor = newValue?.cgColor
         }
     }
