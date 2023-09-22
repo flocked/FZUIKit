@@ -28,11 +28,11 @@ internal class NSHostingContentView<Content, Background>: NSView, NSContentView 
     }
     
     public func sizeThatFits(_ size: CGSize) -> CGSize {
-        return hostingController.sizeThatFits(size)
+        return hostingController.sizeThatFits(in: size)
     }
     
     override var fittingSize: NSSize {
-        return hostingController.fittingSize
+        return hostingController.view.fittingSize
     }
     
     /// Creates a hosting content view with the specified content configuration.

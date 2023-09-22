@@ -54,6 +54,46 @@ public extension UIView {
         get { layer.cornerCurve }
         set { layer.cornerCurve = newValue }
     }
+    
+    /**
+     The shadow color of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc dynamic var shadowColor: NSUIColor? {
+        get { layer.shadowColor?.uiColor }
+        set { layer.borderColor = newValue?.cgColor }
+    }
+    
+    /**
+     The shadow offset of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc dynamic var shadowOffset: CGSize {
+        get { layer.shadowOffset }
+        set { layer.shadowOffset = newValue }
+    }
+    
+    /**
+     The shadow radius of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc dynamic var shadowRadius: CGFloat {
+        get { layer.shadowRadius }
+        set { layer.shadowRadius = newValue }
+    }
+    
+    /**
+     The shadow opacity of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc dynamic var shadowOpacity: CGFloat {
+        get { CGFloat(layer.shadowOpacity) }
+        set { layer.shadowOpacity = Float(newValue) }
+    }
 }
 
 extension UIView.ContentMode: CaseIterable {

@@ -12,6 +12,7 @@ import SwiftUI
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import AVKit
 
 public protocol Sizable {
     /**
@@ -42,7 +43,7 @@ extension NSUIView: Sizable { }
 
 public extension Sizable where Self: NSUIView {
     var fittingSize: CGSize {
-        sizeThatFits(CGSize(width: 1000000, height: 1000000))
+        sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
     }
     
     func sizeToFit() {
@@ -58,20 +59,6 @@ public extension Sizable where Self: NSUIView {
     /// Asks the view to calculate and return the size that best fits the specified width and height.
     func sizeThatFits(width: CGFloat?, height: CGFloat?) -> CGSize {
         return sizeThatFits(CGSize(width: width ?? NSUIView.noIntrinsicMetric, height: height ?? NSUIView.noIntrinsicMetric))
-    }
-}
-
-extension NSUIHostingController: Sizable {
-    public var fittingSize: CGSize {
-        return view.fittingSize
-    }
-    
-    public func sizeThatFits(_ size: CGSize) -> CGSize {
-        return sizeThatFits(in: size)
-    }
-    
-    public func sizeToFit() {
-        view.frame.size = fittingSize
     }
 }
 
@@ -116,9 +103,7 @@ public extension Sizable where Self: NSSwitch {
 public extension Sizable where Self: NSProgressIndicator {
     func sizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = self.fittingSize
-        if self.style == .spinning {
-            return fittingSize
-        }
+        if self.style == .spinning { return fittingSize }
         if size.width > fittingSize.width {
             fittingSize.width = size.width
         }
@@ -136,9 +121,30 @@ public extension Sizable where Self: NSLevelIndicator {
     }
 }
 
+public extension Sizable where Self: NSPathControl {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        var fittingSize = self.fittingSize
+        if size.width > 0, size.width.isFinite {
+            fittingSize.width = size.width
+        }
+        return fittingSize
+    }
+}
+
+public extension Sizable where Self: NSDatePicker {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        var fittingSize = self.fittingSize
+        if datePickerStyle != .clockAndCalendar, size.width > 0, size.width.isFinite {
+            fittingSize.width = size.width
+        }
+        return fittingSize
+    }
+}
+
 public extension Sizable where Self: NSSlider {
     func sizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = self.fittingSize
+        if sliderType == .circular { return fittingSize }
         if self.isVertical == false, size.width > fittingSize.width {
             fittingSize.width = size.width
         } else if self.isVertical, size.height > fittingSize.height {
@@ -161,6 +167,18 @@ public extension Sizable where Self: NSComboBox {
             fittingSize.width = size.width
         }
         return fittingSize
+    }
+}
+
+public extension Sizable where Self: NSImageView {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        return image?.size ?? self.bounds.size
+    }
+}
+
+public extension Sizable where Self: AVPlayerView {
+    func sizeThatFits(_ size: CGSize) -> CGSize {
+        self.player?.currentItem?.asset.videoNaturalSize ?? self.bounds.size
     }
 }
 
@@ -188,13 +206,5 @@ public extension Sizable where Self: NSStackView {
     }
 }
  */
-
-
-
-public extension Sizable where Self: NSImageView {
-    func sizeThatFits(_ size: CGSize) -> CGSize {
-        return image?.size ?? self.bounds.size
-    }
-}
 #endif
 #endif

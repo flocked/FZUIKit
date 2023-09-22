@@ -17,25 +17,25 @@ public class InnerShadowView: NSUIView {
     internal static let Tag = 435_234_364
 
     /// The opacity of the inner shadow.
-    public var shadowOpacity: CGFloat {
+    public var innerShadowOpacity: CGFloat {
         get { return CGFloat(innershadowLayer.shadowOpacity) }
         set { innershadowLayer.shadowOpacity = Float(newValue) }
     }
 
     /// The radius of the inner shadow.
-    public var shadowRadius: CGFloat {
+    public var innerShadowRadius: CGFloat {
         get { innershadowLayer.shadowRadius }
         set { innershadowLayer.shadowRadius = newValue }
     }
 
     /// The offset of the inner shadow.
-    public var shadowOffset: CGSize {
+    public var innerShadowOffset: CGSize {
         get { innershadowLayer.shadowOffset }
         set { innershadowLayer.shadowOffset = newValue }
     }
 
     /// The color of the inner shadow.
-    public var shadowColor: NSUIColor? {
+    public var innerShadowColor: NSUIColor? {
         get {
 #if os(macOS)
           return innershadowLayer.shadowColor?.nsColor

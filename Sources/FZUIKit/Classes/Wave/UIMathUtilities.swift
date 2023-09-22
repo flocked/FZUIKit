@@ -5,15 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
-#if os(iOS) || os(tvOS)
-import UIKit
-public let NormalScrollDecelerationRate = UIScrollView.DecelerationRate.normal.rawValue
-#elseif os(macOS)
-import AppKit
-public let NormalScrollDecelerationRate = 0.998
-#endif
 
 public func rubberband(value: CGFloat, range: ClosedRange<CGFloat>, interval: CGFloat, c: CGFloat = 0.55) -> CGFloat {
     // * x = distance from the edge
@@ -40,14 +32,14 @@ public func rubberband(value: CGFloat, range: ClosedRange<CGFloat>, interval: CG
 /**
  Projects a scalar value based on a scalar velocity.
  */
-public func project(value: CGFloat, velocity: CGFloat, decelerationRate: CGFloat = NormalScrollDecelerationRate) -> CGFloat {
+public func project(value: CGFloat, velocity: CGFloat, decelerationRate: CGFloat = 0.998) -> CGFloat {
     value + project(initialVelocity: velocity, decelerationRate: decelerationRate)
 }
 
 /**
  Projects a 2D point based on a 2D velocity.
  */
-public func project(point: CGPoint, velocity: CGPoint, decelerationRate: CGFloat = NormalScrollDecelerationRate) -> CGPoint {
+public func project(point: CGPoint, velocity: CGPoint, decelerationRate: CGFloat = 0.998) -> CGPoint {
     CGPoint(
         x: point.x + project(initialVelocity: velocity.x, decelerationRate: decelerationRate),
         y: point.y + project(initialVelocity: velocity.y, decelerationRate: decelerationRate)
@@ -102,4 +94,3 @@ public func clip<T: FloatingPoint>(value: T, lower: T, upper: T) -> T {
 public func clipUnit<T: FloatingPoint>(value: T) -> T {
     clip(value: value, lower: 0, upper: 1)
 }
-#endif

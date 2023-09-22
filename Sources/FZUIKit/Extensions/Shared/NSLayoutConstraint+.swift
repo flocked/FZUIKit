@@ -31,6 +31,7 @@ public extension NSLayoutConstraint {
         return self
     }
 
+    #if os(macOS)
     /// Updates the constant of the constraint and returns itself.
     @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> NSLayoutConstraint {
         if animated {
@@ -40,6 +41,13 @@ public extension NSLayoutConstraint {
         }
         return self
     }
+    #elseif canImport(UIKit)
+    /// Updates the constant of the constraint and returns itself.
+    @discardableResult func constant(_ constant: CGFloat) -> NSLayoutConstraint {
+        self.constant = constant
+        return self
+    }
+    #endif
 }
 
 public extension Collection where Element: NSLayoutConstraint {
@@ -48,50 +56,7 @@ public extension Collection where Element: NSLayoutConstraint {
         self.forEach({ $0.activate() })
         return self
     }
-    
-    #if os(macOS)
-    /// Updates the active state of the constraints and returns itself.
-    @discardableResult func activate(_ active: Bool, animated: Bool = false) -> Self {
-        if animated == false {
-            self.forEach({ $0.activate(active) })
-        } else {
-            self.forEach({ $0.animator().activate(active) })
-        }
-        return self
-    }
-    
-    /// Updates the priority of the constraints and returns itself.
-    @discardableResult func priority(_ priority: NSUILayoutPriority, animated: Bool = false) -> Self {
-        if animated == false {
-            self.forEach({$0.priority(priority) })
-        } else {
-            self.forEach({$0.animator().priority(priority) })
-        }
-        return self
-    }
-
-    /// Updates the constant of the constraints and returns itself.
-    @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> Self {
-        self.forEach({$0.constant(constant, animated: animated) })
-        return self
-    }
-    
-    /// Updates the constant of the constraints and returns itself.
-    @discardableResult func constant(_ insets: NSUIEdgeInsets, animated: Bool = false) -> Self {
-        self.constant(insets.directional, animated: animated)
-    }
-    
-    /// Updates the constant of the constraints and returns itself.
-    @discardableResult func constant(_ insets: NSDirectionalEdgeInsets, animated: Bool = false) -> Self {
-        self.leading?.constant(insets.leading, animated: animated)
-        self.trailing?.constant(-insets.trailing, animated: animated)
-        self.bottom?.constant(-insets.bottom, animated: animated)
-        self.top?.constant(insets.top, animated: animated)
-        self.width?.constant(-insets.width, animated: animated)
-        self.height?.constant(-insets.height, animated: animated)
-        return self
-    }
-    #else
+        
     /// Updates the active state of the constraints and returns itself.
     @discardableResult func activate(_ active: Bool) -> Self {
         self.forEach({ $0.activate(active) })
@@ -123,6 +88,29 @@ public extension Collection where Element: NSLayoutConstraint {
         self.top?.constant(insets.top)
         self.width?.constant(-insets.width)
         self.height?.constant(-insets.height)
+        return self
+    }
+    
+    #if os(macOS)
+    /// Updates the constant of the constraints and returns itself.
+    @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> Self {
+        self.forEach({$0.constant(constant, animated: animated) })
+        return self
+    }
+
+    /// Updates the constant of the constraints and returns itself.
+    @discardableResult func constant(_ insets: NSUIEdgeInsets, animated: Bool = false) -> Self {
+        self.constant(insets.directional, animated: animated)
+    }
+
+    /// Updates the constant of the constraints and returns itself.
+    @discardableResult func constant(_ insets: NSDirectionalEdgeInsets, animated: Bool = false) -> Self {
+        self.leading?.constant(insets.leading, animated: animated)
+        self.trailing?.constant(-insets.trailing, animated: animated)
+        self.bottom?.constant(-insets.bottom, animated: animated)
+        self.top?.constant(insets.top, animated: animated)
+        self.width?.constant(-insets.width, animated: animated)
+        self.height?.constant(-insets.height, animated: animated)
         return self
     }
     #endif

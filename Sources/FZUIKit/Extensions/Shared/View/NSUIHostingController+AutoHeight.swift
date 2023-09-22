@@ -42,7 +42,7 @@ public class AutoHeightHostingController<Content>: NSUIHostingController<Content
     public override func viewDidLayout() {
         if self.view.frame.size.width != previousWidth {
             previousWidth = self.view.frame.size.width
-            let fittingSize = self.sizeThatFits(CGSize(width: previousWidth, height: 10000))
+            let fittingSize = self.sizeThatFits(in: CGSize(width: previousWidth, height: 10000))
             self.heightAnchor.constant = fittingSize.height
         }
     }

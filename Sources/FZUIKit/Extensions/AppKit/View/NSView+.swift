@@ -439,9 +439,7 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var borderColor: NSColor? {
-        get { if let cgColor = layer?.borderColor {
-            return NSColor(cgColor: cgColor)
-        } else { return nil } }
+        get { layer?.borderColor?.nsColor }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
@@ -471,6 +469,62 @@ extension NSView {
                 _effectiveAppearanceKVO = nil
             }
             layer?.backgroundColor = newValue?.cgColor
+        }
+    }
+    
+    /**
+     The shadow color of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc open dynamic var shadowColor: NSColor? {
+        get { layer?.shadowColor?.nsColor }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            layer?.borderColor = newValue?.cgColor
+        }
+    }
+    
+    /**
+     The shadow offset of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc open dynamic var shadowOffset: CGSize {
+        get { layer?.shadowOffset ?? .zero }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            layer?.shadowOffset = newValue
+        }
+    }
+    
+    /**
+     The shadow radius of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc open dynamic var shadowRadius: CGFloat {
+        get { layer?.shadowRadius ?? .zero }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            layer?.shadowRadius = newValue
+        }
+    }
+    
+    /**
+     The shadow opacity of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc open dynamic var shadowOpacity: CGFloat {
+        get { CGFloat(layer?.shadowOpacity ?? .zero) }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            layer?.shadowOpacity = Float(newValue)
         }
     }
 
@@ -653,7 +707,7 @@ internal extension CALayerContentsGravity {
 internal extension NSView {
     @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         switch key {
-        case "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY":
+        case "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius":
             return CABasicAnimation()
         default:
             return self.swizzledAnimation(forKey: key)
