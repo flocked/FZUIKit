@@ -54,7 +54,7 @@ extension NSView {
         get { layer?.masksToBounds ?? false }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.masksToBounds = newValue
         }
     }
@@ -71,7 +71,7 @@ extension NSView {
         set {
             wantsLayer = true
             layer?.mask = nil
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             set(associatedValue: newValue, key: "_viewMaskView", object: self)
             if let maskView = newValue {
                 wantsLayer = true
@@ -108,7 +108,7 @@ extension NSView {
     @objc open dynamic var left: CGFloat {
         get { frame.left }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.left = newValue }
     }
     
@@ -123,7 +123,7 @@ extension NSView {
     @objc open dynamic var right: CGFloat {
         get { frame.right }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.right = newValue }
     }
     
@@ -138,7 +138,7 @@ extension NSView {
     @objc open dynamic var top: CGFloat {
         get { frame.top }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.top = newValue }
     }
     
@@ -153,7 +153,7 @@ extension NSView {
     @objc open dynamic var bottom: CGFloat {
         get { frame.bottom }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.bottom = newValue }
     }
     
@@ -168,7 +168,7 @@ extension NSView {
     @objc open dynamic var topLeft: CGPoint {
         get { frame.topLeft }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.topLeft = newValue }
     }
     
@@ -183,7 +183,7 @@ extension NSView {
     @objc open dynamic var topCenter: CGPoint {
         get { frame.topCenter }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.topCenter = newValue }
     }
     
@@ -198,7 +198,7 @@ extension NSView {
     @objc open dynamic var topRight: CGPoint {
         get { frame.topRight }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.topRight = newValue }
     }
     
@@ -213,7 +213,7 @@ extension NSView {
     @objc open dynamic var centerLeft: CGPoint {
         get { frame.centerLeft }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.centerLeft = newValue }
     }
     
@@ -228,7 +228,7 @@ extension NSView {
     @objc open dynamic var center: CGPoint {
         get { frame.center }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.center = newValue }
     }
     
@@ -243,7 +243,7 @@ extension NSView {
     @objc open dynamic var centerRight: CGPoint {
         get { frame.centerRight }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.centerRight = newValue }
     }
     
@@ -258,7 +258,7 @@ extension NSView {
     @objc open dynamic var bottomLeft: CGPoint {
         get { frame.bottomLeft }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.bottomLeft = newValue }
     }
     
@@ -273,7 +273,7 @@ extension NSView {
     @objc open dynamic var bottomCenter: CGPoint {
         get { frame.bottomCenter }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.bottomCenter = newValue }
     }
     
@@ -288,7 +288,7 @@ extension NSView {
     @objc open dynamic var bottomRight: CGPoint {
         get { frame.bottomRight }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.bottomRight = newValue }
     }
     
@@ -303,7 +303,7 @@ extension NSView {
     @objc open dynamic var centerX: CGFloat {
         get { frame.centerX }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.centerX = newValue }
     }
     
@@ -318,7 +318,7 @@ extension NSView {
     @objc open dynamic var centerY: CGFloat {
         get { frame.centerY }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             frame.centerY = newValue }
     }
 
@@ -337,7 +337,7 @@ extension NSView {
         }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.setAffineTransform(newValue)
         }
     }
@@ -355,7 +355,7 @@ extension NSView {
         }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.transform = newValue
         }
     }
@@ -373,7 +373,7 @@ extension NSView {
         get { layer?.anchorPoint ?? .zero }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             setAnchorPoint(newValue)
         }
     }
@@ -387,7 +387,7 @@ extension NSView {
         get { layer?.cornerRadius ?? 0.0 }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.cornerRadius = newValue
         }
     }
@@ -401,7 +401,7 @@ extension NSView {
         get { layer?.cornerCurve ?? .circular }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.cornerCurve = newValue
         }
     }
@@ -428,7 +428,7 @@ extension NSView {
         get { layer?.borderWidth ?? 0.0 }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.borderWidth = newValue
         }
     }
@@ -442,7 +442,7 @@ extension NSView {
         get { layer?.borderColor?.nsColor }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.borderColor = newValue?.cgColor
         }
     }
@@ -457,7 +457,7 @@ extension NSView {
         set {
             wantsLayer = true
             set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             if newValue != nil {
                 if _effectiveAppearanceKVO == nil {
                     _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
@@ -481,7 +481,7 @@ extension NSView {
         get { layer?.shadowColor?.nsColor }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.borderColor = newValue?.cgColor
         }
     }
@@ -495,7 +495,7 @@ extension NSView {
         get { layer?.shadowOffset ?? .zero }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.shadowOffset = newValue
         }
     }
@@ -509,7 +509,7 @@ extension NSView {
         get { layer?.shadowRadius ?? .zero }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.shadowRadius = newValue
         }
     }
@@ -523,7 +523,7 @@ extension NSView {
         get { CGFloat(layer?.shadowOpacity ?? .zero) }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             layer?.shadowOpacity = Float(newValue)
         }
     }
@@ -723,6 +723,47 @@ internal extension NSView {
             return animation
         }
         return self.swizzledAnimation(forKey: key)
+    }
+    
+    func swizzleAnimationForKey() {
+        guard didSwizzleAnimationForKey == false else { return }
+        didSwizzleAnimationForKey = true
+        guard let viewClass = object_getClass(self) else { return }
+        let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
+        if let viewSubclass = NSClassFromString(viewSubclassName) {
+            object_setClass(self, viewSubclass)
+        } else {
+            guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
+            guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
+            Swift.print("SETUP")
+            if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
+                let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
+                    Swift.print("YES")
+                    let animationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow"]
+                    if animationKeys.contains(key) {
+                        let animation = CABasicAnimation()
+                        return animation
+                    }
+                    if key == "NSAnimationTriggerOrderOut" || key == "NSAnimationTriggerOrderIn" {
+                        let transition: CATransition = .fade()
+                        transition.timingFunction = .default
+                        return transition
+                    }
+                    return nil
+                }
+                class_addMethod(viewSubclass, #selector(NSView.animation(forKey:)),
+                                imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
+            }
+            objc_registerClassPair(viewSubclass)
+            object_setClass(self, viewSubclass)
+        }
+    }
+    
+     var didSwizzleAnimationForKey: Bool {
+        get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "NSView_didSwizzleAnimationForKey", object: self)
+        }
     }
     
     static var didSwizzleAnimationForKey: Bool {

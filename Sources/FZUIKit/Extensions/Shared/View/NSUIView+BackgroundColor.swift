@@ -28,7 +28,7 @@ public extension BackgroundColorSettable where Self: NSView {
     dynamic var backgroundColor: NSColor? {
         get { getAssociatedValue(key: "_viewBackgroundColor", object: self) }
         set {
-            Self.swizzleAnimationForKey()
+            swizzleAnimationForKey()
             self._backgroundColor = newValue
             set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
         }
