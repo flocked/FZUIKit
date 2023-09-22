@@ -25,11 +25,22 @@ extension NSUIView: BackgroundColorSettable { }
 #if os(macOS)
 public extension BackgroundColorSettable where Self: NSView {
     /// The background color of the view.
-    var backgroundColor: NSColor? {
+    dynamic var backgroundColor: NSColor? {
         get { getAssociatedValue(key: "_viewBackgroundColor", object: self) }
         set {
+            Self.swizzleAnimationForKey()
+            self._backgroundColor = newValue
             set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
-            updateBackgroundColor()
+        }
+    }
+}
+
+internal extension NSView {
+    @objc dynamic var _backgroundColor: NSColor? {
+        get { layer?.backgroundColor?.nsColor }
+        set {
+            wantsLayer = true
+            layer?.backgroundColor = newValue?.cgColor
             if newValue != nil {
                 if _effectiveAppearanceKVO == nil {
                     _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
@@ -43,12 +54,12 @@ public extension BackgroundColorSettable where Self: NSView {
         }
     }
     
-    internal var _effectiveAppearanceKVO: NSKeyValueObservation? {
+    var _effectiveAppearanceKVO: NSKeyValueObservation? {
         get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
         set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
     }
 
-    internal func updateBackgroundColor() {
+    func updateBackgroundColor() {
         wantsLayer = true
         layer?.backgroundColor = backgroundColor?.resolvedColor(for: effectiveAppearance).cgColor
     }
