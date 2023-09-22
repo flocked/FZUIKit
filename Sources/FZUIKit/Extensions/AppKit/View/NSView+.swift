@@ -701,13 +701,13 @@ internal extension NSView {
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
                 let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
                     if NSViewAnimationKeys.contains(key) {
-                        
+                       /*
                         let springAnimation = CASpringAnimation()
                         springAnimation.damping = 14
                         springAnimation.initialVelocity = 5
                         springAnimation.fillMode = CAMediaTimingFillMode.forwards
                         return springAnimation
-                        
+                        */
                         let animation = CABasicAnimation()
                         animation.timingFunction = .default
                         return animation
