@@ -446,32 +446,7 @@ extension NSView {
             layer?.borderColor = newValue?.cgColor
         }
     }
-    
-    /**
-     The background color of the view that is animatable.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
-     */
-    @objc open dynamic var backgroundColorAnimatable: NSColor? {
-        get { getAssociatedValue(key: "_viewBackgroundColor", object: self) }
-        set {
-            wantsLayer = true
-            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
-            swizzleAnimationForKey()
-            if newValue != nil {
-                if _effectiveAppearanceKVO == nil {
-                    _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
-                        self?.updateBackgroundColor()
-                    }
-                }
-            } else {
-                _effectiveAppearanceKVO?.invalidate()
-                _effectiveAppearanceKVO = nil
-            }
-            layer?.backgroundColor = newValue?.cgColor
-        }
-    }
-    
+        
     /**
      The shadow color of the view.
 
@@ -704,27 +679,7 @@ internal extension CALayerContentsGravity {
     }
 }
 
-public extension NSView {
-    var savedAnimations: [CABasicAnimation] {
-       get { getAssociatedValue(key: "savedAnimations", object: self, initialValue: []) }
-       set {
-           set(associatedValue: newValue, key: "savedAnimations", object: self)
-       }
-   }
-}
-
 internal extension NSView {
-    @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        let animationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius"]
-        Swift.print(key, animationKeys.contains(key))
-        if animationKeys.contains(key) {
-            let animation = CABasicAnimation()
-            self.savedAnimations.append(animation)
-            return animation
-        }
-        return self.swizzledAnimation(forKey: key)
-    }
-    
     func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
@@ -735,11 +690,9 @@ internal extension NSView {
         } else {
             guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
             guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
-            Swift.print("SETUP")
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
                 let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
-                    Swift.print("YES")
-                    let animationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow"]
+                    let animationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow"]
                     if animationKeys.contains(key) {
                         let animation = CABasicAnimation()
                         return animation
@@ -763,26 +716,6 @@ internal extension NSView {
         get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }
         set {
             set(associatedValue: newValue, key: "NSView_didSwizzleAnimationForKey", object: self)
-        }
-    }
-    
-    static var didSwizzleAnimationForKey: Bool {
-        get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }
-        set {
-            set(associatedValue: newValue, key: "NSView_didSwizzleAnimationForKey", object: self)
-        }
-    }
-    
-    static func swizzleAnimationForKey() {
-        if didSwizzleAnimationForKey == false {
-            didSwizzleAnimationForKey = true
-            do {
-                try Swizzle(NSView.self) {
-                    #selector(animation(forKey:)) <-> #selector(swizzledAnimation(forKey:))
-                }
-            } catch {
-                Swift.debugPrint(error)
-            }
         }
     }
 }
