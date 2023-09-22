@@ -706,12 +706,11 @@ internal extension CALayerContentsGravity {
 
 internal extension NSView {
     @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        switch key {
-        case "transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius":
+        let animationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius"]
+        if animationKeys.contains(key) {
             return CABasicAnimation()
-        default:
-            return self.swizzledAnimation(forKey: key)
         }
+        return self.swizzledAnimation(forKey: key)
     }
     
     static var didSwizzleAnimationForKey: Bool {
