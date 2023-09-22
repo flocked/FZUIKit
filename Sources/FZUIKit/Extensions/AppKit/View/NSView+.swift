@@ -704,11 +704,22 @@ internal extension CALayerContentsGravity {
     }
 }
 
+public extension NSView {
+    var savedAnimations: [CABasicAnimation] {
+       get { getAssociatedValue(key: "savedAnimations", object: self, initialValue: []) }
+       set {
+           set(associatedValue: newValue, key: "savedAnimations", object: self)
+       }
+   }
+}
+
 internal extension NSView {
     @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         let animationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius"]
         Swift.print(key, animationKeys.contains(key))
         if animationKeys.contains(key) {
+            let animation = CABasicAnimation()
+            self.savedAnimations.append(animation)
             return CABasicAnimation()
         }
         return self.swizzledAnimation(forKey: key)
