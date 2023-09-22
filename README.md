@@ -47,7 +47,7 @@ let loadingView = NSContentUnavailableView(configuration: configuration)
 ```
 
 ### NSView backgroundColor
-A background color of the view that automatically adjusts on light/dark mode changes.
+A background color of the view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
 
 ```
 view.backgroundColor = .systemRed

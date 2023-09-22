@@ -359,6 +359,22 @@ extension NSView {
             layer?.transform = newValue
         }
     }
+    
+    /**
+     The scale transform of the view..
+
+     The default value of this property is `CGPoint(x: 1.0, y: 1.0)`.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc open dynamic var scale: CGPoint {
+        get { layer?.scale ?? CGPoint(x: 1, y: 1) }
+        set {
+            wantsLayer = true
+            swizzleAnimationForKey()
+            layer?.scale = newValue
+        }
+    }
 
     /**
      The anchor point of the view’s bounds rectangle.
@@ -735,7 +751,7 @@ internal extension NSView {
     }
 }
 private let NSViewTransitionKeys = ["NSAnimationTriggerOrderIn", "NSAnimationTriggerOrderOut", "hidden"]
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow", "scale"]
 
 #endif
 
