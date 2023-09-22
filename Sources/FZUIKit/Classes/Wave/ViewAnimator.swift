@@ -381,8 +381,7 @@ public class ViewAnimator {
     /// The scale transform of the attached view.
     public var scale: CGPoint {
         get {
-            let currentScale = CGPoint(x: view.transform.a, y: view.transform.d)
-            return runningScaleAnimator?.target ?? currentScale
+            return runningScaleAnimator?.target ?? self.view.layer?.scale ?? CGPoint(x: 1, y: 1)
         }
         set {
             guard let settings = AnimationController.shared.currentAnimationParameters else {
@@ -392,7 +391,9 @@ public class ViewAnimator {
                 return
             }
 
-            let initialValue = CGPoint(x: view.transform.a, y: view.transform.d)
+            self.view.anchorPoint = CGPoint(0.5, 0.5)
+            
+            let initialValue = self.view.layer?.scale ?? CGPoint(x: 1, y: 1)
             let targetValue = newValue
 
             let animationType = AnimatableProperty.scale
@@ -405,11 +406,7 @@ public class ViewAnimator {
             animation.target = targetValue
             animation.valueChanged = { [weak self] value in
                 guard let strongSelf = self else { return }
-
-                var transform = strongSelf.view.transform
-                transform.a = max(value.x, 0.0) // [1, 1]
-                transform.d = max(value.y, 0.0) // [2, 2]
-                strongSelf.view.transform = transform
+                strongSelf.view.layer?.scale = value
             }
 
             animation.completion = { [weak self] event in

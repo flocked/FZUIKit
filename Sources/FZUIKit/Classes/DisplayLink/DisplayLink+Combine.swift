@@ -116,10 +116,23 @@ fileprivate extension DisplayLink {
 
         /// The target for the CADisplayLink (because CADisplayLink retains its target).
         let target = DisplayLinkTarget()
+        
+        /// The framerate of the displaylink.
+        var fps: CGFloat {
+            1 / (displayLink.targetTimestamp - displayLink.timestamp)
+        }
 
         /// Creates a new paused DisplayLink instance.
         init() {
             displayLink = CADisplayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
+            
+            if #available(iOS 15.0, *) {
+                 let maximumFramesPerSecond = Float(UIScreen.main.maximumFramesPerSecond)
+                 let highFPSEnabled = maximumFramesPerSecond > 60
+                 let minimumFPS: Float = min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
+                displayLink.preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
+             }
+            
             displayLink.isPaused = true
             displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
 
@@ -177,6 +190,13 @@ fileprivate extension DisplayLink {
             CVDisplayLinkCreateWithActiveCGDisplays(&dl)
             return dl!
         }()
+        
+        /*
+         /// The framerate of the displaylink.
+         var fps: CGFloat {
+             1 / (displayLink.targetTimestamp - displayLink.timestamp)
+         }
+         */
 
         init() {
             CVDisplayLinkSetOutputHandler(displayLink) { [weak self] _, inNow, inOutputTime, _, _ -> CVReturn in

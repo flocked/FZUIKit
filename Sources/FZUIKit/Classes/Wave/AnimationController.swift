@@ -61,7 +61,7 @@ internal class AnimationController {
         CATransaction.setDisableActions(true)
 
         let dt = frame.duration
-
+        
         let sortedAnimations = animations.values.sorted { lhs, rhs in
             lhs.relativePriority > rhs.relativePriority
         }
