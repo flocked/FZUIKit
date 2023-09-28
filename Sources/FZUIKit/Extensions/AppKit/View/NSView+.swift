@@ -720,6 +720,8 @@ internal extension NSView {
             
             Swift.print("exactClassImplementsSelector", exactClassImplementsSelector(viewSubclass, #selector(NSView.animation(forKey:))))
             
+            addSuperTrampoline(dynamicClass: viewSubclass, selector: #selector(NSView.animation(forKey:)))
+            
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
                 let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { object, key in
                     Swift.print("animationForKey", key)
@@ -754,6 +756,24 @@ internal extension NSView {
                                 imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
                  */
             }
+        }
+    }
+    
+    var addSuperImpl: @convention(c) (AnyClass, Selector, NSErrorPointer) -> Bool {
+        getAssociatedValue(key: "addSuperImpl", object: self) {
+            let handle = dlopen(nil, RTLD_LAZY)
+            let imp = dlsym(handle, "IKTAddSuperImplementationToClass")
+            return unsafeBitCast(imp, to: (@convention(c) (AnyClass, Selector, NSErrorPointer) -> Bool).self)
+        }
+    }
+
+    func addSuperTrampoline(dynamicClass: AnyClass, selector: Selector) {
+        var error: NSError?
+        if addSuperImpl(dynamicClass, selector, &error) == false {
+            Swift.print("Failed to add super implementation to")
+        } else {
+            let imp = class_getMethodImplementation(dynamicClass, selector)!
+            Swift.print("Added super for", imp)
         }
     }
     
