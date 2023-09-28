@@ -704,7 +704,6 @@ internal extension CALayerContentsGravity {
 }
 
 internal extension NSView {
-    
     func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
@@ -715,17 +714,8 @@ internal extension NSView {
         } else {
             guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
             guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
-            objc_registerClassPair(viewSubclass)
-            object_setClass(self, viewSubclass)
-            
-            Swift.print("exactClassImplementsSelector", exactClassImplementsSelector(viewSubclass, #selector(NSView.animation(forKey:))))
-            
-            addSuperTrampoline(dynamicClass: viewSubclass, selector: #selector(NSView.animation(forKey:)))
-            
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
-                let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { object, key in
-                    Swift.print("animationForKey", key)
-                    Swift.print("original", self.original?(object, key) ?? nil)
+                let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
                     if NSViewAnimationKeys.contains(key) {
                        /*
                         let springAnimation = CASpringAnimation()
@@ -745,64 +735,12 @@ internal extension NSView {
                     }
                     return nil
                 }
-                
-               let original = class_replaceMethod(viewSubclass, #selector(NSView.animation(forKey:)),
-                                                  imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
-                Swift.print("class_replaceMethod", original ?? nil)
-                self.animationForKeyImp = original
-
-                /*
                 class_addMethod(viewSubclass, #selector(NSView.animation(forKey:)),
                                 imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
-                 */
             }
+            objc_registerClassPair(viewSubclass)
+            object_setClass(self, viewSubclass)
         }
-    }
-    
-    var addSuperImpl: @convention(c) (AnyClass, Selector, NSErrorPointer) -> Bool {
-        getAssociatedValue(key: "addSuperImpl", object: self) {
-            let handle = dlopen(nil, RTLD_LAZY)
-            let imp = dlsym(handle, "IKTAddSuperImplementationToClass")
-            return unsafeBitCast(imp, to: (@convention(c) (AnyClass, Selector, NSErrorPointer) -> Bool).self)
-        }
-    }
-
-    func addSuperTrampoline(dynamicClass: AnyClass, selector: Selector) {
-        var error: NSError?
-        if addSuperImpl(dynamicClass, selector, &error) == false {
-            Swift.print("Failed to add super implementation to")
-        } else {
-            let imp = class_getMethodImplementation(dynamicClass, selector)!
-            Swift.print("Added super for", imp)
-        }
-    }
-    
-    /// Looks for an instance method in the exact class, without looking up the hierarchy.
-    func exactClassImplementsSelector(_ klass: AnyClass, _ selector: Selector) -> Bool {
-        var methodCount: CUnsignedInt = 0
-        guard let methodsInAClass = class_copyMethodList(klass, &methodCount) else { return false }
-        defer { free(methodsInAClass) }
-        for index in 0 ..< Int(methodCount) {
-            let method = methodsInAClass[index]
-            if method_getName(method) == selector {
-                return true
-            }
-        }
-        return false
-    }
-    
-    var animationForKeyImp: IMP? {
-       get { getAssociatedValue(key: "animationForKeyImp", object: self, initialValue: nil) }
-       set {
-           set(associatedValue: newValue, key: "animationForKeyImp", object: self)
-       }
-   }
-    
-    var original: ((AnyObject, NSAnimatablePropertyKey) -> Any?)? {
-        if let savedOrigIMP = animationForKeyImp {
-            return unsafeBitCast(savedOrigIMP, to: ((AnyObject, NSAnimatablePropertyKey) -> Any?).self)
-        }
-        return nil
     }
     
      var didSwizzleAnimationForKey: Bool {
