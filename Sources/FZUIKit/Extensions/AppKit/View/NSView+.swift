@@ -704,6 +704,7 @@ internal extension CALayerContentsGravity {
 }
 
 internal extension NSView {
+    
     func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
@@ -715,7 +716,9 @@ internal extension NSView {
             guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
             guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
-                let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
+                let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { object, key in
+                    Swift.print("animationForKey", key)
+                    Swift.print("original", self.original?(object, key) ?? nil)
                     if NSViewAnimationKeys.contains(key) {
                        /*
                         let springAnimation = CASpringAnimation()
@@ -735,12 +738,32 @@ internal extension NSView {
                     }
                     return nil
                 }
+                
+                self.animationForKeyImp = class_replaceMethod(viewSubclass, #selector(NSView.animation(forKey:)),
+                                                  imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
+
+                /*
                 class_addMethod(viewSubclass, #selector(NSView.animation(forKey:)),
                                 imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
+                 */
             }
             objc_registerClassPair(viewSubclass)
             object_setClass(self, viewSubclass)
         }
+    }
+    
+    var animationForKeyImp: IMP? {
+       get { getAssociatedValue(key: "animationForKeyImp", object: self, initialValue: nil) }
+       set {
+           set(associatedValue: newValue, key: "animationForKeyImp", object: self)
+       }
+   }
+    
+    var original: ((AnyObject, NSAnimatablePropertyKey) -> Any?)? {
+        if let savedOrigIMP = animationForKeyImp {
+            return unsafeBitCast(savedOrigIMP, to: ((AnyObject, NSAnimatablePropertyKey) -> Any?).self)
+        }
+        return nil
     }
     
      var didSwizzleAnimationForKey: Bool {
