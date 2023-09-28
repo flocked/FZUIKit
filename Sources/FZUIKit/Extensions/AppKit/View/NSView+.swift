@@ -718,6 +718,8 @@ internal extension NSView {
             objc_registerClassPair(viewSubclass)
             object_setClass(self, viewSubclass)
             
+            Swift.print("exactClassImplementsSelector", exactClassImplementsSelector(viewSubclass, #selector(NSView.animation(forKey:))))
+            
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
                 let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { object, key in
                     Swift.print("animationForKey", key)
@@ -753,6 +755,20 @@ internal extension NSView {
                  */
             }
         }
+    }
+    
+    /// Looks for an instance method in the exact class, without looking up the hierarchy.
+    func exactClassImplementsSelector(_ klass: AnyClass, _ selector: Selector) -> Bool {
+        var methodCount: CUnsignedInt = 0
+        guard let methodsInAClass = class_copyMethodList(klass, &methodCount) else { return false }
+        defer { free(methodsInAClass) }
+        for index in 0 ..< Int(methodCount) {
+            let method = methodsInAClass[index]
+            if method_getName(method) == selector {
+                return true
+            }
+        }
+        return false
     }
     
     var animationForKeyImp: IMP? {
