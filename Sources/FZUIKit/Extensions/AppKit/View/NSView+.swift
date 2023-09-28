@@ -715,6 +715,9 @@ internal extension NSView {
         } else {
             guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
             guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
+            objc_registerClassPair(viewSubclass)
+            object_setClass(self, viewSubclass)
+            
             if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
                 let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { object, key in
                     Swift.print("animationForKey", key)
@@ -749,8 +752,6 @@ internal extension NSView {
                                 imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
                  */
             }
-            objc_registerClassPair(viewSubclass)
-            object_setClass(self, viewSubclass)
         }
     }
     
