@@ -10,60 +10,131 @@ import AppKit
 import Foundation
 import FZSwiftUtils
 
+/// A view controller that manages and displays swipeable pages.
 public class PageController<ViewController: NSViewController, Element>: NSPageController, NSPageControllerDelegate {
-    override public func loadView() {
-        view = ObservingView()
+    
+    /// The handler that configurates the view controller for each element.
+    public typealias PageHandler = (_ viewController: ViewController, _ element: Element) -> Void
+    
+    /// The arranged elements.
+    public var elements: [Element] {
+        get { return arrangedObjects.isEmpty ? [] : (arrangedObjects as! [Element]) }
+        set { arrangedObjects = newValue }
     }
-
+    
+    /// A Boolean value that indicates whether the user can swipe between displayed pages.
     public var isSwipeable = true
-    public var isLooping = false
-    public var keyboardControl: KeyboardControl = .disabled
-    public var isKeyboardControllable = false
-    public var keyboardTransitionDuration: TimeInterval = 0.0
-
-    public typealias Handler = (_ viewController: ViewController, _ element: Element) -> Void
-    private let handler: Handler
-
-    public init(elements: [Element] = [], handler: @escaping Handler) {
-        self.handler = handler
+    
+    /// A value that specifies if the displayed page is controllable by keyboard input.
+    public var keyboardControl: KeyboardControlOption = .enabled {
+        didSet { setupKeyDownMonitor() }
+    }
+    
+    private var keyDownMonitor: NSEvent.Monitor? = nil
+    private func setupKeyDownMonitor() {
+        if keyboardControl.isEnabled == true {
+            if keyDownMonitor == nil {
+                keyDownMonitor = NSEvent.localMonitor(for: .keyDown, handler: { [weak self] event in
+                    guard let self = self else { return event }
+                    let firstResponder = self.view.window?.firstResponder
+                    if firstResponder == self || firstResponder == self.view {
+                        Swift.print("HERE YES")
+                        _ = self.performKeyEquivalent(with: event)
+                        return nil
+                    }
+                    return event
+                })
+            }
+        } else {
+            keyDownMonitor = nil
+        }
+    }
+    
+    /**
+     Returns a page controller with the specified elements and page handler.
+     
+     - Parameters:
+        - elements: The elements of the page controller.
+        - pageHandler: The handler that configurates the view controller for each element.
+     */
+    public init(elements: [Element] = [], pageHandler: @escaping PageHandler) {
+        self.handler = pageHandler
         super.init(nibName: nil, bundle: nil)
+        guard elements.isEmpty == false else { return }
         self.arrangedObjects = elements
+        self.setupKeyDownMonitor()
     }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
+        
     override public func performKeyEquivalent(with event: NSEvent) -> Bool {
+        Swift.print(event.keyCode)
         if self.elements.isEmpty == false, self.keyboardControl.isEnabled {
             var type: AdvanceOption? = nil
-            if event.keyCode == 123 {
+            switch event.keyCode {
+            case 123:
                 if event.modifierFlags.contains(.command) {
                     type = .first
                 } else {
-                    type = .previous
+                    type = keyboardControl.isLooping ? .previousLooping :  .previous
                 }
-            } else {
+            case 124:
                 if event.modifierFlags.contains(.command) {
                     type = .last
                 } else {
-                    type = .next
+                    type = keyboardControl.isLooping ? .nextLooping : .next
                 }
+            default: break
             }
             if let type = type {
-                self.advance(to: type, duration: self.keyboardControl.transitionDuration)
+                self.advancePage(to: type, animationDuration: self.keyboardControl.transitionDuration)
                 return true
             }
         }
         return false
     }
-
-    override public var acceptsFirstResponder: Bool {
+    
+    override public func scrollWheel(with event: NSEvent) {
+        if isSwipeable {
+            super.scrollWheel(with: event)
+        }
+    }
+    
+    private let handler: PageHandler
+    private var pageVCIndex: Int = 0
+    private lazy var pageVCs = [pageVC(), pageVC(),pageVC()]
+    private func pageVC() -> ViewController {
+        if ViewController.responds(to: #selector(NSViewController.init(nibName:bundle:))) {
+            return ViewController(nibName: nil, bundle: nil)
+        } else {
+            return ViewController()
+        }
+    }
+    
+    public func pageController(_ pageController: NSPageController, identifierFor object: Any) -> NSPageController.ObjectIdentifier {
+        if let color = object as? NSColor, let colors = self.arrangedObjects as? [NSColor], let index =  colors.firstIndex(of: color) {
+            return "\(index)"
+        }
+        return "PageViewController"
+    }
+    
+    public func pageController(_ pageController: NSPageController, viewControllerForIdentifier identifier: NSPageController.ObjectIdentifier) -> NSViewController {
+        pageVCIndex = pageVCIndex.advanced(by: .nextLooping, in: 0...pageVCs.count-1)
+        return pageVCs[pageVCIndex]
+    }
+    
+    public func pageController(_ pageController: NSPageController, prepare viewController: NSViewController, with object: Any?) {
+        guard let element = object as? Element, let itemVC = viewController as? ViewController else { return }
+        handler(itemVC, element)
+    }
+    
+    public func pageControllerDidEndLiveTransition(_: NSPageController) {
+        completeTransition()
+    }
+    
+    public override var acceptsFirstResponder: Bool {
         return true
     }
-
-    override public func viewDidLoad() {
+    
+    public override func viewDidLoad() {
         super.viewDidLoad()
         (view as? ObservingView)?.keyHandlers.keyDown = { event in
             return self.performKeyEquivalent(with: event)
@@ -71,37 +142,21 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
         delegate = self
         transitionStyle = .horizontalStrip
     }
-
-    override public func scrollWheel(with event: NSEvent) {
-        if isSwipeable {
-            super.scrollWheel(with: event)
-        }
+    
+    public override func viewDidAppear() {
+        super.viewDidAppear()
+        guard arrangedObjects.count > 1 else { return }
+        self.selectedIndex = 1
+        self.selectedIndex = 0
     }
-
-    public var elements: [Element] {
-        get { return arrangedObjects.isEmpty ? [] : (arrangedObjects as! [Element]) }
-        set { arrangedObjects = newValue }
+    
+    public override func loadView() {
+        self.view = ObservingView()
     }
-
-    public func pageController(_: NSPageController, viewControllerForIdentifier _: String) -> NSViewController {
-        return ViewController()
+    
+    internal required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
-
-    public func pageController(_: NSPageController, identifierFor _: Any) -> String {
-        return "ViewController"
-    }
-
-    func prepare(viewController: ViewController, with element: Element) {
-        handler(viewController, element)
-    }
-
-    public func pageController(_: NSPageController, prepare viewController: NSViewController, with object: Any?) {
-        guard let element = object as? Element, let itemVC = viewController as? ViewController else { return }
-        prepare(viewController: itemVC, with: element)
-    }
-
-    public func pageControllerDidEndLiveTransition(_: NSPageController) {
-        completeTransition()
-    }
+    
 }
 #endif
