@@ -739,8 +739,10 @@ internal extension NSView {
                     return nil
                 }
                 
-                self.animationForKeyImp = class_replaceMethod(viewSubclass, #selector(NSView.animation(forKey:)),
+               let original = class_replaceMethod(viewSubclass, #selector(NSView.animation(forKey:)),
                                                   imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
+                Swift.print("class_replaceMethod", original ?? nil)
+                self.animationForKeyImp = original
 
                 /*
                 class_addMethod(viewSubclass, #selector(NSView.animation(forKey:)),
