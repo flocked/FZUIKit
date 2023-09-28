@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import Foundation
+import FZSwiftUtils
 
 public class PageController<ViewController: NSViewController, Element>: NSPageController, NSPageControllerDelegate {
     override public func loadView() {
@@ -36,7 +37,7 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
 
     override public func performKeyEquivalent(with event: NSEvent) -> Bool {
         if self.elements.isEmpty == false, self.keyboardControl.isEnabled {
-            var type: AdvanceType? = nil
+            var type: AdvanceOption? = nil
             if event.keyCode == 123 {
                 if event.modifierFlags.contains(.command) {
                     type = .first

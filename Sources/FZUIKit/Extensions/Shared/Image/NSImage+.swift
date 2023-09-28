@@ -51,7 +51,7 @@ public extension NSImage {
         return nil
     }
 
-    typealias ImageOrientation = ImageProperties.Orientation
+    typealias ImageOrientation = ImageSource.ImageProperties.Orientation
     var orientation: ImageOrientation {
         ImageSource(image: self)?.properties()?.orientation ?? .up
     }

@@ -226,7 +226,7 @@ open class MagnifyMediaView: NSView {
         set { mediaView.contentScaling = newValue }
     }
 
-    open var mediaType: URL.FileType? { return mediaView.mediaType }
+    open var mediaType: FileType? { return mediaView.mediaType }
 
     open func play() {
         mediaView.play()

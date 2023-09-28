@@ -11,8 +11,6 @@ import Foundation
 import FZSwiftUtils
 
 public extension NSPageController {
-    typealias AdvanceType = Int.NextValueType
-
     func select(_ index: Int, duration: CGFloat = 0.0) {
         if arrangedObjects.isEmpty == false, index < arrangedObjects.count, index != selectedIndex {
             if duration > 0.0 {
@@ -29,7 +27,7 @@ public extension NSPageController {
         }
     }
 
-    func advance(to type: AdvanceType, duration: CGFloat = 0.0) {
+    func advance(to type: AdvanceOption, duration: CGFloat = 0.0) {
         if arrangedObjects.isEmpty == false {
             let newIndex = selectedIndex.advanced(by: type, in: 0 ... arrangedObjects.count - 1)
             select(newIndex, duration: duration)

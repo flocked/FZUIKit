@@ -13,7 +13,7 @@ public extension NSStatusItem {
     /// The handler to be called when the status item gets clicked.
     var onClick: NSButton.ActionBlock? {
         get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
-        set { associatedValue.set(newValue, key: "_statusItemActionBlock")
+        set { associatedValues.set(newValue, key: "_statusItemActionBlock")
             updateAction()
         }
     }
@@ -21,7 +21,7 @@ public extension NSStatusItem {
     /// The handler to be called when the status item gets right clicked.
     var onRightClick: NSButton.ActionBlock? {
         get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
-        set { associatedValue.set(newValue, key: "_statusItemActionBlock")
+        set { associatedValues.set(newValue, key: "_statusItemActionBlock")
             updateAction()
         }
     }

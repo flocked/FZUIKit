@@ -84,7 +84,7 @@ public class MediaView: NSView {
         return .zero
     }
 
-    public private(set) var mediaType: URL.FileType? = nil
+    public private(set) var mediaType: FileType? = nil
 
     public var mediaURL: URL? = nil {
         didSet {

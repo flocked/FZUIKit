@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import Foundation
+import FZSwiftUtils
 
 public class PagingView<View: NSView, Element>: NSView {
     private typealias ViewController = TypedViewController<View>
@@ -19,7 +20,7 @@ public class PagingView<View: NSView, Element>: NSView {
         pageController.select(index, duration: duration)
     }
 
-    public func advance(to type: NSPageController.AdvanceType, duration: CGFloat = 0.0) {
+    public func advance(to type: AdvanceOption, duration: CGFloat = 0.0) {
         pageController.advance(to: type, duration: duration)
     }
 
