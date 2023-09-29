@@ -123,6 +123,48 @@ public class Spring: Equatable {
 
     /// A placeholder spring to use when using the `nonAnimated` mode. See `AnimationMode` for more info.
     public static let defaultNonAnimated = Spring(dampingRatio: 1.0, response: 0.0)
+    
+    /// A smooth spring with a predefined duration and no bounce.
+    public static let smooth = Spring(dampingRatio: 1.0, response: 0.5, mass: 1.0)
+    
+    /**
+     A smooth spring with a predefined duration and no bounce that can be tuned.
+     
+     - Parameters:
+        - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
+        - extraBounce: How much additional bounciness should be added to the base bounce of 0.
+     */
+    public static func smooth(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
+        Spring(dampingRatio: 1.0-extraBounce, response: duration, mass: 1.0)
+    }
+    
+    /// A spring with a predefined duration and higher amount of bounce.
+    public static let bouncy = Spring(dampingRatio: 0.7, response: 0.5, mass: 1.0)
+    
+    /**
+     A spring with a predefined duration and higher amount of bounce that can be tuned.
+     
+     - Parameters:
+        - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
+        - extraBounce: How much additional bounciness should be added to the base bounce of 0.3.
+     */
+    public static func bouncy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
+        Spring(dampingRatio: 0.7-extraBounce, response: duration, mass: 1.0)
+    }
+    
+    /// iA spring with a predefined duration and small amount of bounce that feels more snappy.
+    public static let snappy = Spring(dampingRatio: 0.85, response: 0.5, mass: 1.0)
+    
+    /**
+     A spring with a predefined duration and small amount of bounce that feels more snappy and can be tuned.
+     
+     - Parameters:
+        - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
+        - extraBounce: How much additional bounciness should be added to the base bounce of 0.15.
+     */
+    public static func snappy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
+        Spring(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
+    }
 
     // MARK: - Equatable
 

@@ -42,9 +42,9 @@ public extension CALayer {
      
      - Parameters layer: The layer to be added.
      */
-    func addSublayer(withConstraint layer: CALayer) {
+    func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
         self.addSublayer(layer)
-        layer.constraintTo(layer: self)
+        layer.constraintTo(layer: self, insets: insets)
     }
     
     /**
@@ -54,11 +54,15 @@ public extension CALayer {
      
      - Parameters layer: The layer to constraint to.
      */
-    func constraintTo(layer: CALayer) {
+    func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
         let layerUpdateHandler: (()->()) = { [weak self] in
             guard let self = self else { return }
             let frameSize = layer.frame.size
-            let shapeRect = CGRect(origin: .zero, size: frameSize)
+            var shapeRect = CGRect(origin: .zero, size: frameSize)
+            if frameSize.width > insets.width, frameSize.height > insets.height {
+                shapeRect = shapeRect.inset(by: insets)
+            }
+                        
             let position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
             
             self.cornerRadius = layer.cornerRadius

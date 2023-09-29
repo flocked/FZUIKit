@@ -86,7 +86,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         }
     }
     
-    /// Properties for configuring the shadow.
+    /// Properties for configuring the inner shadow.
     public var innerShadow: ContentConfiguration.InnerShadow = .none() {
         didSet {
             if self.innerShadow != oldValue {
@@ -100,13 +100,21 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     
     /// The corner radius.
     public var cornerRadius: CGFloat = 0.0
+    
+    /// The rounded corners.
+    public var roundedCorners: CACornerMask = .all
     /// The insets (or outsets, if negative) for the background and border, relative to the edges of the containing view.
     public var insets: NSDirectionalEdgeInsets = .zero
     
-    public static func clear() -> NSBackgroundConfiguration {
-        return NSBackgroundConfiguration()
-    }
+    /// Creates an empty background configuration with a transparent background and no default styling.
+    public static func clear() -> NSBackgroundConfiguration { NSBackgroundConfiguration() }
+    
+    /// Creates a background configuration.
+    public init() {
         
+    }
+    
+    /*
     /// Creates a cell background configuration.
     public init(color: NSColor? = nil,
                 colorTransformer: ColorTransformer? = nil,
@@ -133,6 +141,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         self.innerShadow = innerShadow
         self.updateResolvedColors()
     }
+     */
     
     internal var _resolvedColor: NSColor? = nil
     internal var _resolvedBorderColor: NSColor? = nil

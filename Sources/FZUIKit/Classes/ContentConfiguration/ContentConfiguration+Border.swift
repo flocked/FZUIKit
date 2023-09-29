@@ -131,7 +131,7 @@ public extension CALayer {
             self.borderWidth = 0.0
             if self.borderLayer == nil {
                 let borderedLayer = DashedBorderLayer()
-                self.addSublayer(withConstraint: borderedLayer)
+                self.addSublayer(withConstraint: borderedLayer, insets: configuration.insets)
                 // borderedLayer.sendToBack()
                 borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
             }
