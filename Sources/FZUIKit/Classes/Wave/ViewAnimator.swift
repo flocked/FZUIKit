@@ -904,6 +904,53 @@ public class ViewAnimator {
         }
     }
     
+    public func addSubview(_ subview: NSView) {
+        guard subview.superview != view else { return }
+        subview.alpha = 0.0
+        self.view.addSubview(subview)
+        subview.animator.alpha = 1.0
+    }
+        
+    public func removeFromSuperView() {
+        guard view.superview != nil else { return }
+        
+        guard let settings = AnimationController.shared.currentAnimationParameters else {
+            Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
+                self.view.animator.alpha = 0.0
+            }
+            return
+        }
+        
+        let initialValue = view.alpha
+        let targetValue = 0.0
+        
+        let animationType = AnimatableProperty.alpha
+        
+        // Re-targeting an animation.
+        AnimationController.shared.executeHandler(uuid: runningAlphaAnimator?.groupUUID, finished: false, retargeted: true)
+        
+        let animation = (runningAlphaAnimator ?? SpringAnimator<CGFloat>(spring: settings.spring, value: initialValue, target: targetValue))
+        animation.configure(withSettings: settings)
+        
+        animation.target = targetValue
+        animation.valueChanged = { [weak self] value in
+            self?.view.alpha = value
+        }
+        
+        animation.completion = { [weak self] event in
+            switch event {
+            case .finished:
+                self?.view.animations.removeValue(forKey: animationType)
+                AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
+                self?.view.removeFromSuperview()
+            default:
+                break
+            }
+        }
+        
+        start(animation: animation, type: animationType, delay: settings.delay)
+    }
+    
     public var shadowRadius: CGFloat {
         get {
             runningShadowRadiusAnimator?.target ?? view.shadowRadius
