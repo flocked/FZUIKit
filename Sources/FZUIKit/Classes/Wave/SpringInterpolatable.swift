@@ -113,4 +113,31 @@ extension RGBAComponents: SpringInterpolatable, VelocityProviding {
     }
 
 }
+
+extension HSLAComponents: SpringInterpolatable, VelocityProviding {
+
+    typealias ValueType = HSLAComponents
+    typealias VelocityType = HSLAComponents
+
+    static func updateValue(spring: Spring, value: HSLAComponents, target: HSLAComponents, velocity: HSLAComponents, dt: TimeInterval) -> (value: HSLAComponents, velocity: HSLAComponents) {
+        let (newH, newVelocityH) = CGFloat.updateValue(spring: spring, value: value.h, target: target.h, velocity: velocity.h, dt: dt)
+        let (newS, newVelocityS) = CGFloat.updateValue(spring: spring, value: value.s, target: target.s, velocity: velocity.s, dt: dt)
+        let (newL, newVelocityL) = CGFloat.updateValue(spring: spring, value: value.l, target: target.l, velocity: velocity.l, dt: dt)
+        let (newA, newVelocityA) = CGFloat.updateValue(spring: spring, value: value.a, target: target.a, velocity: velocity.a, dt: dt)
+
+        let newValue = HSLAComponents(h: newH, s: newS, l: newL, a: newA)
+        let newVelocity = HSLAComponents(h: newVelocityH, s: newVelocityS, l: newVelocityL, a: newVelocityA)
+
+        return (value: newValue, newVelocity)
+    }
+
+    var scaledIntegral: HSLAComponents {
+        self
+    }
+
+    static var zero: HSLAComponents {
+        HSLAComponents(h: 0, s: 0, l: 0, a: 0)
+    }
+
+}
 #endif
