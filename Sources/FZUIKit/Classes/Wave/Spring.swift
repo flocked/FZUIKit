@@ -116,7 +116,7 @@ public class Spring: Equatable {
     // MARK: - Default Springs
 
     /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
-    public static let defaultInteractive = Spring(dampingRatio: 0.8, response: 0.20)
+    public static let defaultInteractive = Spring(dampingRatio: 0.8, response: 0.30)
 
     /// A reasonable, critically damped spring to use for non-interactive animations.
     public static let defaultAnimated = Spring(dampingRatio: 1.0, response: 0.82)

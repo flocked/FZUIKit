@@ -50,6 +50,8 @@ public class ViewAnimator {
         case shadowOpacity
         case shadowOffset
         case shadowRadius
+        
+        case frameAlt
     }
 
     var view: NSUIView
@@ -212,6 +214,58 @@ public class ViewAnimator {
             start(animation: animation, type: animationType, delay: settings.delay)
         }
     }
+    
+    public var frameAlt: CGRect {
+        get {
+            runningFrameAltAnimator?.target ?? view.frame
+        }
+        set {
+            guard frameAlt != newValue else {
+                return
+            }
+
+            guard let settings = AnimationController.shared.currentAnimationParameters else {
+                Wave.animate(withSpring: .defaultNonAnimated, mode: .nonAnimated) {
+                    self.view.animator.frameAlt = newValue
+                }
+                return
+            }
+
+            let initialValue = view.frame
+            let targetValue = newValue
+
+            let animationType = AnimatableProperty.boundsSize
+
+            // Re-targeting an animation.
+            AnimationController.shared.executeHandler(uuid: runningBoundsSizeAnimator?.groupUUID, finished: false, retargeted: true)
+
+            let animation = (runningFrameAltAnimator ?? SpringAnimator<CGRect>(spring: settings.spring, value: initialValue, target: targetValue))
+
+            animation.configure(withSettings: settings)
+
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] frame in
+                guard let strongSelf = self else { return }
+                #if canImport(UIKit)
+                strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
+                #elseif os(macOS)
+                strongSelf.view.frame = frame
+                #endif
+            }
+
+            animation.completion = { [weak self] event in
+                switch event {
+                case .finished:
+                    self?.view.animations.removeValue(forKey: animationType)
+                    AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
+                case .retargeted:
+                    break
+                }
+            }
+
+            start(animation: animation, type: animationType, delay: settings.delay)
+        }
+    }
 
     private var boundsSize: CGSize {
         get {
@@ -247,7 +301,7 @@ public class ViewAnimator {
                 #if canImport(UIKit)
                 strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
                 #elseif os(macOS)
-                strongSelf.view.bounds.size = size
+             //   strongSelf.view.bounds.size = size
                 strongSelf.view.frame.size = size
                 #endif
             }
@@ -922,5 +976,9 @@ extension ViewAnimator {
        private var runningShadowRadiusAnimator: SpringAnimator<CGFloat>? {
            view.animations[AnimatableProperty.shadowRadius] as? SpringAnimator<CGFloat>
        }
+    
+    private var runningFrameAltAnimator: SpringAnimator<CGRect>? {
+        view.animations[AnimatableProperty.frameAlt] as? SpringAnimator<CGRect>
+    }
 }
 #endif
