@@ -11,6 +11,19 @@ import Foundation
 import AppKit
 import FZSwiftUtils
 
+/**
+ The `WindowAnimator` class contains the supported NSWindow animatable properties, like `frame`, `alphaValue` and `backgroundColor`.
+ 
+ In an Wave animation block, change these values to create an animation, like so:
+ 
+ Example usage:
+ ```swift
+ Wave.animate(withSpring: spring) {
+    myWindow.animator.frame = CGRect(x: 100, y: 100, width: 400, height: 400)
+    myWindow.animator.alpha = 0.5
+ }
+ ```
+ */
 public class WindowAnimator {
     internal enum AnimatableProperty: Int {
         case frame
@@ -84,7 +97,7 @@ public class WindowAnimator {
         }
     }
     
-    /// The alpha of the attached  view.
+    /// The alpha of the attached  window.
     public var alpha: CGFloat {
         get {
             runningAlphaAnimator?.target ?? window.alphaValue
@@ -209,21 +222,13 @@ public extension NSWindow {
      ```
      */
     var animator: WindowAnimator {
-        get {
-            getAssociatedValue(key: "Animator", object: self, initialValue: WindowAnimator(window: self))
-        }
-        set {
-            set(associatedValue: newValue, key: "Animator", object: self)
-        }
+        get { getAssociatedValue(key: "Animator", object: self, initialValue: WindowAnimator(window: self)) }
+        set { set(associatedValue: newValue, key: "Animator", object: self) }
     }
 
     internal var animations: [WindowAnimator.AnimatableProperty: AnimationProviding] {
-        get {
-            getAssociatedValue(key: "animations", object: self, initialValue: [:])
-        }
-        set {
-            set(associatedValue: newValue, key: "animations", object: self)
-        }
+        get { getAssociatedValue(key: "animations", object: self, initialValue: [:]) }
+        set { set(associatedValue: newValue, key: "animations", object: self) }
     }
 }
 
