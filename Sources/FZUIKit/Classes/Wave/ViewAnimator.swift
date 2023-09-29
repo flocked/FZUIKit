@@ -30,6 +30,7 @@ import UIKit
  */
 public class ViewAnimator {
     internal enum AnimatableProperty: Int {
+        case frame
         case frameCenter
         case frameOrigin
         
@@ -51,9 +52,8 @@ public class ViewAnimator {
         case shadowOffset
         case shadowRadius
         
-        case frame
-        case transform
-        case transform3D
+      //  case transform
+      //  case transform3D
     }
     
     var view: NSUIView
@@ -719,7 +719,6 @@ public class ViewAnimator {
         }
     }
     
-    /*
     /// The shadow of the attached view.
     public var shadow: ContentConfiguration.Shadow {
         get {
@@ -733,7 +732,6 @@ public class ViewAnimator {
             self.shadowOpacity = newValue.opacity
         }
     }
-    */
     
     public var shadowOpacity: CGFloat {
         get {
@@ -999,7 +997,7 @@ public class ViewAnimator {
             start(animation: animation, type: animationType, delay: settings.delay)
         }
     }
-    
+    /*
     public var transform: CGAffineTransform {
         get {
             runningTransformAnimator?.target ?? view.transform
@@ -1093,6 +1091,7 @@ public class ViewAnimator {
             start(animation: animation, type: animationType, delay: settings.delay)
         }
     }
+    */
 }
 
 extension ViewAnimator {
@@ -1162,7 +1161,7 @@ extension ViewAnimator {
     private var runningFrameAnimator: SpringAnimator<CGRect>? {
         view.animations[AnimatableProperty.frame] as? SpringAnimator<CGRect>
     }
-    
+    /*
     private var runningTransformAnimator: SpringAnimator<CGAffineTransform>? {
         view.animations[AnimatableProperty.transform] as? SpringAnimator<CGAffineTransform>
     }
@@ -1170,5 +1169,6 @@ extension ViewAnimator {
     private var runningTransform3DAnimator: SpringAnimator<CATransform3D>? {
         view.animations[AnimatableProperty.transform3D] as? SpringAnimator<CATransform3D>
     }
+     */
 }
 #endif

@@ -481,7 +481,7 @@ extension NSView {
             if newValue == nil, String(describing: self).contains("NSViewAnimator") {
                 newValue = .clear
             }
-            layer?.borderColor = newValue?.cgColor
+            layer?.shadowColor = newValue?.cgColor
         }
     }
     
