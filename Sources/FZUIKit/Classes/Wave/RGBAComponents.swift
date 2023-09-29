@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-struct RGBAComponents: Equatable {
+internal struct RGBAComponents: Equatable {
     let r: CGFloat
     let g: CGFloat
     let b: CGFloat

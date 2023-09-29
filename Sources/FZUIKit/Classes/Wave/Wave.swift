@@ -54,7 +54,7 @@ public enum Wave {
 
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
-            spring: (mode == .nonAnimated) ? .defaultNonAnimated : spring,
+            spring: (mode == .nonAnimated) ? .nonAnimated : spring,
             mode: (spring.response == 0) ? .nonAnimated : mode,
             delay: delay,
             gestureVelocity: gestureVelocity,

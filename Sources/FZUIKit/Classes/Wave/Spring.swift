@@ -112,31 +112,41 @@ public class Spring: Equatable {
 
         settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
+    
+    /**
+     Creates a spring with the specified duration and bounce.
+     
+     - Parameters:
+        - duration: Defines the pace of the spring. This is approximately equal to the settling duration, but for springs with very large bounce values, will be the duration of the period of oscillation for the spring.
+        - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
+     */
+    public convenience init(duration: CGFloat, bounce: CGFloat = 0.0) {
+        self.init(dampingRatio: 1.0 - bounce, response: duration, mass: 1.0)
+    }
+    
+    /*
+    /**
+     Creates a spring with the specified duration and bounce.
+     
+     - Parameters:
+        - duration: Defines the pace of the spring. This is approximately equal to the settling duration, but for springs with very large bounce values, will be the duration of the period of oscillation for the spring.
+        - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
+     */
+    public convenience init(settlingDuration: CGFloat, dampingRatio: Double) {
+        
+        let response = 4.0×π×dampingRatio×mass/dampingCoefficient
+        
+        self.init(dampingRatio: 1.0 - bounce, response: duration, mass: 1.0)
+    }
+    */
 
     // MARK: - Default Springs
 
     /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
-    public static let defaultInteractive = Spring(dampingRatio: 0.8, response: 0.30)
-
-    /// A reasonable, critically damped spring to use for non-interactive animations.
-    public static let defaultAnimated = Spring(dampingRatio: 1.0, response: 0.82)
+    public static let defaultInteractive = Spring(dampingRatio: 0.8, response: 0.28)
 
     /// A placeholder spring to use when using the `nonAnimated` mode. See `AnimationMode` for more info.
-    public static let defaultNonAnimated = Spring(dampingRatio: 1.0, response: 0.0)
-    
-    /// A smooth spring with a predefined duration and no bounce.
-    public static let smooth = Spring(dampingRatio: 1.0, response: 0.5, mass: 1.0)
-    
-    /**
-     A smooth spring with a predefined duration and no bounce that can be tuned.
-     
-     - Parameters:
-        - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
-        - extraBounce: How much additional bounciness should be added to the base bounce of 0.
-     */
-    public static func smooth(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
-        Spring(dampingRatio: 1.0-extraBounce, response: duration, mass: 1.0)
-    }
+    public static let nonAnimated = Spring(dampingRatio: 1.0, response: 0.0)
     
     /// A spring with a predefined duration and higher amount of bounce.
     public static let bouncy = Spring(dampingRatio: 0.7, response: 0.5, mass: 1.0)
@@ -152,7 +162,21 @@ public class Spring: Equatable {
         Spring(dampingRatio: 0.7-extraBounce, response: duration, mass: 1.0)
     }
     
-    /// iA spring with a predefined duration and small amount of bounce that feels more snappy.
+    /// A smooth spring with a predefined duration and no bounce.
+    public static let smooth = Spring(dampingRatio: 1.0, response: 0.5, mass: 1.0)
+    
+    /**
+     A smooth spring with a predefined duration and no bounce that can be tuned.
+     
+     - Parameters:
+        - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
+        - extraBounce: How much additional bounciness should be added to the base bounce of 0.
+     */
+    public static func smooth(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
+        Spring(dampingRatio: 1.0-extraBounce, response: duration, mass: 1.0)
+    }
+    
+    /// A spring with a predefined duration and small amount of bounce that feels more snappy.
     public static let snappy = Spring(dampingRatio: 0.85, response: 0.5, mass: 1.0)
     
     /**
@@ -184,8 +208,6 @@ public class Spring: Equatable {
         4.0 * .pi * dampingRatio * mass / response
     }
 
-    static let logOfSettlingPercentage = log(Spring.DefaultSettlingPercentage)
-
     static func settlingTime(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
         if stiffness == .infinity {
             // A non-animated mode (i.e. a `response` of 0) results in a stiffness of infinity, and a settling time of 0.
@@ -201,6 +223,8 @@ public class Spring: Equatable {
         let undampedNaturalFrequency = Spring.undampedNaturalFrequency(stiffness: stiffness, mass: mass) // ωn
         return (-1 * (logOfSettlingPercentage / (dampingRatio * undampedNaturalFrequency)))
     }
+    
+    static let logOfSettlingPercentage = log(Spring.DefaultSettlingPercentage)
 
     static func undampedNaturalFrequency(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
         // ωn

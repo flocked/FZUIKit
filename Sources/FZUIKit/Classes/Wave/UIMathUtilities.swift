@@ -78,19 +78,3 @@ public func mapRange<T: FloatingPoint>(value: T, inMin: T, inMax: T, outMin: T, 
 public func mapRange<T: FloatingPoint>(_ value: T, _ inMin: T, _ inMax: T, _ outMin: T, _ outMax: T, clip: Bool = false) -> T {
     mapRange(value: value, inMin: inMin, inMax: inMax, outMin: outMin, outMax: outMax, clip: clip)
 }
-
-/**
- Returns a value bounded by the provided range.
- - parameter lower: The minimum allowable value (inclusive).
- - parameter upper: The maximum allowable value (inclusive).
- */
-public func clip<T: FloatingPoint>(value: T, lower: T, upper: T) -> T {
-    min(upper, max(value, lower))
-}
-
-/**
- Returns a value bounded by the range `[0, 1]`.
- */
-public func clipUnit<T: FloatingPoint>(value: T) -> T {
-    clip(value: value, lower: 0, upper: 1)
-}

@@ -12,6 +12,7 @@ import UIKit
 #elseif os(macOS)
 import AppKit
 #endif
+import FZSwiftUtils
 
 private var ViewAnimatorAssociatedObjectHandle: UInt8 = 1 << 4
 private var ViewAnimationsAssociatedObjectHandle: UInt8 = 1 << 5
