@@ -237,7 +237,7 @@ public class ViewAnimator {
             let animationType = AnimatableProperty.boundsSize
 
             // Re-targeting an animation.
-            AnimationController.shared.executeHandler(uuid: runningBoundsSizeAnimator?.groupUUID, finished: false, retargeted: true)
+            AnimationController.shared.executeHandler(uuid: runningFrameAltAnimator?.groupUUID, finished: false, retargeted: true)
 
             let animation = (runningFrameAltAnimator ?? SpringAnimator<CGRect>(spring: settings.spring, value: initialValue, target: targetValue))
 
@@ -249,6 +249,7 @@ public class ViewAnimator {
                 #if canImport(UIKit)
                 strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
                 #elseif os(macOS)
+              //  strongSelf.view.bounds = CGRect(origin: .zero, size: frame.size)
                 strongSelf.view.frame = frame
                 #endif
             }
