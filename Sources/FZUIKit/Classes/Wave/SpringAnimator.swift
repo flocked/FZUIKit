@@ -100,7 +100,7 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
     /**
      The animation's `mode`. If set to `.nonAnimated`, the animation will snap to the target value when run.
      */
-    public var mode: AnimationMode = .animated
+    public var mode: Wave.AnimationMode = .animated
 
     /**
      Whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries.

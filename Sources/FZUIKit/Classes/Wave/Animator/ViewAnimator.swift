@@ -121,6 +121,10 @@ public class ViewAnimator {
             
             animation.configure(withSettings: settings)
             
+            if let gestureVelocity = settings.gestureVelocity {
+                animation.velocity.origin = gestureVelocity
+            }
+            
             animation.target = targetValue
             animation.valueChanged = { [weak self] frame in
                 guard let strongSelf = self else { return }
