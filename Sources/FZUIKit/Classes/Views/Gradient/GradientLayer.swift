@@ -1,11 +1,11 @@
 //
-//  self.swift
-//  NewPrrooo
+//  GradientLayer.swift
+//  
 //
 //  Created by Florian Zand on 16.09.21.
 //
 
-/*
+
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 #if os(macOS)
@@ -15,7 +15,6 @@ import UIKit
 #endif
 
 public class GradientLayer: CAGradientLayer {
-    
     public convenience init(gradient: Gradient) {
         self.init()
         self.gradient = gradient
@@ -60,13 +59,17 @@ public class GradientLayer: CAGradientLayer {
         get {
             let colors = (self.colors as? [CGColor])?.compactMap({$0.nsColor}) ?? []
             let locations = self.locations?.compactMap({CGFloat($0.floatValue)}) ?? []
-            colors.enumerated().compactMap({ Gradient.Stop(color: $0.element, location: locations[safe: $0.offset]) })
-            
-            self.colors?.compactMap({($0 as CGColor).nsColor})
-            
-            return Gradient(colors: self.gradientColors, locations: self.colorLocations, direction: self.direction)
+            let stops = colors.enumerated().compactMap({ Gradient.Stop(color: $0.element, location: locations[$0.offset]) })
+            let direction = Gradient.Direction(start: startPoint, end: endPoint)
+            return Gradient(stops: stops, direction: direction)
         }
         set {
+            self.colors = newValue.stops.compactMap({$0.color.cgColor})
+            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
+            self.startPoint = newValue.direction.startPoint
+            self.endPoint = newValue.direction.endPoint
+            
+            /*
             if let gradientColors = newValue.colors {
                 self.gradientColors = gradientColors
             } else {
@@ -79,9 +82,11 @@ public class GradientLayer: CAGradientLayer {
                 self.colorLocations = colorLocations
             }
             self.updateGradient()
+            */
         }
     }
 
+    /*
    private var gradientColors = [NSColor]()
     private  var colorLocations: [CGFloat]? {
         didSet {
@@ -134,8 +139,9 @@ public class GradientLayer: CAGradientLayer {
             self.locations = calculateLocations(amount: gradientColors.count)
         }
     }
+    */
     
 }
 
 #endif
-*/
+

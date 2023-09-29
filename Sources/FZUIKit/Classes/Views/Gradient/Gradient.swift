@@ -1,11 +1,11 @@
 //
 //  Gradient.swift
-//  FZViewTest
+//  
 //
 //  Created by Florian Zand on 13.05.22.
 //
 
-/*
+
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 #if os(macOS)
@@ -17,8 +17,8 @@ import UIKit
 public struct Gradient {
     public struct Stop {
         public var color: NSUIColor
-        public var location: CGFloat?
-        public init(color: NSUIColor, location: CGFloat? = nil) {
+        public var location: CGFloat
+        public init(color: NSUIColor, location: CGFloat) {
             self.color = color
             self.location = location
         }
@@ -28,20 +28,31 @@ public struct Gradient {
     public var stops: [Stop] = []
     
     public init(colors: [NSUIColor], direction: Direction = .down) {
-        if colors.count == 1 {
-            self.stops.append(Stop(color: colors[0], location: 0.0))
-        } else if colors.count > 1 {
-            let split = 1.0 / CGFloat(colors.count - 1)
-            for i in 0..<colors.count {
-                self.stops.append(Stop(color: colors[i], location: split*CGFloat(i)))
-            }
-        }
+        self.stops = stops(for: colors)
         self.direction = .downRight
     }
     
     public init(stops: [Stop], direction: Direction = .down) {
         self.stops = stops
         self.direction = direction
+    }
+    
+    public init(preset: GradientPreset, direction: Direction = .down) {
+        self.stops = stops(for: preset.colors)
+        self.direction = direction
+    }
+    
+    internal func stops(for colors: [NSUIColor]) -> [Stop] {
+        var stops: [Stop] = []
+        if colors.count == 1 {
+            stops.append(Stop(color: colors[0], location: 0.0))
+        } else if colors.count > 1 {
+            let split = 1.0 / CGFloat(colors.count - 1)
+            for i in 0..<colors.count {
+                stops.append(Stop(color: colors[i], location: split*CGFloat(i)))
+            }
+        }
+        return stops
     }
     
     /*
@@ -52,7 +63,7 @@ public struct Gradient {
     }
      */
     
-    public enum Direction: Int {
+    public enum Direction: Int, CaseIterable {
        case up
        case upRight
        case right
@@ -110,5 +121,11 @@ public struct Gradient {
    }
 }
 
+internal extension Gradient.Direction {
+    init(start: CGPoint, end: CGPoint) {
+        self =  Self.allCases.first(where: { $0.startPoint == start && $0.endPoint == end }) ?? .down
+    }
+}
+
 #endif
-*/
+
