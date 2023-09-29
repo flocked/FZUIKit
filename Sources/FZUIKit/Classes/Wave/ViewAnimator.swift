@@ -82,123 +82,23 @@ public class ViewAnimator {
             boundsOrigin = newValue.origin
         }
     }
-    
 
-    /*
     /// The frame of the attached  view.
     public var frame: CGRect {
         get {
-            CGRect(aroundPoint: view.animator.center, size: view.animator.boundsSize)
+            #if canImport(UIKit)
+            return CGRect(aroundPoint: view.animator.center, size: view.animator.boundsSize)
+            #elseif os(macOS)
+            return runningFrameAnimator?.target ?? view.frame
+            #endif
         }
         set {
-            guard frame != newValue else {
-                return
-            }
-
-            // `bounds.size`
+            guard frame != newValue else { return }
+            
+            #if canImport(UIKit)
             boundsSize = newValue.size
-
-            // `frame.center`
             center = newValue.center
-        }
-    }
-    */
-    
-    /// The origin of the attached  view.
-    public var size: CGSize {
-        get { frame.size }
-        set {
-            guard size != newValue else { return }
-            let oldFrame = frame
-            var newFrame = oldFrame
-            newFrame.size = newValue
-            newFrame.center = oldFrame.center
-            frame = newFrame
-        }
-    }
-
-    /// The origin of the attached  view.
-    public var origin: CGPoint {
-        get {
-            frame.origin
-        }
-        set {
-            guard origin != newValue else { return }
-            
-            frame.origin = newValue
-/*
-            // `frame.center`
-            center = CGPoint(x: newValue.x + bounds.width / 2.0, y: newValue.y + bounds.height / 2.0)
- */
-        }
-    }
-
-    /// The center of the attached  view.
-    public var center: CGPoint {
-        get {
-            frame.center
-        }
-        set {
-            guard center != newValue else {
-                return
-            }
-            
-            frame.center = newValue
-
-            /*
-            guard let settings = AnimationController.shared.currentAnimationParameters else {
-                Wave.animate(withSpring: .defaultNonAnimated, mode: .nonAnimated) {
-                    self.view.animator.center = newValue
-                }
-                return
-            }
-
-            let initialValue = view.center
-            let targetValue = newValue
-
-            let animationType = AnimatableProperty.frameCenter
-
-            // Re-targeting an animation.
-            AnimationController.shared.executeHandler(uuid: runningCenterAnimator?.groupUUID, finished: false, retargeted: true)
-
-            let animation = (runningCenterAnimator ?? SpringAnimator<CGPoint>(spring: settings.spring, value: initialValue, target: targetValue))
-
-            animation.configure(withSettings: settings)
-
-            if let gestureVelocity = settings.gestureVelocity {
-                animation.velocity = gestureVelocity
-            }
-
-            animation.target = targetValue
-            animation.valueChanged = { [weak self] value in
-                self?.view.center = value
-            }
-
-            animation.completion = { [weak self] event in
-                switch event {
-                case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
-                    AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
-                case .retargeted:
-                    break
-                }
-            }
-
-            start(animation: animation, type: animationType, delay: settings.delay)
-       */
-             }
-    }
-    
-    /// The frame of the attached  view.
-    public var frame: CGRect {
-        get {
-            runningFrameAnimator?.target ?? view.frame
-        }
-        set {
-            guard frame != newValue else {
-                return
-            }
-
+            #elseif os(macOS)
             guard let settings = AnimationController.shared.currentAnimationParameters else {
                 Wave.animate(withSpring: .defaultNonAnimated, mode: .nonAnimated) {
                     self.view.animator.frame = newValue
@@ -240,7 +140,107 @@ public class ViewAnimator {
             }
 
             start(animation: animation, type: animationType, delay: settings.delay)
+            #endif
         }
+    }
+    
+    /// The size of the attached  view.
+    public var size: CGSize {
+        get { 
+            #if canImport(UIKit)
+            return boundsSize
+            #elseif os(macOS)
+            return frame.size
+            #endif
+        }
+        set {
+            guard size != newValue else { return }
+            
+            #if canImport(UIKit)
+            boundsSize = newValue
+            #elseif os(macOS)
+            let oldFrame = frame
+            var newFrame = oldFrame
+            newFrame.size = newValue
+            newFrame.center = oldFrame.center
+            frame = newFrame
+            #endif
+        }
+    }
+
+    /// The origin of the attached  view.
+    public var origin: CGPoint {
+        get {
+            frame.origin
+        }
+        set {
+            guard origin != newValue else { return }
+            
+            frame.origin = newValue
+/*
+            // `frame.center`
+            center = CGPoint(x: newValue.x + bounds.width / 2.0, y: newValue.y + bounds.height / 2.0)
+ */
+        }
+    }
+
+    /// The center of the attached  view.
+    public var center: CGPoint {
+        get {
+        #if canImport(UIKit)
+            return  runningCenterAnimator?.target ?? view.center
+        #elseif os(macOS)
+            return frame.center
+        #endif
+        }
+        set {
+            guard center != newValue else { return }
+            
+            #if os(macOS)
+            frame.center = newValue
+            #elseif canImport(UIKit)
+        
+            guard let settings = AnimationController.shared.currentAnimationParameters else {
+                Wave.animate(withSpring: .defaultNonAnimated, mode: .nonAnimated) {
+                    self.view.animator.center = newValue
+                }
+                return
+            }
+
+            let initialValue = view.center
+            let targetValue = newValue
+
+            let animationType = AnimatableProperty.frameCenter
+
+            // Re-targeting an animation.
+            AnimationController.shared.executeHandler(uuid: runningCenterAnimator?.groupUUID, finished: false, retargeted: true)
+
+            let animation = (runningCenterAnimator ?? SpringAnimator<CGPoint>(spring: settings.spring, value: initialValue, target: targetValue))
+
+            animation.configure(withSettings: settings)
+
+            if let gestureVelocity = settings.gestureVelocity {
+                animation.velocity = gestureVelocity
+            }
+
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] value in
+                self?.view.center = value
+            }
+
+            animation.completion = { [weak self] event in
+                switch event {
+                case .finished:
+                    self?.view.animations.removeValue(forKey: animationType)
+                    AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
+                case .retargeted:
+                    break
+                }
+            }
+
+            start(animation: animation, type: animationType, delay: settings.delay)
+            #endif
+             }
     }
 
     private var boundsOrigin: CGPoint {
