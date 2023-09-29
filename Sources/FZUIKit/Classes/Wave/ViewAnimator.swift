@@ -344,7 +344,7 @@ public class ViewAnimator {
     }
     
     /// The background color of the attached  view.
-    var backgroundColor: NSUIColor {
+    public var backgroundColor: NSUIColor {
         get {
             if let targetComponents = runningBackgroundColorAnimator?.target {
                 return targetComponents.color
@@ -593,7 +593,7 @@ public class ViewAnimator {
     }
     
     /// The border color of the attached view.
-    var borderColor: NSUIColor {
+    public var borderColor: NSUIColor {
         get {
             if let targetComponents = runningBorderColorAnimator?.target {
                 return targetComponents.color
@@ -668,7 +668,8 @@ public class ViewAnimator {
         }
     }
     
-    var borderWidth: CGFloat {
+    /// The border width of the attached view.
+    public var borderWidth: CGFloat {
         get {
             runningBorderWidthAnimator?.target ?? view.borderWidth
         }
@@ -716,7 +717,21 @@ public class ViewAnimator {
         }
     }
     
-    var shadowOpacity: CGFloat {
+    /// The shadow of the attached view.
+    public var shadow: ContentConfiguration.Shadow {
+        get {
+            ContentConfiguration.Shadow(color: shadowColor != .clear ? shadowColor : nil, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height) )
+        }
+        set {
+            guard newValue != shadow else { return }
+            self.shadowColor = newValue.color ?? .clear
+            self.shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
+            self.shadowRadius = newValue.radius
+            self.shadowOpacity = newValue.opacity
+        }
+    }
+    
+    internal var shadowOpacity: CGFloat {
         get {
             runningShadowOpacityAnimator?.target ?? view.shadowOpacity
         }
@@ -764,7 +779,7 @@ public class ViewAnimator {
         }
     }
     
-    var shadowColor: NSUIColor {
+    internal var shadowColor: NSUIColor {
         get {
             if let targetComponents = runningShadowColorAnimator?.target {
                 return targetComponents.color
@@ -840,7 +855,7 @@ public class ViewAnimator {
     }
     
     /// The shadow offset of the attached layer.
-    var shadowOffset: CGSize {
+    internal var shadowOffset: CGSize {
         get {
             runningShadowOffsetAnimator?.target ?? view.shadowOffset
         }
@@ -887,7 +902,7 @@ public class ViewAnimator {
         }
     }
     
-    var shadowRadius: CGFloat {
+    internal var shadowRadius: CGFloat {
         get {
             runningShadowRadiusAnimator?.target ?? view.shadowRadius
         }
