@@ -375,11 +375,11 @@ public class ViewAnimator {
             // Re-targeting an animation.
             AnimationController.shared.executeHandler(uuid: runningBackgroundColorAnimator?.groupUUID, finished: false, retargeted: true)
             
-            let initialValueComponents = HSLAComponents(color: initialValue)
-            let targetValueComponents = HSLAComponents(color: targetValue)
+            let initialValueComponents = RGBAComponents(color: initialValue)
+            let targetValueComponents = RGBAComponents(color: targetValue)
             
             let animation = (runningBackgroundColorAnimator ??
-                             SpringAnimator<HSLAComponents>(
+                             SpringAnimator<RGBAComponents>(
                                 spring: settings.spring,
                                 value: initialValueComponents,
                                 target: targetValueComponents
@@ -717,6 +717,7 @@ public class ViewAnimator {
         }
     }
     
+    /*
     /// The shadow of the attached view.
     public var shadow: ContentConfiguration.Shadow {
         get {
@@ -730,6 +731,7 @@ public class ViewAnimator {
             self.shadowOpacity = newValue.opacity
         }
     }
+    */
     
     public var shadowOpacity: CGFloat {
         get {
@@ -986,8 +988,8 @@ extension ViewAnimator {
         view.animations[AnimatableProperty.cornerRadius] as? SpringAnimator<CGFloat>
     }
     
-    private var runningBackgroundColorAnimator: SpringAnimator<HSLAComponents>? {
-        view.animations[AnimatableProperty.backgroundColor] as? SpringAnimator<HSLAComponents>
+    private var runningBackgroundColorAnimator: SpringAnimator<RGBAComponents>? {
+        view.animations[AnimatableProperty.backgroundColor] as? SpringAnimator<RGBAComponents>
     }
     
     private var runningBorderColorAnimator: SpringAnimator<RGBAComponents>? {
