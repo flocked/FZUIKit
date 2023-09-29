@@ -69,6 +69,10 @@ internal struct HSL {
             s = (s * b) / (2.0 - l * 2.0)
         }
         
+        h = h * 360.0
+        s = s * 100.0
+        l = l * 100.0
+        
         a = color.alphaComponent
     }
 
