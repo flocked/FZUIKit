@@ -28,9 +28,15 @@ public extension NSUIColor {
         - alpha: The alpha channel value of the color.
      */
     convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
-        let color = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
-        let components = color.rgbaComponents()
-        self.init(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
+        let h = hue / 360.0
+        var s = saturation / 100.0
+        let l = lightness / 100.0
+
+        let t = s * ((l < 0.5) ? l : (1.0 - l))
+        let b = l + t
+        s = (l > 0.0) ? (2.0 * t / b) : 0.0
+
+        self.init(hue: h, saturation: s, brightness: b, alpha: alpha)
     }
 }
 
