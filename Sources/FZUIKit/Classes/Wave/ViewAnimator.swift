@@ -51,7 +51,7 @@ public class ViewAnimator {
         case shadowOffset
         case shadowRadius
         
-        case frameAlt
+        case frame
     }
 
     var view: NSUIView
@@ -82,7 +82,9 @@ public class ViewAnimator {
             boundsOrigin = newValue.origin
         }
     }
+    
 
+    /*
     /// The frame of the attached  view.
     public var frame: CGRect {
         get {
@@ -100,32 +102,50 @@ public class ViewAnimator {
             center = newValue.center
         }
     }
+    */
+    
+    /// The origin of the attached  view.
+    public var size: CGSize {
+        get { frame.size }
+        set {
+            guard size != newValue else { return }
+            let oldFrame = frame
+            var newFrame = oldFrame
+            newFrame.size = newValue
+            newFrame.center = oldFrame.center
+            frame = newFrame
+        }
+    }
 
     /// The origin of the attached  view.
     public var origin: CGPoint {
         get {
-            view.animator.frame.origin
+            frame.origin
         }
         set {
-            guard origin != newValue else {
-                return
-            }
-
+            guard origin != newValue else { return }
+            
+            frame.origin = newValue
+/*
             // `frame.center`
             center = CGPoint(x: newValue.x + bounds.width / 2.0, y: newValue.y + bounds.height / 2.0)
+ */
         }
     }
 
     /// The center of the attached  view.
     public var center: CGPoint {
         get {
-            runningCenterAnimator?.target ?? view.center
+            frame.center
         }
         set {
             guard center != newValue else {
                 return
             }
+            
+            frame.center = newValue
 
+            /*
             guard let settings = AnimationController.shared.currentAnimationParameters else {
                 Wave.animate(withSpring: .defaultNonAnimated, mode: .nonAnimated) {
                     self.view.animator.center = newValue
@@ -152,6 +172,61 @@ public class ViewAnimator {
             animation.target = targetValue
             animation.valueChanged = { [weak self] value in
                 self?.view.center = value
+            }
+
+            animation.completion = { [weak self] event in
+                switch event {
+                case .finished:
+                    self?.view.animations.removeValue(forKey: animationType)
+                    AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
+                case .retargeted:
+                    break
+                }
+            }
+
+            start(animation: animation, type: animationType, delay: settings.delay)
+       */
+             }
+    }
+    
+    /// The frame of the attached  view.
+    public var frame: CGRect {
+        get {
+            runningFrameAnimator?.target ?? view.frame
+        }
+        set {
+            guard frame != newValue else {
+                return
+            }
+
+            guard let settings = AnimationController.shared.currentAnimationParameters else {
+                Wave.animate(withSpring: .defaultNonAnimated, mode: .nonAnimated) {
+                    self.view.animator.frame = newValue
+                }
+                return
+            }
+
+            let initialValue = view.frame
+            let targetValue = newValue
+
+            let animationType = AnimatableProperty.frame
+
+            // Re-targeting an animation.
+            AnimationController.shared.executeHandler(uuid: runningFrameAnimator?.groupUUID, finished: false, retargeted: true)
+
+            let animation = (runningFrameAnimator ?? SpringAnimator<CGRect>(spring: settings.spring, value: initialValue, target: targetValue))
+
+            animation.configure(withSettings: settings)
+
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] frame in
+                guard let strongSelf = self else { return }
+                #if canImport(UIKit)
+                strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
+                #elseif os(macOS)
+              //  strongSelf.view.bounds = CGRect(origin: .zero, size: frame.size)
+                strongSelf.view.frame = frame
+                #endif
             }
 
             animation.completion = { [weak self] event in
@@ -207,59 +282,6 @@ public class ViewAnimator {
                     self?.view.animations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 default:
-                    break
-                }
-            }
-
-            start(animation: animation, type: animationType, delay: settings.delay)
-        }
-    }
-    
-    public var frameAlt: CGRect {
-        get {
-            runningFrameAltAnimator?.target ?? view.frame
-        }
-        set {
-            guard frameAlt != newValue else {
-                return
-            }
-
-            guard let settings = AnimationController.shared.currentAnimationParameters else {
-                Wave.animate(withSpring: .defaultNonAnimated, mode: .nonAnimated) {
-                    self.view.animator.frameAlt = newValue
-                }
-                return
-            }
-
-            let initialValue = view.frame
-            let targetValue = newValue
-
-            let animationType = AnimatableProperty.frameAlt
-
-            // Re-targeting an animation.
-            AnimationController.shared.executeHandler(uuid: runningFrameAltAnimator?.groupUUID, finished: false, retargeted: true)
-
-            let animation = (runningFrameAltAnimator ?? SpringAnimator<CGRect>(spring: settings.spring, value: initialValue, target: targetValue))
-
-            animation.configure(withSettings: settings)
-
-            animation.target = targetValue
-            animation.valueChanged = { [weak self] frame in
-                guard let strongSelf = self else { return }
-                #if canImport(UIKit)
-                strongSelf.view.bounds = CGRect(origin: strongSelf.view.bounds.origin, size: size)
-                #elseif os(macOS)
-              //  strongSelf.view.bounds = CGRect(origin: .zero, size: frame.size)
-                strongSelf.view.frame = frame
-                #endif
-            }
-
-            animation.completion = { [weak self] event in
-                switch event {
-                case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
-                    AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
-                case .retargeted:
                     break
                 }
             }
@@ -978,8 +1000,8 @@ extension ViewAnimator {
            view.animations[AnimatableProperty.shadowRadius] as? SpringAnimator<CGFloat>
        }
     
-    private var runningFrameAltAnimator: SpringAnimator<CGRect>? {
-        view.animations[AnimatableProperty.frameAlt] as? SpringAnimator<CGRect>
+    private var runningFrameAnimator: SpringAnimator<CGRect>? {
+        view.animations[AnimatableProperty.frame] as? SpringAnimator<CGRect>
     }
 }
 #endif
