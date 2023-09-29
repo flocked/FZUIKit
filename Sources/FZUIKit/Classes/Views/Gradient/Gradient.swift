@@ -29,7 +29,7 @@ public struct Gradient {
     
     public init(colors: [NSUIColor], direction: Direction = .up) {
         self.stops = stops(for: colors)
-        self.direction = .downRight
+        self.direction = direction
     }
     
     public init(stops: [Stop], direction: Direction = .up) {
