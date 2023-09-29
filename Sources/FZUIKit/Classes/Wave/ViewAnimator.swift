@@ -56,9 +56,9 @@ public class ViewAnimator {
       //  case transform3D
     }
     
-    var view: NSUIView
+    private var view: NSUIView
     
-    init(view: NSUIView) {
+    internal init(view: NSUIView) {
         self.view = view
 #if os(macOS)
         self.view.wantsLayer = true
