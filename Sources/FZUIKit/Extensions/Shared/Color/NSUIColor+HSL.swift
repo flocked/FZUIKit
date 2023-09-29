@@ -48,34 +48,22 @@ internal struct HSL {
     }
 
     init(color: NSUIColor) {
-        let rgba = color.rgbaComponents()
-        let maximum = max(rgba.red, max(rgba.green, rgba.blue))
-        let minimum = min(rgba.red, min(rgba.green, rgba.blue))
+        let color = color.withSupportedColorSpace() ?? color
+        var b = CGFloat()
+        color.getHue(&h, saturation: &s, brightness: &b, alpha: nil)
+        
+        l = ((2.0 - s) * b) / 2.0
 
-        let delta = maximum - minimum
-
-        h = 0.0
-        s = 0.0
-        l = (maximum + minimum) / 2.0
-
-        if delta != 0.0 {
-            if l < 0.5 {
-                s = delta / (maximum + minimum)
-            } else {
-                s = delta / (2.0 - maximum - minimum)
-            }
-
-            if rgba.red == maximum {
-                h = ((rgba.green - rgba.blue) / delta) + (rgba.green < rgba.blue ? 6.0 : 0.0)
-            } else if rgba.green == maximum {
-                h = ((rgba.blue - rgba.red) / delta) + 2.0
-            } else if rgba.blue == maximum {
-                h = ((rgba.red - rgba.green) / delta) + 4.0
-            }
+        switch l {
+        case 0.0, 1.0:
+            s = 0.0
+        case 0.0..<0.5:
+            s = (s * b) / (l * 2.0)
+        default:
+            s = (s * b) / (2.0 - l * 2.0)
         }
-
-        h /= 6.0
-        a = rgba.alpha
+        
+        a = color.alphaComponent
     }
 
     func toColor() -> NSUIColor {

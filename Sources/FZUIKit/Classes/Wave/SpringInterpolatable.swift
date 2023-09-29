@@ -9,6 +9,7 @@
 import CoreGraphics
 import Foundation
 
+
 public protocol SpringInterpolatable: Equatable {
     associatedtype ValueType: SpringInterpolatable
     associatedtype VelocityType: VelocityProviding
@@ -147,9 +148,7 @@ extension CGAffineTransform: SpringInterpolatable, VelocityProviding {
     public typealias VelocityType = CGAffineTransform
 
     public static func updateValue(spring: Spring, value: CGAffineTransform, target: CGAffineTransform, velocity: CGAffineTransform, dt: TimeInterval) -> (value: CGAffineTransform, velocity: CGAffineTransform) {
-        
-        
-        
+                
         let (newA, newVelocityA) = CGFloat.updateValue(spring: spring, value: value.a, target: target.a, velocity: velocity.a, dt: dt)
         let (newB, newVelocityB) = CGFloat.updateValue(spring: spring, value: value.b, target: target.b, velocity: velocity.b, dt: dt)
         let (newC, newVelocityC) = CGFloat.updateValue(spring: spring, value: value.c, target: target.c, velocity: velocity.c, dt: dt)
@@ -179,15 +178,12 @@ extension CATransform3D: SpringInterpolatable, VelocityProviding {
     public static func == (lhs: CATransform3D, rhs: CATransform3D) -> Bool {
         CATransform3DEqualToTransform(lhs, rhs)
     }
-    
 
     public typealias ValueType = CATransform3D
     public typealias VelocityType = CATransform3D
 
     public static func updateValue(spring: Spring, value: CATransform3D, target: CATransform3D, velocity: CATransform3D, dt: TimeInterval) -> (value: CATransform3D, velocity: CATransform3D) {
-        
-        
-        
+                
         let (new11, newVelocity11) = CGFloat.updateValue(spring: spring, value: value.m11, target: target.m11, velocity: velocity.m11, dt: dt)
         let (new12, newVelocity12) = CGFloat.updateValue(spring: spring, value: value.m12, target: target.m12, velocity: velocity.m12, dt: dt)
         let (new13, newVelocity13) = CGFloat.updateValue(spring: spring, value: value.m13, target: target.m13, velocity: velocity.m13, dt: dt)
