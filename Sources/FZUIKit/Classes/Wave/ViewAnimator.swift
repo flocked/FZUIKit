@@ -52,6 +52,8 @@ public class ViewAnimator {
         case shadowRadius
         
         case frame
+        case transform
+        case transform3D
     }
     
     var view: NSUIView
@@ -997,6 +999,100 @@ public class ViewAnimator {
             start(animation: animation, type: animationType, delay: settings.delay)
         }
     }
+    
+    public var transform: CGAffineTransform {
+        get {
+            runningTransformAnimator?.target ?? view.transform
+        }
+        set {
+            guard transform != newValue else {
+                return
+            }
+            
+            guard let settings = AnimationController.shared.currentAnimationParameters else {
+                Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
+                    self.view.animator.transform = newValue
+                }
+                return
+            }
+            
+            let initialValue = view.transform
+            let targetValue = newValue
+            
+            let animationType = AnimatableProperty.transform
+            
+            // Re-targeting an animation.
+            AnimationController.shared.executeHandler(uuid: runningTransformAnimator?.groupUUID, finished: false, retargeted: true)
+            
+            let animation = (runningTransformAnimator ?? SpringAnimator<CGAffineTransform>(spring: settings.spring, value: initialValue, target: targetValue))
+            animation.configure(withSettings: settings)
+            
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] value in
+                self?.view.transform = value
+            }
+            
+            let groupUUID = animation.groupUUID
+            animation.completion = { [weak self] event in
+                switch event {
+                case .finished:
+                    self?.view.animations.removeValue(forKey: animationType)
+                    AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+                default:
+                    break
+                }
+            }
+            
+            start(animation: animation, type: animationType, delay: settings.delay)
+        }
+    }
+    
+    public var transform3D: CATransform3D {
+        get {
+            runningTransform3DAnimator?.target ?? view.transform3D
+        }
+        set {
+            guard transform3D != newValue else {
+                return
+            }
+            
+            guard let settings = AnimationController.shared.currentAnimationParameters else {
+                Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
+                    self.view.animator.transform3D = newValue
+                }
+                return
+            }
+            
+            let initialValue = view.transform3D
+            let targetValue = newValue
+            
+            let animationType = AnimatableProperty.transform3D
+            
+            // Re-targeting an animation.
+            AnimationController.shared.executeHandler(uuid: runningTransform3DAnimator?.groupUUID, finished: false, retargeted: true)
+            
+            let animation = (runningTransform3DAnimator ?? SpringAnimator<CATransform3D>(spring: settings.spring, value: initialValue, target: targetValue))
+            animation.configure(withSettings: settings)
+            
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] value in
+                self?.view.transform3D = value
+            }
+            
+            let groupUUID = animation.groupUUID
+            animation.completion = { [weak self] event in
+                switch event {
+                case .finished:
+                    self?.view.animations.removeValue(forKey: animationType)
+                    AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+                default:
+                    break
+                }
+            }
+            
+            start(animation: animation, type: animationType, delay: settings.delay)
+        }
+    }
 }
 
 extension ViewAnimator {
@@ -1065,6 +1161,14 @@ extension ViewAnimator {
     
     private var runningFrameAnimator: SpringAnimator<CGRect>? {
         view.animations[AnimatableProperty.frame] as? SpringAnimator<CGRect>
+    }
+    
+    private var runningTransformAnimator: SpringAnimator<CGAffineTransform>? {
+        view.animations[AnimatableProperty.transform] as? SpringAnimator<CGAffineTransform>
+    }
+    
+    private var runningTransform3DAnimator: SpringAnimator<CATransform3D>? {
+        view.animations[AnimatableProperty.transform3D] as? SpringAnimator<CATransform3D>
     }
 }
 #endif
