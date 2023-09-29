@@ -234,7 +234,7 @@ public class ViewAnimator {
             let initialValue = view.frame
             let targetValue = newValue
 
-            let animationType = AnimatableProperty.boundsSize
+            let animationType = AnimatableProperty.frameAlt
 
             // Re-targeting an animation.
             AnimationController.shared.executeHandler(uuid: runningFrameAltAnimator?.groupUUID, finished: false, retargeted: true)
