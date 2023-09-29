@@ -49,24 +49,9 @@ public class GradientLayer: CAGradientLayer {
         }
         set {
             self.colors = newValue.stops.compactMap({$0.color.cgColor})
-         //   self.locations = newValue.stops.compactMap({NSNumber($0.location)})
+            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
             self.startPoint = newValue.direction.startPoint
             self.endPoint = newValue.direction.endPoint
-            
-            /*
-            if let gradientColors = newValue.colors {
-                self.gradientColors = gradientColors
-            } else {
-                self.gradientColors = [NSColor]()
-            }
-            if let direction = newValue.direction {
-                self.direction = direction
-            }
-            if let colorLocations = newValue.locations {
-                self.colorLocations = colorLocations
-            }
-            self.updateGradient()
-            */
         }
     }
 
