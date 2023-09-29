@@ -39,22 +39,6 @@ public class GradientLayer: CAGradientLayer {
         self.masksToBounds = true
     }
     
-    /*
-    func setGradient(_ colorGradient: GradientPreset) {
-        self.gradientColors = colorGradient.colors
-        self.type = .axial
-        self.locations = calculateLocations(amount: self.gradientColors.count)
-        updateGradient()
-    }
-
-    func random() {
-        let randomColorGradient = GradientPreset.allCases.randomElement()!
-        self.setGradient(randomColorGradient)
-    }
-     */
-    
-
-    
     public var gradient: Gradient {
         get {
             let colors = (self.colors as? [CGColor])?.compactMap({$0.nsColor}) ?? []
@@ -65,7 +49,7 @@ public class GradientLayer: CAGradientLayer {
         }
         set {
             self.colors = newValue.stops.compactMap({$0.color.cgColor})
-            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
+         //   self.locations = newValue.stops.compactMap({NSNumber($0.location)})
             self.startPoint = newValue.direction.startPoint
             self.endPoint = newValue.direction.endPoint
             

@@ -24,7 +24,7 @@ public class LayoutConstraintAnimator {
         self.layoutConstraint = constraint
     }
     
-    /// The constant added to the multiplied second attribute participating in the constraint.
+    /// The constant of the layout constraint.
     public var constant: CGFloat {
         get {
             layoutConstraint.constantAnimator?.target ?? layoutConstraint.constant

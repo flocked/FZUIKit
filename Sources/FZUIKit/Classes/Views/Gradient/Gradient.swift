@@ -27,17 +27,17 @@ public struct Gradient {
     public var direction: Direction = .down
     public var stops: [Stop] = []
     
-    public init(colors: [NSUIColor], direction: Direction = .down) {
+    public init(colors: [NSUIColor], direction: Direction = .up) {
         self.stops = stops(for: colors)
         self.direction = .downRight
     }
     
-    public init(stops: [Stop], direction: Direction = .down) {
+    public init(stops: [Stop], direction: Direction = .up) {
         self.stops = stops
         self.direction = direction
     }
     
-    public init(preset: GradientPreset, direction: Direction = .down) {
+    public init(preset: GradientPreset, direction: Direction = .up) {
         self.stops = stops(for: preset.colors)
         self.direction = direction
     }

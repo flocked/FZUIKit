@@ -68,7 +68,7 @@ public class ViewAnimator {
     
     // MARK: - Public
     
-    /// The bounds of the attached  view.
+    /// The bounds of the attached view.
     public var bounds: CGRect {
         get {
             CGRect(origin: view.animator.boundsOrigin, size: view.animator.boundsSize)
@@ -86,7 +86,7 @@ public class ViewAnimator {
         }
     }
     
-    /// The frame of the attached  view.
+    /// The frame of the attached view.
     public var frame: CGRect {
         get {
 #if canImport(UIKit)
@@ -147,7 +147,7 @@ public class ViewAnimator {
         }
     }
     
-    /// The size of the attached  view.
+    /// The size of the attached view.
     public var size: CGSize {
         get {
 #if canImport(UIKit)
@@ -171,7 +171,7 @@ public class ViewAnimator {
         }
     }
     
-    /// The origin of the attached  view.
+    /// The origin of the attached view.
     public var origin: CGPoint {
         get {
             frame.origin
@@ -187,7 +187,7 @@ public class ViewAnimator {
         }
     }
     
-    /// The center of the attached  view.
+    /// The center of the attached view.
     public var center: CGPoint {
         get {
 #if canImport(UIKit)
@@ -346,7 +346,7 @@ public class ViewAnimator {
         }
     }
     
-    /// The background color of the attached  view.
+    /// The background color of the attached view.
     public var backgroundColor: NSUIColor {
         get {
             if let targetComponents = runningBackgroundColorAnimator?.target {
@@ -411,7 +411,7 @@ public class ViewAnimator {
         }
     }
     
-    /// The alpha of the attached  view.
+    /// The alpha value of the attached view.
     public var alpha: CGFloat {
         get {
             runningAlphaAnimator?.target ?? view.alpha
