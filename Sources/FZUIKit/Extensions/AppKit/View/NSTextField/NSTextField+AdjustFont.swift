@@ -231,7 +231,7 @@ extension NSTextField {
                 methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
                     if let textField = (object as? NSTextField) {
-                        var newString = textField.allowedCharacters.trimString(textField.stringValue)
+                        let newString = textField.allowedCharacters.trimString(textField.stringValue)
                         if let shouldEdit = textField.editingHandlers.shouldEdit {
                             if shouldEdit(textField.stringValue) == false {
                                 textField.stringValue = textField.editingString
@@ -253,6 +253,9 @@ extension NSTextField {
                             }
                         } else {
                             textField.stringValue = newString
+                            if textField.editingString == newString {
+                                textField.currentEditor()?.selectedRange = textField.editingRange
+                            }
                             textField.editingHandlers.didEdit?()
                         }
                         textField.editingString = textField.stringValue
