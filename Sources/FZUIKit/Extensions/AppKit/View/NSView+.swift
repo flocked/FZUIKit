@@ -704,10 +704,28 @@ internal extension CALayerContentsGravity {
 }
 
 internal extension NSView {
+    static func swizzleAnimationForKey() {
+        guard didSwizzleAnimationForKey == false else { return }
+        didSwizzleAnimationForKey = true
+        _ = try? Swizzle(NSView.self) {
+            #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
+        }
+    }
+    
+    @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        if NSViewAnimationKeysAlt.contains(key) {
+            let animation = CABasicAnimation()
+            animation.timingFunction = .default
+            return animation
+        }
+        return self.swizzled_Animation(forKey: key)
+    }
+    
     func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
-        
+        Self.swizzleAnimationForKey()
+        /*
         do {
             try self.replaceMethod(
                 #selector(NSView.animation(forKey:)),
@@ -768,6 +786,7 @@ internal extension NSView {
             object_setClass(self, viewSubclass)
         }
          */
+         */
     }
     
      var didSwizzleAnimationForKey: Bool {
@@ -776,6 +795,13 @@ internal extension NSView {
             set(associatedValue: newValue, key: "NSView_didSwizzleAnimationForKey", object: self)
         }
     }
+    
+    static var didSwizzleAnimationForKey: Bool {
+       get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }
+       set {
+           set(associatedValue: newValue, key: "NSView_didSwizzleAnimationForKey", object: self)
+       }
+   }
 }
 private let NSViewTransitionKeys = ["NSAnimationTriggerOrderIn", "NSAnimationTriggerOrderOut", "hidden"]
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow", "scale"]
