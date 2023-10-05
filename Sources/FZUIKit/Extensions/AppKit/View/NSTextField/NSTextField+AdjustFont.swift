@@ -114,9 +114,9 @@ extension NSTextField {
             var scaleFactor = 1.0
             var needsUpdate = !isFittingCurrentText
             Swift.print("adjustFontSize needsUpdate", needsUpdate)
-            while needsUpdate && scaleFactor != minimumScaleFactor {
-                scaleFactor -= 0.01
-                Swift.print("adjust", (font.pointSize * scaleFactor))
+            while needsUpdate && scaleFactor >= minimumScaleFactor {
+                scaleFactor = scaleFactor - 0.01
+                Swift.print("adjust", scaleFactor)
                 Swift.print("adjust font", font.withSize(font.pointSize * scaleFactor))
                 cell.font = font.withSize(font.pointSize * scaleFactor)
               //  needsUpdate = isTruncatingText
