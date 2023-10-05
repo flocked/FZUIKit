@@ -49,7 +49,9 @@ extension NSTextField {
     }
     
     internal func setupStringValueObserver() {
+        Swift.print("setupStringValueObserver", self.font ?? "nil", self.cell?.font ?? "nil")
         if (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation {
+            Swift.print("setupStringValueObserver 1", self.font ?? "nil", self.cell?.font ?? "nil")
             swizzleTextField()
           //  Self.swizzleTextField()
             if observer == nil {
@@ -104,7 +106,7 @@ extension NSTextField {
     }
     
     internal func adjustFontSize() {
-        Swift.print("adjustFontSize", adjustsFontSizeToFitWidth, minimumScaleFactor)
+        Swift.print("adjustFontSize", adjustsFontSizeToFitWidth, minimumScaleFactor, self.font ?? "nil", _font ?? "nil")
         cell?.font = _font
         attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
@@ -141,7 +143,7 @@ extension NSTextField {
         guard didSwizzleTextField == false else { return }
         didSwizzleTextField = true
         _font = self.font
-        Swift.print("swizzleTextField", self.font ?? "nil", self._font ?? "nil")
+        Swift.print("swizzleTextField", self.font ?? "nil", self._font ?? "nil", cell?.font ?? "nil")
         keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
             if self.hasKeyboardFocus, self.editingState != .didEnd {
                 if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
