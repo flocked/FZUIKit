@@ -45,6 +45,7 @@ extension NSTextField {
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
           //  swizzleTextField()
             Self.swizzleTextField()
+            Swift.print("setupStringValueObserver")
             if observer == nil {
                 observer = KeyValueObserver(self)
                 observer?.add(\.stringValue, handler: { [weak self] old, new in
@@ -82,6 +83,7 @@ extension NSTextField {
     }
     
     internal func adjustFontSize() {
+        Swift.print("adjustFontSize")
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0, minimumScaleFactor != 1.0 {
             guard let font = _font, let cell = cell else { return }
             cell.font = _font
