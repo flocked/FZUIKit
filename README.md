@@ -47,8 +47,7 @@ let loadingView = NSContentUnavailableView(configuration: configuration)
 ```
 
 ### NSView backgroundColor
-A background color of the view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
-
+The background color of a view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
 ```
 view.backgroundColor = .systemRed
 ```
@@ -67,7 +66,7 @@ Additional `NSView` properties that can be all animated via the views `animator(
 - `anchorPoint: CGPoint`
 - `animate(duration: TimeInterval, timingFunction: CAMediaTimingFunction, animations: @escaping (Self) -> Void, completion: (() -> Void)?)`
 ```
-// Animates the views properties
+// Convenience way of animating view properties
 view.animate(duration: 0.5) {
     $0.cornerRadius = 4.0
     $0.borderWidth = 2.0
@@ -98,26 +97,31 @@ Configurates several aspects of views, windows, etc. Examples:
 - VisualEffect
 ```
 window.visualEffect = .darkAqua()
-view.visualEffect = .vibrantLight()
+view.visualEffect = .vibrantLight(material: .sidebar)
 ```
 - Shadow/InnerShadow:
 ```
-let shadow = ContentConfiguration.Shadow(color: .black, opacity: 0.5, radius: 2.0)
+let shadow = ContentConfiguration.Shadow(color: .controlAccentColor, opacity: 0.5, radius: 2.0)
 view.configurate(using: shadow)
+let innerShadow: ContentConfiguration.InnerShadow = .black()
+view.configurate(using: innerShadow)
 ```
 - Border
 ```
 let border = ContentConfiguration.Border(color: .black, width: 1.0)
 view.configurate(using: border)
+let dashedBorder: ContentConfiguration.Border = .dashed(color: .red)
+view.configurate(using: dashedBorder)
 ```
-- SymbolConfiguration: A simplified version UIImage/NSImage.SymbolConfiguration
+- SymbolConfiguration: A simplified version of UIImage/NSImage.SymbolConfiguration.
 ```
 let symbolConfiguration: ContentConfiguration.SymbolConfiguration = .hierarchical(.red).font(.body).imageScale(.large)
 imageView.configurate(using: symbolConfiguration)
 ```
 - Text
 ```
-let text = ContentConfiguration.Text(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
+var text = ContentConfiguration.Text(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
+text.adjustsFontSizeToFitWidth = true
 textField.configurate(using: text)
 ```
 
@@ -151,7 +155,7 @@ textField.actionOnEscapeKeyDown = .endEditingAndReset
 // Ends editing when the user clicks outside the text field.
 textField.endEditingOnOutsideMouseDown = true
 ```
-- EditingHandlers
+- `EditingHandlers`
 ```swift
 textField.editingHandlers.didBegin {
     // Editing of the text did begin
@@ -216,9 +220,6 @@ A `NSTextField` that automatically resizes to fit it's text.
 let textField = ResizingTextField(string: "Some string")
 textField.automaticallyResizesToFit = true
 textField.maxWidth = 200 // The max width of the text field when resizing.
-textField.editingStateHandler // A handler that gets called whenever the state of editing changes
-textField.allowedCharacters = [.alphanumerics, .emojis] // The allowed characters when editing the string
-textField.minAmountChars = 5 // The minimum amount of characters when editing the string
 ```
 
 ### ImageView
@@ -226,7 +227,7 @@ An advanced `NSImageView` that supports scaleToFill, multiple images, gif animat
 ```
 let imageView = ImageView()
 imageView.image = myGifImage
-imageView.imageScaling = .resizeAspectFill // scaleToFill
+imageView.imageScaling = .resizeAspectFill
 imageView.animationDuration = 3.0 /// gif animation speed
 
 ```

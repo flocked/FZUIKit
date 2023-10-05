@@ -118,20 +118,24 @@ public extension ContentConfiguration {
     }
 }
 
-public extension NSVisualEffectView {
+public extension NSView {
     /**
-     Configurates the visual effect view with the specified configuration.
+     Configurates the visual effect of the view.
 
      - Parameters:
-        - configuration:The configuration for configurating the visual effect view.
+        - configuration:The visual effect configuration.
      */
     func configurate(using configuration: ContentConfiguration.VisualEffect) {
-        material = configuration.material
-        blendingMode = configuration.blendingMode
-        state = configuration.state
-        isEmphasized = configuration.isEmphasized
-        maskImage = configuration.maskImage
-        appearance = configuration.appearance
+        if let visualView = self as? NSVisualEffectView {
+            visualView.material = configuration.material
+            visualView.blendingMode = configuration.blendingMode
+            visualView.state = configuration.state
+            visualView.isEmphasized = configuration.isEmphasized
+            visualView.maskImage = configuration.maskImage
+            visualView.appearance = configuration.appearance
+        } else {
+            self.visualEffect = configuration
+        }
     }
 }
 
@@ -168,23 +172,27 @@ public extension ContentConfiguration {
     }
 }
 
-public extension UIVisualEffectView {
+public extension UIView {
     /**
-     Configurates the visual effect view with the specified configuration.
+     Configurates the visual effect of the view.
 
      - Parameters:
-        - configuration:The configuration for configurating the visual effect view.
+        - configuration:The visual effect configuration.
      */
     func configurate(using configuration: ContentConfiguration.VisualEffect) {
-        if let style = configuration.style {
-            switch style {
-            case let .vibrancy(vibrancy, blur: blur):
-                effect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)
-            case let .blur(blurStyle):
-                effect = UIBlurEffect(style: blurStyle)
+        if let visualView = self as? UIVisualEffectView {
+            if let style = configuration.style {
+                switch style {
+                case let .vibrancy(vibrancy, blur: blur):
+                    visualView.effect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)
+                case let .blur(blurStyle):
+                    visualView.effect = UIBlurEffect(style: blurStyle)
+                }
+            } else {
+                visualView.effect = nil
             }
         } else {
-            effect = nil
+            self.visualEffect = configuration
         }
     }
 }
@@ -200,18 +208,22 @@ public extension ContentConfiguration {
     }
 }
 
-public extension UIVisualEffectView {
+public extension UIView {
     /**
-     Configurates the visual effect view with the specified configuration.
+     Configurates the visual effect of the view.
 
      - Parameters:
-        - configuration:The configuration for configurating the visual effect view.
+        - configuration:The visual effect configuration.
      */
     func configurate(using configuration: ContentConfiguration.VisualEffect) {
-        if let style = configuration.style {
-            effect = UIBlurEffect(style: style)
+        if let visualView = self as? UIVisualEffectView {
+            if let style = configuration.style {
+                visualView.effect = UIBlurEffect(style: style)
+            } else {
+                visualView.effect = nil
+            }
         } else {
-            effect = nil
+            self.visualEffect = configuration
         }
     }
 }
