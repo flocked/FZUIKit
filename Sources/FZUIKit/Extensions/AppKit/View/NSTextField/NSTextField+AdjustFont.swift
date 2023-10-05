@@ -54,7 +54,6 @@ extension NSTextField {
                 observer = KeyValueObserver(self)
                 observer?.add(\.stringValue, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
-                    self.didAdjustFontKerning = false
                     self.adjustFontSize()
                 })
                 observer?.add(\.isBezeled, handler: { [weak self] old, new in
@@ -81,13 +80,6 @@ extension NSTextField {
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
-                /*
-                observer?.add(\.bounds, handler: { [weak self] old, new in
-                    guard let self = self, old.size != new.size else { return }
-                    self.adjustFontSize()
-                  //  self.adjustFontSize(requiresSmallerScale: new.size < old.size)
-                })
-                 */
             }
         } else {
             observer = nil
@@ -109,18 +101,13 @@ extension NSTextField {
         guard let _font = _font else { return }
         cell?.font = _font
         self.stringValue = self.stringValue
-     //   var attributedString = self.attributedStringValue.removingAttributes([.kern]).font(_font)
-    //    self.attributedStringValue = attributedString
-     //   attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
             var scaleFactor = requiresSmallerScale ? lastFontScaleFactor : 1.0
             var needsUpdate = !isFittingCurrentText
             while needsUpdate && scaleFactor >= minimumScaleFactor {
                 scaleFactor = scaleFactor - 0.005
                 let adjustedFont = _font.withSize(_font.pointSize * scaleFactor)
-             //   attributedString = attributedString.font(adjustedFont)
                 cell?.font = adjustedFont
-             //   self.attributedStringValue = attributedString
                 needsUpdate = !isFittingCurrentText
             }
             lastFontScaleFactor = scaleFactor
@@ -169,18 +156,19 @@ extension NSTextField {
             try self.replaceMethod(
               #selector(setter: font),
               methodSignature: (@convention(c)  (AnyObject, Selector, NSFont?) -> Void).self,
-              hookSignature: (@convention(block)  (AnyObject, NSFont?) -> Void).self) { store in { _, font in
-                  self._font = font
-                  self.adjustFontSize()
-              }
+              hookSignature: (@convention(block)  (AnyObject, NSFont?) -> Void).self) { store in { object, font in
+                  let textField = (object as? NSTextField)
+                  textField?._font = font
+                  textField?.adjustFontSize()
+                }
               }
             
             try? self.replaceMethod(
               #selector(getter: font),
               methodSignature: (@convention(c)  (AnyObject, Selector) -> NSFont?).self,
-              hookSignature: (@convention(block)  (AnyObject) -> NSFont?).self) { store in { _ in
-                  return self._font
-              }
+              hookSignature: (@convention(block)  (AnyObject) -> NSFont?).self) { store in { object in
+                  return (object as! NSTextField)._font
+                }
               }
             
             try? self.replaceMethod(
@@ -188,9 +176,9 @@ extension NSTextField {
               methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
               hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in { object in
                   store.original(object, #selector(NSView.layout))
-                  if self.bounds.size != self._bounds.size {
-                      self.adjustFontSize()
-                      self._bounds = self.bounds
+                  if let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size {
+                      textField.adjustFontSize()
+                      textField._bounds = textField.bounds
                   }
               }
               }
@@ -199,8 +187,9 @@ extension NSTextField {
               #selector(textDidEndEditing),
               methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
               hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
-                  self.editingState = .didEnd
-                  self.adjustFontSize()
+                  let textField = (object as? NSTextField)
+                  textField?.editingState = .didEnd
+                  textField?.adjustFontSize()
                   store.original(object, #selector(NSTextField.textDidEndEditing), notification)
               }
               }
@@ -209,9 +198,10 @@ extension NSTextField {
               #selector(textDidBeginEditing),
               methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
               hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
-                  self.editingState = .didBegin
-                  self.editStartString = self.stringValue
-                  self.editingString = self.stringValue
+                  let textField = (object as? NSTextField)
+                  textField?.editingState = .didBegin
+                  textField?.editStartString = textField?.stringValue ?? ""
+                  textField?.editingString = textField?.stringValue ?? ""
                   store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
               }
               }
@@ -220,19 +210,21 @@ extension NSTextField {
               #selector(textDidChange),
               methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
               hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
-                  if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
-                      if self.editingString.count == self.maximumNumberOfCharacters {
-                          self.stringValue = self.editingString
-                          if let editor = self.currentEditor(), editor.selectedRange.location > 0 {
-                              editor.selectedRange.location -= 1
+                  if let textField = (object as? NSTextField) {
+                      if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
+                          if textField.editingString.count == textField.maximumNumberOfCharacters {
+                              textField.stringValue = textField.editingString
+                              if let editor = textField.currentEditor(), editor.selectedRange.location > 0 {
+                                  editor.selectedRange.location -= 1
+                              }
+                          } else {
+                              textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
                           }
-                      } else {
-                          self.stringValue = String(self.stringValue.prefix(maxCharCount))
                       }
+                      textField.editingState = .isEditing
+                      textField.editingString = textField.stringValue
+                      textField.adjustFontSize()
                   }
-                  self.editingState = .isEditing
-                  self.editingString = self.stringValue
-                  self.adjustFontSize()
                   store.original(object, #selector(NSTextField.textDidChange), notification)
               }
               }
@@ -337,13 +329,6 @@ extension NSTextField {
         get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
         set {
             set(associatedValue: newValue, key: "didSwizzleTextField", object: self)
-        }
-    }
-    
-    internal var didAdjustFontKerning: Bool {
-        get { getAssociatedValue(key: "didAdjustFontKerning", object: self, initialValue: false) }
-        set {
-            set(associatedValue: newValue, key: "didAdjustFontKerning", object: self)
         }
     }
     
