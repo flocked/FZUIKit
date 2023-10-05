@@ -139,7 +139,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 case .retargeted:
                     break
@@ -238,7 +238,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 case .retargeted:
                     break
@@ -286,7 +286,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -339,7 +339,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 case .retargeted:
                     break
@@ -404,7 +404,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished(at: _):
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -451,7 +451,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -496,7 +496,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -540,7 +540,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -588,7 +588,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -664,7 +664,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished(at: _):
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -713,7 +713,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -775,7 +775,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -850,7 +850,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished(at: _):
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -898,7 +898,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -945,7 +945,7 @@ public class ViewAnimator {
             animation.completion = { [weak self] event in
                 switch event {
                 case .finished:
-                    self?.view.animations.removeValue(forKey: animationType)
+                    self?.view.waveAnimations.removeValue(forKey: animationType)
                     AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
                 default:
                     break
@@ -961,68 +961,68 @@ extension ViewAnimator {
     // MARK: - Internal
     
     private func start(animation: AnimationProviding, type: AnimatableProperty, delay: TimeInterval) {
-        view.animations[type] = animation
+        view.waveAnimations[type] = animation
         animation.start(afterDelay: delay)
     }
     
     private var runningCenterAnimator: SpringAnimator<CGPoint>? {
-        view.animations[AnimatableProperty.frameCenter] as? SpringAnimator<CGPoint>
+        view.waveAnimations[AnimatableProperty.frameCenter] as? SpringAnimator<CGPoint>
     }
     
     private var runningBoundsOriginAnimator: SpringAnimator<CGPoint>? {
-        view.animations[AnimatableProperty.boundsOrigin] as? SpringAnimator<CGPoint>
+        view.waveAnimations[AnimatableProperty.boundsOrigin] as? SpringAnimator<CGPoint>
     }
     
     private var runningBoundsSizeAnimator: SpringAnimator<CGSize>? {
-        view.animations[AnimatableProperty.boundsSize] as? SpringAnimator<CGSize>
+        view.waveAnimations[AnimatableProperty.boundsSize] as? SpringAnimator<CGSize>
     }
     
     private var runningScaleAnimator: SpringAnimator<CGPoint>? {
-        view.animations[AnimatableProperty.scale] as? SpringAnimator<CGPoint>
+        view.waveAnimations[AnimatableProperty.scale] as? SpringAnimator<CGPoint>
     }
     
     private var runningTranslationAnimator: SpringAnimator<CGPoint>? {
-        view.animations[AnimatableProperty.translation] as? SpringAnimator<CGPoint>
+        view.waveAnimations[AnimatableProperty.translation] as? SpringAnimator<CGPoint>
     }
     
     private var runningAlphaAnimator: SpringAnimator<CGFloat>? {
-        view.animations[AnimatableProperty.alpha] as? SpringAnimator<CGFloat>
+        view.waveAnimations[AnimatableProperty.alpha] as? SpringAnimator<CGFloat>
     }
     
     private var runningCornerRadiusAnimator: SpringAnimator<CGFloat>? {
-        view.animations[AnimatableProperty.cornerRadius] as? SpringAnimator<CGFloat>
+        view.waveAnimations[AnimatableProperty.cornerRadius] as? SpringAnimator<CGFloat>
     }
     
     private var runningBackgroundColorAnimator: SpringAnimator<RGBAComponents>? {
-        view.animations[AnimatableProperty.backgroundColor] as? SpringAnimator<RGBAComponents>
+        view.waveAnimations[AnimatableProperty.backgroundColor] as? SpringAnimator<RGBAComponents>
     }
     
     private var runningBorderColorAnimator: SpringAnimator<RGBAComponents>? {
-        view.animations[AnimatableProperty.borderColor] as? SpringAnimator<RGBAComponents>
+        view.waveAnimations[AnimatableProperty.borderColor] as? SpringAnimator<RGBAComponents>
     }
     
     private var runningBorderWidthAnimator: SpringAnimator<CGFloat>? {
-        view.animations[AnimatableProperty.borderWidth] as? SpringAnimator<CGFloat>
+        view.waveAnimations[AnimatableProperty.borderWidth] as? SpringAnimator<CGFloat>
     }
     
     private var runningShadowColorAnimator: SpringAnimator<RGBAComponents>? {
-        view.animations[AnimatableProperty.shadowColor] as? SpringAnimator<RGBAComponents>
+        view.waveAnimations[AnimatableProperty.shadowColor] as? SpringAnimator<RGBAComponents>
     }
     
     private var runningShadowOpacityAnimator: SpringAnimator<CGFloat>? {
-        view.animations[AnimatableProperty.shadowOpacity] as? SpringAnimator<CGFloat>
+        view.waveAnimations[AnimatableProperty.shadowOpacity] as? SpringAnimator<CGFloat>
     }
     
     private var runningShadowOffsetAnimator: SpringAnimator<CGSize>? {
-        view.animations[AnimatableProperty.shadowOffset] as? SpringAnimator<CGSize>
+        view.waveAnimations[AnimatableProperty.shadowOffset] as? SpringAnimator<CGSize>
     }
     
     private var runningShadowRadiusAnimator: SpringAnimator<CGFloat>? {
-        view.animations[AnimatableProperty.shadowRadius] as? SpringAnimator<CGFloat>
+        view.waveAnimations[AnimatableProperty.shadowRadius] as? SpringAnimator<CGFloat>
     }
     
     private var runningFrameAnimator: SpringAnimator<CGRect>? {
-        view.animations[AnimatableProperty.frame] as? SpringAnimator<CGRect>
+        view.waveAnimations[AnimatableProperty.frame] as? SpringAnimator<CGRect>
     }
 }
 
@@ -1045,9 +1045,9 @@ public extension NSUIView {
         set { set(associatedValue: newValue, key: "Animator", object: self) }
     }
 
-    internal var animations: [ViewAnimator.AnimatableProperty: AnimationProviding] {
-        get { getAssociatedValue(key: "animations", object: self, initialValue: [:]) }
-        set { set(associatedValue: newValue, key: "animations", object: self) }
+    internal var waveAnimations: [ViewAnimator.AnimatableProperty: AnimationProviding] {
+        get { getAssociatedValue(key: "waveAnimations", object: self, initialValue: [:]) }
+        set { set(associatedValue: newValue, key: "waveAnimations", object: self) }
     }
 }
 #endif
@@ -1089,7 +1089,7 @@ public extension NSUIView {
          animation.completion = { [weak self] event in
              switch event {
              case .finished:
-                 self?.view.animations.removeValue(forKey: animationType)
+                 self?.view.waveAnimations.removeValue(forKey: animationType)
                  AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
              default:
                  break
@@ -1136,7 +1136,7 @@ public extension NSUIView {
          animation.completion = { [weak self] event in
              switch event {
              case .finished:
-                 self?.view.animations.removeValue(forKey: animationType)
+                 self?.view.waveAnimations.removeValue(forKey: animationType)
                  AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
              default:
                  break
@@ -1183,7 +1183,7 @@ public extension NSUIView {
      animation.completion = { [weak self] event in
          switch event {
          case .finished:
-             self?.view.animations.removeValue(forKey: animationType)
+             self?.view.waveAnimations.removeValue(forKey: animationType)
              AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
              self?.view.removeFromSuperview()
          default:
@@ -1195,10 +1195,10 @@ public extension NSUIView {
  }
  
  private var runningTransformAnimator: SpringAnimator<CGAffineTransform>? {
-     view.animations[AnimatableProperty.transform] as? SpringAnimator<CGAffineTransform>
+     view.waveAnimations[AnimatableProperty.transform] as? SpringAnimator<CGAffineTransform>
  }
  
  private var runningTransform3DAnimator: SpringAnimator<CATransform3D>? {
-     view.animations[AnimatableProperty.transform3D] as? SpringAnimator<CATransform3D>
+     view.waveAnimations[AnimatableProperty.transform3D] as? SpringAnimator<CATransform3D>
  }
  */

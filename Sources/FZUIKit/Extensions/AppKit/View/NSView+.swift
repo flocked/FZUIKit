@@ -707,6 +707,26 @@ internal extension NSView {
     func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
+        
+        do {
+            try self.replaceMethod(
+                #selector(NSView.animation(forKey:)),
+                methodSignature: (@convention(c)  (AnyObject, Selector, NSAnimatablePropertyKey) -> (Any?)).self,
+                hookSignature: (@convention(block)  (AnyObject, NSAnimatablePropertyKey) -> (Any?)).self) { store in { object, key in
+                    if NSViewAnimationKeysAlt.contains(key) {
+                        let animation = CABasicAnimation()
+                     //   animation.timingFunction = .default
+                        animation.keyPath = key
+                    //    self.animations[key] = animation
+                        return animation
+                    }
+                    return store.original(object, #selector(NSView.animation(forKey:)), key)
+                }
+                }
+        } catch {
+            Swift.print(error)
+        }
+        /*
         guard let viewClass = object_getClass(self) else { return }
         let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
         if let viewSubclass = NSClassFromString(viewSubclassName) {
@@ -741,6 +761,7 @@ internal extension NSView {
             objc_registerClassPair(viewSubclass)
             object_setClass(self, viewSubclass)
         }
+         */
     }
     
      var didSwizzleAnimationForKey: Bool {
@@ -752,6 +773,8 @@ internal extension NSView {
 }
 private let NSViewTransitionKeys = ["NSAnimationTriggerOrderIn", "NSAnimationTriggerOrderOut", "hidden"]
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow", "scale"]
+
+private let NSViewAnimationKeysAlt = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "scale"]
 
 #endif
 
