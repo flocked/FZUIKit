@@ -31,7 +31,11 @@ public extension BackgroundColorSettable where Self: NSView {
             swizzleAnimationForKey()
             var newValue = newValue
             if newValue == nil, String(describing: self).contains("NSViewAnimator") {
-                newValue = .clear
+                if let backgroundColor = self.backgroundColor, backgroundColor != .clear {
+                    newValue = backgroundColor.withAlphaComponent(0.0)
+                } else {
+                    newValue = .clear
+                }
             }
             self._backgroundColor = newValue
             set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)

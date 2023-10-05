@@ -461,7 +461,11 @@ extension NSView {
             swizzleAnimationForKey()
             var newValue = newValue
             if newValue == nil, String(describing: self).contains("NSViewAnimator") {
-                newValue = .clear
+                if let borderColor = self.borderColor, borderColor != .clear {
+                    newValue = borderColor.withAlphaComponent(0.0)
+                } else {
+                    newValue = .clear
+                }
             }
             layer?.borderColor = newValue?.cgColor
         }
@@ -479,8 +483,13 @@ extension NSView {
             swizzleAnimationForKey()
             var newValue = newValue
             if newValue == nil, String(describing: self).contains("NSViewAnimator") {
-                newValue = .clear
+                if let shadowColor = self.shadowColor, shadowColor != .clear {
+                    newValue = shadowColor.withAlphaComponent(0.0)
+                } else {
+                    newValue = .clear
+                }
             }
+            
             layer?.shadowColor = newValue?.cgColor
         }
     }
