@@ -37,8 +37,7 @@ public extension NSUIColor {
     /// Returns the HSLA components of the color.
     func hslaComponents() -> (hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
         let hsl = HSL(color: self)
-        let rgba = rgbaComponents()
-        return (hue: hsl.h, saturation: hsl.s, lightness: hsl.l, alpha: rgba.alpha)
+        return (hue: hsl.h * 360.0, saturation: hsl.s,lightness: hsl.l, alpha: alphaComponent)
     }
 }
 
