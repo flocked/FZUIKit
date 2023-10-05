@@ -82,7 +82,6 @@ extension NSTextField {
     }
     
     internal func adjustFontSize() {
-        Swift.print("adjustFontSize")
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0, minimumScaleFactor != 1.0 {
             guard let font = _font, let cell = cell else { return }
             cell.font = _font
@@ -112,6 +111,25 @@ extension NSTextField {
     internal func swizzleTextField() {
         guard didSwizzleTextField == false else { return }
         didSwizzleTextField = true
+        keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
+            if self.hasKeyboardFocus, self.editingState != .didEnd {
+                if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
+                    self.window?.makeFirstResponder(nil)
+                    return nil
+                }
+                if event.keyCode == 53 {
+                    if self.actionAtEscapeKeyDown == .endEditingAndReset {
+                        self.stringValue = self.editStartString
+                        self.adjustFontSize()
+                    }
+                    if self.actionAtEscapeKeyDown != .none {
+                        self.window?.makeFirstResponder(nil)
+                        return nil
+                    }
+                }
+            }
+            return event
+        }
         _font = self.font
         adjustFontSize()
         guard let viewClass = object_getClass(self) else { return }
@@ -196,6 +214,11 @@ extension NSTextField {
     internal var observer: KeyValueObserver<NSTextField>? {
         get { getAssociatedValue(key: "observer", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "observer", object: self) }
+    }
+    
+    internal var keyDownMonitor: NSEvent.Monitor? {
+        get { getAssociatedValue(key: "keyDownMonitor", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "keyDownMonitor", object: self) }
     }
 }
 

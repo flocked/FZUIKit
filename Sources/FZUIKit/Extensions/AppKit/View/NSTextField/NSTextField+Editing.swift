@@ -110,10 +110,13 @@ public extension NSTextField {
     }
 
     @objc internal func bridgeTextField() {
+        /*
         if delegateBridge == nil {
             delegateBridge = DelegateProxy(self)
             Self.swizzleTextField()
         }
+        */
+        self.swizzleTextField()
     }
 
     @objc internal var swizzled_delegate: NSTextFieldDelegate? {
