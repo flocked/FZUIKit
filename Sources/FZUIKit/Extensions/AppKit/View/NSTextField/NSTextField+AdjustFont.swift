@@ -163,6 +163,94 @@ extension NSTextField {
             }
             return event
         }
+        do {
+            try self.replaceMethod(
+              #selector(setter: font),
+              methodSignature: (@convention(c)  (AnyObject, Selector, NSFont?) -> Void).self,
+              hookSignature: (@convention(block)  (AnyObject, NSFont?) -> Void).self) { store in { _, font in
+                  self._font = font
+                  self.adjustFontSize()
+              }
+              }
+            
+            try? self.replaceMethod(
+              #selector(getter: font),
+              methodSignature: (@convention(c)  (AnyObject, Selector) -> NSFont?).self,
+              hookSignature: (@convention(block)  (AnyObject) -> NSFont?).self) { store in { _ in
+                  return self._font
+              }
+              }
+            
+            try self.replaceMethod(
+              #selector(textDidEndEditing),
+              methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
+              hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
+                  self.editingState = .didEnd
+                  self.adjustFontSize()
+                  store.original(object, #selector(NSTextField.textDidEndEditing), notification)
+              }
+              }
+            
+            try self.replaceMethod(
+              #selector(textDidBeginEditing),
+              methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
+              hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
+                  self.editingState = .didBegin
+                  self.editStartString = self.stringValue
+                  self.editingString = self.stringValue
+                  store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
+              }
+              }
+            
+            try self.replaceMethod(
+              #selector(textDidChange),
+              methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
+              hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
+                  if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
+                      if self.editingString.count == self.maximumNumberOfCharacters {
+                          self.stringValue = self.editingString
+                          if let editor = self.currentEditor(), editor.selectedRange.location > 0 {
+                              editor.selectedRange.location -= 1
+                          }
+                      } else {
+                          self.stringValue = String(self.stringValue.prefix(maxCharCount))
+                      }
+                  }
+                  self.editingState = .isEditing
+                  self.editingString = self.stringValue
+                  self.adjustFontSize()
+                  store.original(object, #selector(NSTextField.textDidChange), notification)
+              }
+              }
+        } catch {
+            Swift.print(error)
+        }
+    }
+    
+    /*
+    internal func swizzleTextField() {
+        guard didSwizzleTextField == false else { return }
+        didSwizzleTextField = true
+        _font = self.font
+        keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
+            if self.hasKeyboardFocus, self.editingState != .didEnd {
+                if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
+                    self.window?.makeFirstResponder(nil)
+                    return nil
+                }
+                if event.keyCode == 53 {
+                    if self.actionAtEscapeKeyDown == .endEditingAndReset {
+                        self.stringValue = self.editStartString
+                        self.adjustFontSize()
+                    }
+                    if self.actionAtEscapeKeyDown != .none {
+                        self.window?.makeFirstResponder(nil)
+                        return nil
+                    }
+                }
+            }
+            return event
+        }
         guard let viewClass = object_getClass(self) else { return }
         let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
         if let viewSubclass = NSClassFromString(viewSubclassName) {
@@ -229,6 +317,7 @@ extension NSTextField {
             object_setClass(self, viewSubclass)
         }
     }
+    */
     
     internal var didSwizzleTextField: Bool {
         get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
