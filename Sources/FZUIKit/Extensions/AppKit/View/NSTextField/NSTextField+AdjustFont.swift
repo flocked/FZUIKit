@@ -105,8 +105,9 @@ extension NSTextField {
     internal func adjustFontSize(requiresSmallerScale: Bool = false) {
         guard let _font = _font else { return }
         cell?.font = _font
-        var attributedString = self.attributedStringValue.removingAttributes([.kern]).font(_font)
-        self.attributedStringValue = attributedString
+        self.stringValue = self.attributedStringValue.string
+     //   var attributedString = self.attributedStringValue.removingAttributes([.kern]).font(_font)
+    //    self.attributedStringValue = attributedString
      //   attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
             var scaleFactor = requiresSmallerScale ? lastFontScaleFactor : 1.0
@@ -114,9 +115,9 @@ extension NSTextField {
             while needsUpdate && scaleFactor >= minimumScaleFactor {
                 scaleFactor = scaleFactor - 0.005
                 let adjustedFont = _font.withSize(_font.pointSize * scaleFactor)
-                attributedString = attributedString.font(adjustedFont)
+             //   attributedString = attributedString.font(adjustedFont)
                 cell?.font = adjustedFont
-                self.attributedStringValue = attributedString
+             //   self.attributedStringValue = attributedString
                 needsUpdate = !isFittingCurrentText
             }
             lastFontScaleFactor = scaleFactor
