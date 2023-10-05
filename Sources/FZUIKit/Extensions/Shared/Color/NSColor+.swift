@@ -61,7 +61,7 @@ public extension NSColor {
         return color
     }
 
-    /// Creates a new color object with the supported color space.
+    /// Creates a new color object with a supported color space
     func withSupportedColorSpace() -> NSColor? {
         let supportedColorSpaces: [NSColorSpace] = [.extendedSRGB, .sRGB, .deviceRGB, .genericRGB, .adobeRGB1998, .displayP3]
         let needsConverting: Bool

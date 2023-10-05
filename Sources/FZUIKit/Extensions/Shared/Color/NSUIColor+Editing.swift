@@ -46,12 +46,7 @@ public extension NSUIColor {
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS)
-        let color = self.withSupportedColorSpace() ?? self
-        return HSL(color: color).lighter(amount: amount).toColor()
-        #else
         return HSL(color: self).lighter(amount: amount).toColor()
-        #endif
     }
 
     /**
@@ -80,6 +75,29 @@ public extension NSUIColor {
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
         return HSL(color: self).desaturated(amount: amount).toColor()
     }
+    
+    /**
+     Creates and returns a color object with the hue rotated along the color wheel by the given amount.
+
+     - parameter amount: A float representing the number of degrees as ratio (usually between -360.0 degree and 360.0 degree).
+     - returns: A DynamicColor object with the hue changed.
+     */
+    final func adjustedHue(amount: CGFloat) -> NSUIColor {
+      return HSL(color: self).adjustedHue(amount: amount).toColor()
+    }
+
+    /**
+     Creates and returns the complement of the color object.
+
+     This is identical to adjustedHue(180).
+
+     - returns: The complement DynamicColor.
+     - seealso: adjustedHueColor:
+     */
+    final func complemented() -> NSUIColor {
+      return adjustedHue(amount: 180.0)
+    }
+
 
     /**
      A grayscaled representation of the color.
@@ -105,9 +123,28 @@ public extension NSUIColor {
     }
 
     enum GrayscalingMode: String, Hashable {
+        /// XYZ luminance
         case luminance = "Luminance"
+        /// HSL lightness
         case lightness = "Lightness"
+        /// RGB average
         case average = "Average"
+        /// HSV value
         case value = "Value"
+    }
+    
+    /**
+     Creates and return a color object where the red, green, and blue values are inverted, while the alpha channel is left alone.
+
+     - returns: An inverse (negative) of the original color.
+     */
+    final func inverted() -> NSUIColor {
+      let rgba = rgbaComponents()
+
+      let invertedRed   = 1.0 - rgba.red
+      let invertedGreen = 1.0 - rgba.green
+      let invertedBlue  = 1.0 - rgba.blue
+
+      return NSUIColor(red: invertedRed, green: invertedGreen, blue: invertedBlue, alpha: rgba.alpha)
     }
 }

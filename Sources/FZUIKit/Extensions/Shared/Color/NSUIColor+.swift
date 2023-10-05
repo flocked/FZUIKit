@@ -29,28 +29,6 @@ public extension NSUIColor {
         return (red, green, blue, alpha)
     }
 
-    /// Returns the HSBA components of the color.
-    func hsbaComponents() -> (hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) {
-        var h: CGFloat = 0.0
-        var s: CGFloat = 0.0
-        var b: CGFloat = 0.0
-        var a: CGFloat = 0.0
-
-        var color: NSUIColor? = self
-        #if os(macOS)
-        color = withSupportedColorSpace()
-        #endif
-        color?.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
-        return (hue: h, saturation: s, brightness: b, alpha: a)
-    }
-
-    /// Returns the HSLA components of the color.
-    func hslaComponents() -> (hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
-        let hsl = HSL(color: self)
-        let rgba = rgbaComponents()
-        return (hue: hsl.h, saturation: hsl.s, lightness: hsl.l, alpha: rgba.alpha)
-    }
-
     /**
      Returns a new color object with the specified red component.
      
@@ -149,6 +127,20 @@ public extension NSUIColor {
     func usingCGColorSpace(_ colorSpace: CGColorSpace) -> NSUIColor? {
         guard let cgColor = cgColor.converted(to: colorSpace, intent: .defaultIntent, options: nil) else { return nil }
         return NSUIColor(cgColor: cgColor)
+    }
+    
+    /**
+     Determines if the color object is dark or light.
+
+     It is useful when you need to know whether you should display the text in black or white.
+
+     - returns: A boolean value to know whether the color is light. If true the color is light, dark otherwise.
+     */
+    func isLight() -> Bool {
+      let components = rgbaComponents()
+      let brightness = ((components.red * 299.0) + (components.green * 587.0) + (components.blue * 114.0)) / 1000.0
+
+      return brightness >= 0.5
     }
 
     #if os(macOS)

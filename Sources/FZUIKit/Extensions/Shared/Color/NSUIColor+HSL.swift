@@ -28,15 +28,17 @@ public extension NSUIColor {
         - alpha: The alpha channel value of the color.
      */
     convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
-        let h = hue / 360.0
-        var s = saturation / 100.0
-        let l = lightness / 100.0
+        let color      = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
+        let components = color.rgbaComponents()
 
-        let t = s * ((l < 0.5) ? l : (1.0 - l))
-        let b = l + t
-        s = (l > 0.0) ? (2.0 * t / b) : 0.0
+        self.init(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
+    }
 
-        self.init(hue: h, saturation: s, brightness: b, alpha: alpha)
+    /// Returns the HSLA components of the color.
+    func hslaComponents() -> (hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
+        let hsl = HSL(color: self)
+        let rgba = rgbaComponents()
+        return (hue: hsl.h, saturation: hsl.s, lightness: hsl.l, alpha: rgba.alpha)
     }
 }
 
@@ -54,26 +56,37 @@ internal struct HSL {
     }
 
     init(color: NSUIColor) {
-        #if os(macOS)
-        let color = color.withSupportedColorSpace() ?? color
-        #endif
-        var b = CGFloat()
-        color.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
-        
-        l = ((2.0 - s) * b) / 2.0
+      let rgba = color.rgbaComponents()
+      let maximum   = max(rgba.red, max(rgba.green, rgba.blue))
+      let minimum = min(rgba.red, min(rgba.green, rgba.blue))
 
-        switch l {
-        case 0.0, 1.0:
-            s = 0.0
-        case 0.0..<0.5:
-            s = (s * b) / (l * 2.0)
-        default:
-            s = (s * b) / (2.0 - l * 2.0)
+      let delta = maximum - minimum
+
+      h = 0.0
+      s = 0.0
+      l = (maximum + minimum) / 2.0
+
+      if delta != 0.0 {
+        if l < 0.5 {
+          s = delta / (maximum + minimum)
         }
-        
-        h = h * 360.0
-        s = s * 100.0
-        l = l * 100.0
+        else {
+          s = delta / (2.0 - maximum - minimum)
+        }
+
+        if rgba.red == maximum {
+          h = ((rgba.green - rgba.blue) / delta) + (rgba.green < rgba.blue ? 6.0 : 0.0)
+        }
+        else if rgba.green == maximum {
+          h = ((rgba.blue - rgba.red) / delta) + 2.0
+        }
+        else if rgba.blue == maximum {
+          h = ((rgba.red - rgba.green) / delta) + 4.0
+        }
+      }
+
+      h /= 6.0
+      a = rgba.alpha
     }
 
     func toColor() -> NSUIColor {
@@ -89,19 +102,21 @@ internal struct HSL {
         let r = hueToRGB(m1: m1, m2: m2, h: h + (1.0 / 3.0))
         let g = hueToRGB(m1: m1, m2: m2, h: h)
         let b = hueToRGB(m1: m1, m2: m2, h: h - (1.0 / 3.0))
-
+        
         return (r, g, b, CGFloat(a))
     }
 
     private func hueToRGB(m1: CGFloat, m2: CGFloat, h: CGFloat) -> CGFloat {
-        let hue = (h.truncatingRemainder(dividingBy: 1) + 1).truncatingRemainder(dividingBy: 1)
+        let hue = moda(h, m: 1)
 
         if hue * 6 < 1.0 {
-            return m1 + ((m2 - m1) * hue * 6.0)
-        } else if hue * 2.0 < 1.0 {
-            return m2
-        } else if hue * 3.0 < 1.9999 {
-            return m1 + ((m2 - m1) * ((2.0 / 3.0) - hue) * 6.0)
+          return m1 + ((m2 - m1) * hue * 6.0)
+        }
+        else if hue * 2.0 < 1.0 {
+          return m2
+        }
+        else if hue * 3.0 < 1.9999 {
+          return m1 + ((m2 - m1) * ((2.0 / 3.0) - hue) * 6.0)
         }
 
         return m1
@@ -131,4 +146,8 @@ internal struct HSL {
         let amount = amount.clamped(max: 1.0)
         return saturated(amount: amount * -1.0)
     }
+}
+
+fileprivate func moda(_ x: CGFloat, m: CGFloat) -> CGFloat {
+  return (x.truncatingRemainder(dividingBy: m) + m).truncatingRemainder(dividingBy: m)
 }
