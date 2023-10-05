@@ -107,7 +107,7 @@ extension NSTextField {
     internal func adjustFontSize() {
         Swift.print("adjustFontSize", _font ?? "nil")
         cell?.font = _font
-        attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
+     //   attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
             Swift.print("adjustFontSize 1", _font ?? "nil", cell ?? "nil")
             guard let font = _font else { return }
