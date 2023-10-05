@@ -41,7 +41,8 @@ public extension NSTextField {
     /// The editing state.
     internal(set) var editingState: EditingState {
         get {
-            bridgeTextField()
+           // bridgeTextField()
+            swizzleTextField()
             if let state: EditingState = getAssociatedValue(key: "NSTextField_editingState", object: self) {
                 return state
             }
@@ -58,7 +59,8 @@ public extension NSTextField {
         set {
             set(associatedValue: newValue, key: "NSTextField_editingHandler", object: self)
             if newValue != nil {
-                bridgeTextField()
+              //  bridgeTextField()
+                swizzleTextField()
             }
         }
     }
@@ -68,8 +70,9 @@ public extension NSTextField {
         get { getAssociatedValue(key: "NSTextField_actionAtEnterKeyDown", object: self, initialValue: .none) }
         set {
             set(associatedValue: newValue, key: "NSTextField_actionAtEnterKeyDown", object: self)
-            if newValue == .endEditing {
-                bridgeTextField()
+            if newValue != .none {
+              //  bridgeTextField()
+                swizzleTextField()
             }
         }
     }
@@ -80,7 +83,8 @@ public extension NSTextField {
         set {
             set(associatedValue: newValue, key: "NSTextFIeld_actionAtEscapeKeyDown", object: self)
             if newValue != .none {
-                bridgeTextField()
+               // bridgeTextField()
+                swizzleTextField()
             }
         }
     }
@@ -93,7 +97,8 @@ public extension NSTextField {
             if let maxCharCount = newValue, stringValue.count > maxCharCount {
                 stringValue = String(stringValue.prefix(maxCharCount))
             }
-            bridgeTextField()
+           // bridgeTextField()
+            swizzleTextField()
         }
     }
 
@@ -110,13 +115,10 @@ public extension NSTextField {
     }
 
     @objc internal func bridgeTextField() {
-        /*
         if delegateBridge == nil {
             delegateBridge = DelegateProxy(self)
             Self.swizzleTextField()
         }
-        */
-        self.swizzleTextField()
     }
 
     @objc internal var swizzled_delegate: NSTextFieldDelegate? {
@@ -147,6 +149,49 @@ public extension NSTextField {
             } catch {
                 Swift.debugPrint(error)
             }
+        }
+    }
+}
+
+internal extension NSTextField {
+    func swizzleDelegate() {
+        guard didSwizzleDelegate == false else { return }
+        didSwizzleDelegate = true
+        guard let viewClass = object_getClass(self) else { return }
+        let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
+        if let viewSubclass = NSClassFromString(viewSubclassName) {
+            object_setClass(self, viewSubclass)
+        } else {
+            guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
+            guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
+            if let getDelegateMethod = class_getInstanceMethod(viewClass, #selector(getter: delegate)),
+               let setDelegateMethod = class_getInstanceMethod(viewClass, #selector(setter: delegate)) {
+                let setDelegate: @convention(block) (AnyObject, NSTextFieldDelegate?) -> Void = { _, delegate in
+                    Swift.print("setter")
+                    if let delegateBridge = self.delegateBridge {
+                        delegateBridge.delegate = delegate
+                    } else {
+                        self.delegate = delegate
+                    }
+                }
+                let getDelegate: @convention(block) (AnyObject) -> NSTextFieldDelegate? = { _ in
+                    Swift.print("getter")
+                    return self.delegateBridge?.delegate ?? self.delegate
+                }
+                class_addMethod(viewSubclass, #selector(getter: delegate),
+                                imp_implementationWithBlock(getDelegate), method_getTypeEncoding(getDelegateMethod))
+                class_addMethod(viewSubclass, #selector(setter: delegate),
+                                imp_implementationWithBlock(setDelegate), method_getTypeEncoding(setDelegateMethod))
+            }
+            objc_registerClassPair(viewSubclass)
+            object_setClass(self, viewSubclass)
+        }
+    }
+    
+    var didSwizzleDelegate: Bool {
+        get { getAssociatedValue(key: "didSwizzleTextFieldDel", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "didSwizzleTextFieldDel", object: self)
         }
     }
 }
@@ -186,7 +231,14 @@ internal extension NSTextField {
         func controlTextDidChange(_ obj: Notification) {
             textField.editingState = .isEditing
             if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
-                textField.stringValue = editingString.count == textField.maximumNumberOfCharacters ? editingString : String(textField.stringValue.prefix(maxCharCount))
+                if textField.editingString.count == textField.maximumNumberOfCharacters {
+                    textField.stringValue = textField.editingString
+                    if let editor = textField.currentEditor(), editor.selectedRange.location > 0 {
+                        editor.selectedRange.location -= 1
+                    }
+                } else {
+                    textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
+                }
             }
             editingString = textField.stringValue
             delegate?.controlTextDidChange?(obj)
@@ -222,7 +274,6 @@ internal extension NSTextField {
                     return true
                 }
             }
-
             return delegate?.control?(control, textView: textView, doCommandBy: commandSelector) ?? false
         }
 

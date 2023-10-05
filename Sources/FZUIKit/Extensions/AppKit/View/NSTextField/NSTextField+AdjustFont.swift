@@ -18,11 +18,14 @@ extension NSTextField {
      */
     public var adjustsFontSizeToFitWidth: Bool {
         get { getAssociatedValue(key: "adjustsFontSizeToFitWidth", object: self, initialValue: false) }
-        set { set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
+        set { 
+            guard newValue != adjustsFontSizeToFitWidth else { return }
+            set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
             self.setupStringValueObserver()
+            self.adjustFontSize()
         }
     }
-    
+        
     /**
      The minimum scale factor for the text field’s text.
      
@@ -31,8 +34,12 @@ extension NSTextField {
      */
     public var minimumScaleFactor: CGFloat {
         get { getAssociatedValue(key: "minimumScaleFactor", object: self, initialValue: 0.0) }
-        set { set(associatedValue: newValue.clamped(max: 1.0), key: "minimumScaleFactor", object: self)
+        set { 
+            let newValue = newValue.clamped(max: 1.0)
+            guard newValue != minimumScaleFactor else { return }
+            set(associatedValue: newValue, key: "minimumScaleFactor", object: self)
             self.setupStringValueObserver()
+            self.adjustFontSize()
         }
     }
     
@@ -42,13 +49,14 @@ extension NSTextField {
     }
     
     internal func setupStringValueObserver() {
-        if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
+        if (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation {
             swizzleTextField()
           //  Self.swizzleTextField()
             if observer == nil {
                 observer = KeyValueObserver(self)
                 observer?.add(\.stringValue, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
+                    self.didAdjustFontKerning = false
                     self.adjustFontSize()
                 })
                 observer?.add(\.isBezeled, handler: { [weak self] old, new in
@@ -67,6 +75,10 @@ extension NSTextField {
                     guard let self = self, self.isBezeled, old != new else { return }
                     self.adjustFontSize()
                 })
+                observer?.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
+                    guard let self = self, self.isBezeled, old != new else { return }
+                    self.adjustFontSize()
+                })
                 observer?.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
@@ -81,30 +93,44 @@ extension NSTextField {
         }
     }
     
-    internal func adjustFontSize() {
-        if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0, minimumScaleFactor != 1.0 {
-            guard let font = _font, let cell = cell else { return }
-            cell.font = _font
-            var scaleFactor = 1.0
-            var needsUpdate = isTruncatingText
-            let _bounds = CGRect(.zero, CGSize(bounds.width, CGFloat.greatestFiniteMagnitude))
-            if needsUpdate == false, cell.cellSize(forBounds: _bounds).height > bounds.height {
-                needsUpdate = true
+    internal var isFittingCurrentText: Bool {
+        let isFitting = !isTruncatingText
+        if isFitting == true {
+            if let cell = cell, cell.cellSize(forBounds: CGRect(.zero, CGSize(bounds.width, CGFloat.greatestFiniteMagnitude))).height > bounds.height {
+                return false
             }
+        }
+        return isFitting
+    }
+    
+    internal func adjustFontSize() {
+        cell?.font = _font
+        attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
+        if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
+            guard let font = _font, let cell = cell else { return }
+            var scaleFactor = 1.0
+            var needsUpdate = !isFittingCurrentText
             while needsUpdate && scaleFactor != minimumScaleFactor {
                 scaleFactor -= 0.01
                 cell.font = font.withSize(font.pointSize * scaleFactor)
-                needsUpdate = isTruncatingText
-                if needsUpdate == false {
-                    // if maximumNumberOfLines == 0 {
-                    if cell.cellSize(forBounds: _bounds).height > bounds.height {
-                        needsUpdate = true
-                    }
-                    //  }
-                }
+              //  needsUpdate = isTruncatingText
+                needsUpdate = !isFittingCurrentText
             }
-        } else if cell?.font != _font {
-            cell?.font = _font
+            if needsUpdate, allowsDefaultTighteningForTruncation {
+                adjustFontKerning()
+            }
+        } else if allowsDefaultTighteningForTruncation {
+            adjustFontKerning()
+        }
+    }
+    
+    internal func adjustFontKerning() {
+        var needsUpdate = !isFittingCurrentText
+        var kerning: Float = 0.0
+        while needsUpdate && kerning <= 1.0 {
+            self.attributedStringValue = self.attributedStringValue.applyingAttributes( [.kern: -kerning])
+            kerning += 0.02
+            needsUpdate = !isFittingCurrentText
         }
     }
     
@@ -131,7 +157,6 @@ extension NSTextField {
             return event
         }
         _font = self.font
-        adjustFontSize()
         guard let viewClass = object_getClass(self) else { return }
         let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
         if let viewSubclass = NSClassFromString(viewSubclassName) {
@@ -172,8 +197,6 @@ extension NSTextField {
                         if self.editingString.count == self.maximumNumberOfCharacters {
                             self.stringValue = self.editingString
                             if let editor = self.currentEditor(), editor.selectedRange.location > 0 {
-                              //  var selectedRange = editor.selectedRange
-                              //  selectedRange.location -= 1
                                 editor.selectedRange.location -= 1
                             }
                         } else {
@@ -184,7 +207,7 @@ extension NSTextField {
                     self.editingString = self.stringValue
                     self.adjustFontSize()
                 }
-                
+                                
                 class_addMethod(viewSubclass, #selector(getter: NSTextField.font),
                                 imp_implementationWithBlock(getFont), method_getTypeEncoding(getFontMethod))
                 class_addMethod(viewSubclass, #selector(setter: NSTextField.font),
@@ -205,6 +228,13 @@ extension NSTextField {
         get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
         set {
             set(associatedValue: newValue, key: "didSwizzleTextField", object: self)
+        }
+    }
+    
+    internal var didAdjustFontKerning: Bool {
+        get { getAssociatedValue(key: "didAdjustFontKerning", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "didAdjustFontKerning", object: self)
         }
     }
     
