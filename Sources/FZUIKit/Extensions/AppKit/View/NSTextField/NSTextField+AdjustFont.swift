@@ -140,6 +140,8 @@ extension NSTextField {
     internal func swizzleTextField() {
         guard didSwizzleTextField == false else { return }
         didSwizzleTextField = true
+        _font = self.font
+        Swift.print("swizzleTextField", self.font ?? "nil", self._font ?? "nil")
         keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
             if self.hasKeyboardFocus, self.editingState != .didEnd {
                 if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
@@ -159,7 +161,6 @@ extension NSTextField {
             }
             return event
         }
-        _font = self.font
         guard let viewClass = object_getClass(self) else { return }
         let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
         if let viewSubclass = NSClassFromString(viewSubclassName) {
