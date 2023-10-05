@@ -63,7 +63,7 @@ public extension NSColor {
 
     /// Creates a new color object with a supported color space
     func withSupportedColorSpace() -> NSColor? {
-        let supportedColorSpaces: [NSColorSpace] = [.extendedSRGB, .sRGB, .deviceRGB, .genericRGB, .adobeRGB1998, .displayP3]
+        let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
         let needsConverting: Bool
         if (self.className == "NSDynamicSystemColor") {
             needsConverting = true
