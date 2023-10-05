@@ -39,7 +39,7 @@ public extension NSTextField {
     }
 
     /// The editing state.
-    private(set) var editingState: EditingState {
+    internal(set) var editingState: EditingState {
         get {
             bridgeTextField()
             if let state: EditingState = getAssociatedValue(key: "NSTextField_editingState", object: self) {

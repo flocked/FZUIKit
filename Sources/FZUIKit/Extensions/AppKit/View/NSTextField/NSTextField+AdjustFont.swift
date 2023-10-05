@@ -43,9 +43,8 @@ extension NSTextField {
     
     internal func setupStringValueObserver() {
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
-          //  swizzleTextField()
-            Self.swizzleTextField()
-            Swift.print("setupStringValueObserver")
+            swizzleTextField()
+          //  Self.swizzleTextField()
             if observer == nil {
                 observer = KeyValueObserver(self)
                 observer?.add(\.stringValue, handler: { [weak self] old, new in
@@ -136,11 +135,28 @@ extension NSTextField {
                     return self._font
                 }
                 
+                let beginEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
+                    guard let self = self else { return }
+                //    self.editingState = .didBegin
+                    self.editStartString = self.stringValue
+                    self.editingString = self.stringValue
+                }
+                
+                let endEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
+                    guard let self = self else { return }
+                //    self.editingState = .didEnd
+                    self.adjustFontSize()
+                }
+                
                 let textEdit: @convention(block) (AnyObject) -> Void = { [weak self] _ in
                     guard let self = self else { return }
+                    /*
                     if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
-                        self.stringValue = String(self.stringValue.prefix(maxCharCount))
+                        self.stringValue = self.editingString.count == self.maximumNumberOfCharacters ? self.editingString : String(self.stringValue.prefix(maxCharCount))
                     }
+                    self.editingState = .isEditing
+                    self.editingString = self.stringValue
+                     */
                     self.adjustFontSize()
                 }
                 
@@ -151,9 +167,9 @@ extension NSTextField {
                 class_addMethod(viewSubclass, #selector(textDidChange),
                                 imp_implementationWithBlock(textEdit), method_getTypeEncoding(textDidChangeMethod))
                 class_addMethod(viewSubclass, #selector(textDidBeginEditing),
-                                imp_implementationWithBlock(textEdit), method_getTypeEncoding(textDidBeginEditingMethod))
+                                imp_implementationWithBlock(beginEditing), method_getTypeEncoding(textDidBeginEditingMethod))
                 class_addMethod(viewSubclass, #selector(textDidEndEditing),
-                                imp_implementationWithBlock(textEdit), method_getTypeEncoding(textDidEndEditingMethod))
+                                imp_implementationWithBlock(endEditing), method_getTypeEncoding(textDidEndEditingMethod))
             }
             objc_registerClassPair(viewSubclass)
             object_setClass(self, viewSubclass)
@@ -165,6 +181,16 @@ extension NSTextField {
         set {
             set(associatedValue: newValue, key: "didSwizzleTextField", object: self)
         }
+    }
+    
+    internal var editStartString: String {
+        get { getAssociatedValue(key: "editStartString", object: self, initialValue: "") }
+        set { set(associatedValue: newValue, key: "editStartString", object: self) }
+    }
+    
+    internal var editingString: String {
+        get { getAssociatedValue(key: "editingString", object: self, initialValue: "") }
+        set { set(associatedValue: newValue, key: "editingString", object: self) }
     }
     
     internal var observer: KeyValueObserver<NSTextField>? {
