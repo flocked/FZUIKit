@@ -106,7 +106,7 @@ extension NSTextField {
     internal func adjustFontSize(requiresSmallerScale: Bool = false) {
         guard let _font = _font else { return }
         cell?.font = _font
-        self.stringValue = self.attributedStringValue.string
+        self.stringValue = self.stringValue
      //   var attributedString = self.attributedStringValue.removingAttributes([.kern]).font(_font)
     //    self.attributedStringValue = attributedString
      //   attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
