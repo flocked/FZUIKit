@@ -133,6 +133,10 @@ let segmentedControl = NSSegmentedControl() {
 ```
 ### NSTextField
 - `adjustsFontSizeToFitWidth` & `minimumScaleFactor` (Port of UILabel)
+```swift
+textField.adjustsFontSizeToFitWidth = true
+textField.minimumScaleFactor = 0.7
+```
 - `minimumNumberOfCharacters`, `maximumNumberOfCharacters` & `allowedCharacters`
 ```swift
 textField.maximumNumberOfCharacters = 20
