@@ -83,7 +83,7 @@ extension NSTextField {
                 })
                 observer?.add(\.frame, handler: { [weak self] old, new in
                     guard let self = self, old.size != new.size else { return }
-                    self.adjustFontSize()
+                    self.adjustFontSize(requiresSmallerScale: new.size < old.size)
                 })
             }
         } else {
@@ -102,14 +102,14 @@ extension NSTextField {
         return isFitting
     }
     
-    internal func adjustFontSize() {
+    internal func adjustFontSize(requiresSmallerScale: Bool = false) {
         guard let _font = _font else { return }
         cell?.font = _font
         var attributedString = self.attributedStringValue.removingAttributes([.kern]).font(_font)
         self.attributedStringValue = attributedString
      //   attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
-            var scaleFactor = 1.0
+            var scaleFactor = requiresSmallerScale ? lastFontScaleFactor : 1.0
             var needsUpdate = !isFittingCurrentText
             while needsUpdate && scaleFactor >= minimumScaleFactor {
                 scaleFactor = scaleFactor - 0.005
@@ -119,6 +119,7 @@ extension NSTextField {
                 self.attributedStringValue = attributedString
                 needsUpdate = !isFittingCurrentText
             }
+            lastFontScaleFactor = scaleFactor
             if needsUpdate, allowsDefaultTighteningForTruncation {
                 adjustFontKerning()
             }
@@ -244,6 +245,11 @@ extension NSTextField {
     internal var editStartString: String {
         get { getAssociatedValue(key: "editStartString", object: self, initialValue: "") }
         set { set(associatedValue: newValue, key: "editStartString", object: self) }
+    }
+    
+    internal var lastFontScaleFactor: CGFloat {
+        get { getAssociatedValue(key: "lastFontScaleFactor", object: self, initialValue: 1.0) }
+        set { set(associatedValue: newValue, key: "lastFontScaleFactor", object: self) }
     }
     
     internal var editingString: String {
