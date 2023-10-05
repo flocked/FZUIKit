@@ -10,25 +10,21 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSTextField {
+    /// Handlers for editing the text of a text field.
     struct TextEditingHandler {
+        /// Handler that gets called whenever editing the text did begin.
         public var didBegin: (()->())? = nil
+        /// Handler that determines whether the text should change.
         public var shouldEdit: ((String)->(Bool))? = nil
+        /// Handler that gets called whenever the text did change.
         public var didEdit: (()->())? = nil
+        /// Handler that gets called whenever editing the text did end.
         public var didEnd: (()->())? = nil
+        /// Handler that determines whether a command should be performed (e.g. cancel, enter).
         public var shouldDoCommand: ((Selector)->(Bool))? = nil
         internal var needsSwizzle: Bool {
-            didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil
+            didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil || shouldDoCommand != nil
         }
-    }
-    
-    /// The editing state of a text field.
-    enum EditingState {
-        /// Editing of the text did begin.
-        case didBegin
-        /// The text did update.
-        case isEditing
-        /// Editing of the text did end.
-        case didEnd
     }
 
     /// The action to perform when the user pressed the escape key.
@@ -48,35 +44,59 @@ public extension NSTextField {
         /// Ends editing the text.
         case endEditing
     }
+    
+    /// The allowed characters the user can enter when editing.
+    struct AllowedCharacters: OptionSet {
+        public let rawValue: UInt
+        /// Allows numeric characters (like 1, 2, etc.)
+        public static let digits = AllowedCharacters(rawValue: 1 << 0)
+        /// Allows all letter characters.
+        public static let letters: AllowedCharacters = [.lowercaseLetters, .uppercaseLetters]
+        /// Allows alphabetic lowercase characters (like a, b, c, etc.)
+        public static let lowercaseLetters = AllowedCharacters(rawValue: 1 << 1)
+        /// Allows alphabetic uppercase characters (like A, B, C, etc.)
+        public static let uppercaseLetters = AllowedCharacters(rawValue: 1 << 2)
+        /// Allows all alphanumerics characters.
+        public static let alphanumerics: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters]
+        /// Allows symbols (like !, -, /, etc.)
+        public static let symbols = AllowedCharacters(rawValue: 1 << 3)
+        /// Allows emoji characters (like 🥰 ❤️, etc.)
+        public static let emojis = AllowedCharacters(rawValue: 1 << 4)
+        /// Allows whitespace characters.
+        public static let whitespaces = AllowedCharacters(rawValue: 1 << 5)
+        /// Allows new line characters.
+        public static let newLines = AllowedCharacters(rawValue: 1 << 6)
+        /// Allows all characters.
+        public static let all: AllowedCharacters = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines]
+        
+        internal func trimString<S: StringProtocol>(_ string: S) -> String {
+            var string = String(string)
+            if self.contains(.lowercaseLetters) == false { string = string.trimmingCharacters(in: .lowercaseLetters) }
+            if self.contains(.uppercaseLetters) == false { string = string.trimmingCharacters(in: .uppercaseLetters) }
+            if self.contains(.digits) == false { string = string.trimmingCharacters(in: .decimalDigits) }
+            if self.contains(.symbols) == false { string = string.trimmingCharacters(in: .symbols) }
+            if self.contains(.newLines) == false { string = string.trimmingCharacters(in: .newlines) }
+            if self.contains(.emojis) == false { string = string.trimmingEmojis() }
+            return string
+        }
 
-    /// The editing state.
-    internal(set) var editingState: EditingState {
-        get {
-           // bridgeTextField()
-            swizzleTextField()
-            if let state: EditingState = getAssociatedValue(key: "NSTextField_editingState", object: self) {
-                return state
-            }
-            return getAssociatedValue(key: "NSTextField_editingState", object: self, initialValue: hasKeyboardFocus ? .isEditing : .didEnd) }
-        set {
-            set(associatedValue: newValue, key: "NSTextField_editingState", object: self)
-            editingHandler?(self.editingState)
+        /// Creates a swipe direction structure with the specified raw value.
+        public init(rawValue: UInt) {
+            self.rawValue = rawValue
         }
     }
-
-    /// The handler that gets called when the editing state updates.
-    var editingHandler: ((_ state: EditingState) -> ())? {
-        get { getAssociatedValue(key: "NSTextField_editingHandler", object: self, initialValue: nil) }
-        set {
-            set(associatedValue: newValue, key: "NSTextField_editingHandler", object: self)
-            if newValue != nil {
-              //  bridgeTextField()
+    
+    /// The allowed characters the user can enter when editing.
+    var allowedCharacters: AllowedCharacters {
+        get { getAssociatedValue(key: "allowedCharacters", object: self, initialValue: .all) }
+        set { set(associatedValue: newValue, key: "allowedCharacters", object: self)
+            if newValue != .all {
                 swizzleTextField()
             }
         }
     }
     
-    /// The handler that gets called when the editing state updates.
+    /// The handlers for editing the text.
     var editingHandlers: TextEditingHandler {
         get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: TextEditingHandler()) }
         set { set(associatedValue: newValue, key: "editingHandlers", object: self)
@@ -92,7 +112,6 @@ public extension NSTextField {
         set {
             set(associatedValue: newValue, key: "NSTextField_actionAtEnterKeyDown", object: self)
             if newValue != .none {
-              //  bridgeTextField()
                 swizzleTextField()
             }
         }
@@ -104,9 +123,25 @@ public extension NSTextField {
         set {
             set(associatedValue: newValue, key: "NSTextFIeld_actionAtEscapeKeyDown", object: self)
             if newValue != .none {
-               // bridgeTextField()
                 swizzleTextField()
             }
+        }
+    }
+    
+    /// The minimum numbers of characters needed when the user edits the string value.
+    var minimumNumberOfCharacters: Int? {
+        get { getAssociatedValue(key: "minimumNumberOfCharacters", object: self, initialValue: nil) }
+        set {
+            set(associatedValue: newValue, key: "minimumNumberOfCharacters", object: self)
+            if let newValue = newValue {
+                if let maximumNumberOfCharacters = maximumNumberOfCharacters, newValue > maximumNumberOfCharacters {
+                    self.maximumNumberOfCharacters = newValue
+                }
+            }
+            if let maxCharCount = newValue, stringValue.count > maxCharCount {
+                stringValue = String(stringValue.prefix(maxCharCount))
+            }
+            swizzleTextField()
         }
     }
 
@@ -115,10 +150,14 @@ public extension NSTextField {
         get { getAssociatedValue(key: "NSTextField_maximumNumberOfCharacters", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "NSTextField_maximumNumberOfCharacters", object: self)
+            if let newValue = newValue {
+                if let minimumNumberOfCharacters = minimumNumberOfCharacters, newValue < minimumNumberOfCharacters {
+                    self.minimumNumberOfCharacters = newValue
+                }
+            }
             if let maxCharCount = newValue, stringValue.count > maxCharCount {
                 stringValue = String(stringValue.prefix(maxCharCount))
             }
-           // bridgeTextField()
             swizzleTextField()
         }
     }
@@ -128,95 +167,9 @@ public extension NSTextField {
         set { set(associatedValue: newValue, key: "_didSwizzleTextField", object: self)
         }
     }
-
-    internal var delegateBridge: DelegateProxy? {
-        get { getAssociatedValue(key: "NSTextField_delegateBridge", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "NSTextField_delegateBridge", object: self)
-        }
-    }
-
-    @objc internal func bridgeTextField() {
-        if delegateBridge == nil {
-            delegateBridge = DelegateProxy(self)
-            Self.swizzleTextField()
-        }
-    }
-
-    @objc internal var swizzled_delegate: NSTextFieldDelegate? {
-        get {
-            if let delegateBridge = delegateBridge {
-                return delegateBridge.delegate
-            } else {
-                return self.swizzled_delegate
-            }
-        }
-        set {
-            if let delegateBridge = delegateBridge {
-                return delegateBridge.delegate = newValue
-            } else {
-                self.swizzled_delegate = newValue
-            }
-        }
-    }
-
-    @objc internal class func swizzleTextField() {
-        if didSwizzleTextField == false {
-            didSwizzleTextField = true
-            do {
-                try Swizzle(Self.self) {
-                    #selector(getter: delegate) <-> #selector(getter: swizzled_delegate)
-                    #selector(setter: delegate) <-> #selector(setter: swizzled_delegate)
-                }
-            } catch {
-                Swift.debugPrint(error)
-            }
-        }
-    }
 }
 
-internal extension NSTextField {
-    func swizzleDelegate() {
-        guard didSwizzleDelegate == false else { return }
-        didSwizzleDelegate = true
-        guard let viewClass = object_getClass(self) else { return }
-        let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
-        if let viewSubclass = NSClassFromString(viewSubclassName) {
-            object_setClass(self, viewSubclass)
-        } else {
-            guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
-            guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
-            if let getDelegateMethod = class_getInstanceMethod(viewClass, #selector(getter: delegate)),
-               let setDelegateMethod = class_getInstanceMethod(viewClass, #selector(setter: delegate)) {
-                let setDelegate: @convention(block) (AnyObject, NSTextFieldDelegate?) -> Void = { _, delegate in
-                    Swift.print("setter")
-                    if let delegateBridge = self.delegateBridge {
-                        delegateBridge.delegate = delegate
-                    } else {
-                        self.delegate = delegate
-                    }
-                }
-                let getDelegate: @convention(block) (AnyObject) -> NSTextFieldDelegate? = { _ in
-                    Swift.print("getter")
-                    return self.delegateBridge?.delegate ?? self.delegate
-                }
-                class_addMethod(viewSubclass, #selector(getter: delegate),
-                                imp_implementationWithBlock(getDelegate), method_getTypeEncoding(getDelegateMethod))
-                class_addMethod(viewSubclass, #selector(setter: delegate),
-                                imp_implementationWithBlock(setDelegate), method_getTypeEncoding(setDelegateMethod))
-            }
-            objc_registerClassPair(viewSubclass)
-            object_setClass(self, viewSubclass)
-        }
-    }
-    
-    var didSwizzleDelegate: Bool {
-        get { getAssociatedValue(key: "didSwizzleTextFieldDel", object: self, initialValue: false) }
-        set {
-            set(associatedValue: newValue, key: "didSwizzleTextFieldDel", object: self)
-        }
-    }
-}
-
+/*
 internal extension NSTextField {
     class DelegateProxy: NSObject, NSTextFieldDelegate {
         weak var textField: NSTextField!
@@ -306,15 +259,5 @@ internal extension NSTextField {
         }
     }
 }
-#endif
-
-/*
- struct EditingHandler {
-     var shouldBegin: (()->(Bool))? = nil
-     var didBegin: (()->())? = nil
-     var shouldEdit: ((String)->(Bool))? = nil
-     var didEdit: (()->())? = nil
-     var shouldEnd: (()->(Bool))? = nil
-     var didEnd: (()->())? = nil
- }
  */
+#endif

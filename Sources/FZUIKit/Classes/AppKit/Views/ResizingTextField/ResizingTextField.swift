@@ -69,8 +69,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     /// The maximum amount of characters allowed when the user edits the text.
     public var maxAmountChars: Int? = nil
 
-
-    
+    /*
     /// The allowed characters the user can enter when editing.
     public struct AllowedCharacters: OptionSet {
         public let rawValue: UInt
@@ -114,6 +113,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     
     /// The allowed characters the user can enter when editing.
     var allowedCharacters: AllowedCharacters = .all
+    */
     
     /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
     @IBInspectable public var stopsEditingOnOutsideMouseDown = false {
