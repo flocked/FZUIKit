@@ -10,6 +10,17 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSTextField {
+    struct TextEditingHandler {
+        public var didBegin: (()->())? = nil
+        public var shouldEdit: ((String)->(Bool))? = nil
+        public var didEdit: (()->())? = nil
+        public var didEnd: (()->())? = nil
+        public var shouldDoCommand: ((Selector)->(Bool))? = nil
+        internal var needsSwizzle: Bool {
+            didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil
+        }
+    }
+    
     /// The editing state of a text field.
     enum EditingState {
         /// Editing of the text did begin.
@@ -64,6 +75,16 @@ public extension NSTextField {
             }
         }
     }
+    
+    /// The handler that gets called when the editing state updates.
+    var editingHandlers: TextEditingHandler {
+        get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: TextEditingHandler()) }
+        set { set(associatedValue: newValue, key: "editingHandlers", object: self)
+            if newValue.needsSwizzle {
+                swizzleTextField()
+            }
+        }
+    }
 
     /// The action to perform when the user pressed the enter key.
     var actionAtEnterKeyDown: EnterKeyAction {
@@ -89,7 +110,7 @@ public extension NSTextField {
         }
     }
 
-    /// The maximum numbers of characters of the string value.
+    /// The maximum numbers of characters allowed when the user edits the string value.
     var maximumNumberOfCharacters: Int? {
         get { getAssociatedValue(key: "NSTextField_maximumNumberOfCharacters", object: self, initialValue: nil) }
         set {
@@ -286,3 +307,14 @@ internal extension NSTextField {
     }
 }
 #endif
+
+/*
+ struct EditingHandler {
+     var shouldBegin: (()->(Bool))? = nil
+     var didBegin: (()->())? = nil
+     var shouldEdit: ((String)->(Bool))? = nil
+     var didEdit: (()->())? = nil
+     var shouldEnd: (()->(Bool))? = nil
+     var didEnd: (()->())? = nil
+ }
+ */

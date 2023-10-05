@@ -38,7 +38,6 @@ public extension ContentConfiguration {
         /// The technique for wrapping and truncating the text.
         public var lineBreakMode: NSLineBreakMode = .byWordWrapping
         
-        #if canImport(UIKit)
         /// A Boolean value that determines whether the label reduces the text’s font size to fit the title string into the label’s bounding rectangle.
         public var adjustsFontSizeToFitWidth: Bool = false
 
@@ -47,7 +46,8 @@ public extension ContentConfiguration {
 
         /// A Boolean value that determines whether the label tightens text before truncating.
         public var allowsDefaultTighteningForTruncation: Bool = false
-
+        
+        #if canImport(UIKit)
         /// A Boolean that indicates whether the object automatically updates its font when the device’s content size category changes.
         public var adjustsFontForContentSizeCategory: Bool = false
 
@@ -319,6 +319,9 @@ public extension NSTextField {
         self.lineBreakMode = configuration.lineBreakMode
         self.isEditable = configuration.isEditable
         self.isSelectable = configuration.isSelectable
+        self.adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
+        self.minimumScaleFactor = configuration.minimumScaleFactor
+        self.allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
     }
 }
 

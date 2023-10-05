@@ -192,6 +192,18 @@ extension NSTextField {
                 }
                 }
             
+            try? self.replaceMethod(
+                #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
+                methodSignature: (@convention(c)  (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
+                hookSignature: (@convention(block)  (AnyObject, NSTextView, Selector) -> (Bool)).self) { store in { object, textView, selector in
+                    if let shouldDoCommand = (object as? NSTextField)?.editingHandlers.shouldDoCommand {
+                        return shouldDoCommand(selector)
+                    }
+                    Swift.print("shouldDoCommand", store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector))
+                    return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
+                }
+                }
+            
             try self.replaceMethod(
                 #selector(textDidEndEditing),
                 methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
@@ -199,6 +211,7 @@ extension NSTextField {
                     let textField = (object as? NSTextField)
                     textField?.editingState = .didEnd
                     textField?.adjustFontSize()
+                    textField?.editingHandlers.didEnd?()
                     store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                 }
                 }
@@ -211,6 +224,7 @@ extension NSTextField {
                     textField?.editingState = .didBegin
                     textField?.editStartString = textField?.stringValue ?? ""
                     textField?.editingString = textField?.stringValue ?? ""
+                    textField?.editingHandlers.didBegin?()
                     store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
                 }
                 }
@@ -220,7 +234,13 @@ extension NSTextField {
                 methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
                     if let textField = (object as? NSTextField) {
-                        if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
+                        if let shouldEdit = textField.editingHandlers.shouldEdit {
+                            if shouldEdit(textField.stringValue) == false {
+                                textField.stringValue = textField.editingString
+                            } else {
+                                textField.editingHandlers.didEdit?()
+                            }
+                        } else if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
                             if textField.editingString.count == textField.maximumNumberOfCharacters {
                                 textField.stringValue = textField.editingString
                                 if let editor = textField.currentEditor(), editor.selectedRange.location > 0 {
@@ -229,6 +249,9 @@ extension NSTextField {
                             } else {
                                 textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
                             }
+                            textField.editingHandlers.didEdit?()
+                        } else {
+                            textField.editingHandlers.didEdit?()
                         }
                         textField.editingState = .isEditing
                         textField.editingString = textField.stringValue
