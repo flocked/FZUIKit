@@ -22,7 +22,6 @@ extension NSTextField {
             guard newValue != adjustsFontSizeToFitWidth else { return }
             set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
             self.setupStringValueObserver()
-            self.adjustFontSize()
         }
     }
         
@@ -39,7 +38,6 @@ extension NSTextField {
             guard newValue != minimumScaleFactor else { return }
             set(associatedValue: newValue, key: "minimumScaleFactor", object: self)
             self.setupStringValueObserver()
-            self.adjustFontSize()
         }
     }
     
@@ -90,6 +88,7 @@ extension NSTextField {
                     self.adjustFontSize()
                 })
             }
+            self.adjustFontSize()
         } else {
             observer = nil
         }
