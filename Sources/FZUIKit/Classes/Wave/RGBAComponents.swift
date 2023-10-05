@@ -30,7 +30,10 @@ internal struct RGBAComponents: Equatable {
         var g: CGFloat = 0
         var b: CGFloat = 0
         var a: CGFloat = 0
-        let color = color.withSupportedColorSpace() ?? color
+        var color = color
+        #if os(macOS)
+        color = color.withSupportedColorSpace() ?? color
+        #endif
         color.getRed(&r, green: &g, blue: &b, alpha: &a)
         self.init(r: r, g: g, b: b, a: a)
     }

@@ -54,9 +54,11 @@ internal struct HSL {
     }
 
     init(color: NSUIColor) {
+        #if os(macOS)
         let color = color.withSupportedColorSpace() ?? color
+        #endif
         var b = CGFloat()
-        color.getHue(&h, saturation: &s, brightness: &b, alpha: nil)
+        color.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         
         l = ((2.0 - s) * b) / 2.0
 
@@ -72,8 +74,6 @@ internal struct HSL {
         h = h * 360.0
         s = s * 100.0
         l = l * 100.0
-        
-        a = color.alphaComponent
     }
 
     func toColor() -> NSUIColor {

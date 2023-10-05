@@ -24,7 +24,7 @@ public extension ContentConfiguration {
      */
     struct View: Hashable {
         /// The background color.
-        var backgroundColor: NSUIColor? = nil {
+        public var backgroundColor: NSUIColor? = nil {
             didSet { updateResolvedColor() } }
         
         /// The color transformer for resolving the background color.
@@ -40,31 +40,34 @@ public extension ContentConfiguration {
         }
         
         /// The visual effect of the view.
-        var visualEffect: VisualEffect? = nil
+        public var visualEffect: VisualEffect? = nil
         
         /// The border of the view.
-        var border: Border = .none()
+        public var border: Border = .none()
         
         /// The shadow of the view.
-        var shadow: Shadow = .none()
+        public var shadow: Shadow = .none()
         
         /// The inner shadow of the view.
-        var innerShadow: InnerShadow = .none()
+        public var innerShadow: InnerShadow = .none()
         
         /// The corner radius of the view.
-        var cornerRadius: CGFloat = 0.0
+        public var cornerRadius: CGFloat = 0.0
+        
+        /// The alpha value of the view.
+        public var alpha: CGFloat = 1.0
         
         /// The corner curve of the view.
-        var cornerCurve: CALayerCornerCurve = .circular
+        public var cornerCurve: CALayerCornerCurve = .circular
         
         /// The rounded corners of the view.
-        var roundedCorners: CACornerMask = .all
+        public var roundedCorners: CACornerMask = .all
         
         /// The mask of the view.
-        var mask: NSUIView? = nil
+        public var mask: NSUIView? = nil
         
         /// The scale transform of the view.
-        var scale: CGSize = CGSize(width: 1, height: 1)
+        public var scale: CGSize = CGSize(width: 1, height: 1)
         
         public init() {
             
@@ -87,6 +90,9 @@ public extension NSUIView {
     func configurate(using configuration: ContentConfiguration.View) {
         #if os(macOS)
         wantsLayer = true
+        self.alphaValue = configuration.alpha
+        #elseif canImport(UIKit)
+        self.alpha = configuration.alpha
         #endif
         self.backgroundColor = configuration._backgroundColor
         self.cornerRadius = configuration.cornerRadius

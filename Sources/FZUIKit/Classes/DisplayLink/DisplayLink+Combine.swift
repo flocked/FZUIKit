@@ -99,6 +99,7 @@ private extension DisplayLink {
 
 #if os(iOS) || os(tvOS)
 import QuartzCore
+import UIKit
 
 fileprivate extension DisplayLink {
     final class PlatformDisplayLink {
@@ -129,7 +130,7 @@ fileprivate extension DisplayLink {
             if #available(iOS 15.0, *) {
                  let maximumFramesPerSecond = Float(UIScreen.main.maximumFramesPerSecond)
                  let highFPSEnabled = maximumFramesPerSecond > 60
-                 let minimumFPS: Float = min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
+                let minimumFPS: Float = Swift.min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
                 displayLink.preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
              }
             

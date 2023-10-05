@@ -465,7 +465,7 @@ public class ViewAnimator {
     /// The scale transform of the attached view.
     public var scale: CGPoint {
         get {
-            return runningScaleAnimator?.target ?? self.view.layer?.scale ?? CGPoint(x: 1, y: 1)
+            return runningScaleAnimator?.target ?? self.view.optionalLayer?.scale ?? CGPoint(x: 1, y: 1)
         }
         set {
             guard let settings = AnimationController.shared.currentAnimationParameters else {
@@ -475,9 +475,11 @@ public class ViewAnimator {
                 return
             }
             
+            #if os(macOS)
             self.view.anchorPoint = CGPoint(0.5, 0.5)
+            #endif
             
-            let initialValue = self.view.layer?.scale ?? CGPoint(x: 1, y: 1)
+            let initialValue = self.view.optionalLayer?.scale ?? CGPoint(x: 1, y: 1)
             let targetValue = newValue
             
             let animationType = AnimatableProperty.scale
@@ -490,7 +492,7 @@ public class ViewAnimator {
             animation.target = targetValue
             animation.valueChanged = { [weak self] value in
                 guard let strongSelf = self else { return }
-                strongSelf.view.layer?.scale = value
+                strongSelf.view.optionalLayer?.scale = value
             }
             
             animation.completion = { [weak self] event in
@@ -510,7 +512,7 @@ public class ViewAnimator {
     /// The translation transform of the attached view.
     public var translation: CGPoint {
         get {
-            return runningTranslationAnimator?.target ?? self.view.layer?.translation ?? CGPoint(x: 0, y: 0)
+            return runningTranslationAnimator?.target ?? self.view.optionalLayer?.translation ?? CGPoint(x: 0, y: 0)
         }
         set {
             guard let settings = AnimationController.shared.currentAnimationParameters else {
@@ -520,7 +522,7 @@ public class ViewAnimator {
                 return
             }
             
-            let initialValue = self.view.layer?.translation ?? CGPoint(x: 0, y: 0)
+            let initialValue = self.view.optionalLayer?.translation ?? CGPoint(x: 0, y: 0)
             let targetValue = newValue
             
             let animationType = AnimatableProperty.translation
@@ -534,7 +536,7 @@ public class ViewAnimator {
             animation.valueChanged = { [weak self] value in
                 guard let strongSelf = self else { return }
                 
-                strongSelf.view.layer?.translation = value
+                strongSelf.view.optionalLayer?.translation = value
             }
             
             animation.completion = { [weak self] event in
@@ -1051,6 +1053,12 @@ public extension NSUIView {
     }
 }
 #endif
+
+fileprivate extension NSUIView {
+    var optionalLayer: CALayer? {
+        return self.layer
+    }
+}
 
 /*
  public var transform: CGAffineTransform {

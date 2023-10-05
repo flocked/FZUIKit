@@ -41,7 +41,11 @@ public class GradientLayer: CAGradientLayer {
     
     public var gradient: Gradient {
         get {
+            #if os(macOS)
             let colors = (self.colors as? [CGColor])?.compactMap({$0.nsColor}) ?? []
+            #elseif canImport(UIKit)
+            let colors = (self.colors as? [CGColor])?.compactMap({$0.uiColor}) ?? []
+            #endif
             let locations = self.locations?.compactMap({CGFloat($0.floatValue)}) ?? []
             let stops = colors.enumerated().compactMap({ Gradient.Stop(color: $0.element, location: locations[$0.offset]) })
             let direction = Gradient.Direction(start: startPoint, end: endPoint)
