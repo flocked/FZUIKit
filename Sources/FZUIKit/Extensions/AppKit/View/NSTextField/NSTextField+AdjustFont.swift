@@ -52,6 +52,7 @@ extension NSTextField {
           //  Self.swizzleTextField()
             if observer == nil {
                 observer = KeyValueObserver(self)
+                self.wantsLayer = true
                 observer?.add(\.stringValue, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.didAdjustFontKerning = false
@@ -81,8 +82,8 @@ extension NSTextField {
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
-                observer?.add(\.frame, handler: { [weak self] old, new in
-                    guard let self = self, old.size != new.size else { return }
+                observer?.add(\.layer?.bounds, handler: { [weak self] old, new in
+                    guard let self = self, old?.size != new?.size else { return }
                     self.adjustFontSize()
                   //  self.adjustFontSize(requiresSmallerScale: new.size < old.size)
                 })
