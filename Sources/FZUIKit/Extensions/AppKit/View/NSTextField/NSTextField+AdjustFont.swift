@@ -1,6 +1,6 @@
 //
 //  NSTextField+AdjustFont.swift
-//  
+//
 //
 //  Created by Florian Zand on 05.10.23.
 //
@@ -18,13 +18,13 @@ extension NSTextField {
      */
     public var adjustsFontSizeToFitWidth: Bool {
         get { getAssociatedValue(key: "adjustsFontSizeToFitWidth", object: self, initialValue: false) }
-        set { 
+        set {
             guard newValue != adjustsFontSizeToFitWidth else { return }
             set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
             self.setupStringValueObserver()
         }
     }
-        
+    
     /**
      The minimum scale factor for the text field’s text.
      
@@ -33,7 +33,7 @@ extension NSTextField {
      */
     public var minimumScaleFactor: CGFloat {
         get { getAssociatedValue(key: "minimumScaleFactor", object: self, initialValue: 0.0) }
-        set { 
+        set {
             let newValue = newValue.clamped(max: 1.0)
             guard newValue != minimumScaleFactor else { return }
             set(associatedValue: newValue, key: "minimumScaleFactor", object: self)
@@ -49,7 +49,7 @@ extension NSTextField {
     internal func setupStringValueObserver() {
         if (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation {
             swizzleTextField()
-          //  Self.swizzleTextField()
+            //  Self.swizzleTextField()
             if observer == nil {
                 observer = KeyValueObserver(self)
                 observer?.add(\.stringValue, handler: { [weak self] old, new in
@@ -120,9 +120,18 @@ extension NSTextField {
     }
     
     internal func adjustFontKerning() {
+        guard let fontSize = _font?.pointSize else { return }
         var needsUpdate = !isFittingCurrentText
         var kerning: Float = 0.0
-        while needsUpdate && kerning <= 1.0 {
+        let maxKerning: Float
+        if fontSize < 8 {
+            maxKerning = 0.6
+        } else if fontSize < 16 {
+            maxKerning = 0.8
+        } else {
+            maxKerning = 1.0
+        }
+        while needsUpdate && kerning <= maxKerning {
             self.attributedStringValue = self.attributedStringValue.applyingAttributes( [.kern: -kerning])
             kerning += 0.005
             needsUpdate = !isFittingCurrentText
@@ -154,176 +163,84 @@ extension NSTextField {
         }
         do {
             try self.replaceMethod(
-              #selector(setter: font),
-              methodSignature: (@convention(c)  (AnyObject, Selector, NSFont?) -> Void).self,
-              hookSignature: (@convention(block)  (AnyObject, NSFont?) -> Void).self) { store in { object, font in
-                  let textField = (object as? NSTextField)
-                  textField?._font = font
-                  textField?.adjustFontSize()
+                #selector(setter: font),
+                methodSignature: (@convention(c)  (AnyObject, Selector, NSFont?) -> Void).self,
+                hookSignature: (@convention(block)  (AnyObject, NSFont?) -> Void).self) { store in { object, font in
+                    let textField = (object as? NSTextField)
+                    textField?._font = font
+                    textField?.adjustFontSize()
                 }
-              }
+                }
             
             try? self.replaceMethod(
-              #selector(getter: font),
-              methodSignature: (@convention(c)  (AnyObject, Selector) -> NSFont?).self,
-              hookSignature: (@convention(block)  (AnyObject) -> NSFont?).self) { store in { object in
-                  return (object as! NSTextField)._font
+                #selector(getter: font),
+                methodSignature: (@convention(c)  (AnyObject, Selector) -> NSFont?).self,
+                hookSignature: (@convention(block)  (AnyObject) -> NSFont?).self) { store in { object in
+                    return (object as! NSTextField)._font
                 }
-              }
+                }
             
             try? self.replaceMethod(
-              #selector(layout),
-              methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-              hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in { object in
-                  store.original(object, #selector(NSView.layout))
-                  if let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size {
-                      textField.adjustFontSize()
-                      textField._bounds = textField.bounds
-                  }
-              }
-              }
+                #selector(layout),
+                methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in { object in
+                    store.original(object, #selector(NSView.layout))
+                    if let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size {
+                        textField.adjustFontSize()
+                        textField._bounds = textField.bounds
+                    }
+                }
+                }
             
             try self.replaceMethod(
-              #selector(textDidEndEditing),
-              methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
-              hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
-                  let textField = (object as? NSTextField)
-                  textField?.editingState = .didEnd
-                  textField?.adjustFontSize()
-                  store.original(object, #selector(NSTextField.textDidEndEditing), notification)
-              }
-              }
+                #selector(textDidEndEditing),
+                methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
+                    let textField = (object as? NSTextField)
+                    textField?.editingState = .didEnd
+                    textField?.adjustFontSize()
+                    store.original(object, #selector(NSTextField.textDidEndEditing), notification)
+                }
+                }
             
             try self.replaceMethod(
-              #selector(textDidBeginEditing),
-              methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
-              hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
-                  let textField = (object as? NSTextField)
-                  textField?.editingState = .didBegin
-                  textField?.editStartString = textField?.stringValue ?? ""
-                  textField?.editingString = textField?.stringValue ?? ""
-                  store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
-              }
-              }
+                #selector(textDidBeginEditing),
+                methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
+                    let textField = (object as? NSTextField)
+                    textField?.editingState = .didBegin
+                    textField?.editStartString = textField?.stringValue ?? ""
+                    textField?.editingString = textField?.stringValue ?? ""
+                    store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
+                }
+                }
             
             try self.replaceMethod(
-              #selector(textDidChange),
-              methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
-              hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
-                  if let textField = (object as? NSTextField) {
-                      if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
-                          if textField.editingString.count == textField.maximumNumberOfCharacters {
-                              textField.stringValue = textField.editingString
-                              if let editor = textField.currentEditor(), editor.selectedRange.location > 0 {
-                                  editor.selectedRange.location -= 1
-                              }
-                          } else {
-                              textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
-                          }
-                      }
-                      textField.editingState = .isEditing
-                      textField.editingString = textField.stringValue
-                      textField.adjustFontSize()
-                  }
-                  store.original(object, #selector(NSTextField.textDidChange), notification)
-              }
-              }
+                #selector(textDidChange),
+                methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
+                    if let textField = (object as? NSTextField) {
+                        if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
+                            if textField.editingString.count == textField.maximumNumberOfCharacters {
+                                textField.stringValue = textField.editingString
+                                if let editor = textField.currentEditor(), editor.selectedRange.location > 0 {
+                                    editor.selectedRange.location -= 1
+                                }
+                            } else {
+                                textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
+                            }
+                        }
+                        textField.editingState = .isEditing
+                        textField.editingString = textField.stringValue
+                        textField.adjustFontSize()
+                    }
+                    store.original(object, #selector(NSTextField.textDidChange), notification)
+                }
+                }
         } catch {
             Swift.print(error)
         }
     }
-    
-    /*
-    internal func swizzleTextField() {
-        guard didSwizzleTextField == false else { return }
-        didSwizzleTextField = true
-        _font = self.font
-        keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
-            if self.hasKeyboardFocus, self.editingState != .didEnd {
-                if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
-                    self.window?.makeFirstResponder(nil)
-                    return nil
-                }
-                if event.keyCode == 53 {
-                    if self.actionAtEscapeKeyDown == .endEditingAndReset {
-                        self.stringValue = self.editStartString
-                        self.adjustFontSize()
-                    }
-                    if self.actionAtEscapeKeyDown != .none {
-                        self.window?.makeFirstResponder(nil)
-                        return nil
-                    }
-                }
-            }
-            return event
-        }
-        guard let viewClass = object_getClass(self) else { return }
-        let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
-        if let viewSubclass = NSClassFromString(viewSubclassName) {
-            object_setClass(self, viewSubclass)
-        } else {
-            guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
-            guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
-            if let getFontMethod = class_getInstanceMethod(viewClass, #selector(getter: NSTextField.font)),
-                let setFontMethod = class_getInstanceMethod(viewClass, #selector(setter: NSTextField.font)),
-                let textDidChangeMethod = class_getInstanceMethod(viewClass, #selector(textDidChange)),
-               let textDidEndEditingMethod = class_getInstanceMethod(viewClass, #selector(textDidEndEditing)),
-               let textDidBeginEditingMethod = class_getInstanceMethod(viewClass, #selector(textDidBeginEditing))
-            {
-                let setFont: @convention(block) (AnyObject, NSFont?) -> Void = { _, font in
-                    self._font = font
-                    self.adjustFontSize()
-                }
-                let getFont: @convention(block) (AnyObject) -> NSFont? = { _ in
-                    return self._font
-                }
-                
-                let beginEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
-                    guard let self = self else { return }
-                    self.editingState = .didBegin
-                    self.editStartString = self.stringValue
-                    self.editingString = self.stringValue
-                }
-                
-                let endEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
-                    guard let self = self else { return }
-                    self.editingState = .didEnd
-                    self.adjustFontSize()
-                }
-                
-                let textEdit: @convention(block) (AnyObject) -> Void = { [weak self] _ in
-                    guard let self = self else { return }
-                    if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
-                        if self.editingString.count == self.maximumNumberOfCharacters {
-                            self.stringValue = self.editingString
-                            if let editor = self.currentEditor(), editor.selectedRange.location > 0 {
-                                editor.selectedRange.location -= 1
-                            }
-                        } else {
-                            self.stringValue = String(self.stringValue.prefix(maxCharCount))
-                        }
-                    }
-                    self.editingState = .isEditing
-                    self.editingString = self.stringValue
-                    self.adjustFontSize()
-                }
-                                
-                class_addMethod(viewSubclass, #selector(getter: NSTextField.font),
-                                imp_implementationWithBlock(getFont), method_getTypeEncoding(getFontMethod))
-                class_addMethod(viewSubclass, #selector(setter: NSTextField.font),
-                                imp_implementationWithBlock(setFont), method_getTypeEncoding(setFontMethod))
-                class_addMethod(viewSubclass, #selector(textDidChange),
-                                imp_implementationWithBlock(textEdit), method_getTypeEncoding(textDidChangeMethod))
-                class_addMethod(viewSubclass, #selector(textDidBeginEditing),
-                                imp_implementationWithBlock(beginEditing), method_getTypeEncoding(textDidBeginEditingMethod))
-                class_addMethod(viewSubclass, #selector(textDidEndEditing),
-                                imp_implementationWithBlock(endEditing), method_getTypeEncoding(textDidEndEditingMethod))
-            }
-            objc_registerClassPair(viewSubclass)
-            object_setClass(self, viewSubclass)
-        }
-    }
-    */
     
     internal var didSwizzleTextField: Bool {
         get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
@@ -364,3 +281,95 @@ extension NSTextField {
 }
 
 #endif
+
+/*
+ internal func swizzleTextField() {
+ guard didSwizzleTextField == false else { return }
+ didSwizzleTextField = true
+ _font = self.font
+ keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
+ if self.hasKeyboardFocus, self.editingState != .didEnd {
+ if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
+ self.window?.makeFirstResponder(nil)
+ return nil
+ }
+ if event.keyCode == 53 {
+ if self.actionAtEscapeKeyDown == .endEditingAndReset {
+ self.stringValue = self.editStartString
+ self.adjustFontSize()
+ }
+ if self.actionAtEscapeKeyDown != .none {
+ self.window?.makeFirstResponder(nil)
+ return nil
+ }
+ }
+ }
+ return event
+ }
+ guard let viewClass = object_getClass(self) else { return }
+ let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
+ if let viewSubclass = NSClassFromString(viewSubclassName) {
+ object_setClass(self, viewSubclass)
+ } else {
+ guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
+ guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
+ if let getFontMethod = class_getInstanceMethod(viewClass, #selector(getter: NSTextField.font)),
+ let setFontMethod = class_getInstanceMethod(viewClass, #selector(setter: NSTextField.font)),
+ let textDidChangeMethod = class_getInstanceMethod(viewClass, #selector(textDidChange)),
+ let textDidEndEditingMethod = class_getInstanceMethod(viewClass, #selector(textDidEndEditing)),
+ let textDidBeginEditingMethod = class_getInstanceMethod(viewClass, #selector(textDidBeginEditing))
+ {
+ let setFont: @convention(block) (AnyObject, NSFont?) -> Void = { _, font in
+ self._font = font
+ self.adjustFontSize()
+ }
+ let getFont: @convention(block) (AnyObject) -> NSFont? = { _ in
+ return self._font
+ }
+ 
+ let beginEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
+ guard let self = self else { return }
+ self.editingState = .didBegin
+ self.editStartString = self.stringValue
+ self.editingString = self.stringValue
+ }
+ 
+ let endEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
+ guard let self = self else { return }
+ self.editingState = .didEnd
+ self.adjustFontSize()
+ }
+ 
+ let textEdit: @convention(block) (AnyObject) -> Void = { [weak self] _ in
+ guard let self = self else { return }
+ if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
+ if self.editingString.count == self.maximumNumberOfCharacters {
+ self.stringValue = self.editingString
+ if let editor = self.currentEditor(), editor.selectedRange.location > 0 {
+ editor.selectedRange.location -= 1
+ }
+ } else {
+ self.stringValue = String(self.stringValue.prefix(maxCharCount))
+ }
+ }
+ self.editingState = .isEditing
+ self.editingString = self.stringValue
+ self.adjustFontSize()
+ }
+ 
+ class_addMethod(viewSubclass, #selector(getter: NSTextField.font),
+ imp_implementationWithBlock(getFont), method_getTypeEncoding(getFontMethod))
+ class_addMethod(viewSubclass, #selector(setter: NSTextField.font),
+ imp_implementationWithBlock(setFont), method_getTypeEncoding(setFontMethod))
+ class_addMethod(viewSubclass, #selector(textDidChange),
+ imp_implementationWithBlock(textEdit), method_getTypeEncoding(textDidChangeMethod))
+ class_addMethod(viewSubclass, #selector(textDidBeginEditing),
+ imp_implementationWithBlock(beginEditing), method_getTypeEncoding(textDidBeginEditingMethod))
+ class_addMethod(viewSubclass, #selector(textDidEndEditing),
+ imp_implementationWithBlock(endEditing), method_getTypeEncoding(textDidEndEditingMethod))
+ }
+ objc_registerClassPair(viewSubclass)
+ object_setClass(self, viewSubclass)
+ }
+ }
+ */
