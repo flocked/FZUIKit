@@ -131,10 +131,39 @@ let segmentedControl = NSSegmentedControl() {
     Segment(symbolName: "photo")
 }
 ```
+### NSTextField
+- `adjustsFontSizeToFitWidth` & `minimumScaleFactor` (Port of UILabel)
+- `minimumNumberOfCharacters`, `maximumNumberOfCharacters` & `allowedCharacters`
+```swift
+textField.maximumNumberOfCharacters = 20
+textField.allowedCharacters = [.lowercaseLetters, .digits, .emojis]
+```
+- `actionOnEnterKeyDown`, `actionOnEscapeKeyDown` & `endEditingOnOutsideMouseDown`
+```swift
+// Ends editing on enter/return.
+textField.actionOnEnterKeyDown = .endEditing
+// Cancels editing on escape and resets the text to the previous state.
+textField.actionOnEscapeKeyDown = .endEditingAndReset
+// Ends editing when the user clicks outside the text field.
+textField.endEditingOnOutsideMouseDown = true
+```
+- EditingHandlers
+```swift
+textField.editingHandlers.didBegin {
+    // Editing of the text did begin
+}
+textField.editingHandlers.didEdit {
+    // Text did change
+}
+textField.editingHandlers.shouldEdit { 
+    newText in 
+    return true
+}
+```
 
 ### NSToolbar
 Configurate the items of a NSToolbar.
-```
+```swift
 let toolbar = Toolbar("ToolbarIdentifier") {
         Button("OpenItem", title: "Open…")
             .onAction() { /// Button pressed }

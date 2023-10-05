@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 public extension NSTextField {
     /// Handlers for editing the text of a text field.
-    struct TextEditingHandler {
+    struct EditingHandler {
         /// Handler that gets called whenever editing the text did begin.
         public var didBegin: (()->())? = nil
         /// Handler that determines whether the text should change. If provided ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` and ``AppKit/NSTextField/allowedCharacters-swift.property`` will be ignored.
@@ -97,8 +97,8 @@ public extension NSTextField {
     }
     
     /// The handlers for editing the text.
-    var editingHandlers: TextEditingHandler {
-        get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: TextEditingHandler()) }
+    var editingHandlers: EditingHandler {
+        get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: EditingHandler()) }
         set { set(associatedValue: newValue, key: "editingHandlers", object: self)
             if newValue.needsSwizzle {
                 swizzleTextField()
