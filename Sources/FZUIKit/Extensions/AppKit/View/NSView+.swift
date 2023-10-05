@@ -714,6 +714,7 @@ internal extension NSView {
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSAnimatablePropertyKey) -> (Any?)).self,
                 hookSignature: (@convention(block)  (AnyObject, NSAnimatablePropertyKey) -> (Any?)).self) { store in { object, key in
                     if NSViewAnimationKeysAlt.contains(key) {
+                        return store.original(object, #selector(NSView.animation(forKey:)), "bounds")
                         let animation = CABasicAnimation()
                      //   animation.timingFunction = .default
                    //     animation.keyPath = key
