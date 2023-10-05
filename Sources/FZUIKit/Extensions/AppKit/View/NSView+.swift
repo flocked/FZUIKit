@@ -716,8 +716,8 @@ internal extension NSView {
                     if NSViewAnimationKeysAlt.contains(key) {
                         let animation = CABasicAnimation()
                      //   animation.timingFunction = .default
-                        animation.keyPath = key
-                    //    self.animations[key] = animation
+                   //     animation.keyPath = key
+                        self.animations[key] = animation
                         return animation
                     }
                     return store.original(object, #selector(NSView.animation(forKey:)), key)
