@@ -12,12 +12,12 @@ import FZSwiftUtils
 public extension NSTextField {
     /// The editing state of a text field.
     enum EditingState {
-        /// Editing of the text started.
-        case isStarted
+        /// Editing of the text did begin.
+        case didBegin
         /// The text did update.
-        case didUpdate
+        case isEditing
         /// Editing of the text did end.
-        case isEnded
+        case didEnd
     }
 
     /// The action to perform when the user pressed the escape key.
@@ -38,18 +38,22 @@ public extension NSTextField {
         case endEditing
     }
 
+    /// The editing state.
     private(set) var editingState: EditingState {
         get {
             bridgeTextField()
-            return getAssociatedValue(key: "NSTextField_editingState", object: self, initialValue: .isEnded) }
+            if let state: EditingState = getAssociatedValue(key: "NSTextField_editingState", object: self) {
+                return state
+            }
+            return getAssociatedValue(key: "NSTextField_editingState", object: self, initialValue: hasKeyboardFocus ? .isEditing : .didEnd) }
         set {
             set(associatedValue: newValue, key: "NSTextField_editingState", object: self)
-            editingHandler?(self.editingState, stringValue)
+            editingHandler?(self.editingState)
         }
     }
 
     /// The handler that gets called when the editing state updates.
-    var editingHandler: ((_ state: EditingState, _ stringValue: String) -> ())? {
+    var editingHandler: ((_ state: EditingState) -> ())? {
         get { getAssociatedValue(key: "NSTextField_editingHandler", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "NSTextField_editingHandler", object: self)
@@ -90,12 +94,6 @@ public extension NSTextField {
                 stringValue = String(stringValue.prefix(maxCharCount))
             }
             bridgeTextField()
-        }
-    }
-
-    internal var startStringValue: String {
-        get { getAssociatedValue(key: "NSTextField_startStringValue", object: self, initialValue: stringValue) }
-        set { set(associatedValue: newValue, key: "NSTextField_startStringValue", object: self)
         }
     }
 
@@ -154,6 +152,9 @@ internal extension NSTextField {
     class DelegateProxy: NSObject, NSTextFieldDelegate {
         weak var textField: NSTextField!
         weak var delegate: NSTextFieldDelegate? = nil
+        
+        var editingString = ""
+        var editStartString = ""
 
         func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
             return delegate?.control?(control, textShouldEndEditing: fieldEditor) ?? true
@@ -180,33 +181,38 @@ internal extension NSTextField {
         }
 
         func controlTextDidChange(_ obj: Notification) {
-            textField.editingState = .didUpdate
+            textField.editingState = .isEditing
             if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
-                textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
+                textField.stringValue = editingString.count == textField.maximumNumberOfCharacters ? editingString : String(textField.stringValue.prefix(maxCharCount))
             }
+            editingString = textField.stringValue
             delegate?.controlTextDidChange?(obj)
+            textField.adjustFontSize()
         }
 
         func controlTextDidBeginEditing(_ obj: Notification) {
-            textField.startStringValue = textField.stringValue
-            textField.editingState = .isStarted
+            editingString = textField.stringValue
+            editStartString = textField.stringValue
+            textField.editingState = .didBegin
             delegate?.controlTextDidBeginEditing?(obj)
         }
 
         func controlTextDidEndEditing(_ obj: Notification) {
-            textField.editingState = .isEnded
+            textField.editingState = .didEnd
             delegate?.controlTextDidEndEditing?(obj)
+            textField.adjustFontSize()
         }
 
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                if textField.editingState != .isEnded, textField.actionAtEnterKeyDown == .endEditing {
+                if textField.editingState != .didEnd, textField.actionAtEnterKeyDown == .endEditing {
                     textField.window?.makeFirstResponder(nil)
                     return true
                 }
             } else if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
                 if textField.actionAtEscapeKeyDown == .endEditingAndReset {
-                    textField.stringValue = textField.startStringValue
+                    textField.stringValue = editStartString
+                    textField.adjustFontSize()
                 }
                 if textField.actionAtEscapeKeyDown != .none {
                     textField.window?.makeFirstResponder(nil)

@@ -8,6 +8,7 @@
 #if os(macOS)
 
 import AppKit
+import FZSwiftUtils
 
 public extension NSTextField {
     /// The y-coordinate of the baseline for the topmost line of the text.
