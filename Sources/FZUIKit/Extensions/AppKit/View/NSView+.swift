@@ -707,22 +707,39 @@ internal extension NSView {
     func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
-        
-        do {
-            try self.replaceMethod(
-                #selector(NSView.animation(forKey:)),
-                methodSignature: (@convention(c)  (AnyObject, Selector, NSAnimatablePropertyKey) -> (Any?)).self,
-                hookSignature: (@convention(block)  (AnyObject, NSAnimatablePropertyKey) -> (Any?)).self) { store in { object, key in
+        guard let viewClass = object_getClass(self) else { return }
+        let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
+        if let viewSubclass = NSClassFromString(viewSubclassName) {
+            object_setClass(self, viewSubclass)
+        } else {
+            guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
+            guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
+            if let method = class_getInstanceMethod(viewClass, #selector(NSView.animation(forKey:))) {
+                let animationForKey: @convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any? = { _, key in
                     if NSViewAnimationKeys.contains(key) {
+                       /*
+                        let springAnimation = CASpringAnimation()
+                        springAnimation.damping = 14
+                        springAnimation.initialVelocity = 5
+                        springAnimation.fillMode = CAMediaTimingFillMode.forwards
+                        return springAnimation
+                        */
                         let animation = CABasicAnimation()
                         animation.timingFunction = .default
                         return animation
                     }
-                    return store.original(object, #selector(NSView.animation(forKey:)), key)
+                    if NSViewTransitionKeys.contains(key) {
+                        let transition: CATransition = .fade()
+                        transition.timingFunction = .default
+                        return transition
+                    }
+                    return nil
                 }
-                }
-        } catch {
-            Swift.print(error)
+                class_addMethod(viewSubclass, #selector(NSView.animation(forKey:)),
+                                imp_implementationWithBlock(animationForKey), method_getTypeEncoding(method))
+            }
+            objc_registerClassPair(viewSubclass)
+            object_setClass(self, viewSubclass)
         }
     }
     
@@ -733,8 +750,8 @@ internal extension NSView {
         }
     }
 }
-
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "scale"]
+private let NSViewTransitionKeys = ["NSAnimationTriggerOrderIn", "NSAnimationTriggerOrderOut", "hidden"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow", "scale"]
 
 #endif
 
