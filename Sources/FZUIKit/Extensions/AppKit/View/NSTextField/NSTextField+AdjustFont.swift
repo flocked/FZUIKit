@@ -155,26 +155,24 @@ extension NSTextField {
                 
                 let beginEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
                     guard let self = self else { return }
-                //    self.editingState = .didBegin
+                    self.editingState = .didBegin
                     self.editStartString = self.stringValue
                     self.editingString = self.stringValue
                 }
                 
                 let endEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
                     guard let self = self else { return }
-                //    self.editingState = .didEnd
+                    self.editingState = .didEnd
                     self.adjustFontSize()
                 }
                 
                 let textEdit: @convention(block) (AnyObject) -> Void = { [weak self] _ in
                     guard let self = self else { return }
-                    /*
                     if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
                         self.stringValue = self.editingString.count == self.maximumNumberOfCharacters ? self.editingString : String(self.stringValue.prefix(maxCharCount))
                     }
                     self.editingState = .isEditing
                     self.editingString = self.stringValue
-                     */
                     self.adjustFontSize()
                 }
                 
