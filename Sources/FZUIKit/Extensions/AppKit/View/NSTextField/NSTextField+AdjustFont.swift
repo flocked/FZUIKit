@@ -83,7 +83,8 @@ extension NSTextField {
                 })
                 observer?.add(\.frame, handler: { [weak self] old, new in
                     guard let self = self, old.size != new.size else { return }
-                    self.adjustFontSize(requiresSmallerScale: new.size < old.size)
+                    self.adjustFontSize()
+                  //  self.adjustFontSize(requiresSmallerScale: new.size < old.size)
                 })
             }
         } else {
