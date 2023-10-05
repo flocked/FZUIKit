@@ -115,9 +115,11 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     var allowedCharacters: AllowedCharacters = .all
     */
     
+    /*
     /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
     @IBInspectable public var stopsEditingOnOutsideMouseDown = false {
         didSet { self.setupMouseDownMonitor() } }
+     */
     
     /// A Boolean value that indicates whether the user is editing the text.
     public private(set) var isEditing = false
@@ -312,7 +314,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     public override func textDidBeginEditing(_ notification: Notification) {
         super.textDidBeginEditing(notification)
         self.isEditing = true
-        self.setupMouseDownMonitor()
+     //   self.setupMouseDownMonitor()
         self.previousStringValue = self.stringValue
         self.previousCharStringValue = self.stringValue
         self.previousSelectedRange = self.editingSelectedRange
@@ -326,7 +328,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
     public override func textDidEndEditing(_ notification: Notification) {
         super.textDidEndEditing(notification)
         self.isEditing = false
-        self.setupMouseDownMonitor()
+     //   self.setupMouseDownMonitor()
         self.editingStateHandler?(.didEnd)
     }
 
@@ -414,6 +416,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
         return newSize
     }
 
+    /*
     internal var mouseDownMonitor: Any? = nil
     internal func setupMouseDownMonitor() {
         if stopsEditingOnOutsideMouseDown, mouseDownMonitor == nil {
@@ -434,6 +437,7 @@ public class ResizingTextField: NSTextField, NSTextFieldDelegate {
             self.mouseDownMonitor = nil
         }
     }
+    */
 }
 
 #endif

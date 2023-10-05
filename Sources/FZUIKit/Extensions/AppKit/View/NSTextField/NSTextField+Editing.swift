@@ -162,6 +162,38 @@ public extension NSTextField {
             swizzleTextField()
         }
     }
+    
+    /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
+    var endEditingOnOutsideMouseDown: Bool  {
+        get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
+            setupMouseMonitor()
+        }
+    }
+    
+    var mouseDownMonitor: NSEvent.Monitor?  {
+        get { getAssociatedValue(key: "mouseDownMonitor", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
+    }
+    
+    func setupMouseMonitor() {
+        if endEditingOnOutsideMouseDown {
+            if mouseDownMonitor == nil {
+                mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
+                    guard let self = self, self.endEditingOnOutsideMouseDown, self.hasKeyboardFocus else { return event }
+                    if self.bounds.contains(event.location(in: self)) == false, let window = self.window {
+                      //  if self.stringValue
+                        self.updateString()
+                        window.makeFirstResponder(nil)
+                    }
+                    return event
+                }
+            }
+        } else {
+            mouseDownMonitor = nil
+        }
+    }
 }
 
 /*

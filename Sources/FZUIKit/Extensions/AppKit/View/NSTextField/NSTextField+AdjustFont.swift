@@ -52,6 +52,7 @@ extension NSTextField {
     
     internal func adjustFontSize(requiresSmallerScale: Bool = false) {
         guard let _font = _font else { return }
+        self.isAdjustingFontSize = true
         cell?.font = _font
         self.stringValue = self.stringValue
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
@@ -70,6 +71,7 @@ extension NSTextField {
         } else if allowsDefaultTighteningForTruncation {
             adjustFontKerning()
         }
+        self.isAdjustingFontSize = false
     }
     
     internal func adjustFontKerning() {
@@ -97,7 +99,7 @@ extension NSTextField {
             if observer == nil {
                 observer = KeyValueObserver(self)
                 observer?.add(\.stringValue, handler: { [weak self] old, new in
-                    guard let self = self, old != new else { return }
+                    guard let self = self, self.isAdjustingFontSize == false, old != new else { return }
                     self.adjustFontSize()
                 })
                 observer?.add(\.isBezeled, handler: { [weak self] old, new in
@@ -113,11 +115,11 @@ extension NSTextField {
                     self.adjustFontSize()
                 })
                 observer?.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
-                    guard let self = self, self.isBezeled, old != new else { return }
+                    guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
                 observer?.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
-                    guard let self = self, self.isBezeled, old != new else { return }
+                    guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
                 observer?.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
@@ -129,6 +131,47 @@ extension NSTextField {
             observer = nil
         }
         self.adjustFontSize()
+    }
+    
+    internal func conformingString() -> String {
+        let newString = self.allowedCharacters.trimString(self.stringValue)
+        if let shouldEdit = self.editingHandlers.shouldEdit {
+            if shouldEdit(self.stringValue) == false {
+                return self.previousString
+            } else {
+                return self.stringValue
+            }
+        } else if let maxCharCount = self.maximumNumberOfCharacters, newString.count > maxCharCount {
+            if self.previousString.count <= maxCharCount {
+                return self.previousString
+            } else {
+                return String(newString.prefix(maxCharCount))
+            }
+        } else if let minCharCount = self.minimumNumberOfCharacters, newString.count < minCharCount  {
+            if self.previousString.count >= minCharCount {
+                return self.previousString
+            }
+        }
+        return newString
+    }
+    
+    internal func updateString() {
+        self.isAdjustingFontSize = true
+        let newString = self.conformingString()
+        if self.stringValue != newString {
+            self.stringValue = newString
+            if self.previousString != newString {
+                self.editingHandlers.didEdit?()
+                self.adjustFontSize()
+                self.previousString = self.stringValue
+                if let editingRange = self.currentEditor()?.selectedRange {
+                    self.editingRange = editingRange
+                }
+            } else {
+                self.currentEditor()?.selectedRange = self.editingRange
+            }
+        }
+        self.isAdjustingFontSize = false
     }
     
     internal func swizzleTextField() {
@@ -216,7 +259,7 @@ extension NSTextField {
                     let textField = (object as? NSTextField)
                   //  textField?.editingState = .didBegin
                     textField?.editStartString = textField?.stringValue ?? ""
-                    textField?.editingString = textField?.stringValue ?? ""
+                    textField?.previousString = textField?.stringValue ?? ""
                     textField?.editingHandlers.didBegin?()
                     if let editingRange = textField?.currentEditor()?.selectedRange {
                         textField?.editingRange = editingRange
@@ -230,38 +273,56 @@ extension NSTextField {
                 methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
                     if let textField = (object as? NSTextField) {
+                        textField.updateString()
+                        /*
+                        let newStr = textField.conformingString()
+                        if textField.stringValue != newStr {
+                            textField.stringValue = newStr
+                            if textField.previousString != newStr {
+                                textField.editingHandlers.didEdit?()
+                                textField.adjustFontSize()
+                                textField.previousString = textField.stringValue
+                                if let editingRange = textField.currentEditor()?.selectedRange {
+                                    textField.editingRange = editingRange
+                                }
+                            } else {
+                                textField.currentEditor()?.selectedRange = textField.editingRange
+                            }
+                        }
+                        
                         let newString = textField.allowedCharacters.trimString(textField.stringValue)
                         if let shouldEdit = textField.editingHandlers.shouldEdit {
                             if shouldEdit(textField.stringValue) == false {
-                                textField.stringValue = textField.editingString
+                                textField.stringValue = textField.previousString
                             } else {
                                 textField.editingHandlers.didEdit?()
                             }
                         } else if let maxCharCount = textField.maximumNumberOfCharacters, newString.count > maxCharCount {
-                            if textField.editingString.count <= maxCharCount {
-                                textField.stringValue = textField.editingString
+                            if textField.previousString.count <= maxCharCount {
+                                textField.stringValue = textField.previousString
                                 textField.currentEditor()?.selectedRange = textField.editingRange
                             } else {
-                                textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
+                                textField.stringValue = String(newString.prefix(maxCharCount))
                             }
                             textField.editingHandlers.didEdit?()
                         } else if let minCharCount = textField.minimumNumberOfCharacters, newString.count < minCharCount  {
-                            if textField.editingString.count >= minCharCount {
-                                textField.stringValue = textField.editingString
+                            if textField.previousString.count >= minCharCount {
+                                textField.stringValue = textField.previousString
                                 textField.currentEditor()?.selectedRange = textField.editingRange
                             }
                         } else {
                             textField.stringValue = newString
-                            if textField.editingString == newString {
+                            if textField.previousString == newString {
                                 textField.currentEditor()?.selectedRange = textField.editingRange
                             }
                             textField.editingHandlers.didEdit?()
                         }
-                        textField.editingString = textField.stringValue
+                        textField.previousString = textField.stringValue
                         if let editingRange = textField.currentEditor()?.selectedRange {
                             textField.editingRange = editingRange
                         }
                         textField.adjustFontSize()
+                        */
                     }
                     store.original(object, #selector(NSTextField.textDidChange), notification)
                 }
@@ -271,9 +332,9 @@ extension NSTextField {
         }
     }
     
-    internal class var didSwizzleTextField: Bool {
-        get { getAssociatedValue(key: "_didSwizzleTextField", object: self, initialValue: false) }
-        set { set(associatedValue: newValue, key: "_didSwizzleTextField", object: self)
+    internal var isAdjustingFontSize: Bool {
+        get { getAssociatedValue(key: "isAdjustingFontSize", object: self, initialValue: false) }
+        set { set(associatedValue: newValue, key: "isAdjustingFontSize", object: self)
         }
     }
     
@@ -304,9 +365,9 @@ extension NSTextField {
         set { set(associatedValue: newValue, key: "_font", object: self) }
     }
     
-    internal var editingString: String {
-        get { getAssociatedValue(key: "editingString", object: self, initialValue: "") }
-        set { set(associatedValue: newValue, key: "editingString", object: self) }
+    internal var previousString: String {
+        get { getAssociatedValue(key: "previousString", object: self, initialValue: "") }
+        set { set(associatedValue: newValue, key: "previousString", object: self) }
     }
     
     internal var editingRange: NSRange {
@@ -371,7 +432,7 @@ extension NSTextField {
  guard let self = self else { return }
  self.editingState = .didBegin
  self.editStartString = self.stringValue
- self.editingString = self.stringValue
+ self.previousString = self.stringValue
  }
  
  let endEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
@@ -383,8 +444,8 @@ extension NSTextField {
  let textEdit: @convention(block) (AnyObject) -> Void = { [weak self] _ in
  guard let self = self else { return }
  if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
- if self.editingString.count == self.maximumNumberOfCharacters {
- self.stringValue = self.editingString
+ if self.previousString.count == self.maximumNumberOfCharacters {
+ self.stringValue = self.previousString
  if let editor = self.currentEditor(), editor.selectedRange.location > 0 {
  editor.selectedRange.location -= 1
  }
@@ -393,7 +454,7 @@ extension NSTextField {
  }
  }
  self.editingState = .isEditing
- self.editingString = self.stringValue
+ self.previousString = self.stringValue
  self.adjustFontSize()
  }
  

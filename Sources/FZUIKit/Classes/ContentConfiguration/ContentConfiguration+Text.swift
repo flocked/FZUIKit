@@ -322,6 +322,9 @@ public extension NSTextField {
         self.adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
         self.minimumScaleFactor = configuration.minimumScaleFactor
         self.allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
+        if configuration.allowsDefaultTighteningForTruncation {
+            self.setupTextFieldObserver()
+        }
     }
 }
 
