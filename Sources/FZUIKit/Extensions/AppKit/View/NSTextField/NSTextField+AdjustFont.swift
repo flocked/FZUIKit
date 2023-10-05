@@ -81,11 +81,13 @@ extension NSTextField {
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
+                /*
                 observer?.add(\.bounds, handler: { [weak self] old, new in
                     guard let self = self, old.size != new.size else { return }
                     self.adjustFontSize()
                   //  self.adjustFontSize(requiresSmallerScale: new.size < old.size)
                 })
+                 */
             }
         } else {
             observer = nil
@@ -178,6 +180,18 @@ extension NSTextField {
               methodSignature: (@convention(c)  (AnyObject, Selector) -> NSFont?).self,
               hookSignature: (@convention(block)  (AnyObject) -> NSFont?).self) { store in { _ in
                   return self._font
+              }
+              }
+            
+            try? self.replaceMethod(
+              #selector(layout),
+              methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+              hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in { object in
+                  store.original(object, #selector(NSView.layout))
+                  if self.bounds.size != self._bounds.size {
+                      self.adjustFontSize()
+                      self._bounds = self.bounds
+                  }
               }
               }
             
@@ -336,6 +350,11 @@ extension NSTextField {
     internal var editStartString: String {
         get { getAssociatedValue(key: "editStartString", object: self, initialValue: "") }
         set { set(associatedValue: newValue, key: "editStartString", object: self) }
+    }
+    
+    internal var _bounds: CGRect {
+        get { getAssociatedValue(key: "bounds", object: self, initialValue: .zero) }
+        set { set(associatedValue: newValue, key: "bounds", object: self) }
     }
     
     internal var lastFontScaleFactor: CGFloat {
