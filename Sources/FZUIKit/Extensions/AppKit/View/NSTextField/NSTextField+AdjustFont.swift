@@ -155,6 +155,7 @@ extension NSTextField {
         return newString
     }
     
+    /*
     internal func updateString() {
         self.isAdjustingFontSize = true
         let newString = self.conformingString()
@@ -172,6 +173,42 @@ extension NSTextField {
             }
         }
         self.isAdjustingFontSize = false
+    }
+    */
+    
+    internal func updateString() {
+        let newString = self.allowedCharacters.trimString(self.stringValue)
+        if let shouldEdit = self.editingHandlers.shouldEdit {
+            if shouldEdit(self.stringValue) == false {
+                self.stringValue = self.previousString
+            } else {
+                self.editingHandlers.didEdit?()
+            }
+        } else if let maxCharCount = self.maximumNumberOfCharacters, newString.count > maxCharCount {
+            if self.previousString.count <= maxCharCount {
+                self.stringValue = self.previousString
+                self.currentEditor()?.selectedRange = self.editingRange
+            } else {
+                self.stringValue = String(newString.prefix(maxCharCount))
+            }
+            self.editingHandlers.didEdit?()
+        } else if let minCharCount = self.minimumNumberOfCharacters, newString.count < minCharCount  {
+            if self.previousString.count >= minCharCount {
+                self.stringValue = self.previousString
+                self.currentEditor()?.selectedRange = self.editingRange
+            }
+        } else {
+            self.stringValue = newString
+            if self.previousString == newString {
+                self.currentEditor()?.selectedRange = self.editingRange
+            }
+            self.editingHandlers.didEdit?()
+        }
+        self.previousString = self.stringValue
+        if let editingRange = self.currentEditor()?.selectedRange {
+            self.editingRange = editingRange
+        }
+        self.adjustFontSize()
     }
     
     internal func swizzleTextField() {
@@ -256,15 +293,15 @@ extension NSTextField {
                 #selector(textDidBeginEditing),
                 methodSignature: (@convention(c)  (AnyObject, Selector, Notification) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, Notification) -> ()).self) { store in { object, notification in
-                    let textField = (object as? NSTextField)
-                  //  textField?.editingState = .didBegin
-                    textField?.editStartString = textField?.stringValue ?? ""
-                    textField?.previousString = textField?.stringValue ?? ""
-                    textField?.editingHandlers.didBegin?()
-                    if let editingRange = textField?.currentEditor()?.selectedRange {
-                        textField?.editingRange = editingRange
-                    }
                     store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
+                    if let textField = (object as? NSTextField) {
+                        textField.editStartString = textField.stringValue
+                        textField.previousString = textField.stringValue
+                        textField.editingHandlers.didBegin?()
+                        if let editingRange = textField.currentEditor()?.selectedRange {
+                            textField.editingRange = editingRange
+                        }
+                    }
                 }
                 }
             
