@@ -164,7 +164,10 @@ public extension NSUIView {
     func configurate(using configuration: ContentConfiguration.Shadow) {
 #if os(macOS)
         wantsLayer = true
-        layer?.configurate(using: configuration)
+        self.shadowColor = configuration._resolvedColor
+        self.shadowOffset = CGSize(configuration.offset.x, configuration.offset.y)
+        self.shadowOpacity = configuration.opacity
+        self.shadowRadius = configuration.radius
 #elseif canImport(UIKit)
         layer.configurate(using: configuration)
 #endif

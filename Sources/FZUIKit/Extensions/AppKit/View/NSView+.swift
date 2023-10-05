@@ -535,6 +535,29 @@ extension NSView {
             layer?.shadowOpacity = Float(newValue)
         }
     }
+    
+    /**
+     The shadow path of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @objc open dynamic var shadowPath: NSBezierPath? {
+        get {
+            if let cgPath = layer?.shadowPath {
+                return NSBezierPath(cgPath: cgPath)
+            }
+            return nil
+        }
+        set {
+            wantsLayer = true
+            swizzleAnimationForKey()
+            if newValue == nil, String(describing: self).contains("NSViewAnimator") {
+                layer?.shadowPath = NSBezierPath(roundedRect: self.layer?.bounds ?? .zero, cornerRadius: self.cornerRadius).cgPath
+            } else {
+                layer?.shadowPath = newValue?.cgPath
+            }
+        }
+    }
 
     /**
      Adds a tracking area to the view.
@@ -815,7 +838,7 @@ internal extension NSView {
 private let NSViewTransitionKeys = ["NSAnimationTriggerOrderIn", "NSAnimationTriggerOrderOut", "hidden"]
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow", "scale"]
 
-private let NSViewAnimationKeysAlt = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "scale"]
+private let NSViewAnimationKeysAlt = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "masksToBounds", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "scale"]
 
 #endif
 

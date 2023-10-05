@@ -107,7 +107,15 @@ public extension NSUIView {
     func configurate(using configuration: ContentConfiguration.Border) {
         #if os(macOS)
         wantsLayer = true
-        layer?.configurate(using: configuration)
+        if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
+            layer?.borderLayer?.removeFromSuperlayer()
+        }
+        if configuration.needsDashedBordlerLayer {
+            layer?.configurate(using: configuration)
+        } else {
+            self.borderColor = configuration._resolvedColor
+            self.borderWidth = configuration.width
+        }
         #elseif canImport(UIKit)
         layer.configurate(using: configuration)
         #endif
