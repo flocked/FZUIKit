@@ -14,7 +14,7 @@ extension NSTextField {
     /**
      A Boolean value that determines whether the text field reduces the text’s font size to fit the title string into the text field’s bounding rectangle.
      
-     Normally, the text field draws the text with the font you specify in the `font` property. If this property is true, and the text in the `stringValue` property exceeds the text field’s bounding rectangle, the text field reduces the font size until the text fits or it has scaled the font down to the minimum font size. The default value for this property is false. If you change it to true, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` property. This autoshrinking behavior is only intended for use with a single-line text field.
+     Normally, the text field draws the text with the font you specify in the `font` property. If this property is true, and the text in the `stringValue` property exceeds the text field’s bounding rectangle, the text field reduces the font size until the text fits or it has scaled the font down to the minimum font size. The default value for this property is `false`. If you change it to `true`, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` property. This autoshrinking behavior is only intended for use with a single-line text field.
      */
     public var adjustsFontSizeToFitWidth: Bool {
         get { getAssociatedValue(key: "adjustsFontSizeToFitWidth", object: self, initialValue: false) }
@@ -28,8 +28,7 @@ extension NSTextField {
     /**
      The minimum scale factor for the text field’s text.
      
-     If the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is true, use this property to specify the smallest multiplier for the current font size that yields an acceptable font size for the text field’s text. If you specify a value of 0 for this property, the text field doesn’t scale the text down. The default value of this property is 0.
-     To reveal the text field for editing minimum scale factor in Interface Builder, choose Minimum Font Scale from the Autoshrink pop-up menu in the text field’s Attributes inspector.
+     If the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is `true, use this property to specify the smallest multiplier for the current font size that yields an acceptable font size for the text field’s text. If you specify a value of 0 for this property, the text field doesn’t scale the text down. The default value of this property is 0.
      */
     public var minimumScaleFactor: CGFloat {
         get { getAssociatedValue(key: "minimumScaleFactor", object: self, initialValue: 0.0) }
@@ -172,22 +171,22 @@ extension NSTextField {
                 #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
                 hookSignature: (@convention(block)  (AnyObject, NSTextView, Selector) -> (Bool)).self) { store in { object, textView, selector in
-                    if let shouldDoCommand = (object as? NSTextField)?.editingHandlers.shouldDoCommand {
-                        return shouldDoCommand(selector)
+                    if let doCommand = (object as? NSTextField)?.editingHandlers.doCommand {
+                        return doCommand(selector)
                     }
                     if let textField = object as? NSTextField {
                         switch selector {
                         case #selector(NSControl.cancelOperation(_:)):
-                            if textField.actionAtEscapeKeyDown == .endEditingAndReset {
+                            if textField.actionOnEscapeKeyDown == .endEditingAndReset {
                                 textField.stringValue = textField.editStartString
                                 textField.adjustFontSize()
                             }
-                            if textField.actionAtEscapeKeyDown != .none {
+                            if textField.actionOnEscapeKeyDown != .none {
                                 textField.window?.makeFirstResponder(nil)
                                 return true
                             }
                         case #selector(NSControl.insertNewline(_:)):
-                            if textField.actionAtEnterKeyDown == .endEditing {
+                            if textField.actionOnEnterKeyDown == .endEditing {
                                 textField.window?.makeFirstResponder(nil)
                                 return true
                             }
@@ -272,6 +271,12 @@ extension NSTextField {
         }
     }
     
+    internal class var didSwizzleTextField: Bool {
+        get { getAssociatedValue(key: "_didSwizzleTextField", object: self, initialValue: false) }
+        set { set(associatedValue: newValue, key: "_didSwizzleTextField", object: self)
+        }
+    }
+    
     internal var didSwizzleTextField: Bool {
         get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
         set {
@@ -324,16 +329,16 @@ extension NSTextField {
  _font = self.font
  keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
  if self.hasKeyboardFocus, self.editingState != .didEnd {
- if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
+ if event.keyCode == 36, self.actionOnEnterKeyDown == .endEditing {
  self.window?.makeFirstResponder(nil)
  return nil
  }
  if event.keyCode == 53 {
- if self.actionAtEscapeKeyDown == .endEditingAndReset {
+ if self.actionOnEscapeKeyDown == .endEditingAndReset {
  self.stringValue = self.editStartString
  self.adjustFontSize()
  }
- if self.actionAtEscapeKeyDown != .none {
+ if self.actionOnEscapeKeyDown != .none {
  self.window?.makeFirstResponder(nil)
  return nil
  }

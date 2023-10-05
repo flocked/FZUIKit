@@ -14,16 +14,16 @@ public extension NSTextField {
     struct TextEditingHandler {
         /// Handler that gets called whenever editing the text did begin.
         public var didBegin: (()->())? = nil
-        /// Handler that determines whether the text should change.
+        /// Handler that determines whether the text should change. If provided ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` and ``AppKit/NSTextField/allowedCharacters-swift.property`` will be ignored.
         public var shouldEdit: ((String)->(Bool))? = nil
         /// Handler that gets called whenever the text did change.
         public var didEdit: (()->())? = nil
         /// Handler that gets called whenever editing the text did end.
         public var didEnd: (()->())? = nil
         /// Handler that determines whether a command should be performed (e.g. cancel, enter).
-        public var shouldDoCommand: ((Selector)->(Bool))? = nil
+        public var doCommand: ((Selector)->(Bool))? = nil
         internal var needsSwizzle: Bool {
-            didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil || shouldDoCommand != nil
+            didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil || doCommand != nil
         }
     }
 
@@ -107,10 +107,11 @@ public extension NSTextField {
     }
 
     /// The action to perform when the user pressed the enter key.
-    var actionAtEnterKeyDown: EnterKeyAction {
-        get { getAssociatedValue(key: "NSTextField_actionAtEnterKeyDown", object: self, initialValue: .none) }
+    var actionOnEnterKeyDown: EnterKeyAction {
+        get { getAssociatedValue(key: "NSTextField_actionOnEnterKeyDown", object: self, initialValue: .none) }
         set {
-            set(associatedValue: newValue, key: "NSTextField_actionAtEnterKeyDown", object: self)
+            
+            set(associatedValue: newValue, key: "NSTextField_actionOnEnterKeyDown", object: self)
             if newValue != .none {
                 swizzleTextField()
             }
@@ -118,10 +119,10 @@ public extension NSTextField {
     }
 
     /// The action to perform when the user pressed the escpae key.
-    var actionAtEscapeKeyDown: EscapeKeyAction {
-        get { getAssociatedValue(key: "NSTextFIeld_actionAtEscapeKeyDown", object: self, initialValue: .none) }
+    var actionOnEscapeKeyDown: EscapeKeyAction {
+        get { getAssociatedValue(key: "NSTextFIeld_actionOnEscapeKeyDown", object: self, initialValue: .none) }
         set {
-            set(associatedValue: newValue, key: "NSTextFIeld_actionAtEscapeKeyDown", object: self)
+            set(associatedValue: newValue, key: "NSTextFIeld_actionOnEscapeKeyDown", object: self)
             if newValue != .none {
                 swizzleTextField()
             }
@@ -159,12 +160,6 @@ public extension NSTextField {
                 stringValue = String(stringValue.prefix(maxCharCount))
             }
             swizzleTextField()
-        }
-    }
-
-    internal class var didSwizzleTextField: Bool {
-        get { getAssociatedValue(key: "_didSwizzleTextField", object: self, initialValue: false) }
-        set { set(associatedValue: newValue, key: "_didSwizzleTextField", object: self)
         }
     }
 }
@@ -234,16 +229,16 @@ internal extension NSTextField {
 
         func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
             if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                if textField.editingState != .didEnd, textField.actionAtEnterKeyDown == .endEditing {
+                if textField.editingState != .didEnd, textField.actionOnEnterKeyDown == .endEditing {
                     textField.window?.makeFirstResponder(nil)
                     return true
                 }
             } else if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
-                if textField.actionAtEscapeKeyDown == .endEditingAndReset {
+                if textField.actionOnEscapeKeyDown == .endEditingAndReset {
                     textField.stringValue = editStartString
                     textField.adjustFontSize()
                 }
-                if textField.actionAtEscapeKeyDown != .none {
+                if textField.actionOnEscapeKeyDown != .none {
                     textField.window?.makeFirstResponder(nil)
                     return true
                 }
