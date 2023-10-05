@@ -47,9 +47,7 @@ extension NSTextField {
     }
     
     internal func setupStringValueObserver() {
-        Swift.print("setupStringValueObserver", self.font ?? "nil", self.cell?.font ?? "nil")
         if (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation {
-            Swift.print("setupStringValueObserver 1", self.font ?? "nil", self.cell?.font ?? "nil")
             swizzleTextField()
           //  Self.swizzleTextField()
             if observer == nil {
@@ -88,10 +86,10 @@ extension NSTextField {
                     self.adjustFontSize()
                 })
             }
-            self.adjustFontSize()
         } else {
             observer = nil
         }
+        self.adjustFontSize()
     }
     
     internal var isFittingCurrentText: Bool {
@@ -105,28 +103,20 @@ extension NSTextField {
     }
     
     internal func adjustFontSize() {
-        Swift.print("adjustFontSize", _font ?? "nil")
+        guard let _font = _font else { return }
         cell?.font = _font
-        var attributedString = self.attributedStringValue.removingAttributes([.kern])
-        if let _font = _font {
-            attributedString = attributedString.font(_font)
-        }
+        var attributedString = self.attributedStringValue.removingAttributes([.kern]).font(_font)
         self.attributedStringValue = attributedString
      //   attributedStringValue = self.attributedStringValue.removingAttributes([.kern])
         if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
-            Swift.print("adjustFontSize 1", _font ?? "nil", cell ?? "nil")
-            guard let font = _font else { return }
             var scaleFactor = 1.0
             var needsUpdate = !isFittingCurrentText
-            Swift.print("adjustFontSize needsUpdate", needsUpdate)
             while needsUpdate && scaleFactor >= minimumScaleFactor {
-                scaleFactor = scaleFactor - 0.01
-                Swift.print("adjust 1", font.withSize(font.pointSize * scaleFactor))
-                attributedString = attributedString.font(font.withSize(font.pointSize * scaleFactor))
-                cell?.font = font.withSize(font.pointSize * scaleFactor)
+                scaleFactor = scaleFactor - 0.005
+                let adjustedFont = _font.withSize(_font.pointSize * scaleFactor)
+                attributedString = attributedString.font(adjustedFont)
+                cell?.font = adjustedFont
                 self.attributedStringValue = attributedString
-                Swift.print("adjust 2", cell?.font ?? "nil")
-              //  needsUpdate = isTruncatingText
                 needsUpdate = !isFittingCurrentText
             }
             if needsUpdate, allowsDefaultTighteningForTruncation {
@@ -142,7 +132,7 @@ extension NSTextField {
         var kerning: Float = 0.0
         while needsUpdate && kerning <= 1.0 {
             self.attributedStringValue = self.attributedStringValue.applyingAttributes( [.kern: -kerning])
-            kerning += 0.02
+            kerning += 0.005
             needsUpdate = !isFittingCurrentText
         }
     }
@@ -151,7 +141,6 @@ extension NSTextField {
         guard didSwizzleTextField == false else { return }
         didSwizzleTextField = true
         _font = self.font
-        Swift.print("swizzleTextField", self.font ?? "nil", self._font ?? "nil", cell?.font ?? "nil")
         keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
             if self.hasKeyboardFocus, self.editingState != .didEnd {
                 if event.keyCode == 36, self.actionAtEnterKeyDown == .endEditing {
