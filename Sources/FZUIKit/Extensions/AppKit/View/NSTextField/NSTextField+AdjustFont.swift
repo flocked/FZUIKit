@@ -132,50 +132,7 @@ extension NSTextField {
         }
         self.adjustFontSize()
     }
-    
-    internal func conformingString() -> String {
-        let newString = self.allowedCharacters.trimString(self.stringValue)
-        if let shouldEdit = self.editingHandlers.shouldEdit {
-            if shouldEdit(self.stringValue) == false {
-                return self.previousString
-            } else {
-                return self.stringValue
-            }
-        } else if let maxCharCount = self.maximumNumberOfCharacters, newString.count > maxCharCount {
-            if self.previousString.count <= maxCharCount {
-                return self.previousString
-            } else {
-                return String(newString.prefix(maxCharCount))
-            }
-        } else if let minCharCount = self.minimumNumberOfCharacters, newString.count < minCharCount  {
-            if self.previousString.count >= minCharCount {
-                return self.previousString
-            }
-        }
-        return newString
-    }
-    
-    /*
-    internal func updateString() {
-        self.isAdjustingFontSize = true
-        let newString = self.conformingString()
-        if self.stringValue != newString {
-            self.stringValue = newString
-            if self.previousString != newString {
-                self.editingHandlers.didEdit?()
-                self.adjustFontSize()
-                self.previousString = self.stringValue
-                if let editingRange = self.currentEditor()?.selectedRange {
-                    self.editingRange = editingRange
-                }
-            } else {
-                self.currentEditor()?.selectedRange = self.editingRange
-            }
-        }
-        self.isAdjustingFontSize = false
-    }
-    */
-    
+
     internal func updateString() {
         let newString = self.allowedCharacters.trimString(self.stringValue)
         if let shouldEdit = self.editingHandlers.shouldEdit {
@@ -382,11 +339,6 @@ extension NSTextField {
         }
     }
     
-    internal var editStartString: String {
-        get { getAssociatedValue(key: "editStartString", object: self, initialValue: "") }
-        set { set(associatedValue: newValue, key: "editStartString", object: self) }
-    }
-    
     internal var _bounds: CGRect {
         get { getAssociatedValue(key: "bounds", object: self, initialValue: .zero) }
         set { set(associatedValue: newValue, key: "bounds", object: self) }
@@ -402,13 +354,18 @@ extension NSTextField {
         set { set(associatedValue: newValue, key: "_font", object: self) }
     }
     
+    internal var editStartString: String {
+        get { getAssociatedValue(key: "editStartString", object: self, initialValue: self.stringValue) }
+        set { set(associatedValue: newValue, key: "editStartString", object: self) }
+    }
+    
     internal var previousString: String {
-        get { getAssociatedValue(key: "previousString", object: self, initialValue: "") }
+        get { getAssociatedValue(key: "previousString", object: self, initialValue: self.stringValue) }
         set { set(associatedValue: newValue, key: "previousString", object: self) }
     }
     
     internal var editingRange: NSRange {
-        get { getAssociatedValue(key: "editingRange", object: self, initialValue: NSRange(location: 0, length: 0)) }
+        get { getAssociatedValue(key: "editingRange", object: self, initialValue: self.currentEditor()?.selectedRange ?? NSRange(location: 0, length: 0)) }
         set { set(associatedValue: newValue, key: "editingRange", object: self) }
     }
     
