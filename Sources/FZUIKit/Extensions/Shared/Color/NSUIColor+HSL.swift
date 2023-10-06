@@ -39,6 +39,24 @@ public extension NSUIColor {
         let hsl = HSL(color: self)
         return (hue: hsl.h * 360.0, saturation: hsl.s,lightness: hsl.l, alpha: alphaComponent)
     }
+    
+    final func toRGBAComponents() -> (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat) {
+      var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+
+      #if os(iOS) || os(tvOS) || os(watchOS)
+        getRed(&r, green: &g, blue: &b, alpha: &a)
+
+        return (r, g, b, a)
+      #elseif os(OSX)
+        guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
+          fatalError("Could not convert color to RGBA.")
+        }
+
+        rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+
+        return (r, g, b, a)
+      #endif
+    }
 }
 
 internal struct HSL {
