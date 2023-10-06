@@ -30,6 +30,7 @@ public extension NSUIColor {
     convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
         let color      = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
         let components = color.rgbaComponents()
+        Swift.print("hue rgb", components)
 
         self.init(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
     }
