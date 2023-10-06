@@ -15,35 +15,22 @@ import UIKit
 
 public extension NSUIColor {
     /// Returns the RGBA components of the color.
-    func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
-        /*
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
+    final func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+      var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
 
-        var color: NSUIColor? = self
-        #if os(macOS)
-        color = self.withSupportedColorSpace() ?? self
-        #endif
-        color?.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        return (red, green, blue, alpha)
-         */
-        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+      #if os(iOS) || os(tvOS) || os(watchOS)
+        getRed(&r, green: &g, blue: &b, alpha: &a)
 
-        #if os(iOS) || os(tvOS) || os(watchOS)
-          getRed(&r, green: &g, blue: &b, alpha: &a)
+        return (r, g, b, a)
+      #elseif os(OSX)
+        guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
+          fatalError("Could not convert color to RGBA.")
+        }
 
-          return (r, g, b, a)
-        #elseif os(OSX)
-          guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
-            fatalError("Could not convert color to RGBA.")
-          }
+        rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
 
-          rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
-
-        return (red: r, green: g, blue: b, alpha: a)
-        #endif
+        return (r, g, b, a)
+      #endif
     }
 
     /**

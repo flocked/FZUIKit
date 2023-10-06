@@ -17,48 +17,40 @@ import UIKit
 import AppKit
 #endif
 
-public extension NSUIColor {
-    /**
-     Creates a color object with the specified hue, saturation, lightness, and alpha channel values.
+extension NSUIColor {
+  /**
+   Initializes and returns a color object using the specified opacity and HSL component values.
 
-     - Parameters:
-        - hue: The hue of the color.
-        - saturation: The saturation of the color.
-        - lightness: The lightness of the color.
-        - alpha: The alpha channel value of the color.
-     */
-    convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
-        let color      = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
-        let components = color.rgbaComponents()
-        Swift.print("hsl rgb", components)
+   - parameter hue: The hue component of the color object, specified as a value from 0.0 to 360.0 degree.
+   - parameter saturation: The saturation component of the color object, specified as a value from 0.0 to 1.0.
+   - parameter lightness: The lightness component of the color object, specified as a value from 0.0 to 1.0.
+   - parameter alpha: The opacity value of the color object, specified as a value from 0.0 to 1.0. Default to 1.0.
+   */
+  public convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
+    let color      = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
+      
+    let components = color.rgbaComponents()
+      Swift.print("hsl rgb", components)
 
-        self.init(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
-    }
+    self.init(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
+  }
 
-    /// Returns the HSLA components of the color.
-    func hslaComponents() -> (hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
-        let hsl = HSL(color: self)
-        return (hue: hsl.h * 360.0, saturation: hsl.s,lightness: hsl.l, alpha: alphaComponent)
-    }
-    
-    final func toRGBAComponents() -> (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat) {
-      var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+  // MARK: - Getting the HSL Components
 
-      #if os(iOS) || os(tvOS) || os(watchOS)
-        getRed(&r, green: &g, blue: &b, alpha: &a)
+  /**
+   Returns the HSL (hue, saturation, lightness) components.
 
-        return (r, g, b, a)
-      #elseif os(OSX)
-        guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
-          fatalError("Could not convert color to RGBA.")
-        }
+   Notes that the hue value is between 0.0 and 360.0 degree.
 
-        rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+   - returns: The HSL components as a tuple (h, s, l).
+   */
+    public final func hslaComponents() -> (hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
+    let hsl = HSL(color: self)
 
-        return (r, g, b, a)
-      #endif
-    }
+    return (hsl.h * 360.0, hsl.s, hsl.l, alphaComponent)
+  }
 }
+
 
 /// Hue-saturation-lightness structure to make the color manipulation easier.
 internal struct HSL {
@@ -86,18 +78,19 @@ internal struct HSL {
       s = saturation.clamped(max: 1.0)
       l = lightness.clamped(max: 1.0)
       a = alpha.clamped(max: 1.0)
+      
   }
 
   /**
-  Initializes and creates a HSL (hue, saturation, lightness) color from a DynamicColor object.
+  Initializes and creates a HSL (hue, saturation, lightness) color from a NSUIColor object.
   
-  - parameter color: A DynamicColor object.
+  - parameter color: A NSUIColor object.
   */
   init(color: NSUIColor) {
-    let rgba = color.toRGBAComponents()
+    let rgba = color.rgbaComponents()
 
-    let maximum   = max(rgba.r, max(rgba.g, rgba.b))
-    let minimum = min(rgba.r, min(rgba.g, rgba.b))
+    let maximum   = max(rgba.red, max(rgba.green, rgba.blue))
+    let minimum = min(rgba.red, min(rgba.green, rgba.blue))
 
     let delta = maximum - minimum
 
@@ -113,27 +106,27 @@ internal struct HSL {
         s = delta / (2.0 - maximum - minimum)
       }
 
-      if rgba.r == maximum {
-        h = ((rgba.g - rgba.b) / delta) + (rgba.g < rgba.b ? 6.0 : 0.0)
+      if rgba.red == maximum {
+        h = ((rgba.green - rgba.blue) / delta) + (rgba.green < rgba.blue ? 6.0 : 0.0)
       }
-      else if rgba.g == maximum {
-        h = ((rgba.b - rgba.r) / delta) + 2.0
+      else if rgba.green == maximum {
+        h = ((rgba.blue - rgba.red) / delta) + 2.0
       }
-      else if rgba.b == maximum {
-        h = ((rgba.r - rgba.g) / delta) + 4.0
+      else if rgba.blue == maximum {
+        h = ((rgba.red - rgba.green) / delta) + 4.0
       }
     }
 
     h /= 6.0
-    a = rgba.a
+    a = rgba.alpha
   }
 
   // MARK: - Transforming HSL Color
 
   /**
-  Returns the DynamicColor representation from the current HSV color.
+  Returns the NSUIColor representation from the current HSV color.
   
-  - returns: A DynamicColor object corresponding to the current HSV color.
+  - returns: A NSUIColor object corresponding to the current HSV color.
   */
   func toColor() -> NSUIColor {
     let  (r, g, b, a) = rgbaComponents()
