@@ -26,19 +26,15 @@ extension NSUIView: BackgroundColorSettable { }
 public extension BackgroundColorSettable where Self: NSView {
     /// The background color of the view.
     dynamic var backgroundColor: NSColor? {
-        get { getAssociatedValue(key: "_viewBackgroundColor", object: self) }
+        get { _backgroundColor }
         set {
             swizzleAnimationForKey()
             var newValue = newValue
             if newValue == nil, String(describing: self).contains("NSViewAnimator") {
-                if let backgroundColor = self.backgroundColor, backgroundColor != .clear {
-                    newValue = backgroundColor.withAlphaComponent(0.0)
-                } else {
-                    newValue = .clear
-                }
+                newValue = .clear
             }
             self._backgroundColor = newValue
-            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
+          //  set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
         }
     }
 }

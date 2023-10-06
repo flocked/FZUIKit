@@ -351,12 +351,12 @@ public class ViewAnimator {
     }
     
     /// The background color of the attached view.
-    public var backgroundColor: NSUIColor {
+    public var backgroundColor: NSUIColor? {
         get {
             if let targetComponents = runningBackgroundColorAnimator?.target {
-                return targetComponents.color
+                return targetComponents.color == .clear ? nil : targetComponents.color
             } else {
-                return view.backgroundColor ?? .clear
+                return view.backgroundColor == .clear ? nil : view.backgroundColor
             }
         }
         set {
@@ -375,7 +375,8 @@ public class ViewAnimator {
             let initialValue = view.backgroundColor ?? .clear
             
             // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
-            let targetValue = (newValue == NSUIColor.clear) ? backgroundColor.withAlphaComponent(0) : newValue
+          //  let targetValue = (newValue == NSUIColor.clear) ? backgroundColor?.withAlphaComponent(0) ?? .clear : newValue ?? .clear
+            let targetValue = newValue == nil ? .clear : newValue!
             
             let animationType = AnimatableProperty.backgroundColor
             
@@ -1052,6 +1053,7 @@ public extension NSUIView {
         set { set(associatedValue: newValue, key: "waveAnimations", object: self) }
     }
 }
+
 #endif
 
 fileprivate extension NSUIView {
