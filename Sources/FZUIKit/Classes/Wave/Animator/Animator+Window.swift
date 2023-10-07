@@ -37,7 +37,7 @@ extension Animator where Object: NSWindow {
 }
 
 fileprivate extension NSWindow {
-    var _frame: CGRect {
+   @objc dynamic var _frame: CGRect {
         get { frame }
         set { setFrame(newValue, display: false) }
     }

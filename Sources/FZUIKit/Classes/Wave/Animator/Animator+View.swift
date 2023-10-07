@@ -129,7 +129,8 @@ fileprivate extension NSUIView {
     var optionalLayer: CALayer? {
         return self.layer
     }
-    var translation: CGPoint {
+    
+    @objc dynamic var translation: CGPoint {
         get { self.optionalLayer?.translation ?? .zero }
         set {
             #if macOS

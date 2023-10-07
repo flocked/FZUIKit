@@ -203,6 +203,10 @@ public class Spring: Equatable {
     static func response(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
         (2.0 * .pi) / sqrt(stiffness * mass)
     }
+    
+    static func damping(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+        dampingRatio * 2 * sqrt(mass * stiffness)
+    }
 
     static func dampingCoefficient(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat) -> CGFloat {
         4.0 * .pi * dampingRatio * mass / response

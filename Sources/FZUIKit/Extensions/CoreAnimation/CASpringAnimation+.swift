@@ -98,4 +98,14 @@ extension CASpringAnimation {
         self.value(forKey: "velocity") as! CGFloat
     }
     
+    internal convenience init(_ spring: Spring) {
+        self.init()
+        
+        self.duration = spring.response
+        self.mass = spring.mass
+        self.stiffness = spring.stiffness
+        self.damping =  spring.dampingRatio * 2 * sqrt(mass * stiffness)
+        Swift.print("springAnimation", damping)
+    }
+    
 }
