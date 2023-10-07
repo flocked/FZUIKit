@@ -376,7 +376,7 @@ public class ViewAnimator {
             
             // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
           //  let targetValue = (newValue == NSUIColor.clear) ? backgroundColor?.withAlphaComponent(0) ?? .clear : newValue ?? .clear
-            let targetValue = newValue == nil ? .clear : newValue!
+            let targetValue = newValue ?? .clear
             
             let animationType = AnimatableProperty.backgroundColor
             
@@ -603,12 +603,12 @@ public class ViewAnimator {
     }
     
     /// The border color of the attached view.
-    public var borderColor: NSUIColor {
+    public var borderColor: NSUIColor? {
         get {
             if let targetComponents = runningBorderColorAnimator?.target {
-                return targetComponents.color
+                return targetComponents.color == .clear ? nil : targetComponents.color
             } else {
-                return view.borderColor ?? .black
+                return view.borderColor == .clear ? nil : view.borderColor
             }
         }
         
@@ -625,20 +625,10 @@ public class ViewAnimator {
             }
             
             // `nil` and `.clear` are the same -- they both are represented by `.white` with an alpha of zero
-            let initialValue: NSUIColor
-            if let borderColor = view.borderColor {
-                initialValue = borderColor
-            } else {
-                initialValue = NSUIColor.black
-            }
+            let initialValue = view.borderColor ?? .clear
             
             // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
-            let targetValue: NSUIColor
-            if newValue == .clear {
-                targetValue = borderColor.withAlphaComponent(0)
-            } else {
-                targetValue = newValue
-            }
+            let targetValue = newValue ?? .clear
             
             let animationType = AnimatableProperty.borderColor
             
@@ -789,12 +779,12 @@ public class ViewAnimator {
         }
     }
     
-    internal var shadowColor: NSUIColor {
+    internal var shadowColor: NSUIColor? {
         get {
             if let targetComponents = runningShadowColorAnimator?.target {
-                return targetComponents.color
+                return targetComponents.color == .clear ? nil : targetComponents.color
             } else {
-                return view.backgroundColor ?? .clear
+                return view.shadowColor == .clear ? nil : view.shadowColor
             }
         }
         
@@ -811,20 +801,17 @@ public class ViewAnimator {
             }
             
             // `nil` and `.clear` are the same -- they both are represented by `.white` with an alpha of zero
-            let initialValue: NSUIColor
-            if let shadowColor = view.shadowColor {
-                initialValue = shadowColor
-            } else {
-                initialValue = .clear
-            }
+            let initialValue = view.shadowColor ?? .clear
             
             // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
-            let targetValue: NSUIColor
+            let targetValue = newValue ?? .clear
+            /*
             if newValue == .clear {
                 targetValue = shadowColor.withAlphaComponent(0)
             } else {
                 targetValue = newValue
             }
+             */
             
             let animationType = AnimatableProperty.shadowColor
             
@@ -968,6 +955,8 @@ extension ViewAnimator {
         animation.start(afterDelay: delay)
     }
     
+   // private func springAnimation<Value>(for keyPath)
+        
     private var runningCenterAnimator: SpringAnimator<CGPoint>? {
         view.waveAnimations[AnimatableProperty.frameCenter] as? SpringAnimator<CGPoint>
     }
@@ -1052,6 +1041,12 @@ public extension NSUIView {
         get { getAssociatedValue(key: "waveAnimations", object: self, initialValue: [:]) }
         set { set(associatedValue: newValue, key: "waveAnimations", object: self) }
     }
+    
+    internal var waveAnimationsNew: [PartialKeyPath<ViewAnimator>: AnimationProviding] {
+        get { getAssociatedValue(key: "waveAnimations", object: self, initialValue: [:]) }
+        set { set(associatedValue: newValue, key: "waveAnimations", object: self) }
+    }
+    
 }
 
 #endif
