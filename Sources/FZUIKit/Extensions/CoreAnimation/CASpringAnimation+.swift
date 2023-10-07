@@ -93,11 +93,7 @@ extension CASpringAnimation {
     public static func snappy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> CASpringAnimation {
         CASpringAnimation(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
     }
-    
-    public var velocity: CGFloat {
-        self.value(forKey: "velocity") as! CGFloat
-    }
-    
+
     internal convenience init(_ spring: Spring) {
         self.init()
         self.mass = spring.mass

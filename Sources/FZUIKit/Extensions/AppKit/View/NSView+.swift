@@ -736,17 +736,6 @@ internal extension NSView {
     }
     
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        if NSViewAnimationKeysAlt.contains(key) {
-            if let spring = NSAnimationContext.current.spring {
-                let springAnimation = CASpringAnimation(spring)
-                if let velocity = (animations[key] as? CASpringAnimation)?.velocity {
-                    Swift.print("velocity", velocity)
-                    springAnimation.initialVelocity = velocity
-                }
-                animations[key] = springAnimation
-                return springAnimation
-            }
-        }
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
@@ -764,8 +753,6 @@ internal extension NSView {
 }
 
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "scale"]
-
-private let NSViewAnimationKeysAlt = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "frame", "bounds", "alphaValue", "shadow", "scale"]
 
 #endif
 
