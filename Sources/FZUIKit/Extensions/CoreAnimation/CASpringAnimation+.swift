@@ -26,8 +26,9 @@ extension CASpringAnimation {
         self.init()
         self.mass = mass
         self.stiffness = stiffness
-        self.damping = dampingRatio * 2 * sqrt(mass * stiffness)
-        self.duration = Spring.response(stiffness: stiffness, mass: mass)
+        let response = Spring.response(stiffness: stiffness, mass: mass)
+        self.damping = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
+        self.duration = self.settlingDuration
     }
     
     /**
@@ -47,9 +48,10 @@ extension CASpringAnimation {
     public convenience init(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat = 1.0) {
         self.init()
         self.mass = mass
-      //  self.duration = response
         self.stiffness = Spring.stiffness(response: response, mass: mass)
-        self.damping = 4 * .pi * dampingRatio * mass / response
+        let unbandedDamping = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
+        self.damping = rubberband(value: unbandedDamping, range: 0 ... 60, interval: 15)
+        self.duration = self.settlingDuration
     }
     
     /// A spring animation with a predefined duration and higher amount of bounce.
@@ -93,13 +95,4 @@ extension CASpringAnimation {
     public static func snappy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> CASpringAnimation {
         CASpringAnimation(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
     }
-
-    internal convenience init(_ spring: Spring) {
-        self.init()
-        self.mass = spring.mass
-        self.stiffness =  pow(2 * .pi / spring.response, 2)
-        self.damping = 4 * .pi * spring.dampingRatio * spring.mass / spring.response
-        self.duration = spring.response
-    }
-    
 }
