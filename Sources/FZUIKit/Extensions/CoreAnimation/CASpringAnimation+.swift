@@ -106,7 +106,7 @@ extension CASpringAnimation {
         let damping =  spring.dampingRatio * 2 * sqrt(spring.mass * spring.stiffness)
         let unbandedDampingCoefficient = Spring.dampingCoefficient(dampingRatio: spring.dampingRatio, response: spring.response, mass: spring.mass)
         self.damping = spring.dampingCoefficient
-        Swift.print("spring ", self.damping, spring.dampingCoefficient, unbandedDampingCoefficient, spring.dampingRatio)
+        Swift.print("spring ", damping, spring.dampingCoefficient, unbandedDampingCoefficient, spring.dampingRatio)
       //  self.duration = spring.response
     }
     
