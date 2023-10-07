@@ -23,15 +23,9 @@ public extension NSUIView {
             return visualEffectBackgroundView?.contentProperties
         }
         set {
-            Swift.print("visualEffect set")
             if let newValue = newValue {
-                swizzleAnimationForKey()
                 if visualEffectBackgroundView == nil {
                     visualEffectBackgroundView = TaggedVisualEffectView()
-                    if String(describing: self).contains("NSViewAnimator") {
-                        visualEffectBackgroundView?.alphaValue = 0.0
-                        visualEffectBackgroundView?.animator().alphaValue = 1.0
-                    }
                 }
                 visualEffectBackgroundView?.contentProperties = newValue
 #if os(macOS)
@@ -40,18 +34,9 @@ public extension NSUIView {
                 }
 #endif
             } else {
-                if String(describing: self).contains("NSViewAnimator") {
-                    visualEffectBackgroundView?.animator().removeFromSuperview()
-                } else {
-                    visualEffectBackgroundView = nil
-                }
+                visualEffectBackgroundView = nil
             }
         }
-    }
-    
-     @objc internal dynamic var _visualEffect: CGFloat {
-        get { 0 }
-        set {  }
     }
     
     internal var visualEffectBackgroundView: TaggedVisualEffectView? {
