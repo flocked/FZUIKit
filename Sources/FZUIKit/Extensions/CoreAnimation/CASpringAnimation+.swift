@@ -47,9 +47,10 @@ extension CASpringAnimation {
     public convenience init(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat = 1.0) {
         self.init()
         self.mass = mass
-        self.duration = response
+      //  self.duration = response
         self.stiffness = Spring.stiffness(response: response, mass: mass)
-        self.damping = dampingRatio * 2 * sqrt(mass * stiffness)
+        self.damping = 4 * .pi * dampingRatio * mass / response
+        Swift.print(self.stiffness, self.damping, self.settlingDuration, self.duration)
     }
     
     /// A spring animation with a predefined duration and higher amount of bounce.
@@ -103,10 +104,11 @@ extension CASpringAnimation {
         Swift.print("spring start", self.settlingDuration, self.mass, self.stiffness, self.damping)
         self.mass = spring.mass
         self.stiffness = spring.stiffness
-        let damping =  spring.dampingRatio * 2 * sqrt(spring.mass * spring.stiffness)
+        self.damping = 4 * .pi * spring.dampingRatio * spring.mass / spring.response
+
         let unbandedDampingCoefficient = Spring.dampingCoefficient(dampingRatio: spring.dampingRatio, response: spring.response, mass: spring.mass)
-        self.damping = spring.dampingCoefficient
         Swift.print("spring ", damping, spring.dampingCoefficient, unbandedDampingCoefficient, spring.dampingRatio)
+        Swift.print("spring ", self.settlingDuration, self.duration)
       //  self.duration = spring.response
     }
     
