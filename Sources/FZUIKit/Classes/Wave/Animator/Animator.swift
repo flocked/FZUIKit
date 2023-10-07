@@ -106,7 +106,8 @@ internal extension Animator {
     }
     
     func setValue<Value: SpringInterpolatable>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>) where Value.ValueType == Value, Value.VelocityType == Value {
-        guard animation(for: keyPath)?.target ?? object[keyPath: keyPath] != newValue else {
+        Swift.print("setSpring Start")
+        guard (animation(for: keyPath)?.target ?? object[keyPath: keyPath]) != newValue else {
             return
         }
         
@@ -119,6 +120,8 @@ internal extension Animator {
         
         let initialValue = object[keyPath: keyPath] ?? Value.VelocityType.zero
         let targetValue = newValue ?? Value.VelocityType.zero
+        
+        Swift.print("setSpring", object[keyPath: keyPath] ?? "nil", initialValue, targetValue)
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
 
