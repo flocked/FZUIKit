@@ -24,6 +24,7 @@ public extension NSUIView {
         }
         set {
             if let newValue = newValue {
+                swizzleAnimationForKey()
                 if visualEffectBackgroundView == nil {
                     visualEffectBackgroundView = TaggedVisualEffectView()
                     if String(describing: self).contains("NSViewAnimator") {
