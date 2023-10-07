@@ -232,7 +232,7 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
 
         var animationFinished = (runningTime >= settlingTime) || !isAnimated
         
-        Swift.print("Ewuff")
+        Swift.print("isApproximatelyEqual", newValue.isApproximatelyEqual(to: target, epsilon: 0.001))
         if animationFinished == false {
             animationFinished = newValue.isApproximatelyEqual(to: target, epsilon: 0.001)
         }
