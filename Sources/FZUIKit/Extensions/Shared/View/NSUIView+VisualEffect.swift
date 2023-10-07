@@ -18,26 +18,31 @@ public extension NSUIView {
      
      The property adds a visual effect view as background to the view. The default value is nil.
      */
-    var visualEffect: ContentConfiguration.VisualEffect? {
+    dynamic var visualEffect: ContentConfiguration.VisualEffect? {
         get {
             return visualEffectBackgroundView?.contentProperties
         }
         set {
             if let newValue = newValue {
-                if let visualEffectView = visualEffectBackgroundView {
-                    visualEffectView.contentProperties = newValue
-                } else {
+                if visualEffectBackgroundView == nil {
                     visualEffectBackgroundView = TaggedVisualEffectView()
-                    visualEffectBackgroundView?.constraint(to: self)
-                    visualEffectBackgroundView?.contentProperties = newValue
+                    if String(describing: self).contains("NSViewAnimator") {
+                        visualEffectBackgroundView?.alpha = 0.0
+                        visualEffectBackgroundView?.animator().alpha = 1.0
+                    }
                 }
+                visualEffectBackgroundView?.contentProperties = newValue
 #if os(macOS)
                 if let appearance = newValue.appearance {
                     self.appearance = appearance
                 }
 #endif
             } else {
-                visualEffectBackgroundView = nil
+                if String(describing: self).contains("NSViewAnimator") {
+                    visualEffectBackgroundView?.animator().removeFromSuperview()
+                } else {
+                    visualEffectBackgroundView = nil
+                }
             }
         }
     }
@@ -51,6 +56,7 @@ public extension NSUIView {
             }
             if let newValue = newValue {
                 insertSubview(newValue, at: 0)
+                newValue.constraint(to: self)
             }
         }
     }
