@@ -28,7 +28,7 @@ extension CASpringAnimation {
         self.stiffness = stiffness
         let response = Spring.response(stiffness: stiffness, mass: mass)
         self.damping = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
-        self.duration = self.settlingDuration
+        self.duration = response
     }
     
     /**
@@ -51,7 +51,7 @@ extension CASpringAnimation {
         self.stiffness = Spring.stiffness(response: response, mass: mass)
         let unbandedDamping = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
         self.damping = rubberband(value: unbandedDamping, range: 0 ... 60, interval: 15)
-        self.duration = self.settlingDuration
+        self.duration = response
     }
     
     /// A spring animation with a predefined duration and higher amount of bounce.
