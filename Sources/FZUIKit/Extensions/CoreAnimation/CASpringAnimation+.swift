@@ -104,7 +104,7 @@ extension CASpringAnimation {
         self.duration = spring.response
         self.mass = spring.mass
         self.stiffness = spring.stiffness
-        self.damping =  spring.dampingRatio * 2 * sqrt(mass * stiffness)
+        self.damping =  Spring.dampingCoefficient(dampingRatio: spring.dampingRatio, response: spring.response, mass: spring.mass)
         Swift.print("springAnimation", damping)
     }
     
