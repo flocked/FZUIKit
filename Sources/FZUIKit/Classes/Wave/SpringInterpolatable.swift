@@ -289,11 +289,22 @@ extension CGRect: SpringInterpolatable, VelocityProviding {
     public typealias VelocityType = CGRect
 
     public static func updateValue(spring: Spring, value: CGRect, target: CGRect, velocity: CGRect, dt: TimeInterval) -> (value: CGRect, velocity: CGRect) {
+        
+        let newX = CGFloat.updateValue(spring: spring, value: value.x, target: target.x, velocity: velocity.x, dt: dt)
+        let newY = CGFloat.updateValue(spring: spring, value: value.y, target: target.y, velocity: velocity.y, dt: dt)
+        let newW = CGFloat.updateValue(spring: spring, value: value.width, target: target.width, velocity: velocity.width, dt: dt)
+        let newH = CGFloat.updateValue(spring: spring, value: value.height, target: target.height, velocity: velocity.height, dt: dt)
+
+        let newValue = CGRect(newX.value, newY.value, newW.value, newH.value)
+        let newVelocity = CGRect(newX.velocity, newY.velocity, newW.velocity, newH.velocity)
+
+        /*
         let (origin, originVelocity) = CGPoint.updateValue(spring: spring, value: value.origin, target: target.origin, velocity: velocity.origin, dt: dt)
         let (size, sizeVelocity) = CGSize.updateValue(spring: spring, value: value.size, target: target.size, velocity: velocity.size, dt: dt)
 
         let newValue = CGRect(x: origin.x, y: origin.y, width: size.width, height: size.height)
         let newVelocity = CGRect(x: originVelocity.x, y: originVelocity.y, width: sizeVelocity.width, height: sizeVelocity.height)
+        */
 
         return (value: newValue, velocity: newVelocity)
     }
