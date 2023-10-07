@@ -40,26 +40,6 @@ public protocol SIMDRepresentable {
     static var zero: Self { get }
 }
 
-extension CGFloat: SIMDRepresentable {
-    public static func valueForSIMD(_ simdRepresentation: SIMD2<CGFloat.NativeType>) -> CGFloat {
-        return simdRepresentation[0]
-    }
-    
-    public func simdRepresentation() -> SIMD2<CGFloat.NativeType> {
-        return [self, 0]
-    }
-}
-
-extension CGPoint: SIMDRepresentable {
-    public static func valueForSIMD(_ simdRepresentation: SIMD2<CGFloat.NativeType>) -> CGPoint {
-        return CGPoint(simdRepresentation[0], simdRepresentation[1])
-    }
-    
-    public func simdRepresentation() -> SIMD2<CGFloat.NativeType> {
-        return [x, y]
-    }
-}
-
 extension CGAffineTransform: SIMDRepresentable {
     public static func valueForSIMD(_ simdRepresentation: SIMD8<CGFloat.NativeType>) -> CGAffineTransform {
         CGAffineTransform(simdRepresentation[0], simdRepresentation[1], simdRepresentation[2], simdRepresentation[3], simdRepresentation[4], simdRepresentation[5])
@@ -79,7 +59,17 @@ extension CATransform3D: SIMDRepresentable {
         return [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]
     }
 }
-
+/*
+ extension CGPoint: SIMDRepresentable {
+     public static func valueForSIMD(_ simdRepresentation: SIMD2<CGFloat.NativeType>) -> CGPoint {
+         return CGPoint(simdRepresentation[0], simdRepresentation[1])
+     }
+     
+     public func simdRepresentation() -> SIMD2<CGFloat.NativeType> {
+         return [x, y]
+     }
+ }
+ 
 extension CGSize: SIMDRepresentable {
     public static func valueForSIMD(_ simdRepresentation: SIMD2<CGFloat.NativeType>) -> CGSize {
         return CGSize(simdRepresentation[0], simdRepresentation[1])
@@ -99,6 +89,7 @@ extension CGRect: SIMDRepresentable  {
         return [x, y, width, height]
     }
 }
+*/
 
 extension NSUIColor: SIMDRepresentable {
     public static func valueForSIMD(_ simdRepresentation: SIMD4<CGFloat.NativeType>) -> Self {
