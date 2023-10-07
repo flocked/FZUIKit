@@ -201,6 +201,56 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
         velocity = .zero
         state = .inactive
     }
+    
+    func updateAnimation(dt: TimeInterval) where T.ValueType: EquatableEnough {
+        guard let value = value, let target = target else {
+            // Can't start an animation without a value and target
+            state = .inactive
+            return
+        }
+
+        state = .running
+
+        guard let runningTime = runningTime else {
+            fatalError("Found a nil `runningTime` even though the animation's state is \(state)")
+        }
+
+        let newValue: T.ValueType
+        let newVelocity: T.VelocityType
+
+        let isAnimated = spring.response > .zero && mode != .nonAnimated
+
+        if isAnimated {
+            (newValue, newVelocity) = T.updateValue(spring: spring, value: value, target: target, velocity: velocity, dt: dt)
+        } else {
+            newValue = target
+            newVelocity = T.VelocityType.zero
+        }
+
+        self.value = newValue
+        velocity = newVelocity
+
+        var animationFinished = (runningTime >= settlingTime) || !isAnimated
+        
+        if animationFinished == false {
+            animationFinished = newValue.isApproximatelyEqual(to: target, epsilon: 0.001)
+        }
+
+        if animationFinished {
+            self.value = target
+        }
+
+        if let value = self.value {
+            let callbackValue = integralizeValues ? value.scaledIntegral : value
+            valueChanged?(callbackValue)
+        }
+
+        if animationFinished {
+            // If an animation finishes on its own, call the completion handler with value `target`.
+            completion?(.finished(at: target))
+            state = .ended
+        }
+    }
 
     func updateAnimation(dt: TimeInterval) {
         guard let value = value, let target = target else {
@@ -230,7 +280,7 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
         self.value = newValue
         velocity = newVelocity
 
-        let animationFinished = (runningTime >= settlingTime) || !isAnimated
+        var animationFinished = (runningTime >= settlingTime) || !isAnimated
 
         if animationFinished {
             self.value = target
