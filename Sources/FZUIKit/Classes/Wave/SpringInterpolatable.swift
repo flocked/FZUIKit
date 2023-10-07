@@ -80,4 +80,5 @@ extension CGAffineTransform: SpringInterpolatable, VelocityProviding {
         CGAffineTransform()
     }
 }
+
 #endif
