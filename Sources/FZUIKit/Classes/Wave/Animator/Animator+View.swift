@@ -6,41 +6,15 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-import CoreGraphics
-import Foundation
-import FZSwiftUtils
-
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
 
-/**
- The `ViewAnimator` class contains the supported NSView/UIView animatable properties, like `frame`, `center`, `cornerRadius`, and more.
- 
- In an Wave animation block, change these values to create an animation, like so:
- 
- Example usage:
- ```swift
- Wave.animate(withSpring: spring) {
- myView.animator.center = CGPoint(x: 100, y: 100)
- myView.animator.alpha = 0.5
- }
- ```
- */
-public class ViewAnimator {
-    private var view: NSUIView
-    
-    internal init(view: NSUIView) {
-        self.view = view
-#if os(macOS)
-        self.view.wantsLayer = true
-#endif
-    }
-    
-    // MARK: - Public
-    
+extension NSUIView: Animatable { }
+
+extension Animator where Object: NSUIView {
     /// The bounds of the view.
     public var bounds: CGRect {
         get { value(for: \.bounds) }
@@ -151,137 +125,6 @@ public class ViewAnimator {
     }
 }
 
-extension ViewAnimator {
-    private func animation<Val>(for keyPath: WritableKeyPath<NSView, Val?>) -> SpringAnimator<Val>? {
-        guard let keyPath = keyPath._kvcKeyPathString else { return nil }
-        return view.waveAnimations[keyPath] as? SpringAnimator<Val>
-    }
-    
-    private func animation<Val>(for keyPath: WritableKeyPath<NSView, Val>) -> SpringAnimator<Val>? {
-        guard let keyPath = keyPath._kvcKeyPathString else { return nil }
-        return view.waveAnimations[keyPath] as? SpringAnimator<Val>
-    }
-    
-    func value<Value: SpringInterpolatable>(for keyPath: WritableKeyPath<NSView, Value>) -> Value where Value.ValueType == Value, Value.VelocityType == Value {
-        return animation(for: keyPath)?.target ?? view[keyPath: keyPath]
-    }
-    
-    func value<Value: SpringInterpolatable>(for keyPath: WritableKeyPath<NSView, Value?>) -> Value? where Value.ValueType == Value, Value.VelocityType == Value {
-        return animation(for: keyPath)?.target ?? view[keyPath: keyPath]
-    }
-    
-    func setValue<Value: SpringInterpolatable>(_ newValue: Value, for keyPath: WritableKeyPath<NSView, Value>) where Value.ValueType == Value, Value.VelocityType == Value {
-        guard animation(for: keyPath)?.target ?? view[keyPath: keyPath] != newValue else {
-            return
-        }
-        
-        guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
-                self.setValue(newValue, for: keyPath)
-            }
-            return
-        }
-        
-        let initialValue = view[keyPath: keyPath]
-        let targetValue = newValue
-        
-        AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
-
-        let animation = (animation(for: keyPath) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
-        animation.configure(withSettings: settings)
-        if let gestureVelocity = settings.gestureVelocity {
-            (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
-            (animation as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
-        }
-        animation.target = targetValue
-        animation.valueChanged = { [weak self] value in
-            self?.view[keyPath: keyPath] = value
-        }
-        let groupUUID = animation.groupUUID
-        guard let animationKey = keyPath._kvcKeyPathString else { return }
-        animation.completion = { [weak self] event in
-            switch event {
-            case .finished:
-                self?.view.waveAnimations.removeValue(forKey: animationKey)
-                AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
-            default:
-                break
-            }
-        }
-        view.waveAnimations[animationKey] = animation
-        animation.start(afterDelay: settings.delay)
-    }
-    
-    func setValue<Value: SpringInterpolatable>(_ newValue: Value?, for keyPath: WritableKeyPath<NSView, Value?>) where Value.ValueType == Value, Value.VelocityType == Value {
-        guard animation(for: keyPath)?.target ?? view[keyPath: keyPath] != newValue else {
-            return
-        }
-        
-        guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
-                self.setValue(newValue, for: keyPath)
-            }
-            return
-        }
-        
-        let initialValue = view[keyPath: keyPath] ?? Value.VelocityType.zero
-        let targetValue = newValue ?? Value.VelocityType.zero
-        
-        AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
-
-        let animation = (animation(for: keyPath) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
-        animation.configure(withSettings: settings)
-        if let gestureVelocity = settings.gestureVelocity {
-            (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
-            (animation as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
-        }
-        animation.target = targetValue
-        animation.valueChanged = { [weak self] value in
-            self?.view[keyPath: keyPath] = value
-        }
-        let groupUUID = animation.groupUUID
-        guard let animationKey = keyPath._kvcKeyPathString else { return }
-        animation.completion = { [weak self] event in
-            switch event {
-            case .finished:
-                self?.view.waveAnimations.removeValue(forKey: animationKey)
-                AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
-            default:
-                break
-            }
-        }
-        view.waveAnimations[animationKey] = animation
-        animation.start(afterDelay: settings.delay)
-    }
-}
-
-public extension NSUIView {
-    /**
-     Use the `animator` property to set any animatable properties on a `UIView` in an ``Wave.animateWith(...)`` animation block.
-
-     Example usage:
-     ```swift
-     Wave.animateWith(spring: spring) {
-        myView.animator.center = CGPoint(x: 100, y: 100)
-        myView.animator.alpha = 0.5
-     }
-     ```
-
-     See ``ViewAnimator`` for a list of supported animatable properties on `UIView`.
-     */
-    var animator: ViewAnimator {
-        get { getAssociatedValue(key: "Animator", object: self, initialValue: ViewAnimator(view: self)) }
-        set { set(associatedValue: newValue, key: "Animator", object: self) }
-    }
-    
-    internal var waveAnimations: [String: AnimationProviding] {
-        get { getAssociatedValue(key: "waveAnimations", object: self, initialValue: [:]) }
-        set { set(associatedValue: newValue, key: "waveAnimations", object: self) }
-    }
-}
-
-#endif
-
 fileprivate extension NSUIView {
     var optionalLayer: CALayer? {
         return self.layer
@@ -297,17 +140,8 @@ fileprivate extension NSUIView {
     }
 }
 
-/*
- var animator: ViewAnimator {
-     get { getAssociatedValue(key: "Animator", object: self, initialValue: ViewAnimator(view: self)) }
-     set { set(associatedValue: newValue, key: "Animator", object: self) }
- }
+#endif
 
- internal var waveAnimations: [PartialKeyPath<ViewAnimator>: AnimationProviding] {
-     get { getAssociatedValue(key: "waveAnimations", object: self, initialValue: [:]) }
-     set { set(associatedValue: newValue, key: "waveAnimations", object: self) }
- }
- */
 
 /*
  public var transform: CGAffineTransform {
