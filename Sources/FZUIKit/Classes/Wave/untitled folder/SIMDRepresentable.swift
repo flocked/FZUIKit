@@ -59,7 +59,7 @@ extension CATransform3D: SIMDRepresentable {
         return [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]
     }
 }
-/*
+
  extension CGPoint: SIMDRepresentable {
      public static func valueForSIMD(_ simdRepresentation: SIMD2<CGFloat.NativeType>) -> CGPoint {
          return CGPoint(simdRepresentation[0], simdRepresentation[1])
@@ -89,8 +89,9 @@ extension CGRect: SIMDRepresentable  {
         return [x, y, width, height]
     }
 }
-*/
 
+
+/*
 extension NSUIColor: SIMDRepresentable {
     public static func valueForSIMD(_ simdRepresentation: SIMD4<CGFloat.NativeType>) -> Self {
         return Self(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3])
@@ -101,3 +102,5 @@ extension NSUIColor: SIMDRepresentable {
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
     }
 }
+
+*/
