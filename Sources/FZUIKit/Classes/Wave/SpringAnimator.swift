@@ -230,11 +230,7 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
         self.value = newValue
         velocity = newVelocity
 
-        var animationFinished = (runningTime >= settlingTime) || !isAnimated
-        
-        if animationFinished == false {
-            animationFinished = newValue.isApproximatelyEqual(to: target, epsilon: 0.001)
-        }
+        let animationFinished = (runningTime >= settlingTime) || !isAnimated
 
         if animationFinished {
             self.value = target
