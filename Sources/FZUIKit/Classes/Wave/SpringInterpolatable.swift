@@ -254,7 +254,38 @@ extension CATransform3D: SpringInterpolatable, VelocityProviding {
 
 extension CGPoint: SpringInterpolatable, VelocityProviding { }
 extension CGSize: SpringInterpolatable, VelocityProviding { }
-extension CGRect: SpringInterpolatable, VelocityProviding { }
+extension CGRect: SpringInterpolatable, VelocityProviding {
+    public typealias ValueType = CGRect
+    public typealias VelocityType = CGRect
+    
+    public static func updateValue(spring: Spring, value: CGRect, target: CGRect, velocity: CGRect, dt: TimeInterval) -> (value: CGRect, velocity: CGRect) {
+        let newX = CGFloat.updateValue(spring: spring, value: value.x, target: target.x, velocity: velocity.x, dt: dt)
+        let newY = CGFloat.updateValue(spring: spring, value: value.x, target: target.x, velocity: velocity.x, dt: dt)
+        let newWidht = CGFloat.updateValue(spring: spring, value: value.x, target: target.x, velocity: velocity.x, dt: dt)
+        let newHeight = CGFloat.updateValue(spring: spring, value: value.x, target: target.x, velocity: velocity.x, dt: dt)
+        
+        let newValue = CGRect(newX.value, newY.value, newWidht.value, newHeight.value)
+        let newVelocity = CGRect(newX.velocity, newY.velocity, newWidht.velocity, newHeight.velocity)
+        return (newValue, newVelocity)
+
+        /*
+        let displacement = value - target
+        let springForce = (-spring.stiffness * displacement)
+        let dampingForce = (spring.dampingCoefficient * velocity)
+        let force = springForce - dampingForce
+        let acceleration = force / spring.mass
+        
+        let newVelocity = (velocity + (acceleration * dt))
+        let newValue = (value + (newVelocity * dt))
+        
+        return (value: CGRect(newValue), velocity: CGRect(newVelocity))
+         */
+    }
+    
+    internal init(_ simdRepresentation: SIMD4<CGFloat.NativeType>) {
+        self.init(simdRepresentation[0], simdRepresentation[1], simdRepresentation[2], simdRepresentation[3])
+    }
+}
 extension NSUIColor: SpringInterpolatable, VelocityProviding {
     public static var zero: Self {
         NSUIColor(red: 0, green: 0, blue: 0, alpha: 0) as! Self
