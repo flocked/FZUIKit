@@ -353,11 +353,8 @@ public class ViewAnimator {
     /// The background color of the attached view.
     public var backgroundColor: NSUIColor? {
         get {
-            if let targetComponents = runningBackgroundColorAnimator?.target {
-                return targetComponents.color == .clear ? nil : targetComponents.color
-            } else {
-                return view.backgroundColor == .clear ? nil : view.backgroundColor
-            }
+            let color = runningBackgroundColorAnimator?.target ?? view.backgroundColor
+            return color == .clear ? nil : color
         }
         set {
             guard backgroundColor != newValue else {
@@ -383,11 +380,11 @@ public class ViewAnimator {
             // Re-targeting an animation.
             AnimationController.shared.executeHandler(uuid: runningBackgroundColorAnimator?.groupUUID, finished: false, retargeted: true)
             
-            let initialValueComponents = RGBAComponents(color: initialValue)
-            let targetValueComponents = RGBAComponents(color: targetValue)
+            let initialValueComponents = initialValue
+            let targetValueComponents = targetValue
             
             let animation = (runningBackgroundColorAnimator ??
-                             SpringAnimator<RGBAComponents>(
+                             SpringAnimator<NSUIColor>(
                                 spring: settings.spring,
                                 value: initialValueComponents,
                                 target: targetValueComponents
@@ -397,8 +394,8 @@ public class ViewAnimator {
             animation.configure(withSettings: settings)
             
             animation.target = targetValueComponents
-            animation.valueChanged = { [weak self] components in
-                self?.view.backgroundColor = components.color
+            animation.valueChanged = { [weak self] color in
+                self?.view.backgroundColor = color
             }
             
             let groupUUID = animation.groupUUID
@@ -985,8 +982,8 @@ extension ViewAnimator {
         view.waveAnimations[AnimatableProperty.cornerRadius] as? SpringAnimator<CGFloat>
     }
     
-    private var runningBackgroundColorAnimator: SpringAnimator<RGBAComponents>? {
-        view.waveAnimations[AnimatableProperty.backgroundColor] as? SpringAnimator<RGBAComponents>
+    private var runningBackgroundColorAnimator: SpringAnimator<NSUIColor>? {
+        view.waveAnimations[AnimatableProperty.backgroundColor] as? SpringAnimator<NSUIColor>
     }
     
     private var runningBorderColorAnimator: SpringAnimator<RGBAComponents>? {
