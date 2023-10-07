@@ -18,7 +18,9 @@ public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLi
 
 extension Float: FloatingPointInitializable, EquatableEnough {}
 extension Double: FloatingPointInitializable, EquatableEnough {}
-extension CGFloat: FloatingPointInitializable, EquatableEnough {}
+extension CGFloat: FloatingPointInitializable {
+    
+}
 
 public protocol EquatableEnough {
     associatedtype EpsilonType: EquatableEnough, FloatingPointInitializable

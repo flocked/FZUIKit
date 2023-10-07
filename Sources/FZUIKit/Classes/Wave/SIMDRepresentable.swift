@@ -29,6 +29,18 @@ public protocol SIMDRepresentable {
     func simdRepresentation() -> SIMDType
 }
 
+extension CGFloat: SIMDRepresentable {
+    /// Initializes with a `SIMD2`.
+    public init(_ simdRepresentation: SIMD2<CGFloat.NativeType>) {
+        self.init(simdRepresentation[0])
+    }
+     
+     /// `SIMD2` representation of the value.
+     public func simdRepresentation() -> SIMD2<CGFloat.NativeType> {
+         return [self, 0]
+     }
+ }
+
 extension CGPoint: SIMDRepresentable {    
     /// Initializes with a `SIMD2`.
     public init(_ simdRepresentation: SIMD2<CGFloat.NativeType>) {
@@ -86,5 +98,18 @@ extension CATransform3D: SIMDRepresentable {
     /// `SIMD16` representation of the value.
     public func simdRepresentation() -> SIMD16<CGFloat.NativeType> {
         return [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]
+    }
+}
+
+extension NSUIColor: SIMDRepresentable {
+    public func simdRepresentation() -> SIMD4<CGFloat.NativeType> {
+        let rgba = self.rgbaComponents()
+        return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
+    }
+}
+
+extension SIMDRepresentable where Self: NSUIColor {
+    public init(_ simdRepresentation: SIMD4<CGFloat.NativeType>) {
+        self.init(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3])
     }
 }
