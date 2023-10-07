@@ -51,7 +51,7 @@ extension Animator where Object: NSUIView {
     /// The background color of the view.
     public var backgroundColor: NSUIColor? {
         get { value(for: \.backgroundColor) }
-        set { setValue(newValue, for: \.backgroundColor) }
+        set { setValue(newValue, for: \._backgroundColor) }
     }
         
     /// The alpha value of the view.
