@@ -60,6 +60,7 @@ extension CGFloat: SpringInterpolatable, VelocityProviding {
     }
 }
 
+/*
  extension CGSize: SpringInterpolatable, VelocityProviding {
      public static func updateValue(spring: Spring, value: CGSize, target: CGSize, velocity: CGSize, dt: TimeInterval) -> (value: CGSize, velocity: CGSize) {
          let (newValueX, newVelocityX) = CGFloat.updateValue(spring: spring, value: value.width, target: target.width, velocity: velocity.width, dt: dt)
@@ -86,52 +87,8 @@ extension CGFloat: SpringInterpolatable, VelocityProviding {
  }
 
  extension CGRect: SpringInterpolatable, VelocityProviding {
-     public static func upVal(spring: Spring, value: CGPoint, target: CGPoint, velocity: CGPoint, dt: TimeInterval) -> (value: CGPoint, velocity: CGPoint) {
-         let value = value.simdRepresentation()
-         let target = target.simdRepresentation()
-         let velocity = velocity.simdRepresentation()
-
-         let displacement = value - target
-         let springForce = (-spring.stiffness * displacement)
-         let dampingForce = (spring.dampingCoefficient * velocity)
-         let force = springForce - dampingForce
-         let acceleration = force / spring.mass
-         
-         let newVelocity = (velocity + (acceleration * dt))
-         let newValue = (value + (newVelocity * dt))
-         
-         return (value: CGPoint.valueForSIMD(newValue), velocity: CGPoint.valueForSIMD(newVelocity))
-     }
-     
-     public static func upVal(spring: Spring, value: CGSize, target: CGSize, velocity: CGSize, dt: TimeInterval) -> (value: CGSize, velocity: CGSize) {
-         let value = value.simdRepresentation()
-         let target = target.simdRepresentation()
-         let velocity = velocity.simdRepresentation()
-
-         let displacement = value - target
-         let springForce = (-spring.stiffness * displacement)
-         let dampingForce = (spring.dampingCoefficient * velocity)
-         let force = springForce - dampingForce
-         let acceleration = force / spring.mass
-         
-         let newVelocity = (velocity + (acceleration * dt))
-         let newValue = (value + (newVelocity * dt))
-         
-         return (value: CGSize.valueForSIMD(newValue), velocity: CGSize.valueForSIMD(newVelocity))
-     }
-     
      public static func updateValue(spring: Spring, value: CGRect, target: CGRect, velocity: CGRect, dt: TimeInterval) -> (value: CGRect, velocity: CGRect) {
          
-         let valOrigin = value.origin.simdRepresentation()
-         let valSize = value.size.simdRepresentation()
-         
-         let newOr = upVal(spring: spring, value: value.origin, target: target.origin, velocity: velocity.origin, dt: dt)
-         let newSz = upVal(spring: spring, value: value.size, target: target.size, velocity: velocity.size, dt: dt)
-
-         let newValue = CGRect(newOr.value, newSz.value)
-         let newVelocity = CGRect(newOr.velocity, newSz.velocity)
-         return (newValue, newVelocity)
-         /*
          let newX = CGFloat.updateValue(spring: spring, value: value.x, target: target.x, velocity: velocity.x, dt: dt)
          let newY = CGFloat.updateValue(spring: spring, value: value.y, target: target.y, velocity: velocity.y, dt: dt)
          let newW = CGFloat.updateValue(spring: spring, value: value.width, target: target.width, velocity: velocity.width, dt: dt)
@@ -141,7 +98,6 @@ extension CGFloat: SpringInterpolatable, VelocityProviding {
          let newVelocity = CGRect(newX.velocity, newY.velocity, newW.velocity, newH.velocity)
 
          return (value: newValue, velocity: newVelocity)
-          */
      }
  }
 
@@ -252,6 +208,57 @@ extension CATransform3D: SpringInterpolatable, VelocityProviding {
     
     public var scaledIntegral: CATransform3D {
         self
+    }
+}
+*/
+ 
+
+extension CGSize: SpringInterpolatable, VelocityProviding { }
+extension CGPoint: SpringInterpolatable, VelocityProviding { }
+extension CGRect: SpringInterpolatable, VelocityProviding { 
+ public static func updateValue(spring: Spring, value: CGRect, target: CGRect, velocity: CGRect, dt: TimeInterval) -> (value: CGRect, velocity: CGRect) {
+     let origin = CGPoint.updateValue(spring: spring, value: value.origin, target: target.origin, velocity: velocity.origin, dt: dt)
+    let size = CGSize.updateValue(spring: spring, value: value.size, target: target.size, velocity: velocity.size, dt: dt)
+
+     let newValue = CGRect(origin.value, size.value)
+     let newVelocity = CGRect(origin.velocity, size.velocity)
+
+     return (newValue, newVelocity)
+ }
+ }
+extension NSUIColor: SpringInterpolatable, VelocityProviding {
+    public static var zero: Self {
+        NSUIColor(red: 0, green: 0, blue: 0, alpha: 0) as! Self
+    }
+}
+extension CGAffineTransform: SpringInterpolatable, VelocityProviding {
+    public static var zero: CGAffineTransform {
+        CGAffineTransform()
+    }
+}
+extension CATransform3D: SpringInterpolatable, VelocityProviding {
+    public static func == (lhs: CATransform3D, rhs: CATransform3D) -> Bool {
+        CATransform3DEqualToTransform(lhs, rhs)
+    }
+}
+
+public extension SpringInterpolatable where Self: SIMDRepresentable {
+    static func updateValue(spring: Spring, value: Self, target: Self, velocity: Self, dt: TimeInterval) -> (value: Self, velocity: Self) where Self.SIMDType.Scalar == CGFloat.NativeType {
+        
+        let value = value.simdRepresentation()
+        let target = target.simdRepresentation()
+        let velocity = velocity.simdRepresentation()
+        
+        let displacement = value - target
+        let springForce = (-spring.stiffness * displacement)
+        let dampingForce = (spring.dampingCoefficient * velocity)
+        let force = springForce - dampingForce
+        let acceleration = force / spring.mass
+        
+        let newVelocity = (velocity + (acceleration * dt))
+        let newValue = (value + (newVelocity * dt))
+        
+        return (value: valueForSIMD(newValue), velocity: valueForSIMD(newVelocity))
     }
 }
  
