@@ -147,11 +147,7 @@ public class WindowAnimator {
     /// The background color of the attached  window.
     public var backgroundColor: NSUIColor {
         get {
-            if let targetComponents = runningBackgroundColorAnimator?.target {
-                return targetComponents.color
-            } else {
-                return window.backgroundColor ?? .clear
-            }
+            runningBackgroundColorAnimator?.target ?? window.backgroundColor ?? .clear
         }
         set {
             guard backgroundColor != newValue else {
@@ -165,33 +161,27 @@ public class WindowAnimator {
                 return
             }
             
-            // `nil` and `.clear` are the same -- they both are represented by `.white` with an alpha of zero.
             let initialValue = window.backgroundColor ?? .clear
-            
-            // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
-            let targetValue = (newValue == NSUIColor.clear) ? backgroundColor.withAlphaComponent(0) : newValue
+            let targetValue = newValue
             
             let animationType = AnimatableProperty.backgroundColor
             
             // Re-targeting an animation.
             AnimationController.shared.executeHandler(uuid: runningBackgroundColorAnimator?.groupUUID, finished: false, retargeted: true)
-            
-            let initialValueComponents = RGBAComponents(color: initialValue)
-            let targetValueComponents = RGBAComponents(color: targetValue)
-            
+                        
             let animation = (runningBackgroundColorAnimator ??
-                             SpringAnimator<RGBAComponents>(
+                             SpringAnimator<NSUIColor>(
                                 spring: settings.spring,
-                                value: initialValueComponents,
-                                target: targetValueComponents
+                                value: initialValue,
+                                target: targetValue
                              )
             )
             
             animation.configure(withSettings: settings)
             
-            animation.target = targetValueComponents
-            animation.valueChanged = { [weak self] components in
-                self?.window.backgroundColor = components.color
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] color in
+                self?.window.backgroundColor = color
             }
             
             let groupUUID = animation.groupUUID
@@ -238,8 +228,8 @@ extension WindowAnimator {
         animation.start(afterDelay: delay)
     }
     
-    private var runningBackgroundColorAnimator: SpringAnimator<RGBAComponents>? {
-        window.animations[AnimatableProperty.backgroundColor] as? SpringAnimator<RGBAComponents>
+    private var runningBackgroundColorAnimator: SpringAnimator<NSUIColor>? {
+        window.animations[AnimatableProperty.backgroundColor] as? SpringAnimator<NSUIColor>
     }
     
     private var runningFrameAnimator: SpringAnimator<CGRect>? {

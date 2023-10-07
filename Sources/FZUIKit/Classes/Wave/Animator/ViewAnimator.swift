@@ -40,9 +40,7 @@ public class ViewAnimator {
         
         case alpha
         case backgroundColor
-        
-        case backgroundColorAlt
-        
+                
         case scale
         case translation
         case cornerRadius
@@ -370,11 +368,7 @@ public class ViewAnimator {
                 return
             }
             
-            // `nil` and `.clear` are the same -- they both are represented by `.white` with an alpha of zero.
             let initialValue = view.backgroundColor ?? .clear
-            
-            // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
-          //  let targetValue = (newValue == NSUIColor.clear) ? backgroundColor?.withAlphaComponent(0) ?? .clear : newValue ?? .clear
             let targetValue = newValue ?? .clear
             
             let animationType = AnimatableProperty.backgroundColor
@@ -382,20 +376,17 @@ public class ViewAnimator {
             // Re-targeting an animation.
             AnimationController.shared.executeHandler(uuid: runningBackgroundColorAnimator?.groupUUID, finished: false, retargeted: true)
             
-            let initialValueComponents = initialValue
-            let targetValueComponents = targetValue
-            
             let animation = (runningBackgroundColorAnimator ??
                              SpringAnimator<NSUIColor>(
                                 spring: settings.spring,
-                                value: initialValueComponents,
-                                target: targetValueComponents
+                                value: initialValue,
+                                target: targetValue
                              )
             )
             
             animation.configure(withSettings: settings)
             
-            animation.target = targetValueComponents
+            animation.target = targetValue
             animation.valueChanged = { [weak self] color in
                 self?.view.backgroundColor = color
             }
@@ -414,69 +405,7 @@ public class ViewAnimator {
             start(animation: animation, type: animationType, delay: settings.delay)
         }
     }
-    
-    public var backgroundColorAlt: NSUIColor? {
-        get {
-            let color = runningBackgroundColorAltAnimator?.target?.color ?? view.backgroundColor
-            return color == .clear ? nil : color
-        }
-        set {
-            guard backgroundColor != newValue else {
-                return
-            }
-            
-            guard let settings = AnimationController.shared.currentAnimationParameters else {
-                Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
-                    self.view.animator.backgroundColor = newValue
-                }
-                return
-            }
-            
-            // `nil` and `.clear` are the same -- they both are represented by `.white` with an alpha of zero.
-            let initialValue = view.backgroundColor ?? .clear
-            
-            // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
-          //  let targetValue = (newValue == NSUIColor.clear) ? backgroundColor?.withAlphaComponent(0) ?? .clear : newValue ?? .clear
-            let targetValue = newValue ?? .clear
-            
-            let animationType = AnimatableProperty.backgroundColorAlt
-            
-            // Re-targeting an animation.
-            AnimationController.shared.executeHandler(uuid: runningBackgroundColorAltAnimator?.groupUUID, finished: false, retargeted: true)
-            
-            let initialValueComponents = RGBAComponents(color: initialValue)
-            let targetValueComponents = RGBAComponents(color: targetValue)
-            
-            let animation = (runningBackgroundColorAltAnimator ??
-                             SpringAnimator<RGBAComponents>(
-                                spring: settings.spring,
-                                value: initialValueComponents,
-                                target: targetValueComponents
-                             )
-            )
-            
-            animation.configure(withSettings: settings)
-            
-            animation.target = targetValueComponents
-            animation.valueChanged = { [weak self] components in
-                self?.view.backgroundColor = components.color
-            }
-            
-            let groupUUID = animation.groupUUID
-            animation.completion = { [weak self] event in
-                switch event {
-                case .finished(at: _):
-                    self?.view.waveAnimations.removeValue(forKey: animationType)
-                    AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
-                default:
-                    break
-                }
-            }
-            
-            start(animation: animation, type: animationType, delay: settings.delay)
-        }
-    }
-    
+        
     /// The alpha value of the attached view.
     public var alpha: CGFloat {
         get {
@@ -666,11 +595,8 @@ public class ViewAnimator {
     /// The border color of the attached view.
     public var borderColor: NSUIColor? {
         get {
-            if let targetComponents = runningBorderColorAnimator?.target {
-                return targetComponents.color == .clear ? nil : targetComponents.color
-            } else {
-                return view.borderColor == .clear ? nil : view.borderColor
-            }
+            let color = runningBorderColorAnimator?.target ?? view.borderColor
+            return color == .clear ? nil : color
         }
         
         set {
@@ -685,10 +611,7 @@ public class ViewAnimator {
                 return
             }
             
-            // `nil` and `.clear` are the same -- they both are represented by `.white` with an alpha of zero
             let initialValue = view.borderColor ?? .clear
-            
-            // Animating to `clear` or `nil` really just animates the alpha component down to zero. Retain the other color components.
             let targetValue = newValue ?? .clear
             
             let animationType = AnimatableProperty.borderColor
@@ -696,22 +619,11 @@ public class ViewAnimator {
             // Re-targeting an animation.
             AnimationController.shared.executeHandler(uuid: runningBorderColorAnimator?.groupUUID, finished: false, retargeted: true)
             
-            let initialValueComponents = RGBAComponents(color: initialValue)
-            let targetValueComponents = RGBAComponents(color: targetValue)
-            
-            let animation = (runningBorderColorAnimator ??
-                             SpringAnimator<RGBAComponents>(
-                                spring: settings.spring,
-                                value: initialValueComponents,
-                                target: targetValueComponents
-                             )
-            )
-            
+            let animation = runningBorderColorAnimator ?? SpringAnimator<NSUIColor>(spring: settings.spring, value: initialValue, target: targetValue)
             animation.configure(withSettings: settings)
-            
-            animation.target = targetValueComponents
-            animation.valueChanged = { [weak self] components in
-                self?.view.borderColor = components.color
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] color in
+                self?.view.borderColor = color
             }
             
             let groupUUID = animation.groupUUID
@@ -842,11 +754,8 @@ public class ViewAnimator {
     
     internal var shadowColor: NSUIColor? {
         get {
-            if let targetComponents = runningShadowColorAnimator?.target {
-                return targetComponents.color == .clear ? nil : targetComponents.color
-            } else {
-                return view.shadowColor == .clear ? nil : view.shadowColor
-            }
+            let color = runningShadowColorAnimator?.target ?? view.shadowColor
+            return color == .clear ? nil : color
         }
         
         set {
@@ -879,22 +788,19 @@ public class ViewAnimator {
             // Re-targeting an animation.
             AnimationController.shared.executeHandler(uuid: runningShadowColorAnimator?.groupUUID, finished: false, retargeted: true)
             
-            let initialValueComponents = RGBAComponents(color: initialValue)
-            let targetValueComponents = RGBAComponents(color: targetValue)
-            
             let animation = (runningShadowColorAnimator ??
-                             SpringAnimator<RGBAComponents>(
+                             SpringAnimator<NSUIColor>(
                                 spring: settings.spring,
-                                value: initialValueComponents,
-                                target: targetValueComponents
+                                value: initialValue,
+                                target: targetValue
                              )
             )
             
             animation.configure(withSettings: settings)
             
-            animation.target = targetValueComponents
-            animation.valueChanged = { [weak self] components in
-                self?.view.shadowColor = components.color
+            animation.target = targetValue
+            animation.valueChanged = { [weak self] color in
+                self?.view.shadowColor = color
             }
             
             let groupUUID = animation.groupUUID
@@ -1050,20 +956,16 @@ extension ViewAnimator {
         view.waveAnimations[AnimatableProperty.backgroundColor] as? SpringAnimator<NSUIColor>
     }
     
-    private var runningBackgroundColorAltAnimator: SpringAnimator<RGBAComponents>? {
-        view.waveAnimations[AnimatableProperty.backgroundColorAlt] as? SpringAnimator<RGBAComponents>
-    }
-    
-    private var runningBorderColorAnimator: SpringAnimator<RGBAComponents>? {
-        view.waveAnimations[AnimatableProperty.borderColor] as? SpringAnimator<RGBAComponents>
+    private var runningBorderColorAnimator: SpringAnimator<NSUIColor>? {
+        view.waveAnimations[AnimatableProperty.borderColor] as? SpringAnimator<NSUIColor>
     }
     
     private var runningBorderWidthAnimator: SpringAnimator<CGFloat>? {
         view.waveAnimations[AnimatableProperty.borderWidth] as? SpringAnimator<CGFloat>
     }
     
-    private var runningShadowColorAnimator: SpringAnimator<RGBAComponents>? {
-        view.waveAnimations[AnimatableProperty.shadowColor] as? SpringAnimator<RGBAComponents>
+    private var runningShadowColorAnimator: SpringAnimator<NSUIColor>? {
+        view.waveAnimations[AnimatableProperty.shadowColor] as? SpringAnimator<NSUIColor>
     }
     
     private var runningShadowOpacityAnimator: SpringAnimator<CGFloat>? {
