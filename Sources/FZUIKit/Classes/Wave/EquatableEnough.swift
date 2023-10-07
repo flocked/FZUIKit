@@ -55,6 +55,12 @@ extension EquatableEnough where Self: SIMD, Scalar: FloatingPointInitializable {
     }
 }
 
+extension SIMDRepresentable where SIMDType: EquatableEnough {
+    public func isApproximatelyEqual(to: Self, epsilon: SIMDType.EpsilonType) -> Bool {
+        self.simdRepresentation().isApproximatelyEqual(to: to.simdRepresentation(), epsilon: epsilon)
+    }
+}
+
 extension Numeric where Magnitude: FloatingPoint {
   /// Test if `self` and `other` are approximately equal.
   ///

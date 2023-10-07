@@ -16,7 +16,7 @@ import AppKit
 import UIKit
 #endif
 
-public protocol SpringInterpolatable: Equatable {
+public protocol SpringInterpolatable: Equatable, EquatableEnough {
     associatedtype ValueType: SpringInterpolatable
     associatedtype VelocityType: VelocityProviding
     
@@ -69,6 +69,10 @@ extension CGRect: SpringInterpolatable, VelocityProviding {
     }
 }
 extension NSUIColor: SpringInterpolatable, VelocityProviding {
+    public func isApproximatelyEqual(to: NSUIColor, epsilon: CGFloat) -> Bool {
+        self.simdRepresentation().isApproximatelyEqual(to: to.simdRepresentation(), epsilon: epsilon)
+    }
+        
     public static func updateValue(spring: Spring, value: NSUIColor, target: NSUIColor, velocity: NSUIColor, dt: TimeInterval) -> (value: NSUIColor, velocity: NSUIColor) {
         
         let value = value.simdRepresentation()

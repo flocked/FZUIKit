@@ -15,7 +15,7 @@ import AppKit
 import UIKit
 #endif
 
-public protocol SIMDRepresentable: EquatableEnough {
+public protocol SIMDRepresentable {
     /**
      The `SIMD` type that `self` can be represented by.
       - Description: i.e. `CGPoint` can be stored in `SIMD2<Double>`.
@@ -27,14 +27,6 @@ public protocol SIMDRepresentable: EquatableEnough {
 
     /// Returns a `SIMDType` that represents `self`.
     func simdRepresentation() -> SIMDType
-}
-
-
-
-extension SIMDRepresentable where SIMDType: EquatableEnough {
-    public func isApproximatelyEqual(to: Self, epsilon: SIMDType.EpsilonType) -> Bool {
-        self.simdRepresentation().isApproximatelyEqual(to: to.simdRepresentation(), epsilon: epsilon)
-    }
 }
 
 extension CGPoint: SIMDRepresentable {    
