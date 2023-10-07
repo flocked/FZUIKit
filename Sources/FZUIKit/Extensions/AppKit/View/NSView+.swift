@@ -739,6 +739,11 @@ internal extension NSView {
         if NSViewAnimationKeysAlt.contains(key) {
             if let spring = NSAnimationContext.current.spring {
                 let springAnimation = CASpringAnimation(spring)
+                if let velocity = (animations[key] as? CASpringAnimation)?.velocity {
+                    Swift.print("velocity", velocity)
+                    springAnimation.initialVelocity = velocity
+                }
+                animations[key] = springAnimation
                 return springAnimation
             }
         }
