@@ -139,7 +139,7 @@ extension RGBAComponents: SpringInterpolatable, VelocityProviding {
 
     typealias ValueType = RGBAComponents
     typealias VelocityType = RGBAComponents
-
+    
     static func updateValue(spring: Spring, value: RGBAComponents, target: RGBAComponents, velocity: RGBAComponents, dt: TimeInterval) -> (value: RGBAComponents, velocity: RGBAComponents) {
         let (newR, newVelocityR) = CGFloat.updateValue(spring: spring, value: value.r, target: target.r, velocity: velocity.r, dt: dt)
         let (newG, newVelocityG) = CGFloat.updateValue(spring: spring, value: value.g, target: target.g, velocity: velocity.g, dt: dt)

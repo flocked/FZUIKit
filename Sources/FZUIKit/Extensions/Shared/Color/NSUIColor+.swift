@@ -22,8 +22,8 @@ public extension NSUIColor {
         getRed(&r, green: &g, blue: &b, alpha: &a)
 
         return (r, g, b, a)
-      #elseif os(OSX)
-        guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
+      #elseif os(macOS)
+        guard let rgbaColor = self.withSupportedColorSpace() else {
           fatalError("Could not convert color to RGBA.")
         }
 
