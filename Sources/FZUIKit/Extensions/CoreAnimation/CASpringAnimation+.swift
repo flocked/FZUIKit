@@ -100,12 +100,12 @@ extension CASpringAnimation {
     
     internal convenience init(_ spring: Spring) {
         self.init()
-        
-        self.duration = spring.response
         self.mass = spring.mass
         self.stiffness = spring.stiffness
-        self.damping =  spring.dampingRatio
-        Swift.print("springAnimation", damping, spring.dampingRatio)
+        self.damping =  spring.dampingRatio * 2 * sqrt(spring.mass * spring.stiffness)
+        Swift.print("spring", self.settlingDuration)
+        self.duration = spring.response
+        Swift.print(self.settlingDuration)
     }
     
 }
