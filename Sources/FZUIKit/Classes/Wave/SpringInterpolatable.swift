@@ -57,7 +57,6 @@ extension CGFloat: SpringInterpolatable, VelocityProviding { }
 extension CGSize: SpringInterpolatable, VelocityProviding { }
 extension CGPoint: SpringInterpolatable, VelocityProviding { }
 extension CGRect: SpringInterpolatable, VelocityProviding {
-    /*
     public static func updateValue(spring: Spring, value: CGRect, target: CGRect, velocity: CGRect, dt: TimeInterval) -> (value: CGRect, velocity: CGRect) {
         let origin = CGPoint.updateValue(spring: spring, value: value.origin, target: target.origin, velocity: velocity.origin, dt: dt)
         let size = CGSize.updateValue(spring: spring, value: value.size, target: target.size, velocity: velocity.size, dt: dt)
@@ -67,7 +66,6 @@ extension CGRect: SpringInterpolatable, VelocityProviding {
         
         return (newValue, newVelocity)
     }
-    */
 }
 
 extension NSUIColor: SpringInterpolatable, VelocityProviding {
