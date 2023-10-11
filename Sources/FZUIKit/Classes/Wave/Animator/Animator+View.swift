@@ -84,14 +84,14 @@ extension Animator where Object: NSUIView {
     /// The rotation of the view.
     public var rotation: CGQuaternion {
         get { 
-            object.transform3D.rotation
+            self.transform3D.rotation
            // value(for: \._rotation)
         }
         set {
             #if os(macOS)
             self.object.anchorPoint = CGPoint(0.5, 0.5)
             #endif
-            object.transform3D.rotation = newValue
+            self.transform3D.rotation = newValue
           //  setValue(newValue, for: \._rotation)
         }
     }
@@ -99,12 +99,12 @@ extension Animator where Object: NSUIView {
     /// The translation transform of the view.
     public var translation: CGPoint {
         get { 
-            CGPoint(object.transform3D.translation.x, object.transform3D.translation.y)
+            CGPoint(self.transform3D.translation.x, self.transform3D.translation.y)
            // value(for: \.translation)
         }
         set {
             
-            object.transform3D.translation = Translation(newValue.x, newValue.y, object.transform3D.translation.z)
+            self.transform3D.translation = Translation(newValue.x, newValue.y, object.transform3D.translation.z)
          //   setValue(newValue, for: \.translation)
         }
     }
