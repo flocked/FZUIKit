@@ -357,10 +357,7 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            if var transform = self.layer?.transform {
-                transform.rotation = newValue
-                self.transform3D = transform
-            }
+            self.transform3D.rotation = newValue
         }
     }
     
