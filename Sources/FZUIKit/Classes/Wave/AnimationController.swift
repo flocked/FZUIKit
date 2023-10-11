@@ -108,7 +108,9 @@ internal class AnimationController {
 
         block(finished, retargeted)
 
-        groupAnimationCompletionBlocks.removeValue(forKey: uuid)
+        if retargeted == false, finished {
+            groupAnimationCompletionBlocks.removeValue(forKey: uuid)
+        }
     }
 }
 
