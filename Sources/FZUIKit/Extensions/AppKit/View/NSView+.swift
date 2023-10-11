@@ -356,6 +356,7 @@ extension NSView {
         }
         set {
             wantsLayer = true
+            Swift.print("rotation", newValue)
             Self.swizzleAnimationForKey()
             self.transform3D.rotation = newValue
         }
@@ -391,7 +392,9 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            layer?.scale = newValue
+            Swift.print("scale", newValue)
+            self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
+          //  layer?.scale = newValue
         }
     }
 
