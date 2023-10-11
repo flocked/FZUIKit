@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ContentConfiguration+View.swift
 //  
 //
 //  Created by Florian Zand on 05.10.23.

@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  NSUIColor+HSBA.swift
+//
 //
 //  Created by Florian Zand on 06.10.23.
 //

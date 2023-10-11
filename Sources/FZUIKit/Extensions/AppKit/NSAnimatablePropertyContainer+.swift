@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  NSAnimatablePropertyContainer+.swift
+//
 //
 //  Created by Florian Zand on 21.09.23.
 //

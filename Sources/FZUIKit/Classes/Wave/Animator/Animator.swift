@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  Animator.swift
+//
 //
 //  Created by Florian Zand on 07.10.23.
 //

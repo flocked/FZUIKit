@@ -51,7 +51,13 @@ extension Animator where Object: NSUIView {
     /// The background color of the view.
     public var backgroundColor: NSUIColor? {
         get { value(for: \.backgroundColor) }
-        set { setValue(newValue, for: \._backgroundColor) }
+        set { 
+            #if os(macOS)
+            setValue(newValue, for: \._backgroundColor)
+            #elseif canImport(UIKit)
+            setValue(newValue, for: \.backgroundColor)
+            #endif
+        }
     }
         
     /// The alpha value of the view.
@@ -139,6 +145,13 @@ fileprivate extension NSUIView {
             self.optionalLayer?.translation = newValue
         }
     }
+    
+    #if canImport(UIKit)
+    @objc dynamic var scale: CGPoint {
+        get { layer.scale }
+        set { layer.scale = newValue  }
+    }
+    #endif
 }
 
 #endif

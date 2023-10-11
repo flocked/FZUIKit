@@ -129,7 +129,7 @@ open class ImageView: NSView {
         set { imageLayer.autoAnimates = newValue }
     }
     
-    public enum AnimationOption: Int {
+    public enum AnimationPlaybackOption: Int {
         /// Images don't animate automatically.
         case none
         /// Images automatically start animating.
@@ -140,9 +140,9 @@ open class ImageView: NSView {
         case mouseDown
     }
     
-    public var animationOption: AnimationOption = .automatic {
+    public var animationPlaybackOption: AnimationPlaybackOption = .automatic {
         didSet {
-            self.imageLayer.autoAnimates = (animationOption == .automatic)
+            self.imageLayer.autoAnimates = (animationPlaybackOption == .automatic)
             self.updateTrackingAreas()
         }
     }
@@ -157,26 +157,26 @@ open class ImageView: NSView {
             self.removeTrackingArea(trackingArea)
             self.trackingArea = nil
         }
-        if self.animationOption == .mouseHover {
+        if self.animationPlaybackOption == .mouseHover {
             self.trackingArea = NSTrackingArea(rect: self.bounds, options: [.mouseEnteredAndExited, .activeAlways ], owner: nil)
             self.addTrackingArea(trackingArea!)
         }
     }
     
     open override func mouseEntered(with event: NSEvent) {
-        if animationOption == .mouseHover {
+        if animationPlaybackOption == .mouseHover {
             self.startAnimating()
         }
     }
     
     open override func mouseExited(with event: NSEvent) {
-        if animationOption == .mouseHover {
+        if animationPlaybackOption == .mouseHover {
             self.stopAnimating()
         }
     }
     
     open override func mouseDown(with event: NSEvent) {
-        if animationOption == .mouseDown {
+        if animationPlaybackOption == .mouseDown {
             self.toggleAnimating()
         }
     }

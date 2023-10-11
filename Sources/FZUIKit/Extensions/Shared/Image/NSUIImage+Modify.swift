@@ -11,6 +11,68 @@ import AppKit
 import UIKit
 #endif
 
+public extension NSUIImage {
+    /// The order of image tiles.
+    enum TileSplitOrder: Int {
+        /// Horizontal tiles first.
+        case horizontalFirst
+        /// Vertical tiles first.
+        case verticalFirst
+    }
+    
+    /**
+     Splits the images to tiles with the specified vertical and horizontal count.
+     
+     - Parameters:
+        - horizontalCount: The amount of horizontal tiles.
+        - verticalCount: The amount of vertical tiles.
+        - order: The order of the tiles.
+     - Returns: An array with the tile images.
+     */
+    func splitToTiles(horizontalCount: Int, verticalCount: Int, order: TileSplitOrder = .horizontalFirst) -> [NSUIImage] {
+        guard horizontalCount > 0,  verticalCount > 0 else { return [] }
+        let tileSize = CGSize(self.size.width/CGFloat(horizontalCount), self.size.height/CGFloat(verticalCount))
+        return self.splitToTiles(size: tileSize, order: order)
+    }
+    
+    /**
+     Splits the images to tiles with the specified size.
+     
+     - Parameters:
+        - size: The size of an tile.
+        - order: The order of the tiles.
+     - Returns: An array with the tile images.
+     */
+    func splitToTiles(size: CGSize, order: TileSplitOrder = .horizontalFirst) -> [NSUIImage] {
+           let vCount = Int(self.size.height / size.height)
+           let hCount = Int(self.size.width / size.width)
+           var tiles = [NSUIImage]()
+    #if os(macOS)
+        guard let cgImage = self.cgImage else { return [] }
+    #endif
+    for a in 0..<(order == .horizontalFirst ? hCount : vCount) {
+        for b in 0..<(order == .horizontalFirst ? vCount : hCount) {
+    let origin = CGPoint(x: CGFloat(order == .horizontalFirst  ? b : a)*size.width, y: CGFloat(order == .horizontalFirst  ? a : b)*size.height)
+    #if os(macOS)
+    let rect = CGRect(origin, size)
+    if let tileCGImage = cgImage.cropping(to: rect) {
+        let tile = NSImage(cgImage: tileCGImage, size: size)
+        tiles.append(tile)
+    }
+    #elseif canImport(UIKit)
+                   UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+                   draw(at: origin)
+                   if let newImage = UIGraphicsGetImageFromCurrentImageContext() {
+                       tiles.append(newImage)
+                   }
+                   UIGraphicsEndImageContext()
+    #endif
+               }
+           }
+           return tiles
+       }
+   }
+
 #if os(macOS)
 public extension NSUIImage {
     /// Returns the image resized to the specified size.

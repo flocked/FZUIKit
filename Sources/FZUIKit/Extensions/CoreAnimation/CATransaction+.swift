@@ -28,5 +28,10 @@ public extension CATransaction {
         animations()
         CATransaction.commit()
     }
+    
+    /// Runs the changes of the specified changes block non animated.
+    static func performNonAnimated(changes: ()->Void) {
+        self.perform(duration: 0.0, animations: changes)
+    }
 }
 #endif

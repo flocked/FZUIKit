@@ -38,7 +38,7 @@ public extension SpringInterpolatable where Self: SIMDRepresentable {
         
         let displacement = value - target
         let springForce = (-spring.stiffness * displacement)
-        let dampingForce = (spring.dampingCoefficient * velocity)
+        let dampingForce = (spring.damping * velocity)
         let force = springForce - dampingForce
         let acceleration = force / spring.mass
         

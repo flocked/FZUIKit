@@ -3,7 +3,7 @@
 //
 //
 //  Created by Adam Bell on 8/1/20.
-//
+//  Taken from https://github.com/b3ll/Motion
 
 import CoreGraphics
 import Foundation

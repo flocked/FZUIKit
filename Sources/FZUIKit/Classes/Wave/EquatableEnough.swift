@@ -3,7 +3,7 @@
 //
 //
 //  Created by Adam Bell on 8/2/20.
-//
+//  Taken from https://github.com/b3ll/Motion
 
 
 import CoreGraphics

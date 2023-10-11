@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EaseAnimator.swift
 //  
 //
 //  Created by Florian Zand on 07.10.23.

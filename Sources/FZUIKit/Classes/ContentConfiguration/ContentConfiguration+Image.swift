@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  ContentConfiguration+Image.swift
+//
 //
 //  Created by Florian Zand on 01.08.23.
 //

@@ -17,7 +17,7 @@ import UIKit
 /**
  `Spring` determines the timing curve and settling duration of an animation.
 
- Springs are created by providing a `dampingRatio` greater than zero, and _either_ a `response` or `stiffness` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
+ Springs are created by providing a `dampingRatio` greater than zero, and _either_ a ``response`` or ``stiffness`` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
  */
 public class Spring: Equatable {
     // MARK: - Spring Properties
@@ -46,7 +46,7 @@ public class Spring: Equatable {
     /**
      The viscous damping coefficient `c`. This value is derived.
      */
-    public let dampingCoefficient: CGFloat
+    public let damping: CGFloat
 
     /**
      The time the spring will take to settle or "complete". This value is derived.
@@ -79,7 +79,7 @@ public class Spring: Equatable {
         self.mass = mass
         response = Spring.response(stiffness: stiffness, mass: mass)
 
-        dampingCoefficient = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
+        damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
 
@@ -107,8 +107,8 @@ public class Spring: Equatable {
         self.mass = mass
         stiffness = Spring.stiffness(response: response, mass: mass)
 
-        let unbandedDampingCoefficient = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
-        dampingCoefficient = rubberband(value: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
+        let unbandedDampingCoefficient = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
+        damping = rubberband(value: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
 
         settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
@@ -121,6 +121,16 @@ public class Spring: Equatable {
         - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
      */
     public convenience init(duration: CGFloat, bounce: CGFloat = 0.0) {
+        /*
+        let stiffness = Spring.stiffness(response: duration, mass: 1.0)
+        let damping: CGFloat
+        if bounce >= 0 {
+            damping = 1 - 4 * .pi * bounce / duration
+        } else {
+            damping = 4 * .pi / (duration +  4 * .pi * bounce)
+        }
+        let dampingRatio = damping / (2 * sqrt (stiffness * 1))
+        */
         self.init(dampingRatio: 1.0 - bounce, response: duration, mass: 1.0)
     }
     
@@ -134,7 +144,7 @@ public class Spring: Equatable {
      */
     public convenience init(settlingDuration: CGFloat, dampingRatio: Double) {
         
-        let response = 4.0×π×dampingRatio×mass/dampingCoefficient
+        let response = 4.0×π×dampingRatio×mass/damping
         
         self.init(dampingRatio: 1.0 - bounce, response: duration, mass: 1.0)
     }
@@ -204,7 +214,7 @@ public class Spring: Equatable {
         (2.0 * .pi) / sqrt(stiffness * mass)
     }
 
-    static func dampingCoefficient(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat) -> CGFloat {
+    static func damping(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat) -> CGFloat {
         4.0 * .pi * dampingRatio * mass / response
     }
 
@@ -229,6 +239,26 @@ public class Spring: Equatable {
     static func undampedNaturalFrequency(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
         // ωn
         return sqrt(stiffness / mass)
+    }
+}
+
+extension Spring {
+    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : SIMDRepresentable, V.SIMDType.Scalar == CGFloat.NativeType {
+        let _value = value.simdRepresentation()
+        let target = target.simdRepresentation()
+        let _velocity = velocity.simdRepresentation()
+
+        let displacement = _value - target
+        let springForce = (-self.stiffness * displacement)
+        let dampingForce = (self.damping * _velocity)
+        let force = springForce - dampingForce
+        let acceleration = force / self.mass
+        
+        let newVelocity = (_velocity + (acceleration * deltaTime))
+        let newValue = (_value + (newVelocity * deltaTime))
+        
+        velocity = V(newVelocity)
+        value = V(newValue)
     }
 }
 

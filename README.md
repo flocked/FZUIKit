@@ -229,7 +229,8 @@ let imageView = ImageView()
 imageView.image = myGifImage
 imageView.imageScaling = .resizeAspectFill
 imageView.animationDuration = 3.0 /// gif animation speed
-
+imageView.animationPlaybackOption = .mouseHover /// animation plays on mouse hover
+imageView.animationPlaybackOption = .mouseDown /// toggle playback via mouse click
 ```
 
 ### AVPlayer extensions
@@ -237,4 +238,13 @@ imageView.animationDuration = 3.0 /// gif animation speed
 ```
 player.isLooping = true
 ```
-- `state`: The current playback state of the player (.isPaused, .isStopped, .isPlaying, .error(Error))
+- `state`: The current playback state of the player: .isPlaying, .isPaused, .isStopped, .error(Error)
+
+### DisplayLinkeTimer
+A much more precise `Timer` which time interval can be changed without invalidating the timer.
+```
+let timer = DisplayLinkTimer.scheduledTimer(timeInterval: .seconds(3.0), action: {
+    // some action
+})
+timer.timeInterval = .minutes(1)
+```

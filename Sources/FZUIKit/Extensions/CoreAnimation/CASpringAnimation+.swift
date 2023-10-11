@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  CASpringAnimation+.swift
+//
 //
 //  Created by Florian Zand on 07.10.23.
 //
@@ -27,7 +27,7 @@ extension CASpringAnimation {
         self.mass = mass
         self.stiffness = stiffness
         let response = Spring.response(stiffness: stiffness, mass: mass)
-        self.damping = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
+        self.damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.duration = response
     }
     
@@ -49,7 +49,7 @@ extension CASpringAnimation {
         self.init()
         self.mass = mass
         self.stiffness = Spring.stiffness(response: response, mass: mass)
-        let unbandedDamping = Spring.dampingCoefficient(dampingRatio: dampingRatio, response: response, mass: mass)
+        let unbandedDamping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.damping = rubberband(value: unbandedDamping, range: 0 ... 60, interval: 15)
         self.duration = response
     }
