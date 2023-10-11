@@ -69,7 +69,21 @@ extension Animator where Object: NSUIView {
     /// The scale transform of the view.
     public var scale: CGPoint {
         get { value(for: \.scale) }
-        set { setValue(newValue, for: \.scale) }
+        set { 
+            #if os(macOS)
+            self.object.anchorPoint = CGPoint(0.5, 0.5)
+            #endif
+            setValue(newValue, for: \.scale) }
+    }
+    
+    /// The rotation of the view.
+    public var rotation: CGQuaternion {
+        get { value(for: \._rotation) }
+        set { 
+            #if os(macOS)
+            self.object.anchorPoint = CGPoint(0.5, 0.5)
+            #endif
+            setValue(newValue, for: \._rotation) }
     }
     
     /// The translation transform of the view.
@@ -143,6 +157,16 @@ fileprivate extension NSUIView {
             self.wantsLayer = true
             #endif
             self.optionalLayer?.translation = newValue
+        }
+    }
+    
+    dynamic var _rotation: CGQuaternion {
+        get { self.optionalLayer?.rotation ?? .zero }
+        set {
+            #if macOS
+            self.wantsLayer = true
+            #endif
+            self.optionalLayer?.rotation = newValue
         }
     }
     

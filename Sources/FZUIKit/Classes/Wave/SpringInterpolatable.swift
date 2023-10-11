@@ -74,6 +74,8 @@ extension NSUIColor: SpringInterpolatable, VelocityProviding {
     }
 }
 
+extension CGQuaternion: SpringInterpolatable, VelocityProviding { }
+
 extension CATransform3D: SpringInterpolatable, VelocityProviding { }
 extension CGAffineTransform: SpringInterpolatable, VelocityProviding {
     public static var zero: CGAffineTransform {
