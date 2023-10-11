@@ -68,28 +68,45 @@ extension Animator where Object: NSUIView {
     
     /// The scale transform of the view.
     public var scale: CGPoint {
-        get { value(for: \.scale) }
-        set { 
+        get {
+            CGPoint(self.transform3D.scale.x, self.transform3D.scale.y)
+          //  value(for: \.scale)
+        }
+        set {
             #if os(macOS)
             self.object.anchorPoint = CGPoint(0.5, 0.5)
             #endif
-            setValue(newValue, for: \.scale) }
+            self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
+          //  setValue(newValue, for: \.scale)
+        }
     }
     
     /// The rotation of the view.
     public var rotation: CGQuaternion {
-        get { value(for: \._rotation) }
-        set { 
+        get { 
+            object.transform3D.rotation
+           // value(for: \._rotation)
+        }
+        set {
             #if os(macOS)
             self.object.anchorPoint = CGPoint(0.5, 0.5)
             #endif
-            setValue(newValue, for: \._rotation) }
+            object.transform3D.rotation = newValue
+          //  setValue(newValue, for: \._rotation)
+        }
     }
     
     /// The translation transform of the view.
     public var translation: CGPoint {
-        get { value(for: \.translation) }
-        set { setValue(newValue, for: \.translation) }
+        get { 
+            CGPoint(object.transform3D.translation.x, object.transform3D.translation.y)
+           // value(for: \.translation)
+        }
+        set {
+            
+            object.transform3D.translation = Translation(newValue.x, newValue.y, object.transform3D.translation.z)
+         //   setValue(newValue, for: \.translation)
+        }
     }
     
     /// The corner radius of the view.
@@ -142,6 +159,11 @@ extension Animator where Object: NSUIView {
     internal var shadowRadius: CGFloat {
         get { value(for: \.shadowRadius) }
         set { setValue(newValue, for: \.shadowRadius) }
+    }
+    
+    internal var transform3D: CATransform3D {
+        get { value(for: \.transform3D) }
+        set { setValue(newValue, for: \.transform3D) }
     }
 }
 
