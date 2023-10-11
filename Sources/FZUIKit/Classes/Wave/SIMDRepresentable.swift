@@ -39,6 +39,7 @@ extension SIMD16: SupportedSIMD, Comparable where Scalar: SupportedScalar {}
 extension SIMD32: SupportedSIMD, Comparable where Scalar: SupportedScalar {}
 extension SIMD64: SupportedSIMD, Comparable where Scalar: SupportedScalar {}
 
+
 // MARK: - SIMDRepresentable
 
 /// A protocol that defines how something that can be represented / stored in a `SIMD` type as well as instantiated from said `SIMD` type.
@@ -221,5 +222,23 @@ extension CATransform3D: SIMDRepresentable {
     
     @inlinable public static func < (lhs: CATransform3D, rhs: CATransform3D) -> Bool {
         lhs.simdRepresentation() < rhs.simdRepresentation()
+    }
+}
+
+extension CGQuaternion: SIMDRepresentable {
+    public init(_ simdRepresentation: SIMD4<Double>) {
+        self.storage = .init(vector: simdRepresentation)
+    }
+    
+    public func simdRepresentation() -> SIMD4<Double> {
+        self.storage.vector
+    }
+    
+    public static var zero: CGQuaternion {
+        CGQuaternion(SIMD4<Double>.zero)
+    }
+    
+    public static func < (lhs: CGQuaternion, rhs: CGQuaternion) -> Bool {
+        lhs.storage.vector < rhs.storage.vector
     }
 }

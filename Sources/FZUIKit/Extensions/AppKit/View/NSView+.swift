@@ -342,6 +342,29 @@ extension NSView {
     }
     
     /**
+     Specifies the rotation applied to the view.
+
+     Use this property to scale or rotate the view's frame rectangle within its superview's coordinate system. (To change the position of the view, modify the center property instead.) The default value of this property is CGAffineTransformIdentity.
+     Transformations occur relative to the view's anchor point. By default, the anchor point is equal to the center point of the frame rectangle. To change the anchor point, modify the anchorPoint property of the view's underlying CALayer object.
+     Changes to this property can be animated.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    public dynamic var rotation: CGQuaternion {
+        get { wantsLayer = true
+            return layer?.rotation ?? .init(.zero)
+        }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            if var transform = self.layer?.transform {
+                transform.rotation = newValue
+                self.transform3D = transform
+            }
+        }
+    }
+    
+    /**
      The three-dimensional transform to apply to the view.
 
      The default value of this property is CATransform3DIdentity.
@@ -736,6 +759,7 @@ internal extension NSView {
     }
     
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        Swift.print("swizzled_Animation", key)
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
