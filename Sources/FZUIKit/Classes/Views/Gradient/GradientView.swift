@@ -18,10 +18,10 @@ public class GradientView: NSUIView {
     public dynamic var gradient: Gradient {
         get { gradientLayer.gradient }
         set {
-            self.colors = newValue.stops.compactMap({$0.color.cgColor})
-            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
             self.startPoint = newValue.startPoint.point
             self.endPoint = newValue.endPoint.point
+            self.colors = newValue.stops.compactMap({$0.color.cgColor})
+            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
             self.type = newValue.type.gradientLayerType
         }
     }
@@ -88,7 +88,9 @@ public class GradientView: NSUIView {
         super.init(coder: coder)
     }
     
+    #if os(macOS)
     public override func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        Swift.print("animationKey", key)
         if Self.gradientAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
@@ -97,6 +99,7 @@ public class GradientView: NSUIView {
         return super.animation(forKey: key)
     }
     
-    static let gradientAnimationKeys = ["locations", "colors", "startPoint", "endPoint"]
+    internal static let gradientAnimationKeys = ["locations", "colors", "startPoint", "endPoint"]
+    #endif
 }
 #endif
