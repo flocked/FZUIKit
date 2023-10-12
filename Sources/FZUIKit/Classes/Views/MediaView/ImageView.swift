@@ -61,15 +61,33 @@ open class ImageView: NSView {
     
     /// A color used to tint template images.
     open var tintColor: NSColor? {
-        get { self.imageLayer.tintColor }
-        set { self.imageLayer.tintColor = newValue }
+        get { self._tintColor }
+        set {
+            self._tintColor = newValue
+            self.imageLayer.tintColor = _tintColor?.resolvedColor(for: self)
+        }
     }
-
-    /// The symbol configuration to use when rendering the image.
+    
+    private var _tintColor: NSColor? = nil
+    
+    private var _symbolConfiguration: Any? = nil
+    @available(macOS 12.0, iOS 15.0, *)
+    public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
+        get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
+        set {
+            guard newValue != symbolConfiguration else { return }
+            _symbolConfiguration = newValue
+            self.imageLayer.symbolConfiguration = newValue
+        }
+    }
+    
     @available(macOS 12.0, iOS 13.0, *)
-    open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
-        get { imageLayer.symbolConfiguration }
-        set { imageLayer.symbolConfiguration = newValue }
+    internal var resolvedSymbolConfiguration: NSUIImage.SymbolConfiguration? {
+        get {
+            var symbolConfiguration = symbolConfiguration
+            symbolConfiguration?.colors = symbolConfiguration?.colors?.compactMap({$0.resolvedColor(for: self)})
+            return symbolConfiguration
+        }
     }
     
     /// Sets the displaying image to the specified option.
@@ -241,7 +259,13 @@ open class ImageView: NSView {
     
     public override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
-        imageLayer.updateDisplayingImage()
+        imageLayer.tintColor = _tintColor?.resolvedColor(for: self)
+        if #available(macOS 12.0, iOS 13.0, *) {
+            let resolved = resolvedSymbolConfiguration
+            if resolved?.colors != symbolConfiguration?.colors {
+                imageLayer.symbolConfiguration = resolved
+            }
+        }
     }
     
     public override func viewDidChangeBackingProperties() {

@@ -146,6 +146,20 @@ public extension NSUIColor {
 
       return brightness >= 0.5
     }
+    
+    /**
+     Generates the resolved color for the specified view,.
+     
+     - Parameters view: The view for the resolved color.
+     - Returns: A resolved color for the view.
+     */
+    func resolvedColor(for view: NSUIView) -> NSUIColor {
+        #if os(macOS)
+        self.resolvedColor(for: view.effectiveAppearance)
+        #elseif canImport(UIKit)
+        self.resolvedColor(with: view.traitCollection)
+        #endif
+    }
 
     #if os(macOS)
     /// A boolean value that indicates whether the color is a pattern color.
