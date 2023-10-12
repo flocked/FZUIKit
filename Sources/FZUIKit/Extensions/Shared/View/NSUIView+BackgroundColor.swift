@@ -26,7 +26,7 @@ extension NSUIView: BackgroundColorSettable { }
 public extension BackgroundColorSettable where Self: NSView {
     /// The background color of the view.
     dynamic var backgroundColor: NSColor? {
-        get { _backgroundColor }
+        get { getAssociatedValue(key: "_viewBackgroundColor", object: self, initialValue: self.layer?.backgroundColor?.nsColor) }
         set {
             Self.swizzleAnimationForKey()
             var newValue = newValue
@@ -34,7 +34,7 @@ public extension BackgroundColorSettable where Self: NSView {
                 newValue = .clear
             }
             self._backgroundColor = newValue
-          //  set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
+            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
         }
     }
 }
@@ -49,6 +49,13 @@ internal extension NSView {
                 if _effectiveAppearanceKVO == nil {
                     _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                         self?.updateBackgroundColor()
+                    }
+                    layer?.backgroundColorObserver = layer?.observeChanges(for: \.backgroundColor)  { [weak self] _, new in
+                        guard let self = self else { return }
+                        if new != self.backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+                            Swift.print("backgroundColor not same")
+                            set(associatedValue: new?.nsColor, key: "_viewBackgroundColor", object: self)
+                        }
                     }
                 }
             } else {
@@ -65,7 +72,17 @@ internal extension NSView {
 
     func updateBackgroundColor() {
         wantsLayer = true
+        if let backgroundColor: NSColor = getAssociatedValue(key: "_viewBackgroundColor", object: self) {
+            layer?.backgroundColor = backgroundColor.resolvedColor(for: effectiveAppearance).cgColor
+        }
         layer?.backgroundColor = backgroundColor?.resolvedColor(for: effectiveAppearance).cgColor
+    }
+}
+
+internal extension CALayer {
+    var backgroundColorObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "backgroundColorObserver", object: self) }
+        set { set(associatedValue: newValue, key: "backgroundColorObserver", object: self) }
     }
 }
 #endif
