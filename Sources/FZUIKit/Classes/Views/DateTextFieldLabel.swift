@@ -1,8 +1,8 @@
 //
 //  DateTextField.swift
 //  
-//
-//  Adopted from by Tyler Hall
+//  Adopted from:
+//  Tyler Hall
 //
 
 #if os(macOS)

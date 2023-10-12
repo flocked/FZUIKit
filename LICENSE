@@ -20,10 +20,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+DateTextField
+- Adopted from Tyler Hall
+
 Decomposed
-- Copyright Adam Bell
+- Copyright (c) 2020, Adam Bell
 - https://github.com/b3ll/Decomposed
+
+EquatableEnough/SIMDRepresentable
+- Copyright (c) 2020, Adam Bell
+- https://github.com/b3ll/Motion
 
 Shell
 - Copyright (c) 2015 Kåre Morstøl, NotTooBad Software (nottoobadsoftware.com)
 - https://github.com/kareman/SwiftShell
+
+TrackingArea
+- Copyright (c) 2023 Darren Ford
+
+Wave
+- Copyright (c) 2022 Janum Trivedi
+- https://github.com/jtrivedi/Wave/
