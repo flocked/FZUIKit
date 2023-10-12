@@ -418,12 +418,14 @@ extension NSView {
     @objc open dynamic var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
+            Swift.print("cornerRadius 0", self, self.clipsToBounds)
             let clipsToBounds = self.clipsToBounds
             wantsLayer = true
             Self.swizzleAnimationForKey()
             layer?.cornerRadius = newValue
             // fix for macOS 14.0 bug
             self.clipsToBounds = clipsToBounds
+            Swift.print("cornerRadius 1", self, self.clipsToBounds)
         }
     }
 
