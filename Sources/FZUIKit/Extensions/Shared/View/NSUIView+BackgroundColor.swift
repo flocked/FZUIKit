@@ -29,7 +29,7 @@ public extension BackgroundColorSettable where Self: NSView {
         get { self._backgroundColor }
         set {
             Self.swizzleAnimationForKey()
-            var newValue = newValue
+            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
@@ -41,32 +41,12 @@ public extension BackgroundColorSettable where Self: NSView {
 internal extension NSView {
     
     @objc dynamic var _backgroundColor: NSColor? {
-        get { getAssociatedValue(key: "_viewBackgroundColor", object: self, initialValue: self.layer?.backgroundColor?.nsColor) }
+        get { self.layer?.backgroundColor?.nsColor }
         set {
             wantsLayer = true
-            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
+            __backgroundColor = newValue
             layer?.backgroundColor = newValue?.cgColor
-            if newValue != nil {
-                if _effectiveAppearanceKVO == nil {
-                    _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
-                        self?.updateBackgroundColor()
-                    }
-                    layer?.backgroundColorObserver = layer?.observeChanges(for: \.backgroundColor)  { [weak self] _, new in
-                        guard let self = self else { return }
-                        if new != self.backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
-                            Swift.print("backgroundColor not same")
-                            set(associatedValue: new?.nsColor, key: "_viewBackgroundColor", object: self)
-                            self._effectiveAppearanceKVO?.invalidate()
-                            self._effectiveAppearanceKVO = nil
-                            self.layer?.backgroundColorObserver = nil
-                        }
-                    }
-                }
-            } else {
-                _effectiveAppearanceKVO?.invalidate()
-                _effectiveAppearanceKVO = nil
-                layer?.backgroundColorObserver = nil
-            }
+            self.setupEffectiveAppearanceObserver()
         }
     }
     
@@ -74,19 +54,88 @@ internal extension NSView {
         get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
         set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
     }
-
-    func updateBackgroundColor() {
-        wantsLayer = true
-        if let backgroundColor: NSColor = getAssociatedValue(key: "_viewBackgroundColor", object: self) {
-            layer?.backgroundColor = backgroundColor.resolvedColor(for: effectiveAppearance).cgColor
+    
+    var _shadowColor: NSUIColor? {
+        get { getAssociatedValue(key: "_shadowColor", object: self, initialValue: self.layer?.shadowColor?.nsColor) }
+        set { set(associatedValue: newValue, key: "_shadowColor", object: self) }
+    }
+    
+    var _borderColor: NSUIColor? {
+        get { getAssociatedValue(key: "_borderColor", object: self, initialValue: self.layer?.borderColor?.nsColor) }
+        set { set(associatedValue: newValue, key: "_borderColor", object: self) }
+    }
+    
+    var __backgroundColor: NSUIColor? {
+        get { getAssociatedValue(key: "__backgroundColor", object: self, initialValue: self.layer?.backgroundColor?.nsColor) }
+        set { set(associatedValue: newValue, key: "__backgroundColor", object: self) }
+    }
+    
+    var needsEffectiveAppearanceObserver: Bool {
+        __backgroundColor != nil || _borderColor != nil || _shadowColor != nil
+    }
+    
+    func setupEffectiveAppearanceObserver() {
+        if needsEffectiveAppearanceObserver {
+            if _effectiveAppearanceKVO == nil {
+                _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
+                    self?.updateEffectiveColors()
+                }
+                /*
+                if let layer = self.layer, layer.colorObserver == nil {
+                    layer.colorObserver = KeyValueObserver(layer)
+                    layer.colorObserver?.add(\.backgroundColor, handler: { [weak self] _, color in
+                        guard let self = self else { return }
+                        if color != self.__backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+                            self.__backgroundColor = color?.nsColor
+                            self.setupEffectiveAppearanceObserver()
+                        }
+                    })
+                    layer.colorObserver?.add(\.borderColor, handler: { [weak self] _, color in
+                        guard let self = self else { return }
+                        if color != self._borderColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+                            self._borderColor = color?.nsColor
+                            self.setupEffectiveAppearanceObserver()
+                        }
+                    })
+                    layer.colorObserver?.add(\.shadowColor, handler: { [weak self] _, color in
+                        guard let self = self else { return }
+                        if color != self._shadowColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+                            self._shadowColor = color?.nsColor
+                            self.setupEffectiveAppearanceObserver()
+                        }
+                    })
+                }
+                 */
+            }
+        } else {
+            _effectiveAppearanceKVO?.invalidate()
+            _effectiveAppearanceKVO = nil
         }
-        layer?.backgroundColor = backgroundColor?.resolvedColor(for: effectiveAppearance).cgColor
+    }
+    
+    func updateEffectiveColors() {
+        if let backgroundColor = __backgroundColor?.resolvedColor(for: effectiveAppearance) {
+            self.layer?.backgroundColor = backgroundColor.cgColor
+        }
+        
+        if let borderColor = _borderColor?.resolvedColor(for: effectiveAppearance) {
+            self.layer?.borderColor = borderColor.cgColor
+        }
+        
+        if let shadowColor = _shadowColor?.resolvedColor(for: effectiveAppearance) {
+            self.layer?.shadowColor = shadowColor.cgColor
+        }
     }
 }
 
 internal extension CALayer {
     var backgroundColorObserver: NSKeyValueObservation? {
         get { getAssociatedValue(key: "backgroundColorObserver", object: self) }
+        set { set(associatedValue: newValue, key: "backgroundColorObserver", object: self) }
+    }
+    
+    var colorObserver: KeyValueObserver<CALayer>? {
+        get { getAssociatedValue(key: "backgroundColorObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "backgroundColorObserver", object: self) }
     }
 }

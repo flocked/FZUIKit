@@ -483,11 +483,13 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            var newValue = newValue
+            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
+            _borderColor = newValue
             layer?.borderColor = newValue?.cgColor
+            setupEffectiveAppearanceObserver()
         }
     }
         
@@ -501,12 +503,13 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            var newValue = newValue
+            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
-            
+            _shadowColor = newValue
             layer?.shadowColor = newValue?.cgColor
+            setupEffectiveAppearanceObserver()
         }
     }
     
