@@ -437,6 +437,7 @@ extension NSView {
             Swift.print("cornerRadius 0", self, self.maskToBounds)
             let maskToBounds = self.maskToBounds
             wantsLayer = true
+            Self.swizzleAnimationForKey()
             layer?.cornerRadius = newValue
             // fix for macOS 14.0 bug
             self.maskToBounds = maskToBounds
