@@ -48,7 +48,7 @@ public class GradientView: NSUIView {
         set { gradientLayer.endPoint = newValue }
     }
     
-    internal var type: CAGradientLayerType {
+    @objc dynamic internal var type: CAGradientLayerType {
         get { gradientLayer.type }
         set { gradientLayer.type = newValue }
     }
