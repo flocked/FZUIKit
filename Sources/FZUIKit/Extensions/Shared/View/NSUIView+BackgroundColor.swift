@@ -46,7 +46,6 @@ internal extension NSView {
             wantsLayer = true
             __backgroundColor = newValue
             layer?.backgroundColor = newValue?.cgColor
-            self.setupEffectiveAppearanceObserver()
         }
     }
     
@@ -57,17 +56,24 @@ internal extension NSView {
     
     var _shadowColor: NSUIColor? {
         get { getAssociatedValue(key: "_shadowColor", object: self, initialValue: self.layer?.shadowColor?.nsColor) }
-        set { set(associatedValue: newValue, key: "_shadowColor", object: self) }
+        set { set(associatedValue: newValue, key: "_shadowColor", object: self)
+            setupEffectiveAppearanceObserver()
+        }
     }
     
     var _borderColor: NSUIColor? {
         get { getAssociatedValue(key: "_borderColor", object: self, initialValue: self.layer?.borderColor?.nsColor) }
-        set { set(associatedValue: newValue, key: "_borderColor", object: self) }
+        set { set(associatedValue: newValue, key: "_borderColor", object: self)
+            setupEffectiveAppearanceObserver()
+        }
     }
     
     var __backgroundColor: NSUIColor? {
         get { getAssociatedValue(key: "__backgroundColor", object: self, initialValue: self.layer?.backgroundColor?.nsColor) }
-        set { set(associatedValue: newValue, key: "__backgroundColor", object: self) }
+        set { 
+            set(associatedValue: newValue, key: "__backgroundColor", object: self)
+            setupEffectiveAppearanceObserver()
+        }
     }
     
     var needsEffectiveAppearanceObserver: Bool {

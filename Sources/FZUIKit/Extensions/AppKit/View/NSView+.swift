@@ -489,7 +489,6 @@ extension NSView {
             }
             _borderColor = newValue
             layer?.borderColor = newValue?.cgColor
-            setupEffectiveAppearanceObserver()
         }
     }
         
@@ -509,7 +508,6 @@ extension NSView {
             }
             _shadowColor = newValue
             layer?.shadowColor = newValue?.cgColor
-            setupEffectiveAppearanceObserver()
         }
     }
     
