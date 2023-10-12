@@ -41,6 +41,6 @@ public extension CGImage {
     }
     
     internal var nsUIImage: NSUIImage {
-        return UIImage(cgImage: self)
+        return NSUIImage(cgImage: self)
     }
 }
