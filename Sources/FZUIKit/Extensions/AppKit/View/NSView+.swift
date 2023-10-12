@@ -430,6 +430,19 @@ extension NSView {
             Swift.print("cornerRadius 1", self, self.maskToBounds)
         }
     }
+    
+    public var _cornerRadius: CGFloat {
+        get { layer?.cornerRadius ?? 0.0 }
+        set {
+            Swift.print("cornerRadius 0", self, self.maskToBounds)
+            let maskToBounds = self.maskToBounds
+            wantsLayer = true
+            layer?.cornerRadius = newValue
+            // fix for macOS 14.0 bug
+            self.maskToBounds = maskToBounds
+            Swift.print("cornerRadius 1", self, self.maskToBounds)
+        }
+    }
 
     /**
      The corner curve of the view.
