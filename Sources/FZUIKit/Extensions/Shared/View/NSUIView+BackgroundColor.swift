@@ -52,7 +52,7 @@ internal extension NSView {
                     }
                     layer?.backgroundColorObserver = layer?.observeChanges(for: \.backgroundColor)  { [weak self] _, new in
                         guard let self = self else { return }
-                        if new != self.backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+                        if self.isProxy() == false, new != self.backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
                             Swift.print("backgroundColor not same")
                             set(associatedValue: new?.nsColor, key: "_viewBackgroundColor", object: self)
                         }
