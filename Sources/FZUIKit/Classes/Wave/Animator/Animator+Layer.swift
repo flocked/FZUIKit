@@ -55,9 +55,9 @@ extension Animator where Object: CALayer {
     }
         
     /// The opacity value of the layer.
-    public var opacity: CGFloat {
-        get { value(for: \._opacity) }
-        set { setValue(newValue, for: \._opacity) }
+    internal var opacity: CGFloat {
+        get { CGFloat(value(for: \.opacity)) }
+        set { setValue(Float(newValue), for: \.opacity) }
     }
     
     /// The scale of the layer.
