@@ -134,7 +134,7 @@ extension Animator where Object: CALayer {
     }
 }
 
-fileprivate extension CALayer {
+internal extension CALayer {
     var _backgroundColor: NSUIColor? {
         get {
             #if os(macOS)
