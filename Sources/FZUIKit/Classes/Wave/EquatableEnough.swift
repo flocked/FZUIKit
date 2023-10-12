@@ -6,6 +6,8 @@
 //  Taken from https://github.com/b3ll/Motion
 
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import CoreGraphics
 import Foundation
 import simd
@@ -241,3 +243,5 @@ extension AdditiveArithmetic {
     return delta.isFinite && delta <= bound
   }
 }
+
+#endif

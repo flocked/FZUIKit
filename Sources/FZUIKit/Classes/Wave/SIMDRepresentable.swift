@@ -5,6 +5,8 @@
 //  Created by Adam Bell on 8/1/20.
 //  Taken from https://github.com/b3ll/Motion
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import CoreGraphics
 import Foundation
 import simd
@@ -265,3 +267,5 @@ extension CGColor: SIMDRepresentable {
         return lhs.simdRepresentation() < rhs.simdRepresentation()
     }
 }
+
+#endif

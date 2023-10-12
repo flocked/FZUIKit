@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 07.10.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 import FZSwiftUtils
 
@@ -147,3 +149,5 @@ internal extension Animator {
         animation.start(afterDelay: settings.delay)
     }
 }
+
+#endif

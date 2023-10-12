@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 07.10.23.
 //
 
+#if canImport(QuartzCore)
 import Foundation
 import QuartzCore
 
@@ -96,3 +97,4 @@ extension CASpringAnimation {
         CASpringAnimation(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
     }
 }
+#endif
