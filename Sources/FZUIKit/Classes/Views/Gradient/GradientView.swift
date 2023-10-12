@@ -18,32 +18,38 @@ public class GradientView: NSUIView {
     public dynamic var gradient: Gradient {
         get { gradientLayer.gradient }
         set {
-            self.startPoint = newValue.startPoint.point
-            /*
-            self.endPoint = newValue.endPoint.point
-            self.colors = newValue.stops.compactMap({$0.color.cgColor})
-            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
-            self.type = newValue.type.gradientLayerType
-             */
+            if self.isProxy() {
+                self.animator().startPoint = newValue.startPoint.point
+                self.animator().endPoint = newValue.endPoint.point
+                self.animator().colors = newValue.stops.compactMap({$0.color.cgColor})
+                self.animator().locations = newValue.stops.compactMap({NSNumber($0.location)})
+                self.type = newValue.type.gradientLayerType
+            } else {
+                self.startPoint = newValue.startPoint.point
+                self.endPoint = newValue.endPoint.point
+                self.colors = newValue.stops.compactMap({$0.color.cgColor})
+                self.locations = newValue.stops.compactMap({NSNumber($0.location)})
+                self.type = newValue.type.gradientLayerType
+            }
         }
     }
         
-    @objc dynamic internal var locations: [NSNumber] {
+    @objc dynamic public var locations: [NSNumber] {
         get { gradientLayer.locations ?? [] }
         set { gradientLayer.locations = newValue }
     }
     
-    @objc dynamic internal var colors: [CGColor] {
+    @objc dynamic public var colors: [CGColor] {
         get { (gradientLayer.colors as? [CGColor]) ?? [] }
         set { gradientLayer.colors = newValue }
     }
     
-    @objc dynamic internal var startPoint: CGPoint {
+    @objc dynamic public var startPoint: CGPoint {
         get { gradientLayer.startPoint }
         set { gradientLayer.startPoint = newValue }
     }
     
-    @objc dynamic internal var endPoint: CGPoint {
+    @objc dynamic public var endPoint: CGPoint {
         get { gradientLayer.endPoint }
         set { gradientLayer.endPoint = newValue }
     }
