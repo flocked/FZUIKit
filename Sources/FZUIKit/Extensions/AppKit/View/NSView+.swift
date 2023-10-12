@@ -418,6 +418,8 @@ extension NSView {
     @objc open dynamic var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
+            Swift.print("here")
+            Swift.print("here", self.maskToBounds)
             Swift.print("cornerRadius 0", self, self.maskToBounds)
             let maskToBounds = self.maskToBounds
             wantsLayer = true
