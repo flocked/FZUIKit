@@ -416,6 +416,13 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     public dynamic var cornerRadius: CGFloat {
+        get { self._cornerRadius }
+        set {
+            self._cornerRadius = newValue
+        }
+    }
+    
+    @objc internal dynamic var _cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
             Swift.print("cornerRadius 0", self, self.maskToBounds)
@@ -775,7 +782,7 @@ internal extension NSView {
    }
 }
 
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath"]
 
 #endif
 
