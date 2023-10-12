@@ -19,10 +19,12 @@ public class GradientView: NSUIView {
         get { gradientLayer.gradient }
         set {
             self.startPoint = newValue.startPoint.point
+            /*
             self.endPoint = newValue.endPoint.point
             self.colors = newValue.stops.compactMap({$0.color.cgColor})
             self.locations = newValue.stops.compactMap({NSNumber($0.location)})
             self.type = newValue.type.gradientLayerType
+             */
         }
     }
         
