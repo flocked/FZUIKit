@@ -83,4 +83,11 @@ extension CGAffineTransform: SpringInterpolatable, VelocityProviding {
     }
 }
 
+extension Float: SpringInterpolatable, VelocityProviding {
+    public static func updateValue(spring: Spring, value: Float, target: Float, velocity: Float, dt: TimeInterval) -> (value: Float, velocity: Float) {
+        let values = CGFloat.updateValue(spring: spring, value: CGFloat(value), target: CGFloat(target), velocity: CGFloat(velocity), dt: dt)
+        return (Float(values.value), Float(values.velocity))
+    }
+}
+
 #endif

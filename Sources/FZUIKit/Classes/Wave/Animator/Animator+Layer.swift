@@ -109,8 +109,8 @@ extension Animator where Object: CALayer {
     }
     
     internal var shadowOpacity: CGFloat {
-        get { value(for: \._shadowOpacity) }
-        set { setValue(newValue, for: \._shadowOpacity) }
+        get { CGFloat(value(for: \.shadowOpacity)) }
+        set { setValue(Float(newValue), for: \.shadowOpacity) }
     }
     
     internal var shadowColor: NSUIColor? {
