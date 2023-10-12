@@ -68,45 +68,30 @@ extension Animator where Object: NSUIView {
     
     /// The scale transform of the view.
     public var scale: CGPoint {
-        get {
-            CGPoint(self.transform3D.scale.x, self.transform3D.scale.y)
-          //  value(for: \.scale)
-        }
+        get { CGPoint(self.transform3D.scale.x, self.transform3D.scale.y) }
         set {
             #if os(macOS)
             self.object.anchorPoint = CGPoint(0.5, 0.5)
             #endif
             self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
-          //  setValue(newValue, for: \.scale)
         }
     }
     
     /// The rotation of the view.
     public var rotation: CGQuaternion {
-        get { 
-            self.transform3D.rotation
-           // value(for: \._rotation)
-        }
+        get { self.transform3D.rotation }
         set {
             #if os(macOS)
             self.object.anchorPoint = CGPoint(0.5, 0.5)
             #endif
             self.transform3D.rotation = newValue
-          //  setValue(newValue, for: \._rotation)
         }
     }
     
     /// The translation transform of the view.
     public var translation: CGPoint {
-        get { 
-            CGPoint(self.transform3D.translation.x, self.transform3D.translation.y)
-           // value(for: \.translation)
-        }
-        set {
-            
-            self.transform3D.translation = Translation(newValue.x, newValue.y, object.transform3D.translation.z)
-         //   setValue(newValue, for: \.translation)
-        }
+        get {  CGPoint(self.transform3D.translation.x, self.transform3D.translation.y) }
+        set {  self.transform3D.translation = Translation(newValue.x, newValue.y, object.transform3D.translation.z) }
     }
     
     /// The corner radius of the view.

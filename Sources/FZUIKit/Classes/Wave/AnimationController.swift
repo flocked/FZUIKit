@@ -98,10 +98,6 @@ internal class AnimationController {
     }
 
     internal func executeHandler(uuid: UUID?, finished: Bool, retargeted: Bool) {
-        Swift.print("executeHandler", uuid ?? "nil", "finished", finished, "retargeted", retargeted)
-        if let uuid = uuid {
-            Swift.print("executeHandler block", groupAnimationCompletionBlocks[uuid] != nil)
-        }
         guard let uuid = uuid, let block = groupAnimationCompletionBlocks[uuid] else {
             return
         }
