@@ -546,11 +546,11 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var shadowOpacity: CGFloat {
+    public var shadowOpacity: CGFloat {
         get { CGFloat(layer?.shadowOpacity ?? .zero) }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+         //   Self.swizzleAnimationForKey()
             layer?.shadowOpacity = Float(newValue)
         }
     }
