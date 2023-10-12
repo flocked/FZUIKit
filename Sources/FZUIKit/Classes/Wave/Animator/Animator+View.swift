@@ -125,7 +125,9 @@ extension Animator where Object: NSUITextField {
     /// The font point size of the text field.
     public var fontPointSize: CGFloat {
         get { value(for: \.fontPointSize) }
-        set { setValue(newValue, for: \.fontPointSize) }
+        set { 
+            Swift.print("set", object[keyPath: \.fontPointSize])
+            setValue(newValue, for: \.fontPointSize) }
     }
 }
 
