@@ -156,19 +156,36 @@ public struct CGQuaternion {
         set { storage = simd_quatd(angle: storage.angle, axis: normalize(simd_double3(newValue))) }
     }
 
+    /// The angle of rotation (specified in radians).
     public var angle: CGFloat {
         get { return CGFloat(storage.angle) }
         set { storage = simd_quatd(angle: Double(newValue), axis: storage.axis) }
+    }
+    
+    /// The angle of rotation (specified in degree).
+    public var degree: CGFloat {
+        get { return CGFloat(storage.angle.radiansToDegrees) }
+        set { storage = simd_quatd(angle: Double(newValue.degreesToRadians), axis: storage.axis) }
     }
 
     /**
      Default initializer.
 
      - Parameter angle: The angle of rotation (specified in radians).
-     - Parameter axis: The axis of rotation (this will be normalized automatically)
+     - Parameter axis: The axis of rotation (this will be normalized automatically).
      */
     public init(angle: CGFloat, axis: CGVector3) {
         storage = simd_quatd(angle: Double(angle), axis: normalize(simd_double3(axis)))
+    }
+    
+    /**
+     Default initializer.
+
+     - Parameter degree: The angle of rotation (specified in degree).
+     - Parameter axis: The axis of rotation (this will be normalized automatically).
+     */
+    public init(degree: CGFloat, axis: CGVector3) {
+        storage = simd_quatd(angle: Double(degree.degreesToRadians), axis: normalize(simd_double3(axis)))
     }
 
     public init(_ quaternion: simd_quatd) {
