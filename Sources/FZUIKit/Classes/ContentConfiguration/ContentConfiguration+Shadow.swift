@@ -137,23 +137,6 @@ public extension NSShadow {
     }
 }
 
-public extension NSMutableAttributedString {
-    /// Configurates the shadow of the attributed string.
-    func configurate(using configuration: ContentConfiguration.Shadow) {
-        var attributes = self.attributes(at: 0, effectiveRange: nil)
-        attributes[.shadow] = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
-        self.setAttributes(attributes, range: NSRange(0..<length))
-    }
-}
-
-@available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
-public extension AttributedString {
-    /// Configurates the shadow of the attributed string.
-    mutating func configurate(using configuration: ContentConfiguration.Shadow) {
-        self.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
-    }
-}
-
 public extension NSUIView {
     /**
      Configurates the shadow of the view.
@@ -188,4 +171,23 @@ public extension CALayer {
             shadowOpacity = Float(configuration.opacity)
     }
 }
+
+/*
+public extension NSMutableAttributedString {
+    /// Configurates the shadow of the attributed string.
+    func configurate(using configuration: ContentConfiguration.Shadow) {
+        var attributes = self.attributes(at: 0, effectiveRange: nil)
+        attributes[.shadow] = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
+        self.setAttributes(attributes, range: NSRange(0..<length))
+    }
+}
+
+@available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
+public extension AttributedString {
+    /// Configurates the shadow of the attributed string.
+    mutating func configurate(using configuration: ContentConfiguration.Shadow) {
+        self.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
+    }
+}
+*/
 #endif
