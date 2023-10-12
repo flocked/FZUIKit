@@ -25,6 +25,7 @@ public typealias NSUIFontTextStyle = NSFont.TextStyle
 public typealias NSUIImage = NSImage
 public typealias NSUIStoryboard = NSStoryboard
 public typealias NSUIView = NSView
+public typealias NSUITextField = NSTextField
 public typealias NSUISegmentedControl = NSSegmentedControl
 public typealias NSUINib = NSNib
 public typealias NSUIViewController = NSViewController
@@ -85,4 +86,5 @@ public typealias NSUIViewRepresentable = UIViewRepresentable
 public typealias NSUIResponder = UIResponder
 public typealias NSUIControl = UIControl
 public typealias NSUIImageView = UIImageView
+public typealias NSUITextField = UITextField
 #endif

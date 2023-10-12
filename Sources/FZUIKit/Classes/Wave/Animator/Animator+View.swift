@@ -115,4 +115,82 @@ fileprivate extension NSUIView {
     }
 }
 
+extension Animator where Object: NSUITextField {
+    /// The text color of the text field.
+    public var textColor: NSUIColor? {
+        get { value(for: \.textColor) }
+        set { setValue(newValue, for: \.textColor) }
+    }
+    
+    /// The font point size of the text field.
+    public var fontPointSize: CGFloat {
+        get { value(for: \.fontPointSize) }
+        set { setValue(newValue, for: \.fontPointSize) }
+    }
+}
+
+internal extension NSUITextField {
+    var fontPointSize: CGFloat {
+        get { font?.pointSize ?? 0.0 }
+        set { font = font?.withSize(newValue) }
+    }
+}
+
+
+#if os(macOS)
+extension Animator where Object: NSImageView {
+    /// The tint color of the image.
+    public var contentTintColor: NSUIColor? {
+        get { value(for: \.contentTintColor) }
+        set { setValue(newValue, for: \.contentTintColor) }
+    }
+}
+
+extension Animator where Object: NSButton {
+    /// The tint color of the button.
+    public var contentTintColor: NSUIColor? {
+        get { value(for: \.contentTintColor) }
+        set { setValue(newValue, for: \.contentTintColor) }
+    }
+}
+extension Animator where Object: ImageView {
+    /// The tint color of the image.
+    public var tintColor: NSUIColor? {
+        get { value(for: \.tintColor) }
+        set { setValue(newValue, for: \.tintColor) }
+    }
+}
+#elseif canImport(UIKit)
+extension Animator where Object: UIImageView {
+    /// The tint color of the image.
+    public var tintColor: NSUIColor {
+        get { value(for: \.tintColor) }
+        set { setValue(newValue, for: \.tintColor) }
+    }
+}
+
+extension Animator where Object: UIButton {
+    /// The tint color of the button.
+    public var tintColor: NSUIColor {
+        get { value(for: \.tintColor) }
+        set { setValue(newValue, for: \.tintColor) }
+    }
+}
+
+extension Animator where Object: UILabel {
+    /// The text color of the label.
+    public var textColor: NSUIColor {
+        get { value(for: \.textColor) }
+        set { setValue(newValue, for: \.textColor) }
+    }
+}
+
+extension Animator where Object: UITextView {
+    /// The text color of the text view.
+    public var textColor: NSUIColor? {
+        get { value(for: \.textColor) }
+        set { setValue(newValue, for: \.textColor) }
+    }
+}
+#endif
 #endif
