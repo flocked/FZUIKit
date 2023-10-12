@@ -12,28 +12,22 @@ import AppKit
 import UIKit
 #endif
 
-/// A view that displays a gradient.
-public class GradientView: NSUIView {
+public extension GradientView {
     /// The gradient.
-    public dynamic var gradient: Gradient {
+    dynamic var gradient: Gradient {
         get { gradientLayer.gradient }
         set {
-            if self.isProxy() {
-                self.animator().startPoint = newValue.startPoint.point
-                self.animator().endPoint = newValue.endPoint.point
-                self.animator().colors = newValue.stops.compactMap({$0.color.cgColor})
-                self.animator().locations = newValue.stops.compactMap({NSNumber($0.location)})
-                self.type = newValue.type.gradientLayerType
-            } else {
-                self.startPoint = newValue.startPoint.point
-                self.endPoint = newValue.endPoint.point
-                self.colors = newValue.stops.compactMap({$0.color.cgColor})
-                self.locations = newValue.stops.compactMap({NSNumber($0.location)})
-                self.type = newValue.type.gradientLayerType
-            }
+            self.startPoint = newValue.startPoint.point
+            self.endPoint = newValue.endPoint.point
+            self.colors = newValue.stops.compactMap({$0.color.cgColor})
+            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
+          //  self.type = newValue.type.gradientLayerType
         }
     }
-        
+}
+
+/// A view that displays a gradient.
+public class GradientView: NSUIView {
     @objc dynamic public var locations: [NSNumber] {
         get { gradientLayer.locations ?? [] }
         set { gradientLayer.locations = newValue }
