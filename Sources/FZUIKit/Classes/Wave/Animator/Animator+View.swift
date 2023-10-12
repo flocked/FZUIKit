@@ -83,7 +83,7 @@ extension Animator where Object: NSUIView {
     
     /// The three-dimensional transform of the view.
     public var transform3D: CATransform3D {
-        get { object.optionalLayer?.transform ?? .zero }
+        get { object.optionalLayer?.transform ?? CATransform3DIdentity }
         set { object.optionalLayer?.transform = newValue }
     }
     
