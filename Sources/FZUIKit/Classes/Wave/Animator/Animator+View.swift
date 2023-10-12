@@ -50,68 +50,58 @@ extension Animator where Object: NSUIView {
         
     /// The background color of the view.
     public var backgroundColor: NSUIColor? {
-        get { value(for: \.backgroundColor) }
-        set { 
-            #if os(macOS)
-            setValue(newValue, for: \._backgroundColor)
-            #elseif canImport(UIKit)
-            setValue(newValue, for: \.backgroundColor)
-            #endif
-        }
+        get { object.optionalLayer?.animator.backgroundColor }
+        set { object.optionalLayer?.animator.backgroundColor = newValue }
     }
         
     /// The alpha value of the view.
     public var alpha: CGFloat {
-        get { value(for: \.alpha) }
-        set { setValue(newValue, for: \.alpha) }
+        get { object.optionalLayer?.animator.opacity ?? 1.0 }
+        set { object.optionalLayer?.animator.opacity = newValue }
     }
     
     /// The scale transform of the view.
     public var scale: CGPoint {
-        get { CGPoint(self.transform3D.scale.x, self.transform3D.scale.y) }
-        set { self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z) }
+        get { object.optionalLayer?.animator.scale ?? CGPoint(1, 1) }
+        set { object.optionalLayer?.animator.scale = newValue  }
     }
     
     /// The rotation of the view.
     public var rotation: CGQuaternion {
-        get { self.transform3D.rotation }
-        set { self.transform3D.rotation = newValue }
+        get { object.optionalLayer?.animator.rotation ?? .zero }
+        set { object.optionalLayer?.animator.rotation = newValue }
     }
     
     /// The translation transform of the view.
     public var translation: CGPoint {
-        get { CGPoint(self.transform3D.translation.x, self.transform3D.translation.y) }
-        set { self.transform3D.translation = Translation(newValue.x, newValue.y, self.transform3D.translation.z) }
+        get { 
+            let translation = object.optionalLayer?.animator.translation ?? .zero
+            return CGPoint(translation.x, translation.y) }
+        set { object.optionalLayer?.animator.translation = newValue }
     }
     
     /// The corner radius of the view.
     public var cornerRadius: CGFloat {
-        get { value(for: \.cornerRadius) }
-        set { setValue(newValue, for: \.cornerRadius) }
+        get { object.optionalLayer?.animator.cornerRadius ?? 0.0 }
+        set { object.optionalLayer?.animator.cornerRadius = newValue }
     }
     
     /// The border color of the view.
     public var borderColor: NSUIColor? {
-        get { value(for: \.borderColor) }
-        set { setValue(newValue, for: \.borderColor) }
+        get { object.optionalLayer?.animator.borderColor ?? .zero }
+        set { object.optionalLayer?.animator.borderColor = newValue }
     }
     
     /// The border width of the view.
     public var borderWidth: CGFloat {
-        get { value(for: \.borderWidth) }
-        set { setValue(newValue, for: \.borderWidth) }
+        get { object.optionalLayer?.animator.borderWidth ?? 0.0 }
+        set { object.optionalLayer?.animator.borderWidth = newValue }
     }
     
     /// The shadow of the view.
     public var shadow: ContentConfiguration.Shadow {
-        get { ContentConfiguration.Shadow(color: shadowColor != .clear ? shadowColor : nil, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height) ) }
-        set {
-            guard newValue != shadow else { return }
-            self.shadowColor = newValue.color
-            self.shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
-            self.shadowRadius = newValue.radius
-            self.shadowOpacity = newValue.opacity
-        }
+        get { object.optionalLayer?.animator.shadow ?? .none() }
+        set { object.optionalLayer?.animator.shadow = newValue }
     }
     
     internal var shadowOpacity: CGFloat {
@@ -142,6 +132,15 @@ extension Animator where Object: NSUIView {
     internal var transform: CGAffineTransform {
         get { value(for: \.transform) }
         set { setValue(newValue, for: \.transform) }
+    }
+}
+
+fileprivate extension NSUIView {
+    var optionalLayer: CALayer? {
+        #if os(macOS)
+        self.wantsLayer = true
+        #endif
+        return self.layer
     }
 }
 
