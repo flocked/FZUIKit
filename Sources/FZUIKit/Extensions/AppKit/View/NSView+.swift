@@ -352,7 +352,6 @@ extension NSView {
         }
         set {
             wantsLayer = true
-            Swift.print("rotation", newValue)
             Self.swizzleAnimationForKey()
             self.transform3D.rotation = newValue
         }
@@ -762,7 +761,6 @@ internal extension NSView {
     }
     
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        Swift.print("swizzled_Animation", key)
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default

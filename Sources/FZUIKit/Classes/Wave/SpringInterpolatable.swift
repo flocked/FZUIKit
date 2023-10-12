@@ -92,4 +92,42 @@ extension Float: SpringInterpolatable, VelocityProviding {
 
 extension CGColor: SpringInterpolatable, VelocityProviding { }
 
+/*
+extension ContentConfiguration.Shadow: SpringInterpolatable, VelocityProviding {
+    public static func updateValue(spring: Spring, value: ContentConfiguration.Shadow, target: ContentConfiguration.Shadow, velocity: ContentConfiguration.Shadow, dt: TimeInterval) -> (value: ContentConfiguration.Shadow, velocity: ContentConfiguration.Shadow) {
+        let opacity = CGFloat.updateValue(spring: spring, value: value.opacity, target: target.opacity, velocity: velocity.opacity, dt: dt)
+        let radius = CGFloat.updateValue(spring: spring, value: value.radius, target: target.radius, velocity: velocity.radius, dt: dt)
+        let color = NSUIColor.updateValue(spring: spring, value: value.color ?? .zero, target: target.color ?? .zero, velocity: velocity.color ?? .zero, dt: dt)
+        let offset = CGPoint.updateValue(spring: spring, value: value.offset, target: target.offset, velocity: velocity.offset, dt: dt)
+        return (ContentConfiguration.Shadow(color: color.value, opacity: opacity.value, radius: radius.value, offset: offset.value), ContentConfiguration.Shadow(color: color.velocity, opacity: opacity.velocity, radius: radius.velocity, offset: offset.velocity))
+    }
+    
+    public var scaledIntegral: ContentConfiguration.Shadow {
+        ContentConfiguration.Shadow(color: color?.scaledIntegral, opacity: opacity.scaledIntegral, radius: radius.scaledIntegral, offset: offset.scaledIntegral)
+    }
+    
+    public static var zero: ContentConfiguration.Shadow {
+        .none()
+    }
+}
+
+extension ContentConfiguration.InnerShadow: SpringInterpolatable, VelocityProviding {
+    public static func updateValue(spring: Spring, value: ContentConfiguration.InnerShadow, target: ContentConfiguration.InnerShadow, velocity: ContentConfiguration.InnerShadow, dt: TimeInterval) -> (value: ContentConfiguration.InnerShadow, velocity: ContentConfiguration.InnerShadow) {
+        let opacity = CGFloat.updateValue(spring: spring, value: value.opacity, target: target.opacity, velocity: velocity.opacity, dt: dt)
+        let radius = CGFloat.updateValue(spring: spring, value: value.radius, target: target.radius, velocity: velocity.radius, dt: dt)
+        let color = NSUIColor.updateValue(spring: spring, value: value.color ?? .zero, target: target.color ?? .zero, velocity: velocity.color ?? .zero, dt: dt)
+        let offset = CGPoint.updateValue(spring: spring, value: value.offset, target: target.offset, velocity: velocity.offset, dt: dt)
+        return (ContentConfiguration.InnerShadow(color: color.value, opacity: opacity.value, radius: radius.value, offset: offset.value), ContentConfiguration.InnerShadow(color: color.velocity, opacity: opacity.velocity, radius: radius.velocity, offset: offset.velocity))
+    }
+    
+    public var scaledIntegral: ContentConfiguration.InnerShadow {
+        ContentConfiguration.InnerShadow(color: color?.scaledIntegral, opacity: opacity.scaledIntegral, radius: radius.scaledIntegral, offset: offset.scaledIntegral)
+    }
+    
+    public static var zero: ContentConfiguration.InnerShadow {
+        .none()
+    }
+}
+ */
+
 #endif

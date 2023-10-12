@@ -81,6 +81,12 @@ extension Animator where Object: NSUIView {
         set { object.optionalLayer?.animator.shadow = newValue }
     }
     
+    /// The inner shadow of the view.
+    public var innerShadow: ContentConfiguration.InnerShadow {
+        get { object.optionalLayer?.animator.innerShadow ?? .none() }
+        set { object.optionalLayer?.animator.innerShadow = newValue }
+    }
+    
     /// The three-dimensional transform of the view.
     public var transform3D: CATransform3D {
         get { object.optionalLayer?.transform ?? CATransform3DIdentity }

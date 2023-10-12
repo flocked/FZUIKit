@@ -7,5 +7,5 @@
 
 import Foundation
 
-/// A collection of configurations for
+/// Configurations that describe the styling, appearance and behavior of an element.
 public struct ContentConfiguration { }

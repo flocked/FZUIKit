@@ -148,7 +148,7 @@ public extension simd_float4 {
     }
 }
 
-public struct CGQuaternion {
+public struct CGQuaternion: Hashable {
     internal var storage: simd_quatd
 
     public var axis: CGVector3 {

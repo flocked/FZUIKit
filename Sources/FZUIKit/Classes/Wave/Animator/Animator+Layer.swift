@@ -133,6 +133,37 @@ extension Animator where Object: CALayer {
         get { value(for: \.shadowRadius) }
         set { setValue(newValue, for: \.shadowRadius) }
     }
+    
+    /// The inner shadow of the layer.
+    public var innerShadow: ContentConfiguration.InnerShadow {
+        get { ContentConfiguration.InnerShadow(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: innerShadowOffset ) }
+        set {
+            innerShadowColor = newValue.color
+            innerShadowRadius = newValue.radius
+            innerShadowOffset = newValue.offset
+            innerShadowOpacity = newValue.opacity
+        }
+    }
+    
+    internal var innerShadowOpacity: CGFloat {
+        get { value(for: \.innerShadowOpacity) }
+        set { setValue(newValue, for: \.innerShadowOpacity) }
+    }
+    
+    internal var innerShadowRadius: CGFloat {
+        get { value(for: \.innerShadowRadius) }
+        set { setValue(newValue, for: \.innerShadowRadius) }
+    }
+    
+    internal var innerShadowOffset: CGPoint {
+        get { value(for: \.innerShadowOffset) }
+        set { setValue(newValue, for: \.innerShadowOffset) }
+    }
+    
+    internal var innerShadowColor: NSUIColor? {
+        get { value(for: \.innerShadowColor) }
+        set { setValue(newValue, for: \.innerShadowColor) }
+    }
 }
 
 extension Animator where Object: CATextLayer {
@@ -152,6 +183,33 @@ fileprivate extension CATextLayer {
         get { self.foregroundColor?.nsUIColor }
         set { self.foregroundColor = newValue?.cgColor }
     }
+}
+
+fileprivate extension CALayer {
+    var innerShadow: ContentConfiguration.InnerShadow {
+        get { self.innerShadowLayer?.configuration ?? .none() }
+        set { self.configurate(using: newValue) }
+    }
+    
+   @objc var innerShadowOpacity: CGFloat {
+        get { innerShadow.opacity }
+        set { innerShadow.opacity = newValue }
+    }
+    
+    @objc var innerShadowRadius: CGFloat {
+         get { innerShadow.radius }
+         set { innerShadow.radius = newValue }
+     }
+    
+    @objc var innerShadowColor: NSUIColor? {
+         get { innerShadow.color }
+         set { innerShadow.color = newValue }
+     }
+    
+    @objc var innerShadowOffset: CGPoint {
+         get { innerShadow.offset }
+         set { innerShadow.offset = newValue }
+     }
 }
 
 

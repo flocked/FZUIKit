@@ -115,6 +115,29 @@ public extension Collection where Element: NSLayoutConstraint {
     }
     #endif
     
+    /*
+    var insets: NSDirectionalEdgeInsets {
+        get {
+            var newInsets = NSDirectionalEdgeInsets()
+            newInsets.leading = self.leading?.constant ?? 0
+            newInsets.trailing = -(self.trailing?.constant ?? 0)
+            newInsets.bottom = -(self.bottom?.constant ?? 0)
+            newInsets.top = self.top?.constant ?? 0
+            newInsets.width = -(self.width?.constant ?? 0)
+            newInsets.height = -(self.height?.constant ?? 0)
+            return newInsets
+        }
+        set {
+            self.leading?.constant(newValue.leading)
+            self.trailing?.constant(-newValue.trailing)
+            self.bottom?.constant(-newValue.bottom)
+            self.top?.constant(newValue.top)
+            self.width?.constant(-newValue.width)
+            self.height?.constant(-newValue.height)
+        }
+    }
+    */
+    
     /// The leading or left constraint.
     var leading: NSLayoutConstraint? { self.first(where: {$0.firstAttribute == .leading || $0.firstAttribute == .left}) }
     

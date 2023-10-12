@@ -51,11 +51,11 @@ public extension ContentConfiguration {
         /// The inner shadow of the view.
         public var innerShadow: InnerShadow = .none()
         
-        /// The corner radius of the view.
-        public var cornerRadius: CGFloat = 0.0
-        
         /// The alpha value of the view.
         public var alpha: CGFloat = 1.0
+        
+        /// The corner radius of the view.
+        public var cornerRadius: CGFloat = 0.0
         
         /// The corner curve of the view.
         public var cornerCurve: CALayerCornerCurve = .circular
@@ -68,6 +68,9 @@ public extension ContentConfiguration {
         
         /// The scale transform of the view.
         public var scale: CGSize = CGSize(width: 1, height: 1)
+        
+        /// The rotation of the view.
+        public var rotation: CGQuaternion = .zero
         
         public init() {
             
@@ -103,12 +106,9 @@ public extension NSUIView {
         self.configurate(using: configuration.shadow)
         self.configurate(using: configuration.innerShadow)
         self.visualEffect = configuration.visualEffect
+        self.scale = CGPoint(configuration.scale.width, configuration.scale.height)
+        self.rotation = configuration.rotation
     }
 }
 
 #endif
-
-/*
- transform: CGAffineTransform {
- var transform3D: CATransform3D
- */

@@ -43,7 +43,6 @@ public class Animator<Object: Animatable> {
     internal init(_ object: Object) {
         self.object = object
     }
-
 }
 
 internal extension Animator {
@@ -64,6 +63,18 @@ internal extension Animator {
     func value<Value: SpringInterpolatable>(for keyPath: WritableKeyPath<Object, Value?>) -> Value? where Value.ValueType == Value, Value.VelocityType == Value {
         return animation(for: keyPath)?.target ?? object[keyPath: keyPath]
     }
+    
+    /*
+    func setValueNonAnimated<Value: SpringInterpolatable>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>) where Value.ValueType == Value, Value.VelocityType == Value {
+        if animation(for: keyPath) != nil {
+            Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
+                self.setValue(newValue, for: keyPath)
+            }
+        } else {
+            object[keyPath: keyPath] = newValue
+        }
+    }
+    */
     
     func setValue<Value: SpringInterpolatable>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>) where Value.ValueType == Value, Value.VelocityType == Value {
         guard animation(for: keyPath)?.target ?? object[keyPath: keyPath] != newValue else {
