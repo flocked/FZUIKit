@@ -1,5 +1,5 @@
 //
-//  ViewAnimator.swift
+//  Animator+View.swift
 //
 //  Modified by Florian Zand
 //  Original: Copyright (c) 2022 Janum Trivedi.
@@ -30,10 +30,7 @@ extension Animator where Object: NSUIView {
     /// The size of the view. Changing this value keeps the view centered.
     public var size: CGSize {
         get { frame.size }
-        set {
-            guard size != newValue else { return }
-            frame.sizeCentered = newValue
-        }
+        set { frame.sizeCentered = newValue }
     }
     
     /// The origin of the view.
@@ -60,26 +57,6 @@ extension Animator where Object: NSUIView {
         set { object.optionalLayer?.animator.opacity = newValue }
     }
     
-    /// The scale transform of the view.
-    public var scale: CGPoint {
-        get { object.optionalLayer?.animator.scale ?? CGPoint(1, 1) }
-        set { object.optionalLayer?.animator.scale = newValue  }
-    }
-    
-    /// The rotation of the view.
-    public var rotation: CGQuaternion {
-        get { object.optionalLayer?.animator.rotation ?? .zero }
-        set { object.optionalLayer?.animator.rotation = newValue }
-    }
-    
-    /// The translation transform of the view.
-    public var translation: CGPoint {
-        get { 
-            let translation = object.optionalLayer?.animator.translation ?? .zero
-            return CGPoint(translation.x, translation.y) }
-        set { object.optionalLayer?.animator.translation = newValue }
-    }
-    
     /// The corner radius of the view.
     public var cornerRadius: CGFloat {
         get { object.optionalLayer?.animator.cornerRadius ?? 0.0 }
@@ -104,34 +81,28 @@ extension Animator where Object: NSUIView {
         set { object.optionalLayer?.animator.shadow = newValue }
     }
     
-    internal var shadowOpacity: CGFloat {
-        get { value(for: \.shadowOpacity) }
-        set { setValue(newValue, for: \.shadowOpacity) }
+    /// The three-dimensional transform of the view.
+    public var transform3D: CATransform3D {
+        get { object.optionalLayer?.transform ?? .zero }
+        set { object.optionalLayer?.transform = newValue }
     }
     
-    internal var shadowColor: NSUIColor? {
-        get { value(for: \.shadowColor) }
-        set { setValue(newValue, for: \.shadowColor) }
+    /// The scale transform of the view.
+    public var scale: CGPoint {
+        get { object.optionalLayer?.animator.scale ?? CGPoint(1, 1) }
+        set { object.optionalLayer?.animator.scale = newValue  }
     }
     
-    internal var shadowOffset: CGSize {
-        get { value(for: \.shadowOffset) }
-        set { setValue(newValue, for: \.shadowOffset) }
+    /// The rotation transform of the view.
+    public var rotation: CGQuaternion {
+        get { object.optionalLayer?.animator.rotation ?? .zero }
+        set { object.optionalLayer?.animator.rotation = newValue }
     }
     
-    internal var shadowRadius: CGFloat {
-        get { value(for: \.shadowRadius) }
-        set { setValue(newValue, for: \.shadowRadius) }
-    }
-    
-    internal var transform3D: CATransform3D {
-        get { value(for: \.transform3D) }
-        set { setValue(newValue, for: \.transform3D) }
-    }
-    
-    internal var transform: CGAffineTransform {
-        get { value(for: \.transform) }
-        set { setValue(newValue, for: \.transform) }
+    /// The translation transform of the view.
+    public var translation: CGPoint {
+        get { object.optionalLayer?.animator.translation ?? .zero }
+        set { object.optionalLayer?.animator.translation = newValue }
     }
 }
 

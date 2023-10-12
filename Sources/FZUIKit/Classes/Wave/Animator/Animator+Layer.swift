@@ -29,13 +29,7 @@ extension Animator where Object: CALayer {
     
     /// The background color of the layer.
     public var backgroundColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            value(for: \.backgroundColor)?.nsColor
-            #elseif canImport(UIKit)
-            value(for: \.backgroundColor)?.uiColor
-            #endif
-        }
+        get { value(for: \.backgroundColor)?.nsUIColor }
         set { setValue(newValue?.cgColor, for: \.backgroundColor) }
     }
     
@@ -66,22 +60,28 @@ extension Animator where Object: CALayer {
         set { setValue(Float(newValue), for: \.opacity) }
     }
     
+    /// The three-dimensional transform of the layer.
+    public var transform: CATransform3D {
+        get { value(for: \.transform) }
+        set { setValue(newValue, for: \.transform) }
+    }
+    
     /// The scale of the layer.
     public var scale: CGPoint {
-        get { CGPoint(self.transform3D.scale.x, self.transform3D.scale.y) }
-        set { self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z) }
+        get { CGPoint(self.transform.scale.x, self.transform.scale.y) }
+        set { self.transform.scale = Scale(newValue.x, newValue.y, transform.scale.z) }
     }
     
     /// The rotation of the layer.
     public var rotation: CGQuaternion {
-        get { self.transform3D.rotation }
-        set { self.transform3D.rotation = newValue }
+        get { self.transform.rotation }
+        set { self.transform.rotation = newValue }
     }
     
     /// The translation transform of the layer.
     public var translation: CGPoint {
-        get { CGPoint(self.transform3D.translation.x, self.transform3D.translation.y) }
-        set { self.transform3D.translation = Translation(newValue.x, newValue.y, self.transform3D.translation.z) }
+        get { CGPoint(self.transform.translation.x, self.transform.translation.y) }
+        set { self.transform.translation = Translation(newValue.x, newValue.y, self.transform.translation.z) }
     }
     
     /// The corner radius of the layer.
@@ -92,13 +92,7 @@ extension Animator where Object: CALayer {
     
     /// The border color of the layer.
     public var borderColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            value(for: \.borderColor)?.nsColor
-            #elseif canImport(UIKit)
-            value(for: \.borderColor)?.uiColor
-            #endif
-        }
+        get { value(for: \.borderColor)?.nsUIColor }
         set { setValue(newValue?.cgColor, for: \.borderColor) }
     }
     
@@ -126,13 +120,7 @@ extension Animator where Object: CALayer {
     }
     
     internal var shadowColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            value(for: \.shadowColor)?.nsColor
-            #elseif canImport(UIKit)
-            value(for: \.shadowColor)?.uiColor
-            #endif
-        }
+        get { value(for: \.shadowColor)?.nsUIColor }
         set { setValue(newValue?.cgColor, for: \.shadowColor) }
     }
     
@@ -145,60 +133,7 @@ extension Animator where Object: CALayer {
         get { value(for: \.shadowRadius) }
         set { setValue(newValue, for: \.shadowRadius) }
     }
-    
-    internal var transform3D: CATransform3D {
-        get { value(for: \.transform) }
-        set { setValue(newValue, for: \.transform) }
-    }
 }
-
-internal extension CALayer {
-    /*
-    var _backgroundColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            self.backgroundColor?.nsColor
-            #elseif canImport(UIKit)
-            self.backgroundColor?.uiColor
-            #endif
-        }
-        set { self.backgroundColor = newValue?.cgColor }
-    }
-    
-    var _shadowColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            self.shadowColor?.nsColor
-            #elseif canImport(UIKit)
-            self.shadowColor?.uiColor
-            #endif
-        }
-        set { self.shadowColor = newValue?.cgColor }
-    }
-    
-    var _borderColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            self.borderColor?.nsColor
-            #elseif canImport(UIKit)
-            self.borderColor?.uiColor
-            #endif
-        }
-        set { self.borderColor = newValue?.cgColor }
-    }
-    
-    var _opacity: CGFloat {
-        get { CGFloat(opacity) }
-        set { opacity = Float(newValue) }
-    }
-    
-    var _shadowOpacity: CGFloat {
-        get { CGFloat(shadowOpacity) }
-        set { shadowOpacity = Float(newValue) }
-    }
-    */
-}
-
 
 
 #endif

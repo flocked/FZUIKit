@@ -62,6 +62,10 @@ public extension CGColor {
     }
     #endif
     
+    internal var nsUIColor: NSUIColor? {
+        return NSUIColor(cgColor: self)
+    }
+    
     /// Returns a `Color` representation of the color.
     var swiftUI: Color? {
         #if os(macOS)
