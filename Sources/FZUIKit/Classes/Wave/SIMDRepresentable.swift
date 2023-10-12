@@ -256,15 +256,11 @@ extension CGColor: SIMDRepresentable {
     }
     
     /// `SIMD4` representation of the value.
-    @inlinable public func simdRepresentation() -> SIMD4<CGFloat.NativeType> {
-        #if os(macOS)
-        let color = self.nsColor
-        #elseif canImport(UIKit)
-        let color = self.uiColor
-        #endif
-        let rgba = color?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
+    public func simdRepresentation() -> SIMD4<CGFloat.NativeType> {
+        let rgba = self.nsUIColor?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
     }
+    
     @inlinable public static func < (lhs: CGColor, rhs: CGColor) -> Bool {
         return lhs.simdRepresentation() < rhs.simdRepresentation()
     }

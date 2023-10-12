@@ -17,10 +17,9 @@ import FZSwiftUtils
 /// A layer with an inner shadow.
 public class InnerShadowLayer: CALayer {
     
-#if os(macOS)
     /// The configuration of the inner shadow.
     public var configuration: ContentConfiguration.InnerShadow {
-        get { ContentConfiguration.InnerShadow(color: self.shadowColor?.nsColor, opacity: CGFloat(self.shadowOpacity), radius: self.shadowRadius, offset: CGPoint(x: self.shadowOffset.width, y: self.shadowOffset.height))  }
+        get { ContentConfiguration.InnerShadow(color: self.shadowColor?.nsUIColor, opacity: CGFloat(self.shadowOpacity), radius: self.shadowRadius, offset: CGPoint(x: self.shadowOffset.width, y: self.shadowOffset.height))  }
         set {
             self.shadowColor = newValue.color?.cgColor
             self.shadowOpacity = Float(newValue.opacity)
@@ -28,18 +27,6 @@ public class InnerShadowLayer: CALayer {
             self.shadowRadius = newValue.radius
         }
     }
-#elseif canImport(UIKit)
-    /// The configuration of the inner shadow.
-    public var configuration: ContentConfiguration.InnerShadow {
-        get { ContentConfiguration.InnerShadow(color: self.shadowColor?.uiColor, opacity: CGFloat(self.shadowOpacity), radius: self.shadowRadius, offset: CGPoint(x: self.shadowOffset.width, y: self.shadowOffset.height))  }
-        set {
-            self.shadowColor = newValue.color?.cgColor
-            self.shadowOpacity = Float(newValue.opacity)
-            self.shadowOffset = CGSize(width: newValue.offset.x, height: newValue.offset.y)
-            self.shadowRadius = newValue.radius
-        }
-    }
-#endif
     
 
     /**
