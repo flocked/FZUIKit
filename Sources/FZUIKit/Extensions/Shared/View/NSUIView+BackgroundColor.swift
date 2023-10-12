@@ -33,8 +33,8 @@ public extension BackgroundColorSettable where Self: NSView {
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
-            self._backgroundColor = newValue
             set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
+            self._backgroundColor = newValue
         }
     }
 }
