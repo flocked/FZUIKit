@@ -46,8 +46,8 @@ public extension ContentConfiguration {
         /// The offset of the shadow.
         public var offset: CGPoint = .init(x: 1.0, y: -1.5)
 
-        /// A Boolean value that indicates whether the shadow is invisible.
-        internal var isInvisible: Bool {
+        /// A Boolean value that indicates whether the shadow is invisible (when the color is `nil`, `clear` or the opacity `0`).
+        public var isInvisible: Bool {
             return (_resolvedColor == nil || _resolvedColor == .clear || opacity == 0.0)
         }
         

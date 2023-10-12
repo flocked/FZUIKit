@@ -88,10 +88,11 @@ public extension ContentConfiguration {
             _resolvedColor = resolvedColor()
         }
         
-        /// A Boolean value that indicates whether the border is invisible.
-        internal var isInvisible: Bool {
+        /// A Boolean value that indicates whether the border is invisible (when the color is `nil`, `clear` or the width `0`).
+        public var isInvisible: Bool {
             return (self.width == 0.0 || self._resolvedColor == nil || self._resolvedColor == .clear)
         }
+        
         internal var needsDashedBordlerLayer: Bool {
            return (self.insets != .zero || self.dashPattern != nil)
         }
