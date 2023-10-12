@@ -41,7 +41,7 @@ public extension BackgroundColorSettable where Self: NSView {
 internal extension NSView {
     
     @objc dynamic var _backgroundColor: NSColor? {
-        get { self.layer?.backgroundColor?.nsColor }
+        get { layer?.backgroundColor?.nsColor }
         set {
             wantsLayer = true
             __backgroundColor = newValue
@@ -80,32 +80,6 @@ internal extension NSView {
                 _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                     self?.updateEffectiveColors()
                 }
-                /*
-                if let layer = self.layer, layer.colorObserver == nil {
-                    layer.colorObserver = KeyValueObserver(layer)
-                    layer.colorObserver?.add(\.backgroundColor, handler: { [weak self] _, color in
-                        guard let self = self else { return }
-                        if color != self.__backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
-                            self.__backgroundColor = color?.nsColor
-                            self.setupEffectiveAppearanceObserver()
-                        }
-                    })
-                    layer.colorObserver?.add(\.borderColor, handler: { [weak self] _, color in
-                        guard let self = self else { return }
-                        if color != self._borderColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
-                            self._borderColor = color?.nsColor
-                            self.setupEffectiveAppearanceObserver()
-                        }
-                    })
-                    layer.colorObserver?.add(\.shadowColor, handler: { [weak self] _, color in
-                        guard let self = self else { return }
-                        if color != self._shadowColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
-                            self._shadowColor = color?.nsColor
-                            self.setupEffectiveAppearanceObserver()
-                        }
-                    })
-                }
-                 */
             }
         } else {
             _effectiveAppearanceKVO?.invalidate()
@@ -167,3 +141,30 @@ public extension NSUIView {
     }
 }
 #endif
+
+/*
+if let layer = self.layer, layer.colorObserver == nil {
+    layer.colorObserver = KeyValueObserver(layer)
+    layer.colorObserver?.add(\.backgroundColor, handler: { [weak self] _, color in
+        guard let self = self else { return }
+        if color != self.__backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+            self.__backgroundColor = color?.nsColor
+            self.setupEffectiveAppearanceObserver()
+        }
+    })
+    layer.colorObserver?.add(\.borderColor, handler: { [weak self] _, color in
+        guard let self = self else { return }
+        if color != self._borderColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+            self._borderColor = color?.nsColor
+            self.setupEffectiveAppearanceObserver()
+        }
+    })
+    layer.colorObserver?.add(\.shadowColor, handler: { [weak self] _, color in
+        guard let self = self else { return }
+        if color != self._shadowColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
+            self._shadowColor = color?.nsColor
+            self.setupEffectiveAppearanceObserver()
+        }
+    })
+}
+ */
