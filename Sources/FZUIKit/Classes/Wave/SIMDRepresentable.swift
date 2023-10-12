@@ -242,3 +242,30 @@ extension CGQuaternion: SIMDRepresentable {
         lhs.storage.vector < rhs.storage.vector
     }
 }
+
+extension SIMDRepresentable where Self: CGColor {
+    /// Initializes with a `SIMD4`.
+    @inlinable public init(_ simdRepresentation: SIMD4<CGFloat.NativeType>) {
+        self.init(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3])
+    }
+}
+
+extension CGColor: SIMDRepresentable {
+    public static var zero: Self {
+        Self(red: 0, green: 0, blue: 0, alpha: 0)
+    }
+    
+    /// `SIMD4` representation of the value.
+    @inlinable public func simdRepresentation() -> SIMD4<CGFloat.NativeType> {
+        #if os(macOS)
+        let color = self.nsColor
+        #elseif canImport(UIKit)
+        let color = self.uiColor
+        #endif
+        let rgba = color?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
+        return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
+    }
+    @inlinable public static func < (lhs: CGColor, rhs: CGColor) -> Bool {
+        return lhs.simdRepresentation() < rhs.simdRepresentation()
+    }
+}

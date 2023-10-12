@@ -29,8 +29,14 @@ extension Animator where Object: CALayer {
     
     /// The background color of the layer.
     public var backgroundColor: NSUIColor? {
-        get { value(for: \._backgroundColor) }
-        set { setValue(newValue, for: \._backgroundColor) }
+        get {
+            #if os(macOS)
+            value(for: \.backgroundColor)?.nsColor
+            #elseif canImport(UIKit)
+            value(for: \.backgroundColor)?.uiColor
+            #endif
+        }
+        set { setValue(newValue?.cgColor, for: \.backgroundColor) }
     }
     
     /// The size of the layer. Changing this value keeps the layer centered.
@@ -86,8 +92,14 @@ extension Animator where Object: CALayer {
     
     /// The border color of the layer.
     public var borderColor: NSUIColor? {
-        get { value(for: \._borderColor) }
-        set { setValue(newValue, for: \._borderColor) }
+        get {
+            #if os(macOS)
+            value(for: \.borderColor)?.nsColor
+            #elseif canImport(UIKit)
+            value(for: \.borderColor)?.uiColor
+            #endif
+        }
+        set { setValue(newValue?.cgColor, for: \.borderColor) }
     }
     
     /// The border width of the layer.
@@ -114,8 +126,14 @@ extension Animator where Object: CALayer {
     }
     
     internal var shadowColor: NSUIColor? {
-        get { value(for: \._shadowColor) }
-        set { setValue(newValue, for: \._shadowColor) }
+        get {
+            #if os(macOS)
+            value(for: \.shadowColor)?.nsColor
+            #elseif canImport(UIKit)
+            value(for: \.shadowColor)?.uiColor
+            #endif
+        }
+        set { setValue(newValue?.cgColor, for: \.shadowColor) }
     }
     
     internal var shadowOffset: CGSize {
@@ -135,6 +153,7 @@ extension Animator where Object: CALayer {
 }
 
 internal extension CALayer {
+    /*
     var _backgroundColor: NSUIColor? {
         get {
             #if os(macOS)
@@ -177,6 +196,7 @@ internal extension CALayer {
         get { CGFloat(shadowOpacity) }
         set { shadowOpacity = Float(newValue) }
     }
+    */
 }
 
 

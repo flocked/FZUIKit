@@ -90,4 +90,6 @@ extension Float: SpringInterpolatable, VelocityProviding {
     }
 }
 
+extension CGColor: SpringInterpolatable, VelocityProviding { }
+
 #endif
