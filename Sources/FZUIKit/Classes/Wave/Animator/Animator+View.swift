@@ -44,13 +44,13 @@ extension Animator where Object: NSUIView {
         get { frame.center }
         set { frame.center = newValue }
     }
-        
+    
     /// The background color of the view.
     public var backgroundColor: NSUIColor? {
         get { object.optionalLayer?.animator.backgroundColor }
         set { object.optionalLayer?.animator.backgroundColor = newValue }
     }
-        
+    
     /// The alpha value of the view.
     public var alpha: CGFloat {
         get { object.optionalLayer?.animator.opacity ?? 1.0 }
@@ -108,9 +108,9 @@ extension Animator where Object: NSUIView {
 
 fileprivate extension NSUIView {
     var optionalLayer: CALayer? {
-        #if os(macOS)
+#if os(macOS)
         self.wantsLayer = true
-        #endif
+#endif
         return self.layer
     }
 }
@@ -122,22 +122,16 @@ extension Animator where Object: NSUITextField {
         set { setValue(newValue, for: \.textColor) }
     }
     
-    /// The font point size of the text field.
-    public var fontPointSize: CGFloat {
+    /// The font size of the text field.
+    public var fontSize: CGFloat {
         get { value(for: \.fontPointSize) }
-        set { 
-            Swift.print("set", object[keyPath: \.fontPointSize])
-            setValue(newValue, for: \.fontPointSize) }
-    }
+        set { setValue(newValue, for: \.fontPointSize) } }
 }
 
-internal extension NSUITextField {
-   @objc var fontPointSize: CGFloat {
+fileprivate extension NSUITextField {
+    @objc var fontPointSize: CGFloat {
         get { font?.pointSize ?? 0.0 }
-        set { 
-            Swift.print("fontPointSize", newValue)
-            font = font?.withSize(newValue) }
-    }
+        set {  font = font?.withSize(newValue) } }
 }
 
 
@@ -187,6 +181,11 @@ extension Animator where Object: UILabel {
         get { value(for: \.textColor) }
         set { setValue(newValue, for: \.textColor) }
     }
+    
+    /// The font size of the label.
+    public var fontSize: CGFloat {
+        get { value(for: \.fontPointSize) }
+        set { setValue(newValue, for: \.fontPointSize) } }
 }
 
 extension Animator where Object: UITextView {
@@ -195,6 +194,23 @@ extension Animator where Object: UITextView {
         get { value(for: \.textColor) }
         set { setValue(newValue, for: \.textColor) }
     }
+    
+    /// The font size of the text view.
+    public var fontSize: CGFloat {
+        get { value(for: \.fontPointSize) }
+        set { setValue(newValue, for: \.fontPointSize) } }
+}
+
+fileprivate extension UILabel {
+    @objc var fontPointSize: CGFloat {
+        get { font.pointSize }
+        set { font = font.withSize(newValue) } }
+}
+
+fileprivate extension UITextView {
+    @objc var fontPointSize: CGFloat {
+        get { font?.pointSize ?? 0.0 }
+        set { font = font?.withSize(newValue) } }
 }
 #endif
 #endif

@@ -135,5 +135,24 @@ extension Animator where Object: CALayer {
     }
 }
 
+extension Animator where Object: CATextLayer {
+    /// The font size of the layer.
+    public var fontSize: CGFloat {
+        get { value(for: \.fontSize) }
+        set { setValue(newValue, for: \.fontSize) } }
+    
+    /// The text color of the layer.
+    public var textColor: NSUIColor? {
+        get { value(for: \.textColor) }
+        set { setValue(newValue, for: \.textColor) } }
+}
+
+fileprivate extension CATextLayer {
+    @objc var textColor: NSUIColor? {
+        get { self.foregroundColor?.nsUIColor }
+        set { self.foregroundColor = newValue?.cgColor }
+    }
+}
+
 
 #endif

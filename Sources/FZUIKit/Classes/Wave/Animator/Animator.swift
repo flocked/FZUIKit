@@ -80,8 +80,6 @@ internal extension Animator {
         let initialValue = object[keyPath: keyPath]
         let targetValue = newValue
         
-        Swift.print(initialValue, targetValue)
-        
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
 
         let animation = (animation(for: keyPath) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
@@ -92,7 +90,6 @@ internal extension Animator {
         }
         animation.target = targetValue
         animation.valueChanged = { [weak self] value in
-            Swift.print(value)
             self?.object[keyPath: keyPath] = value
         }
         let groupUUID = animation.groupUUID
