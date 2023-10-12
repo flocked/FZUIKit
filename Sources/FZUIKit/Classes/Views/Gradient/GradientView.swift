@@ -21,29 +21,29 @@ public extension GradientView {
             self.endPoint = newValue.endPoint.point
             self.colors = newValue.stops.compactMap({$0.color.cgColor})
             self.locations = newValue.stops.compactMap({NSNumber($0.location)})
-          //  self.type = newValue.type.gradientLayerType
+            self.type = newValue.type.gradientLayerType
         }
     }
 }
 
 /// A view that displays a gradient.
 public class GradientView: NSUIView {
-    @objc dynamic public var locations: [NSNumber] {
+    @objc dynamic internal var locations: [NSNumber] {
         get { gradientLayer.locations ?? [] }
         set { gradientLayer.locations = newValue }
     }
     
-    @objc dynamic public var colors: [CGColor] {
+    @objc dynamic internal var colors: [CGColor] {
         get { (gradientLayer.colors as? [CGColor]) ?? [] }
         set { gradientLayer.colors = newValue }
     }
     
-    @objc dynamic public var startPoint: CGPoint {
+    @objc dynamic internal var startPoint: CGPoint {
         get { gradientLayer.startPoint }
         set { gradientLayer.startPoint = newValue }
     }
     
-    @objc dynamic public var endPoint: CGPoint {
+    @objc dynamic internal var endPoint: CGPoint {
         get { gradientLayer.endPoint }
         set { gradientLayer.endPoint = newValue }
     }
@@ -92,7 +92,6 @@ public class GradientView: NSUIView {
     
     #if os(macOS)
     public override func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        Swift.print("animationKey", key)
         if Self.gradientAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
