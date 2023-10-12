@@ -33,6 +33,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     
     /// Generates a configuration for the specified state by applying the configuration’s default values for that state to any properties that you don’t customize.
     public func updated(for state: NSConfigurationState) -> NSBackgroundConfiguration {
+        
         return self
     }
     
