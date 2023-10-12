@@ -178,6 +178,8 @@ open class ImageView: NSView {
     open override func mouseDown(with event: NSEvent) {
         if animationPlaybackOption == .mouseDown {
             self.toggleAnimating()
+        } else {
+            super.mouseDown(with: event)
         }
     }
     

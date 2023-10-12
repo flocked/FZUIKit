@@ -46,8 +46,9 @@ public extension ContentConfiguration {
         /// The offset of the shadow.
         public var offset: CGPoint = .init(x: 1.0, y: -1.5)
 
+        /// A Boolean value that indicates whether the shadow is invisible.
         internal var isInvisible: Bool {
-            return (color == nil || opacity == 0.0)
+            return (_resolvedColor == nil || _resolvedColor == .clear || opacity == 0.0)
         }
         
         internal var _resolvedColor: NSUIColor? = nil
