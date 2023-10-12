@@ -30,7 +30,7 @@ public extension BackgroundColorSettable where Self: NSView {
         set {
             Self.swizzleAnimationForKey()
             var newValue = newValue
-            if newValue == nil, String(describing: self).contains("NSViewAnimator") {
+            if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
             self._backgroundColor = newValue

@@ -484,7 +484,7 @@ extension NSView {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             var newValue = newValue
-            if newValue == nil, String(describing: self).contains("NSViewAnimator") {
+            if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
             layer?.borderColor = newValue?.cgColor
@@ -502,7 +502,7 @@ extension NSView {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             var newValue = newValue
-            if newValue == nil, String(describing: self).contains("NSViewAnimator") {
+            if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
             
@@ -567,7 +567,7 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            if newValue == nil, String(describing: self).contains("NSViewAnimator") {
+            if newValue == nil, self.isProxy() {
                 layer?.shadowPath = NSBezierPath(roundedRect: self.layer?.bounds ?? .zero, cornerRadius: self.cornerRadius).cgPath
             } else {
                 layer?.shadowPath = newValue?.cgPath
