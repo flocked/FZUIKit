@@ -415,7 +415,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var cornerRadius: CGFloat {
+    @objc open dynamic var _cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
             Swift.print("cornerRadius 0", self, self.maskToBounds)
@@ -429,7 +429,7 @@ extension NSView {
         }
     }
     
-    @objc public dynamic var _cornerRadius: CGFloat {
+    @objc public dynamic var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
             Swift.print("cornerRadius 0", self, self.maskToBounds)
