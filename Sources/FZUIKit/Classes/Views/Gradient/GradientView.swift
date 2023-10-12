@@ -30,12 +30,16 @@ public extension GradientView {
 public class GradientView: NSUIView {
     @objc dynamic internal var locations: [NSNumber] {
         get { gradientLayer.locations ?? [] }
-        set { gradientLayer.locations = newValue }
+        set { 
+            Swift.print("locations", newValue)
+            gradientLayer.locations = newValue }
     }
     
     @objc dynamic internal var colors: [CGColor] {
         get { (gradientLayer.colors as? [CGColor]) ?? [] }
-        set { gradientLayer.colors = newValue }
+        set { 
+            Swift.print("colors", newValue)
+            gradientLayer.colors = newValue }
     }
     
     @objc dynamic internal var startPoint: CGPoint {
