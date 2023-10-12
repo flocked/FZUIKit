@@ -55,7 +55,7 @@ extension Animator where Object: CALayer {
     }
         
     /// The opacity value of the layer.
-    internal var opacity: CGFloat {
+    public var opacity: CGFloat {
         get { CGFloat(value(for: \.opacity)) }
         set { setValue(Float(newValue), for: \.opacity) }
     }
