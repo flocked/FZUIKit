@@ -46,7 +46,11 @@ internal extension NSView {
         set {
             wantsLayer = true
             __backgroundColor = newValue
-            Swift.print(newValue ?? "nil")
+            Swift.print("setB", newValue ?? "nil")
+            if let newValue = newValue {
+                Swift.print("light", newValue.dynamicColors.light)
+                Swift.print("dark", newValue.dynamicColors.dark)
+            }
             layer?.backgroundColor = newValue?.cgColor
             if newValue != nil {
                 if _effectiveAppearanceKVO == nil {
