@@ -114,6 +114,8 @@ public extension NSUIView {
     func configurate(using configuration: ContentConfiguration.InnerShadow) {
         #if os(macOS)
         wantsLayer = true
+        var configuration = configuration
+        configuration.color = configuration._resolvedColor?.resolvedColor(for: effectiveAppearance)
         layer?.configurate(using: configuration)
         #else
         layer.configurate(using: configuration)

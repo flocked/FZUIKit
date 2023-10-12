@@ -113,6 +113,8 @@ public extension NSUIView {
             layer?.borderLayer?.removeFromSuperlayer()
         }
         if configuration.needsDashedBordlerLayer {
+            var configuration = configuration
+            configuration.color = configuration._resolvedColor?.resolvedColor(for: effectiveAppearance)
             layer?.configurate(using: configuration)
         } else {
             self.borderColor = configuration._resolvedColor
