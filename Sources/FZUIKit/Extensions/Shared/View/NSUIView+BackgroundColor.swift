@@ -26,14 +26,13 @@ extension NSUIView: BackgroundColorSettable { }
 public extension BackgroundColorSettable where Self: NSView {
     /// The background color of the view.
     dynamic var backgroundColor: NSColor? {
-        get { getAssociatedValue(key: "_viewBackgroundColor", object: self, initialValue: self.layer?.backgroundColor?.nsColor) }
+        get { self._backgroundColor }
         set {
             Self.swizzleAnimationForKey()
             var newValue = newValue
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
-            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
             self._backgroundColor = newValue
         }
     }
@@ -42,15 +41,10 @@ public extension BackgroundColorSettable where Self: NSView {
 internal extension NSView {
     
     @objc dynamic var _backgroundColor: NSColor? {
-        get { layer?.backgroundColor?.nsColor }
+        get { getAssociatedValue(key: "_viewBackgroundColor", object: self, initialValue: self.layer?.backgroundColor?.nsColor) }
         set {
             wantsLayer = true
-            __backgroundColor = newValue
-            Swift.print("setB", newValue ?? "nil")
-            if let newValue = newValue {
-                Swift.print("light", newValue.dynamicColors.light)
-                Swift.print("dark", newValue.dynamicColors.dark)
-            }
+            set(associatedValue: newValue, key: "_viewBackgroundColor", object: self)
             layer?.backgroundColor = newValue?.cgColor
             if newValue != nil {
                 if _effectiveAppearanceKVO == nil {
@@ -59,9 +53,12 @@ internal extension NSView {
                     }
                     layer?.backgroundColorObserver = layer?.observeChanges(for: \.backgroundColor)  { [weak self] _, new in
                         guard let self = self else { return }
-                        if new != self.backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor, new != __backgroundColor?.cgColor {
+                        if new != self.backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
                             Swift.print("backgroundColor not same")
                             set(associatedValue: new?.nsColor, key: "_viewBackgroundColor", object: self)
+                            self._effectiveAppearanceKVO?.invalidate()
+                            self._effectiveAppearanceKVO = nil
+                            self.layer?.backgroundColorObserver = nil
                         }
                     }
                 }
@@ -71,11 +68,6 @@ internal extension NSView {
                 layer?.backgroundColorObserver = nil
             }
         }
-    }
-    
-    var __backgroundColor: NSUIColor? {
-        get { getAssociatedValue(key: "__backgroundColor", object: self) }
-        set { set(associatedValue: newValue, key: "__backgroundColor", object: self) }
     }
     
     var _effectiveAppearanceKVO: NSKeyValueObservation? {
