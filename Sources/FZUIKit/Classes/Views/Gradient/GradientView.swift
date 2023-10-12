@@ -15,11 +15,42 @@ import UIKit
 /// A view that displays a gradient.
 public class GradientView: NSUIView {
     /// The gradient.
-    public var gradient: Gradient {
+    public dynamic var gradient: Gradient {
         get { gradientLayer.gradient }
-        set { gradientLayer.gradient = newValue }
+        set {
+            self.colors = newValue.stops.compactMap({$0.color.cgColor})
+            self.locations = newValue.stops.compactMap({NSNumber($0.location)})
+            self.startPoint = newValue.startPoint.point
+            self.endPoint = newValue.endPoint.point
+            self.type = newValue.type.gradientLayerType
+        }
     }
-            
+        
+    @objc dynamic internal var locations: [NSNumber] {
+        get { gradientLayer.locations ?? [] }
+        set { gradientLayer.locations = newValue }
+    }
+    
+    @objc dynamic internal var colors: [CGColor] {
+        get { (gradientLayer.colors as? [CGColor]) ?? [] }
+        set { gradientLayer.colors = newValue }
+    }
+    
+    @objc dynamic internal var startPoint: CGPoint {
+        get { gradientLayer.startPoint }
+        set { gradientLayer.startPoint = newValue }
+    }
+    
+    @objc dynamic internal var endPoint: CGPoint {
+        get { gradientLayer.endPoint }
+        set { gradientLayer.endPoint = newValue }
+    }
+    
+    internal var type: CAGradientLayerType {
+        get { gradientLayer.type }
+        set { gradientLayer.type = newValue }
+    }
+
     /**
      Initalizes an inner shadow view with the specified configuration.
      
@@ -56,5 +87,16 @@ public class GradientView: NSUIView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
+    
+    public override func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        if Self.gradientAnimationKeys.contains(key) {
+            let animation = CABasicAnimation()
+            animation.timingFunction = .default
+            return animation
+        }
+        return super.animation(forKey: key)
+    }
+    
+    static let gradientAnimationKeys = ["locations", "colors", "startPoint", "endPoint"]
 }
 #endif

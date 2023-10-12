@@ -15,34 +15,69 @@ import UIKit
 #endif
 
 public struct Gradient {
-    public struct Stop {
-        public var color: NSUIColor
-        public var location: CGFloat
-        public init(color: NSUIColor, location: CGFloat) {
-            self.color = color
-            self.location = location
-        }
-    }
     
-    public var direction: Direction = .down
+    /// The array of color stops.
     public var stops: [Stop] = []
+    /// The start point of the gradient.
+    public var startPoint: Point = .top
+    /// The end point of the gradient.
+    public var endPoint: Point = .bottom
+    /// The type of gradient.
+    public var type: GradientType = .linear
     
-    public init(colors: [NSUIColor], direction: Direction = .up) {
-        self.stops = stops(for: colors)
-        self.direction = direction
+    /**
+     Creates a gradient from an array of colors.
+     
+     The gradient synthesizes its location values to evenly space the colors along the gradient.
+     
+     - Parameters:
+        - colors: An array of colors.
+        - startPoint: The start point of the gradient.
+        - endPoint: The end point of the gradient.
+        - type: The type of gradient.
+     */
+    public init(colors: [NSUIColor], startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
+        self.stops = Self.stops(for: colors)
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
     }
     
-    public init(stops: [Stop], direction: Direction = .up) {
+    /**
+     Creates a gradient from an array of color stops.
+          
+     - Parameters:
+        - stops: An array of color stops.
+        - startPoint: The start point of the gradient.
+        - endPoint: The end point of the gradient.
+        - type: The type of gradient.
+     */
+    public init(stops: [Stop], startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
         self.stops = stops
-        self.direction = direction
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
     }
     
-    public init(preset: GradientPreset, direction: Direction = .up) {
-        self.stops = stops(for: preset.colors)
-        self.direction = direction
+    /**
+     Returns a gradient for the specified preset.
+          
+     - Parameters:
+        - preset: The gradient preset.
+        - startPoint: The start point of the gradient.
+        - endPoint: The end point of the gradient.
+        - type: The type of gradient.
+     */
+    public init(preset: Preset, startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
+        self.stops = Self.stops(for: preset.colors)
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
     }
     
-    internal func stops(for colors: [NSUIColor]) -> [Stop] {
+    public static var none = Gradient(stops: [])
+    
+    internal static func stops(for colors: [NSUIColor]) -> [Stop] {
         var stops: [Stop] = []
         if colors.count == 1 {
             stops.append(Stop(color: colors[0], location: 0.0))
@@ -54,76 +89,72 @@ public struct Gradient {
         }
         return stops
     }
-    
-    /*
-    init(_ preset: GradientPreset, direction: Direction? = nil) {
-        self.colors = preset.colors
-        self.locations = nil
-        self.direction = direction
-    }
-     */
-    
-    public enum Direction: Int, CaseIterable {
-       case up
-       case upRight
-       case right
-       case downRight
-       case down
-       case downLeft
-       case left
-       case upLeft
-       
-       internal var startPoint: CGPoint {
-           let result: CGPoint
-           switch self {
-           case .up:
-               result = CGPoint(x: 0.5, y: 1.0)
-           case .upRight:
-               result = CGPoint(x: 0.0, y: 1.0)
-           case .right:
-               result = CGPoint(x: 0.0, y: 0.5)
-           case .downRight:
-               result = CGPoint(x: 0.0, y: 0.0)
-           case .down:
-               result = CGPoint(x: 0.5, y: 0.0)
-           case .downLeft:
-               result = CGPoint(x: 1.0, y: 0.0)
-           case .left:
-               result = CGPoint(x: 1.0, y: 0.5)
-           case .upLeft:
-               result = CGPoint(x: 1.0, y: 1.0)
-           }
-           return result
-       }
-       
-       internal var endPoint: CGPoint {
-           let result: CGPoint
-           switch self {
-           case .up:
-               result = CGPoint(x: 0.5, y: 0.0)
-           case .upRight:
-               result = CGPoint(x: 1.0, y: 0.0)
-           case .right:
-               result = CGPoint(x: 1.0, y: 0.5)
-           case .downRight:
-               result = CGPoint(x: 1.0, y: 1.0)
-           case .down:
-               result = CGPoint(x: 0.5, y: 1.0)
-           case .downLeft:
-               result = CGPoint(x: 0.0, y: 1.0)
-           case .left:
-               result = CGPoint(x: 0.0, y: 0.5)
-           case .upLeft:
-               result = CGPoint(x: 0.0, y: 0.0)
-           }
-           return result
-       }
-   }
 }
 
-internal extension Gradient.Direction {
-    init(start: CGPoint, end: CGPoint) {
-        self =  Self.allCases.first(where: { $0.startPoint == start && $0.endPoint == end }) ?? .down
+extension Gradient {
+    /// The gradient type.
+    public enum GradientType: String {
+        case linear = "axial"
+        case conic = "conic"
+        case radial = "radial"
+        
+        internal var gradientLayerType: CAGradientLayerType {
+            CAGradientLayerType(rawValue: self.rawValue)
+        }
+        
+        internal init(_ gradientLayerType: CAGradientLayerType) {
+            self.init(rawValue: gradientLayerType.rawValue)!
+        }
+    }
+    
+    /// One color stop in the gradient.
+    public struct Stop {
+        /// The color for the stop.
+        public var color: NSUIColor
+        /// The parametric location of the stop.
+        public var location: CGFloat
+        /// Creates a color stop with a color and location.
+        public init(color: NSUIColor, location: CGFloat) {
+            self.color = color
+            self.location = location
+        }
+    }
+    
+    /// A point in the gradient.
+    public struct Point {
+        public var x: CGFloat
+        public var y: CGFloat
+        
+        public init() {
+            self.x = 0
+            self.y = 0
+        }
+        
+        public init(x: CGFloat, y: CGFloat) {
+            self.x = x
+            self.y = y
+        }
+        
+        internal init(_ point: CGPoint) {
+            self.x = point.x
+            self.y = point.y
+        }
+        
+        internal var point: CGPoint {
+            CGPoint(x, y)
+        }
+        
+        public static var topLeading = Point(x: 0.0, y: 0.0)
+        public static var top = Point(x: 0.5, y: 0.0)
+        public static var topTrailing = Point(x: 1.0, y: 0.0)
+        
+        public static var leading = Point(x: 0.0, y: 0.5)
+        public static var center = Point(x: 0.5, y: 0.5)
+        public static var trailing = Point(x: 1.0, y: 0.5)
+
+        public static var bottomLeading = Point(x: 0.0, y: 1.0)
+        public static var bottom = Point(x: 0.5, y: 1.0)
+        public static var bottomTrailing = Point(x: 1.0, y: 1.0)
     }
 }
 
