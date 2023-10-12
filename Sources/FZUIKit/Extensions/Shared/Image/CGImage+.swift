@@ -39,4 +39,8 @@ public extension CGImage {
     var size: CGSize {
         return CGSize(width: width, height: height)
     }
+    
+    internal var nsUIImage: NSUIImage {
+        return UIImage(cgImage: self)
+    }
 }

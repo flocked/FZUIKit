@@ -332,7 +332,7 @@ extension NSView {
      */
     @objc open dynamic var transform: CGAffineTransform {
         get { wantsLayer = true
-            return layer?.affineTransform() ?? .init()
+            return layer?.affineTransform() ?? CGAffineTransformIdentity
         }
         set {
             wantsLayer = true

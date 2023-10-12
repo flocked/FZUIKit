@@ -44,34 +44,27 @@ public extension NSUIImage {
      - Returns: An array with the tile images.
      */
     func splitToTiles(size: CGSize, order: TileSplitOrder = .horizontalFirst) -> [NSUIImage] {
-           let vCount = Int(self.size.height / size.height)
-           let hCount = Int(self.size.width / size.width)
-           var tiles = [NSUIImage]()
-    #if os(macOS)
+        let vCount = Int(self.size.height / size.height)
+        let hCount = Int(self.size.width / size.width)
+        var tiles = [NSUIImage]()
         guard let cgImage = self.cgImage else { return [] }
-    #endif
-    for a in 0..<(order == .horizontalFirst ? hCount : vCount) {
-        for b in 0..<(order == .horizontalFirst ? vCount : hCount) {
-    let origin = CGPoint(x: CGFloat(order == .horizontalFirst  ? b : a)*size.width, y: CGFloat(order == .horizontalFirst  ? a : b)*size.height)
-    #if os(macOS)
-    let rect = CGRect(origin, size)
-    if let tileCGImage = cgImage.cropping(to: rect) {
-        let tile = NSImage(cgImage: tileCGImage, size: size)
-        tiles.append(tile)
+        for a in 0..<(order == .horizontalFirst ? hCount : vCount) {
+            for b in 0..<(order == .horizontalFirst ? vCount : hCount) {
+                let origin = CGPoint(x: CGFloat(order == .horizontalFirst  ? b : a)*size.width, y: CGFloat(order == .horizontalFirst  ? a : b)*size.height)
+                let rect = CGRect(origin, size)
+                if let tile = cgImage.cropping(to: rect)?.nsUIImage {
+                    tiles.append(tile)
+                }
+            }
+        }
+        return tiles
     }
-    #elseif canImport(UIKit)
-                   UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
-                   draw(at: origin)
-                   if let newImage = UIGraphicsGetImageFromCurrentImageContext() {
-                       tiles.append(newImage)
-                   }
-                   UIGraphicsEndImageContext()
-    #endif
-               }
-           }
-           return tiles
-       }
-   }
+    
+    /// Returns the image cropped to the specified rect.
+    func cropped(to rect: CGRect) -> NSUIImage {
+        self.cgImage?.cropping(to: rect)?.nsUIImage ?? self
+    }
+}
 
 #if os(macOS)
 public extension NSUIImage {
