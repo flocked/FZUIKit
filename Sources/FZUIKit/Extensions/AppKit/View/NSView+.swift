@@ -431,7 +431,7 @@ extension NSView {
         }
     }
     
-    public var _cornerRadius: CGFloat {
+    @objc public var _cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
             Swift.print("cornerRadius 0", self, self.maskToBounds)
