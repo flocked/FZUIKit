@@ -12,38 +12,45 @@ import AppKit
 import UIKit
 #endif
 
+public extension InnerShadowView {
+    /// The inner shadow.
+    dynamic var innerShadow: ContentConfiguration.InnerShadow {
+        get { innershadowLayer.configuration }
+        set {
+            self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
+            self.innerShadowRadius = newValue.radius
+            self.innerShadowOpacity = newValue.opacity
+            self.innerShadowColor = newValue.color
+        }
+    }
+}
+
 /// A view with an inner shadow.
 public class InnerShadowView: NSUIView {
     internal static let Tag = 435_234_364
 
     /// The opacity of the inner shadow.
-    public var innerShadowOpacity: CGFloat {
+    @objc dynamic internal var innerShadowOpacity: CGFloat {
         get { return CGFloat(innershadowLayer.shadowOpacity) }
         set { innershadowLayer.shadowOpacity = Float(newValue) }
     }
 
     /// The radius of the inner shadow.
-    public var innerShadowRadius: CGFloat {
+    @objc dynamic internal var innerShadowRadius: CGFloat {
         get { innershadowLayer.shadowRadius }
         set { innershadowLayer.shadowRadius = newValue }
     }
 
     /// The offset of the inner shadow.
-    public var innerShadowOffset: CGSize {
+    @objc dynamic internal var innerShadowOffset: CGSize {
         get { innershadowLayer.shadowOffset }
         set { innershadowLayer.shadowOffset = newValue }
     }
 
     /// The color of the inner shadow.
-    public var innerShadowColor: NSUIColor? {
+    @objc dynamic internal var innerShadowColor: NSUIColor? {
         get { return innershadowLayer.shadowColor?.nsUIColor }
         set { innershadowLayer.shadowColor = newValue?.cgColor }
-    }
-
-    /// The configuration of the inner shadow.
-    public var configuration: ContentConfiguration.InnerShadow {
-        get { innershadowLayer.configuration }
-        set { innershadowLayer.configuration = newValue }
     }
     
     /*
@@ -61,7 +68,7 @@ public class InnerShadowView: NSUIView {
      */
     public init(configuration: ContentConfiguration.InnerShadow) {
         super.init(frame: .zero)
-        self.configuration = configuration
+        self.innerShadow = innerShadow
     }
 
     internal var innershadowLayer: InnerShadowLayer {
@@ -72,6 +79,16 @@ public class InnerShadowView: NSUIView {
     }
     
     #if os(macOS)
+    public override func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        if Self.innerShadowAnimationKeys.contains(key) {
+            let animation = CABasicAnimation()
+            animation.timingFunction = .default
+            return animation
+        }
+        return super.animation(forKey: key)
+    }
+    internal static let innerShadowAnimationKeys = ["innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius"]
+
     override public func makeBackingLayer() -> CALayer {
         let shadowLayer = InnerShadowLayer()
      //   shadowLayer.zPosition = FLT_MAX
