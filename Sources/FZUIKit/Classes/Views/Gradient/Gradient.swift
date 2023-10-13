@@ -186,9 +186,6 @@ extension Gradient: SpringInterpolatable, VelocityProviding {
             for var stop in value.stops[keep..<value.stops.count] {
                 stop.color = stop.color.withAlphaComponent(0.0)
                 target.stops.append(stop)
-                if velocity.stops.count < target.stops.count {
-                    velocity.stops.append(.zero)
-                }
             }
         } else if diff > 0 {
             let count = value.stops.count
@@ -196,11 +193,16 @@ extension Gradient: SpringInterpolatable, VelocityProviding {
                 var targetStop = target.stops[count+i]
                 targetStop.color = targetStop.color.withAlphaComponent(0.0)
                 value.stops.append(targetStop)
-                if velocity.stops.count < value.stops.count {
-                    velocity.stops.append(.zero)
-                }
             }
         }
+        
+        let velocityDiff = target.stops.count - velocity.stops.count
+        if velocityDiff > 0 {
+            for _ in 0..<velocityDiff {
+                velocity.stops.append(.zero)
+            }
+        }
+
         
         Swift.print("stops", value.stops.count, target.stops.count, velocity.stops.count)
         Swift.print("value colors")
