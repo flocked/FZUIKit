@@ -245,8 +245,8 @@ extension Gradient: SpringInterpolatable, VelocityProviding {
 extension Animator where Object: GradientView {
     /// The tint color of the image.
     public var gradient: Gradient {
-        get { value(for: \.gradient) }
-        set { setValue(newValue, for: \.gradient) }
+        get { value(for: \.gradient, key: "gradient") }
+        set { setValue(newValue, for: \.gradient, key: "gradient") }
     }
 }
 #endif
