@@ -257,31 +257,32 @@ public extension Spring {
         velocity = Float(_velocity)
     }
     
-    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : SIMDRepresentable, V.SIMDType.Scalar == CGFloat.NativeType, V == CGRect {
-        Swift.print("Spring CGRect")
-    }
-    
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : SIMDRepresentable, V.SIMDType.Scalar == CGFloat.NativeType {
         Swift.print("Spring SIMD")
         if type(of: V.self) == CGRect.self {
-         //   update(value: &(value as! CGRect), velocity: &(value as! CGRect), target: (value as! CGRect), deltaTime: deltaTime)
+          var val = (value as! CGRect)
+            var vel = (velocity as! CGRect)
+            let tar = (target as! CGRect)
+            update(value: &val, velocity: &vel, target: tar, deltaTime: deltaTime)
+            value = val as! V
+            velocity = vel as! V
+        } else {
+            let valueSIMD = value.simdRepresentation()
+            let targetSIMD = target.simdRepresentation()
+            let velocitySIMD = velocity.simdRepresentation()
+            
+            let displacement = valueSIMD - targetSIMD
+            let springForce = (-self.stiffness * displacement)
+            let dampingForce = (self.damping * velocitySIMD)
+            let force = springForce - dampingForce
+            let acceleration = force / self.mass
+            
+            let newVelocity = (velocitySIMD + (acceleration * deltaTime))
+            let newValue = (valueSIMD + (newVelocity * deltaTime))
+            
+            velocity = V(newVelocity)
+            value = V(newValue)
         }
-        
-        let valueSIMD = value.simdRepresentation()
-        let targetSIMD = target.simdRepresentation()
-        let velocitySIMD = velocity.simdRepresentation()
-
-        let displacement = valueSIMD - targetSIMD
-        let springForce = (-self.stiffness * displacement)
-        let dampingForce = (self.damping * velocitySIMD)
-        let force = springForce - dampingForce
-        let acceleration = force / self.mass
-        
-        let newVelocity = (velocitySIMD + (acceleration * deltaTime))
-        let newValue = (valueSIMD + (newVelocity * deltaTime))
-        
-        velocity = V(newVelocity)
-        value = V(newValue)
     }
 }
 
