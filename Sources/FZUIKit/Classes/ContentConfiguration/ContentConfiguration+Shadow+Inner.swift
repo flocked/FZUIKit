@@ -138,7 +138,7 @@ public extension CALayer {
                 let innerShadowLayer = InnerShadowLayer()
                 self.addSublayer(withConstraint: innerShadowLayer)
                 innerShadowLayer.sendToBack()
-                innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
             }
             self.innerShadowLayer?.configuration = configuration
         }
