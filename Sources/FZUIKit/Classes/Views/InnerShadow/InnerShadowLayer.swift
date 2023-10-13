@@ -72,6 +72,17 @@ public class InnerShadowLayer: CALayer {
         didSet { if !isUpdating, oldValue != cornerRadius {
             update() } }
     }
+    
+    public override func layoutSublayers() {
+        Swift.print("layoutSublayers")
+        super.layoutSublayers()
+        self.update()
+    }
+    
+    public override func layoutIfNeeded() {
+        Swift.print("layoutIfNeeded")
+        super.layoutIfNeeded()
+    }
 
     internal func update() {
             var path = NSUIBezierPath(rect: bounds.insetBy(dx: -20, dy: -20))
