@@ -242,7 +242,7 @@ public class Spring: Equatable {
     }
 }
 
-extension Spring {
+public extension Spring {
     func update(value: inout CGRect, velocity: inout CGRect, target: CGRect, deltaTime: TimeInterval) {
         Swift.print("Spring CGRect")
         self.update(value: &value.origin, velocity: &velocity.origin, target: target.origin, deltaTime: deltaTime)
