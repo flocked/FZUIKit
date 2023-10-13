@@ -259,7 +259,7 @@ public extension Spring {
     
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : SIMDRepresentable, V.SIMDType.Scalar == CGFloat.NativeType {
         Swift.print("Spring SIMD")
-        if type(of: V.self) == CGRect.self {
+        if V.self == CGRect.self {
           var val = (value as! CGRect)
             var vel = (velocity as! CGRect)
             let tar = (target as! CGRect)
