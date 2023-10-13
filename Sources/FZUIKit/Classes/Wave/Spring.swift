@@ -243,19 +243,35 @@ public class Spring: Equatable {
 }
 
 extension Spring {
+    func update(value: inout CGRect, velocity: inout CGRect, target: CGRect, deltaTime: TimeInterval) {
+        Swift.print("Spring CGRect")
+        self.update(value: &value.origin, velocity: &velocity.origin, target: target.origin, deltaTime: deltaTime)
+        self.update(value: &value.size, velocity: &velocity.size, target: target.size, deltaTime: deltaTime)
+    }
+    
+    func update(value: inout Float, velocity: inout Float, target: Float, deltaTime: TimeInterval) {
+        var _value = CGFloat(value)
+        var _velocity = CGFloat(velocity)
+        self.update(value: &_value, velocity: &_velocity, target: CGFloat(target), deltaTime: deltaTime)
+        value = Float(_value)
+        velocity = Float(_velocity)
+    }
+    
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : SIMDRepresentable, V.SIMDType.Scalar == CGFloat.NativeType {
-        let _value = value.simdRepresentation()
-        let target = target.simdRepresentation()
-        let _velocity = velocity.simdRepresentation()
+        Swift.print("Spring SIMD")
+        
+        let valueSIMD = value.simdRepresentation()
+        let targetSIMD = target.simdRepresentation()
+        let velocitySIMD = velocity.simdRepresentation()
 
-        let displacement = _value - target
+        let displacement = valueSIMD - targetSIMD
         let springForce = (-self.stiffness * displacement)
-        let dampingForce = (self.damping * _velocity)
+        let dampingForce = (self.damping * velocitySIMD)
         let force = springForce - dampingForce
         let acceleration = force / self.mass
         
-        let newVelocity = (_velocity + (acceleration * deltaTime))
-        let newValue = (_value + (newVelocity * deltaTime))
+        let newVelocity = (velocitySIMD + (acceleration * deltaTime))
+        let newValue = (valueSIMD + (newVelocity * deltaTime))
         
         velocity = V(newVelocity)
         value = V(newValue)

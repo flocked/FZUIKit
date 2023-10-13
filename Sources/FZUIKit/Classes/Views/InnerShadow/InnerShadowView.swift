@@ -53,10 +53,6 @@ public class InnerShadowView: NSUIView {
         set { innershadowLayer.shadowColor = newValue?.cgColor }
     }
     
-    public override func viewDidMoveToSuperview() {
-        super.viewDidMoveToSuperview()
-        self.innerShadow = self.innerShadow
-    }
     
     /*
     public override func layoutSubviews() {

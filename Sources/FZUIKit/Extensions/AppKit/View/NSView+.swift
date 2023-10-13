@@ -340,23 +340,7 @@ extension NSView {
             layer?.setAffineTransform(newValue)
         }
     }
-    
-    /**
-     Specifies the rotation applied to the view.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
-     */
-    public dynamic var rotation: CGQuaternion {
-        get { wantsLayer = true
-            return layer?.rotation ?? .init(.zero)
-        }
-        set {
-            wantsLayer = true
-            Self.swizzleAnimationForKey()
-            self.transform3D.rotation = newValue
-        }
-    }
-    
+        
     /**
      The three-dimensional transform to apply to the view.
 
@@ -372,6 +356,22 @@ extension NSView {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             layer?.transform = newValue
+        }
+    }
+    
+    /**
+     Specifies the rotation applied to the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    public dynamic var rotation: CGQuaternion {
+        get { wantsLayer = true
+            return layer?.rotation ?? .init(.zero)
+        }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            self.transform3D.rotation = newValue
         }
     }
     

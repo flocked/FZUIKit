@@ -49,32 +49,3 @@ public func project(point: CGPoint, velocity: CGPoint, decelerationRate: CGFloat
 func project(initialVelocity: CGFloat, decelerationRate: CGFloat) -> CGFloat {
     (initialVelocity / 1000) * decelerationRate / (1 - decelerationRate)
 }
-
-/**
- Takes a value in range `(a, b)` and returns that value mapped to another range `(c, d)` using linear interpolation.
-
- For example, `0.5` mapped from range `(0, 1)` to range `(0, 100`) would produce `50`.
-
- Note that the return value is not clipped to the `out` range. For example, `mapRange(2, 0, 1, 0, 100)` would return `200`.
- */
-public func mapRange<T: FloatingPoint>(value: T, inMin: T, inMax: T, outMin: T, outMax: T, clip: Bool = false) -> T {
-    let result = ((value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin)
-    if clip {
-        if result > outMax {
-            return outMax
-        } else if result < outMin {
-            return outMin
-        } else {
-            return result
-        }
-    } else {
-        return result
-    }
-}
-
-/**
- The same function as `mapRange(value:inMin:inMax:outMin:outMax:)` but omitting the parameter names for terseness.
- */
-public func mapRange<T: FloatingPoint>(_ value: T, _ inMin: T, _ inMax: T, _ outMin: T, _ outMax: T, clip: Bool = false) -> T {
-    mapRange(value: value, inMin: inMin, inMax: inMax, outMin: outMin, outMax: outMax, clip: clip)
-}

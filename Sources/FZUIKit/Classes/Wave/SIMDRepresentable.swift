@@ -27,6 +27,19 @@ public protocol SupportedScalar: SIMDScalar, FloatingPointInitializable, Decodab
 extension Float: SupportedScalar {}
 extension Double: SupportedScalar {}
 
+/*
+extension CGFloat: SupportedScalar {
+    public typealias SIMDMaskScalar = Int64
+    public typealias SIMD2Storage = SIMD2<CGFloat>
+    public typealias SIMD4Storage = SIMD4<CGFloat>
+    public typealias SIMD8Storage = SIMD8<CGFloat>
+    public typealias SIMD16Storage = SIMD16<CGFloat>
+    public typealias SIMD32Storage = SIMD32<CGFloat>
+    public typealias SIMD64Storage = SIMD64<CGFloat>
+}
+*/
+
+
 extension SupportedSIMD where Self:  Comparable, Scalar: SupportedScalar {
     public static func < (lhs: Self, rhs: Self) -> Bool {
             return all(lhs .< rhs)
@@ -177,13 +190,6 @@ extension CGRect: SIMDRepresentable {
 
 }
 
-extension SIMDRepresentable where Self: NSUIColor {
-    /// Initializes with a `SIMD4`.
-    @inlinable public init(_ simdRepresentation: SIMD4<CGFloat.NativeType>) {
-        self.init(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3])
-    }
-}
-
 extension NSUIColor: SIMDRepresentable {
     /// `SIMD4` representation of the value.
     @inlinable public func simdRepresentation() -> SIMD4<CGFloat.NativeType> {
@@ -192,6 +198,17 @@ extension NSUIColor: SIMDRepresentable {
     }
     @inlinable public static func < (lhs: NSUIColor, rhs: NSUIColor) -> Bool {
         return lhs.simdRepresentation() < rhs.simdRepresentation()
+    }
+    
+    public static var zero: Self {
+        Self(red: 0, green: 0, blue: 0, alpha: 0)
+    }
+}
+
+extension SIMDRepresentable where Self: NSUIColor {
+    /// Initializes with a `SIMD4`.
+    @inlinable public init(_ simdRepresentation: SIMD4<CGFloat.NativeType>) {
+        self.init(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3])
     }
 }
 
@@ -208,6 +225,10 @@ extension CGAffineTransform: SIMDRepresentable {
     
     @inlinable public static func < (lhs: CGAffineTransform, rhs: CGAffineTransform) -> Bool {
         lhs.simdRepresentation() < rhs.simdRepresentation()
+    }
+    
+    public static var zero: CGAffineTransform {
+        CGAffineTransform()
     }
 }
 
@@ -268,4 +289,25 @@ extension CGColor: SIMDRepresentable {
     }
 }
 
+
+/// A protocol that defines how something that can be represented / stored in a `SIMD` type as well as instantiated from said `SIMD` type.
+public protocol AnimatableValue: Comparable where Self.SIMDType == Self.SIMDType.SIMDType {
+    /**
+     The `SIMD` type that `self` can be represented by.
+      - Description: i.e. `CGPoint` can be stored in `SIMD2<Double>`.
+     */
+    associatedtype SIMDType: SupportedSIMD = Self
+    
+    var animatableValue: SIMDType { get set }
+
+    /// A version of `self` that represents zero.
+    static var zero: Self { get }
+}
+
+extension AnimatableValue where Self: SIMDRepresentable {
+    var animatableValue: Self.SIMDType {
+        get { self.simdRepresentation() }
+        set {  }
+    }
+}
 #endif

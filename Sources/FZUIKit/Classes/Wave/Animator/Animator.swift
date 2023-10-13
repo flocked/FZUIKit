@@ -46,20 +46,17 @@ public class Animator<Object: Animatable> {
 }
 
 internal extension Animator {
+    var animations: [String: AnimationProviding] {
+        get { object._animations }
+        set { object._animations = newValue }
+    }
+    
     func animation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> SpringAnimator<Val>? {
-        if let key = key {
-            return object._animations[key] as? SpringAnimator<Val>
-        }
-        guard let keyPath = keyPath._kvcKeyPathString else { return nil }
-        return object._animations[keyPath] as? SpringAnimator<Val>
+        return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
     
     func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> SpringAnimator<Val>? {
-        if let key = key {
-            return object._animations[key] as? SpringAnimator<Val>
-        }
-        guard let keyPath = keyPath._kvcKeyPathString else { return nil }
-        return object._animations[keyPath] as? SpringAnimator<Val>
+        return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
     
     func value<Value: SpringInterpolatable>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value where Value.ValueType == Value, Value.VelocityType == Value {
@@ -70,20 +67,8 @@ internal extension Animator {
         return animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    /*
-    func setValueNonAnimated<Value: SpringInterpolatable>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>) where Value.ValueType == Value, Value.VelocityType == Value {
-        if animation(for: keyPath) != nil {
-            Wave.animate(withSpring: .nonAnimated, mode: .nonAnimated) {
-                self.setValue(newValue, for: keyPath)
-            }
-        } else {
-            object[keyPath: keyPath] = newValue
-        }
-    }
-    */
-    
     func setValue<Value: SpringInterpolatable>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) where Value.ValueType == Value, Value.VelocityType == Value {
-        guard animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath] != newValue else {
+        guard value(for: keyPath, key: key) != newValue else {
             return
         }
         
@@ -110,22 +95,22 @@ internal extension Animator {
             self?.object[keyPath: keyPath] = value
         }
         let groupUUID = animation.groupUUID
-        guard let animationKey = key ?? keyPath._kvcKeyPathString else { return }
+        let animationKey = key ?? keyPath.stringValue
         animation.completion = { [weak self] event in
             switch event {
             case .finished:
-                self?.object._animations.removeValue(forKey: animationKey)
+                self?.animations[animationKey] = nil
                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
             default:
                 break
             }
         }
-        object._animations[animationKey] = animation
+        animations[animationKey] = animation
         animation.start(afterDelay: settings.delay)
     }
     
     func setValue<Value: SpringInterpolatable>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) where Value.ValueType == Value, Value.VelocityType == Value {
-        guard (animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]) != newValue else {
+        guard value(for: keyPath, key: key) != newValue else {
             return
         }
         
@@ -136,11 +121,11 @@ internal extension Animator {
             return
         }
         
-        let initialValue = object[keyPath: keyPath] ?? Value.VelocityType.zero
-        let targetValue = newValue ?? Value.VelocityType.zero
+        let initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
+        let targetValue = newValue ?? Value.ValueType.zero
                 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
-
+        
         let animation = (animation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
         animation.configure(withSettings: settings)
         if let gestureVelocity = settings.gestureVelocity {
@@ -152,17 +137,17 @@ internal extension Animator {
             self?.object[keyPath: keyPath] = value
         }
         let groupUUID = animation.groupUUID
-        guard let animationKey = key ?? keyPath._kvcKeyPathString else { return }
+        let animationKey = key ?? keyPath.stringValue
         animation.completion = { [weak self] event in
             switch event {
             case .finished:
-                self?.object._animations.removeValue(forKey: animationKey)
+                self?.animations[animationKey] = nil
                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
             default:
                 break
             }
         }
-        object._animations[animationKey] = animation
+        animations[animationKey] = animation
         animation.start(afterDelay: settings.delay)
     }
 }

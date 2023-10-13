@@ -15,6 +15,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public protocol SpringInterpolatable: Equatable {
     associatedtype ValueType: SpringInterpolatable
@@ -68,20 +69,11 @@ extension CGRect: SpringInterpolatable, VelocityProviding {
     }
 }
 
-extension NSUIColor: SpringInterpolatable, VelocityProviding {
-    public static var zero: Self {
-        NSUIColor(red: 0, green: 0, blue: 0, alpha: 0) as! Self
-    }
-}
-
+extension NSUIColor: SpringInterpolatable, VelocityProviding { }
+extension CGColor: SpringInterpolatable, VelocityProviding { }
 extension CGQuaternion: SpringInterpolatable, VelocityProviding { }
-
 extension CATransform3D: SpringInterpolatable, VelocityProviding { }
-extension CGAffineTransform: SpringInterpolatable, VelocityProviding {
-    public static var zero: CGAffineTransform {
-        CGAffineTransform()
-    }
-}
+extension CGAffineTransform: SpringInterpolatable, VelocityProviding { }
 
 extension Float: SpringInterpolatable, VelocityProviding {
     public static func updateValue(spring: Spring, value: Float, target: Float, velocity: Float, dt: TimeInterval) -> (value: Float, velocity: Float) {
@@ -90,7 +82,6 @@ extension Float: SpringInterpolatable, VelocityProviding {
     }
 }
 
-extension CGColor: SpringInterpolatable, VelocityProviding { }
 
 /*
 extension ContentConfiguration.Shadow: SpringInterpolatable, VelocityProviding {

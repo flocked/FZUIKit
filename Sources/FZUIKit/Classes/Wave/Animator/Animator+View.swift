@@ -175,6 +175,7 @@ extension Animator where Object: NSButton {
         set { setValue(newValue, for: \.contentTintColor) }
     }
 }
+
 extension Animator where Object: ImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor? {
