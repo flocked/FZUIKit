@@ -26,6 +26,14 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
         animation.delegate = self
         animationHandlers[animation] = handler
     }
+    
+    func targetValue<Value>(for keyPath: KeyPath<Object, Value>) -> Value? {
+        let keyPathString = keyPath.stringValue
+        if let animation = self.animationHandlers.keys.compactMap({$0 as? CABasicAnimation}).first(where: {$0.keyPath == keyPathString}) {
+            return animation.toValue as? Value
+        }
+        return nil
+    }
         
     func animationDidStart(_ anim: CAAnimation) {
         if let anim = anim as? CABasicAnimation {

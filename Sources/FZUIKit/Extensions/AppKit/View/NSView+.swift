@@ -809,7 +809,7 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     dynamic public var innerShadow: ContentConfiguration.InnerShadow {
-        get { self.layer?.innerShadowLayer?.configuration ?? .none() }
+        get { ContentConfiguration.InnerShadow(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: CGPoint(innerShadowOffset.width, innerShadowOffset.height)) }
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
@@ -827,8 +827,8 @@ extension NSView {
     }
     
     @objc internal dynamic var innerShadowColor: NSColor? {
-        get { self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
-        set { 
+        get { self.animationManager.targetValue(for: \.innerShadowColor) ?? self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
+        set {
             var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
@@ -838,17 +838,17 @@ extension NSView {
     }
     
     @objc internal dynamic var innerShadowOpacity: CGFloat {
-        get { CGFloat(self.layer?.innerShadowLayer?.shadowOpacity ?? 0) }
+        get { self.animationManager.targetValue(for: \.innerShadowOpacity) ?? CGFloat(self.layer?.innerShadowLayer?.shadowOpacity ?? 0) }
         set { self.layer?.innerShadowLayer?.shadowOpacity = Float(newValue) }
     }
     
     @objc internal dynamic var innerShadowRadius: CGFloat {
-        get { self.layer?.innerShadowLayer?.shadowRadius ?? 0 }
+        get { self.animationManager.targetValue(for: \.innerShadowRadius) ?? self.layer?.innerShadowLayer?.shadowRadius ?? 0 }
         set { self.layer?.innerShadowLayer?.shadowRadius = newValue }
     }
     
     @objc internal dynamic var innerShadowOffset: CGSize {
-        get { self.layer?.innerShadowLayer?.shadowOffset ?? .zero }
+        get { self.animationManager.targetValue(for: \.innerShadowOffset) ?? self.layer?.innerShadowLayer?.shadowOffset ?? .zero }
         set { self.layer?.innerShadowLayer?.shadowOffset = newValue }
     }
 
