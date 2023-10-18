@@ -199,6 +199,16 @@ public extension simd_quatd {
     }
 }
 
+@available(macOS 10.15.1, iOS 15.0, tvOS 17.0, watchOS 10.0, *)
+extension simd_quatd: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(vector)
+    }
+    public var hashValue: Int {
+        self.vector.hashValue
+    }
+}
+
 public extension simd_quatf {
     init(_ quaternion: CGQuaternion) {
         self.init(angle: Float(quaternion.angle), axis: simd_float3(quaternion.axis))

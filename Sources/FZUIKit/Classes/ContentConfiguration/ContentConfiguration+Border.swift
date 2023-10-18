@@ -107,7 +107,9 @@ public extension NSUIView {
         - configuration:The configuration for configurating the apperance.
      */
     func configurate(using configuration: ContentConfiguration.Border) {
+        #if os(macOS)
         wantsLayer = true
+        #endif
         if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
             optionalLayer?.borderLayer?.removeFromSuperlayer()
             dashedBorderLayer = nil

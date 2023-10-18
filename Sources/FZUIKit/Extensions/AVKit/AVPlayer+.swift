@@ -12,22 +12,17 @@ import AVFoundation
 extension AVPlayer {
     /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
     public var isLooping: Bool {
-        get {
-            return getAssociatedValue(key: "_playerIsLooping", object: self, initialValue: false)
-        }
+        get { return getAssociatedValue(key: "isLooping", object: self, initialValue: false) }
         set {
-            set(associatedValue: newValue, key: "_playerIsLooping", object: self)
+            guard newValue != isLooping else { return }
+            set(associatedValue: newValue, key: "isLooping", object: self)
             setupLooping()
         }
     }
 
     internal var loopNotificationToken: NotificationToken? {
-        get {
-            return getAssociatedValue(key: "_playerLoopNotificationToken", object: self, initialValue: nil)
-        }
-        set {
-            set(associatedValue: newValue, key: "_playerLoopNotificationToken", object: self)
-        }
+        get { return getAssociatedValue(key: "loopNotificationToken", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "loopNotificationToken", object: self) }
     }
 
     internal func setupLooping() {
