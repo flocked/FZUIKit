@@ -819,7 +819,11 @@ extension NSView {
                 innerShadowLayer.sendToBack()
                 innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
             }
-            self.innerShadowColor = newValue._resolvedColor?.resolvedColor(for: self)
+            let newColor = newValue._resolvedColor?.resolvedColor(for: self)
+            if newColor != nil, newColor != .clear, self.innerShadowLayer?.shadowColor == nil {
+                self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor
+            }
+            self.innerShadowColor = newColor
             self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
             self.innerShadowRadius = newValue.radius
             self.innerShadowOpacity = newValue.opacity
