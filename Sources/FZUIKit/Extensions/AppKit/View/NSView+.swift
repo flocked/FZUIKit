@@ -530,9 +530,11 @@ extension NSView {
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
+            /*
             if self.shadowColor?.isVisible == true {
                 layer?.shadowColor = (newValue?.withAlphaComponent(0.0) ?? .clear).cgColor
             }
+            */
             _shadowColor = newValue
             layer?.shadowColor = newValue?.cgColor
         }
