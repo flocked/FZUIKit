@@ -540,6 +540,22 @@ extension NSView {
             if count == 0 || count == 1 {
                 count = count + 1
             }
+            /*
+            if let patternCount = self.dashedBorderLayer?.borderDashPattern.count {
+                var count = newValue.count
+                if count == 0 || count == 1 {
+                    count = count + 1
+                }
+                let needs = count - patternCount
+                if needs > 0 {
+                    for i in 0..<(needs - 1) {
+                        if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
+                            self.dashedBorderLayer?.borderDashPattern.append(0.0)
+                        }
+                    }
+                }
+            }
+            */
             if self.dashedBorderLayer?.borderDashPattern.count ?? 1000 < count {
                 for i in 0..<count {
                     if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
