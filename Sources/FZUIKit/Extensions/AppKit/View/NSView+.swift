@@ -536,7 +536,10 @@ extension NSView {
         get { self.dashedBorderLayer?.borderDashPattern ?? [] }
         set {
             Swift.print(newValue)
-            let count = newValue.count == 0 ? 1 : newValue.count
+            var count = newValue.count
+            if count == 0 || count == 1 {
+                count = count + 1
+            }
             if self.dashedBorderLayer?.borderDashPattern.count ?? 1000 < count {
                 for i in 0..<count {
                     if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
