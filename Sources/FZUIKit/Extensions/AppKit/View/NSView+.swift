@@ -470,9 +470,10 @@ extension NSView {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
             if self.dashedBorderLayer != nil {
-                /*
+                
                 self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.dashedBorderWidth = newValue.width
+                /*
                 self.dashedBorderInsetsTop = newValue.insets.top
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
@@ -487,9 +488,10 @@ extension NSView {
                     self.layer?.addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
                     borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
                 }
-                /*
+                
                 self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.dashedBorderWidth = newValue.width
+                /*
                 self.dashedBorderInsetsTop = newValue.insets.top
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
