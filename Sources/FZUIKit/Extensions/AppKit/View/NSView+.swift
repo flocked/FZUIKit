@@ -645,7 +645,9 @@ extension NSView {
     
     @objc dynamic internal var dashedBorderDashPattern0: CGFloat {
         get { self.dashedBorderLayer?.borderDashPattern[safe: 0] ?? 0.0 }
-        set { self.dashedBorderLayer?.borderDashPattern[0] = newValue }
+        set {
+            Swift.print("dashedBorderDashPattern0", newValue)
+            self.dashedBorderLayer?.borderDashPattern[0] = newValue }
     }
     
    @objc dynamic internal var dashedBorderDashPattern1: CGFloat {
