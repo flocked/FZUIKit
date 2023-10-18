@@ -490,9 +490,9 @@ extension NSView {
                 
                 self.dashedBorderInsetsTop = newValue.insets.top
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
-                /*
                 self.dashedBorderInsetsLeading = newValue.insets.leading
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
+                /*
                 self.dashedBorderDashPattern = newValue.dashPattern
                  */
             }
