@@ -117,9 +117,8 @@ public extension NSUIView {
             self.optionalLayer?.borderWidth = 0.0
             if self.optionalLayer?.borderLayer == nil {
                 let borderedLayer = DashedBorderLayer()
-                dashedBorderLayer = borderedLayer
+                self.dashedBorderLayer = borderedLayer
                 self.optionalLayer?.addSublayer(withConstraint: borderedLayer, insets: configuration.insets)
-                // borderedLayer.sendToBack()
                 borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
             }
             self.optionalLayer?.borderLayer?.configuration = configuration
@@ -162,7 +161,6 @@ public extension CALayer {
             if self.borderLayer == nil {
                 let borderedLayer = DashedBorderLayer()
                 self.addSublayer(withConstraint: borderedLayer, insets: configuration.insets)
-                // borderedLayer.sendToBack()
                 borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
             }
             self.borderLayer?.configuration = configuration

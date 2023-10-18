@@ -40,10 +40,27 @@ public extension CALayer {
      
      The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
      
-     - Parameters layer: The layer to be added.
+     - Parameters:
+        - layer: The layer to be added.
+        - insets: Insets from the new sublayer border to the layer border.
      */
     func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
         self.addSublayer(layer)
+        layer.constraintTo(layer: self, insets: insets)
+    }
+    
+    /**
+     Inserts the specified layer at the specified index and constraints it to the layer.
+     
+     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
+     
+     - Parameters:
+        - layer: The layer to be added.
+        - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
+        - insets: Insets from the new sublayer border to the layer border.
+     */
+    func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
+        self.insertSublayer(layer, at: index)
         layer.constraintTo(layer: self, insets: insets)
     }
     

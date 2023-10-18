@@ -474,10 +474,9 @@ extension NSView {
                 updateDashedBorderLayer = true
             } else if newValue.needsDashedBordlerLayer {
                 if self.dashedBorderLayer == nil {
-                    let borderedLayer = DashedBorderLayer()
-                    dashedBorderLayer = borderedLayer
-                    self.layer?.addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
-                    borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
+                    self.dashedBorderLayer = DashedBorderLayer()
+                    self.layer?.addSublayer(withConstraint: self.dashedBorderLayer!, insets: newValue.insets)
+                    self.dashedBorderLayer?.zPosition = CGFloat(Float.greatestFiniteMagnitude)
                 }
                 updateDashedBorderLayer = true
             } else {
@@ -522,7 +521,13 @@ extension NSView {
     
     @objc dynamic internal var dashedBorderWidth: CGFloat {
         get { self.dashedBorderLayer?.borderWidth ?? 0 }
-        set { self._dashedBorderLayer?.borderWidth = newValue }
+        set {
+            
+            self._dashedBorderLayer?.borderWidth = newValue
+            Swift.print(self.dashedBorderLayer?.borderWidth ?? "nil")
+            Swift.print(self._dashedBorderLayer?.borderWidth ?? "nil")
+            Swift.print("----")
+        }
     }
     
     @objc dynamic internal var dashedBorderInsetsTop: CGFloat {
