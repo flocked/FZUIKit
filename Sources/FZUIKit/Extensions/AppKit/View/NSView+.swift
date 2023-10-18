@@ -1042,9 +1042,14 @@ internal extension NSView {
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
+            self.animationManager.add(animation, handler: { })
             return animation
         }
-        return self.swizzled_Animation(forKey: key)
+        let animation = self.swizzled_Animation(forKey: key)
+        if let animation = animation as? CAAnimation {
+            self.animationManager.add(animation, handler: { })
+        }
+        return animation
     }
     
     static var didSwizzleAnimationForKey: Bool {
