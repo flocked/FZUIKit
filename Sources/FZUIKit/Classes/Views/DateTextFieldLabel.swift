@@ -58,6 +58,7 @@ public class DateTextField: NSTextField {
         self.init(frame: .zero)
         self.textLayout = .wraps
         self.date = date
+        self.configurateDateString()
         self.invalidateIntrinsicContentSize()
     }
     
@@ -65,6 +66,7 @@ public class DateTextField: NSTextField {
         self.init(frame: frame)
         self.textLayout = .wraps
         self.date = date
+        self.configurateDateString()
         self.invalidateIntrinsicContentSize()
     }
     
@@ -192,12 +194,15 @@ public class DateLabel: UILabel {
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
         self.date = date
+        self.configurateDateString()
         self.sizeToFit()
     }
     
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
         self.date = date
+        self.configurateDateString()
+        self.sizeToFit()
     }
     
     internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
@@ -314,12 +319,15 @@ public class DateTextField: UITextField {
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
         self.date = date
+        self.configurateDateString()
         self.sizeToFit()
     }
     
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
         self.date = date
+        self.configurateDateString()
+        self.sizeToFit()
     }
     
     internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
