@@ -29,7 +29,7 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     
     func animationDidStart(_ anim: CAAnimation) {
         if let anim = anim as? CABasicAnimation {
-            Swift.print("animationDidStart", anim, anim.toValue != nil ? type(of: anim.toValue!) : "nil")
+            Swift.print("animationDidStart", anim, anim.toValue != nil ? type(of: anim.toValue!) : "nil", anim.toValue ?? "nil")
         }
     }
     
