@@ -126,10 +126,11 @@ public extension NSUIView {
     }
     
     internal var dashedBorderLayer: DashedBorderLayer? {
+        Swift.print("dashedBorderLayer")
         #if os(macOS)
-        layer?.firstSublayer(type: DashedBorderLayer.self)
+        return layer?.firstSublayer(type: DashedBorderLayer.self)
         #elseif canImport(UIKit)
-        layer.firstSublayer(type: DashedBorderLayer.self)
+        return layer.firstSublayer(type: DashedBorderLayer.self)
         #endif
     }
 }
