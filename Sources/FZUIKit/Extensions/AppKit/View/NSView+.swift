@@ -484,6 +484,7 @@ extension NSView {
             } else if newValue.needsDashedBordlerLayer {
                 if self.dashedBorderLayer == nil {
                     let borderedLayer = DashedBorderLayer()
+                    dashedBorderLayer = borderedLayer
                     self.layer?.addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
                     borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
                 }
