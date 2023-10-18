@@ -12,6 +12,7 @@ import AppKit
 import UIKit
 #endif
 
+/*
 public extension InnerShadowView {
     /// The inner shadow.
     dynamic var innerShadow: ContentConfiguration.InnerShadow {
@@ -122,4 +123,5 @@ public class InnerShadowView: NSUIView {
 #endif
     }
 }
+*/
 #endif

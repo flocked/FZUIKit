@@ -235,6 +235,50 @@ public extension UIView {
         set { layer.shadowOpacity = Float(newValue) }
     }
     
+    /// The shadow path of the view.
+    @objc internal dynamic var shadowPath: CGPath? {
+        get { layer.shadowPath }
+        set { layer.shadowPath = newValue }
+    }
+    
+    /// The inner shadow of the view.
+    dynamic public var innerShadow: ContentConfiguration.InnerShadow {
+        get { self.layer.innerShadowLayer?.configuration ?? .none() }
+        set {
+            if self.innerShadowLayer == nil {
+                let innerShadowLayer = InnerShadowLayer()
+                self.layer.addSublayer(withConstraint: innerShadowLayer)
+                innerShadowLayer.sendToBack()
+                innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+            }
+            self.innerShadowColor = newValue._resolvedColor?.resolvedColor(for: self)
+            self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
+            self.innerShadowRadius = newValue.radius
+            self.innerShadowOpacity = newValue.opacity
+        }
+    }
+    
+    @objc internal dynamic var innerShadowColor: NSUIColor? {
+        get { self.layer.innerShadowLayer?.shadowColor?.nsUIColor }
+        set { self.layer.innerShadowLayer?.shadowColor = newValue?.cgColor }
+    }
+    
+    @objc internal dynamic var innerShadowOpacity: CGFloat {
+        get { CGFloat(self.layer.innerShadowLayer?.shadowOpacity ?? 0) }
+        set { self.layer.innerShadowLayer?.shadowOpacity = Float(newValue) }
+    }
+    
+    @objc internal dynamic var innerShadowRadius: CGFloat {
+        get { self.layer.innerShadowLayer?.shadowRadius ?? 0 }
+        set { self.layer.innerShadowLayer?.shadowRadius = newValue }
+    }
+    
+    @objc internal dynamic var innerShadowOffset: CGSize {
+        get { self.layer.innerShadowLayer?.shadowOffset ?? .zero }
+        set { self.layer.innerShadowLayer?.shadowOffset = newValue }
+    }
+
+    
     /// The shadow of the view.
     var shadow: ContentConfiguration.Shadow {
         get { ContentConfiguration.Shadow(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }

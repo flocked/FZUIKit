@@ -28,7 +28,7 @@ public class InnerShadowLayer: CALayer {
         }
     }
     
-
+    
     /**
      Initalizes an inner shadow layer with the specified configuration.
      
@@ -43,10 +43,19 @@ public class InnerShadowLayer: CALayer {
     
     override public init() {
         super.init()
+        self.sharedInit()
     }
-
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        self.sharedInit()
+    }
+    
+    internal func sharedInit() {
+        self.shadowOpacity = 0
+        self.shadowColor = nil
+        self.shadowOffset = .zero
+        self.shadowRadius = 0.0
     }
     
     public override var shadowRadius: CGFloat {

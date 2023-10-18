@@ -121,6 +121,15 @@ public extension NSUIView {
         layer.configurate(using: configuration)
         #endif
     }
+    
+    internal var innerShadowLayer: InnerShadowLayer? {
+        #if os(macOS)
+         self.layer?.firstSublayer(type: InnerShadowLayer.self)
+        #else
+        self.layer.firstSublayer(type: InnerShadowLayer.self)
+        #endif
+
+    }
 }
 
 public extension CALayer {

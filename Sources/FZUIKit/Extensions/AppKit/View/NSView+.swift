@@ -469,16 +469,133 @@ extension NSView {
         set { 
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
-            if newValue.needsDashedBordlerLayer == false {
+            if self.dashedBorderLayer != nil {
+                self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
+                self.dashedBorderWidth = newValue.width
+                self.dashedBorderInsetsTop = newValue.insets.top
+                self.dashedBorderInsetsBottom = newValue.insets.bottom
+                self.dashedBorderInsetsLeading = newValue.insets.leading
+                self.dashedBorderInsetsTrailing = newValue.insets.trailing
+                self.dashedBorderDashPattern = newValue.dashPattern
+            } else if newValue.needsDashedBordlerLayer {
+                if self.dashedBorderLayer == nil {
+                    let borderedLayer = DashedBorderLayer()
+                    self.layer?.addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
+                    borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
+                }
+                self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
+                self.dashedBorderWidth = newValue.width
+                self.dashedBorderInsetsTop = newValue.insets.top
+                self.dashedBorderInsetsBottom = newValue.insets.bottom
+                self.dashedBorderInsetsLeading = newValue.insets.leading
+                self.dashedBorderInsetsTrailing = newValue.insets.trailing
+                self.dashedBorderDashPattern = newValue.dashPattern
+            } else {
                 self.borderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.borderWidth = newValue.width
-                self.dashedBorderLayer?.removeFromSuperlayer()
-            } else {
-                self.configurate(using: newValue)
             }
-            self.configurate(using: newValue) }
+        }
     }
-
+    
+    @objc dynamic internal var dashedBorderColor: NSUIColor? {
+        get { self.dashedBorderLayer?.borderColor?.nsUIColor }
+        set { 
+            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
+            if newValue == nil, self.isProxy() {
+                newValue = .clear
+            }
+            self.dashedBorderLayer?.borderColor = newValue?.cgColor }
+    }
+    
+    @objc dynamic internal var dashedBorderWidth: CGFloat {
+        get { self.dashedBorderLayer?.borderWidth ?? 0 }
+        set { self.dashedBorderLayer?.borderWidth = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderInsetsTop: CGFloat {
+        get { self.dashedBorderLayer?.borderInsets.top ?? 0 }
+        set { self.dashedBorderLayer?.borderInsets.top = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderInsetsBottom: CGFloat {
+        get { self.dashedBorderLayer?.borderInsets.bottom ?? 0 }
+        set { self.dashedBorderLayer?.borderInsets.bottom = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderInsetsLeading: CGFloat {
+        get { self.dashedBorderLayer?.borderInsets.leading ?? 0 }
+        set { self.dashedBorderLayer?.borderInsets.leading = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderInsetsTrailing: CGFloat {
+        get { self.dashedBorderLayer?.borderInsets.trailing ?? 0 }
+        set { self.dashedBorderLayer?.borderInsets.trailing = newValue }
+    }
+    
+    dynamic internal var dashedBorderDashPattern: [CGFloat] {
+        get { self.dashedBorderLayer?.borderDashPattern ?? [] }
+        set {
+            for i in 0..<newValue.count {
+                if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
+                    self.dashedBorderLayer?.borderDashPattern.append(0.0)
+                }
+            }
+            switch newValue.count {
+            case 0:
+                dashedBorderDashPattern0 = 1.0
+                dashedBorderDashPattern1 = 0.0
+                dashedBorderDashPattern2 = 0.0
+                dashedBorderDashPattern3 = 0.0
+                dashedBorderDashPattern4 = 0.0
+                dashedBorderDashPattern5 = 0.0
+            case 1:
+                dashedBorderDashPattern0 = newValue[safe: 0] ?? 0.0
+                dashedBorderDashPattern1 = newValue[safe: 0] ?? 0.0
+                dashedBorderDashPattern2 = 0.0
+                dashedBorderDashPattern3 = 0.0
+                dashedBorderDashPattern4 = 0.0
+                dashedBorderDashPattern5 = 0.0
+            default:
+                dashedBorderDashPattern0 = newValue[safe: 0] ?? 0.0
+                dashedBorderDashPattern1 = newValue[safe: 1] ?? 0.0
+                dashedBorderDashPattern2 = newValue[safe: 2] ?? 0.0
+                dashedBorderDashPattern3 = newValue[safe: 3] ?? 0.0
+                dashedBorderDashPattern4 = newValue[safe: 4] ?? 0.0
+                dashedBorderDashPattern5 = newValue[safe: 5] ?? 0.0
+            }
+        }
+    }
+    
+    @objc dynamic internal var dashedBorderDashPattern0: CGFloat {
+        get { self.dashedBorderDashPattern[safe: 0] ?? 0.0 }
+        set { self.dashedBorderDashPattern[safe: 0] = newValue }
+    }
+    
+   @objc dynamic internal var dashedBorderDashPattern1: CGFloat {
+        get { self.dashedBorderDashPattern[safe: 1] ?? 0.0 }
+       set { self.dashedBorderDashPattern[safe: 1] = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderDashPattern2: CGFloat {
+        get { self.dashedBorderDashPattern[safe: 2] ?? 0.0 }
+        set { self.dashedBorderDashPattern[safe: 2] = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderDashPattern3: CGFloat {
+        get { self.dashedBorderDashPattern[safe: 3] ?? 0.0 }
+        set { self.dashedBorderDashPattern[safe: 3] = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderDashPattern4: CGFloat {
+        get { self.dashedBorderDashPattern[safe: 4] ?? 0.0 }
+        set { self.dashedBorderDashPattern[safe: 4] = newValue }
+    }
+    
+    @objc dynamic internal var dashedBorderDashPattern5: CGFloat {
+        get { self.dashedBorderDashPattern[safe: 5] ?? 0.0 }
+        set { self.dashedBorderDashPattern[safe: 5] = newValue }
+    }
+    
     /**
      The border width of the view.
 
@@ -568,7 +685,7 @@ extension NSView {
         get { CGFloat(layer?.shadowOpacity ?? .zero) }
         set {
             wantsLayer = true
-         //   Self.swizzleAnimationForKey()
+            Self.swizzleAnimationForKey()
             layer?.shadowOpacity = Float(newValue)
         }
     }
@@ -594,6 +711,55 @@ extension NSView {
                 layer?.shadowPath = newValue?.cgPath
             }
         }
+    }
+    
+    /**
+     The inner shadow of the view.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    dynamic public var innerShadow: ContentConfiguration.InnerShadow {
+        get { self.layer?.innerShadowLayer?.configuration ?? .none() }
+        set {
+            self.wantsLayer = true
+            Self.swizzleAnimationForKey()
+            if self.innerShadowLayer == nil {
+                let innerShadowLayer = InnerShadowLayer()
+                self.layer?.addSublayer(withConstraint: innerShadowLayer)
+                innerShadowLayer.sendToBack()
+                innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+            }
+            self.innerShadowColor = newValue._resolvedColor?.resolvedColor(for: self)
+            self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
+            self.innerShadowRadius = newValue.radius
+            self.innerShadowOpacity = newValue.opacity
+        }
+    }
+    
+    @objc internal dynamic var innerShadowColor: NSColor? {
+        get { self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
+        set { 
+            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
+            if newValue == nil, self.isProxy() {
+                newValue = .clear
+            }
+            self.layer?.innerShadowLayer?.shadowColor = newValue?.cgColor
+        }
+    }
+    
+    @objc internal dynamic var innerShadowOpacity: CGFloat {
+        get { CGFloat(self.layer?.innerShadowLayer?.shadowOpacity ?? 0) }
+        set { self.layer?.innerShadowLayer?.shadowOpacity = Float(newValue) }
+    }
+    
+    @objc internal dynamic var innerShadowRadius: CGFloat {
+        get { self.layer?.innerShadowLayer?.shadowRadius ?? 0 }
+        set { self.layer?.innerShadowLayer?.shadowRadius = newValue }
+    }
+    
+    @objc internal dynamic var innerShadowOffset: CGSize {
+        get { self.layer?.innerShadowLayer?.shadowOffset ?? .zero }
+        set { self.layer?.innerShadowLayer?.shadowOffset = newValue }
     }
 
     /**
@@ -798,8 +964,7 @@ internal extension NSView {
    }
 }
 
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath"]
-
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "dashedBorderDashPattern0", "dashedBorderDashPattern1", "dashedBorderDashPattern2", "dashedBorderDashPattern3", "dashedBorderDashPattern4", "dashedBorderDashPattern5", "dashedBorderInsetsTop", "dashedBorderInsetsBottom", "dashedBorderInsetsLeading", "dashedBorderInsetsTrailing", "dashedBorderColor", "dashedBorderWidth"]
 #endif
 
 /*

@@ -24,7 +24,7 @@ public class DashedBorderView: NSUIView {
     }
     
     /// The dash pattern of the border.
-    public var borderDashPattern: [CGFloat]? {
+    public var borderDashPattern: [CGFloat] {
         get { borderedLayer.borderDashPattern }
         set { borderedLayer.borderDashPattern = newValue }
     }

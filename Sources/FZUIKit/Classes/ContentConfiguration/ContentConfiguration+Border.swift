@@ -43,7 +43,7 @@ public extension ContentConfiguration {
         public var width: CGFloat = 0.0
         
         /// The dash pattern of the border.
-        public var dashPattern: [CGFloat]? = nil
+        public var dashPattern: [CGFloat] = []
         
         /// The insets of the border.
         public var insets: NSDirectionalEdgeInsets = .init(0)
@@ -52,7 +52,7 @@ public extension ContentConfiguration {
         public init(color: NSUIColor? = nil,
                     colorTransformer: ColorTransformer? = nil,
                     width: CGFloat = 0.0,
-                    dashPattern: [CGFloat]? = nil,
+                    dashPattern: [CGFloat] = [],
                     insets: NSDirectionalEdgeInsets = .init(0))
         {
             self.color = color
@@ -94,7 +94,7 @@ public extension ContentConfiguration {
         }
         
         internal var needsDashedBordlerLayer: Bool {
-           return (self.insets != .zero || self.dashPattern != nil)
+           return (self.insets != .zero || self.dashPattern != [])
         }
     }
 }

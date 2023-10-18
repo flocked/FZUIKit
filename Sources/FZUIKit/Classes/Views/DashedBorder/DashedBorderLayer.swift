@@ -25,9 +25,9 @@ public class DashedBorderLayer: CALayer {
     }
     
     /// The dash pattern of the border.
-    public var borderDashPattern: [CGFloat]? {
-        get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) }
-        set { borderedLayer.lineDashPattern = newValue as? [NSNumber] }
+    public var borderDashPattern: [CGFloat] {
+        get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) ?? [] }
+        set { borderedLayer.lineDashPattern = newValue as [NSNumber] }
     }
     
     /// The border color.
