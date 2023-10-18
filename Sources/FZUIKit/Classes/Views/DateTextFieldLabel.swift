@@ -59,6 +59,8 @@ public class DateTextField: NSTextField {
         self.textLayout = .wraps
         self.drawsBackground = false
         self.backgroundColor = nil
+        self.isBezeled = false
+        self.isBordered = false
         self.date = date
         self.configurateDateString()
         self.sizeToFit()
@@ -69,6 +71,8 @@ public class DateTextField: NSTextField {
         self.textLayout = .wraps
         self.drawsBackground = false
         self.backgroundColor = nil
+        self.isBezeled = false
+        self.isBordered = false
         self.date = date
         self.configurateDateString()
         self.sizeToFit()
@@ -333,6 +337,8 @@ public class DateTextField: UITextField {
         self.init(frame: .zero)
         self.date = date
         self.configurateDateString()
+        self.borderStyle = .none
+        self.backgroundColor = nil
         self.sizeToFit()
     }
     
@@ -340,6 +346,8 @@ public class DateTextField: UITextField {
         self.init(frame: frame)
         self.date = date
         self.configurateDateString()
+        self.borderStyle = .none
+        self.backgroundColor = nil
         self.sizeToFit()
     }
     
