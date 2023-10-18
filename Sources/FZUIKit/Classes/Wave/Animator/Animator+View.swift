@@ -89,7 +89,7 @@ extension Animator where Object: NSUIView {
         set { 
             var newValue = newValue
             #if os(macOS)
-            object._shadowColor = newValue.resolvedColor()
+            object.savedShadowColor = newValue.resolvedColor()
             #endif
             newValue.color = newValue.color?.resolvedColor(for: object)
             object.optionalLayer?.animator.shadow = newValue }

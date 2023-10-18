@@ -57,9 +57,9 @@ internal extension NSView {
         set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
     }
     
-    var _shadowColor: NSUIColor? {
-        get { getAssociatedValue(key: "_shadowColor", object: self, initialValue: self.layer?.shadowColor?.nsColor) }
-        set { set(associatedValue: newValue, key: "_shadowColor", object: self)
+    var savedShadowColor: NSUIColor? {
+        get { getAssociatedValue(key: "savedShadowColor", object: self, initialValue: self.layer?.shadowColor?.nsColor) }
+        set { set(associatedValue: newValue, key: "savedShadowColor", object: self)
             setupEffectiveAppearanceObserver()
         }
     }
@@ -80,7 +80,7 @@ internal extension NSView {
     }
     
     var needsEffectiveAppearanceObserver: Bool {
-        __backgroundColor != nil || _borderColor != nil || _shadowColor != nil
+        __backgroundColor != nil || _borderColor != nil || savedShadowColor != nil
     }
     
     func setupEffectiveAppearanceObserver() {
@@ -105,8 +105,8 @@ internal extension NSView {
             self.layer?.borderColor = borderColor.cgColor
         }
         
-        if let shadowColor = _shadowColor?.resolvedColor(for: effectiveAppearance) {
-            self.layer?.shadowColor = shadowColor.cgColor
+        if let savedShadowColor = savedShadowColor?.resolvedColor(for: effectiveAppearance) {
+            self.layer?.shadowColor = savedShadowColor.cgColor
         }
     }
 }
