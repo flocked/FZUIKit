@@ -526,7 +526,7 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
+            var newValue = newValue?.withSupportedColorSpace()?.resolvedColor(for: self)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
