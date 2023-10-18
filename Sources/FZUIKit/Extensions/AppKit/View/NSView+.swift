@@ -562,7 +562,7 @@ extension NSView {
                         self.dashedBorderLayer?.borderDashPattern.append(0.0)
                     }
                 }
-                Swift.print("borderDashPattern count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
+                Swift.print("borderDashPattern count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil", self.isProxy())
             }
             switch newValue.count {
             case 0:
