@@ -508,9 +508,7 @@ extension NSView {
     
     @objc dynamic internal var dashedBorderWidth: CGFloat {
         get { self.dashedBorderLayer?.borderWidth ?? 0 }
-        set { 
-            Swift.print("dashedBorderWidth", newValue)
-            self.dashedBorderLayer?.borderWidth = newValue }
+        set {  self.dashedBorderLayer?.borderWidth = newValue }
     }
     
     @objc dynamic internal var dashedBorderInsetsTop: CGFloat {
@@ -949,7 +947,6 @@ internal extension NSView {
     }
     
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        Swift.print("swizzled_Animation", key)
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
