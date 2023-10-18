@@ -134,11 +134,9 @@ public extension NSUIColor {
     }
     
     /**
-     Determines if the color object is dark or light.
+     A boolean value that indicates whether the color is light or dark.
 
      It is useful when you need to know whether you should display the text in black or white.
-
-     - returns: A boolean value to know whether the color is light. If true the color is light, dark otherwise.
      */
     func isLight() -> Bool {
       let components = rgbaComponents()
@@ -159,6 +157,11 @@ public extension NSUIColor {
         #elseif canImport(UIKit)
         self.resolvedColor(with: view.traitCollection)
         #endif
+    }
+    
+    /// A boolean value that indicates whether the color is visible (`alphaComponent` isn't zero and it isn't `clear`).
+    var isVisible: Bool {
+        self != .clear || self.alphaComponent != 0.0
     }
 
     #if os(macOS)

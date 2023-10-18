@@ -469,229 +469,26 @@ extension NSView {
         set { 
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
-            var updateDashedBorderLayer = false
-            if self._dashedBorderLayer != nil {
-                updateDashedBorderLayer = true
-            } else if newValue.needsDashedBordlerLayer {
-                if self._dashedBorderLayer == nil {
-                    let borderedLayer = DashedBorderLayer()
-                 //   self.dashedBorderLayer = borderedLayer
-                    self.layer?.addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
-                    borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-                }
-                updateDashedBorderLayer = true
+            if newValue.needsDashedBordlerLayer {
+                self.configurate(using: newValue)
             } else {
-                self.borderColor = newValue._resolvedColor?.resolvedColor(for: self)
+                self.dashedBorderLayer?.removeFromSuperlayer()
+                var newColor = newValue.resolvedColor()?.resolvedColor(for: self)
+                if newColor != nil, newColor != .clear, self.borderColor?.isVisible == true {
+                    self.layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor
+                }
+                self.borderColor = newValue.resolvedColor()?.resolvedColor(for: self)
                 self.borderWidth = newValue.width
             }
-            if updateDashedBorderLayer {
-                self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
-                self.dashedBorderWidth = newValue.width
-                /*
-                self.dashedBorderInsetsTop = newValue.insets.top
-                self.dashedBorderInsetsBottom = newValue.insets.bottom
-                self.dashedBorderInsetsLeading = newValue.insets.leading
-                self.dashedBorderInsetsTrailing = newValue.insets.trailing
-               // self.dashedBorderDashPattern = newValue.dashPattern
-                
-                self.setupDashedPatternArray()
-                Swift.print("count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
-                let newDashPattern = self.convertedDashPattern(for: newValue.dashPattern)
-                Swift.print("converted", newDashPattern)
-                self.dashedBorderDashPattern0 = newDashPattern[0]
-                self.dashedBorderDashPattern1 = newDashPattern[1]
-                self.dashedBorderDashPattern2 = newDashPattern[2]
-                self.dashedBorderDashPattern3 = newDashPattern[3]
-                self.dashedBorderDashPattern4 = newDashPattern[4]
-                self.dashedBorderDashPattern5 = newDashPattern[5]
-                 */
-                
-            }
         }
     }
-    
-    @objc dynamic public var dashedBorderColor: NSUIColor? {
-        get { self.dashedBorderLayer?.borderColor?.nsUIColor }
-        set { 
-            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
-            if newValue == nil, self.isProxy() {
-                newValue = .clear
-            }
-            self._dashedBorderLayer?.borderColor = newValue?.cgColor }
-    }
-    
-    @objc dynamic public var dashedBorderWidth: CGFloat {
-        get { self.dashedBorderLayer?.borderWidth ?? 0 }
-        set { self._dashedBorderLayer?.borderWidth = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderInsetsTop: CGFloat {
-        get { self.dashedBorderLayer?.borderInsets.top ?? 0 }
-        set { self._dashedBorderLayer?.borderInsets.top = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderInsetsBottom: CGFloat {
-        get { self.dashedBorderLayer?.borderInsets.bottom ?? 0 }
-        set { self._dashedBorderLayer?.borderInsets.bottom = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderInsetsLeading: CGFloat {
-        get { self.dashedBorderLayer?.borderInsets.leading ?? 0 }
-        set { self._dashedBorderLayer?.borderInsets.leading = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderInsetsTrailing: CGFloat {
-        get { self.dashedBorderLayer?.borderInsets.trailing ?? 0 }
-        set { self._dashedBorderLayer?.borderInsets.trailing = newValue }
-    }
-    
-     internal var dashedBorderDashPattern: [CGFloat] {
-        get { self.dashedBorderLayer?.borderDashPattern ?? [] }
-        set {
-            Swift.print(newValue)
-            
-            self.setupDashedPatternArray()
-            let newValue = self.convertedDashPattern(for: newValue)
-            dashedBorderDashPattern0 = newValue[0]
-            dashedBorderDashPattern1 = newValue[1]
-            dashedBorderDashPattern2 = newValue[2]
-            dashedBorderDashPattern3 = newValue[3]
-            dashedBorderDashPattern4 = newValue[4]
-            dashedBorderDashPattern5 = newValue[5]
-            /*
-            var count = newValue.count
-            if count == 0 || count == 1 {
-                count = count + 1
-            }
-            /*
-            if let patternCount = self.dashedBorderLayer?.borderDashPattern.count {
-                var count = newValue.count
-                if count == 0 || count == 1 {
-                    count = count + 1
-                }
-                let needs = count - patternCount
-                if needs > 0 {
-                    for i in 0..<(needs - 1) {
-                        if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
-                            self.dashedBorderLayer?.borderDashPattern.append(0.0)
-                        }
-                    }
-                }
-            }
-            */
-            if self.dashedBorderLayer?.borderDashPattern.count ?? 1000 < count {
-                for i in 0..<count {
-                    if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
-                        self.dashedBorderLayer?.borderDashPattern.append(0.0)
-                    }
-                }
-                Swift.print("borderDashPattern count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil", self.isProxy())
-            }
-            switch newValue.count {
-            case 0:
-                dashedBorderDashPattern0 = 1.0
-                dashedBorderDashPattern1 = 0.0
-                dashedBorderDashPattern2 = 0.0
-                dashedBorderDashPattern3 = 0.0
-                dashedBorderDashPattern4 = 0.0
-                dashedBorderDashPattern5 = 0.0
-            case 1:
-                dashedBorderDashPattern0 = newValue[0]
-                dashedBorderDashPattern1 = newValue[0]
-                dashedBorderDashPattern2 = 0.0
-                dashedBorderDashPattern3 = 0.0
-                dashedBorderDashPattern4 = 0.0
-                dashedBorderDashPattern5 = 0.0
-            default:
-                dashedBorderDashPattern0 = newValue[safe: 0] ?? 0.0
-                dashedBorderDashPattern1 = newValue[safe: 1] ?? 0.0
-                dashedBorderDashPattern2 = newValue[safe: 2] ?? 0.0
-                dashedBorderDashPattern3 = newValue[safe: 3] ?? 0.0
-                dashedBorderDashPattern4 = newValue[safe: 4] ?? 0.0
-                dashedBorderDashPattern5 = newValue[safe: 5] ?? 0.0
-            }
-            if self.dashedBorderLayer?.borderDashPattern.isEmpty == false {
-                Swift.print("borderDashPattern first", self.dashedBorderLayer?.borderDashPattern[0] ?? "nil")
-            }
-            */
-        }
-    }
-    
-    func convertedDashPattern(for values: [CGFloat]) -> [CGFloat] {
-        if values.count == 0 {
-            return [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        } else if values.count == 1 {
-            return [1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
-        } else {
-            var values = values[safe: 0..<6]
-            let needs = 6 - values.count
-            if needs > 0 {
-                values.append(contentsOf: Array(repeating: 0.0, count: needs))
-            }
-            return values
-        }
-    }
-    
-    func setupDashedPatternArray() {
-        if let dashedLayer = _dashedBorderLayer {
-            let patternCount = dashedLayer.borderDashPattern.count
-            let needs = 6 - patternCount
-            if needs > 0 {
-                dashedLayer.borderDashPattern.append(contentsOf: Array(repeating: 0.0, count: needs))
-            } else if needs < 0 {
-                dashedLayer.borderDashPattern.removeLast(needs * -1)
-            }
-        }
-    }
-    
-    @objc dynamic public var dashedBorderDashPattern0: CGFloat {
-        get { self.dashedBorderLayer?.borderDashPattern[safe: 0] ?? 0.0 }
-        set {
-            self._dashedBorderLayer?.borderDashPattern[0] = newValue
-            
-         //   let sublayer = self.layer?.firstSublayer(type: DashedBorderLayer.self)
-         //   sublayer?.borderDashPattern[0] = newValue
-         //   Swift.print("dashedBorderDashPattern0", self.dashedBorderLayer?.borderDashPattern[0] ?? "nil")
-         //   Swift.print("dashedBorderDashPattern0", sublayer?.borderDashPattern[0] ?? "nil")
-
-}
-    }
-    
-    internal var _dashedBorderLayer: DashedBorderLayer? {
-        self.layer?.firstSublayer(type: DashedBorderLayer.self)
-    }
-    
-   @objc dynamic public var dashedBorderDashPattern1: CGFloat {
-        get { self._dashedBorderLayer?.borderDashPattern[safe: 1] ?? 0.0 }
-       set { self._dashedBorderLayer?.borderDashPattern[1] = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderDashPattern2: CGFloat {
-        get { self.dashedBorderDashPattern[safe: 2] ?? 0.0 }
-        set { self._dashedBorderLayer?.borderDashPattern[2] = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderDashPattern3: CGFloat {
-        get { self.dashedBorderLayer?.borderDashPattern[safe: 3] ?? 0.0 }
-        set { self._dashedBorderLayer?.borderDashPattern[3] = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderDashPattern4: CGFloat {
-        get { self.dashedBorderLayer?.borderDashPattern[safe: 4] ?? 0.0 }
-        set { self._dashedBorderLayer?.borderDashPattern[4] = newValue }
-    }
-    
-    @objc dynamic public var dashedBorderDashPattern5: CGFloat {
-        get { self.dashedBorderLayer?.borderDashPattern[safe: 5] ?? 0.0 }
-        set { self._dashedBorderLayer?.borderDashPattern[5] = newValue }
-    }
-    
+        
     /**
      The border width of the view.
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var borderWidth: CGFloat {
+    @objc internal dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
         set {
             wantsLayer = true
@@ -705,7 +502,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var borderColor: NSColor? {
+    @objc internal dynamic var borderColor: NSColor? {
         get { layer?.borderColor?.nsColor }
         set {
             wantsLayer = true
@@ -732,6 +529,9 @@ extension NSView {
             var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
+            }
+            if self.shadowColor?.isVisible == true {
+                layer?.shadowColor = (newValue?.withAlphaComponent(0.0) ?? .clear).cgColor
             }
             _shadowColor = newValue
             layer?.shadowColor = newValue?.cgColor
@@ -820,7 +620,7 @@ extension NSView {
                 innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
             }
             let newColor = newValue._resolvedColor?.resolvedColor(for: self)
-            if newColor != nil, newColor != .clear, self.innerShadowLayer?.shadowColor == nil {
+            if newColor != nil, newColor != .clear, self.innerShadowColor?.isVisible == true {
                 self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor
             }
             self.innerShadowColor = newColor

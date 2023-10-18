@@ -79,8 +79,17 @@ internal extension Animator {
             return
         }
         
-        let initialValue = object[keyPath: keyPath]
-        let targetValue = newValue
+        var initialValue = object[keyPath: keyPath]
+        var targetValue = newValue
+        
+        if Value.self == NSUIColor.self, let iniVal = initialValue as? NSUIColor, let tarVal = newValue as? NSUIColor {
+            if iniVal == .clear {
+                initialValue = tarVal.withAlphaComponent(0.0) as! Value
+            }
+            if tarVal == .clear {
+                targetValue = iniVal.withAlphaComponent(0.0) as! Value
+            }
+        }
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
 
@@ -121,8 +130,16 @@ internal extension Animator {
             return
         }
         
-        let initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
-        let targetValue = newValue ?? Value.ValueType.zero
+        var initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
+        var targetValue = newValue ?? Value.ValueType.zero
+        if Value.self == NSUIColor.self, let iniVal = initialValue as? Optional<NSUIColor>, let tarVal = newValue as? Optional<NSUIColor> {
+            if iniVal == .clear || iniVal == nil {
+                initialValue = (tarVal.optional?.withAlphaComponent(0.0) ?? .clear) as! Value
+            }
+            if tarVal == .clear || tarVal == nil {
+                targetValue = (iniVal.optional?.withAlphaComponent(0.0) ?? .clear) as! Value
+            }
+        }
                 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         

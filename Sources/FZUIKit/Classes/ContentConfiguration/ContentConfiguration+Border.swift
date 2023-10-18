@@ -112,14 +112,14 @@ public extension NSUIView {
         #endif
         if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
             optionalLayer?.borderLayer?.removeFromSuperlayer()
-            dashedBorderLayer = nil
+          //  dashedBorderLayer = nil
         }
         if configuration.needsDashedBordlerLayer {
             self.optionalLayer?.borderColor = nil
             self.optionalLayer?.borderWidth = 0.0
             if self.optionalLayer?.borderLayer == nil {
                 let borderedLayer = DashedBorderLayer()
-                self.dashedBorderLayer = borderedLayer
+              //  self.dashedBorderLayer = borderedLayer
                 self.optionalLayer?.addSublayer(withConstraint: borderedLayer, insets: configuration.insets)
                 borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
             }
@@ -139,10 +139,16 @@ public extension NSUIView {
     }
     
     internal var dashedBorderLayer: DashedBorderLayer? {
+        get { self.optionalLayer?.firstSublayer(type: DashedBorderLayer.self) }
+    }
+    
+    /*
+    internal var dashedBorderLayer: DashedBorderLayer? {
         get { getAssociatedValue(key: "dashedBorderLayer", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "dashedBorderLayer", object: self)
         }
     }
+    */
 }
 
 public extension CALayer {
