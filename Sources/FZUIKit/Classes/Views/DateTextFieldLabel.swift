@@ -80,24 +80,10 @@ public class DateTextField: NSTextField {
     public override var intrinsicContentSize: NSSize {
         var intrinsicContentSize = super.intrinsicContentSize
         if intrinsicContentSize.width == NSView.noIntrinsicMetric, let cell = self.cell {
-            Swift.print("intrinsicContentSize Width 0", intrinsicContentSize)
             intrinsicContentSize.width = cell.cellSize(forBounds: CGRect(.zero, CGSize(CGFloat.greatestFiniteMagnitude, intrinsicContentSize.height))).rounded(.up).width
-            Swift.print("intrinsicContentSize Width 1", intrinsicContentSize)
         }
         return intrinsicContentSize
     }
-    
-    /*
-    public override var fittingSize: NSSize {
-        var fittingSize = super.fittingSize
-        if fittingSize.width == 0, let cell = self.cell {
-            Swift.print("FittingSize Width 0", fittingSize)
-            fittingSize.width = cell.cellSize(forBounds: CGRect(.zero, CGSize(CGFloat.greatestFiniteMagnitude, fittingSize.height))).rounded(.up).width
-            Swift.print("FittingSize Width 1", fittingSize)
-        }
-        return fittingSize
-    }
-    */
     
     internal func configurateDateString() {
         if dateDisplayMode == .absolute {
