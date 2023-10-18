@@ -498,7 +498,7 @@ extension NSView {
                 Swift.print("count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
                 let newDashPattern = self.convertedDashPattern(for: newValue.dashPattern)
                 Swift.print("converted", newDashPattern)
-                Swift.print("added dashedBorderLayer", self.dashedBorderLayer != nil)
+                Swift.print("added", self.dashedBorderLayer != nil)
                 self.dashedBorderDashPattern0 = newDashPattern[0]
                 self.dashedBorderDashPattern1 = newDashPattern[1]
                 self.dashedBorderDashPattern2 = newDashPattern[2]
@@ -525,9 +525,7 @@ extension NSView {
         set {
             
             self._dashedBorderLayer?.borderWidth = newValue
-            Swift.print(self.dashedBorderLayer != nil, self.dashedBorderLayer?.borderWidth ?? "nil")
-            Swift.print(self._dashedBorderLayer != nil, self._dashedBorderLayer?.borderWidth ?? "nil")
-            Swift.print("----")
+       
         }
     }
     
