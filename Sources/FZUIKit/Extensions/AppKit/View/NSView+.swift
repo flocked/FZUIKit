@@ -575,33 +575,33 @@ extension NSView {
     }
     
     @objc dynamic internal var dashedBorderDashPattern0: CGFloat {
-        get { self.dashedBorderDashPattern[safe: 0] ?? 0.0 }
-        set { self.dashedBorderDashPattern[safe: 0] = newValue }
+        get { self.dashedBorderLayer?.borderDashPattern[safe: 0] ?? 0.0 }
+        set { self.dashedBorderLayer?.borderDashPattern[safe: 0] = newValue }
     }
     
    @objc dynamic internal var dashedBorderDashPattern1: CGFloat {
-        get { self.dashedBorderDashPattern[safe: 1] ?? 0.0 }
-       set { self.dashedBorderDashPattern[safe: 1] = newValue }
+        get { self.dashedBorderLayer?.borderDashPattern[safe: 1] ?? 0.0 }
+       set { self.dashedBorderLayer?.borderDashPattern[safe: 1] = newValue }
     }
     
     @objc dynamic internal var dashedBorderDashPattern2: CGFloat {
         get { self.dashedBorderDashPattern[safe: 2] ?? 0.0 }
-        set { self.dashedBorderDashPattern[safe: 2] = newValue }
+        set { self.dashedBorderLayer?.borderDashPattern[safe: 2] = newValue }
     }
     
     @objc dynamic internal var dashedBorderDashPattern3: CGFloat {
-        get { self.dashedBorderDashPattern[safe: 3] ?? 0.0 }
-        set { self.dashedBorderDashPattern[safe: 3] = newValue }
+        get { self.dashedBorderLayer?.borderDashPattern[safe: 3] ?? 0.0 }
+        set { self.dashedBorderLayer?.borderDashPattern[safe: 3] = newValue }
     }
     
     @objc dynamic internal var dashedBorderDashPattern4: CGFloat {
-        get { self.dashedBorderDashPattern[safe: 4] ?? 0.0 }
-        set { self.dashedBorderDashPattern[safe: 4] = newValue }
+        get { self.dashedBorderLayer?.borderDashPattern[safe: 4] ?? 0.0 }
+        set { self.dashedBorderLayer?.borderDashPattern[safe: 4] = newValue }
     }
     
     @objc dynamic internal var dashedBorderDashPattern5: CGFloat {
-        get { self.dashedBorderDashPattern[safe: 5] ?? 0.0 }
-        set { self.dashedBorderDashPattern[safe: 5] = newValue }
+        get { self.dashedBorderLayer?.borderDashPattern[safe: 5] ?? 0.0 }
+        set { self.dashedBorderLayer?.borderDashPattern[safe: 5] = newValue }
     }
     
     /**
