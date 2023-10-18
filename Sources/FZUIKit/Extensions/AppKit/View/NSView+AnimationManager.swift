@@ -28,7 +28,9 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     }
     
     func animationDidStart(_ anim: CAAnimation) {
-        Swift.print("animationDidStart", anim, (anim as? CABasicAnimation)?.toValue ?? "nil")
+        if let anim = anim as? CABasicAnimation {
+            Swift.print("animationDidStart", anim, anim.toValue != nil ? type(of: anim.toValue!) : "nil")
+        }
     }
     
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
