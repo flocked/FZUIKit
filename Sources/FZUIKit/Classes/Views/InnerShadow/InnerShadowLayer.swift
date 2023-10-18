@@ -51,6 +51,11 @@ public class InnerShadowLayer: CALayer {
         self.sharedInit()
     }
     
+    public override init(layer: Any) {
+        super.init(layer: layer)
+        self.sharedInit()
+    }
+    
     internal func sharedInit() {
         self.shadowOpacity = 0
         self.shadowColor = nil
