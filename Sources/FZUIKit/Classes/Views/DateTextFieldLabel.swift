@@ -118,14 +118,18 @@ public class DateTextField: NSTextField {
 
     internal var dateString: String? = nil
     internal func updateDateString() {
+        Swift.print("updateDateString 0")
         if let date = date {
+            Swift.print("updateDateString 1")
             if dateDisplayMode == .relative {
-                dateString = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                Swift.print("updateDateString 2 relative")
                 stringValue = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                dateString = stringValue
                 toolTip = dateFormatter.string(from: date)
             } else {
-                dateString = dateFormatter.string(from: date)
+                Swift.print("updateDateString absolute relative", dateFormatter.string(from: date))
                 stringValue = dateFormatter.string(from: date)
+                dateString = stringValue
                 toolTip = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
             }
         } else {
@@ -247,11 +251,11 @@ public class DateLabel: UILabel {
     internal func updateDateString() {
         if let date = date {
             if dateDisplayMode == .relative {
-                dateString = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
                 text = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                dateString = text
             } else {
-                dateString = dateFormatter.string(from: date)
                 text = dateFormatter.string(from: date)
+                dateString = text
             }
         } else {
             liveUpdateTimer?.invalidate()
@@ -369,11 +373,11 @@ public class DateTextField: UITextField {
     internal func updateDateString() {
         if let date = date {
             if dateDisplayMode == .relative {
-                dateString = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
                 text = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                dateString = text
             } else {
-                dateString = dateFormatter.string(from: date)
                 text = dateFormatter.string(from: date)
+                dateString = text
             }
         } else {
             liveUpdateTimer?.invalidate()
