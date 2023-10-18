@@ -161,7 +161,7 @@ public extension NSUIColor {
     
     /// A boolean value that indicates whether the color is visible (`alphaComponent` isn't zero and it isn't `clear`).
     var isVisible: Bool {
-        self != .clear || self.alphaComponent != 0.0
+        self != .clear && self.alphaComponent != 0.0
     }
 
     #if os(macOS)
