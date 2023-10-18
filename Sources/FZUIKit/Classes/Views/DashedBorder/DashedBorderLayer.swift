@@ -32,10 +32,8 @@ public class DashedBorderLayer: CALayer {
     
     /// The border color.
     public override var borderColor: CGColor? {
-        didSet {
-            borderedLayer.strokeColor = self.borderColor
-            self.borderColor = nil
-        }
+        get { borderedLayer.strokeColor }
+        set { borderedLayer.strokeColor = newValue }
     }
     
     /// The border width.
