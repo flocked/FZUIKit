@@ -476,7 +476,9 @@ extension NSView {
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
-                self.dashedBorderDashPattern = newValue.dashPattern
+                self.dashedBorderLayer?.borderDashPattern = []
+
+             //   self.dashedBorderDashPattern = newValue.dashPattern
             } else if newValue.needsDashedBordlerLayer {
                 if self.dashedBorderLayer == nil {
                     let borderedLayer = DashedBorderLayer()
@@ -489,7 +491,9 @@ extension NSView {
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
-                self.dashedBorderDashPattern = newValue.dashPattern
+             //   self.dashedBorderDashPattern = newValue.dashPattern
+                self.dashedBorderLayer?.borderDashPattern = []
+                
             } else {
                 self.borderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.borderWidth = newValue.width
