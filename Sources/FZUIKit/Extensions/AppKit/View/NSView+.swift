@@ -535,6 +535,7 @@ extension NSView {
      internal var dashedBorderDashPattern: [CGFloat] {
         get { self.dashedBorderLayer?.borderDashPattern ?? [] }
         set {
+            Swift.print(newValue)
             let count = newValue.count == 0 ? 1 : newValue.count
             if self.dashedBorderLayer?.borderDashPattern.count ?? 1000 < count {
                 for i in 0..<count {
@@ -543,10 +544,6 @@ extension NSView {
                     }
                 }
                 Swift.print("borderDashPattern count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
-                if self.dashedBorderLayer?.borderDashPattern.isEmpty == false {
-                    Swift.print("borderDashPattern first", self.dashedBorderLayer?.borderDashPattern[0] ?? "nil")
-
-                }
             }
             switch newValue.count {
             case 0:
@@ -571,12 +568,15 @@ extension NSView {
                 dashedBorderDashPattern4 = newValue[safe: 4] ?? 0.0
                 dashedBorderDashPattern5 = newValue[safe: 5] ?? 0.0
             }
+            if self.dashedBorderLayer?.borderDashPattern.isEmpty == false {
+                Swift.print("borderDashPattern first", self.dashedBorderLayer?.borderDashPattern[0] ?? "nil")
+            }
         }
     }
     
     @objc dynamic internal var dashedBorderDashPattern0: CGFloat {
         get { self.dashedBorderDashPattern[safe: 0] ?? 0.0 }
-        set { self.dashedBorderLayer?.borderDashPattern[0] = newValue }
+        set { self.dashedBorderDashPattern[safe: 0] = newValue }
     }
     
    @objc dynamic internal var dashedBorderDashPattern1: CGFloat {
