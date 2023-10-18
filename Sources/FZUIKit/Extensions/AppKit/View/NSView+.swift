@@ -487,11 +487,13 @@ extension NSView {
             if updatedDashedBorderLayer {
                 self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.dashedBorderWidth = newValue.width
+                /*
                 self.dashedBorderInsetsTop = newValue.insets.top
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
                 self.dashedBorderDashPattern = newValue.dashPattern
+                 */
             }
         }
     }
