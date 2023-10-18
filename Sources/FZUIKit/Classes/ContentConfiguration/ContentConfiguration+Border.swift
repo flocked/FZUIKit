@@ -124,6 +124,14 @@ public extension NSUIView {
         layer.configurate(using: configuration)
         #endif
     }
+    
+    internal var dashedBorderLayer: DashedBorderLayer? {
+        #if os(macOS)
+        layer?.firstSublayer(type: DashedBorderLayer.self)
+        #elseif canImport(UIKit)
+        layer.firstSublayer(type: DashedBorderLayer.self)
+        #endif
+    }
 }
 
 public extension CALayer {

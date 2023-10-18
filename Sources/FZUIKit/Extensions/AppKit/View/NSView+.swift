@@ -458,6 +458,26 @@ extension NSView {
             layer?.maskedCorners = newValue
         }
     }
+    
+    /**
+     The border of the view.
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    dynamic public var border: ContentConfiguration.Border {
+        get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
+        set { 
+            self.wantsLayer = true
+            Self.swizzleAnimationForKey()
+            if newValue.needsDashedBordlerLayer == false {
+                self.borderColor = newValue._resolvedColor?.resolvedColor(for: self)
+                self.borderWidth = newValue.width
+                self.dashedBorderLayer?.removeFromSuperlayer()
+            } else {
+                self.configurate(using: newValue)
+            }
+            self.configurate(using: newValue) }
+    }
 
     /**
      The border width of the view.

@@ -222,7 +222,7 @@ extension Animator where Object: UITextView {
     
     /// The font size of the text view.
     public var fontSize: CGFloat {
-        get { value(for: \.fontPointSize) }
+        get { value(for: \.fontSize) }
         set { setValue(newValue, for: \.fontSize) } }
 }
 
