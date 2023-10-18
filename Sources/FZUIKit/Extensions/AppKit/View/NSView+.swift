@@ -532,7 +532,7 @@ extension NSView {
         set { self.dashedBorderLayer?.borderInsets.trailing = newValue }
     }
     
-    dynamic internal var dashedBorderDashPattern: [CGFloat] {
+     internal var dashedBorderDashPattern: [CGFloat] {
         get { self.dashedBorderLayer?.borderDashPattern ?? [] }
         set {
             Swift.print(newValue)
@@ -553,8 +553,8 @@ extension NSView {
                 dashedBorderDashPattern4 = 0.0
                 dashedBorderDashPattern5 = 0.0
             case 1:
-                dashedBorderDashPattern0 = newValue[safe: 0] ?? 0.0
-                dashedBorderDashPattern1 = newValue[safe: 0] ?? 0.0
+                dashedBorderDashPattern0 = newValue[0]
+                dashedBorderDashPattern1 = newValue[0]
                 dashedBorderDashPattern2 = 0.0
                 dashedBorderDashPattern3 = 0.0
                 dashedBorderDashPattern4 = 0.0
@@ -952,6 +952,7 @@ internal extension NSView {
     }
     
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        Swift.print("swizzled_Animation", key)
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
