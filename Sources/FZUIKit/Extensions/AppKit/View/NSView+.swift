@@ -492,9 +492,7 @@ extension NSView {
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
-                /*
                 self.dashedBorderDashPattern = newValue.dashPattern
-                 */
             }
         }
     }
@@ -537,10 +535,14 @@ extension NSView {
     dynamic internal var dashedBorderDashPattern: [CGFloat] {
         get { self.dashedBorderLayer?.borderDashPattern ?? [] }
         set {
-            for i in 0..<newValue.count {
-                if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
-                    self.dashedBorderLayer?.borderDashPattern.append(0.0)
+            Swift.print(newValue)
+            if self.dashedBorderLayer?.borderDashPattern.count ?? 1000 < newValue.count {
+                for i in 0..<newValue.count {
+                    if self.dashedBorderLayer?.borderDashPattern[safe: i] == nil {
+                        self.dashedBorderLayer?.borderDashPattern.append(0.0)
+                    }
                 }
+                Swift.print("borderDashPattern count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
             }
             switch newValue.count {
             case 0:
