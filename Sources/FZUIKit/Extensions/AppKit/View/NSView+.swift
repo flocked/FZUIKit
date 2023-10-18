@@ -530,9 +530,11 @@ extension NSView {
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
+            /*
             if self.shadowColor?.isVisible == true {
                 layer?.shadowColor = (newValue?.withAlphaComponent(0.0) ?? .clear).cgColor
             }
+            */
             _shadowColor = newValue
          //   _shadowColor = newValue
         }
@@ -541,6 +543,7 @@ extension NSView {
     @objc internal dynamic var _shadowColor: NSColor? {
         get { layer?.shadowColor?.nsColor }
         set {
+          //  Swift.print(newValue ?? "nil")
             self.wantsLayer = true
             layer?.shadowColor = newValue?.cgColor }
 
