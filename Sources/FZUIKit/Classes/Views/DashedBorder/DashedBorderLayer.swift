@@ -40,10 +40,8 @@ public class DashedBorderLayer: CALayer {
     
     /// The border width.
     public override var borderWidth: CGFloat {
-        didSet {
-            borderedLayer.lineWidth = self.borderWidth
-            self.borderWidth = 0.0
-        }
+        get { borderedLayer.lineWidth }
+        set { borderedLayer.lineWidth = newValue }
     }
     
     public override var cornerRadius: CGFloat {
