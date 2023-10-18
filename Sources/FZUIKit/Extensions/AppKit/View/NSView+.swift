@@ -543,6 +543,10 @@ extension NSView {
                     }
                 }
                 Swift.print("borderDashPattern count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
+                if self.dashedBorderLayer?.borderDashPattern.isEmpty == false {
+                    Swift.print("borderDashPattern first", self.dashedBorderLayer?.borderDashPattern[0] ?? "nil")
+
+                }
             }
             switch newValue.count {
             case 0:
