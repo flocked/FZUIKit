@@ -74,7 +74,7 @@ public protocol SIMDRepresentable: Comparable where Self.SIMDType == Self.SIMDTy
 
     /// A version of `self` that represents zero.
     static var zero: Self { get }
-
+    
 }
 
 /// All `SIMD` types are `SIMDRepresentable` by default.
@@ -121,6 +121,8 @@ extension Double: SIMDRepresentable {
     @inlinable public func simdRepresentation() -> SIMD2<Double> {
         return [self, 0]
     }
+    
+
 
 }
 
@@ -310,4 +312,13 @@ extension AnimatableValue where Self: SIMDRepresentable {
         set {  }
     }
 }
+
+internal protocol ScaledIntegralable {
+    var scaledIntegral: Self { get  }
+}
+
+extension CGFloat: ScaledIntegralable { }
+extension CGSize: ScaledIntegralable { }
+extension CGPoint: ScaledIntegralable { }
+extension CGRect: ScaledIntegralable { }
 #endif

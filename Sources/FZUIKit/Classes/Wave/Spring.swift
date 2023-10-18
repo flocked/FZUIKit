@@ -243,22 +243,7 @@ public class Spring: Equatable {
 }
 
 public extension Spring {
-    func update(value: inout CGRect, velocity: inout CGRect, target: CGRect, deltaTime: TimeInterval) {
-        Swift.print("Spring CGRect")
-        self.update(value: &value.origin, velocity: &velocity.origin, target: target.origin, deltaTime: deltaTime)
-        self.update(value: &value.size, velocity: &velocity.size, target: target.size, deltaTime: deltaTime)
-    }
-    
-    func update(value: inout Float, velocity: inout Float, target: Float, deltaTime: TimeInterval) {
-        var _value = CGFloat(value)
-        var _velocity = CGFloat(velocity)
-        self.update(value: &_value, velocity: &_velocity, target: CGFloat(target), deltaTime: deltaTime)
-        value = Float(_value)
-        velocity = Float(_velocity)
-    }
-    
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : SIMDRepresentable, V.SIMDType.Scalar == CGFloat.NativeType {
-        Swift.print("Spring SIMD")
         if V.self == CGRect.self {
           var val = (value as! CGRect)
             var vel = (velocity as! CGRect)
@@ -283,6 +268,19 @@ public extension Spring {
             velocity = V(newVelocity)
             value = V(newValue)
         }
+    }
+    
+    internal func update(value: inout Float, velocity: inout Float, target: Float, deltaTime: TimeInterval) {
+        var _value = CGFloat(value)
+        var _velocity = CGFloat(velocity)
+        self.update(value: &_value, velocity: &_velocity, target: CGFloat(target), deltaTime: deltaTime)
+        value = Float(_value)
+        velocity = Float(_velocity)
+    }
+    
+    internal func update(value: inout CGRect, velocity: inout CGRect, target: CGRect, deltaTime: TimeInterval) {
+        self.update(value: &value.origin, velocity: &velocity.origin, target: target.origin, deltaTime: deltaTime)
+        self.update(value: &value.size, velocity: &velocity.size, target: target.size, deltaTime: deltaTime)
     }
 }
 

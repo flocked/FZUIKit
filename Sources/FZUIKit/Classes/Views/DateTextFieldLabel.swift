@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-/// A NSTextField that displays a date either absolute or relative.
+/// A `NSTextField` that displays a date either absolute or relative.
 public class DateTextField: NSTextField {
     /// The mode a date gets displayed.
     public enum DateDisplayMode: Int {
@@ -28,17 +28,17 @@ public class DateTextField: NSTextField {
         didSet { updateDateString() }
     }
 
-    /// The interval the displayed date gets refreshed. If nil the date gets only refreshed via refreshDate().
+    /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public var refreshDateInterval: TimeInterval? = 5 {
         didSet { configurateDateString()  } }
     
     
-    /// The interval the displayed date gets refreshed. If nil the date gets only refreshed via refreshDate().
+    /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public func refreshDate() {
         configurateDateString()
     }
 
-    /// the date style of the displayed date, if dateDisplayMode is set to absolute.
+    /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var dateStyle: DateFormatter.Style = .medium {
         didSet {
             dateFormatter.dateStyle = dateStyle
@@ -46,7 +46,7 @@ public class DateTextField: NSTextField {
         }
     }
 
-    /// the time style of the displayed date, if dateDisplayMode is set to absolute.
+    /// the time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var timeStyle: DateFormatter.Style = .medium {
         didSet {
             dateFormatter.timeStyle = timeStyle
@@ -56,11 +56,13 @@ public class DateTextField: NSTextField {
     
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
+        self.textLayout = .wraps
         self.date = date
     }
     
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
+        self.textLayout = .wraps
         self.date = date
     }
     
@@ -134,8 +136,9 @@ public class DateTextField: NSTextField {
 
 #elseif os(iOS) || os(tvOS)
 import UIKit
-/// A UILabel that displays a date either absolute or relative.
+/// A `UILabel` that displays a date either absolute or relative.
 public class DateLabel: UILabel {
+    
     /// The mode a date gets displayed.
     public enum DateDisplayMode {
         /// The textfield displays a relative date or time (e.g. "2 mins ago").
@@ -154,17 +157,17 @@ public class DateLabel: UILabel {
         didSet { updateDateString() }
     }
 
-    /// The interval the displayed date gets refreshed. If nil the date gets only refreshed via refreshDate().
+    /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public var refreshDateInterval: TimeInterval? = 5 {
         didSet { configurateDateString()  } }
     
-    /// The interval the displayed date gets refreshed. If nil the date gets only refreshed via refreshDate().
+    /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public func refreshDate() {
         configurateDateString()
     }
 
 
-    /// the date style of the displayed date, if dateDisplayMode is set to absolute.
+    /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var dateStyle: DateFormatter.Style = .medium {
         didSet {
             dateFormatter.dateStyle = dateStyle
@@ -172,7 +175,7 @@ public class DateLabel: UILabel {
         }
     }
 
-    /// the time style of the displayed date, if dateDisplayMode is set to absolute.
+    /// the time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var timeStyle: DateFormatter.Style = .medium {
         didSet {
             dateFormatter.timeStyle = timeStyle
@@ -183,6 +186,7 @@ public class DateLabel: UILabel {
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
         self.date = date
+        self.sizeToFit()
     }
     
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
@@ -207,11 +211,11 @@ public class DateLabel: UILabel {
             liveUpdateTimer?.invalidate()
             if let refreshInterval = self.refreshDateInterval {
                 let delta = Date().timeIntervalSince(date)
-                let liveUpdateInterval: TimeInterval = (delta < DateTextField.slowRefreshInterval) ? refreshInterval : (DateTextField.slowRefreshInterval - DateTextField.buffer)
+                let liveUpdateInterval: TimeInterval = (delta < Self.slowRefreshInterval) ? refreshInterval : (Self.slowRefreshInterval - Self.buffer)
                 
                 liveUpdateTimer = Timer.scheduledTimer(withTimeInterval: liveUpdateInterval, repeats: true, block: { _ in
                     let delta = Date().timeIntervalSince(date)
-                    if delta > (DateTextField.slowRefreshInterval + DateTextField.buffer) {
+                    if delta > (Self.slowRefreshInterval + Self.buffer) {
                         self.date = date
                     }
                     self.updateDateString()
@@ -241,8 +245,8 @@ public class DateLabel: UILabel {
     internal func updateDateString() {
         if let date = date {
             if dateDisplayMode == .relative {
-                dateString = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
-                text = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                dateString = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                text = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
             } else {
                 dateString = dateFormatter.string(from: date)
                 text = dateFormatter.string(from: date)
@@ -254,41 +258,38 @@ public class DateLabel: UILabel {
     }
 }
 
+/// A `UITextField` that displays a date either absolute or relative.
 public class DateTextField: UITextField {
-    internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
-    internal static let relativeDateFormatter = RelativeDateTimeFormatter()
+    
+    /// The mode a date gets displayed.
+    public enum DateDisplayMode {
+        /// The textfield displays a relative date or time (e.g. "2 mins ago").
+        case relative
+        /// The textfield displays a absolute date or time (e.g. "10:11pm 04.04.2023").
+        case absolute
+    }
 
-    internal static let slowRefreshInterval: TimeInterval = 30 // How quickly the timer should repeat after it's been a while.
-    internal static let buffer: TimeInterval = 2
-
+    /// The date to display.
     public var date: Date? {
         didSet { configurateDateString() }
     }
-
-    public var updateDateLive = true {
-        didSet { updateDateString() }
-    }
-
-    public var liveUpdateTimer: Timer? {
-        didSet { configurateDateString() }
-    }
-
-    public var refreshInterval: TimeInterval = 5 {
-        didSet {
-            liveUpdateTimer?.invalidate()
-            configurateDateString()
-        }
-    }
     
-    public enum DateDisplayMode: Int {
-        case relative
-        case absolute
-    }
-    
+    /// The mode a date gets displayed.
     public var dateDisplayMode: DateDisplayMode = .relative {
         didSet { updateDateString() }
     }
 
+    /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+    public var refreshDateInterval: TimeInterval? = 5 {
+        didSet { configurateDateString()  } }
+    
+    /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+    public func refreshDate() {
+        configurateDateString()
+    }
+
+
+    /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var dateStyle: DateFormatter.Style = .medium {
         didSet {
             dateFormatter.dateStyle = dateStyle
@@ -296,32 +297,52 @@ public class DateTextField: UITextField {
         }
     }
 
+    /// the time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var timeStyle: DateFormatter.Style = .medium {
         didSet {
             dateFormatter.timeStyle = timeStyle
             updateDateString()
         }
     }
+    
+    public convenience init(date: Date, displayMode: DateDisplayMode) {
+        self.init(frame: .zero)
+        self.date = date
+        self.sizeToFit()
+    }
+    
+    public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
+        self.init(frame: frame)
+        self.date = date
+    }
+    
+    internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
+    internal static let relativeDateFormatter = RelativeDateTimeFormatter()
+    internal static let slowRefreshInterval: TimeInterval = 30 // How quickly the timer should repeat after it's been a while.
+    internal static let buffer: TimeInterval = 2
+    internal var liveUpdateTimer: Timer? = nil
 
     internal func configurateDateString() {
-        if updateDateLive == false {
+        if dateDisplayMode == .absolute {
             liveUpdateTimer?.invalidate()
         }
 
         if let date = date {
             updateDateString()
 
-            let delta = Date().timeIntervalSince(date)
-            let liveUpdateInterval: TimeInterval = (delta < DateTextField.slowRefreshInterval) ? refreshInterval : (DateTextField.slowRefreshInterval - DateTextField.buffer)
-
             liveUpdateTimer?.invalidate()
-            liveUpdateTimer = Timer.scheduledTimer(withTimeInterval: liveUpdateInterval, repeats: true, block: { _ in
+            if let refreshInterval = self.refreshDateInterval {
                 let delta = Date().timeIntervalSince(date)
-                if delta > (DateTextField.slowRefreshInterval + DateTextField.buffer) {
-                    self.date = date
-                }
-                self.updateDateString()
-            })
+                let liveUpdateInterval: TimeInterval = (delta < Self.slowRefreshInterval) ? refreshInterval : (Self.slowRefreshInterval - Self.buffer)
+                
+                liveUpdateTimer = Timer.scheduledTimer(withTimeInterval: liveUpdateInterval, repeats: true, block: { _ in
+                    let delta = Date().timeIntervalSince(date)
+                    if delta > (Self.slowRefreshInterval + Self.buffer) {
+                        self.date = date
+                    }
+                    self.updateDateString()
+                })
+            }
         } else {
             liveUpdateTimer?.invalidate()
             dateString = nil
@@ -341,18 +362,13 @@ public class DateTextField: UITextField {
             date = nil
         }
     }
-    
-    public convenience init(date: Date) {
-        self.init()
-        self.date = date
-    }
 
     internal var dateString: String? = nil
     internal func updateDateString() {
         if let date = date {
             if dateDisplayMode == .relative {
-                dateString = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
-                text = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                dateString = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+                text = Self.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
             } else {
                 dateString = dateFormatter.string(from: date)
                 text = dateFormatter.string(from: date)
@@ -363,5 +379,4 @@ public class DateTextField: UITextField {
         }
     }
 }
-
 #endif
