@@ -827,7 +827,7 @@ extension NSView {
     }
     
     @objc internal dynamic var innerShadowColor: NSColor? {
-        get { self.animationManager.targetValue(for: \.innerShadowColor) ?? self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
+        get { self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
         set {
             var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
@@ -838,17 +838,17 @@ extension NSView {
     }
     
     @objc internal dynamic var innerShadowOpacity: CGFloat {
-        get { self.animationManager.targetValue(for: \.innerShadowOpacity) ?? CGFloat(self.layer?.innerShadowLayer?.shadowOpacity ?? 0) }
+        get { CGFloat(self.layer?.innerShadowLayer?.shadowOpacity ?? 0) }
         set { self.layer?.innerShadowLayer?.shadowOpacity = Float(newValue) }
     }
     
     @objc internal dynamic var innerShadowRadius: CGFloat {
-        get { self.animationManager.targetValue(for: \.innerShadowRadius) ?? self.layer?.innerShadowLayer?.shadowRadius ?? 0 }
+        get { self.layer?.innerShadowLayer?.shadowRadius ?? 0 }
         set { self.layer?.innerShadowLayer?.shadowRadius = newValue }
     }
     
     @objc internal dynamic var innerShadowOffset: CGSize {
-        get { self.animationManager.targetValue(for: \.innerShadowOffset) ?? self.layer?.innerShadowLayer?.shadowOffset ?? .zero }
+        get { self.layer?.innerShadowLayer?.shadowOffset ?? .zero }
         set { self.layer?.innerShadowLayer?.shadowOffset = newValue }
     }
 

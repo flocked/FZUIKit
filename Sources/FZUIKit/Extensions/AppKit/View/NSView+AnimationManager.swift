@@ -21,10 +21,16 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
         self.object = object
     }
     var animationHandlers: [CAAnimation: ()->()] = [:]
-    
+    var animations: [String: CAAnimation] = [:]
+
     func add(_ animation: CAAnimation, handler: @escaping ()->()) {
         animation.delegate = self
         animationHandlers[animation] = handler
+    }
+    
+    func add(_ animation: CAAnimation, key: String) {
+        animation.delegate = self
+        animations[key] = animation
     }
     
     func targetValue<Value>(for keyPath: KeyPath<Object, Value>) -> Value? {
