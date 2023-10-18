@@ -469,18 +469,9 @@ extension NSView {
         set { 
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
+            var updatedDashedBorderLayer = false
             if self.dashedBorderLayer != nil {
-              //  self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
-                self.dashedBorderWidth = newValue.width
-                /*
-                self.dashedBorderInsetsTop = newValue.insets.top
-                self.dashedBorderInsetsBottom = newValue.insets.bottom
-                self.dashedBorderInsetsLeading = newValue.insets.leading
-                self.dashedBorderInsetsTrailing = newValue.insets.trailing
-                self.dashedBorderLayer?.borderDashPattern = []
-                 */
-
-             //   self.dashedBorderDashPattern = newValue.dashPattern
+                updatedDashedBorderLayer = true
             } else if newValue.needsDashedBordlerLayer {
                 if self.dashedBorderLayer == nil {
                     let borderedLayer = DashedBorderLayer()
@@ -488,21 +479,19 @@ extension NSView {
                     self.layer?.addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
                     borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
                 }
-                
-              //  self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
+                updatedDashedBorderLayer = true
+            } else {
+                self.borderColor = newValue._resolvedColor?.resolvedColor(for: self)
+                self.borderWidth = newValue.width
+            }
+            if updatedDashedBorderLayer {
+                self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.dashedBorderWidth = newValue.width
-                /*
                 self.dashedBorderInsetsTop = newValue.insets.top
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
-             //   self.dashedBorderDashPattern = newValue.dashPattern
-                self.dashedBorderLayer?.borderDashPattern = []
-                */
-                
-            } else {
-                self.borderColor = newValue._resolvedColor?.resolvedColor(for: self)
-                self.borderWidth = newValue.width
+                self.dashedBorderDashPattern = newValue.dashPattern
             }
         }
     }
