@@ -76,6 +76,26 @@ public class DateTextField: NSTextField {
     internal static let buffer: TimeInterval = 2
     internal var liveUpdateTimer: Timer? = nil
 
+    /*
+    public override var intrinsicContentSize: NSSize {
+        var intrinsicContentSize = super.intrinsicContentSize
+        if let cell = self.cell {
+            intrinsicContentSize.width = cell.cellSize(forBounds: CGRect(.zero, CGSize(CGFloat.greatestFiniteMagnitude, intrinsicContentSize.height))).rounded(.up).width
+        }
+        return intrinsicContentSize
+    }
+    */
+    
+    public override var fittingSize: NSSize {
+        var fittingSize = super.fittingSize
+        if fittingSize.width == 0, let cell = self.cell {
+            Swift.print("FittingSize Width 0", fittingSize)
+            fittingSize.width = cell.cellSize(forBounds: CGRect(.zero, CGSize(CGFloat.greatestFiniteMagnitude, fittingSize.height))).rounded(.up).width
+            Swift.print("FittingSize Width 1", fittingSize)
+        }
+        return fittingSize
+    }
+    
     internal func configurateDateString() {
         if dateDisplayMode == .absolute {
             liveUpdateTimer?.invalidate()
