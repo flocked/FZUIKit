@@ -492,7 +492,17 @@ extension NSView {
                 self.dashedBorderInsetsBottom = newValue.insets.bottom
                 self.dashedBorderInsetsLeading = newValue.insets.leading
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
-                self.dashedBorderDashPattern = newValue.dashPattern
+               // self.dashedBorderDashPattern = newValue.dashPattern
+                
+                self.setupDashedPatternArray()
+                let newDashPattern = self.convertedDashPattern(for: newValue.dashPattern)
+                self.dashedBorderDashPattern0 = newDashPattern[0]
+                self.dashedBorderDashPattern1 = newDashPattern[1]
+                self.dashedBorderDashPattern2 = newDashPattern[2]
+                self.dashedBorderDashPattern3 = newDashPattern[3]
+                self.dashedBorderDashPattern4 = newDashPattern[4]
+                self.dashedBorderDashPattern5 = newDashPattern[5]
+                
             }
         }
     }
@@ -647,7 +657,7 @@ extension NSView {
     
     @objc dynamic internal var dashedBorderDashPattern3: CGFloat {
         get { self.dashedBorderLayer?.borderDashPattern[safe: 3] ?? 0.0 }
-        set { self.dashedBorderLayer?.borderDashPattern[ 3] = newValue }
+        set { self.dashedBorderLayer?.borderDashPattern[3] = newValue }
     }
     
     @objc dynamic internal var dashedBorderDashPattern4: CGFloat {
