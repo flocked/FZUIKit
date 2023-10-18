@@ -57,17 +57,21 @@ public class DateTextField: NSTextField {
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
         self.textLayout = .wraps
+        self.drawsBackground = false
+        self.backgroundColor = nil
         self.date = date
         self.configurateDateString()
-        self.invalidateIntrinsicContentSize()
+        self.sizeToFit()
     }
     
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
         self.textLayout = .wraps
+        self.drawsBackground = false
+        self.backgroundColor = nil
         self.date = date
         self.configurateDateString()
-        self.invalidateIntrinsicContentSize()
+        self.sizeToFit()
     }
     
     internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
