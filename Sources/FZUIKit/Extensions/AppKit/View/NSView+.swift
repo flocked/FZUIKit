@@ -536,7 +536,7 @@ extension NSView {
             }
             */
             shadowColorT = newValue
-            savedShadowColor = newValue
+         //   _shadowColor = newValue
         }
     }
     
