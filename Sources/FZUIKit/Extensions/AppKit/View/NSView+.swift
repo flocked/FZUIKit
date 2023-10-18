@@ -469,9 +469,9 @@ extension NSView {
         set { 
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
-            var updatedDashedBorderLayer = false
+            var updateDashedBorderLayer = false
             if self.dashedBorderLayer != nil {
-                updatedDashedBorderLayer = true
+                updateDashedBorderLayer = true
             } else if newValue.needsDashedBordlerLayer {
                 if self.dashedBorderLayer == nil {
                     let borderedLayer = DashedBorderLayer()
@@ -479,12 +479,13 @@ extension NSView {
                     self.layer?.addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
                     borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
                 }
-                updatedDashedBorderLayer = true
+                updateDashedBorderLayer = true
             } else {
                 self.borderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.borderWidth = newValue.width
             }
-            if updatedDashedBorderLayer {
+            if updateDashedBorderLayer {
+                Swift.print("color", newValue._resolvedColor?.resolvedColor(for: self) ?? "nil")
                 self.dashedBorderColor = newValue._resolvedColor?.resolvedColor(for: self)
                 self.dashedBorderWidth = newValue.width
                 
@@ -495,7 +496,9 @@ extension NSView {
                // self.dashedBorderDashPattern = newValue.dashPattern
                 
                 self.setupDashedPatternArray()
+                Swift.print("count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
                 let newDashPattern = self.convertedDashPattern(for: newValue.dashPattern)
+                Swift.print("converted", newDashPattern)
                 self.dashedBorderDashPattern0 = newDashPattern[0]
                 self.dashedBorderDashPattern1 = newDashPattern[1]
                 self.dashedBorderDashPattern2 = newDashPattern[2]
@@ -519,7 +522,7 @@ extension NSView {
     
     @objc dynamic internal var dashedBorderWidth: CGFloat {
         get { self.dashedBorderLayer?.borderWidth ?? 0 }
-        set {  self.dashedBorderLayer?.borderWidth = newValue }
+        set { self.dashedBorderLayer?.borderWidth = newValue }
     }
     
     @objc dynamic internal var dashedBorderInsetsTop: CGFloat {
