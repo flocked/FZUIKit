@@ -58,12 +58,14 @@ public class DateTextField: NSTextField {
         self.init(frame: .zero)
         self.textLayout = .wraps
         self.date = date
+        self.invalidateIntrinsicContentSize()
     }
     
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
         self.textLayout = .wraps
         self.date = date
+        self.invalidateIntrinsicContentSize()
     }
     
     internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
