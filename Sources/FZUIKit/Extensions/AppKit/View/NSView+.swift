@@ -473,11 +473,16 @@ extension NSView {
                 self.configurate(using: newValue)
             } else {
                 self.dashedBorderLayer?.removeFromSuperlayer()
-                var newColor = newValue.resolvedColor()?.resolvedColor(for: self)
+                if self.isProxy() {
+                    (self.layer?.delegate as? NSView)?.dynamicColors.border = newValue._resolvedColor
+                } else {
+                    self.dynamicColors.border = newValue._resolvedColor
+                }
+                var newColor = newValue._resolvedColor?.resolvedColor(for: self)
                 if newColor == nil, self.isProxy() {
                     newColor = .clear
                 }
-                if self.borderColor?.isVisible == false {
+                if self.borderColor?.isVisible == false || self.borderColor == nil {
                     self.layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor
                 }
                 self.borderColor = newColor
@@ -510,19 +515,14 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            var newValue = newValue?.resolvedColor(for: self)
-            if newValue == nil, self.isProxy() {
-                newValue = .clear
+            var newColor = newValue?.resolvedColor(for: self)
+            if newColor == nil, self.isProxy() {
+                newColor = .clear
             }
-            if self.borderColor?.isVisible == false {
-                layer?.borderColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
+            if self.borderColor?.isVisible == false || self.borderColor == nil {
+                layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
-            layer?.borderColor = newValue?.cgColor
-            if self.isProxy() {
-                (self.layer?.delegate as? NSView)?.dynamicColors.border = newValue
-            } else {
-                self.dynamicColors.border = newValue
-            }
+            layer?.borderColor = newColor?.cgColor
         }
     }
     
@@ -541,18 +541,18 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            var newValue = newValue?.resolvedColor(for: self)
-            if newValue == nil, self.isProxy() {
-                newValue = .clear
+            var newColor = newValue?.resolvedColor(for: self)
+            if newColor == nil, self.isProxy() {
+                newColor = .clear
             }
             if self.shadowColor?.isVisible == false {
-                layer?.shadowColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
+                layer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
-            _shadowColor = newValue
+            _shadowColor = newColor
             if self.isProxy() {
                 (self.layer?.delegate as? NSView)?.dynamicColors.shadow = newValue
             } else {
-                self.dynamicColors.border = newValue
+                self.dynamicColors.shadow = newValue
             }
         }
     }
@@ -645,15 +645,19 @@ extension NSView {
                 self.layer?.addSublayer(withConstraint: innerShadowLayer)
                 innerShadowLayer.sendToBack()
                 innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
-                innerShadowLayer.shadowColor = newValue._resolvedColor?.resolvedColor(for: self).withAlphaComponent(0.0).cgColor
                 innerShadowLayer.shadowOpacity = 0.0
                 innerShadowLayer.shadowRadius = 0.0
+            }
+            if self.isProxy() {
+                (self.layer?.delegate as? NSView)?.dynamicColors.innerShadow = newValue._resolvedColor
+            } else {
+                self.dynamicColors.innerShadow = newValue._resolvedColor
             }
             var newColor = newValue._resolvedColor?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
-            if self.innerShadowColor?.isVisible == false {
+            if self.innerShadowColor?.isVisible == false || self.innerShadowColor == nil {
                 self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             self.innerShadowColor = newColor

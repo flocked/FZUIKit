@@ -37,25 +37,46 @@ public extension NSColor {
     }
 
     /**
-     Generates the resolved color for the specified appearance,.
+     Generates the resolved color for the specified appearance.
      
      - Parameters appearance: The appearance of the resolved color.
      - Returns: A `NSColor` for the appearance.
      */
     func resolvedColor(for appearance: NSAppearance? = nil) -> NSColor {
-        var color = self
+        resolvedColor(for: appearance, colorSpace: nil) ?? self
+    }
+    
+    /**
+     Generates the resolved color for the specified appearance and color space. If color space is `nil`, the color resolves to the first compatible color space.
+     
+     - Parameters:
+        - appearance: The appearance of the resolved color.
+        - colorSpace: The color space of the resolved color. If `nil`, the first compatible color space is used.
+     - Returns: A color for the appearance and color space.
+     */
+    func resolvedColor(for appearance: NSAppearance? = nil, colorSpace: NSColorSpace?) -> NSColor? {
+        var color: NSColor? = nil
         if type == .catalog {
-            if #available(macOS 11.0, *) {
-                let appearance = appearance ?? .currentDrawing()
-                appearance.performAsCurrentDrawingAppearance {
-                    color = self.usingColorSpace(.sRGB) ?? self
+            if let colorSpace = colorSpace {
+                if #available(macOS 11.0, *) {
+                    let appearance = appearance ?? .currentDrawing()
+                    appearance.performAsCurrentDrawingAppearance {
+                        color = self.usingColorSpace(colorSpace)
+                    }
+                } else {
+                    let appearance = appearance ?? .current
+                    let current = NSAppearance.current
+                    NSAppearance.current = appearance
+                    color = usingColorSpace(colorSpace)
+                    NSAppearance.current = current
                 }
             } else {
-                let appearance = appearance ?? .current
-                let current = NSAppearance.current
-                NSAppearance.current = appearance
-                color = usingColorSpace(.sRGB) ?? self
-                NSAppearance.current = current
+                let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
+                for supportedColorSpace in supportedColorSpaces {
+                    if let color = resolvedColor(for: appearance, colorSpace: supportedColorSpace) {
+                        return color
+                    }
+                }
             }
         }
         return color
