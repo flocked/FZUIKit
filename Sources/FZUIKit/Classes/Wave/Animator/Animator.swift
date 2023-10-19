@@ -84,13 +84,13 @@ internal extension Animator {
         var targetValue = newValue
         
         if Value.self == CGColor.self {
-            let iniVal = initialValue as! CGColor
-            let tarVal = newValue as! CGColor
-            if iniVal == .clear {
-                initialValue = (tarVal.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
+            let iniVal = (initialValue as! CGColor).nsUIColor
+            let tarVal = (newValue as! CGColor).nsUIColor
+            if iniVal?.isVisible == false || iniVal == nil {
+                initialValue = (tarVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
-            if tarVal == .clear {
-                targetValue = (iniVal.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
+            if tarVal?.isVisible == false || tarVal == nil {
+                targetValue = (iniVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
         }
         
@@ -136,22 +136,14 @@ internal extension Animator {
         var initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
         var targetValue = newValue ?? Value.ValueType.zero
         
-        Swift.print("wave", Value.self == CGColor.self, (initialValue as? Optional<CGColor>) ?? "nil")
-        Swift.print("wave 1", type(of: Value.self), Value.self, (initialValue as? NSUIColor) ?? "nil", type(of: initialValue))
-
-        
         if Value.self == CGColor.self {
-            let iniVal = object[keyPath: keyPath] as! Optional<CGColor>
-            let tarVal = newValue as! Optional<CGColor>
-            Swift.print("Here 0", iniVal ?? "nil", tarVal ?? "nil")
-            Swift.print("Here", iniVal == .clear || iniVal == nil, tarVal == .clear || tarVal == nil)
-            if iniVal == .clear || iniVal == nil {
-                Swift.print("iniVal")
-                initialValue = (tarVal?.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
+            let iniVal = (object[keyPath: keyPath] as! Optional<CGColor>)?.nsUIColor
+            let tarVal = (newValue as! Optional<CGColor>)?.nsUIColor
+            if iniVal?.isVisible == false || iniVal == nil {
+                initialValue = (tarVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
-            if tarVal == .clear || tarVal == nil {
-                Swift.print("tarVal")
-                targetValue = (iniVal?.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
+            if tarVal?.isVisible == false || tarVal == nil {
+                targetValue = (iniVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
         }
                 
