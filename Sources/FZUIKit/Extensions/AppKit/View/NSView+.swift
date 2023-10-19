@@ -645,6 +645,9 @@ extension NSView {
                 self.layer?.addSublayer(withConstraint: innerShadowLayer)
                 innerShadowLayer.sendToBack()
                 innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+                innerShadowLayer.shadowColor = newValue._resolvedColor?.resolvedColor(for: self).withAlphaComponent(0.0).cgColor
+                innerShadowLayer.shadowOpacity = 0.0
+                innerShadowLayer.shadowRadius = 0.0
             }
             var newColor = newValue._resolvedColor?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {

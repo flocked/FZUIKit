@@ -52,6 +52,7 @@ internal extension NSView {
         }
     }
     
+    // Saved colors. When the effective appearance of the view changes,  which light & dark variance are
     struct DynamicColors {
         var shadow: NSColor? = nil
         var innerShadow: NSColor? = nil
