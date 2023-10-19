@@ -50,7 +50,7 @@ extension Animator where Object: NSUIView {
         get { object.optionalLayer?.animator.backgroundColor }
         set { object.optionalLayer?.animator.backgroundColor = newValue?.resolvedColor(for: object)
             #if os(macOS)
-            object.__backgroundColor = newValue
+            object.dynamicColors.background = newValue
             #endif
         }
     }
@@ -72,7 +72,7 @@ extension Animator where Object: NSUIView {
         get { object.optionalLayer?.animator.borderColor ?? .zero }
         set { object.optionalLayer?.animator.borderColor = newValue?.resolvedColor(for: object)
             #if os(macOS)
-            object.savedBorderColor = newValue
+            object.dynamicColors.border = newValue
             #endif
         }
     }
@@ -89,7 +89,7 @@ extension Animator where Object: NSUIView {
         set { 
             var newValue = newValue
             #if os(macOS)
-            object.savedShadowColor = newValue.resolvedColor()
+            object.dynamicColors.shadow = newValue.resolvedColor()
             #endif
             newValue.color = newValue.color?.resolvedColor(for: object)
             object.optionalLayer?.animator.shadow = newValue }

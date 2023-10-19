@@ -42,13 +42,38 @@ public extension BackgroundColorSettable where Self: NSView {
     }
 }
 
-public extension NSView {
+internal extension NSView {
     
     @objc dynamic var _backgroundColor: NSColor? {
         get { layer?.backgroundColor?.nsColor }
         set {
-            __backgroundColor = newValue
             layer?.backgroundColor = newValue?.cgColor
+            dynamicColors.background = newValue
+        }
+    }
+    
+    struct DynamicColors {
+        var shadow: NSColor? = nil
+        var innerShadow: NSColor? = nil
+        var border: NSColor? = nil
+        var background: NSColor? = nil
+        
+        var needsAppearanceObserver: Bool {
+            background != nil || border != nil || shadow != nil || innerShadow != nil
+        }
+        
+        mutating func update(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) {
+            guard let dynamics = self[keyPath: keyPath]?.dynamicColors else { return }
+            if  cgColor != dynamics.light.cgColor && cgColor != dynamics.dark.cgColor {
+                self[keyPath: keyPath] = nil
+            }
+        }
+    }
+    
+    var dynamicColors: DynamicColors {
+        get { getAssociatedValue(key: "dynamicColors", object: self, initialValue: DynamicColors() ) }
+        set { set(associatedValue: newValue, key: "dynamicColors", object: self)
+            setupEffectiveAppearanceObserver()
         }
     }
     
@@ -56,65 +81,42 @@ public extension NSView {
         get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
         set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
     }
-    
-    var savedShadowColor: NSUIColor? {
-        get { getAssociatedValue(key: "savedShadowColor", object: self, initialValue: self.layer?.shadowColor?.nsColor) }
-        set { set(associatedValue: newValue, key: "savedShadowColor", object: self)
-            setupEffectiveAppearanceObserver()
-        }
-    }
-    
-    var savedBorderColor: NSUIColor? {
-        get { getAssociatedValue(key: "savedBorderColor", object: self, initialValue: self.layer?.borderColor?.nsColor) }
-        set { 
-            Swift.print("savedBorderColor")
-            set(associatedValue: newValue, key: "savedBorderColor", object: self)
-            Swift.print("setupEffectiveAppearanceObserver")
-            setupEffectiveAppearanceObserver()
-        }
-    }
-    
-    var __backgroundColor: NSUIColor? {
-        get { getAssociatedValue(key: "__backgroundColor", object: self, initialValue: self.layer?.backgroundColor?.nsColor) }
-        set { 
-            set(associatedValue: newValue, key: "__backgroundColor", object: self)
-            setupEffectiveAppearanceObserver()
-        }
-    }
-    
-    var needsEffectiveAppearanceObserver: Bool {
-        __backgroundColor != nil || savedBorderColor != nil || savedShadowColor != nil
-    }
-    
+
     func setupEffectiveAppearanceObserver() {
-        Swift.print("setupEffectiveAppearanceObserver 0")
-        if needsEffectiveAppearanceObserver {
-            Swift.print("needsEffectiveAppearanceObserver")
+        if dynamicColors.needsAppearanceObserver {
             if _effectiveAppearanceKVO == nil {
-                Swift.print("_effectiveAppearanceKVO nil")
                 _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                     self?.updateEffectiveColors()
                 }
-                Swift.print("_effectiveAppearanceKVO finished")
             }
         } else {
-            Swift.print("needsEffectiveAppearanceObserver false")
             _effectiveAppearanceKVO?.invalidate()
             _effectiveAppearanceKVO = nil
         }
     }
     
     func updateEffectiveColors() {
-        if let backgroundColor = __backgroundColor?.resolvedColor(for: effectiveAppearance) {
-            self.layer?.backgroundColor = backgroundColor.cgColor
-        }
+        dynamicColors.update(\.shadow, cgColor: self.layer?.shadowColor)
+        dynamicColors.update(\.background, cgColor: self.layer?.backgroundColor)
+        dynamicColors.update(\.border, cgColor: self.layer?.borderColor)
+        dynamicColors.update(\.innerShadow, cgColor: self.innerShadowLayer?.shadowColor)
         
-        if let borderColor = savedBorderColor?.resolvedColor(for: effectiveAppearance) {
-            self.layer?.borderColor = borderColor.cgColor
+        if let color = dynamicColors.shadow?.resolvedColor(for: self).cgColor {
+            layer?.shadowColor = color
         }
-        
-        if let savedShadowColor = savedShadowColor?.resolvedColor(for: effectiveAppearance) {
-            self.layer?.shadowColor = savedShadowColor.cgColor
+        if let color = dynamicColors.border?.resolvedColor(for: self).cgColor {
+            layer?.borderColor = color
+        }
+        if let color = dynamicColors.background?.resolvedColor(for: self).cgColor {
+            layer?.backgroundColor = color
+        }
+        if let color = dynamicColors.innerShadow?.resolvedColor(for: self).cgColor {
+            innerShadowLayer?.shadowColor = color
+        }
+
+        if dynamicColors.needsAppearanceObserver == false {
+            _effectiveAppearanceKVO?.invalidate()
+            _effectiveAppearanceKVO = nil
         }
     }
 }
@@ -164,8 +166,8 @@ if let layer = self.layer, layer.colorObserver == nil {
     layer.colorObserver = KeyValueObserver(layer)
     layer.colorObserver?.add(\.backgroundColor, handler: { [weak self] _, color in
         guard let self = self else { return }
-        if color != self.__backgroundColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
-            self.__backgroundColor = color?.nsColor
+        if color != self.dynamicColors.background?.resolvedColor(for: self.effectiveAppearance).cgColor {
+            self.dynamicColors.background = color?.nsColor
             self.setupEffectiveAppearanceObserver()
         }
     })

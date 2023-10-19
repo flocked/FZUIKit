@@ -518,9 +518,11 @@ extension NSView {
                 layer?.borderColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             layer?.borderColor = newValue?.cgColor
-            Swift.print("delegate == NSView", self.layer?.delegate is NSView)
-            (self.layer?.delegate as? NSView)?.savedBorderColor = newValue
-           // savedBorderColor = newValue
+            if self.isProxy() {
+                (self.layer?.delegate as? NSView)?.dynamicColors.border = newValue
+            } else {
+                self.dynamicColors.border = newValue
+            }
         }
     }
     
@@ -547,7 +549,11 @@ extension NSView {
                 layer?.shadowColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             _shadowColor = newValue
-         //   savedBorderColor = newValue
+            if self.isProxy() {
+                (self.layer?.delegate as? NSView)?.dynamicColors.shadow = newValue
+            } else {
+                self.dynamicColors.border = newValue
+            }
         }
     }
     
