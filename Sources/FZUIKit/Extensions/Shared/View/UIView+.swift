@@ -178,12 +178,7 @@ public extension UIView {
 
     /// The border color of the view.
     @objc internal dynamic var borderColor: UIColor? {
-        get {
-            if let cgColor = layer.borderColor {
-                return UIColor(cgColor: cgColor)
-            }
-            return nil
-        }
+        get { layer.borderColor?.nsUIColor }
         set { layer.borderColor = newValue?.cgColor }
     }
 
@@ -214,7 +209,7 @@ public extension UIView {
     /// The shadow color of the view.
     @objc internal dynamic var shadowColor: NSUIColor? {
         get { layer.shadowColor?.uiColor }
-        set { layer.borderColor = newValue?.cgColor }
+        set { layer.shadowColor = newValue?.cgColor }
     }
     
     /// The shadow offset of the view.
@@ -242,7 +237,7 @@ public extension UIView {
     }
     
     /// The inner shadow of the view.
-    dynamic public var innerShadow: ContentConfiguration.InnerShadow {
+    dynamic var innerShadow: ContentConfiguration.InnerShadow {
         get { self.layer.innerShadowLayer?.configuration ?? .none() }
         set {
             if self.innerShadowLayer == nil {
@@ -250,8 +245,14 @@ public extension UIView {
                 self.layer.addSublayer(withConstraint: innerShadowLayer)
                 innerShadowLayer.sendToBack()
                 innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+                innerShadowLayer.shadowOpacity = 0.0
+                innerShadowLayer.shadowRadius = 0.0
             }
-            self.innerShadowColor = newValue._resolvedColor?.resolvedColor(for: self)
+            let newColor = newValue._resolvedColor?.resolvedColor(for: self)
+            if self.innerShadowColor?.isVisible == false || self.innerShadowColor == nil {
+                self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
+            }
+            self.innerShadowColor = newColor
             self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
             self.innerShadowRadius = newValue.radius
             self.innerShadowOpacity = newValue.opacity
@@ -278,9 +279,8 @@ public extension UIView {
         set { self.layer.innerShadowLayer?.shadowOffset = newValue }
     }
 
-    
     /// The shadow of the view.
-    var shadow: ContentConfiguration.Shadow {
+    dynamic var shadow: ContentConfiguration.Shadow {
         get { ContentConfiguration.Shadow(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
         set {
             shadowColor = newValue._resolvedColor?.resolvedColor(for: self)

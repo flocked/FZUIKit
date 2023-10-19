@@ -109,31 +109,26 @@ public extension NSUIView {
     func configurate(using configuration: ContentConfiguration.Border) {
         #if os(macOS)
         wantsLayer = true
+        self.dynamicColors.border = configuration._resolvedColor
         #endif
         if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
             optionalLayer?.borderLayer?.removeFromSuperlayer()
-          //  dashedBorderLayer = nil
         }
         if configuration.needsDashedBordlerLayer {
-            self.optionalLayer?.borderColor = nil
-            self.optionalLayer?.borderWidth = 0.0
+            self.borderColor = nil
+            self.borderWidth = 0.0
             if self.optionalLayer?.borderLayer == nil {
                 let borderedLayer = DashedBorderLayer()
-              //  self.dashedBorderLayer = borderedLayer
                 self.optionalLayer?.addSublayer(withConstraint: borderedLayer, insets: configuration.insets)
                 borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
             }
             self.optionalLayer?.borderLayer?.configuration = configuration
         } else {
-            self.optionalLayer?.borderColor = configuration._resolvedColor?.resolvedColor(for: self).cgColor
-            self.optionalLayer?.borderWidth = configuration.width
-        }
-        if configuration.needsDashedBordlerLayer {
-            var configuration = configuration
-            configuration.color = configuration._resolvedColor?.resolvedColor(for: self)
-            optionalLayer?.configurate(using: configuration)
-        } else {
-            self.borderColor = configuration._resolvedColor?.resolvedColor(for: self)
+            let newColor = configuration._resolvedColor?.resolvedColor(for: self)
+            if self.borderColor?.isVisible == false || self.borderColor == nil {
+                self.borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
+            }
+            self.borderColor = newColor
             self.borderWidth = configuration.width
         }
     }
@@ -141,14 +136,6 @@ public extension NSUIView {
     internal var dashedBorderLayer: DashedBorderLayer? {
         get { self.optionalLayer?.firstSublayer(type: DashedBorderLayer.self) }
     }
-    
-    /*
-    internal var dashedBorderLayer: DashedBorderLayer? {
-        get { getAssociatedValue(key: "dashedBorderLayer", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "dashedBorderLayer", object: self)
-        }
-    }
-    */
 }
 
 public extension CALayer {

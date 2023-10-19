@@ -137,16 +137,12 @@ public class DateTextField: NSTextField {
 
     internal var dateString: String? = nil
     internal func updateDateString() {
-        Swift.print("updateDateString 0")
         if let date = date {
-            Swift.print("updateDateString 1")
             if dateDisplayMode == .relative {
-                Swift.print("updateDateString 2 relative")
                 stringValue = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())
                 dateString = stringValue
                 toolTip = dateFormatter.string(from: date)
             } else {
-                Swift.print("updateDateString absolute relative", dateFormatter.string(from: date))
                 stringValue = dateFormatter.string(from: date)
                 dateString = stringValue
                 toolTip = DateTextField.relativeDateFormatter.localizedString(for: date, relativeTo: Date())

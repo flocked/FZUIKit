@@ -30,7 +30,8 @@ public extension BackgroundColorSettable where Self: NSView {
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
-            self.dynamicColors.background = newValue
+            self.saveDynamicColor(newValue, for: \.background)
+            
             var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
@@ -48,6 +49,15 @@ internal extension NSView {
         get { layer?.backgroundColor?.nsColor }
         set {
             layer?.backgroundColor = newValue?.cgColor
+        }
+    }
+    
+    func saveDynamicColor(_ color: NSColor?, for keyPath: WritableKeyPath<DynamicColors, NSColor?>) {
+        let isDynamic = color?.isDynamic ?? false
+        if self.isProxy() {
+            (self.layer?.delegate as? NSView)?.dynamicColors[keyPath: keyPath] = isDynamic ? color : nil
+        } else {
+            self.dynamicColors[keyPath: keyPath] = isDynamic ? color : nil
         }
     }
     
@@ -105,7 +115,11 @@ internal extension NSView {
             layer?.shadowColor = color
         }
         if let color = dynamicColors.border?.resolvedColor(for: self).cgColor {
-            layer?.borderColor = color
+            if let dashedBorderLayer = self.dashedBorderLayer {
+                dashedBorderLayer.borderColor = color
+            } else {
+                layer?.borderColor = color
+            }
         }
         if let color = dynamicColors.background?.resolvedColor(for: self).cgColor {
             layer?.backgroundColor = color

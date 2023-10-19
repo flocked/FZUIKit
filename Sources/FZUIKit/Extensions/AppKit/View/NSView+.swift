@@ -469,15 +469,11 @@ extension NSView {
         set { 
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
+            self.saveDynamicColor(newValue._resolvedColor, for: \.border)
             if newValue.needsDashedBordlerLayer {
                 self.configurate(using: newValue)
             } else {
                 self.dashedBorderLayer?.removeFromSuperlayer()
-                if self.isProxy() {
-                    (self.layer?.delegate as? NSView)?.dynamicColors.border = newValue._resolvedColor
-                } else {
-                    self.dynamicColors.border = newValue._resolvedColor
-                }
                 var newColor = newValue._resolvedColor?.resolvedColor(for: self)
                 if newColor == nil, self.isProxy() {
                     newColor = .clear
@@ -541,6 +537,8 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
+            self.saveDynamicColor(newValue, for: \.shadow)
+
             var newColor = newValue?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {
                 newColor = .clear
@@ -549,11 +547,6 @@ extension NSView {
                 layer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             _shadowColor = newColor
-            if self.isProxy() {
-                (self.layer?.delegate as? NSView)?.dynamicColors.shadow = newValue
-            } else {
-                self.dynamicColors.shadow = newValue
-            }
         }
     }
     
@@ -570,7 +563,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var shadowOffset: CGSize {
+    @objc public dynamic var shadowOffset: CGSize {
         get { layer?.shadowOffset ?? .zero }
         set {
             wantsLayer = true
@@ -584,7 +577,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var shadowRadius: CGFloat {
+    @objc public dynamic var shadowRadius: CGFloat {
         get { layer?.shadowRadius ?? .zero }
         set {
             wantsLayer = true
@@ -598,7 +591,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var shadowOpacity: CGFloat {
+    @objc public dynamic var shadowOpacity: CGFloat {
         get { CGFloat(layer?.shadowOpacity ?? .zero) }
         set {
             wantsLayer = true
@@ -612,7 +605,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var shadowPath: NSBezierPath? {
+    @objc public dynamic var shadowPath: NSBezierPath? {
         get {
             if let cgPath = layer?.shadowPath {
                 return NSBezierPath(cgPath: cgPath)
@@ -640,6 +633,8 @@ extension NSView {
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
+            self.saveDynamicColor(newValue._resolvedColor, for: \.innerShadow)
+            
             if self.innerShadowLayer == nil {
                 let innerShadowLayer = InnerShadowLayer()
                 self.layer?.addSublayer(withConstraint: innerShadowLayer)
@@ -648,11 +643,7 @@ extension NSView {
                 innerShadowLayer.shadowOpacity = 0.0
                 innerShadowLayer.shadowRadius = 0.0
             }
-            if self.isProxy() {
-                (self.layer?.delegate as? NSView)?.dynamicColors.innerShadow = newValue._resolvedColor
-            } else {
-                self.dynamicColors.innerShadow = newValue._resolvedColor
-            }
+            
             var newColor = newValue._resolvedColor?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {
                 newColor = .clear
@@ -669,7 +660,7 @@ extension NSView {
     
     @objc internal dynamic var innerShadowColor: NSColor? {
         get { self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
-        set {  self.layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
+        set { self.layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
     }
     
     @objc internal dynamic var innerShadowOpacity: CGFloat {

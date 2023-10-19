@@ -38,7 +38,6 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
                     guard let self = self else { return event }
                     let firstResponder = self.view.window?.firstResponder
                     if firstResponder == self || firstResponder == self.view {
-                        Swift.print("HERE YES")
                         _ = self.performKeyEquivalent(with: event)
                         return nil
                     }
@@ -66,7 +65,6 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     }
         
     override public func performKeyEquivalent(with event: NSEvent) -> Bool {
-        Swift.print(event.keyCode)
         if self.elements.isEmpty == false, self.keyboardControl.isEnabled {
             var type: AdvanceOption? = nil
             switch event.keyCode {

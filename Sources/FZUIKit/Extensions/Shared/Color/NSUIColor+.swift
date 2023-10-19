@@ -163,6 +163,12 @@ public extension NSUIColor {
     var isVisible: Bool {
         self != .clear && self.alphaComponent != 0.0
     }
+    
+    /// A boolean value that indicates whether the color contains a different light and dark color variant.
+    var isDynamic: Bool {
+        let dyamic = self.dynamicColors
+        return dyamic.light != dyamic.dark
+    }
 
     #if os(macOS)
     /// A boolean value that indicates whether the color is a pattern color.
