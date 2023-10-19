@@ -36,7 +36,7 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     
     func targetValue<Value>(for keyPath: KeyPath<Object, Value?>) -> Value? {
         let keyPathString = keyPath.stringValue
-        Swift.print("targetValue 0", keyPathString, self.animations[keyPathString] ?? "nil")
+        Swift.print("targetValue 0", keyPathString, self.animations[keyPathString] ?? "nil", self.animations.keys, self.animations["_shadowColor"] ?? "nil")
         if let animation = self.animations[keyPathString] as? CABasicAnimation {
             Swift.print("targetValue 1", animation.toValue as? Optional<Value> ?? "nil")
             return animation.toValue as? Value
@@ -46,7 +46,7 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     
     func targetValue<Value>(for keyPath: KeyPath<Object, Value>) -> Value? {
         let keyPathString = keyPath.stringValue
-        Swift.print("targetValue 0 d", keyPathString, self.animations[keyPathString] ?? "nil")
+        Swift.print("targetValue 0 d", keyPathString, self.animations[keyPathString] ?? "nil", self.animations.keys)
         if let animation = self.animations[keyPathString] as? CABasicAnimation {
             Swift.print("targetValue 1 d", animation.toValue as? Value ?? "nil")
             return animation.toValue as? Value
