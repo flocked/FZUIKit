@@ -66,7 +66,10 @@ public extension NSView {
     
     var savedBorderColor: NSUIColor? {
         get { getAssociatedValue(key: "savedBorderColor", object: self, initialValue: self.layer?.borderColor?.nsColor) }
-        set { set(associatedValue: newValue, key: "savedBorderColor", object: self)
+        set { 
+            Swift.print("savedBorderColor")
+            set(associatedValue: newValue, key: "savedBorderColor", object: self)
+            Swift.print("setupEffectiveAppearanceObserver")
             setupEffectiveAppearanceObserver()
         }
     }
@@ -84,13 +87,18 @@ public extension NSView {
     }
     
     func setupEffectiveAppearanceObserver() {
+        Swift.print("setupEffectiveAppearanceObserver 0")
         if needsEffectiveAppearanceObserver {
+            Swift.print("needsEffectiveAppearanceObserver")
             if _effectiveAppearanceKVO == nil {
+                Swift.print("_effectiveAppearanceKVO nil")
                 _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                     self?.updateEffectiveColors()
                 }
+                Swift.print("_effectiveAppearanceKVO finished")
             }
         } else {
+            Swift.print("needsEffectiveAppearanceObserver false")
             _effectiveAppearanceKVO?.invalidate()
             _effectiveAppearanceKVO = nil
         }
