@@ -880,12 +880,12 @@ internal extension NSView {
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
-            self.animationManager.add(animation, handler: { })
+            self.animationManager.add(animation, key: key)
             return animation
         }
         let animation = self.swizzled_Animation(forKey: key)
         if let animation = animation as? CAAnimation {
-            self.animationManager.add(animation, handler: { })
+            self.animationManager.add(animation, key: key)
         }
         return animation
     }
