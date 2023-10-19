@@ -42,7 +42,7 @@ public extension BackgroundColorSettable where Self: NSView {
     }
 }
 
-internal extension NSView {
+public extension NSView {
     
     @objc dynamic var _backgroundColor: NSColor? {
         get { layer?.backgroundColor?.nsColor }

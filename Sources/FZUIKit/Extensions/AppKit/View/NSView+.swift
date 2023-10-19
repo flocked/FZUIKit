@@ -518,7 +518,7 @@ extension NSView {
                 layer?.borderColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             layer?.borderColor = newValue?.cgColor
-           // savedBorderColor = newValue
+            savedBorderColor = newValue
         }
     }
     
