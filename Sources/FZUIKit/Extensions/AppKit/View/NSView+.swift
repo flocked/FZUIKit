@@ -518,16 +518,8 @@ extension NSView {
                 layer?.borderColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             layer?.borderColor = newValue?.cgColor
-            if self.isProxy() {
-                
-                if self.self._effectiveAppearanceKVO == nil {
-                    Swift.print("_effectiveAppearanceKVO nil")
-                    self.self._effectiveAppearanceKVO = self.self.observeChanges(for: \.effectiveAppearance) { _, _ in
-                     //   self?.updateEffectiveColors()
-                    }
-                    Swift.print("_effectiveAppearanceKVO finished")
-                }
-            }
+            Swift.print("delegate == NSView", self.layer?.delegate is NSView)
+            (self.layer?.delegate as? NSView)?.savedBorderColor = newValue
            // savedBorderColor = newValue
         }
     }
