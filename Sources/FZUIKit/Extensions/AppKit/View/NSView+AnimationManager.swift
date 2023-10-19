@@ -9,6 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
+/*
 internal extension NSView {
     var animationManager: AnimationManager<NSView> {
         get { getAssociatedValue(key: "AnimationManager", object: self, initialValue: AnimationManager(self)) }
@@ -80,4 +81,5 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
         }
     }
 }
+*/
 #endif

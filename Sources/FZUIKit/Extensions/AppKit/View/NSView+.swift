@@ -472,8 +472,8 @@ extension NSView {
             return dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
         set {
             self.wantsLayer = true
-            self.proxyBorder = newValue
             Self.swizzleAnimationForKey()
+            self.proxyBorder = newValue
             self.saveDynamicColor(newValue._resolvedColor, for: \.border)
             if newValue.needsDashedBordlerLayer {
                 self.configurate(using: newValue)
@@ -493,8 +493,8 @@ extension NSView {
     }
     
     internal var proxyBorder: ContentConfiguration.Border? {
-        get { getAssociatedValue(key: "_border", object: self, initialValue: .none()) }
-        set { set(associatedValue: newValue, key: "_border", object: self) }
+        get { getAssociatedValue(key: "proxyBorder", object: self, initialValue: .none()) }
+        set { set(associatedValue: newValue, key: "proxyBorder", object: self) }
     }
         
     /**
@@ -554,8 +554,8 @@ extension NSView {
     }
     
     internal var proxyShadow: ContentConfiguration.Shadow? {
-        get { getAssociatedValue(key: "_shadow1", object: self, initialValue: .none()) }
-        set { set(associatedValue: newValue, key: "_shadow1", object: self) }
+        get { getAssociatedValue(key: "proxyShadow", object: self, initialValue: .none()) }
+        set { set(associatedValue: newValue, key: "proxyShadow", object: self) }
     }
         
     /**
@@ -574,17 +574,9 @@ extension NSView {
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
-            Swift.print("shadow newColor", newColor ?? "nil")
-            if self.shadowColor == nil || self.shadowColor?.isVisible == false, newColor?.isVisible == true {
-                Swift.print("shadow reset")
+            if self.shadowColor?.isVisible == false || self.shadowColor == nil {
                 layer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
-            /*
-            if newColor != self.shadowColor, self.shadowColor?.isVisible == false || self.shadowColor == nil {
-                Swift.print("shadow reset")
-                layer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
-            }
-             */
             _shadowColor = newColor
         }
     }
@@ -699,8 +691,8 @@ extension NSView {
     }
     
     internal var proxyInnerShadow: ContentConfiguration.InnerShadow? {
-        get { getAssociatedValue(key: "_innerShadow", object: self, initialValue: .none()) }
-        set { set(associatedValue: newValue, key: "_innerShadow", object: self) }
+        get { getAssociatedValue(key: "proxyInnerShadow", object: self, initialValue: .none()) }
+        set { set(associatedValue: newValue, key: "proxyInnerShadow", object: self) }
     }
     
     @objc internal dynamic var innerShadowColor: NSColor? {
@@ -909,17 +901,18 @@ internal extension NSView {
     }
     
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        Swift.print("swizzled_Animation", key)
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
             animation.timingFunction = .default
-            self.animationManager.add(animation, key: key)
+           // self.animationManager.add(animation, key: key)
             return animation
         }
         let animation = self.swizzled_Animation(forKey: key)
+        /*
         if let animation = animation as? CAAnimation {
             self.animationManager.add(animation, key: key)
         }
+         */
         return animation
     }
     
