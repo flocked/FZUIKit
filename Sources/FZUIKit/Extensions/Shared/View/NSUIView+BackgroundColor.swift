@@ -89,7 +89,6 @@ internal extension NSView {
     
     var unproxySelf: Self {
         if self.isProxy() {
-            self.wantsLayer = true
             return (self.layer?.delegate as? Self) ?? self
         }
         return self
