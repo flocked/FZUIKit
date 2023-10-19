@@ -544,7 +544,7 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     public dynamic var shadowColor: NSColor? {
-        get { layer?.shadowColor?.nsColor }
+        get { animationManager.targetValue(for: \._shadowColor) ?? layer?.shadowColor?.nsColor }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
