@@ -465,9 +465,14 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     dynamic public var border: ContentConfiguration.Border {
-        get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
-        set { 
+        get { 
+            if self.isProxy(), let proxyBorder = self.proxyBorder {
+                return proxyBorder
+            }
+            return dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
+        set {
             self.wantsLayer = true
+            self.proxyBorder = newValue
             Self.swizzleAnimationForKey()
             self.saveDynamicColor(newValue._resolvedColor, for: \.border)
             if newValue.needsDashedBordlerLayer {
@@ -485,6 +490,11 @@ extension NSView {
                 self.borderWidth = newValue.width
             }
         }
+    }
+    
+    internal var proxyBorder: ContentConfiguration.Border? {
+        get { getAssociatedValue(key: "_border", object: self, initialValue: .none()) }
+        set { set(associatedValue: newValue, key: "_border", object: self) }
     }
         
     /**
@@ -529,13 +539,23 @@ extension NSView {
     
     /// The shadow of the view (an alternative way of configurating the shadow).
     public dynamic var shadow1: ContentConfiguration.Shadow {
-        get { ContentConfiguration.Shadow(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+        get { 
+            if self.isProxy(), let proxyShadow = self.proxyShadow {
+                return proxyShadow
+            }
+            return ContentConfiguration.Shadow(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
         set {
+            self.proxyShadow = newValue
             self.shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
             self.shadowOpacity = newValue.opacity
             self.shadowRadius = newValue.radius
             self.shadowColor = newValue._resolvedColor
         }
+    }
+    
+    internal var proxyShadow: ContentConfiguration.Shadow? {
+        get { getAssociatedValue(key: "_shadow1", object: self, initialValue: .none()) }
+        set { set(associatedValue: newValue, key: "_shadow1", object: self) }
     }
         
     /**
@@ -645,11 +665,15 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     dynamic public var innerShadow: ContentConfiguration.InnerShadow {
-        get { _innerShadow }
+        get {
+            if self.isProxy(), let proxyInnerShadow = self.proxyInnerShadow {
+                return proxyInnerShadow
+            }
+            return ContentConfiguration.InnerShadow(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: CGPoint(innerShadowOffset.width, innerShadowOffset.height)) }
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
-            _innerShadow = newValue
+            self.proxyInnerShadow = newValue
             self.saveDynamicColor(newValue._resolvedColor, for: \.innerShadow)
             
             if self.innerShadowLayer == nil {
@@ -660,14 +684,11 @@ extension NSView {
                 innerShadowLayer.shadowOpacity = 0.0
                 innerShadowLayer.shadowRadius = 0.0
             }
-            
             var newColor = newValue._resolvedColor?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
-            Swift.print("inner newColor", newColor ?? "nil")
-            if newColor != self.innerShadowColor, self.innerShadowColor?.isVisible == false || self.innerShadowColor == nil {
-                Swift.print("inner reset")
+            if self.innerShadowColor?.isVisible == false || self.innerShadowColor == nil {
                 self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             self.innerShadowColor = newColor
@@ -677,7 +698,7 @@ extension NSView {
         }
     }
     
-    internal var _innerShadow: ContentConfiguration.InnerShadow {
+    internal var proxyInnerShadow: ContentConfiguration.InnerShadow? {
         get { getAssociatedValue(key: "_innerShadow", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "_innerShadow", object: self) }
     }
