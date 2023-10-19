@@ -39,7 +39,11 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
         let keyPathString = keyPath.stringValue
         Swift.print("targetValue 0", keyPathString, self.animations[keyPathString] ?? "nil", self.animations.keys, self.animations["_shadowColor"] ?? "nil")
         if let animation = self.animations[keyPathString] as? CABasicAnimation {
-            Swift.print("targetValue 1", animation.toValue as? Optional<Value> ?? "nil")
+            if let toValue = animation.toValue {
+                Swift.print("targetValue 1", type(of: toValue))
+            } else {
+                Swift.print("targetValue 1", animation.toValue as? Optional<Value> ?? "nil")
+            }
             return animation.toValue as? Value
         }
         return nil
