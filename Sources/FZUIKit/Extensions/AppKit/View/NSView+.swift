@@ -526,6 +526,17 @@ extension NSView {
         get { layer?.borderColor?.nsColor }
         set { layer?.borderColor = newValue?.cgColor }
     }
+    
+    /// The shadow of the view (an alternative way of configurating the shadow).
+    public dynamic var shadow1: ContentConfiguration.Shadow {
+        get { ContentConfiguration.Shadow(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+        set {
+            self.shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
+            self.shadowOpacity = newValue.opacity
+            self.shadowRadius = newValue.radius
+            self.shadowColor = newValue._resolvedColor
+        }
+    }
         
     /**
      The shadow color of the view.
