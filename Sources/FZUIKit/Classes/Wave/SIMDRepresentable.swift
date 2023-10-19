@@ -271,7 +271,9 @@ extension CGQuaternion: SIMDRepresentable {
 extension SIMDRepresentable where Self: CGColor {
     /// Initializes with a `SIMD4`.
     @inlinable public init(_ simdRepresentation: SIMD4<CGFloat.NativeType>) {
-        self.init(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3])
+        self = NSUIColor(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3]).cgColor as! Self
+
+      //  self.init(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3])
     }
 }
 
