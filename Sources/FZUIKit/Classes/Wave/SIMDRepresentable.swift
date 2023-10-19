@@ -271,8 +271,7 @@ extension CGQuaternion: SIMDRepresentable {
 extension SIMDRepresentable where Self: CGColor {
     /// Initializes with a `SIMD4`.
     @inlinable public init(_ simdRepresentation: SIMD4<CGFloat.NativeType>) {
-        self = NSUIColor(hue: simdRepresentation[0], saturation: simdRepresentation[1], lightness: simdRepresentation[2], alpha: simdRepresentation[3]).cgColor as! Self
-      //  self = NSUIColor(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3]).cgColor as! Self
+        self = NSUIColor(red: simdRepresentation[0], green: simdRepresentation[1], blue: simdRepresentation[2], alpha: simdRepresentation[3]).cgColor as! Self
     }
 }
 
@@ -283,11 +282,8 @@ extension CGColor: SIMDRepresentable {
     
     /// `SIMD4` representation of the value.
     public func simdRepresentation() -> SIMD4<CGFloat.NativeType> {
-        let hsla = self.nsUIColor?.hslaComponents() ?? (hue: 0, saturation: 0, lightness: 0, alpha: 0)
-        return [hsla.hue, hsla.saturation, hsla.lightness, hsla.alpha]
-        
-      //  let rgba = self.nsUIColor?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
-      //  return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
+        let rgba = self.nsUIColor?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
+        return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
     }
     
     @inlinable public static func < (lhs: CGColor, rhs: CGColor) -> Bool {
