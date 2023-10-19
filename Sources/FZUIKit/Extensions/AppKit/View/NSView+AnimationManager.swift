@@ -32,7 +32,11 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     func add(_ animation: CAAnimation, key: String) {
         animation.delegate = self
         animations[key] = animation
-        Swift.print("add animation", key, animations.count)
+        if let animation = animation as? CABasicAnimation {
+            Swift.print("add animation", key, animation.keyPath ?? "nil", animation.toValue ?? "nil", animations.count)
+        } else {
+            Swift.print("add animation", key, animations.count)
+        }
     }
     
     func targetValue<Value>(for keyPath: KeyPath<Object, Value?>) -> Value? {
