@@ -136,6 +136,7 @@ internal extension Animator {
         var initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
         var targetValue = newValue ?? Value.ValueType.zero
         
+        /*
         if Value.self == CGColor.self {
             let iniVal = (object[keyPath: keyPath] as! Optional<CGColor>)?.nsUIColor
             let tarVal = (newValue as! Optional<CGColor>)?.nsUIColor
@@ -146,6 +147,7 @@ internal extension Animator {
                 targetValue = (iniVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
         }
+        */
                 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
