@@ -132,11 +132,16 @@ internal extension Animator {
         
         var initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
         var targetValue = newValue ?? Value.ValueType.zero
+        
+        Swift.print("wave", Value.self == NSUIColor.self, (initialValue as? Optional<NSUIColor>) ?? "nil")
+        
         if Value.self == NSUIColor.self, let iniVal = initialValue as? Optional<NSUIColor>, let tarVal = newValue as? Optional<NSUIColor> {
             if iniVal == .clear || iniVal == nil {
+                Swift.print("iniVal")
                 initialValue = (tarVal.optional?.withAlphaComponent(0.0) ?? .clear) as! Value
             }
             if tarVal == .clear || tarVal == nil {
+                Swift.print("tarVal")
                 targetValue = (iniVal.optional?.withAlphaComponent(0.0) ?? .clear) as! Value
             }
         }
