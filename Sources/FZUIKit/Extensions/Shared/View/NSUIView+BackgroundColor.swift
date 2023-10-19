@@ -64,9 +64,9 @@ internal extension NSView {
         }
     }
     
-    var _borderColor: NSUIColor? {
-        get { getAssociatedValue(key: "_borderColor", object: self, initialValue: self.layer?.borderColor?.nsColor) }
-        set { set(associatedValue: newValue, key: "_borderColor", object: self)
+    var savedBorderColor: NSUIColor? {
+        get { getAssociatedValue(key: "savedBorderColor", object: self, initialValue: self.layer?.borderColor?.nsColor) }
+        set { set(associatedValue: newValue, key: "savedBorderColor", object: self)
             setupEffectiveAppearanceObserver()
         }
     }
@@ -80,7 +80,7 @@ internal extension NSView {
     }
     
     var needsEffectiveAppearanceObserver: Bool {
-        __backgroundColor != nil || _borderColor != nil || savedShadowColor != nil
+        __backgroundColor != nil || savedBorderColor != nil || savedShadowColor != nil
     }
     
     func setupEffectiveAppearanceObserver() {
@@ -101,7 +101,7 @@ internal extension NSView {
             self.layer?.backgroundColor = backgroundColor.cgColor
         }
         
-        if let borderColor = _borderColor?.resolvedColor(for: effectiveAppearance) {
+        if let borderColor = savedBorderColor?.resolvedColor(for: effectiveAppearance) {
             self.layer?.borderColor = borderColor.cgColor
         }
         

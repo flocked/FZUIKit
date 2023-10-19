@@ -474,10 +474,13 @@ extension NSView {
             } else {
                 self.dashedBorderLayer?.removeFromSuperlayer()
                 var newColor = newValue.resolvedColor()?.resolvedColor(for: self)
-                if newColor != nil, newColor != .clear, self.borderColor?.isVisible == true {
+                if newColor == nil, self.isProxy() {
+                    newColor = .clear
+                }
+                if self.borderColor?.isVisible == false {
                     self.layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor
                 }
-                self.borderColor = newValue.resolvedColor()?.resolvedColor(for: self)
+                self.borderColor = newColor
                 self.borderWidth = newValue.width
             }
         }
@@ -502,18 +505,26 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc internal dynamic var borderColor: NSColor? {
+    internal dynamic var borderColor: NSColor? {
         get { layer?.borderColor?.nsColor }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
+            var newValue = newValue?.resolvedColor(for: self)
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
-            _borderColor = newValue
+            if self.borderColor?.isVisible == false {
+                layer?.borderColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
+            }
             layer?.borderColor = newValue?.cgColor
+            savedBorderColor = newValue
         }
+    }
+    
+    @objc internal dynamic var _borderColor: NSColor? {
+        get { layer?.borderColor?.nsColor }
+        set { layer?.borderColor = newValue?.cgColor }
     }
         
     /**
@@ -531,17 +542,16 @@ extension NSView {
                 newValue = .clear
             }
             if self.shadowColor?.isVisible == false {
-                layer?.shadowColor = (newValue?.withAlphaComponent(0.0) ?? .clear).cgColor
+                layer?.shadowColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             _shadowColor = newValue
-         //   _shadowColor = newValue
+         //   savedBorderColor = newValue
         }
     }
     
     @objc internal dynamic var _shadowColor: NSColor? {
         get { layer?.shadowColor?.nsColor }
         set {
-          //  Swift.print(newValue ?? "nil")
             self.wantsLayer = true
             layer?.shadowColor = newValue?.cgColor }
 
@@ -628,9 +638,12 @@ extension NSView {
                 innerShadowLayer.sendToBack()
                 innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
             }
-            let newColor = newValue._resolvedColor?.resolvedColor(for: self)
-            if newColor != nil, newColor != .clear, self.innerShadowColor?.isVisible == true {
-                self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor
+            var newColor = newValue._resolvedColor?.resolvedColor(for: self)
+            if newColor == nil, self.isProxy() {
+                newColor = .clear
+            }
+            if self.innerShadowColor?.isVisible == false {
+                self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             self.innerShadowColor = newColor
             self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
@@ -641,13 +654,7 @@ extension NSView {
     
     @objc internal dynamic var innerShadowColor: NSColor? {
         get { self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
-        set {
-            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
-            if newValue == nil, self.isProxy() {
-                newValue = .clear
-            }
-            self.layer?.innerShadowLayer?.shadowColor = newValue?.cgColor
-        }
+        set {  self.layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
     }
     
     @objc internal dynamic var innerShadowOpacity: CGFloat {
@@ -873,7 +880,7 @@ internal extension NSView {
    }
 }
 
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "dashedBorderDashPattern0", "dashedBorderDashPattern1", "dashedBorderDashPattern2", "dashedBorderDashPattern3", "dashedBorderDashPattern4", "dashedBorderDashPattern5", "dashedBorderInsetsTop", "dashedBorderInsetsBottom", "dashedBorderInsetsLeading", "dashedBorderInsetsTrailing", "dashedBorderColor", "dashedBorderWidth"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "dashedBorderDashPattern0", "dashedBorderDashPattern1", "dashedBorderDashPattern2", "dashedBorderDashPattern3", "dashedBorderDashPattern4", "dashedBorderDashPattern5", "dashedBorderInsetsTop", "dashedBorderInsetsBottom", "dashedBorderInsetsLeading", "dashedBorderInsetsTrailing", "dashedBorderColor", "dashedBorderWidth"]
 #endif
 
 /*

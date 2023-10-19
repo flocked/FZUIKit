@@ -72,7 +72,7 @@ extension Animator where Object: NSUIView {
         get { object.optionalLayer?.animator.borderColor ?? .zero }
         set { object.optionalLayer?.animator.borderColor = newValue?.resolvedColor(for: object)
             #if os(macOS)
-            object._borderColor = newValue
+            object.savedBorderColor = newValue
             #endif
         }
     }
