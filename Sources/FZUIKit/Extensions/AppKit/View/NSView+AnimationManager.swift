@@ -20,6 +20,7 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     init(_ object: Object) {
         self.object = object
     }
+    
     var animationHandlers: [CAAnimation: ()->()] = [:]
     var animations: [String: CAAnimation] = [:]
 
