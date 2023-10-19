@@ -63,6 +63,9 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         animationHandlers[anim]?()
         animationHandlers[anim] = nil
+        if let anim = anim as? CABasicAnimation {
+            Swift.print("animationDidStop", anim.keyPath ?? "nil")
+        }
         if let val = animations.first(where: {$0.value == anim}) {
             animations[val.key] = nil
         }
