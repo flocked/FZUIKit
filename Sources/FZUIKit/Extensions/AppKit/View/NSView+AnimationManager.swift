@@ -34,8 +34,8 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     }
     
     func targetValue<Value>(for keyPath: KeyPath<Object, Value?>) -> Value? {
-        Swift.print("targetValue 0", keyPath.stringValue)
         let keyPathString = keyPath.stringValue
+        Swift.print("targetValue 0", keyPathString, self.animations[keyPathString] ?? "nil")
         if let animation = self.animations[keyPathString] as? CABasicAnimation {
             Swift.print("targetValue 1", animation.toValue as? Optional<Value> ?? "nil")
             return animation.toValue as? Value
@@ -44,10 +44,10 @@ internal class AnimationManager<Object: AnyObject>: NSObject, CAAnimationDelegat
     }
     
     func targetValue<Value>(for keyPath: KeyPath<Object, Value>) -> Value? {
-        Swift.print("targetValue 0")
         let keyPathString = keyPath.stringValue
-        if let animation = self.animationHandlers.keys.compactMap({$0 as? CABasicAnimation}).first(where: {$0.keyPath == keyPathString}) {
-            Swift.print("targetValue 1", animation.toValue as? Value ?? "nil")
+        Swift.print("targetValue 0 d", keyPathString, self.animations[keyPathString] ?? "nil")
+        if let animation = self.animations[keyPathString] as? CABasicAnimation {
+            Swift.print("targetValue 1 d", animation.toValue as? Value ?? "nil")
             return animation.toValue as? Value
         }
         return nil
