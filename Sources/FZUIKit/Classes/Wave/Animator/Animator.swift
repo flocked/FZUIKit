@@ -138,14 +138,15 @@ internal extension Animator {
         Swift.print("wave 1", type(of: Value.self), Value.self, (initialValue as? NSUIColor) ?? "nil", type(of: initialValue))
 
         
-        if Value.self == NSUIColor.self, let iniVal = initialValue as? Optional<NSUIColor>, let tarVal = newValue as? Optional<NSUIColor> {
+        if Value.self == CGColor.self, let iniVal = initialValue as? Optional<CGColor> {
+            let tarVal = newValue as! Optional<CGColor>
             if iniVal == .clear || iniVal == nil {
                 Swift.print("iniVal")
-                initialValue = (tarVal.optional?.withAlphaComponent(0.0) ?? .clear) as! Value
+                initialValue = (tarVal?.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
             if tarVal == .clear || tarVal == nil {
                 Swift.print("tarVal")
-                targetValue = (iniVal.optional?.withAlphaComponent(0.0) ?? .clear) as! Value
+                targetValue = (iniVal?.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
         }
                 
