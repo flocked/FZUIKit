@@ -554,7 +554,9 @@ extension NSView {
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
+            Swift.print("shadow newColor", newColor ?? "nil")
             if newColor != self.shadowColor, self.shadowColor?.isVisible == false || self.shadowColor == nil {
+                Swift.print("shadow reset")
                 layer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             _shadowColor = newColor
@@ -656,7 +658,9 @@ extension NSView {
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
+            Swift.print("inner newColor", newColor ?? "nil")
             if newColor != self.innerShadowColor, self.innerShadowColor?.isVisible == false || self.innerShadowColor == nil {
+                Swift.print("inner reset")
                 self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             self.innerShadowColor = newColor
