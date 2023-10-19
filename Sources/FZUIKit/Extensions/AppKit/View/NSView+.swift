@@ -645,10 +645,11 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     dynamic public var innerShadow: ContentConfiguration.InnerShadow {
-        get { ContentConfiguration.InnerShadow(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: CGPoint(innerShadowOffset.width, innerShadowOffset.height)) }
+        get { _innerShadow }
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
+            _innerShadow = newValue
             self.saveDynamicColor(newValue._resolvedColor, for: \.innerShadow)
             
             if self.innerShadowLayer == nil {
@@ -674,6 +675,11 @@ extension NSView {
             self.innerShadowRadius = newValue.radius
             self.innerShadowOpacity = newValue.opacity
         }
+    }
+    
+    internal var _innerShadow: ContentConfiguration.InnerShadow {
+        get { getAssociatedValue(key: "_innerShadow", object: self, initialValue: .none()) }
+        set { set(associatedValue: newValue, key: "_innerShadow", object: self) }
     }
     
     @objc internal dynamic var innerShadowColor: NSColor? {
