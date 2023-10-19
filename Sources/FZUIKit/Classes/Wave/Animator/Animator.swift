@@ -83,12 +83,14 @@ internal extension Animator {
         var initialValue = object[keyPath: keyPath]
         var targetValue = newValue
         
-        if Value.self == NSUIColor.self, let iniVal = initialValue as? NSUIColor, let tarVal = newValue as? NSUIColor {
+        if Value.self == CGColor.self {
+            let iniVal = initialValue as! CGColor
+            let tarVal = newValue as! CGColor
             if iniVal == .clear {
-                initialValue = tarVal.withAlphaComponent(0.0) as! Value
+                initialValue = (tarVal.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
             if tarVal == .clear {
-                targetValue = iniVal.withAlphaComponent(0.0) as! Value
+                targetValue = (iniVal.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
         }
         
@@ -140,6 +142,7 @@ internal extension Animator {
         
         if Value.self == CGColor.self, let iniVal = initialValue as? Optional<CGColor> {
             let tarVal = newValue as! Optional<CGColor>
+            Swift.print("Here", iniVal == .clear || iniVal == nil , tarVal == .clear || tarVal == nil)
             if iniVal == .clear || iniVal == nil {
                 Swift.print("iniVal")
                 initialValue = (tarVal?.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
