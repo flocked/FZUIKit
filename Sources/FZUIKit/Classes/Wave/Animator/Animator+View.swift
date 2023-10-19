@@ -48,7 +48,9 @@ extension Animator where Object: NSUIView {
     /// The background color of the view.
     public var backgroundColor: NSUIColor? {
         get { object.optionalLayer?.animator.backgroundColor }
-        set { object.optionalLayer?.animator.backgroundColor = newValue?.resolvedColor(for: object)
+        set { 
+           // object.optionalLayer?.animator.backgroundColor = newValue?.resolvedColor(for: object)
+            object.optionalLayer?.animator.backgroundColor = newValue
             #if os(macOS)
             object.dynamicColors.background = newValue
             #endif

@@ -30,7 +30,6 @@ public extension BackgroundColorSettable where Self: NSView {
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
-            /*
             self.saveDynamicColor(newValue, for: \.background)
             
             var newValue = newValue?.resolvedColor(for: effectiveAppearance)
@@ -40,7 +39,6 @@ public extension BackgroundColorSettable where Self: NSView {
             if self.backgroundColor?.isVisible == false || self.backgroundColor == nil {
                 self.layer?.backgroundColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
-             */
             self._backgroundColor = newValue
         }
     }
