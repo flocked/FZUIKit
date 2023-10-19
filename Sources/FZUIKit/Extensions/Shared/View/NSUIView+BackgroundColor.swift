@@ -61,7 +61,6 @@ internal extension NSView {
         }
     }
     
-    // Saved colors. When the effective appearance of the view changes,  which light & dark variance are
     struct DynamicColors {
         var shadow: NSColor? = nil
         var innerShadow: NSColor? = nil
@@ -141,18 +140,6 @@ internal extension NSView {
         }
     }
 }
-
-internal extension CALayer {
-    var backgroundColorObserver: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "backgroundColorObserver", object: self) }
-        set { set(associatedValue: newValue, key: "backgroundColorObserver", object: self) }
-    }
-    
-    var colorObserver: KeyValueObserver<CALayer>? {
-        get { getAssociatedValue(key: "backgroundColorObserver", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "backgroundColorObserver", object: self) }
-    }
-}
 #endif
 
 public extension NSUIView {
@@ -181,30 +168,3 @@ public extension NSUIView {
     }
 }
 #endif
-
-/*
-if let layer = self.layer, layer.colorObserver == nil {
-    layer.colorObserver = KeyValueObserver(layer)
-    layer.colorObserver?.add(\.backgroundColor, handler: { [weak self] _, color in
-        guard let self = self else { return }
-        if color != self.dynamicColors.background?.resolvedColor(for: self.effectiveAppearance).cgColor {
-            self.dynamicColors.background = color?.nsColor
-            self.setupEffectiveAppearanceObserver()
-        }
-    })
-    layer.colorObserver?.add(\.borderColor, handler: { [weak self] _, color in
-        guard let self = self else { return }
-        if color != self._borderColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
-            self._borderColor = color?.nsColor
-            self.setupEffectiveAppearanceObserver()
-        }
-    })
-    layer.colorObserver?.add(\.shadowColor, handler: { [weak self] _, color in
-        guard let self = self else { return }
-        if color != self._shadowColor?.resolvedColor(for: self.effectiveAppearance).cgColor {
-            self._shadowColor = color?.nsColor
-            self.setupEffectiveAppearanceObserver()
-        }
-    })
-}
- */
