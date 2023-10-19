@@ -15,7 +15,7 @@ import UIKit
 extension NSShadow {
     /// A black shadow.
     public static func black(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
-        var shadow = Self()
+        let shadow = Self()
         #if os(macOS)
         shadow.shadowColor = .shadowColor.withAlphaComponent(opacity)
         #else
@@ -29,7 +29,7 @@ extension NSShadow {
     #if os(macOS)
     /// A shadow with accent color.
     public static func accentColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
-        var shadow = Self()
+        let shadow = Self()
         shadow.shadowColor = .controlAccentColor.withAlphaComponent(opacity)
         shadow.shadowBlurRadius = radius
         shadow.shadowOffset = CGSize(offset.x, offset.y)
@@ -39,7 +39,7 @@ extension NSShadow {
     
     /// A shadow with the specified color.
     public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
-        var shadow = Self()
+        let shadow = Self()
         shadow.shadowColor = color.withAlphaComponent(opacity)
         shadow.shadowBlurRadius = radius
         shadow.shadowOffset = CGSize(offset.x, offset.y)

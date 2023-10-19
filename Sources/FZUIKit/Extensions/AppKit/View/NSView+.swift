@@ -459,6 +459,7 @@ extension NSView {
         }
     }
     
+    /*
     /**
      The border of the view.
      
@@ -496,13 +497,14 @@ extension NSView {
         get { getAssociatedValue(key: "proxyBorder", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "proxyBorder", object: self) }
     }
+     */
         
     /**
      The border width of the view.
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc internal dynamic var borderWidth: CGFloat {
+    @objc public dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
         set {
             wantsLayer = true
@@ -516,11 +518,12 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    internal dynamic var borderColor: NSColor? {
+    public dynamic var borderColor: NSColor? {
         get { layer?.borderColor?.nsColor }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
+            self.saveDynamicColor(newValue, for: \.border)
             var newColor = newValue?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {
                 newColor = .clear
@@ -537,7 +540,12 @@ extension NSView {
         set { layer?.borderColor = newValue?.cgColor }
     }
     
-    /// The shadow of the view (an alternative way of configurating the shadow).
+    /*
+    /** 
+     The shadow of the view (an alternative way of configurating the shadow).
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
     public dynamic var shadow1: ContentConfiguration.Shadow {
         get { 
             if self.isProxy(), let proxyShadow = self.proxyShadow {
@@ -557,6 +565,7 @@ extension NSView {
         get { getAssociatedValue(key: "proxyShadow", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "proxyShadow", object: self) }
     }
+    */
         
     /**
      The shadow color of the view.

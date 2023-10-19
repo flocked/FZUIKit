@@ -84,7 +84,7 @@ open class ImageView: NSView {
     @available(macOS 12.0, iOS 13.0, *)
     internal var resolvedSymbolConfiguration: NSUIImage.SymbolConfiguration? {
         get {
-            var symbolConfiguration = symbolConfiguration
+            let symbolConfiguration = symbolConfiguration
             symbolConfiguration?.colors = symbolConfiguration?.colors?.compactMap({$0.resolvedColor(for: self)})
             return symbolConfiguration
         }

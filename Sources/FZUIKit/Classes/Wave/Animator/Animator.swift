@@ -140,9 +140,11 @@ internal extension Animator {
         Swift.print("wave 1", type(of: Value.self), Value.self, (initialValue as? NSUIColor) ?? "nil", type(of: initialValue))
 
         
-        if Value.self == CGColor.self, let iniVal = initialValue as? Optional<CGColor> {
+        if Value.self == CGColor.self {
+            let iniVal = object[keyPath: keyPath] as! Optional<CGColor>
             let tarVal = newValue as! Optional<CGColor>
-            Swift.print("Here", iniVal == .clear || iniVal == nil , tarVal == .clear || tarVal == nil)
+            Swift.print("Here 0", iniVal ?? "nil", tarVal ?? "nil")
+            Swift.print("Here", iniVal == .clear || iniVal == nil, tarVal == .clear || tarVal == nil)
             if iniVal == .clear || iniVal == nil {
                 Swift.print("iniVal")
                 initialValue = (tarVal?.nsUIColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
