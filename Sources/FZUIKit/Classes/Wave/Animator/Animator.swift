@@ -9,6 +9,7 @@
 
 import Foundation
 import FZSwiftUtils
+import QuartzCore
 
 /// An object that has animatable properties.
 public protocol Animatable: AnyObject { }
@@ -133,7 +134,7 @@ internal extension Animator {
         var initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
         var targetValue = newValue ?? Value.ValueType.zero
         
-        Swift.print("wave", Value.self == NSUIColor.self, (initialValue as? Optional<NSUIColor>) ?? "nil")
+        Swift.print("wave", Value.self == CGColor.self, (initialValue as? Optional<CGColor>) ?? "nil")
         Swift.print("wave 1", type(of: Value.self), Value.self, (initialValue as? NSUIColor) ?? "nil", type(of: initialValue))
 
         
