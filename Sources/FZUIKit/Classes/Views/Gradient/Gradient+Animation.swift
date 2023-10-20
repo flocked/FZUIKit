@@ -12,16 +12,16 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
-/*
-extension Gradient.Stop: SpringInterpolatable, VelocityProviding {
-    public static func updateValue(spring: Spring, value: Gradient.Stop, target: Gradient.Stop, velocity: Gradient.Stop, dt: TimeInterval) -> (value: Gradient.Stop, velocity: Gradient.Stop) {
-        let color = NSUIColor.updateValue(spring: spring, value: value.color, target: target.color, velocity: velocity.color, dt: dt)
-        let location = CGFloat.updateValue(spring: spring, value: value.location, target: target.location, velocity: velocity.location, dt: dt)
-        return (Gradient.Stop(color: color.value, location: location.value), Gradient.Stop(color: color.velocity, location: velocity.location))
+
+extension Gradient.Stop: AnimatableData {
+    public var animatableData: Array<Double> {
+        let rgba = self.color.rgbaComponents()
+        return [rgba.red, rgba.green, rgba.blue, rgba.red, location]
     }
     
-    public var scaledIntegral: Gradient.Stop {
-        Gradient.Stop(color: self.color.scaledIntegral, location: self.location.scaledIntegral)
+    public init(_ animatableData: Array<Double>) {
+        self.color = NSUIColor(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
+        self.location = animatableData[4]
     }
     
     public static var zero: Gradient.Stop {
@@ -29,64 +29,43 @@ extension Gradient.Stop: SpringInterpolatable, VelocityProviding {
     }
 }
 
-extension Gradient: SpringInterpolatable, VelocityProviding {
-    public static func updateValue(spring: Spring, value: Gradient, target: Gradient, velocity: Gradient, dt: TimeInterval) -> (value: Gradient, velocity: Gradient) {
-        var value = value
-        var target = target
-        var velocity = velocity
-        let diff = target.stops.count - value.stops.count
-        if diff < 0 {
-            let toRemove = (diff * -1)
-            let keep = (value.stops.count - toRemove)
-            for var stop in value.stops[keep..<value.stops.count] {
-                stop.color = stop.color.withAlphaComponent(0.0)
-                target.stops.append(stop)
-            }
-        } else if diff > 0 {
-            let count = value.stops.count
-            for i in 0..<diff {
-                var targetStop = target.stops[count+i]
-                targetStop.color = targetStop.color.withAlphaComponent(0.0)
-                value.stops.append(targetStop)
-            }
-        }
-        
-        let velocityDiff = target.stops.count - velocity.stops.count
-        if velocityDiff > 0 {
-            for _ in 0..<velocityDiff {
-                velocity.stops.append(.zero)
-            }
-        }
-
-        var stops: [(value: Gradient.Stop, velocity: Gradient.Stop)] = []
-        for i in 0..<target.stops.count {
-            stops.append(Gradient.Stop.updateValue(spring: spring, value: value.stops[i], target: target.stops[i], velocity: velocity.stops[i], dt: dt))
-        }
-        
-        let valueStops = stops.compactMap({$0.value})
-        let velocityStops = stops.compactMap({$0.velocity})
-
-        let startPoint = CGPoint.updateValue(spring: spring, value: value.startPoint.point, target: target.startPoint.point, velocity: velocity.startPoint.point, dt: dt)
-        let endPoint = CGPoint.updateValue(spring: spring, value: value.endPoint.point, target: target.endPoint.point, velocity: velocity.endPoint.point, dt: dt)
-        
-        return (Gradient(stops: valueStops, startPoint: .init(startPoint.value), endPoint: .init(endPoint.value), type: target.type), Gradient(stops: velocityStops, startPoint: .init(startPoint.velocity), endPoint: .init(endPoint.velocity), type: target.type))
+extension Gradient.Point: AnimatableData {
+    public var animatableData: Array<Double> {
+        [x, y]
     }
     
-    public typealias ValueType = Gradient
+    public static var zero: Gradient.Point {
+        Gradient.Point(x: 0, y: 0)
+    }
     
-    public typealias VelocityType = Gradient
+    public init(_ animatableData: Array<Double>) {
+        self.x = animatableData[0]
+        self.y = animatableData[1]
+    }
+}
+
+extension Gradient: AnimatableData {
+    public var animatableData: Array<Double> {
+        var animatableData = [Double(type.rawValue)] + startPoint.animatableData + endPoint.animatableData
+        animatableData = animatableData + self.stops.flatMap({$0.animatableData})
+        return animatableData
+    }
     
-    public var scaledIntegral: Gradient {
-        Gradient(stops: stops.compactMap({$0.scaledIntegral}), startPoint: .init(startPoint.point.scaledIntegral), endPoint: .init(endPoint.point.scaledIntegral), type: type)
+    public init(_ animatableData: Array<Double>) {
+        self.type = .init(rawValue: Int(animatableData[0])) ?? .linear
+        self.startPoint = .init(x: animatableData[1], y: animatableData[2])
+        self.endPoint = .init(x: animatableData[3], y: animatableData[4])
+        if animatableData.count > 4 {
+            let chunks = Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5)
+            self.stops = chunks.compactMap({ Stop($0) })
+        }
     }
     
     public static var zero: Gradient {
         Gradient(stops: [])
     }
 }
- */
-
-/*
+ 
 extension Animator where Object: GradientView {
     /// The gradient of the view.
     public var gradient: Gradient {
@@ -94,7 +73,5 @@ extension Animator where Object: GradientView {
         set { setValue(newValue, for: \.gradient, key: "gradient") }
     }
 }
- */
-
 
 #endif

@@ -5,7 +5,7 @@
 //  Created by Adam Bell on 8/2/20.
 //  Taken from https://github.com/b3ll/Motion
 
-
+/*
 #if os(macOS) || os(iOS) || os(tvOS)
 
 import CoreGraphics
@@ -245,3 +245,4 @@ extension AdditiveArithmetic {
 }
 
 #endif
+*/

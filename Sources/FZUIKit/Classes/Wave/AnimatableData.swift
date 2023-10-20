@@ -1,83 +1,28 @@
+//
+//  AnimatableData.swift
+//
+//
+//  Created by Florian Zand on 12.10.23.
+//
 
-
+#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 import SwiftUI
-import Accelerate
 
-/*
-@available(macOS 14.0, *)
-extension SwiftUI.Spring {
-    /*
-    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
-        var val = value.animatableData
-        var vel = velocity.animatableData
-        let tar = target.animatableData
-                
-        self.update(value: &val, velocity: &vel, target: tar, deltaTime: deltaTime)
-
-        value = V(val)
-        velocity = V(vel)
-    }
-     */
-    
-    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableSIMD {
-        var val = value.simdRepresentation()
-        var vel = velocity.simdRepresentation()
-        let tar = target.simdRepresentation()
-                
-        self.update(value: &val.array, velocity: &vel.array, target: tar.array, deltaTime: deltaTime)
-        
-        value = V(val)
-        velocity = V(vel)
-    }
-}
-
-internal extension SIMD {
-    var array: [Scalar] {
-        get { (0..<scalarCount).compactMap({self[$0]}) }
-        set { newValue.enumerated().forEach({ self[$0.offset] = $0.element }) }
-    }
-}
-
-func test() {
-    var value = NSColor.red.animatableData
-    var target = NSColor.red.animatableData
-    var velocity = NSColor.red.animatableData
-    let dt: CGFloat = 3
-    let spring = Spring.bouncy
-    
-    let displacement = value - target
-    let springForce = displacement * -spring.stiffness
-    let dampingForce = velocity.scaled(by: spring.damping)
-    let force = springForce - dampingForce
-    let acceleration = force * (1.0 / spring.mass)
-    
-    let newVelocity = velocity + (acceleration * dt)
-    let newValue = value + (newVelocity * dt)
-    /*
-     let value = value.simdRepresentation()
-     let target = target.simdRepresentation()
-     let velocity = velocity.simdRepresentation()
-     
-     let displacement = value - target
-     let springForce = (-spring.stiffness * displacement)
-     let dampingForce = (spring.damping * velocity)
-     let force = springForce - dampingForce
-     let acceleration = force / spring.mass
-     
-     let newVelocity = (velocity + (acceleration * dt))
-     let newValue = (value + (newVelocity * dt))
-     
-     return (value: Self(newValue), velocity: Self(newVelocity))
-     */
-}
-*/
-
+/// A protocol that describes an animatable type.
 public protocol AnimatableData: Equatable {
+    /// The type defining the data to animate.
     associatedtype AnimatableData: VectorArithmetic
+    /// The data to animate.
     var animatableData: AnimatableData { get }
-    static var zero: Self { get }
+    /// Initializes with the specified data.
     init(_ animatableData: AnimatableData)
+    
+    static var zero: Self { get }
 }
 
 extension AnimatableData where Self.AnimatableData == Self {
@@ -157,16 +102,20 @@ extension CATransform3D: AnimatableData {
     }
 }
 
-extension AnimatableData where Self: NSColor {
+extension AnimatableData where Self: NSUIColor {
     public init(_ animatableData: AnimatableVector) {
         self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
     }
 }
 
-extension NSColor: AnimatableData {
+extension NSUIColor: AnimatableData {
     public var animatableData: AnimatableVector {
         let rgba = self.rgbaComponents()
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
+    }
+    
+    public static var zero: Self {
+        Self(red: 0, green: 0, blue: 0, alpha: 0)
     }
 }
 
@@ -181,6 +130,10 @@ extension CGColor: AnimatableData {
         let rgba = self.rgbaComponents() ?? (0, 0, 0, 1)
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
     }
+    
+    public static var zero: Self {
+        Self(red: 0, green: 0, blue: 0, alpha: 0)
+    }
 }
 
 extension Array: AnimatableData where Self.Element == Double { }
@@ -194,8 +147,11 @@ extension CGAffineTransform: AnimatableData {
     public var animatableData: AnimatableVector {
         return [a, b, c, d, tx, ty, 0, 0]
     }
+    
+    public static var zero: CGAffineTransform {
+        CGAffineTransform()
+    }
 }
-
 
 extension CGQuaternion: AnimatableData {
     public init(_ animatableData: AnimatableVector) {
@@ -205,5 +161,23 @@ extension CGQuaternion: AnimatableData {
     public var animatableData: AnimatableVector {
         [self.storage.vector[0], self.storage.vector[1], self.storage.vector[2], self.storage.vector[3]]
     }
+    
+    public static var zero: CGQuaternion {
+        CGQuaternion(.zero)
+    }
 }
 
+@available(macOS 14.0, iOS 17.0, tvOS 17.0, *)
+extension SwiftUI.Spring {
+    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
+        var val = value.animatableData
+        var vel = velocity.animatableData
+        let tar = target.animatableData
+                
+        self.update(value: &val, velocity: &vel, target: tar, deltaTime: deltaTime)
+        
+        value = V(val)
+        velocity = V(vel)
+    }
+}
+#endif

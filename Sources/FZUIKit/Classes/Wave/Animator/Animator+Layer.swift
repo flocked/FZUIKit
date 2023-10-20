@@ -56,8 +56,8 @@ extension Animator where Object: CALayer {
         
     /// The opacity value of the layer.
     public var opacity: CGFloat {
-        get { CGFloat(value(for: \._opacity)) }
-        set { setValue(newValue, for: \._opacity) }
+        get { CGFloat(value(for: \.opacity)) }
+        set { setValue(Float(newValue), for: \.opacity) }
     }
     
     /// The three-dimensional transform of the layer.
@@ -115,8 +115,8 @@ extension Animator where Object: CALayer {
     }
     
     internal var shadowOpacity: CGFloat {
-        get { CGFloat(value(for: \._shadowOpacity)) }
-        set { setValue(newValue, for: \._shadowOpacity) }
+        get { CGFloat(value(for: \.shadowOpacity)) }
+        set { setValue(Float(newValue), for: \.shadowOpacity) }
     }
     
     internal var shadowColor: NSUIColor? {
@@ -190,17 +190,7 @@ fileprivate extension CALayer {
         get { self.innerShadowLayer?.configuration ?? .none() }
         set { self.configurate(using: newValue) }
     }
-    
-    var _shadowOpacity: CGFloat {
-        get { CGFloat(self.shadowOpacity) }
-        set { self.shadowOpacity = Float(newValue) }
-    }
-    
-    var _opacity: CGFloat {
-        get { CGFloat(self.opacity) }
-        set { self.opacity = Float(newValue) }
-    }
-    
+        
    @objc var innerShadowOpacity: CGFloat {
         get { innerShadow.opacity }
         set { innerShadow.opacity = newValue }

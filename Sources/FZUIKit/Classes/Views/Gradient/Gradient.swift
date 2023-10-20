@@ -96,17 +96,29 @@ public struct Gradient: Hashable {
 
 extension Gradient {
     /// The gradient type.
-    public enum GradientType: String, Hashable {
-        case linear = "axial"
-        case conic = "conic"
-        case radial = "radial"
+    public enum GradientType: Int, Hashable {
+        case linear
+        case conic
+        case radial
+        
+        internal var stringValue: String {
+            switch self {
+            case .conic: return "conic"
+            case .radial: return "radial"
+            case .linear: return "axial"
+            }
+        }
         
         internal var gradientLayerType: CAGradientLayerType {
-            CAGradientLayerType(rawValue: self.rawValue)
+            CAGradientLayerType(rawValue: self.stringValue)
         }
         
         internal init(_ gradientLayerType: CAGradientLayerType) {
-            self.init(rawValue: gradientLayerType.rawValue)!
+            switch gradientLayerType {
+            case .conic: self = .conic
+            case .radial: self = .radial
+            default: self = .linear
+            }
         }
     }
     
