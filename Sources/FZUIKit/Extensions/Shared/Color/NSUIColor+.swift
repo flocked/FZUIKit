@@ -195,12 +195,4 @@ public extension NSUIColor {
         let backgroundColorImage = backgroundGradientLayer.renderedImage
         self.init(patternImage: backgroundColorImage)
     }
-
-    #if os(macOS)
-    /// A `CGColor` representaton of a pattern color, or `nil` if the color isn't a pattern color.
-    var patternImageCGColor: CGColor? {
-        guard isPatternColor else { return nil }
-        return CGColor.fromImage(patternImage)
-    }
-    #endif
 }
