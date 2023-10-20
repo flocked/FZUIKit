@@ -51,7 +51,7 @@ public extension NSUIColor {
       let c1 = hslaComponents()
       let c2 = color.hslaComponents()
 
-        var h     = c1.hue + (weight * mixedHue(source: c1.hue, target: c2.hue))
+        var h     = c1.hue + (weight * Self.mixedHue(source: c1.hue, target: c2.hue))
         if h > 360 {
             h = h - 360
         }
@@ -67,7 +67,7 @@ public extension NSUIColor {
       let c1 = hsbaComponents()
       let c2 = color.hsbaComponents()
 
-      let h     = c1.hue + (weight * mixedHue(source: c1.hue, target: c2.hue))
+        let h     = c1.hue + (weight * Self.mixedHue(source: c1.hue, target: c2.hue))
       let s     = c1.saturation + (weight * (c2.saturation - c1.saturation))
       let b     = c1.brightness + (weight * (c2.brightness - c1.brightness))
       let alpha = alphaComponent + (weight * (color.alphaComponent - alphaComponent))
@@ -87,7 +87,7 @@ public extension NSUIColor {
       return NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
     }
 
-    internal func mixedHue(source: CGFloat, target: CGFloat) -> CGFloat {
+    internal static func mixedHue(source: CGFloat, target: CGFloat) -> CGFloat {
       if target > source && target - source > 180.0 {
         return target - source + 360.0
       }
