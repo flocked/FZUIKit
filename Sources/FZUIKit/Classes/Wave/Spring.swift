@@ -120,7 +120,7 @@ public class Spring: Equatable {
         - mass: Defines how the spring’s motion should be damped due to the forces of friction.
         - allowOverDamping: A value of true specifies that over-damping should be allowed when appropriate based on the other inputs, and a value of false specifies that such cases should instead be treated as critically damped.
      */
-    public convenience init (stiffness: CGFloat, damping: CGFloat, mass: CGFloat, allowOverDamping: Bool = false) {
+    public convenience init (stiffness: CGFloat, damping: CGFloat, mass: CGFloat = 1.0, allowOverDamping: Bool = false) {
         var dampingR = Self.dampingRatio(damping: damping, stiffness: stiffness, mass: mass)
         if allowOverDamping == false, dampingR > 1.0 {
             dampingR = 1.0
