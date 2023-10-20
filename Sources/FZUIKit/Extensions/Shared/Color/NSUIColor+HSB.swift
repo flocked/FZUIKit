@@ -27,7 +27,7 @@ extension NSUIColor {
     #if os(iOS) || os(tvOS) || os(watchOS)
       getHue(&h, saturation: &s, brightness: &b, alpha: nil)
 
-      return (h: h, s: s, b: b)
+      return (h, s, b, alphaComponent)
     #elseif os(OSX)
       if isEqual(NSUIColor.black) {
           return (0.0, 0.0, 0.0, 1.0)
@@ -47,21 +47,21 @@ extension NSUIColor {
      The hue component as CGFloat between 0.0 to 1.0.
      */
     public final var hueComponent: CGFloat {
-      return hsbaComponents().h
+      return hsbaComponents().hue
     }
 
     /**
      The saturation component as CGFloat between 0.0 to 1.0.
      */
     public final var saturationComponent: CGFloat {
-      return hsbaComponents().s
+      return hsbaComponents().saturation
     }
 
     /**
      The brightness component as CGFloat between 0.0 to 1.0.
      */
     public final var brightnessComponent: CGFloat {
-      return hsbaComponents().b
+      return hsbaComponents().brightness
     }
   #endif
 }

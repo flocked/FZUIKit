@@ -19,7 +19,7 @@ extension NSShadow {
         #if os(macOS)
         shadow.shadowColor = .shadowColor.withAlphaComponent(opacity)
         #else
-        shadow.shadowColor = .black.withAlphaComponent(opacity)
+        shadow.shadowColor = NSUIColor.black.withAlphaComponent(opacity)
         #endif
         shadow.shadowBlurRadius = radius
         shadow.shadowOffset = CGSize(offset.x, offset.y)

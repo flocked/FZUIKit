@@ -179,8 +179,8 @@ public extension CALayer {
         let nsimage = NSImage(cgImage: cgImage!, size: CGSize(width: self.frame.width, height: self.frame.height))
         return nsimage
         #else
-        UIGraphicsBeginImageContextWithOptions(layer.frame.size, layer.isOpaque, 0)
-        layer.render(in: UIGraphicsGetCurrentContext()!)
+        UIGraphicsBeginImageContextWithOptions(self.frame.size, self.isOpaque, 0)
+        self.render(in: UIGraphicsGetCurrentContext()!)
         let outputImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return outputImage!
