@@ -47,6 +47,12 @@ extension AnimatablePair: ExpressibleByArrayLiteral where First == Second {
     }
 }
 
+extension AnimatablePair: Comparable where First: Comparable, First == Second {
+    public static func < (lhs: AnimatablePair<First, Second>, rhs: AnimatablePair<First, Second>) -> Bool {
+        lhs.first < rhs.first && lhs.second < rhs.second
+    }
+}
+
 extension VectorArithmetic {
     public static func * (lhs: inout Self, rhs: Double)  {
         lhs.scale(by: rhs)
@@ -55,4 +61,13 @@ extension VectorArithmetic {
     public static func * (lhs: Self, rhs: Double) -> Self {
         return lhs.scaled(by: rhs)
     }
+    
+    public static func / (lhs: inout Self, rhs: Double)  {
+        lhs.scale(by: 1.0 - rhs)
+    }
+    
+    public static func / (lhs: Self, rhs: Double) -> Self {
+        return lhs.scaled(by: 1.0 - rhs)
+    }
 }
+

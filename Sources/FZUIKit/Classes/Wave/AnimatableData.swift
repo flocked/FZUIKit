@@ -12,9 +12,10 @@ import AppKit
 import UIKit
 #endif
 import SwiftUI
+import FZSwiftUtils
 
 /// A protocol that describes an animatable type.
-public protocol AnimatableData: Equatable {
+public protocol AnimatableData: Equatable, Comparable {
     /// The type defining the data to animate.
     associatedtype AnimatableData: VectorArithmetic
     /// The data to animate.
@@ -23,6 +24,12 @@ public protocol AnimatableData: Equatable {
     init(_ animatableData: AnimatableData)
     
     static var zero: Self { get }
+}
+
+extension AnimatableData where AnimatableData: Comparable {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        return lhs.animatableData < rhs.animatableData
+    }
 }
 
 extension AnimatableData where Self.AnimatableData == Self {
@@ -136,7 +143,7 @@ extension CGColor: AnimatableData {
     }
 }
 
-extension Array: AnimatableData where Self.Element == Double { }
+extension Array: AnimatableData, Comparable where Self.Element == Double { }
 
 extension CGAffineTransform: AnimatableData {
     @inlinable public init(_ animatableData: AnimatableVector) {

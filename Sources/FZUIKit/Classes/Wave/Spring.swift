@@ -246,6 +246,7 @@ public class Spring: Equatable {
 }
 
 public extension Spring {
+    /// Updates the current value and velocity of a spring.
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
         let displacement = value - target
         let springForce = displacement * -self.stiffness
@@ -257,6 +258,7 @@ public extension Spring {
         value = value + (velocity * deltaTime)
     }
     
+    /// Updates the current value and velocity of a spring.
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
         var valueData = value.animatableData
         var velocityData = velocity.animatableData
@@ -265,12 +267,6 @@ public extension Spring {
         velocity = V(velocityData)
         value = V(valueData)
     }
-    /*
-    internal func update(value: inout CGRect, velocity: inout CGRect, target: CGRect, deltaTime: TimeInterval) {
-        self.update(value: &value.origin, velocity: &velocity.origin, target: target.origin, deltaTime: deltaTime)
-        self.update(value: &value.size, velocity: &velocity.size, target: target.size, deltaTime: deltaTime)
-    }
-    */
 }
 
 

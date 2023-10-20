@@ -8,7 +8,7 @@
 import Foundation
 
 /*
-public class EaseAnimator<Value: SIMDRepresentable>: ValueAnimation {
+public class EaseAnimator<Value: AnimatableData> {
     func start(afterDelay delay: TimeInterval) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
@@ -57,41 +57,21 @@ public class EaseAnimator<Value: SIMDRepresentable>: ValueAnimation {
         }
     }
     
-    public var fromValue: Value {
-        get { Value(_fromValue) }
-        set { _fromValue = newValue.simdRepresentation() }
-    }
-    
-    internal var _fromValue: Value.SIMDType = .zero
+    public var fromValue: Value = .zero
     
     /**
      The _current_ value of the animation. This value will change as the animation executes.
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: Value {
-        get { Value(_value) }
-        set { _value = newValue.simdRepresentation() }
-    }
-    
-    internal var _value: Value.SIMDType = .zero
-
+    public var value: Value = .zero
 
     /**
      The current target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
-    public var target: Value {
-        get { Value(_target) }
-        set { _target = newValue.simdRepresentation() }
-    }
-    
-    internal var _target: Value.SIMDType = .zero {
-        didSet {
-            attemptToUpdateAccumulatedTimeToMatchValue()
-        }
-    }
+    public var target: Value = .zero
     
     func attemptToUpdateAccumulatedTimeToMatchValue() {
         if let accumulatedTime = easingFunction.solveAccumulatedTimeSIMD(_range, value: _value) {
@@ -121,7 +101,7 @@ public class EaseAnimator<Value: SIMDRepresentable>: ValueAnimation {
     var duration: TimeInterval
     var accumulatedTime: TimeInterval = .zero
     
-    var easingFunction: EasingFunction<Value.SIMDType> = .linear
+    var easingFunction: TimingFunction = .linear
 
     
     var relativePriority: Int = 0
@@ -134,13 +114,13 @@ public class EaseAnimator<Value: SIMDRepresentable>: ValueAnimation {
         state = .running
         
         accumulatedTime = dt - startTime
-        let fraction = min(max(0.0, accumulatedTime / duration), 1.0)
-
-        _value = easingFunction.solveInterpolatedValueSIMD(_range, fraction: Value.SIMDType.Scalar(fraction))
-        
+        let fraction = (accumulatedTime / duration).clamped(max: 1.0)
+        let solvedFraction = easingFunction.solve(at: fraction, duration: duration)
+        value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: solvedFraction))
+                
         self.valueChanged?(value)
         
-        if _value >= _target {
+        if value >= target {
             stop(immediately: true)
         }
 
@@ -162,7 +142,25 @@ public class EaseAnimator<Value: SIMDRepresentable>: ValueAnimation {
         duration = settings.mode.duration ?? 0.0
     }
     
-    public init(from: Value, target: Value, duration: TimeInterval, easingFunction: EasingFunction<Value.SIMDType>) {
+    internal func solveAccumulatedTimeSIMD(_ range: ClosedRange<Value>, value: Value) -> CFTimeInterval? {
+        let lowerBound = range.lowerBound.animatableData
+        let upperBound = range.upperBound.animatableData
+        
+
+        var value = value.animatableData - lowerBound
+        value / (range.upperBound.animatableData - range.lowerBound.animatableData)
+        
+        guard let usableIndex = value.indices.first(where: { i -> Bool in
+            let fractionComplete = value[i] / (range.upperBound[i] - range.lowerBound[i])
+            return !(fractionComplete.isApproximatelyEqual(to: 0.0) || fractionComplete.isApproximatelyEqual(to: 1.0))
+        }) else { return nil }
+
+        let fractionComplete = value[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+        let t = bezier.solve(y: fractionComplete)
+        return (t as! CFTimeInterval)
+    }
+    
+    public init(from: Value, target: Value, duration: TimeInterval, easingFunction: TimingFunction) {
         self.duration = duration
         self.fromValue = from
         self.value = from
@@ -170,4 +168,5 @@ public class EaseAnimator<Value: SIMDRepresentable>: ValueAnimation {
         self.easingFunction = easingFunction
     }
 }
+
 */
