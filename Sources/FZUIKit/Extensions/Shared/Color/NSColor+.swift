@@ -73,8 +73,7 @@ public extension NSColor {
                     NSAppearance.current = current
                 }
             } else {
-                let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
-                for supportedColorSpace in supportedColorSpaces {
+                for supportedColorSpace in Self.supportedColorSpaces {
                     if let color = resolvedColor(for: appearance, colorSpace: supportedColorSpace) {
                         return color
                     }
@@ -98,16 +97,15 @@ public extension NSColor {
 
     /// Creates a new color object with a supported color space.
     func withSupportedColorSpace() -> NSColor? {
-        let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
         let needsConverting: Bool
         if (self.isDynamic) {
             needsConverting = true
         } else {
-            needsConverting = (supportedColorSpaces.contains(self.colorSpace) == false)
+            needsConverting = (Self.supportedColorSpaces.contains(self.colorSpace) == false)
         }
         
         if (needsConverting) {
-            for supportedColorSpace in supportedColorSpaces {
+            for supportedColorSpace in Self.supportedColorSpaces {
                 if self.isDynamic {
                     let dynamics = self.dynamicColors
                     if let light = dynamics.light.usingColorSpace(supportedColorSpace), let dark = dynamics.dark.usingColorSpace(supportedColorSpace) {
@@ -126,6 +124,10 @@ public extension NSColor {
     var ciColor: CIColor? {
         CIColor(color: self)
     }
+    
+    /// Supported color spaces for displaying a color.
+    internal static let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
+
 
 }
 #endif
