@@ -120,7 +120,7 @@ public class Spring: Equatable {
         - mass: Defines how the spring’s motion should be damped due to the forces of friction.
         - allowOverDamping: A value of true specifies that over-damping should be allowed when appropriate based on the other inputs, and a value of false specifies that such cases should instead be treated as critically damped.
      */
-    convenience init (stiffness: CGFloat, damping: CGFloat, mass: CGFloat, allowOverDamping: Bool = false) {
+    public convenience init (stiffness: CGFloat, damping: CGFloat, mass: CGFloat, allowOverDamping: Bool = false) {
         var dampingR = Self.dampingRatio(damping: damping, stiffness: stiffness, mass: mass)
         if allowOverDamping == false, dampingR > 1.0 {
             dampingR = 1.0
@@ -156,7 +156,7 @@ public class Spring: Equatable {
 
     // MARK: - Default Springs
 
-    /// A reasonable, slightly underdamped spring to use for interactive animat  ions (like dragging an item around).
+    /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
     public static let interactive = Spring(dampingRatio: 0.8, response: 0.28)
 
     /// A non animated spring which updates values immediately.
@@ -165,7 +165,7 @@ public class Spring: Equatable {
     }
     
     /// A spring with a predefined duration and higher amount of bounce.
-    public static let bouncy = Spring(dampingRatio: 0.7, response: 0.5, mass: 1.0)
+    public static let bouncy = Spring.bouncy()
     
     /**
      A spring with a predefined duration and higher amount of bounce that can be tuned.
@@ -179,7 +179,7 @@ public class Spring: Equatable {
     }
     
     /// A smooth spring with a predefined duration and no bounce.
-    public static let smooth = Spring(dampingRatio: 1.0, response: 0.5, mass: 1.0)
+    public static let smooth = Spring.smooth()
     
     /**
      A smooth spring with a predefined duration and no bounce that can be tuned.
@@ -193,7 +193,7 @@ public class Spring: Equatable {
     }
     
     /// A spring with a predefined duration and small amount of bounce that feels more snappy.
-    public static let snappy = Spring(dampingRatio: 0.85, response: 0.5, mass: 1.0)
+    public static let snappy = Spring.snappy()
     
     /**
      A spring with a predefined duration and small amount of bounce that feels more snappy and can be tuned.
@@ -203,7 +203,7 @@ public class Spring: Equatable {
         - extraBounce: How much additional bounciness should be added to the base bounce of 0.15.
      */
     public static func snappy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
-        Spring(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
+        return Spring(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
     }
     
     // MARK: - Updating values
