@@ -243,7 +243,7 @@ public class Spring: Equatable {
 }
 
 public extension Spring {
-    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : SIMDRepresentable, V.SIMDType.Scalar == CGFloat.NativeType {
+    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableSIMD {
         if V.self == CGRect.self {
           var val = (value as! CGRect)
             var vel = (velocity as! CGRect)

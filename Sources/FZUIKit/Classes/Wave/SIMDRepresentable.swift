@@ -16,6 +16,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import SwiftUI
 
 
 /// A protocol that defines supported `SIMD` types that conform to `SIMDRepresentable` and `EquatableEnough`.
@@ -321,4 +322,25 @@ extension CGFloat: ScaledIntegralable { }
 extension CGSize: ScaledIntegralable { }
 extension CGPoint: ScaledIntegralable { }
 extension CGRect: ScaledIntegralable { }
+
+public protocol AnimatableSIMD: SIMDRepresentable where Self.SIMDType.Scalar == CGFloat.NativeType { }
+
+extension CGQuaternion: AnimatableSIMD { }
+extension CGColor: AnimatableSIMD { }
+extension NSUIColor: AnimatableSIMD { }
+extension CGFloat: AnimatableSIMD { }
+extension CGPoint: AnimatableSIMD { }
+extension CGSize: AnimatableSIMD { }
+extension CGRect: AnimatableSIMD { }
+extension Double: AnimatableSIMD { }
+extension CATransform3D: AnimatableSIMD { }
+extension CGAffineTransform: AnimatableSIMD { }
+extension SIMD2<CGFloat.NativeType>: AnimatableSIMD { }
+extension SIMD3<CGFloat.NativeType>: AnimatableSIMD { }
+extension SIMD4<CGFloat.NativeType>: AnimatableSIMD { }
+extension SIMD8<CGFloat.NativeType>: AnimatableSIMD { }
+extension SIMD16<CGFloat.NativeType>: AnimatableSIMD { }
+extension SIMD32<CGFloat.NativeType>: AnimatableSIMD { }
+extension SIMD64<CGFloat.NativeType>: AnimatableSIMD { }
+
 #endif

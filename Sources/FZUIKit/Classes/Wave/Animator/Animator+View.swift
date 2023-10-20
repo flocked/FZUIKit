@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-extension NSUIView: Animatable { }
+extension NSUIView: AnimatableObject { }
 
 extension Animator where Object: NSUIView {
     /// The bounds of the view.

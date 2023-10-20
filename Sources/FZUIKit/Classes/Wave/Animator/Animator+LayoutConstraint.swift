@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-extension NSLayoutConstraint: Animatable { }
+extension NSLayoutConstraint: AnimatableObject { }
 
 extension Animator where Object: NSLayoutConstraint {
     /// The constant of the layout constraint.

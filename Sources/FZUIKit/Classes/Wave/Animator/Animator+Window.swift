@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension NSWindow: Animatable { }
+extension NSWindow: AnimatableObject { }
 
 extension Animator where Object: NSWindow {
     /// The background color of the window.

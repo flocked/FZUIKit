@@ -8,12 +8,12 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
-public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
+public class SpringAnimator<T: AnimatableSIMD>: AnimationProviding   {
     public enum Event {
         /**
          Indicates the animation has fully completed.
          */
-        case finished(at: T.ValueType)
+        case finished(at: T)
 
         /**
          Indicates that the animation's `target` value was changed in-flight (i.e. while the animation was running).
@@ -21,7 +21,7 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
          - parameter from: The previous `target` value of the animation.
          - parameter to: The new `target` value of the animation.
          */
-        case retargeted(from: T.ValueType, to: T.ValueType)
+        case retargeted(from: T, to: T)
     }
 
     /**
@@ -54,14 +54,14 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: T.ValueType?
+    public var value: T?
 
     /**
      The current target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
-    public var target: T.ValueType? {
+    public var target: T? {
         didSet {
             guard let oldValue = oldValue, let newValue = target else {
                 return
@@ -85,12 +85,12 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
 
      If animating a view's `center` or `frame` with a gesture, you may want to set `velocity` to the gesture's final velocity on touch-up.
      */
-    public var velocity: T.VelocityType
+    public var velocity: T
 
     /**
      The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
      */
-    public var valueChanged: ((_ currentValue: T.ValueType) -> Void)?
+    public var valueChanged: ((_ currentValue: T) -> Void)?
 
     /**
      The completion block to call when the animation either finishes, or "re-targets" to a new target value.
@@ -127,10 +127,10 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
      - parameter value: The initial, starting value of the animation.
      - parameter target: The target value of the animation.
      */
-    public init(spring: Spring, value: T.ValueType? = nil, target: T.ValueType? = nil) {
+    public init(spring: Spring, value: T? = nil, target: T? = nil) {
         self.value = value
         self.target = target
-        velocity = T.VelocityType.zero
+        velocity = T.zero
 
         self.spring = spring
     }
@@ -203,7 +203,7 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
     }
     
     func updateAnimation(dt: TimeInterval) {
-        guard let value = value, let target = target else {
+        guard var value = value, let target = target else {
             // Can't start an animation without a value and target
             state = .inactive
             return
@@ -215,20 +215,16 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
             fatalError("Found a nil `runningTime` even though the animation's state is \(state)")
         }
 
-        let newValue: T.ValueType
-        let newVelocity: T.VelocityType
 
         let isAnimated = spring.response > .zero && mode != .nonAnimated
 
         if isAnimated {
-            (newValue, newVelocity) = T.updateValue(spring: spring, value: value, target: target, velocity: velocity, dt: dt)
+            spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
+            self.value = value
         } else {
-            newValue = target
-            newVelocity = T.VelocityType.zero
+            self.value = target
+            velocity = T.zero
         }
-
-        self.value = newValue
-        velocity = newVelocity
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
 
@@ -237,8 +233,9 @@ public class SpringAnimator<T: SpringInterpolatable>: AnimationProviding {
         }
 
         if let value = self.value {
-            let callbackValue = integralizeValues ? value.scaledIntegral : value
-            valueChanged?(callbackValue)
+          //  let callbackValue = integralizeValues ? value.scaledIntegral : value
+          //  valueChanged?(callbackValue)
+            valueChanged?(value)
         }
 
         if animationFinished {

@@ -15,6 +15,16 @@ import UIKit
 import SwiftUI
 
 public extension CGColor {
+    /// Returns the RGBA (red, green, blue, alpha) components.
+    func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
+        guard let components = self.components, components.count == 2 || components.count == 4 else { return nil }
+        if components.count == 2 {
+            return (components[0], components[0], components[0], components[1])
+        } else  {
+            return (components[0], components[1], components[2], components[3])
+        }
+    }
+    
     /**
      Creates a color object with the specified alpha component.
 

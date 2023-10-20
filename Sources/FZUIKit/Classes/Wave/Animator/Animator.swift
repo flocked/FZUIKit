@@ -12,9 +12,9 @@ import FZSwiftUtils
 import QuartzCore
 
 /// An object that has animatable properties.
-public protocol Animatable: AnyObject { }
+public protocol AnimatableObject: AnyObject { }
 
-extension Animatable  {
+extension AnimatableObject  {
     /**
      Use the `animator` property to set any animatable properties in an ``Wave.animateWith(...)`` animation block.
 
@@ -38,7 +38,7 @@ extension Animatable  {
 }
 
 /// Provides animatable properties of an object conforming to
-public class Animator<Object: Animatable> {
+public class Animator<Object: AnimatableObject> {
     internal var object: Object
     
     internal init(_ object: Object) {
@@ -60,15 +60,15 @@ internal extension Animator {
         return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
     
-    func value<Value: SpringInterpolatable>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value where Value.ValueType == Value, Value.VelocityType == Value {
+    func value<Value: AnimatableSIMD>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
         return animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    func value<Value: SpringInterpolatable>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value? where Value.ValueType == Value, Value.VelocityType == Value {
+    func value<Value: AnimatableSIMD>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
         return animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    func setValue<Value: SpringInterpolatable>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) where Value.ValueType == Value, Value.VelocityType == Value {
+    func setValue<Value: AnimatableSIMD>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil)  {
         guard value(for: keyPath, key: key) != newValue else {
             return
         }
@@ -121,7 +121,7 @@ internal extension Animator {
         animation.start(afterDelay: settings.delay)
     }
     
-    func setValue<Value: SpringInterpolatable>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) where Value.ValueType == Value, Value.VelocityType == Value {
+    func setValue<Value: AnimatableSIMD>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil)  {
         guard value(for: keyPath, key: key) != newValue else {
             return
         }
@@ -133,8 +133,8 @@ internal extension Animator {
             return
         }
         
-        var initialValue = object[keyPath: keyPath] ?? Value.ValueType.zero
-        var targetValue = newValue ?? Value.ValueType.zero
+        var initialValue = object[keyPath: keyPath] ?? Value.zero
+        var targetValue = newValue ?? Value.zero
         
         if Value.self == CGColor.self {
             let iniVal = (object[keyPath: keyPath] as! Optional<CGColor>)?.nsUIColor

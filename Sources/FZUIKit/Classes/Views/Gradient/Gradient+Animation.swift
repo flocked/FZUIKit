@@ -85,6 +85,7 @@ extension Gradient: SpringInterpolatable, VelocityProviding {
     }
 }
 
+/*
 extension Animator where Object: GradientView {
     /// The gradient of the view.
     public var gradient: Gradient {
@@ -92,6 +93,7 @@ extension Animator where Object: GradientView {
         set { setValue(newValue, for: \.gradient, key: "gradient") }
     }
 }
+ */
 
 
 #endif
