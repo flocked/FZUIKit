@@ -41,7 +41,7 @@ public class Spring: Equatable {
     /// The estimated duration required for the spring system to be considered at rest.
     public let settlingDuration: TimeInterval
 
-    public static var DefaultSettlingPercentage = 0.0004
+    public static var DefaultSettlingPercentage = 0.001
     
 
     // MARK: - Spring Initialization
