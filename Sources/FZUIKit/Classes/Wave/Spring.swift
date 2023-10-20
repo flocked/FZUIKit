@@ -15,6 +15,17 @@ import UIKit
 #endif
 import SwiftUI
 
+public protocol AnimationSpring {
+    var settlingDuration: TimeInterval { get }
+    var response: Double { get }
+    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData
+}
+
+extension Spring: AnimationSpring { }
+@available(macOS 14.0, *)
+extension SwiftUI.Spring: AnimationSpring { }
+
+
 /**
  `Spring` determines the timing curve and settling duration of an animation.
 
@@ -23,35 +34,22 @@ import SwiftUI
 public class Spring: Equatable {
     // MARK: - Spring Properties
 
-    /**
-     The amount of oscillation the spring will exhibit (i.e. "springiness").
-     */
+    /// The amount of oscillation the spring will exhibit (i.e. "springiness").
     public let dampingRatio: CGFloat
 
-    /**
-     Represents the frequency response of the spring. This value affects how
-     quickly the spring animation reaches its target value.
-     */
+    /// Represents the frequency response of the spring. This value affects how quickly the spring animation reaches its target value.
     public let response: Double
 
-    /**
-     The spring constant `k`. Used as an alternative to `response`.
-     */
+    /// The spring constant `k`. Used as an alternative to `response`.
     public let stiffness: CGFloat
 
-    /**
-     The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
-     */
+    /// The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
     public let mass: CGFloat
 
-    /**
-     The viscous damping coefficient `c`. This value is derived.
-     */
+    /// The viscous damping coefficient `c`. This value is derived.
     public let damping: CGFloat
 
-    /**
-     The time the spring will take to settle or "complete". This value is derived.
-     */
+    /// The estimated duration required for the spring system to be considered at rest.
     public let settlingDuration: TimeInterval
 
     private static let DefaultSettlingPercentage = 0.0001
@@ -61,15 +59,10 @@ public class Spring: Equatable {
     /**
      Creates a spring with the given damping ratio and frequency response.
 
-     - parameter dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness").
-     A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation.
-     Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
-
-     - parameter stiffness: Represents the spring constant, `k`. This value affects how
-     quickly the spring animation reaches its target value.  Using `stiffness` values is an alternative to
-     configuring springs with a `response` value.
-
-     - parameter mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
+     - Parameters:
+        - dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness"). A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation. Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
+        - stiffness: Represents the spring constant, `k`. This value affects how quickly the spring animation reaches its target value.  Using `stiffness` values is an alternative to configuring springs with a `response` value.
+        - mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
      */
     public init(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat = 1.0) {
         precondition(stiffness > 0)
@@ -87,16 +80,10 @@ public class Spring: Equatable {
     /**
      Creates a spring with the given damping ratio and frequency response.
 
-     - parameter dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness").
-     A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation.
-     Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
-
-     - parameter response: Represents the frequency response of the spring. This value affects how
-     quickly the spring animation reaches its target value. The frequency response is the duration of one period
-     in the spring's undamped system, measured in seconds.
-     Values closer to `0` create a very fast animation, while values closer to `1.0` create a relatively slower animation.
-
-     - parameter mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
+     - parameters:
+        - dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness"). A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation. Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
+        - response: Represents the frequency response of the spring. This value affects how quickly the spring animation reaches its target value. The frequency response is the duration of one period in the spring's undamped system, measured in seconds. Values closer to `0` create a very fast animation, while values closer to `1.0` create a relatively slower animation.
+        - mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
      */
     public init(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat = 1.0) {
         precondition(dampingRatio >= 0)
@@ -156,7 +143,7 @@ public class Spring: Equatable {
     /// A reasonable, slightly underdamped spring to use for interactive animat  ions (like dragging an item around).
     public static let interactive = Spring(dampingRatio: 0.8, response: 0.28)
 
-    /// A placeholder spring to use when using the `nonAnimated` mode. See `AnimationMode` for more info.
+    /// A non animated spring which updates values immediately.
     public static var nonAnimated: Self {
         Spring(dampingRatio: 1.0, response: 0.0) as! Self
     }
@@ -202,8 +189,33 @@ public class Spring: Equatable {
     public static func snappy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
         Spring(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
     }
+    
+    // MARK: - Updating values
 
-    // MARK: - Equatable
+    /// Updates the current value and velocity of a spring.
+    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
+        let displacement = value - target
+        let springForce = displacement * -self.stiffness
+        let dampingForce = velocity.scaled(by: self.damping)
+        let force = springForce - dampingForce
+        let acceleration = force * (1.0 / self.mass)
+        
+        velocity = velocity + (acceleration * deltaTime)
+        value = value + (velocity * deltaTime)
+    }
+    
+    /// Updates the current value and velocity of a spring.
+    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
+        var valueData = value.animatableData
+        var velocityData = velocity.animatableData
+        
+        self.update(value: &valueData, velocity: &velocityData, target: target.animatableData, deltaTime: deltaTime)
+        velocity = V(velocityData)
+        value = V(valueData)
+    }
+    
+
+    // MARK: - Spring calculation
 
     public static func == (lhs: Spring, rhs: Spring) -> Bool {
         return lhs.dampingRatio == rhs.dampingRatio && lhs.response == rhs.response && lhs.mass == rhs.mass
@@ -242,30 +254,6 @@ public class Spring: Equatable {
     static func undampedNaturalFrequency(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
         // ωn
         return sqrt(stiffness / mass)
-    }
-}
-
-public extension Spring {
-    /// Updates the current value and velocity of a spring.
-    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
-        let displacement = value - target
-        let springForce = displacement * -self.stiffness
-        let dampingForce = velocity.scaled(by: self.damping)
-        let force = springForce - dampingForce
-        let acceleration = force * (1.0 / self.mass)
-        
-        velocity = velocity + (acceleration * deltaTime)
-        value = value + (velocity * deltaTime)
-    }
-    
-    /// Updates the current value and velocity of a spring.
-    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
-        var valueData = value.animatableData
-        var velocityData = velocity.animatableData
-        
-        self.update(value: &valueData, velocity: &velocityData, target: target.animatableData, deltaTime: deltaTime)
-        velocity = V(velocityData)
-        value = V(valueData)
     }
 }
 

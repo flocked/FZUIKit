@@ -47,7 +47,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     /**
      The spring model that determines the animation's motion.
      */
-    public var spring: Spring
+    public var spring: AnimationSpring
 
     /**
      The _current_ value of the animation. This value will change as the animation executes.
@@ -127,7 +127,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      - parameter value: The initial, starting value of the animation.
      - parameter target: The target value of the animation.
      */
-    public init(spring: Spring, value: T? = nil, target: T? = nil) {
+    public init(spring: AnimationSpring, value: T? = nil, target: T? = nil) {
         self.value = value
         self.target = target
         velocity = T.zero

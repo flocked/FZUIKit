@@ -113,7 +113,7 @@ internal class AnimationController {
 extension AnimationController {
     struct AnimationParameters {
         let groupUUID: UUID
-        let spring: Spring
+        let spring: AnimationSpring
       //  let mode: Wave.AnimationMode
         let delay: CGFloat
         let gestureVelocity: CGPoint?
