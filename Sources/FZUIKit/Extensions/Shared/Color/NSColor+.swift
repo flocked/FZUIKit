@@ -50,25 +50,31 @@ public extension NSColor {
         if #available(macOS 11.0, *) {
             let appearance = appearance ?? .currentDrawing()
             appearance.performAsCurrentDrawingAppearance {
+                Swift.print("111")
                 if self.isDynamic {
+                    Swift.print("isDynamic")
                     let dynamics = self.dynamicColors
                     if let light = dynamics.light.usingColorSpace(.sRGB), let dark = dynamics.dark.usingColorSpace(.sRGB) {
                         color = NSColor(name: self.colorNameComponent, light: light, dark: dark)
                     }
                 } else {
+                    Swift.print("isNotDynamic")
                     color = self.usingColorSpace(.sRGB) ?? self
                 }
             }
         } else {
+            Swift.print("222")
             let appearance = appearance ?? .current
             let current = NSAppearance.current
             NSAppearance.current = appearance
             if self.isDynamic {
+                Swift.print("isDynamic")
                 let dynamics = self.dynamicColors
                 if let light = dynamics.light.usingColorSpace(colorSpace), let dark = dynamics.dark.usingColorSpace(colorSpace) {
                     color = NSColor(name: self.colorNameComponent, light: light, dark: dark)
                 }
             } else {
+                Swift.print("isNotDynamic")
                 color = usingColorSpace(.sRGB) ?? self
             }
             NSAppearance.current = current
