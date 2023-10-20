@@ -46,11 +46,14 @@ public extension NSColor {
      */
     func resolvedColor(for appearance: NSAppearance? = nil) -> NSColor {
       //  resolvedColor(for: appearance, colorSpace: nil) ?? self
+        Swift.print(self, String(describing: self))
         var color = self
         if #available(macOS 11.0, *) {
             let appearance = appearance ?? .currentDrawing()
             appearance.performAsCurrentDrawingAppearance {
                 Swift.print("111")
+                color = self.usingColorSpace(.sRGB) ?? self
+                /*
                 if self.isDynamic {
                     Swift.print("isDynamic")
                     let dynamics = self.dynamicColors
@@ -61,6 +64,7 @@ public extension NSColor {
                     Swift.print("isNotDynamic")
                     color = self.usingColorSpace(.sRGB) ?? self
                 }
+                 */
             }
         } else {
             Swift.print("222")
