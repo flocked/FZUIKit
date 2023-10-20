@@ -28,9 +28,7 @@ extension NSUIColor {
    */
   public convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
     let color      = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
-      
     let components = color.rgbaComponents()
-      Swift.print("hsl rgb", components)
 
     self.init(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
   }
@@ -50,7 +48,6 @@ extension NSUIColor {
     return (hsl.h * 360.0, hsl.s, hsl.l, alphaComponent)
   }
 }
-
 
 /// Hue-saturation-lightness structure to make the color manipulation easier.
 internal struct HSL {
@@ -78,7 +75,6 @@ internal struct HSL {
       s = saturation.clamped(max: 1.0)
       l = lightness.clamped(max: 1.0)
       a = alpha.clamped(max: 1.0)
-      
   }
 
   /**
@@ -130,7 +126,7 @@ internal struct HSL {
   */
   func toColor() -> NSUIColor {
     let  (r, g, b, a) = rgbaComponents()
-      
+
     return NSUIColor(red: r, green: g, blue: b, alpha: a)
   }
 
@@ -216,7 +212,12 @@ internal struct HSL {
   }
 }
 
+/**
+ Returns the absolute value of the modulo operation.
 
+ - Parameter x: The value to compute.
+ - Parameter m: The modulo.
+ */
 fileprivate func moda(_ x: CGFloat, m: CGFloat) -> CGFloat {
   return (x.truncatingRemainder(dividingBy: m) + m).truncatingRemainder(dividingBy: m)
 }

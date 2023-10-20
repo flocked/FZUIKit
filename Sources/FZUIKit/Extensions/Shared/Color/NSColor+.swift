@@ -97,27 +97,19 @@ public extension NSColor {
 
     /// Creates a new color object with a supported color space.
     func withSupportedColorSpace() -> NSColor? {
-        let needsConverting: Bool
-        if (self.isDynamic) {
-            needsConverting = true
-        } else {
-            needsConverting = (Self.supportedColorSpaces.contains(self.colorSpace) == false)
-        }
-        
-        if (needsConverting) {
+        if type == .componentBased || type == .catalog {
+            let dynamics = self.dynamicColors
             for supportedColorSpace in Self.supportedColorSpaces {
-                if self.isDynamic {
-                    let dynamics = self.dynamicColors
-                    if let light = dynamics.light.usingColorSpace(supportedColorSpace), let dark = dynamics.dark.usingColorSpace(supportedColorSpace) {
+                if dynamics.light != dynamics.dark,
+                    let light = dynamics.light.usingColorSpace(supportedColorSpace),
+                    let dark = dynamics.dark.usingColorSpace(supportedColorSpace) {
                         return NSColor(name: self.colorNameComponent, light: light, dark: dark)
-                    }
                 } else if let supportedColor = usingColorSpace(supportedColorSpace) {
                     return supportedColor
                 }
             }
-            return nil
         }
-        return self
+        return nil
     }
     
     /// A `CIColor` representation of the color, or `nil` if the color cannot be accurately represented as `CIColor`.
@@ -125,9 +117,15 @@ public extension NSColor {
         CIColor(color: self)
     }
     
+    /// A Boolean value that indicates whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
+    var hasColorSpace: Bool {
+        if type == .pattern {
+            return false
+        }
+        return String(describing: self).contains("customDynamic") == false
+    }
+    
     /// Supported color spaces for displaying a color.
     internal static let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
-
-
 }
 #endif

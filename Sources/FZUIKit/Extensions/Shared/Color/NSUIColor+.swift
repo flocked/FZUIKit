@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 public extension NSUIColor {
-    /// Returns the RGBA components of the color.
+    /// Returns the RGBA (red, green, blue, alpha) components.
     final func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
       var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
 
@@ -22,8 +22,8 @@ public extension NSUIColor {
         getRed(&r, green: &g, blue: &b, alpha: &a)
 
         return (r, g, b, a)
-      #elseif os(macOS)
-        guard let rgbaColor = self.withSupportedColorSpace() else {
+      #elseif os(OSX)
+        guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
           fatalError("Could not convert color to RGBA.")
         }
 

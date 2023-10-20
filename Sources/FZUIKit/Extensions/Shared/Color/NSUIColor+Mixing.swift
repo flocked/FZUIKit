@@ -27,7 +27,7 @@ public extension NSUIColor {
      */
     func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: ColorBlendMode = .rgb) -> NSUIColor {
         let fraction = fraction.clamped(max: 1.0)
-
+        
         switch mode {
         case .hsl:
           return mixedHSL(withColor: color, weight: fraction)
