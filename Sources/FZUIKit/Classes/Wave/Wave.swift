@@ -43,7 +43,7 @@ public enum Wave {
      - parameter completion: A block to be executed when the specified animations have either finished _or_ retargeted to a new value.
      */
     public static func animate(
-        withSpring spring: AnimationSpring,
+        withSpring spring: Spring,
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
         animations: () -> Void,
@@ -64,7 +64,7 @@ public enum Wave {
     
     /// Performs the changes non animated.
     public static func nonAnimate(changes: () -> Void) {
-        self.animate(withSpring: Spring.nonAnimated, animations: changes)
+        self.animate(withSpring: .nonAnimated, animations: changes)
     }
 }
 

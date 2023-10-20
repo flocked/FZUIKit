@@ -15,17 +15,6 @@ import UIKit
 #endif
 import SwiftUI
 
-public protocol AnimationSpring {
-    var settlingDuration: TimeInterval { get }
-    var response: Double { get }
-    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData
-}
-
-extension Spring: AnimationSpring { }
-@available(macOS 14.0, *)
-extension SwiftUI.Spring: AnimationSpring { }
-
-
 /**
  `Spring` determines the timing curve and settling duration of an animation.
 

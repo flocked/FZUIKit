@@ -70,13 +70,13 @@ internal extension Animator {
     
     func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.animate(withSpring: Spring.nonAnimated) {
+            Wave.animate(withSpring: .nonAnimated) {
                 self.setValue(newValue, for: keyPath, key: key)
             }
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.spring.response == 0.0 && animation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.spring == .nonAnimated && animation(for: keyPath, key: key) != nil) else {
             return
         }
         
@@ -124,13 +124,13 @@ internal extension Animator {
     
     func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.animate(withSpring: Spring.nonAnimated) {
+            Wave.animate(withSpring: .nonAnimated) {
                 self.setValue(newValue, for: keyPath, key: key)
             }
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.spring.response == 0.0 && animation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.spring == .nonAnimated && animation(for: keyPath, key: key) != nil) else {
             return
         }
         
