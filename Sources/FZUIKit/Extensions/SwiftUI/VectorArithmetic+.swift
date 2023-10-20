@@ -10,7 +10,7 @@ import Accelerate
 import Foundation
 
 public typealias AnimatableVector = Array<Double>
-
+/*
 extension Array: AdditiveArithmetic, VectorArithmetic where Self.Element == Double {
     public static var zero: Self = [0.0]
     
@@ -40,6 +40,60 @@ extension Array: AdditiveArithmetic, VectorArithmetic where Self.Element == Doub
         vDSP.sum(vDSP.multiply(self, self))
     }
 }
+*/
+
+extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArithmetic  {
+    public static func -= (lhs: inout Self, rhs: Self) {
+        let range = (lhs.startIndex..<lhs.endIndex)
+            .clamped(to: rhs.startIndex..<rhs.endIndex)
+
+        for index in range {
+            lhs[index] -= rhs[index]
+        }
+    }
+
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        var lhs = lhs
+        lhs -= rhs
+        return lhs
+    }
+
+    public static func += (lhs: inout Self, rhs: Self) {
+        let range = (lhs.startIndex..<lhs.endIndex)
+            .clamped(to: rhs.startIndex..<rhs.endIndex)
+        for index in range {
+            lhs[index] += rhs[index]
+        }
+    }
+
+    public static func + (lhs: Self, rhs: Self) -> Self {
+        var lhs = lhs
+        lhs += rhs
+        return lhs
+    }
+    
+    mutating public func scale(by rhs: Double) where Self == Array<Double> {
+        Swift.print("Here")
+        for index in startIndex..<endIndex {
+            self[index].scale(by: rhs)
+        }
+    }
+
+    mutating public func scale(by rhs: Double) {
+        for index in startIndex..<endIndex {
+            self[index].scale(by: rhs)
+        }
+    }
+
+    public var magnitudeSquared: Double {
+        reduce(into: 0.0) { (result, new) in
+            result += new.magnitudeSquared
+        }
+    }
+
+    public static var zero: Self { .init() }
+}
+
 
 extension AnimatablePair: ExpressibleByArrayLiteral where First == Second {
     public init(arrayLiteral elements: First...) {
