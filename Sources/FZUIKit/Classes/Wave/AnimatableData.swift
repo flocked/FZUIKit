@@ -128,7 +128,8 @@ extension NSUIColor: AnimatableData {
 
 extension AnimatableData where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
-        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
+        self = NSUIColor(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3]).cgColor as! Self
+       // self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
     }
 }
 
