@@ -159,17 +159,26 @@ extension Gradient {
             CGPoint(x, y)
         }
         
-        public static var topLeading = Point(x: 0.0, y: 0.0)
-        public static var top = Point(x: 0.5, y: 0.0)
-        public static var topTrailing = Point(x: 1.0, y: 0.0)
-        
         public static var leading = Point(x: 0.0, y: 0.5)
         public static var center = Point(x: 0.5, y: 0.5)
         public static var trailing = Point(x: 1.0, y: 0.5)
-
+        #if os(macOS)
+        public static var bottomLeading = Point(x: 0.0, y: 0.0)
+        public static var bottom = Point(x: 0.5, y: 0.0)
+        public static var bottomTrailing = Point(x: 1.0, y: 0.0)
+        
+        public static var topLeading = Point(x: 0.0, y: 1.0)
+        public static var top = Point(x: 0.5, y: 1.0)
+        public static var topTrailing = Point(x: 1.0, y: 1.0)
+        #else
         public static var bottomLeading = Point(x: 0.0, y: 1.0)
         public static var bottom = Point(x: 0.5, y: 1.0)
         public static var bottomTrailing = Point(x: 1.0, y: 1.0)
+        
+        public static var topLeading = Point(x: 0.0, y: 0.0)
+        public static var top = Point(x: 0.5, y: 0.0)
+        public static var topTrailing = Point(x: 1.0, y: 0.0)
+        #endif
     }
 }
 
