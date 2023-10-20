@@ -30,32 +30,6 @@ public protocol VelocityProviding {
     static var zero: Self { get }
 }
 
-extension CGColor: SpringInterpolatable, VelocityProviding {
-    public static func updateValue(spring: Spring, value: CGColor, target: CGColor, velocity: CGColor, dt: TimeInterval) -> (value: CGColor, velocity: CGColor) {
-        Swift.print("spring color")
-        let value = value.nsUIColor!.hslaComponents()
-        let target = target.nsUIColor!.hslaComponents()
-        let velocity = velocity.nsUIColor!.hslaComponents()
-        
-        
-        var hue = CGFloat.updateValue(spring: spring, value: value.hue, target: NSUIColor.mixedHue(source: value.hue, target: target.hue), velocity: velocity.hue, dt: dt)
-        if hue.value > 360 {
-            hue.value = hue.value - 360
-        }
-        if hue.velocity > 360 {
-            hue.velocity = hue.velocity - 360
-        }
-        
-        let lightness = CGFloat.updateValue(spring: spring, value: value.lightness, target: target.lightness, velocity: velocity.lightness, dt: dt)
-        let alpha = CGFloat.updateValue(spring: spring, value: value.alpha, target: target.alpha, velocity: velocity.alpha, dt: dt)
-        let saturation = CGFloat.updateValue(spring: spring, value: value.saturation, target: target.saturation, velocity: velocity.saturation, dt: dt)
-
-        let newValue = NSUIColor(hue: hue.value, saturation: saturation.value, lightness: lightness.value, alpha: alpha.value).cgColor
-        let newVelocity = NSUIColor(hue: hue.velocity, saturation: saturation.velocity, lightness: lightness.velocity, alpha: alpha.velocity).cgColor
-        return (newValue, newVelocity)
-    }
-}
-
 public extension SpringInterpolatable where Self: SIMDRepresentable {
     static func updateValue(spring: Spring, value: Self, target: Self, velocity: Self, dt: TimeInterval) -> (value: Self, velocity: Self) where Self.SIMDType.Scalar == CGFloat.NativeType {
         
@@ -95,8 +69,8 @@ extension CGRect: SpringInterpolatable, VelocityProviding {
     }
 }
 
- extension NSUIColor: SpringInterpolatable, VelocityProviding { }
-// extension CGColor: SpringInterpolatable, VelocityProviding { }
+extension NSUIColor: SpringInterpolatable, VelocityProviding { }
+extension CGColor: SpringInterpolatable, VelocityProviding { }
 extension CGQuaternion: SpringInterpolatable, VelocityProviding { }
 extension CATransform3D: SpringInterpolatable, VelocityProviding { }
 extension CGAffineTransform: SpringInterpolatable, VelocityProviding { }
