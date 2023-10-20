@@ -134,7 +134,8 @@ extension AnimatableData where Self: CGColor {
 
 extension CGColor: AnimatableData {
     public var animatableData: AnimatableVector {
-        let rgba = self.rgbaComponents() ?? (0, 0, 0, 1)
+        let rgba = self.nsUIColor?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 1)
+        // let rgba = self.rgbaComponents() ?? (0, 0, 0, 1)
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
     }
     

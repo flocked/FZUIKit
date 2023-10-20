@@ -140,12 +140,12 @@ extension Gradient {
         public var x: CGFloat
         public var y: CGFloat
         
-        public init() {
-            self.x = 0
-            self.y = 0
+        public init(x: CGFloat, y: CGFloat) {
+            self.x = x
+            self.y = y
         }
         
-        public init(x: CGFloat, y: CGFloat) {
+        public init(_ x: CGFloat, _ y: CGFloat) {
             self.x = x
             self.y = y
         }
