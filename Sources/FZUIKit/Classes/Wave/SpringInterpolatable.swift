@@ -31,6 +31,19 @@ public protocol VelocityProviding {
 }
 
 extension NSUIColor: SpringInterpolatable, VelocityProviding {
+    public var scaledIntegral: Self {
+        var rgba = rgbaComponents()
+        rgba.red = rgba.red.scaledIntegral
+        rgba.green = rgba.green.scaledIntegral
+        rgba.blue = rgba.blue.scaledIntegral
+        rgba.alpha = rgba.alpha.scaledIntegral
+        return Self(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
+    }
+    
+    public static var zero: Self {
+        Self(red: 0, green: 0, blue: 0, alpha: 0)
+    }
+    
     public static func updateValue(spring: Spring, value: NSUIColor, target: NSUIColor, velocity: NSUIColor, dt: TimeInterval) -> (value: NSUIColor, velocity: NSUIColor) {
         Swift.print("spring color")
         let value = value.hslaComponents()

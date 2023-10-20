@@ -191,7 +191,7 @@ extension CGRect: SIMDRepresentable {
     }
 
 }
-
+/*
 extension NSUIColor: SIMDRepresentable {
     /// `SIMD4` representation of the value.
     @inlinable public func simdRepresentation() -> SIMD4<CGFloat.NativeType> {
@@ -206,6 +206,7 @@ extension NSUIColor: SIMDRepresentable {
         Self(red: 0, green: 0, blue: 0, alpha: 0)
     }
 }
+*/
 
 extension SIMDRepresentable where Self: NSUIColor {
     /// Initializes with a `SIMD4`.
