@@ -11,20 +11,20 @@ import Foundation
 
 public typealias AnimatableVector = Array<Double>
 
-extension Array: AdditiveArithmetic, VectorArithmetic where Self.Element == Double {
+extension AnimatableVector: AdditiveArithmetic, VectorArithmetic {
     public static var zero: Self = [0.0]
     
     public static func + (lhs: Self, rhs: Self) -> Self {
         vDSP.add(lhs, rhs)
     }
     
-    public static func - (lhs: Self, rhs: Self) -> Self {
-        vDSP.subtract(lhs, rhs)
-    }
-
     public static func += (lhs: inout Self, rhs: Self) {
         let count = Swift.min(lhs.count, rhs.count)
         vDSP.add(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
+    }
+    
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        vDSP.subtract(lhs, rhs)
     }
 
     public static func -= (lhs: inout Self, rhs: Self) {
@@ -38,6 +38,26 @@ extension Array: AdditiveArithmetic, VectorArithmetic where Self.Element == Doub
 
     public var magnitudeSquared: Double {
         vDSP.sum(vDSP.multiply(self, self))
+    }
+}
+
+extension AnimatableVector {
+    public static func * (lhs: Self, rhs: Self) -> Self {
+        vDSP.multiply(lhs, rhs)
+    }
+    
+    public static func *= (lhs: inout Self, rhs: Self) {
+        let count = Swift.min(lhs.count, rhs.count)
+        vDSP.multiply(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
+    }
+    
+    public static func / (lhs: Self, rhs: Self) -> Self {
+        vDSP.divide(lhs, rhs)
+    }
+    
+    public static func /= (lhs: inout Self, rhs: Self) {
+        let count = Swift.min(lhs.count, rhs.count)
+        vDSP.divide(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
     }
 }
 

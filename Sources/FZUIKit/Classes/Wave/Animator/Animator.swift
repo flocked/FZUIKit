@@ -68,7 +68,7 @@ internal extension Animator {
         return animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil)  {
+    func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, completion: (()->())? = nil)  {
         guard value(for: keyPath, key: key) != newValue else {
             return
         }
@@ -111,6 +111,7 @@ internal extension Animator {
         animation.completion = { [weak self] event in
             switch event {
             case .finished:
+                completion?()
                 self?.animations[animationKey] = nil
                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
             default:
@@ -121,7 +122,7 @@ internal extension Animator {
         animation.start(afterDelay: settings.delay)
     }
     
-    func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil)  {
+    func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, completion: (()->())? = nil)  {
         guard value(for: keyPath, key: key) != newValue else {
             return
         }
@@ -164,6 +165,7 @@ internal extension Animator {
         animation.completion = { [weak self] event in
             switch event {
             case .finished:
+                completion?()
                 self?.animations[animationKey] = nil
                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
             default:

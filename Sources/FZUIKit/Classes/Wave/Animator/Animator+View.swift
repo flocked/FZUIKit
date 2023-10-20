@@ -133,9 +133,9 @@ extension Animator where Object: NSUIView {
 
 fileprivate extension NSUIView {
     var optionalLayer: CALayer? {
-#if os(macOS)
+        #if os(macOS)
         self.wantsLayer = true
-#endif
+        #endif
         return self.layer
     }
 }
@@ -156,7 +156,7 @@ extension Animator where Object: NSUITextField {
 fileprivate extension NSUITextField {
     @objc var fontSize: CGFloat {
         get { font?.pointSize ?? 0.0 }
-        set {  font = font?.withSize(newValue) } }
+        set { font = font?.withSize(newValue) } }
 }
 
 

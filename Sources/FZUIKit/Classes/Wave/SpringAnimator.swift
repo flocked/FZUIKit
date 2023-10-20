@@ -100,7 +100,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     /**
      The animation's `mode`. If set to `.nonAnimated`, the animation will snap to the target value when run.
      */
-    public var mode: Wave.AnimationMode = .animated
+   // public var mode: Wave.AnimationMode = .animated
 
     /**
      Whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries.
@@ -184,7 +184,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        mode = settings.mode
+     //   mode = settings.mode
         spring = settings.spring
     }
 
@@ -216,7 +216,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
 
 
-        let isAnimated = spring.response > .zero && mode != .nonAnimated
+        let isAnimated = spring.response > .zero
 
         if isAnimated {
             spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
@@ -259,7 +259,7 @@ extension SpringAnimator: CustomStringConvertible {
             target: \(String(describing: target))
             velocity: \(String(describing: velocity))
 
-            mode: \(mode)
+            mode: \(spring.response > 0 ? "animated" : "nonAnimated")
             integralizeValues: \(integralizeValues)
 
             callback: \(String(describing: valueChanged))

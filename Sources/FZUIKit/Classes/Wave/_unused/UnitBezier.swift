@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Accelerate
 
 /// A bezier curve, often used to calculate timing functions.
 public struct UnitBezier: Equatable {
