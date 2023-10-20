@@ -100,6 +100,10 @@ public extension NSColor {
         if type == .componentBased || type == .catalog {
             let dynamics = self.dynamicColors
             for supportedColorSpace in Self.supportedColorSpaces {
+                if let supportedColor = usingColorSpace(supportedColorSpace) {
+                    return supportedColor
+                }
+                /*
                 if dynamics.light != dynamics.dark,
                     let light = dynamics.light.usingColorSpace(supportedColorSpace),
                     let dark = dynamics.dark.usingColorSpace(supportedColorSpace) {
@@ -107,6 +111,7 @@ public extension NSColor {
                 } else if let supportedColor = usingColorSpace(supportedColorSpace) {
                     return supportedColor
                 }
+                */
             }
         }
         return nil

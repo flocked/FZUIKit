@@ -5,6 +5,15 @@
 //  Created by Adam Bell on 8/1/20.
 //  Taken from https://github.com/b3ll/Motion
 
+import CoreGraphics
+import Foundation
+import simd
+
+func ttes() {
+    var fun: SIMD2<Double> = [4,5]
+    fun.indices
+}
+
 /*
 #if os(macOS) || os(iOS) || os(tvOS)
 

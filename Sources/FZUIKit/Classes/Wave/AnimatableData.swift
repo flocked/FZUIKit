@@ -26,7 +26,7 @@ public protocol AnimatableData: Equatable, Comparable {
     static var zero: Self { get }
 }
 
-extension AnimatableData where AnimatableData: Comparable {
+extension AnimatableData where Self.AnimatableData: Comparable {
     public static func < (lhs: Self, rhs: Self) -> Bool {
         return lhs.animatableData < rhs.animatableData
     }
