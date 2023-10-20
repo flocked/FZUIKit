@@ -111,6 +111,33 @@ public class Spring: Equatable {
         self.init(dampingRatio: 1.0 - bounce, response: duration, mass: 1.0)
     }
     
+    /**
+     Creates a spring with the specified mass, stiffness, and damping.
+     
+     - Parameters:
+        - stiffness: Specifies that property of the object attached to the end of the spring.
+        - damping: The corresponding spring coefficient.
+        - mass: Defines how the spring’s motion should be damped due to the forces of friction.
+        - allowOverDamping: A value of true specifies that over-damping should be allowed when appropriate based on the other inputs, and a value of false specifies that such cases should instead be treated as critically damped.
+     */
+    convenience init (stiffness: CGFloat, damping: CGFloat, mass: CGFloat, allowOverDamping: Bool = false) {
+        var dampingR = Self.dampingRatio(damping: damping, stiffness: stiffness, mass: mass)
+        if allowOverDamping == false, dampingR > 1.0 {
+            dampingR = 1.0
+        }
+        self.init(dampingRatio: dampingR, stiffness: stiffness, mass: mass)
+    }
+    
+    @available(macOS 14.0, iOS 17, tvOS 17, *)
+    public init(_ spring: SwiftUI.Spring) {
+        dampingRatio = spring.dampingRatio
+        response = spring.response
+        stiffness = spring.stiffness
+        mass = spring.mass
+        damping = spring.damping
+        settlingDuration = spring.settlingDuration
+    }
+    
     /*
     /**
      Creates a spring with the specified duration and bounce.
@@ -220,6 +247,10 @@ public class Spring: Equatable {
 
     static func damping(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat) -> CGFloat {
         4.0 * .pi * dampingRatio * mass / response
+    }
+    
+    static func dampingRatio(damping: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+        return damping / (2 * sqrt(stiffness * mass))
     }
 
     static func settlingTime(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
