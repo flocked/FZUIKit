@@ -73,7 +73,14 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
     
     mutating public func scale(by rhs: Double) where Self == Array<Double> {
-        Swift.print("Here")
+        Swift.print("Here Double")
+        for index in startIndex..<endIndex {
+            self[index].scale(by: rhs)
+        }
+    }
+    
+    mutating public func scale(by rhs: Double) where Self == Array<CGFloat> {
+        Swift.print("Here CGFloat")
         for index in startIndex..<endIndex {
             self[index].scale(by: rhs)
         }
