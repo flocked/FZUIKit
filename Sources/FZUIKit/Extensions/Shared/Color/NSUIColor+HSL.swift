@@ -27,10 +27,19 @@ extension NSUIColor {
    - parameter alpha: The opacity value of the color object, specified as a value from 0.0 to 1.0. Default to 1.0.
    */
   public convenience init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1) {
-    let color      = HSL(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha).toColor()
-    let components = color.rgbaComponents()
+      var hue = hue
+      if hue > 360 {
+          hue = hue - 360
+      }
+      let h = hue / 360.0
+      var s = saturation
+      let l = lightness
 
-    self.init(red: components.red, green: components.green, blue: components.blue, alpha: components.alpha)
+      let t = s * ((l < 0.5) ? l : (1.0 - l))
+      let b = l + t
+      s = (l > 0.0) ? (2.0 * t / b) : 0.0
+
+      self.init(hue: h, saturation: s, brightness: b, alpha: alpha)
   }
 
   // MARK: - Getting the HSL Components
@@ -43,12 +52,29 @@ extension NSUIColor {
    - returns: The HSL components as a tuple (h, s, l).
    */
     public final func hslaComponents() -> (hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
-    let hsl = HSL(color: self)
+        var (h, s, b, a) = (CGFloat(), CGFloat(), CGFloat(), CGFloat())
+        #if os(macOS)
+        let color = self.withSupportedColorSpace() ?? self
+        color.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        #else
+        getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        #endif
+        
+        let l = ((2.0 - s) * b) / 2.0
 
-    return (hsl.h * 360.0, hsl.s, hsl.l, alphaComponent)
+        switch l {
+        case 0.0, 1.0:
+            s = 0.0
+        case 0.0..<0.5:
+            s = (s * b) / (l * 2.0)
+        default:
+            s = (s * b) / (2.0 - l * 2.0)
+        }
+
+        return (h * 360.0, s, l, a)
   }
 }
-
+/*
 /// Hue-saturation-lightness structure to make the color manipulation easier.
 internal struct HSL {
   /// Hue value between 0.0 and 1.0 (0.0 = 0 degree, 1.0 = 360 degree).
@@ -221,3 +247,4 @@ internal struct HSL {
 fileprivate func moda(_ x: CGFloat, m: CGFloat) -> CGFloat {
   return (x.truncatingRemainder(dividingBy: m) + m).truncatingRemainder(dividingBy: m)
 }
+*/

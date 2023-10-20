@@ -46,7 +46,9 @@ public extension NSUIColor {
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
-        return HSL(color: self).lighter(amount: amount).toColor()
+        var hsla = self.hslaComponents()
+        hsla.lightness = (hsla.lightness + amount).clamped(max: 1.0)
+        return NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha)
     }
 
     /**
@@ -55,7 +57,7 @@ public extension NSUIColor {
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
-        return HSL(color: self).darkened(amount: amount).toColor()
+        return lighter(by: amount * -1.0)
     }
 
     /**
@@ -64,7 +66,9 @@ public extension NSUIColor {
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        return HSL(color: self).saturated(amount: amount).toColor()
+        var hsla = self.hslaComponents()
+        hsla.saturation = (hsla.saturation + amount).clamped(max: 1.0)
+        return NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha)
     }
 
     /**
@@ -73,7 +77,7 @@ public extension NSUIColor {
      - Returns: The desaturated color object.
      */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        return HSL(color: self).desaturated(amount: amount).toColor()
+        return saturated(by: amount * -1.0)
     }
     
     /**
@@ -83,7 +87,13 @@ public extension NSUIColor {
      - returns: A DynamicColor object with the hue changed.
      */
     final func adjustedHue(amount: CGFloat) -> NSUIColor {
-      return HSL(color: self).adjustedHue(amount: amount).toColor()
+        // (h * 360.0) + amount,
+        var hsla = self.hslaComponents()
+        hsla.hue = hsla.hue + amount.clamped(max: 360)
+        if hsla.hue > 360 {
+            hsla.hue = hsla.hue - 360
+        }
+        return NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha)
     }
 
     /**
@@ -118,8 +128,7 @@ public extension NSUIColor {
         case .value:
             l = max(r, g, b)
         }
-
-        return HSL(hue: 0.0, saturation: 0.0, lightness: l, alpha: a).toColor()
+        return NSUIColor(hue: 0.0, saturation: 0.0, lightness: l, alpha: a)
     }
 
     enum GrayscalingMode: String, Hashable {

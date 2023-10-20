@@ -51,7 +51,11 @@ public extension NSUIColor {
       let c1 = hslaComponents()
       let c2 = color.hslaComponents()
 
-      let h     = c1.hue + (weight * mixedHue(source: c1.hue, target: c2.hue))
+        var h     = c1.hue + (weight * mixedHue(source: c1.hue, target: c2.hue))
+        if h > 360 {
+            h = h - 360
+        }
+        
       let s     = c1.saturation + (weight * (c2.saturation - c1.saturation))
       let l     = c1.lightness + (weight * (c2.lightness - c1.lightness))
       let alpha = alphaComponent + (weight * (color.alphaComponent - alphaComponent))
