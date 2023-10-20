@@ -159,7 +159,7 @@ extension CATransform3D: AnimatableData {
 
 extension AnimatableData where Self: NSColor {
     public init(_ animatableData: AnimatableVector) {
-        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[1], alpha: animatableData[1])
+        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
     }
 }
 
@@ -172,7 +172,7 @@ extension NSColor: AnimatableData {
 
 extension AnimatableData where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
-        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[1], alpha: animatableData[1])
+        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
     }
 }
 
