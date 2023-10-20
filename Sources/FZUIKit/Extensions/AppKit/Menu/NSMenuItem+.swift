@@ -46,7 +46,7 @@ public extension NSMenuItem {
      
      - Parameters:
         - view: The view of the menu item.
-        - showsHighlight: A boolean value that indicates whether menu item should highlight on interaction.
+        - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
      
      - Returns: An instance of `NSMenuItem`.
      */
@@ -66,7 +66,7 @@ public extension NSMenuItem {
      
      - Parameters:
         - view: The view of the menu item.
-        - showsHighlight: A boolean value that indicates whether menu item should highlight on interaction.
+        - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
      
      - Returns: An instance of `NSMenuItem`.
      */

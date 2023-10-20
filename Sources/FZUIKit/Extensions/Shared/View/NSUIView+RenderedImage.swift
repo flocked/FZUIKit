@@ -18,7 +18,7 @@ public extension NSView {
         return NSGraphicsContext.current?.cgContext
     }
     
-    /// Renders an image of this view.
+    /// A rendered image of the view.
     var renderedImage: NSImage {
         let rep = self.bitmapImageRepForCachingDisplay(in: self.bounds)!
         self.cacheDisplay(in: self.bounds, to: rep)

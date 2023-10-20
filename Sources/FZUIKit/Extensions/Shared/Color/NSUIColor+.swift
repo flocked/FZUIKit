@@ -134,7 +134,7 @@ public extension NSUIColor {
     }
     
     /**
-     A boolean value that indicates whether the color is light or dark.
+     A Boolean value that indicates whether the color is light or dark.
 
      It is useful when you need to know whether you should display the text in black or white.
      */
@@ -159,24 +159,45 @@ public extension NSUIColor {
         #endif
     }
     
-    /// A boolean value that indicates whether the color is visible (`alphaComponent` isn't zero and it isn't `clear`).
+    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't zero).
     var isVisible: Bool {
-        self != .clear && self.alphaComponent != 0.0
+        self.alphaComponent != 0.0
     }
     
-    /// A boolean value that indicates whether the color contains a different light and dark color variant.
+    /// A Boolean value that indicates whether the color contains a different light and dark color variant.
     var isDynamic: Bool {
         let dyamic = self.dynamicColors
         return dyamic.light != dyamic.dark
     }
 
-    #if os(macOS)
-    /// A boolean value that indicates whether the color is a pattern color.
+    /// A Boolean value that indicates whether the color is a pattern color.
     var isPatternColor: Bool {
-        return (Swift.type(of: self) == NSClassFromString("NSPatternColor"))
+        #if os(macOS)
+        Swift.type(of: self) == NSClassFromString("NSPatternColor")
+        #else
+        Swift.type(of: self) == NSClassFromString("UIDynamicPatternColor")
+        #endif
+    }
+    
+    /**
+     Creates a gradient color object that uses the specified colors and frame as gradient.
+     
+     - Parameters:
+        - gradientColors: The colors of the gradient.
+        - frame: The frame of the gradient.
+     
+     - Returns: A gradient color.
+     */
+    convenience init(gradientColors: [NSUIColor], frame: CGRect) {
+        let backgroundGradientLayer = CAGradientLayer()
+        backgroundGradientLayer.frame = frame
+        backgroundGradientLayer.colors = gradientColors.map({$0.cgColor})
+        let backgroundColorImage = backgroundGradientLayer.renderedImage
+        self.init(patternImage: backgroundColorImage)
     }
 
-    /// A `CGColor` representaton of a pattern color.
+    #if os(macOS)
+    /// A `CGColor` representaton of a pattern color, or `nil` if the color isn't a pattern color.
     var patternImageCGColor: CGColor? {
         guard isPatternColor else { return nil }
         return CGColor.fromImage(patternImage)

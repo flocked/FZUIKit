@@ -18,7 +18,7 @@ public extension NSApplication {
         }
     }
     
-    /// A boolean value that indicates whether the application is a trusted accessibility client.
+    /// A Boolean value that indicates whether the application is a trusted accessibility client.
     func checkAccessibilityAccess() -> Bool {
         let checkOptPrompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString
         let options = [checkOptPrompt: true]

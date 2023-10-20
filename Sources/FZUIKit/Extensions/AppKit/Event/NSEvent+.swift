@@ -26,47 +26,47 @@ public extension NSEvent {
         NSApplication.shared.currentEvent
     }
 
-    /// A boolean value that indicates whether the event is a user interaction event (`keyDown`, `scrollWheel`, `magnify` and any mouseDown event).
+    /// A Boolean value that indicates whether the event is a user interaction event (`keyDown`, `scrollWheel`, `magnify` and any mouseDown event).
     var isUserInteraction: Bool {
         NSEvent.EventTypeMask.userInteractions.intersects(self)
     }
 
-    /// A boolean value that indicates whether the event is a mouse moved event (`mouseEntered`, `mouseMoved` and `mouseExited`).
+    /// A Boolean value that indicates whether the event is a mouse moved event (`mouseEntered`, `mouseMoved` and `mouseExited`).
     var isMouseMovement: Bool {
         NSEvent.EventTypeMask.mouseMovements.intersects(self)
     }
     
-    /// A boolean value that indicates whether the command key is pressed.
+    /// A Boolean value that indicates whether the command key is pressed.
     var isCommandDown: Bool {
         return modifierFlags.contains(.command)
     }
 
-    /// A boolean value that indicates whether the option key is pressed.
+    /// A Boolean value that indicates whether the option key is pressed.
     var isOptionDown: Bool {
         return modifierFlags.contains(.option)
     }
 
-    /// A boolean value that indicates whether the control key is pressed.
+    /// A Boolean value that indicates whether the control key is pressed.
     var isControlDown: Bool {
         return modifierFlags.contains(.control)
     }
 
-    /// A boolean value that indicates whether the shift key is pressed.
+    /// A Boolean value that indicates whether the shift key is pressed.
     var isShiftDown: Bool {
         return modifierFlags.contains(.shift)
     }
 
-    /// A boolean value that indicates whether the capslock key is pressed.
+    /// A Boolean value that indicates whether the capslock key is pressed.
     var isCapsLockDown: Bool {
         return modifierFlags.contains(.capsLock)
     }
 
-    /// A boolean value that indicates whether no modifier key (command, option, control, shift and capslock) is pressed.
+    /// A Boolean value that indicates whether no modifier key (command, option, control, shift and capslock) is pressed.
     var isNoModifierDown: Bool {
         return modifierFlags.intersection([.command, .option, .control, .shift, .capsLock]).isEmpty
     }
 
-    /// A boolean value that indicates whether the event type is a right click.
+    /// A Boolean value that indicates whether the event type is a right click.
     var isRightClick: Bool {
         return (type == .rightMouseDown) || modifierFlags.contains(.control)
     }
@@ -74,7 +74,7 @@ public extension NSEvent {
 
 public extension NSEvent.EventTypeMask {
     /**
-     A boolean value that indicates whether the specified event intersects with the event type mask.
+     A Boolean value that indicates whether the specified event intersects with the event type mask.
      
      - Parameters event: The event for checking the intersection.
      - Returns: `true` if the event interesects with the mask, or `false` if not.

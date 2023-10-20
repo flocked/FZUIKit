@@ -159,12 +159,33 @@ public extension CALayer {
         }
     }
     
-    internal var parentView: NSUIView? {
+    /// The associated view using the layer.
+    var parentView: NSUIView? {
         if let view = delegate as? NSUIView {
             return view
         }
         return superlayer?.parentView
     }
+    
+    /// A rendered image of the layer.
+    var renderedImage: NSUIImage {
+        #if os(macOS)
+        let btmpImgRep =
+        NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(self.frame.width), pixelsHigh: Int(self.frame.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 32)
+        let ctx = NSGraphicsContext(bitmapImageRep: btmpImgRep!)
+        let cgContext = ctx!.cgContext
+        self.render(in: cgContext)
+        let cgImage = cgContext.makeImage()
+        let nsimage = NSImage(cgImage: cgImage!, size: CGSize(width: self.frame.width, height: self.frame.height))
+        return nsimage
+        #else
+        UIGraphicsBeginImageContextWithOptions(layer.frame.size, layer.isOpaque, 0)
+        layer.render(in: UIGraphicsGetCurrentContext()!)
+        let outputImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return outputImage!
+        #endif
+      }
 }
 #endif
 

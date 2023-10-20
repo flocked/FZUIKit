@@ -96,8 +96,20 @@ public extension NSColor {
         }
         return color
     }
+    
+    /**
+     Generates the resolved color for the specified window,
+     
+     It uses the window's `effectiveAppearance` for resolving the color.
+     
+     - Parameters window: The window for the resolved color.
+     - Returns: A resolved color for the window.
+     */
+    func resolvedColor(for window: NSWindow) -> NSColor {
+        self.resolvedColor(for: window.effectiveAppearance)
+    }
 
-    /// Creates a new color object with a supported color space
+    /// Creates a new color object with a supported color space.
     func withSupportedColorSpace() -> NSColor? {
         let needsConverting: Bool
         if (self.isDynamic) {
