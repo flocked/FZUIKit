@@ -12,7 +12,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
-
+/*
 extension Gradient.Stop: SpringInterpolatable, VelocityProviding {
     public static func updateValue(spring: Spring, value: Gradient.Stop, target: Gradient.Stop, velocity: Gradient.Stop, dt: TimeInterval) -> (value: Gradient.Stop, velocity: Gradient.Stop) {
         let color = NSUIColor.updateValue(spring: spring, value: value.color, target: target.color, velocity: velocity.color, dt: dt)
@@ -84,6 +84,7 @@ extension Gradient: SpringInterpolatable, VelocityProviding {
         Gradient(stops: [])
     }
 }
+ */
 
 /*
 extension Animator where Object: GradientView {

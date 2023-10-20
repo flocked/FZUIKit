@@ -18,7 +18,6 @@ import UIKit
 #endif
 import SwiftUI
 
-
 /// A protocol that defines supported `SIMD` types that conform to `SIMDRepresentable` and `EquatableEnough`.
 public protocol SupportedSIMD: SIMD, SIMDRepresentable where Scalar: SupportedScalar {}
 
@@ -324,7 +323,6 @@ extension CGPoint: ScaledIntegralable { }
 extension CGRect: ScaledIntegralable { }
 
 public protocol AnimatableSIMD: SIMDRepresentable where Self.SIMDType.Scalar == CGFloat.NativeType { }
-
 extension CGQuaternion: AnimatableSIMD { }
 extension CGColor: AnimatableSIMD { }
 extension NSUIColor: AnimatableSIMD { }

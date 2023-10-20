@@ -8,7 +8,7 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
-public class SpringAnimator<T: AnimatableSIMD>: AnimationProviding   {
+public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     public enum Event {
         /**
          Indicates the animation has fully completed.

@@ -13,6 +13,7 @@ import AppKit
 #elseif os(iOS)
 import UIKit
 #endif
+import SwiftUI
 
 /**
  `Spring` determines the timing curve and settling duration of an animation.
@@ -31,7 +32,7 @@ public class Spring: Equatable {
      Represents the frequency response of the spring. This value affects how
      quickly the spring animation reaches its target value.
      */
-    public let response: CGFloat
+    public let response: Double
 
     /**
      The spring constant `k`. Used as an alternative to `response`.
@@ -152,11 +153,13 @@ public class Spring: Equatable {
 
     // MARK: - Default Springs
 
-    /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
+    /// A reasonable, slightly underdamped spring to use for interactive animat  ions (like dragging an item around).
     public static let interactive = Spring(dampingRatio: 0.8, response: 0.28)
 
     /// A placeholder spring to use when using the `nonAnimated` mode. See `AnimationMode` for more info.
-    public static let nonAnimated = Spring(dampingRatio: 1.0, response: 0.0)
+    public static var nonAnimated: Self {
+        Spring(dampingRatio: 1.0, response: 0.0) as! Self
+    }
     
     /// A spring with a predefined duration and higher amount of bounce.
     public static let bouncy = Spring(dampingRatio: 0.7, response: 0.5, mass: 1.0)
@@ -243,6 +246,7 @@ public class Spring: Equatable {
 }
 
 public extension Spring {
+    /*
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableSIMD {
         if V.self == CGRect.self {
           var val = (value as! CGRect)
@@ -269,20 +273,42 @@ public extension Spring {
             value = V(newValue)
         }
     }
+     */
     
-    internal func update(value: inout Float, velocity: inout Float, target: Float, deltaTime: TimeInterval) {
-        var _value = CGFloat(value)
-        var _velocity = CGFloat(velocity)
-        self.update(value: &_value, velocity: &_velocity, target: CGFloat(target), deltaTime: deltaTime)
-        value = Float(_value)
-        velocity = Float(_velocity)
+    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
+        let displacement = value - target
+        let springForce = displacement * -self.stiffness
+        let dampingForce = velocity.scaled(by: self.damping)
+        let force = springForce - dampingForce
+        let acceleration = force * (1.0 / self.mass)
+        
+        velocity = velocity + (acceleration * deltaTime)
+        value = value + (velocity * deltaTime)
     }
+    
+    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
+        var val = value.animatableData
+        var vel = velocity.animatableData
+        let target = target.animatableData
+        
+        let displacement = val - target
+        let springForce = displacement * -self.stiffness
+        let dampingForce = vel.scaled(by: self.damping)
+        let force = springForce - dampingForce
+        let acceleration = force * (1.0 / self.mass)
+        
+        let newVelocity = vel + (acceleration * deltaTime)
+        velocity = V(newVelocity)
+        value = V(val + (newVelocity * deltaTime))
+    }
+    
     
     internal func update(value: inout CGRect, velocity: inout CGRect, target: CGRect, deltaTime: TimeInterval) {
         self.update(value: &value.origin, velocity: &velocity.origin, target: target.origin, deltaTime: deltaTime)
         self.update(value: &value.size, velocity: &velocity.size, target: target.size, deltaTime: deltaTime)
     }
 }
+
 
 extension Spring: CustomStringConvertible {
     public var description: String {

@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+/*
 #if os(macOS) || os(iOS) || os(tvOS)
 import CoreGraphics
 import Foundation
@@ -81,7 +82,7 @@ extension Float: SpringInterpolatable, VelocityProviding {
         return (Float(values.value), Float(values.velocity))
     }
 }
-
+*/
 
 /*
 extension ContentConfiguration.Shadow: SpringInterpolatable, VelocityProviding {
@@ -119,6 +120,7 @@ extension ContentConfiguration.InnerShadow: SpringInterpolatable, VelocityProvid
         .none()
     }
 }
- */
+ 
 
 #endif
+*/

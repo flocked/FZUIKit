@@ -1,9 +1,13 @@
+
+
 import AppKit
 import SwiftUI
 import Accelerate
 
+/*
 @available(macOS 14.0, *)
 extension SwiftUI.Spring {
+    /*
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
         var val = value.animatableData
         var vel = velocity.animatableData
@@ -14,11 +18,65 @@ extension SwiftUI.Spring {
         value = V(val)
         velocity = V(vel)
     }
+     */
+    
+    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableSIMD {
+        var val = value.simdRepresentation()
+        var vel = velocity.simdRepresentation()
+        let tar = target.simdRepresentation()
+                
+        self.update(value: &val.array, velocity: &vel.array, target: tar.array, deltaTime: deltaTime)
+        
+        value = V(val)
+        velocity = V(vel)
+    }
 }
 
-public protocol AnimatableData {
+internal extension SIMD {
+    var array: [Scalar] {
+        get { (0..<scalarCount).compactMap({self[$0]}) }
+        set { newValue.enumerated().forEach({ self[$0.offset] = $0.element }) }
+    }
+}
+
+func test() {
+    var value = NSColor.red.animatableData
+    var target = NSColor.red.animatableData
+    var velocity = NSColor.red.animatableData
+    let dt: CGFloat = 3
+    let spring = Spring.bouncy
+    
+    let displacement = value - target
+    let springForce = displacement * -spring.stiffness
+    let dampingForce = velocity.scaled(by: spring.damping)
+    let force = springForce - dampingForce
+    let acceleration = force * (1.0 / spring.mass)
+    
+    let newVelocity = velocity + (acceleration * dt)
+    let newValue = value + (newVelocity * dt)
+    /*
+     let value = value.simdRepresentation()
+     let target = target.simdRepresentation()
+     let velocity = velocity.simdRepresentation()
+     
+     let displacement = value - target
+     let springForce = (-spring.stiffness * displacement)
+     let dampingForce = (spring.damping * velocity)
+     let force = springForce - dampingForce
+     let acceleration = force / spring.mass
+     
+     let newVelocity = (velocity + (acceleration * dt))
+     let newValue = (value + (newVelocity * dt))
+     
+     return (value: Self(newValue), velocity: Self(newVelocity))
+     */
+}
+*/
+
+public protocol AnimatableData: Equatable {
     associatedtype AnimatableData: VectorArithmetic
     var animatableData: AnimatableData { get }
+    static var zero: Self { get }
     init(_ animatableData: AnimatableData)
 }
 
@@ -148,3 +206,4 @@ extension CGQuaternion: AnimatableData {
         [self.storage.vector[0], self.storage.vector[1], self.storage.vector[2], self.storage.vector[3]]
     }
 }
+

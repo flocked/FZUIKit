@@ -60,15 +60,15 @@ internal extension Animator {
         return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
     
-    func value<Value: AnimatableSIMD>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
+    func value<Value: AnimatableData>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
         return animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    func value<Value: AnimatableSIMD>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
+    func value<Value: AnimatableData>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
         return animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    func setValue<Value: AnimatableSIMD>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil)  {
+    func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil)  {
         guard value(for: keyPath, key: key) != newValue else {
             return
         }
@@ -121,7 +121,7 @@ internal extension Animator {
         animation.start(afterDelay: settings.delay)
     }
     
-    func setValue<Value: AnimatableSIMD>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil)  {
+    func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil)  {
         guard value(for: keyPath, key: key) != newValue else {
             return
         }
