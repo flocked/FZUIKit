@@ -41,7 +41,8 @@ public class Spring: Equatable {
     /// The estimated duration required for the spring system to be considered at rest.
     public let settlingDuration: TimeInterval
 
-    private static let DefaultSettlingPercentage = 0.0001
+    public static var DefaultSettlingPercentage = 0.0003
+    
 
     // MARK: - Spring Initialization
 
@@ -61,7 +62,7 @@ public class Spring: Equatable {
         self.stiffness = stiffness
         self.mass = mass
         response = Spring.response(stiffness: stiffness, mass: mass)
-
+        
         damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
