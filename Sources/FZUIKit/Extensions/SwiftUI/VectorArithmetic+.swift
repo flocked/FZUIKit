@@ -71,26 +71,6 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
         lhs += rhs
         return lhs
     }
-    
-    mutating public func scale(by rhs: Double) where Self == Array<Double> {
-        Swift.print("Here Double")
-        for index in startIndex..<endIndex {
-            self[index].scale(by: rhs)
-        }
-    }
-    
-    mutating public func scale(by rhs: Double) where Self == Array<CGFloat> {
-        Swift.print("Here CGFloat")
-        for index in startIndex..<endIndex {
-            self[index].scale(by: rhs)
-        }
-    }
-
-    mutating public func scale(by rhs: Double) {
-        for index in startIndex..<endIndex {
-            self[index].scale(by: rhs)
-        }
-    }
 
     public var magnitudeSquared: Double {
         reduce(into: 0.0) { (result, new) in
@@ -99,6 +79,21 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     public static var zero: Self { .init() }
+}
+
+extension Array {
+    mutating public func scale(by rhs: Double) where Element == Double {
+        Swift.print("Double")
+        for index in startIndex..<endIndex {
+            self[index].scale(by: rhs)
+        }
+    }
+    
+    mutating public func scale(by rhs: Double) where Element: VectorArithmetic {
+        for index in startIndex..<endIndex {
+            self[index].scale(by: rhs)
+        }
+    }
 }
 
 
