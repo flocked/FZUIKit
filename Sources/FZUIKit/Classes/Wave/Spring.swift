@@ -246,35 +246,6 @@ public class Spring: Equatable {
 }
 
 public extension Spring {
-    /*
-    func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableSIMD {
-        if V.self == CGRect.self {
-          var val = (value as! CGRect)
-            var vel = (velocity as! CGRect)
-            let tar = (target as! CGRect)
-            update(value: &val, velocity: &vel, target: tar, deltaTime: deltaTime)
-            value = val as! V
-            velocity = vel as! V
-        } else {
-            let valueSIMD = value.simdRepresentation()
-            let targetSIMD = target.simdRepresentation()
-            let velocitySIMD = velocity.simdRepresentation()
-            
-            let displacement = valueSIMD - targetSIMD
-            let springForce = (-self.stiffness * displacement)
-            let dampingForce = (self.damping * velocitySIMD)
-            let force = springForce - dampingForce
-            let acceleration = force / self.mass
-            
-            let newVelocity = (velocitySIMD + (acceleration * deltaTime))
-            let newValue = (valueSIMD + (newVelocity * deltaTime))
-            
-            velocity = V(newVelocity)
-            value = V(newValue)
-        }
-    }
-     */
-    
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
         let displacement = value - target
         let springForce = displacement * -self.stiffness
@@ -287,26 +258,19 @@ public extension Spring {
     }
     
     func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
-        var val = value.animatableData
-        var vel = velocity.animatableData
-        let target = target.animatableData
+        var valueData = value.animatableData
+        var velocityData = velocity.animatableData
         
-        let displacement = val - target
-        let springForce = displacement * -self.stiffness
-        let dampingForce = vel.scaled(by: self.damping)
-        let force = springForce - dampingForce
-        let acceleration = force * (1.0 / self.mass)
-        
-        let newVelocity = vel + (acceleration * deltaTime)
-        velocity = V(newVelocity)
-        value = V(val + (newVelocity * deltaTime))
+        self.update(value: &valueData, velocity: &velocityData, target: target.animatableData, deltaTime: deltaTime)
+        velocity = V(velocityData)
+        value = V(valueData)
     }
-    
-    
+    /*
     internal func update(value: inout CGRect, velocity: inout CGRect, target: CGRect, deltaTime: TimeInterval) {
         self.update(value: &value.origin, velocity: &velocity.origin, target: target.origin, deltaTime: deltaTime)
         self.update(value: &value.size, velocity: &velocity.size, target: target.size, deltaTime: deltaTime)
     }
+    */
 }
 
 
