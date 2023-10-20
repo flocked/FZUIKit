@@ -64,4 +64,5 @@ public enum Wave {
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
 }
+
 #endif

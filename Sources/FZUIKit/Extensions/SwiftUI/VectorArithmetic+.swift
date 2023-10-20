@@ -10,7 +10,7 @@ import Accelerate
 import Foundation
 
 public typealias AnimatableVector = Array<Double>
-
+/*
 extension Array: AdditiveArithmetic, VectorArithmetic where Self.Element == Double {
     public static var zero: Self = [0.0]
     
@@ -39,6 +39,73 @@ extension Array: AdditiveArithmetic, VectorArithmetic where Self.Element == Doub
     public var magnitudeSquared: Double {
         vDSP.sum(vDSP.multiply(self, self))
     }
+}
+*/
+
+extension Array: AdditiveArithmetic, VectorArithmetic where Element: VectorArithmetic  {
+    public static func -= (lhs: inout Self, rhs: Self) where Self.Element == Double {
+        let count = Swift.min(lhs.count, rhs.count)
+        vDSP.subtract(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
+    }
+    
+    public static func -= (lhs: inout Self, rhs: Self) {
+        let count = Swift.min(lhs.count, rhs.count)
+        for index in 0..<count {
+            lhs[index] -= rhs[index]
+        }
+    }
+    
+    public static func - (lhs: Self, rhs: Self) -> Self where Self.Element == Double {
+        vDSP.subtract(lhs, rhs)
+    }
+
+    public static func - (lhs: Self, rhs: Self) -> Self {
+        var lhs = lhs
+        lhs -= rhs
+        return lhs
+    }
+    
+    public static func += (lhs: inout Self, rhs: Self) where Self.Element == Double {
+        let count = Swift.min(lhs.count, rhs.count)
+        vDSP.add(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
+    }
+
+    public static func += (lhs: inout Self, rhs: Self) {
+        let count = Swift.min(lhs.count, rhs.count)
+        for index in 0..<count {
+            lhs[index] += rhs[index]
+        }
+    }
+    
+    public static func + (lhs: Self, rhs: Self) -> Self where Self.Element == Double {
+        vDSP.add(lhs, rhs)
+    }
+
+    public static func + (lhs: Self, rhs: Self) -> Self {
+        var lhs = lhs
+        lhs += rhs
+        return lhs
+    }
+    
+    public mutating func scale(by rhs: Double) where Self.Element == Double {
+        Swift.print("DSP")
+        self = vDSP.multiply(rhs, self)
+    }
+
+    mutating public func scale(by rhs: Double) {
+        Swift.print("NORMAL")
+        for index in startIndex..<endIndex {
+            self[index].scale(by: rhs)
+        }
+    }
+
+    public var magnitudeSquared: Double {
+        reduce(into: 0.0) { (result, new) in
+            result += new.magnitudeSquared
+        }
+    }
+
+    public static var zero: Self { .init() }
 }
 
 extension AnimatablePair: ExpressibleByArrayLiteral where First == Second {
