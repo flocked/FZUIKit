@@ -33,7 +33,7 @@ public enum Wave {
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
-        withSpring spring: Spring = .snappy,
+        withSpring spring: Spring,
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
         animations: () -> Void,
