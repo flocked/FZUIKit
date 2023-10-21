@@ -17,7 +17,7 @@ import FZSwiftUtils
 /// A protocol that describes an animatable type.
 public protocol AnimatableData: Equatable, Comparable {
     /// The type defining the data to animate.
-    associatedtype AnimatableData: VectorArithmetic
+    associatedtype AnimatableData: VectorArithmetic = Self
     /// The data to animate.
     var animatableData: AnimatableData { get }
     /// Initializes with the specified data.
@@ -42,14 +42,7 @@ extension AnimatableData where Self.AnimatableData == Self {
     }
 }
 
-extension Float: AnimatableData {
-    public var animatableData: Self {
-        self
-    }
-    public init(_ animatableData: Self) {
-        self = animatableData
-    }
-}
+extension Float: AnimatableData { }
  
 extension Double: AnimatableData {
     public var animatableData: Self {
@@ -173,6 +166,16 @@ extension CGQuaternion: AnimatableData {
     
     public static var zero: CGQuaternion {
         CGQuaternion(.zero)
+    }
+}
+
+extension NSDirectionalEdgeInsets: AnimatableData {
+    public init(_ animatableData: AnimatableVector) {
+        self.init(top: animatableData[0], leading: animatableData[1], bottom: animatableData[2], trailing: animatableData[3])
+    }
+    
+    public var animatableData: AnimatableVector {
+        [top, bottom, leading, trailing]
     }
 }
 

@@ -4,7 +4,7 @@
 //  Modified by Florian Zand
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
-
+/*
 #if os(macOS) || os(iOS) || os(tvOS)
 
 public extension Wave {
@@ -53,3 +53,4 @@ public extension Wave {
     }
 }
 #endif
+*/
