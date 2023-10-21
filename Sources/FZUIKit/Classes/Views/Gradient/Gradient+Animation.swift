@@ -66,7 +66,7 @@ extension Gradient: AnimatableData {
     }
 }
  
-extension Animator where Object: GradientView {
+extension PropertyAnimator where Object: GradientView {
     /// The gradient of the view.
     public var gradient: Gradient {
         get { value(for: \.gradient, key: "gradient") }

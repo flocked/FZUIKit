@@ -8,25 +8,27 @@
 #if os(macOS)
 import AppKit
 
-extension NSWindow: AnimatableObject { }
+extension NSWindow: AnimatablePropertyProvider { }
 
-extension Animator where Object: NSWindow {
+public typealias WindowAnimator = PropertyAnimator<NSUIView>
+
+extension PropertyAnimator where Object: NSWindow {
     /// The background color of the window.
     public var backgroundColor: NSUIColor {
-        get { value(for: \.backgroundColor) }
-        set { setValue(newValue, for: \.backgroundColor) }
+        get { self[\.backgroundColor] }
+        set { self[\.backgroundColor] = newValue }
     }
     
     /// The alpha of the window.
     public var alpha: CGFloat {
-        get { value(for: \.alphaValue) }
-        set { setValue(newValue, for: \.alphaValue) }
+        get { self[\.alphaValue] }
+        set { self[\.alphaValue] = newValue }
     }
     
     /// The frame of the window.
     public var frame: CGRect {
-        get { value(for: \._frame) }
-        set { setValue(newValue, for: \._frame) }
+        get { self[\.frame_] }
+        set { self[\.frame_] = newValue }
     }
     
     /// The size of the window.
@@ -37,7 +39,7 @@ extension Animator where Object: NSWindow {
 }
 
 fileprivate extension NSWindow {
-   @objc dynamic var _frame: CGRect {
+   @objc dynamic var frame_: CGRect {
         get { frame }
         set { setFrame(newValue, display: false) }
     }

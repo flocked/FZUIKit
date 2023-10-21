@@ -12,22 +12,24 @@ import FZSwiftUtils
 import QuartzCore
 
 /// An object that has animatable properties.
-public protocol AnimatableObject: AnyObject { }
+public protocol AnimatablePropertyProvider: AnyObject { }
 
-extension AnimatableObject  {
+extension AnimatablePropertyProvider  {
     /**
-     Use the `animator` property to set any animatable properties in an ``Wave.animateWith(...)`` animation block.
-
+     Use the `animator` property to set any animatable properties in an ``Wave/animate(withSpring:delay:gestureVelocity:animations:completion:)`` animation block.
+     
+     If an animatable property is changed outside an animation block, it stops animating and changes to the new value imminently..
+     
      Example usage:
      ```swift
-     Wave.animateWith(spring: spring) {
+     Wave.animate(withSpring: .smooth) {
         myView.animator.center = CGPoint(x: 100, y: 100)
         myView.animator.alpha = 0.5
      }
      ```
      */
-    public var animator: Animator<Self> {
-        get { getAssociatedValue(key: "Animator", object: self, initialValue: Animator(self)) }
+    public var animator: PropertyAnimator<Self> {
+        get { getAssociatedValue(key: "Animator", object: self, initialValue: PropertyAnimator(self)) }
         set { set(associatedValue: newValue, key: "Animator", object: self) }
     }
     
@@ -37,8 +39,8 @@ extension AnimatableObject  {
     }
 }
 
-/// Provides animatable properties of an object conforming to
-public class Animator<Object: AnimatableObject> {
+/// Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
+public class PropertyAnimator<Object: AnimatablePropertyProvider> {
     internal var object: Object
     
     internal init(_ object: Object) {
@@ -46,7 +48,19 @@ public class Animator<Object: AnimatableObject> {
     }
 }
 
-internal extension Animator {
+public extension PropertyAnimator {
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>) -> Value {
+        get { value(for: keyPath) }
+        set { setValue(newValue, for: keyPath) }
+    }
+    
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>) -> Value? {
+        get { value(for: keyPath) }
+        set { setValue(newValue, for: keyPath) }
+    }
+}
+
+internal extension PropertyAnimator {
     var animations: [String: AnimationProviding] {
         get { object._animations }
         set { object._animations = newValue }

@@ -249,5 +249,15 @@ public extension NSUIView {
     func removeSubviews(where predicate: (NSUIView)->(Bool), depth: Int = 0) {
         subviews(where: predicate, depth: depth).forEach { $0.removeFromSuperview() }
     }
+    
+    /// Animates a transition to changes made to the view after calling this.
+    func transition(_ transition: CATransition) {
+        #if os(macOS)
+        wantsLayer = true
+        layer?.add(transition, forKey: CATransitionType.fade.rawValue)
+        #else
+        layer.add(transition, forKey: CATransitionType.fade.rawValue)
+        #endif
+    }
 }
 #endif

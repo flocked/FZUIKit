@@ -12,19 +12,21 @@ import AppKit
 import UIKit
 #endif
 
-extension NSUIView: AnimatableObject { }
+extension NSUIView: AnimatablePropertyProvider { }
 
-extension Animator where Object: NSUIView {
+public typealias ViewAnimator = PropertyAnimator<NSUIView>
+
+extension PropertyAnimator where Object: NSUIView {
     /// The bounds of the view.
     public var bounds: CGRect {
-        get { value(for: \.bounds) }
-        set { setValue(newValue, for: \.bounds) }
+        get { self[\.bounds] }
+        set { self[\.bounds] = newValue }
     }
     
     /// The frame of the view.
     public var frame: CGRect {
-        get { value(for: \.frame) }
-        set { setValue(newValue, for: \.frame) }
+        get { self[\.frame] }
+        set { self[\.frame] = newValue }
     }
     
     /// The size of the view. Changing this value keeps the view centered.
@@ -48,7 +50,7 @@ extension Animator where Object: NSUIView {
     /// The background color of the view.
     public var backgroundColor: NSUIColor? {
         get { object.optionalLayer?.animator.backgroundColor }
-        set { 
+        set {
             object.optionalLayer?.animator.backgroundColor = newValue?.resolvedColor(for: object)
             #if os(macOS)
             object.dynamicColors.background = newValue
@@ -90,9 +92,9 @@ extension Animator where Object: NSUIView {
         set { 
             var newValue = newValue
             #if os(macOS)
-            object.dynamicColors.shadow = newValue.resolvedColor()
+            object.dynamicColors.shadow = newValue._resolvedColor
             #endif
-            newValue.color = newValue.color?.resolvedColor(for: object)
+            newValue.color = newValue._resolvedColor?.resolvedColor(for: object)
             object.optionalLayer?.animator.shadow = newValue }
     }
     
@@ -101,7 +103,10 @@ extension Animator where Object: NSUIView {
         get { object.optionalLayer?.animator.innerShadow ?? .none() }
         set {
             var newValue = newValue
-            newValue.color = newValue.color?.resolvedColor(for: object)
+            #if os(macOS)
+            object.dynamicColors.innerShadow = newValue._resolvedColor
+            #endif
+            newValue.color = newValue._resolvedColor?.resolvedColor(for: object)
             object.optionalLayer?.animator.innerShadow = newValue
         }
     }
@@ -140,97 +145,130 @@ fileprivate extension NSUIView {
     }
 }
 
-extension Animator where Object: NSUITextField {
+extension PropertyAnimator where Object: NSUITextField {
     /// The text color of the text field.
     public var textColor: NSUIColor? {
-        get { value(for: \.textColor) }
-        set { setValue(newValue, for: \.textColor) }
+        get { self[\.textColor] }
+        set { self[\.textColor] = newValue }
     }
     
     /// The font size of the text field.
     public var fontSize: CGFloat {
-        get { value(for: \.fontSize) }
-        set { setValue(newValue, for: \.fontSize) } }
+        get { self[\.fontSize] }
+        set { self[\.fontSize] = newValue }
+    }
 }
 
 fileprivate extension NSUITextField {
     @objc var fontSize: CGFloat {
         get { font?.pointSize ?? 0.0 }
-        set { font = font?.withSize(newValue) } }
+        set { font = font?.withSize(newValue) }
+    }
+}
+
+extension PropertyAnimator where Object: NSUIScrollView {
+    /// The point at which the origin of the content view is offset from the origin of the scroll view.
+    public var contentOffset: CGPoint {
+        get { self[\.contentOffset] }
+        set { self[\.contentOffset] = newValue }
+    }
+    
+    /// The amount by which the content is currently scaled.
+    public var magnification: CGFloat {
+        get { self[\.magnification] }
+        set { self[\.magnification] = newValue }
+    }
 }
 
 
 #if os(macOS)
-extension Animator where Object: NSImageView {
+extension PropertyAnimator where Object: NSImageView {
     /// The tint color of the image.
     public var contentTintColor: NSUIColor? {
-        get { value(for: \.contentTintColor) }
-        set { setValue(newValue, for: \.contentTintColor) }
+        get { self[\.contentTintColor] }
+        set { self[\.contentTintColor] = newValue }
     }
 }
 
-extension Animator where Object: NSButton {
+extension PropertyAnimator where Object: NSButton {
     /// The tint color of the button.
     public var contentTintColor: NSUIColor? {
-        get { value(for: \.contentTintColor) }
-        set { setValue(newValue, for: \.contentTintColor) }
+        get { self[\.contentTintColor] }
+        set { self[\.contentTintColor] = newValue }
     }
 }
 
-extension Animator where Object: ImageView {
+extension PropertyAnimator where Object: ImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor? {
-        get { value(for: \.tintColor) }
-        set { setValue(newValue, for: \.tintColor) }
+        get { self[\.tintColor] }
+        set { self[\.tintColor] = newValue }
+    }
+}
+
+extension PropertyAnimator where Object: NSControl {
+    /// The double value of the control.
+    public var doubleValue: Double {
+        get { self[\.doubleValue] }
+        set { self[\.doubleValue] = newValue }
+    }
+    
+    /// The float value of the control.
+    public var floatValue: Float {
+        get { self[\.floatValue] }
+        set { self[\.floatValue] = newValue }
     }
 }
 #elseif canImport(UIKit)
-extension Animator where Object: UIImageView {
+extension PropertyAnimator where Object: UIImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor {
-        get { value(for: \.tintColor) }
-        set { setValue(newValue, for: \.tintColor) }
+        get { self[\.tintColor] }
+        set { self[\.tintColor] = newValue }
     }
 }
 
-extension Animator where Object: UIButton {
+extension PropertyAnimator where Object: UIButton {
     /// The tint color of the button.
     public var tintColor: NSUIColor {
-        get { value(for: \.tintColor) }
-        set { setValue(newValue, for: \.tintColor) }
+        get { self[\.tintColor] }
+        set { self[\.tintColor] = newValue }
     }
 }
 
-extension Animator where Object: UILabel {
+extension PropertyAnimator where Object: UILabel {
     /// The text color of the label.
     public var textColor: NSUIColor {
-        get { value(for: \.textColor) }
-        set { setValue(newValue, for: \.textColor) }
+        get { self[\.textColor] }
+        set { self[\.textColor] = newValue }
     }
     
     /// The font size of the label.
     public var fontSize: CGFloat {
-        get { value(for: \.fontSize) }
-        set { setValue(newValue, for: \.fontSize) } }
+        get { self[\.fontSize] }
+        set { self[\.fontSize] = newValue }
+    }
 }
 
-extension Animator where Object: UITextView {
+extension PropertyAnimator where Object: UITextView {
     /// The text color of the text view.
     public var textColor: NSUIColor? {
-        get { value(for: \.textColor) }
-        set { setValue(newValue, for: \.textColor) }
+        get { self[\.textColor] }
+        set { self[\.textColor] = newValue }
     }
     
     /// The font size of the text view.
     public var fontSize: CGFloat {
-        get { value(for: \.fontSize) }
-        set { setValue(newValue, for: \.fontSize) } }
+        get { self[\.fontSize] }
+        set { self[\.fontSize] = newValue }
+    }
 }
 
 fileprivate extension UILabel {
     @objc var fontSize: CGFloat {
-        get { font.pointSize }
-        set { font = font.withSize(newValue) } }
+        get { self[\.fontSize] }
+        set { self[\.fontSize] = newValue }
+    }
 }
 
 fileprivate extension UITextView {

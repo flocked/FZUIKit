@@ -21,8 +21,6 @@ internal protocol AnimationProviding {
 
     func reset()
 
-  //  var mode: Wave.AnimationMode { get set }
-
     var relativePriority: Int { get set }
 }
 #endif

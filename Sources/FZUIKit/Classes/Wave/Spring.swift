@@ -102,12 +102,12 @@ public class Spring: Equatable {
      Creates a spring with the specified mass, stiffness, and damping.
      
      - Parameters:
+     - damping: The corresponding spring coefficient.
         - stiffness: Specifies that property of the object attached to the end of the spring.
-        - damping: The corresponding spring coefficient.
         - mass: Defines how the spring’s motion should be damped due to the forces of friction.
         - allowOverDamping: A value of `true` specifies that over-damping should be allowed when appropriate based on the other inputs, and a value of `false` specifies that such cases should instead be treated as critically damped.
      */
-    public convenience init (stiffness: CGFloat, damping: CGFloat, mass: CGFloat = 1.0, allowOverDamping: Bool = false) {
+    public convenience init (damping: CGFloat, stiffness: CGFloat, mass: CGFloat = 1.0, allowOverDamping: Bool = false) {
         var dampingRatio = Self.dampingRatio(damping: damping, stiffness: stiffness, mass: mass)
         if allowOverDamping == false, dampingRatio > 1.0 {
             dampingRatio = 1.0
@@ -117,7 +117,7 @@ public class Spring: Equatable {
     
     
     @available(macOS 14.0, iOS 17, tvOS 17, *)
-    /// Creates a spring with the values of a SwiftUI `Spring`.
+    /// Creates a spring from the values of a SwiftUI spring.
     public init(_ spring: SwiftUI.Spring) {
         dampingRatio = spring.dampingRatio
         response = spring.response

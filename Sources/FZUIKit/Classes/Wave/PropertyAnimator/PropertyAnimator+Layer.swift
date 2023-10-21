@@ -12,25 +12,27 @@ import AppKit
 import UIKit
 #endif
 
-extension CALayer: AnimatableObject { }
+extension CALayer: AnimatablePropertyProvider { }
 
-extension Animator where Object: CALayer {
+public typealias LayerAnimator = PropertyAnimator<CALayer>
+
+extension PropertyAnimator where Object: CALayer {
     /// The bounds of the layer.
     public var bounds: CGRect {
-        get { value(for: \.bounds) }
-        set { setValue(newValue, for: \.bounds) }
+        get { self[\.bounds] }
+        set { self[\.bounds] = newValue }
     }
     
     /// The frame of the layer.
     public var frame: CGRect {
-        get { value(for: \.frame) }
-        set { setValue(newValue, for: \.frame) }
+        get { self[\.frame] }
+        set { self[\.frame] = newValue }
     }
     
     /// The background color of the layer.
     public var backgroundColor: NSUIColor? {
-        get { value(for: \.backgroundColor)?.nsUIColor }
-        set { setValue(newValue?.cgColor, for: \.backgroundColor) }
+        get { self[\.backgroundColor]?.nsUIColor }
+        set { self[\.backgroundColor] = newValue?.cgColor }
     }
     
     /// The size of the layer. Changing this value keeps the layer centered.
@@ -56,14 +58,14 @@ extension Animator where Object: CALayer {
         
     /// The opacity value of the layer.
     public var opacity: CGFloat {
-        get { CGFloat(value(for: \.opacity)) }
-        set { setValue(Float(newValue), for: \.opacity) }
+        get { CGFloat(self[\.opacity]) }
+        set { self[\.opacity] = Float(newValue) }
     }
     
     /// The three-dimensional transform of the layer.
     public var transform: CATransform3D {
-        get { value(for: \.transform) }
-        set { setValue(newValue, for: \.transform) }
+        get { self[\.transform] }
+        set { self[\.transform] = newValue }
     }
     
     /// The scale of the layer.
@@ -74,8 +76,8 @@ extension Animator where Object: CALayer {
     
     /// The rotation of the layer.
     public var rotation: CGQuaternion {
-        get { self.transform.rotation }
-        set { self.transform.rotation = newValue }
+        get { self[\.rotation] }
+        set { self[\.rotation] = newValue }
     }
     
     /// The translation transform of the layer.
@@ -86,20 +88,20 @@ extension Animator where Object: CALayer {
     
     /// The corner radius of the layer.
     public var cornerRadius: CGFloat {
-        get { value(for: \.cornerRadius) }
-        set { setValue(newValue, for: \.cornerRadius) }
+        get { self[\.cornerRadius] }
+        set { self[\.cornerRadius] = newValue }
     }
     
     /// The border color of the layer.
     public var borderColor: NSUIColor? {
-        get { value(for: \.borderColor)?.nsUIColor }
-        set { setValue(newValue?.cgColor, for: \.borderColor) }
+        get { self[\.borderColor]?.nsUIColor }
+        set { self[\.borderColor] = newValue?.cgColor }
     }
     
     /// The border width of the layer.
     public var borderWidth: CGFloat {
-        get { value(for: \.borderWidth) }
-        set { setValue(newValue, for: \.borderWidth) }
+        get { self[\.borderWidth] }
+        set { self[\.borderWidth] = newValue }
     }
     
     /// The shadow of the layer.
@@ -115,23 +117,23 @@ extension Animator where Object: CALayer {
     }
     
     internal var shadowOpacity: CGFloat {
-        get { CGFloat(value(for: \.shadowOpacity)) }
-        set { setValue(Float(newValue), for: \.shadowOpacity) }
+        get { CGFloat(self[\.shadowOpacity]) }
+        set { self[\.shadowOpacity] = Float(newValue) }
     }
     
     internal var shadowColor: NSUIColor? {
-        get { value(for: \.shadowColor)?.nsUIColor }
-        set { setValue(newValue?.cgColor, for: \.shadowColor) }
+        get { self[\.shadowColor]?.nsUIColor }
+        set { self[\.shadowColor] = newValue?.cgColor }
     }
     
     internal var shadowOffset: CGSize {
-        get { value(for: \.shadowOffset) }
-        set { setValue(newValue, for: \.shadowOffset) }
+        get { self[\.shadowOffset] }
+        set { self[\.shadowOffset] = newValue }
     }
     
     internal var shadowRadius: CGFloat {
-        get { value(for: \.shadowRadius) }
-        set { setValue(newValue, for: \.shadowRadius) }
+        get { self[\.shadowRadius] }
+        set { self[\.shadowRadius] = newValue }
     }
     
     /// The inner shadow of the layer.
@@ -146,36 +148,38 @@ extension Animator where Object: CALayer {
     }
     
     internal var innerShadowOpacity: CGFloat {
-        get { value(for: \.innerShadowOpacity) }
-        set { setValue(newValue, for: \.innerShadowOpacity) }
+        get { self[\.innerShadowOpacity] }
+        set { self[\.innerShadowOpacity] = newValue }
     }
     
     internal var innerShadowRadius: CGFloat {
-        get { value(for: \.innerShadowRadius) }
-        set { setValue(newValue, for: \.innerShadowRadius) }
+        get { self[\.innerShadowRadius] }
+        set { self[\.innerShadowRadius] = newValue }
     }
     
     internal var innerShadowOffset: CGPoint {
-        get { value(for: \.innerShadowOffset) }
-        set { setValue(newValue, for: \.innerShadowOffset) }
+        get { self[\.innerShadowOffset] }
+        set { self[\.innerShadowOffset] = newValue }
     }
     
     internal var innerShadowColor: NSUIColor? {
-        get { value(for: \.innerShadowColor) }
-        set { setValue(newValue, for: \.innerShadowColor) }
+        get { self[\.innerShadowColor] }
+        set { self[\.innerShadowColor] = newValue }
     }
 }
 
-extension Animator where Object: CATextLayer {
+extension PropertyAnimator where Object: CATextLayer {
     /// The font size of the layer.
     public var fontSize: CGFloat {
-        get { value(for: \.fontSize) }
-        set { setValue(newValue, for: \.fontSize) } }
+        get { self[\.fontSize] }
+        set { self[\.fontSize] = newValue }
+    }
     
     /// The text color of the layer.
     public var textColor: NSUIColor? {
-        get { value(for: \.textColor) }
-        set { setValue(newValue, for: \.textColor) } }
+        get { self[\.textColor] }
+        set { self[\.textColor] = newValue }
+    }
 }
 
 fileprivate extension CATextLayer {

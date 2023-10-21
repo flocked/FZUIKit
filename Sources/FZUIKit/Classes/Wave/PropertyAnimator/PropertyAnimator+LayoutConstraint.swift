@@ -12,13 +12,13 @@ import AppKit
 import UIKit
 #endif
 
-extension NSLayoutConstraint: AnimatableObject { }
+extension NSLayoutConstraint: AnimatablePropertyProvider { }
 
-extension Animator where Object: NSLayoutConstraint {
+extension PropertyAnimator where Object: NSLayoutConstraint {
     /// The constant of the layout constraint.
     public var constant: CGFloat {
-        get { value(for: \.constant) }
-        set { setValue(newValue, for: \.constant) }
+        get { self[\.constant] }
+        set { self[\.constant] = newValue }
     }
 }
 
@@ -40,30 +40,7 @@ public struct LayoutConstraintsAnimator<Object: Collection> where Object.Element
     public func constant(_ constant: CGFloat) {
         collection.forEach({ $0.animator.constant = constant })
     }
-    
-    /*
-    public var insets: NSDirectionalEdgeInsets {
-        get {
-            var insets = NSDirectionalEdgeInsets()
-            insets.leading = collection.leading?.animator.constant ?? 0
-            insets.trailing = -(collection.trailing?.animator.constant ?? 0)
-            insets.top = collection.top?.animator.constant ?? 0
-            insets.bottom = -(collection.bottom?.animator.constant ?? 0)
-            insets.width = -(collection.width?.animator.constant ?? 0)
-            insets.height = -(collection.height?.animator.constant ?? 0)
-            return insets
-        }
-        set {
-            collection.leading?.animator.constant = newValue.leading
-            collection.trailing?.animator.constant = -newValue.trailing
-            collection.bottom?.animator.constant = -newValue.bottom
-            collection.top?.animator.constant = newValue.top
-            collection.width?.animator.constant = -newValue.width
-            collection.height?.animator.constant = -newValue.height
-        }
-    }
-    */
-    
+
     /// Updates the constant of the constraints and returns itself.
     public func constant(_ insets: NSDirectionalEdgeInsets) {
         collection.leading?.animator.constant = insets.leading
@@ -79,35 +56,35 @@ public struct LayoutConstraintsAnimator<Object: Collection> where Object.Element
         self.constant(insets.directional)
     }
     
-    public var leading: Animator<NSLayoutConstraint>? {
+    public var leading: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.leading?.animator }
     }
     
-    public var trailing: Animator<NSLayoutConstraint>? {
+    public var trailing: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.trailing?.animator }
     }
     
-    public var bottom: Animator<NSLayoutConstraint>? {
+    public var bottom: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.bottom?.animator }
     }
     
-    public var top: Animator<NSLayoutConstraint>? {
+    public var top: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.top?.animator }
     }
     
-    public var centerX: Animator<NSLayoutConstraint>? {
+    public var centerX: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.centerX?.animator }
     }
     
-    public var centerY: Animator<NSLayoutConstraint>? {
+    public var centerY: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.centerY?.animator }
     }
     
-    public var lastBaseline: Animator<NSLayoutConstraint>? {
+    public var lastBaseline: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.lastBaseline?.animator }
     }
     
-    public var firstBaseline: Animator<NSLayoutConstraint>? {
+    public var firstBaseline: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.firstBaseline?.animator }
     }
 }
