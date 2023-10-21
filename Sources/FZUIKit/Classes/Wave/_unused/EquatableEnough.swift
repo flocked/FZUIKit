@@ -29,7 +29,7 @@ public protocol EquatableEnough {
      Declares whether or not something else is equal to `self` within a given tolerance.
      (e.g. a floating point value that is equal to another floating point value within a given epsilon)
      */
-    func isApproximatelyEqual(to: Self, epsilon: EpsilonType) -> Bool
+    func isApproximatelyEqual(to: Self, ep silon: EpsilonType) -> Bool
 }
 
 extension SIMD2: EquatableEnough where Scalar: FloatingPointInitializable & EquatableEnough { }

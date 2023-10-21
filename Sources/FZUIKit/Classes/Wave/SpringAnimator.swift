@@ -233,9 +233,8 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
 
         if let value = self.value {
-          //  let callbackValue = integralizeValues ? value.scaledIntegral : value
-          //  valueChanged?(callbackValue)
-            valueChanged?(value)
+            let callbackValue = integralizeValues ? value.scaledIntegral : value
+            valueChanged?(callbackValue)
         }
 
         if animationFinished {

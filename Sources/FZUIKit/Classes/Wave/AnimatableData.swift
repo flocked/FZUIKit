@@ -22,14 +22,14 @@ public protocol AnimatableData: Equatable, Comparable {
     var animatableData: AnimatableData { get }
     /// Initializes with the specified data.
     init(_ animatableData: AnimatableData)
-    
+    /// Scaled integral representation of the value.
+    var scaledIntegral: Self { get }
     static var zero: Self { get }
-    static var scaledIntegral: Self { get }
 }
 
 public extension AnimatableData {
-    static var scaledIntegral: Self {
-        self as! Self
+    var scaledIntegral: Self {
+        self
     }
 }
 

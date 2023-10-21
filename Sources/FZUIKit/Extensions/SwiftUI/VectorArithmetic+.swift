@@ -11,6 +11,12 @@ import Foundation
 
 public typealias AnimatableVector = Array<Double>
 
+func test() {
+    var val1: [Double] = [1.0]
+    var val2: [Double] = [1.0]
+    val1 + val2
+}
+
 extension AnimatableVector: AdditiveArithmetic, VectorArithmetic {
     public static var zero: Self = [0.0]
     
@@ -31,6 +37,7 @@ extension AnimatableVector: AdditiveArithmetic, VectorArithmetic {
         let count = Swift.min(lhs.count, rhs.count)
         vDSP.subtract(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
     }
+
 
     public mutating func scale(by rhs: Double) {
         self = vDSP.multiply(rhs, self)
@@ -83,11 +90,14 @@ extension VectorArithmetic {
     }
     
     public static func / (lhs: inout Self, rhs: Double)  {
-        lhs.scale(by: 1.0 - rhs)
+        lhs.scale(by: 1.0 / rhs)
     }
     
     public static func / (lhs: Self, rhs: Double) -> Self {
-        return lhs.scaled(by: 1.0 - rhs)
+        return lhs.scaled(by: 1.0 / rhs)
+    }
+    
+    public static prefix func - (lhs: Self) -> Self {
+        lhs * -1
     }
 }
-
