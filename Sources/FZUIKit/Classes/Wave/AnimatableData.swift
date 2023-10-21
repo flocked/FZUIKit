@@ -24,6 +24,13 @@ public protocol AnimatableData: Equatable, Comparable {
     init(_ animatableData: AnimatableData)
     
     static var zero: Self { get }
+    static var scaledIntegral: Self { get }
+}
+
+public extension AnimatableData {
+    static var scaledIntegral: Self {
+        self as! Self
+    }
 }
 
 extension AnimatableData where Self.AnimatableData: Comparable {
