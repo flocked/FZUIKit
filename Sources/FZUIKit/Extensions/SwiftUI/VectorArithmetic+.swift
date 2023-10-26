@@ -11,12 +11,6 @@ import Foundation
 
 public typealias AnimatableVector = Array<Double>
 
-func test() {
-    var val1: [Double] = [1.0]
-    var val2: [Double] = [1.0]
-    val1 + val2
-}
-
 extension AnimatableVector: AdditiveArithmetic, VectorArithmetic {
     public static var zero: Self = [0.0]
     

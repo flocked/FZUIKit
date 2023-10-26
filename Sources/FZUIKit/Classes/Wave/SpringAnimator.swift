@@ -9,21 +9,6 @@
 import Foundation
 
 public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
-    public enum Event {
-        /**
-         Indicates the animation has fully completed.
-         */
-        case finished(at: T)
-
-        /**
-         Indicates that the animation's `target` value was changed in-flight (i.e. while the animation was running).
-
-         - parameter from: The previous `target` value of the animation.
-         - parameter to: The new `target` value of the animation.
-         */
-        case retargeted(from: T, to: T)
-    }
-
     /**
      A unique identifier for the animation.
      */
@@ -74,7 +59,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             if state == .running {
                 startTime = .now
 
-                let event = Event.retargeted(from: oldValue, to: newValue)
+                let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
                 completion?(event)
             }
         }
@@ -95,7 +80,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     /**
      The completion block to call when the animation either finishes, or "re-targets" to a new target value.
      */
-    public var completion: ((_ event: Event) -> Void)?
+    public var completion: ((_ event: AnimationEvent<T>) -> Void)?
 
     /**
      The animation's `mode`. If set to `.nonAnimated`, the animation will snap to the target value when run.
@@ -184,7 +169,6 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-     //   mode = settings.mode
         spring = settings.spring
     }
 

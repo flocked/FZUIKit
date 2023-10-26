@@ -14,7 +14,7 @@ import UIKit
 import SwiftUI
 import FZSwiftUtils
 
-/// A protocol that describes an animatable type.
+/// A protocol that describes an animatable value type.
 public protocol AnimatableData: Equatable, Comparable {
     /// The type defining the data to animate.
     associatedtype AnimatableData: VectorArithmetic = Self

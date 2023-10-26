@@ -28,13 +28,6 @@ extension PropertyAnimator where Object: CALayer {
         get { self[\.frame] }
         set { self[\.frame] = newValue }
     }
-    
-    /// The background color of the layer.
-    public var backgroundColor: NSUIColor? {
-        get { self[\.backgroundColor]?.nsUIColor }
-        set { self[\.backgroundColor] = newValue?.cgColor }
-    }
-    
     /// The size of the layer. Changing this value keeps the layer centered.
     public var size: CGSize {
         get { frame.size }
@@ -54,6 +47,13 @@ extension PropertyAnimator where Object: CALayer {
     public var center: CGPoint {
         get { frame.center }
         set { frame.center = newValue }
+    }
+    
+    
+    /// The background color of the layer.
+    public var backgroundColor: NSUIColor? {
+        get { self[\.backgroundColor]?.nsUIColor }
+        set { self[\.backgroundColor] = newValue?.cgColor }
     }
         
     /// The opacity value of the layer.

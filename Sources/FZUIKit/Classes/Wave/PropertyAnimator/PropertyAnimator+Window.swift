@@ -10,7 +10,7 @@ import AppKit
 
 extension NSWindow: AnimatablePropertyProvider { }
 
-public typealias WindowAnimator = PropertyAnimator<NSUIView>
+public typealias WindowAnimator = PropertyAnimator<NSWindow>
 
 extension PropertyAnimator where Object: NSWindow {
     /// The background color of the window.

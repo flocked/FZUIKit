@@ -5,16 +5,16 @@
 //  Created by Adam Bell on 8/29/20.
 //
 
-/*
-import Foundation
 
+import Foundation
+/*
 /**
  An easing function powered by a `Bezier` that can be used with a `BasicAnimation`.
 
  - Note: This can be used on its own, but it's mainly used by `BasicAnimation`'s `tick` method.
  - SeeAlso: `BasicAnimation`
  */
-public struct EasingFunction<Value: SIMDRepresentable>: Hashable {
+public struct EasingFunction: Hashable {
 
     /// An easing function with a linear bezier curve.
     public static var linear: Self {
@@ -37,12 +37,12 @@ public struct EasingFunction<Value: SIMDRepresentable>: Hashable {
     }
 
     /// The easing function's bezier curve.
-    public let bezier: Bezier<Value.SIMDType.Scalar>
+    public let bezier: Bezier<Double>
 
     /**
      Initializes the easing function with a given `Bezier`.
      */
-    public init(bezier: Bezier<Value.SIMDType.Scalar>) {
+    public init(bezier: Bezier<Double>) {
         self.bezier = bezier
     }
 
@@ -55,7 +55,7 @@ public struct EasingFunction<Value: SIMDRepresentable>: Hashable {
 
      - Returns: An interpolated SIMD value between the supplied range's bounds based on a fraction (from 0.0 to 1.0) of the easing function.
      */
-    @inlinable public func solveInterpolatedValueSIMD<SIMDType: SupportedSIMD>(_ range: ClosedRange<SIMDType>, fraction: SIMDType.Scalar) -> SIMDType where SIMDType.Scalar == Value.SIMDType.Scalar {
+    @inlinable public func solveInterpolatedValue(_ range: ClosedRange<AnimatableVector>, fraction: Double) -> AnimatableVector {
         let x = bezier.solve(x: fraction)
 
         let min = range.lowerBound
@@ -68,17 +68,7 @@ public struct EasingFunction<Value: SIMDRepresentable>: Hashable {
         return newValue
     }
 
-    /**
-     Solves for a `Value` within a given range based on the easing function.
-
-     - Note: This mirrors the `solveSIMD` variant, but works for `Value` types.
-     */
-    @inlinable public func solveInterpolatedValue(_ range: ClosedRange<Value>, fraction: Value.SIMDType.Scalar) -> Value {
-        let newValue = solveInterpolatedValueSIMD(range.lowerBound.simdRepresentation()...range.upperBound.simdRepresentation(), fraction: fraction)
-        return Value(newValue)
-    }
-
-    @inlinable internal func solveAccumulatedTimeSIMD(_ range: ClosedRange<Value.SIMDType>, value: Value.SIMDType) -> CFTimeInterval? {
+    @inlinable internal func solveAccumulatedTime(_ range: ClosedRange<AnimatableVector>, value: AnimatableVector) -> CFTimeInterval? {
         guard let usableIndex = value.indices.first(where: { i -> Bool in
             let fractionComplete = value[i] / (range.upperBound[i] - range.lowerBound[i])
             return !(fractionComplete.isApproximatelyEqual(to: 0.0) || fractionComplete.isApproximatelyEqual(to: 1.0))
@@ -86,11 +76,7 @@ public struct EasingFunction<Value: SIMDRepresentable>: Hashable {
 
         let fractionComplete = value[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
         let t = bezier.solve(y: fractionComplete)
-        return (t as! CFTimeInterval)
-    }
-
-    @inlinable internal func solveAccumulatedTime(_ range: ClosedRange<Value>, value: Value) -> CFTimeInterval? {
-        return solveAccumulatedTimeSIMD(range.lowerBound.simdRepresentation()...range.upperBound.simdRepresentation(), value: value.simdRepresentation())
+        return t
     }
 
     // MARK: - Hashable
@@ -101,48 +87,6 @@ public struct EasingFunction<Value: SIMDRepresentable>: Hashable {
     }
 
 }
-
-extension EasingFunction where Value: SupportedSIMD {
-
-    /**
-     Solves for a `Value` within a given range based on the easing function when the `Value` type conforms to `SupportedSIMD`.
-
-     - Note: This mirrors the `solveSIMD` variant, but works for `Value` types and acts as a fast path to skip boxing and unboxing `Value`.
-     */
-    @inlinable public func solveInterpolatedValue(_ range: ClosedRange<Value.SIMDType>, fraction: Value.SIMDType.Scalar) -> Value.SIMDType {
-        return solveInterpolatedValueSIMD(range, fraction: fraction)
-    }
-
-    @inlinable internal func solveAccumulatedTime(_ range: ClosedRange<Value.SIMDType>, value: Value.SIMDType) -> CFTimeInterval? {
-        return solveAccumulatedTimeSIMD(range, value: value)
-    }
-
-}
-
-/*
- * Copyright (C) 2008 Apple Inc. All Rights Reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY APPLE INC. ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE INC. OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 
 public typealias EasingFunctionType = Bezier<CGFloat>

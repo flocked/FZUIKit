@@ -5,13 +5,12 @@
 //  Created by Adam Bell on 8/2/20.
 //  Taken from https://github.com/b3ll/Motion
 
-/*
+
 #if os(macOS) || os(iOS) || os(tvOS)
 
 import CoreGraphics
 import Foundation
 import simd
-
 
 public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
     init(_ value: Float)
@@ -21,6 +20,15 @@ public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLi
 extension Float: FloatingPointInitializable { }
 extension Double: FloatingPointInitializable { }
 extension CGFloat: FloatingPointInitializable { }
+ 
+ extension FloatingPointInitializable {
+     @inlinable public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
+         isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
+     }
+ }
+
+
+/*
 
 public protocol EquatableEnough {
     associatedtype EpsilonType: EquatableEnough, FloatingPointInitializable
@@ -39,11 +47,6 @@ extension SIMD8: EquatableEnough where Scalar: FloatingPointInitializable & Equa
 extension SIMD16: EquatableEnough where Scalar: FloatingPointInitializable & EquatableEnough { }
 extension SIMD32: EquatableEnough where Scalar: FloatingPointInitializable & EquatableEnough { }
 
-extension FloatingPointInitializable {
-    @inlinable public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
-        isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
-    }
-}
 
 extension EquatableEnough where Self: SIMD, Scalar: FloatingPointInitializable {
     @inlinable public func isApproximatelyEqual(to other: Self, epsilon: Scalar) -> Bool {
@@ -56,12 +59,28 @@ extension EquatableEnough where Self: SIMD, Scalar: FloatingPointInitializable {
         return true
     }
 }
+*/
 
+extension AnimatableVector {
+    public func isApproximatelyEqual(to other: Self, epsilon: Double) -> Bool {
+        for i in 0..<indices.count {
+            let equal = self[i].isApproximatelyEqual(to: other[i], absoluteTolerance: epsilon)
+            if !equal {
+                return false
+            }
+        }
+        return true
+    }
+}
+
+
+/*
 extension SIMDRepresentable where SIMDType: EquatableEnough {
     public func isApproximatelyEqual(to: Self, epsilon: SIMDType.EpsilonType) -> Bool {
         self.simdRepresentation().isApproximatelyEqual(to: to.simdRepresentation(), epsilon: epsilon)
     }
 }
+*/
 
 extension Numeric where Magnitude: FloatingPoint {
   /// Test if `self` and `other` are approximately equal.
@@ -145,40 +164,6 @@ extension AdditiveArithmetic {
   /// Test if `self` and `other` are approximately equal with specified
   /// tolerances and norm.
   ///
-  /// `true` if `self` and `other` are equal, or if they are finite and either
-  /// ```
-  /// norm(self - other) <= absoluteTolerance
-  /// ```
-  /// or
-  /// ```
-  /// norm(self - other) <= relativeTolerance * scale
-  /// ```
-  /// where `scale` is `max(norm(self), norm(other))`.
-  ///
-  /// Mathematical Properties:
-  ///
-  /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:norm:)`
-  ///   is _reflexive_ for non-exceptional values (such as NaN).
-  ///
-  /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:norm:)`
-  ///   is _symmetric_.
-  ///
-  /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:norm:)`
-  ///   is __not__ _transitive_. Because of this, approximately equality is
-  ///   __not an equivalence relation__, even when restricted to
-  ///   non-exceptional values.
-  ///
-  ///   This means that you must not use approximate equality to implement
-  ///   a conformance to Equatable, as it will violate the invariants of
-  ///   code written against that protocol.
-  ///
-  /// - For any point `a`, the set of values that compare approximately equal
-  ///   to `a` is _convex_ (under the assumption that `norm` implements a
-  ///   valid norm, which cannot be checked by this function or a protocol).
-  ///
-  /// See also `isApproximatelyEqual(to:[relativeTolerance:norm:])` and
-  /// `isApproximatelyEqual(to:absoluteTolerance:[relativeTolerance:])`.
-  ///
   /// - Parameters:
   ///
   ///   - other: The value to which `self` is compared.
@@ -245,4 +230,4 @@ extension AdditiveArithmetic {
 }
 
 #endif
-*/
+

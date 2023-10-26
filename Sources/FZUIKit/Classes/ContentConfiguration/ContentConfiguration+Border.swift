@@ -170,7 +170,7 @@ public extension CALayer {
     }
 }
 
-fileprivate extension NSUIView {
+internal extension NSUIView {
     var optionalLayer: CALayer? {
         get { self.layer }
     }

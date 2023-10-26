@@ -136,15 +136,6 @@ extension PropertyAnimator where Object: NSUIView {
     }
 }
 
-fileprivate extension NSUIView {
-    var optionalLayer: CALayer? {
-        #if os(macOS)
-        self.wantsLayer = true
-        #endif
-        return self.layer
-    }
-}
-
 extension PropertyAnimator where Object: NSUITextField {
     /// The text color of the text field.
     public var textColor: NSUIColor? {
@@ -173,11 +164,19 @@ extension PropertyAnimator where Object: NSUIScrollView {
         set { self[\.contentOffset] = newValue }
     }
     
+    #if os(macOS)
     /// The amount by which the content is currently scaled.
     public var magnification: CGFloat {
-        get { self[\.magnification] }
+        get {  self[\.magnification] }
         set { self[\.magnification] = newValue }
     }
+    #elseif canImport(UIKit)
+    /// The scale factor applied to the scroll view’s content.
+    public var zoomScale: CGFloat {
+        get {  self[\.zoomScale] }
+        set { self[\.zoomScale] = newValue }
+    }
+    #endif
 }
 
 
@@ -266,15 +265,16 @@ extension PropertyAnimator where Object: UITextView {
 
 fileprivate extension UILabel {
     @objc var fontSize: CGFloat {
-        get { self[\.fontSize] }
-        set { self[\.fontSize] = newValue }
+        get { font.pointSize }
+        set { font = font?.withSize(newValue) }
     }
 }
 
 fileprivate extension UITextView {
     @objc var fontSize: CGFloat {
         get { font?.pointSize ?? 0.0 }
-        set { font = font?.withSize(newValue) } }
+        set { font = font?.withSize(newValue) }
+    }
 }
 #endif
 #endif

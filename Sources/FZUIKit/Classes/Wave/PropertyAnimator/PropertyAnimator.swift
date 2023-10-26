@@ -11,8 +11,12 @@ import Foundation
 import FZSwiftUtils
 import QuartzCore
 
-/// An object that has animatable properties.
-public protocol AnimatablePropertyProvider: AnyObject { }
+/// An object that provides animatable properties that can be accessed via `animator`.
+public protocol AnimatablePropertyProvider: AnyObject { 
+    associatedtype Provider: AnimatablePropertyProvider = Self
+    
+    var animator: PropertyAnimator<Provider> { get }
+}
 
 extension AnimatablePropertyProvider  {
     /**
@@ -58,6 +62,24 @@ public extension PropertyAnimator {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
+    
+    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
+        if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
+            return animation.velocity
+        } else if let animation = (object as? NSUIView)?.optionalLayer?._animations[keyPath.stringValue] as? SpringAnimator<Value> {
+            return animation.velocity
+        }
+        return nil
+    }
+    
+    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
+        if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
+            return animation.velocity
+        } else if let animation = (object as? NSUIView)?.optionalLayer?._animations[keyPath.stringValue] as? SpringAnimator<Value> {
+            return animation.velocity
+        }
+        return nil
+    }
 }
 
 internal extension PropertyAnimator {
@@ -65,7 +87,7 @@ internal extension PropertyAnimator {
         get { object._animations }
         set { object._animations = newValue }
     }
-    
+        
     func animation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> SpringAnimator<Val>? {
         return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
