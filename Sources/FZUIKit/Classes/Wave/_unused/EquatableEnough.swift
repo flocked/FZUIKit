@@ -24,8 +24,9 @@ extension Double: FloatingPointInitializable { }
 extension CGFloat: FloatingPointInitializable { }
 
 public protocol EquatableEnough {
+    associatedtype Object = Self
     associatedtype Epsilon: FloatingPointInitializable
-    func isApproximatelyEqual(to: Self, epsilon: Epsilon) -> Bool
+    func isApproximatelyEqual(to: Object, epsilon: Epsilon) -> Bool
 }
 
 /*
