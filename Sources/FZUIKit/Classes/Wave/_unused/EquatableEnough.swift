@@ -14,7 +14,7 @@ import simd
 import SwiftUI
 
 
-public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & Equatable & EquatableEnough {
+public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & Equatable {
     init(_ value: Float)
     init(_ value: Double)
 }
@@ -28,20 +28,20 @@ public protocol EquatableEnough {
     func isApproximatelyEqual(to: Self, epsilon: Epsilon) -> Bool
 }
 
-extension Float {
-    public func isApproximatelyEqual(to other: Self, epsilon: Float) -> Bool {
+extension Float: EquatableEnough {
+    public func isApproximatelyEqual(to other: Float, epsilon: Float) -> Bool {
     isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
 
-extension Double {
-    public func isApproximatelyEqual(to other: Self, epsilon: Double) -> Bool {
+extension Double: EquatableEnough {
+    public func isApproximatelyEqual(to other: Double, epsilon: Double) -> Bool {
         isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
 
-extension CGFloat {
-    public func isApproximatelyEqual(to other: Self, epsilon: CGFloat) -> Bool {
+extension CGFloat: EquatableEnough {
+    public func isApproximatelyEqual(to other: CGFloat, epsilon: CGFloat) -> Bool {
         isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
