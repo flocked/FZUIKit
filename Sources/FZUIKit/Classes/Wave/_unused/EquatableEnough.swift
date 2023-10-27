@@ -11,8 +11,9 @@
 import CoreGraphics
 import Foundation
 import simd
+import SwiftUI
 
-public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & EquatableEnough {
+public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
     init(_ value: Float)
     init(_ value: Double)
 }
@@ -20,19 +21,59 @@ public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLi
 extension Float: FloatingPointInitializable { }
 extension Double: FloatingPointInitializable { }
 extension CGFloat: FloatingPointInitializable { }
- 
+
+internal protocol EquatableEnough {
+    func isApproximatelyEqual(toOther: Self, epsilon: Double) -> Bool
+}
+
+extension Float: EquatableEnough {
+    internal func isApproximatelyEqual(toOther other: Self, epsilon: Double) -> Bool {
+        self.isApproximatelyEqual(to: other, epsilon: Float(epsilon))
+    }
+}
+
+extension Double: EquatableEnough {
+    internal func isApproximatelyEqual(toOther other: Self, epsilon: Double) -> Bool {
+        self.isApproximatelyEqual(to: other, epsilon: epsilon)
+    }
+}
+
+extension CGFloat: EquatableEnough {
+    internal func isApproximatelyEqual(toOther other: Self, epsilon: Double) -> Bool {
+        self.isApproximatelyEqual(to: other, epsilon: epsilon)
+    }
+}
+
+extension AnimatableVector: EquatableEnough {
+    internal func isApproximatelyEqual(toOther other: Self, epsilon: Double) -> Bool {
+        self.isApproximatelyEqual(to: other, epsilon: epsilon)
+    }
+}
+
+extension AnimatablePair: EquatableEnough  where First: EquatableEnough, Second: EquatableEnough {
+    func isApproximatelyEqual(toOther other: AnimatablePair<First, Second>, epsilon: Double) -> Bool {
+        self.first.isApproximatelyEqual(toOther: other.first, epsilon: epsilon) &&  self.second.isApproximatelyEqual(toOther: other.second, epsilon: epsilon)
+
+    }
+}
+
  extension FloatingPointInitializable {
      @inlinable public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
          isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
      }
  }
 
-public protocol EquatableEnough {
-    associatedtype Value: FloatingPointInitializable
-    func isApproximatelyEqual(to: Self, epsilon: Value) -> Bool
-}
 
-extension AnimatableVector: EquatableEnough { }
+
+
+/*
+extension AnimatablePair: EquatableEnough where First: EquatableEnough, First == Second {
+    @inlinable public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
+        self.first.isApproximatelyEqual(to: other.first, epsilon: epsilon)
+    }
+    
+}
+*/
 /*
 
 public protocol EquatableEnough {

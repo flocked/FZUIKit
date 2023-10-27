@@ -286,14 +286,14 @@ public protocol AnimatableValue: Comparable where Self.SIMDType == Self.SIMDType
      */
     associatedtype SIMDType: SupportedSIMD = Self
     
-    var animatableValue: SIMDType { get set }
+    var animatableData: SIMDType { get set }
 
     /// A version of `self` that represents zero.
     static var zero: Self { get }
 }
 
 extension AnimatableValue where Self: SIMDRepresentable {
-    var animatableValue: Self.SIMDType {
+    var animatableData: Self.SIMDType {
         get { self.simdRepresentation() }
         set {  }
     }

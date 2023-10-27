@@ -95,30 +95,18 @@ extension CGFloat: AnimatableData {
 }
 
 extension CGPoint: AnimatableData {
-    public var animatableData: AnimatablePair<CGFloat, CGFloat> {
-        [x, y]
-    }
-    
     public init(_ animatableData: AnimatablePair<CGFloat, CGFloat>) {
         self.init(animatableData.first, animatableData.second)
     }
 }
 
 extension CGSize: AnimatableData {
-    public var animatableData: AnimatablePair<CGFloat, CGFloat> {
-        [width, height]
-    }
-    
     public init(_ animatableData: AnimatablePair<CGFloat, CGFloat>) {
         self.init(animatableData.first, animatableData.second)
     }
 }
 
 extension CGRect: AnimatableData {
-    public var animatableData: AnimatablePair<CGPoint.AnimatableData, CGSize.AnimatableData> {
-        [self.origin.animatableData, self.size.animatableData]
-    }
-    
     public init(_ animatableData: AnimatablePair<CGPoint.AnimatableData, CGSize.AnimatableData>) {
         self.init(CGPoint(animatableData.first), CGSize(animatableData.second))
     }
