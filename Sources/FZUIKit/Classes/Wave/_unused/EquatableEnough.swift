@@ -14,7 +14,7 @@ import simd
 import SwiftUI
 
 
-public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & Equatable & EquatableEnough {
+public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & Equatable  {
     init(_ value: Float)
     init(_ value: Double)
 }
@@ -24,9 +24,8 @@ extension Double: FloatingPointInitializable { }
 extension CGFloat: FloatingPointInitializable { }
 
 public protocol EquatableEnough {
-    associatedtype Object = Self
     associatedtype Epsilon: FloatingPointInitializable
-    func isApproximatelyEqual(to: Object, epsilon: Epsilon) -> Bool
+    func isApproximatelyEqual(to: Self, epsilon: Epsilon) -> Bool
 }
 
 /*
@@ -63,19 +62,18 @@ extension AnimatableVector: EquatableEnough {
  }
 */
 
+/*
 extension FloatingPointInitializable {
     public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
         isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
 
-/*
 extension AnimatablePair: EquatableEnough  where First: EquatableEnough, Second: EquatableEnough {
     public func isApproximatelyEqual(to other: AnimatablePair<First, Second>, epsilon: Double) -> Bool {
         self.first.isApproximatelyEqual(to: other.first, epsilon: First.Epsilon(epsilon)) &&  self.second.isApproximatelyEqual(to: other.second, epsilon: Second.Epsilon(epsilon))
     }
 }
-*/
 
 extension Array: EquatableEnough where Element: FloatingPointInitializable {
     public func isApproximatelyEqual(to other: Self, epsilon: Element) -> Bool {
@@ -87,6 +85,7 @@ extension Array: EquatableEnough where Element: FloatingPointInitializable {
         return true
     }
 }
+*/
 
 
 /*
