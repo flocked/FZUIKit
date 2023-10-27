@@ -28,25 +28,24 @@ public protocol EquatableEnough {
     func isApproximatelyEqual(to: Self, epsilon: Epsilon) -> Bool
 }
 
-/*
-extension Float: EquatableEnough {
-    internal func isApproximatelyEqual(toOther other: Self, epsilon: Double) -> Bool {
-        self.isApproximatelyEqual(to: other, epsilon: Float(epsilon))
+extension Float {
+    public func isApproximatelyEqual(to other: Self, epsilon: Float) -> Bool {
+    isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
 
-extension Double: EquatableEnough {
-    internal func isApproximatelyEqual(toOther other: Self, epsilon: Double) -> Bool {
-        self.isApproximatelyEqual(to: other, epsilon: epsilon)
+extension Double {
+    public func isApproximatelyEqual(to other: Self, epsilon: Double) -> Bool {
+        isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
 
-extension CGFloat: EquatableEnough {
-    internal func isApproximatelyEqual(toOther other: Self, epsilon: Double) -> Bool {
-        self.isApproximatelyEqual(to: other, epsilon: epsilon)
+extension CGFloat {
+    public func isApproximatelyEqual(to other: Self, epsilon: CGFloat) -> Bool {
+        isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
- */
+
 
 /*
 extension AnimatableVector: EquatableEnough {
@@ -62,11 +61,13 @@ extension AnimatableVector: EquatableEnough {
  }
 */
 
+/*
 extension FloatingPointInitializable {
     public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
         isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
+*/
 
 /*
 extension FloatingPointInitializable {
