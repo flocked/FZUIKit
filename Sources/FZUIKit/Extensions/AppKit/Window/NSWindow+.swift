@@ -145,7 +145,7 @@ extension NSWindow {
     @objc open dynamic var cornerRadius: CGFloat {
         get { getAssociatedValue(key: "_windowCornerRadius", object: self, initialValue: -1) }
         set {
-            Self.swizzleAnimationForKey()
+            self.swizzleAnimationForKey()
             set(associatedValue: newValue, key: "_windowCornerRadius", object: self)
             updateCornerRadius()
         }
@@ -159,7 +159,7 @@ extension NSWindow {
     @objc open dynamic var cornerCurve: CALayerCornerCurve {
         get { contentView?.layer?.cornerCurve ?? .circular }
         set {
-            Self.swizzleAnimationForKey()
+            self.swizzleAnimationForKey()
             contentView?.wantsLayer = true
             contentView?.layer?.cornerCurve = newValue
         }
@@ -173,7 +173,7 @@ extension NSWindow {
     @objc open dynamic var borderWidth: CGFloat {
         get { contentView?.layer?.borderWidth ?? 0.0 }
         set {
-            Self.swizzleAnimationForKey()
+            self.swizzleAnimationForKey()
             contentView?.wantsLayer = true
             contentView?.layer?.borderWidth = newValue
         }
@@ -192,7 +192,7 @@ extension NSWindow {
             return nil
         }
         set {
-            Self.swizzleAnimationForKey()
+            self.swizzleAnimationForKey()
             contentView?.wantsLayer = true
             contentView?.layer?.borderColor = newValue?.cgColor
         }
@@ -231,6 +231,37 @@ internal extension NSWindow {
         get { getAssociatedValue(key: "NSWindow_didSwizzleAnimationForKey", object: self, initialValue: false) }
         set {
             set(associatedValue: newValue, key: "NSWindow_didSwizzleAnimationForKey", object: self)
+        }
+    }
+    
+    var didSwizzleAnimationForKey: Bool {
+        get { getAssociatedValue(key: "didSwizzleAnimationForKey", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "didSwizzleAnimationForKey", object: self)
+        }
+    }
+    
+    func swizzleAnimationForKey() {
+        guard didSwizzleAnimationForKey == false else { return }
+        didSwizzleAnimationForKey = true
+        do {
+            try self.replaceMethod(
+                #selector(NSWindow.animation(forKey:)),
+                methodSignature: (@convention(c) (AnyObject, Selector, NSAnimatablePropertyKey) -> Any?).self,
+                hookSignature: (@convention(block) (AnyObject, NSAnimatablePropertyKey) -> Any?).self) {
+                    store in { `self`, key  in
+                        switch key {
+                        case "cornerRadius", "roundedCorners", "borderWidth", "borderColor":
+                            let animation = CABasicAnimation()
+                            animation.timingFunction = CAMediaTimingFunction(name: .default)
+                            return animation
+                        default:
+                            return store.original(`self`,   #selector(NSView.animation(forKey:)), key)
+                        }
+                    }
+                }
+        } catch {
+            Swift.print(error)
         }
     }
     

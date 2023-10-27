@@ -11,44 +11,37 @@ import Foundation
 import FZSwiftUtils
 import QuartzCore
 
-/// An object that provides animatable properties that can be accessed via `animator`.
-public protocol AnimatablePropertyProvider: AnyObject { 
-    associatedtype Provider: AnimatablePropertyProvider = Self
-    
-    var animator: PropertyAnimator<Provider> { get }
-}
+/**
+ Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
 
-extension AnimatablePropertyProvider  {
-    /**
-     Use the `animator` property to set any animatable properties in an ``Wave/animate(withSpring:delay:gestureVelocity:animations:completion:)`` animation block.
-     
-     If an animatable property is changed outside an animation block, it stops animating and changes to the new value imminently..
-     
-     Example usage:
-     ```swift
-     Wave.animate(withSpring: .smooth) {
-        myView.animator.center = CGPoint(x: 100, y: 100)
-        myView.animator.alpha = 0.5
-     }
-     ```
-     */
-    public var animator: PropertyAnimator<Self> {
-        get { getAssociatedValue(key: "Animator", object: self, initialValue: PropertyAnimator(self)) }
-        set { set(associatedValue: newValue, key: "Animator", object: self) }
+ For easier access of a animatable property, you can extend the object's PropertyAnimator.
+ 
+ ```swift
+ extension: MyObject: AnimatablePropertyProvider { }
+ 
+ public extension PropertyAnimator<MyObject> {
+    var myAnimatableProperty: CGFloat {
+        get { self[\.myAnimatableProperty] }
+        set { self[\.myAnimatableProperty] = newValue }
     }
-    
-    internal var _animations: [String: AnimationProviding] {
-        get { getAssociatedValue(key: "_animations", object: self, initialValue: [:]) }
-        set { set(associatedValue: newValue, key: "_animations", object: self) }
-    }
-}
+ }
+ 
+ let object = MyObject()
+ Wave.animate(withSpring: .smooth) {
+    object.animator.myAnimatableProperty = newValue
+ }
 
-/// Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
+ */
 public class PropertyAnimator<Object: AnimatablePropertyProvider> {
     internal var object: Object
     
     internal init(_ object: Object) {
         self.object = object
+    }
+    
+    internal var animations: [String: AnimationProviding] {
+        get { getAssociatedValue(key: "animations", object: self, initialValue: [:]) }
+        set { set(associatedValue: newValue, key: "animations", object: self) }
     }
 }
 
@@ -63,19 +56,21 @@ public extension PropertyAnimator {
         set { setValue(newValue, for: keyPath) }
     }
     
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
     func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
         if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
-        } else if let animation = (object as? NSUIView)?.optionalLayer?._animations[keyPath.stringValue] as? SpringAnimator<Value> {
+        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
         }
         return nil
     }
     
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
     func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
         if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
-        } else if let animation = (object as? NSUIView)?.optionalLayer?._animations[keyPath.stringValue] as? SpringAnimator<Value> {
+        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
         }
         return nil
@@ -83,11 +78,6 @@ public extension PropertyAnimator {
 }
 
 internal extension PropertyAnimator {
-    var animations: [String: AnimationProviding] {
-        get { object._animations }
-        set { object._animations = newValue }
-    }
-        
     func animation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> SpringAnimator<Val>? {
         return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
