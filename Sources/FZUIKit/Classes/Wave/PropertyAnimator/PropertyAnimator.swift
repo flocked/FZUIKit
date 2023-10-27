@@ -51,9 +51,19 @@ public extension PropertyAnimator {
         set { setValue(newValue, for: keyPath) }
     }
     
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon: Double? = nil) -> Value where Value.AnimatableData == AnimatableVector {
+        get { value(for: keyPath) }
+        set { setValue(newValue, for: keyPath, epsilon: epsilon) }
+    }
+    
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
+    }
+    
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon: Double? = nil) -> Value?  where Value.AnimatableData == AnimatableVector {
+        get { value(for: keyPath) }
+        set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
@@ -94,7 +104,7 @@ internal extension PropertyAnimator {
         return animation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, completion: (()->())? = nil)  {
+    func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, epsilon: Double? = nil, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
             Wave.animate(withSpring: .nonAnimated) {
                 self.setValue(newValue, for: keyPath, key: key)
@@ -123,6 +133,7 @@ internal extension PropertyAnimator {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
 
         let animation = (animation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
+        animation.epsilon = epsilon
         animation.configure(withSettings: settings)
         if let gestureVelocity = settings.gestureVelocity {
             (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
@@ -148,7 +159,7 @@ internal extension PropertyAnimator {
         animation.start(afterDelay: settings.delay)
     }
     
-    func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, completion: (()->())? = nil)  {
+    func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
             Wave.animate(withSpring: .nonAnimated) {
                 self.setValue(newValue, for: keyPath, key: key)
@@ -177,6 +188,7 @@ internal extension PropertyAnimator {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
         let animation = (animation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
+        animation.epsilon = epsilon
         animation.configure(withSettings: settings)
         if let gestureVelocity = settings.gestureVelocity {
             (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity

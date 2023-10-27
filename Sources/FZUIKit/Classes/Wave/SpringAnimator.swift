@@ -186,6 +186,8 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         state = .inactive
     }
     
+    var epsilon: Double? = nil
+    
     func updateAnimation(dt: TimeInterval) {
         guard var value = value, let target = target else {
             // Can't start an animation without a value and target
@@ -212,11 +214,9 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
         var animationFinished = (runningTime >= settlingTime) || !isAnimated
         
-        
-        Swift.print("isAppro", type(of: value), (value as? AnimatableVector) != nil)
-        
-        if animationFinished == false, let value = self.value?.animatableData as? AnimatableVector, let target = self.target?.animatableData as? AnimatableVector {
-            let val = value.isApproximatelyEqual(to: target, epsilon: 0.001)
+                
+        if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableData as? AnimatableVector, let target = self.target?.animatableData as? AnimatableVector {
+            let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
             Swift.print("isApproximatelyEqual", val)
             animationFinished = val
         }
