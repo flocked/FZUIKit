@@ -46,6 +46,23 @@ extension CGFloat: EquatableEnough {
     }
 }
 
+extension Array: EquatableEnough where Element: FloatingPointInitializable {
+    public func isApproximatelyEqual(to other: Self, epsilon: Element) -> Bool {
+        for i in 0..<indices.count {
+            if !self[i].isApproximatelyEqual(to: other[i], absoluteTolerance: epsilon) {
+                return false
+            }
+        }
+        return true
+    }
+}
+
+extension AnimatablePair: EquatableEnough  where First: EquatableEnough, Second: EquatableEnough {
+    public func isApproximatelyEqual(to other: AnimatablePair<First, Second>, epsilon: Double) -> Bool {
+        self.first.isApproximatelyEqual(to: other.first, epsilon: First.Epsilon(epsilon)) &&  self.second.isApproximatelyEqual(to: other.second, epsilon: Second.Epsilon(epsilon))
+    }
+}
+
 
 /*
 extension AnimatableVector: EquatableEnough {
