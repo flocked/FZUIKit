@@ -210,8 +210,14 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             velocity = T.zero
         }
 
-        let animationFinished = (runningTime >= settlingTime) || !isAnimated
-
+        var animationFinished = (runningTime >= settlingTime) || !isAnimated
+        
+        if animationFinished == false, let value = self.value as? AnimatableVector, let target = self.target as? AnimatableVector {
+            let val = value.isApproximatelyEqual(to: target, epsilon: 0.001)
+            Swift.print("isApproximatelyEqual", val)
+            animationFinished = val
+        }
+        
         if animationFinished {
             self.value = target
         }
