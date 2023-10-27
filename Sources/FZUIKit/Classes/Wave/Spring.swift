@@ -125,16 +125,6 @@ public class Spring: Equatable {
         mass = spring.mass
         damping = spring.damping
         settlingDuration = spring.settlingDuration
-        
-        self.swiftUISpring = spring
-    }
-    
-    internal var _swiftUISpring: Any? = nil
-    
-    @available(macOS 14.0, *)
-    internal var swiftUISpring: SwiftUI.Spring? {
-        get { _swiftUISpring as? SwiftUI.Spring }
-        set {  _swiftUISpring = newValue  }
     }
 
     // MARK: - Default Springs

@@ -8,7 +8,7 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
-open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
+public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     /**
      A unique identifier for the animation.
      */
@@ -131,7 +131,6 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
         let start = {
-            self.from = self.value
             AnimationController.shared.runPropertyAnimation(self)
         }
 
@@ -143,8 +142,6 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             }
         }
     }
-    
-    public var from: T? = nil
 
     /**
      Stops the animation at the current value.
@@ -175,7 +172,7 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         spring = settings.spring
     }
 
-    public var runningTime: TimeInterval? {
+    var runningTime: TimeInterval? {
         if let startTime = startTime {
             return (.now - startTime)
         } else {
@@ -191,7 +188,7 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     
     var epsilon: Double? = nil
     
-    open func updateAnimation(dt: TimeInterval) {
+    func updateAnimation(dt: TimeInterval) {
         guard var value = value, let target = target else {
             // Can't start an animation without a value and target
             state = .inactive
@@ -208,19 +205,8 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         let isAnimated = spring.response > .zero
 
         if isAnimated {
-            if #available(macOS 14, *), let spring = spring.swiftUISpring, var from = from {
-             //   self.value = spring.value(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
-             //   self.velocity = spring.velocity(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
-                
-                var velocity = self.velocity
-                spring.update(value: &from, velocity: &velocity, target: target, deltaTime: runningTime)
-                self.value = from
-                self.velocity = velocity
-                
-            } else {
-                spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
-                self.value = value
-            }
+            spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
+            self.value = value
         } else {
             self.value = target
             velocity = T.zero
