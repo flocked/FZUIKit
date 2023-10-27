@@ -19,10 +19,10 @@ import UIKit
 #endif
 import SwiftUI
 
-/// A protocol that defines supported `SIMD` types that conform to `SIMDRepresentable` and `EquatableEnough`.
+/// A protocol that defines supported `SIMD` types that conform to `SIMDRepresentable` and `ApproximateEquatable`.
 public protocol SupportedSIMD: SIMD, SIMDRepresentable where Scalar: SupportedScalar {}
 
-/// A protocol that defines supported `SIMD` Scalar types that conform to `FloatingPointInitializable`, `EquatableEnough`, and are `RealModule.Real` numbers.
+/// A protocol that defines supported `SIMD` Scalar types that conform to `FloatingPointInitializable`, `ApproximateEquatable`, and are `RealModule.Real` numbers.
 public protocol SupportedScalar: SIMDScalar, FloatingPointInitializable, Decodable, Encodable { }
 
 public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {

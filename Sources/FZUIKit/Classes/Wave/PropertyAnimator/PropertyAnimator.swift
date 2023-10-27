@@ -52,7 +52,7 @@ public extension PropertyAnimator {
     }
     
     /*
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon epsilon: Double? = nil) -> Value  where Value: EquatableEnough {
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon epsilon: Double? = nil) -> Value  where Value: ApproximateEquatable {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
@@ -64,7 +64,7 @@ public extension PropertyAnimator {
     }
     
     /*
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon epsilon: Double? = nil) -> Value? where Value: EquatableEnough {
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon epsilon: Double? = nil) -> Value? where Value: ApproximateEquatable {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
