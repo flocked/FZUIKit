@@ -208,7 +208,13 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         let isAnimated = spring.response > .zero
 
         if isAnimated {
-            spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
+            if #available(macOS 14, *), let spring = spring.swiftUISpring, let from = from {
+                Swift.print("spring")
+                self.value = spring.value(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
+                self.velocity = spring.velocity(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
+            } else {
+                spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
+            }
             self.value = value
         } else {
             self.value = target
