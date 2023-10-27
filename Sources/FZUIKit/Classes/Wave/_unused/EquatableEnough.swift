@@ -14,7 +14,7 @@ import simd
 import SwiftUI
 
 
-public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & Equatable  {
+public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & Equatable & EquatableEnough {
     init(_ value: Float)
     init(_ value: Double)
 }
@@ -61,6 +61,12 @@ extension AnimatableVector: EquatableEnough {
      }
  }
 */
+
+extension FloatingPointInitializable {
+    public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
+        isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
+    }
+}
 
 /*
 extension FloatingPointInitializable {
