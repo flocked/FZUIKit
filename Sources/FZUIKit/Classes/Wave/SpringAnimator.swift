@@ -206,6 +206,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
         if isAnimated {
             spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
+            Swift.print(velocity)
             self.value = value
         } else {
             self.value = target
