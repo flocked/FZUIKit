@@ -20,7 +20,7 @@ extension NSView {
         get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
         set {
             self.wantsLayer = true
-            self.swizzleAnimationForKey()
+            Self.swizzleAnimationForKey()
             var updateDashedBorderLayer = false
             if self._dashedBorderLayer != nil {
                 updateDashedBorderLayer = true
