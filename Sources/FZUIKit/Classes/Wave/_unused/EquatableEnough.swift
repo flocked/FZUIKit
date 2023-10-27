@@ -13,7 +13,7 @@ import Foundation
 import simd
 import SwiftUI
 
-public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
+internal protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
     init(_ value: Float)
     init(_ value: Double)
 }

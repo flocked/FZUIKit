@@ -214,12 +214,13 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
         var animationFinished = (runningTime >= settlingTime) || !isAnimated
         
-                
-        if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableData as? AnimatableVector, let target = self.target?.animatableData as? AnimatableVector {
+        /*
+        if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
             let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
             Swift.print("isApproximatelyEqual", val)
             animationFinished = val
         }
+         */
         
         if animationFinished {
             self.value = target
@@ -235,6 +236,10 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             completion?(.finished(at: target))
             state = .ended
         }
+    }
+    
+    func compare<Val: EquatableEnough>(_ value: Val, to other: Val) {
+        
     }
 }
 
