@@ -202,7 +202,15 @@ extension NSDirectionalEdgeInsets: AnimatableData {
 
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, *)
 extension SwiftUI.Spring {
-    /*
+    /**
+     Updates the current value and velocity of a spring.
+     
+     - Parameters:
+        - value: The current value of the spring.
+        - velocity: The current velocity of the spring.
+        - target: The target that value is moving towards.
+        - deltaTime: The amount of time that has passed since the spring was at the position specified by value.
+     */
     public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
         var val = value.animatableData
         var vel = velocity.animatableData
@@ -212,21 +220,37 @@ extension SwiftUI.Spring {
         value = V(val)
         velocity = V(vel)
     }
-     */
-    public func update<V>(value: inout V, velocity: inout V, from: V, target: V, initialVelocity: V = V.zero, time: TimeInterval) where V : AnimatableData {
-        let fromProxy = AnimatableProxy(from)
-        let targetProxy = AnimatableProxy(target)
-        let velocityProxy = AnimatableProxy(V.zero)
-
-        let val1 = self.value(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time)
-        let vel1 =  self.velocity(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time)
-                
-        value = V(val1.animatableData)
-        velocity = V(vel1.animatableData)
+    
+    /// Calculates the value of the spring at a given time given a target amount of change.
+    public func value<V>(target: V, initialVelocity: V = .zero, time: TimeInterval) -> V where V: AnimatableData {
+        V(self.value(target: target.animatableData, initialVelocity: initialVelocity.animatableData, time: time))
+    }
+     
+    /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
+    public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        let fromProxy = AnimatableProxy(fromValue)
+        let targetProxy = AnimatableProxy(toValue)
+        let velocityProxy = AnimatableProxy(initialVelocity)
+        let newValue = V(self.value(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time).animatableData)
+        return newValue
+    }
+    
+    /// Calculates the velocity of the spring at a given time given a target amount of change.
+    public func velocity<V>(target: V, initialVelocity: V = .zero, time: TimeInterval) -> V where V: AnimatableData {
+        V(self.velocity(target: target.animatableData, initialVelocity: initialVelocity.animatableData, time: time))
+    }
+    
+    /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
+    public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        let fromProxy = AnimatableProxy(fromValue)
+        let targetProxy = AnimatableProxy(toValue)
+        let velocityProxy = AnimatableProxy(initialVelocity)
+        let newVelocity = V(self.velocity(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time).animatableData)
+        return newVelocity
     }
 }
 
-struct AnimatableProxy<Value: AnimatableData>: Animatable {
+internal struct AnimatableProxy<Value: AnimatableData>: Animatable {
     var animatableData: Value.AnimatableData
     
     init(_ value: Value) {
