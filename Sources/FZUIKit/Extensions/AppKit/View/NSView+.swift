@@ -909,6 +909,7 @@ internal extension NSView {
     }
     
     func swizzleAnimationForKey() {
+        Swift.print("swizzleAnimationForKey", didSwizzleAnimationForKey)
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
         do {
