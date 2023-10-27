@@ -46,37 +46,27 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
 }
 
 public extension PropertyAnimator {
-    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>) -> Value {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
     
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon: Double? = nil) -> Value where Value.AnimatableData == AnimatableVector {
-        get { value(for: keyPath) }
-        set { setValue(newValue, for: keyPath, epsilon: epsilon) }
-    }
-     */
-    
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon: Double? = nil) -> Value {
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon epsilon: Double? = nil) -> Value  where Value: EquatableEnough {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
     
-    
-    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
     
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon: Double? = nil) -> Value?  where Value.AnimatableData == AnimatableVector {
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon epsilon: Double? = nil) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
-     */
     
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon: Double? = nil) -> Value? {
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon epsilon: Double? = nil) -> Value? where Value: EquatableEnough {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }

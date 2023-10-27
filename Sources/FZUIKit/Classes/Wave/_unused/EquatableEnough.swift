@@ -12,7 +12,7 @@ import CoreGraphics
 import Foundation
 import simd
 
-public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
+public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & EquatableEnough {
     init(_ value: Float)
     init(_ value: Double)
 }
@@ -27,7 +27,12 @@ extension CGFloat: FloatingPointInitializable { }
      }
  }
 
+public protocol EquatableEnough {
+    associatedtype Value: FloatingPointInitializable
+    func isApproximatelyEqual(to: Self, epsilon: Value) -> Bool
+}
 
+extension AnimatableVector: EquatableEnough { }
 /*
 
 public protocol EquatableEnough {
