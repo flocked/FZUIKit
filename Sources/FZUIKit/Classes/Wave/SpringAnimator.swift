@@ -212,7 +212,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             velocity = T.zero
         }
 
-        var animationFinished = (runningTime >= settlingTime) || !isAnimated
+        let animationFinished = (runningTime >= settlingTime) || !isAnimated
         
         /*
         if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
