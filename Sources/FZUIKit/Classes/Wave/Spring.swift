@@ -102,7 +102,7 @@ public class Spring: Equatable {
      Creates a spring with the specified mass, stiffness, and damping.
      
      - Parameters:
-     - damping: The corresponding spring coefficient.
+        - damping: The corresponding spring coefficient.
         - stiffness: Specifies that property of the object attached to the end of the spring.
         - mass: Defines how the spring’s motion should be damped due to the forces of friction.
         - allowOverDamping: A value of `true` specifies that over-damping should be allowed when appropriate based on the other inputs, and a value of `false` specifies that such cases should instead be treated as critically damped.
@@ -125,6 +125,20 @@ public class Spring: Equatable {
         mass = spring.mass
         damping = spring.damping
         settlingDuration = spring.settlingDuration
+    }
+        
+    /**
+     Creates a spring with the specified duration and damping ratio.
+     
+     - Parameters:
+        - settlingDuration: The approximate time it will take for the spring to come to rest.
+        - dampingRatio: The amount of drag applied as a fraction of the amount needed to produce critical damping.
+        - epsilon: The threshhold for how small all subsequent values need to be before the spring is considered to have settled.
+     */
+    @available(macOS 14.0, iOS 17, tvOS 17, *)
+    public convenience init(settlingDuration: TimeInterval, dampingRatio: Double, epsilon: Double = 0.001) {
+        let spring = SwiftUI.Spring(settlingDuration: settlingDuration, dampingRatio: dampingRatio, epsilon: epsilon)
+        self.init(spring)
     }
 
     // MARK: - Default Springs
