@@ -912,7 +912,6 @@ internal extension NSView {
         Swift.print("swizzleAnimationForKey", didSwizzleAnimationForKey)
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
-        Swift.print("swizzleAnimationForKey set", didSwizzleAnimationForKey)
         do {
             try self.replaceMethod(
                 #selector(NSView.animation(forKey:)),
@@ -928,9 +927,11 @@ internal extension NSView {
                         return store.original(`self`,   #selector(NSView.animation(forKey:)), key)
                     }
                 }
+            didSwizzleAnimationForKey = true
         } catch {
             Swift.print(error)
         }
+        Swift.print("swizzleAnimationForKey set", didSwizzleAnimationForKey)
     }
     
     var didSwizzleAnimationForKey: Bool {
