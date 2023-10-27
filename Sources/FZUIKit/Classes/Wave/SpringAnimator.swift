@@ -8,7 +8,7 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
-public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
+open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     /**
      A unique identifier for the animation.
      */
@@ -188,7 +188,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     
     var epsilon: Double? = nil
     
-    func updateAnimation(dt: TimeInterval) {
+    open func updateAnimation(dt: TimeInterval) {
         guard var value = value, let target = target else {
             // Can't start an animation without a value and target
             state = .inactive
@@ -206,7 +206,6 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
         if isAnimated {
             spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
-            Swift.print(velocity)
             self.value = value
         } else {
             self.value = target
