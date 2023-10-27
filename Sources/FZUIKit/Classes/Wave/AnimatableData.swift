@@ -267,7 +267,7 @@ extension SwiftUI.Spring {
      
      The epsilon value specifies the threshhold for how small all subsequent values need to be before the spring is considered to have settled.
      */
-    public func settlingDuration<V>(target: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
+    public func settlingDuration1<V>(target: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
         self.settlingDuration(target: target.animatableData, initialVelocity: initialVelocity.animatableData, epsilon: epsilon)
     }
     
@@ -276,7 +276,7 @@ extension SwiftUI.Spring {
      
      The epsilon value specifies the threshhold for how small all subsequent values need to be before the spring is considered to have settled.
      */
-    public func settlingDuration<V>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
+    public func settlingDuration1<V>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
         let fromValue = AnimatableProxy(fromValue)
         let toValue = AnimatableProxy(toValue)
         let initialVelocity = AnimatableProxy(initialVelocity)
