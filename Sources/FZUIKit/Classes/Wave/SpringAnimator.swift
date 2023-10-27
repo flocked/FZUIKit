@@ -209,14 +209,14 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
         if isAnimated {
             if #available(macOS 14, *), let spring = spring.swiftUISpring, var from = from {
-                self.value = spring.value(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
-                self.velocity = spring.velocity(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
-                /*
+             //   self.value = spring.value(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
+             //   self.velocity = spring.velocity(fromValue: from, toValue: target, initialVelocity: .zero, time: runningTime)
+                
                 var velocity = self.velocity
                 spring.update(value: &from, velocity: &velocity, target: target, deltaTime: runningTime)
                 self.value = from
                 self.velocity = velocity
-                */
+                
             } else {
                 spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
                 self.value = value
