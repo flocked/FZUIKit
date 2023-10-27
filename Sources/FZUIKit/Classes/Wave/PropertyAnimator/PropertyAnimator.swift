@@ -51,20 +51,24 @@ public extension PropertyAnimator {
         set { setValue(newValue, for: keyPath) }
     }
     
+    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon epsilon: Double? = nil) -> Value  where Value: EquatableEnough {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
+     */
     
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
-        
+    
+    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon epsilon: Double? = nil) -> Value? where Value: EquatableEnough {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
+     */
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
     func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {

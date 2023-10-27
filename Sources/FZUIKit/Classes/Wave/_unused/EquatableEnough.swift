@@ -13,7 +13,7 @@ import Foundation
 import simd
 import SwiftUI
 
-
+/*
 public protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable & Equatable & EquatableEnough {
     init(_ value: Float)
     init(_ value: Double)
@@ -85,6 +85,7 @@ extension Array: EquatableEnough where Element: FloatingPointInitializable {
         return true
     }
 }
+*/
 
 /*
 extension AnimatablePair: EquatableEnough where First: EquatableEnough, First == Second {
