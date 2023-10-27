@@ -215,7 +215,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         
         Swift.print("isAppro", type(of: value), (value as? AnimatableVector) != nil)
         
-        if animationFinished == false, let value = self.value as? AnimatableVector, let target = self.target as? AnimatableVector {
+        if animationFinished == false, let value = self.value?.animatableData as? AnimatableVector, let target = self.target?.animatableData as? AnimatableVector {
             let val = value.isApproximatelyEqual(to: target, epsilon: 0.001)
             Swift.print("isApproximatelyEqual", val)
             animationFinished = val
