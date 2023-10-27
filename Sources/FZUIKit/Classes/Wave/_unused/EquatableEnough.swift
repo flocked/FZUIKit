@@ -63,22 +63,23 @@ extension AnimatableVector: EquatableEnough {
 */
 
 extension FloatingPointInitializable {
-    @inlinable public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
+    public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
         isApproximatelyEqual(to: other, absoluteTolerance: epsilon)
     }
 }
 
+/*
 extension AnimatablePair: EquatableEnough  where First: EquatableEnough, Second: EquatableEnough {
     public func isApproximatelyEqual(to other: AnimatablePair<First, Second>, epsilon: Double) -> Bool {
         self.first.isApproximatelyEqual(to: other.first, epsilon: First.Epsilon(epsilon)) &&  self.second.isApproximatelyEqual(to: other.second, epsilon: Second.Epsilon(epsilon))
     }
 }
+*/
 
 extension Array: EquatableEnough where Element: FloatingPointInitializable {
     public func isApproximatelyEqual(to other: Self, epsilon: Element) -> Bool {
         for i in 0..<indices.count {
-            let equal = self[i].isApproximatelyEqual(to: other[i], absoluteTolerance: epsilon)
-            if !equal {
+            if !self[i].isApproximatelyEqual(to: other[i], absoluteTolerance: epsilon) {
                 return false
             }
         }
