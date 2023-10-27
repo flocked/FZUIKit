@@ -125,6 +125,17 @@ public class Spring: Equatable {
         mass = spring.mass
         damping = spring.damping
         settlingDuration = spring.settlingDuration
+        
+        self.spring = spring
+
+    }
+    
+    internal var _spring: Any? = nil
+    
+    @available(macOS 14.0, *)
+    internal var spring: SwiftUI.Spring? {
+        get { _spring as? SwiftUI.Spring }
+        set {  _spring = newValue  }
     }
 
     // MARK: - Default Springs
@@ -182,14 +193,20 @@ public class Spring: Equatable {
 
     /// Updates the current value and velocity of a spring.
     public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
-        let displacement = value - target
-        let springForce = displacement * -self.stiffness
-        let dampingForce = velocity.scaled(by: self.damping)
-        let force = springForce - dampingForce
-        let acceleration = force * (1.0 / self.mass)
         
-        velocity = velocity + (acceleration * deltaTime)
-        value = value + (velocity * deltaTime)
+        if #available(macOS 14, *) {
+            Swift.print("spring")
+            spring?.update(value: &value, velocity: &velocity, target: target, deltaTime: deltaTime)
+        } else {
+            let displacement = value - target
+            let springForce = displacement * -self.stiffness
+            let dampingForce = velocity.scaled(by: self.damping)
+            let force = springForce - dampingForce
+            let acceleration = force * (1.0 / self.mass)
+            
+            velocity = velocity + (acceleration * deltaTime)
+            value = value + (velocity * deltaTime)
+        }
     }
     
     /// Updates the current value and velocity of a spring.

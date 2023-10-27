@@ -223,15 +223,26 @@ extension SwiftUI.Spring {
     
     /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
     public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        let target = fromValue.animatableData - toValue.animatableData
+        let newVal = fromValue.animatableData + self.value(target: target, initialVelocity: initialVelocity.animatableData, time: time)
+        return V(newVal)
+
         let fromValue = AnimatableProxy(fromValue)
         let toValue = AnimatableProxy(toValue)
         let initialVelocity = AnimatableProxy(initialVelocity)
+        
+        
         let newValue = V(self.value(fromValue: fromValue, toValue: toValue, initialVelocity: initialVelocity, time: time).animatableData)
         return newValue
     }
     
     /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
     public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        let target = fromValue.animatableData - toValue.animatableData
+        let newVel = fromValue.animatableData + self.velocity(target: target, initialVelocity: initialVelocity.animatableData, time: time)
+        return V(newVel)
+
+        
         let fromValue = AnimatableProxy(fromValue)
         let toValue = AnimatableProxy(toValue)
         let initialVelocity = AnimatableProxy(initialVelocity)
@@ -277,6 +288,9 @@ extension SwiftUI.Spring {
      The epsilon value specifies the threshhold for how small all subsequent values need to be before the spring is considered to have settled.
      */
     public func settlingDuration1<V>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
+        let target = fromValue.animatableData - toValue.animatableData
+        self.settlingDuration(target: target, initialVelocity: initialVelocity.animatableData, epsilon: epsilon)
+        
         let fromValue = AnimatableProxy(fromValue)
         let toValue = AnimatableProxy(toValue)
         let initialVelocity = AnimatableProxy(initialVelocity)
