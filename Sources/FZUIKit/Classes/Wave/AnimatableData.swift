@@ -202,15 +202,35 @@ extension NSDirectionalEdgeInsets: AnimatableData {
 
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, *)
 extension SwiftUI.Spring {
+    /*
     public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
         var val = value.animatableData
         var vel = velocity.animatableData
         let tar = target.animatableData
                 
         self.update(value: &val, velocity: &vel, target: tar, deltaTime: deltaTime)
-        
         value = V(val)
         velocity = V(vel)
+    }
+     */
+    public func update<V>(value: inout V, velocity: inout V, from: V, target: V, initialVelocity: V = V.zero, time: TimeInterval) where V : AnimatableData {
+        let fromProxy = AnimatableProxy(from)
+        let targetProxy = AnimatableProxy(target)
+        let velocityProxy = AnimatableProxy(V.zero)
+
+        let val1 = self.value(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time)
+        let vel1 =  self.velocity(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time)
+                
+        value = V(val1.animatableData)
+        velocity = V(vel1.animatableData)
+    }
+}
+
+struct AnimatableProxy<Value: AnimatableData>: Animatable {
+    var animatableData: Value.AnimatableData
+    
+    init(_ value: Value) {
+        self.animatableData = value.animatableData
     }
 }
 #endif

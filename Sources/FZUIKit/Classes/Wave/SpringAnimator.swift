@@ -131,6 +131,7 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
         let start = {
+            self.from = self.value
             AnimationController.shared.runPropertyAnimation(self)
         }
 
@@ -142,6 +143,8 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             }
         }
     }
+    
+    public var from: T? = nil
 
     /**
      Stops the animation at the current value.
@@ -172,7 +175,7 @@ open class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         spring = settings.spring
     }
 
-    var runningTime: TimeInterval? {
+    public var runningTime: TimeInterval? {
         if let startTime = startTime {
             return (.now - startTime)
         } else {
