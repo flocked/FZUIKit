@@ -46,6 +46,7 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
 }
 
 public extension PropertyAnimator {
+    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>) -> Value {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
@@ -55,13 +56,27 @@ public extension PropertyAnimator {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
+     */
     
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon: Double? = nil) -> Value {
+        get { value(for: keyPath) }
+        set { setValue(newValue, for: keyPath, epsilon: epsilon) }
+    }
+    
+    
+    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
     
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon: Double? = nil) -> Value?  where Value.AnimatableData == AnimatableVector {
+        get { value(for: keyPath) }
+        set { setValue(newValue, for: keyPath, epsilon: epsilon) }
+    }
+     */
+    
+    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon: Double? = nil) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
