@@ -74,7 +74,14 @@ extension AnimatableData where Self.AnimatableData == Self {
     }
 }
 
-extension Float: AnimatableData { }
+extension Float: AnimatableData {
+    public var animatableData: Self {
+        self
+    }
+    public init(_ animatableData: Self) {
+        self = animatableData
+    }
+}
  
 extension Double: AnimatableData {
     public var animatableData: Self {
