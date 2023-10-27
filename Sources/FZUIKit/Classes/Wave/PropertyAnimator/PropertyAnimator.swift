@@ -8,8 +8,8 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 
 import Foundation
-import FZSwiftUtils
 import QuartzCore
+import FZSwiftUtils
 
 /**
  Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
@@ -51,24 +51,20 @@ public extension PropertyAnimator {
         set { setValue(newValue, for: keyPath) }
     }
     
-    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, epsilon epsilon: Double? = nil) -> Value  where Value: ApproximateEquatable {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
-     */
     
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
     
-    /*
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, epsilon epsilon: Double? = nil) -> Value? where Value: ApproximateEquatable {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon) }
     }
-     */
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
     func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
