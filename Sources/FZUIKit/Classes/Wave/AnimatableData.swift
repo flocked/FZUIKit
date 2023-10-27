@@ -52,6 +52,7 @@ public protocol AnimatableData: Equatable, Comparable {
     static var zero: Self { get }
 }
 
+
 public extension AnimatableData {
     var scaledIntegral: Self {
         self
@@ -74,14 +75,7 @@ extension AnimatableData where Self.AnimatableData == Self {
     }
 }
 
-extension Float: AnimatableData {
-    public var animatableData: Self {
-        self
-    }
-    public init(_ animatableData: Self) {
-        self = animatableData
-    }
-}
+extension Float: AnimatableData { }
  
 extension Double: AnimatableData {
     public var animatableData: Self {

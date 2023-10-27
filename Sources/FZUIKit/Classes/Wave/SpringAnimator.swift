@@ -237,10 +237,6 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             state = .ended
         }
     }
-    
-    func compare<Val: EquatableEnough>(_ value: Val, to other: Val) {
-        
-    }
 }
 
 extension SpringAnimator: CustomStringConvertible {

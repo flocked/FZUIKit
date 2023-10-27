@@ -22,6 +22,7 @@ extension Float: FloatingPointInitializable { }
 extension Double: FloatingPointInitializable { }
 extension CGFloat: FloatingPointInitializable { }
 
+/*
 internal protocol EquatableEnough {
     func isApproximatelyEqual(toOther: Self, epsilon: Double) -> Bool
 }
@@ -56,6 +57,7 @@ extension AnimatablePair: EquatableEnough  where First: EquatableEnough, Second:
 
     }
 }
+ */
 
  extension FloatingPointInitializable {
      @inlinable public func isApproximatelyEqual(to other: Self, epsilon: Self) -> Bool {
