@@ -221,32 +221,67 @@ extension SwiftUI.Spring {
         velocity = V(vel)
     }
     
-    /// Calculates the value of the spring at a given time given a target amount of change.
-    public func value<V>(target: V, initialVelocity: V = .zero, time: TimeInterval) -> V where V: AnimatableData {
-        V(self.value(target: target.animatableData, initialVelocity: initialVelocity.animatableData, time: time))
-    }
-     
     /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
     public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
-        let fromProxy = AnimatableProxy(fromValue)
-        let targetProxy = AnimatableProxy(toValue)
-        let velocityProxy = AnimatableProxy(initialVelocity)
-        let newValue = V(self.value(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time).animatableData)
+        let fromValue = AnimatableProxy(fromValue)
+        let toValue = AnimatableProxy(toValue)
+        let initialVelocity = AnimatableProxy(initialVelocity)
+        let newValue = V(self.value(fromValue: fromValue, toValue: toValue, initialVelocity: initialVelocity, time: time).animatableData)
         return newValue
-    }
-    
-    /// Calculates the velocity of the spring at a given time given a target amount of change.
-    public func velocity<V>(target: V, initialVelocity: V = .zero, time: TimeInterval) -> V where V: AnimatableData {
-        V(self.velocity(target: target.animatableData, initialVelocity: initialVelocity.animatableData, time: time))
     }
     
     /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
     public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
-        let fromProxy = AnimatableProxy(fromValue)
-        let targetProxy = AnimatableProxy(toValue)
-        let velocityProxy = AnimatableProxy(initialVelocity)
-        let newVelocity = V(self.velocity(fromValue: fromProxy, toValue: targetProxy, initialVelocity: velocityProxy, time: time).animatableData)
+        let fromValue = AnimatableProxy(fromValue)
+        let toValue = AnimatableProxy(toValue)
+        let initialVelocity = AnimatableProxy(initialVelocity)
+        let newVelocity = V(self.velocity(fromValue: fromValue, toValue: toValue, initialVelocity: initialVelocity, time: time).animatableData)
         return newVelocity
+    }
+    
+    /**
+     Calculates the force upon the spring given a current position, target, and velocity amount of change.
+     
+     This value is in units of the vector type per second squared.
+     */
+    public func force<V>(target: V, position: V, velocity: V) -> V where V: AnimatableData {
+        V(force(target: target.animatableData, position: position.animatableData, velocity: velocity.animatableData))
+    }
+    
+    /**
+     Calculates the force upon the spring given a current position, velocity, and divisor from the starting and end values for the spring to travel.
+     
+     This value is in units of the vector type per second squared.
+     */
+    public func force<V>(fromValue: V, toValue: V, position: V, velocity: V) -> V where V: AnimatableData {
+        let fromValue = AnimatableProxy(fromValue)
+        let toValue = AnimatableProxy(toValue)
+        let position = AnimatableProxy(position)
+        let velocity = AnimatableProxy(velocity)
+        
+        return V(force(fromValue: fromValue, toValue: toValue, position: position, velocity: velocity).animatableData)
+    }
+    
+    /**
+     The estimated duration required for the spring system to be considered at rest.
+     
+     The epsilon value specifies the threshhold for how small all subsequent values need to be before the spring is considered to have settled.
+     */
+    public func settlingDuration<V>(target: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
+        self.settlingDuration(target: target.animatableData, initialVelocity: initialVelocity.animatableData, epsilon: epsilon)
+    }
+    
+    /**
+     The estimated duration required for the spring system to be considered at rest.
+     
+     The epsilon value specifies the threshhold for how small all subsequent values need to be before the spring is considered to have settled.
+     */
+    public func settlingDuration<V>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
+        let fromValue = AnimatableProxy(fromValue)
+        let toValue = AnimatableProxy(toValue)
+        let initialVelocity = AnimatableProxy(initialVelocity)
+        
+        return self.settlingDuration(fromValue: fromValue, toValue: toValue, initialVelocity: initialVelocity, epsilon: epsilon)
     }
 }
 
@@ -257,4 +292,5 @@ internal struct AnimatableProxy<Value: AnimatableData>: Animatable {
         self.animatableData = value.animatableData
     }
 }
+
 #endif
