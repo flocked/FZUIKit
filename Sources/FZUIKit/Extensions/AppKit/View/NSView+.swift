@@ -66,14 +66,13 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var mask: NSView? {
-        get { layer?.mask?.parentView ?? (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView }
+        get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView  }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             newValue?.wantsLayer = true
             newValue?.removeFromSuperview()
             layer?.mask = newValue?.layer
-          //  set(associatedValue: newValue, key: "maskView", object: self)
         }
     }
     
@@ -95,7 +94,6 @@ extension NSView {
             } else {
                 layer?.mask = nil
             }
-           // set(associatedValue: newValue, key: "maskView", object: self)
         }
     }
 
