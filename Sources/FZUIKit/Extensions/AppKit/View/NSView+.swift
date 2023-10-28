@@ -76,6 +76,27 @@ extension NSView {
             set(associatedValue: newValue, key: "maskView", object: self)
         }
     }
+    
+    /**
+     The view whose inverse alpha channel is used to mask a view’s content.
+
+     In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
+     */
+    @objc open dynamic var inverseMask: NSView? {
+        get { return getAssociatedValue(key: "maskView", object: self) }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            newValue?.wantsLayer = true
+            newValue?.removeFromSuperview()
+            if let newMaskLayer = newValue?.layer {
+                layer?.mask = InverseMaskLayer(maskLayer: newMaskLayer)
+            } else {
+                layer?.mask = nil
+            }
+            set(associatedValue: newValue, key: "maskView", object: self)
+        }
+    }
 
     /**
      A Boolean value that determines whether the view is opaque.

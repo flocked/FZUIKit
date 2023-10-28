@@ -127,15 +127,40 @@ public extension NSView {
      */
     func configurate(using configuration: ContentConfiguration.VisualEffect) {
         if let visualView = self as? NSVisualEffectView {
-            visualView.material = configuration.material
-            visualView.blendingMode = configuration.blendingMode
-            visualView.state = configuration.state
-            visualView.isEmphasized = configuration.isEmphasized
-            visualView.maskImage = configuration.maskImage
-            visualView.appearance = configuration.appearance
+            visualView.configuration = configuration
         } else {
             self.visualEffect = configuration
         }
+    }
+}
+
+public extension NSVisualEffectView {
+    /// The current configuration of the visual effect view.
+    var configuration: ContentConfiguration.VisualEffect {
+        get {
+            var configuration: ContentConfiguration.VisualEffect = .light()
+            configuration.material = self.material
+            configuration.blendingMode = self.blendingMode
+            configuration.state = self.state
+            configuration.isEmphasized = self.isEmphasized
+            configuration.maskImage = self.maskImage
+            configuration.appearance = self.appearance
+            return configuration
+        }
+        set {
+            self.material = newValue.material
+            self.blendingMode = newValue.blendingMode
+            self.state = newValue.state
+            self.isEmphasized = newValue.isEmphasized
+            self.maskImage = newValue.maskImage
+            self.appearance = newValue.appearance
+        }
+    }
+    
+    /// Initializes and returns a new visual effect view with the specified configuration.
+    convenience init(configuration: ContentConfiguration.VisualEffect) {
+        self.init(frame: .zero)
+        self.configuration = configuration
     }
 }
 

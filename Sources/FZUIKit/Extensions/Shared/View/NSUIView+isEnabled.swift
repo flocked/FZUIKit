@@ -5,8 +5,12 @@
 //  Created by Florian Zand on 16.03.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 /// A protocol for views that can be enabled.
 public protocol Enablable: NSUIView {
