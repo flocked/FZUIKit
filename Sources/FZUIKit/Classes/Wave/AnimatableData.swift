@@ -14,9 +14,10 @@ import UIKit
 import SwiftUI
 import FZSwiftUtils
 
+
 /**
- A protocol that describes an animatable value type.
- 
+ A type that describes an animatable value.
+
  A double array  (``AnimatableVector``) conforms to `VectorArithmetic` and can be used as animatable data.
  
  Example:
@@ -159,7 +160,7 @@ extension CGColor: AnimatableData {
     }
 }
 
-extension Array: AnimatableData, Comparable where Self.Element == Double { }
+extension Array: AnimatableData, Comparable where Self.Element: VectorArithmetic { }
 
 extension CGAffineTransform: AnimatableData {
     @inlinable public init(_ animatableData: AnimatableVector) {

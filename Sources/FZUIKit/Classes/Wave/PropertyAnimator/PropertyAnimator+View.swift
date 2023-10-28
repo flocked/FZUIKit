@@ -225,7 +225,7 @@ extension PropertyAnimator where Object: GradientView {
         set { self.object.gradientLayer.animator.colors = newValue }
     }
     
-    public var locations: [Double] {
+    public var locations: [CGFloat] {
         get { self.object.gradientLayer.animator.locations }
         set { self.object.gradientLayer.animator.locations = newValue }
     }

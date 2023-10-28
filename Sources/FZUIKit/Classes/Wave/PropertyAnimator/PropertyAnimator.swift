@@ -126,12 +126,8 @@ internal extension PropertyAnimator {
         var initialValue = object[keyPath: keyPath]
         var targetValue = newValue
         
-        if var value = initialValue as? [CGFloat], var target = targetValue as? [CGFloat], value.count != target.count {
+        if var value = initialValue as? [Double], var target = targetValue as? [Double], value.count != target.count {
             updateValues(value: &value, target: &target)
-            initialValue = value as! Value
-            targetValue = target as! Value
-        } else if var value = initialValue as? GradientColors, var target = targetValue as? GradientColors, value.colors.count != target.colors.count {
-            updateValues(value: &value.colors, target: &target.colors)
             initialValue = value as! Value
             targetValue = target as! Value
         } else if Value.self == CGColor.self {
@@ -191,12 +187,8 @@ internal extension PropertyAnimator {
         var initialValue = object[keyPath: keyPath] ?? Value.zero
         var targetValue = newValue ?? Value.zero
         
-        if var value = initialValue as? [CGFloat], var target = targetValue as? [CGFloat], value.count != target.count {
+        if var value = initialValue as? [Double], var target = targetValue as? [Double], value.count != target.count {
             updateValues(value: &value, target: &target)
-            initialValue = value as! Value
-            targetValue = target as! Value
-        } else if var value = initialValue as? GradientColors, var target = targetValue as? GradientColors, value.colors.count != target.colors.count {
-            updateValues(value: &value.colors, target: &target.colors)
             initialValue = value as! Value
             targetValue = target as! Value
         } else if Value.self == CGColor.self {

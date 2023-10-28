@@ -339,12 +339,12 @@ extension PropertyAnimator where Object: CATiledLayer {
 extension PropertyAnimator where Object: CAGradientLayer {
     /// The fill color of the layer.
     public var colors: [NSUIColor] {
-        get { self[\._colors].colors }
-        set { self[\._colors] = GradientColors(colors: newValue) }
+        get { colors(for: self[\._colors]) }
+        set { self[\._colors] = animatableVector(for: newValue) }
     }
     
     /// The locations of each gradient stop.
-    public var locations: [Double] {
+    public var locations: [CGFloat] {
         get { self[\._locations] }
         set { self[\._locations] = newValue }
     }
@@ -359,6 +359,14 @@ extension PropertyAnimator where Object: CAGradientLayer {
     public var endPoint: CGPoint {
         get { self[\.endPoint] }
         set { self[\.endPoint] = newValue }
+    }
+    
+    internal func colors(for values: AnimatableVector) -> [NSUIColor] {
+        values.chunked(size: 4).compactMap({ NSUIColor(red: $0[0], green: $0[0], blue: $0[0], alpha: $0[0]) })
+    }
+    
+    internal func animatableVector(for colors: [NSUIColor]) -> AnimatableVector {
+        colors.compactMap({$0.rgbaComponents()}).flatMap({ [$0.red, $0.green, $0.blue, $0.alpha] })
     }
 }
 
@@ -413,7 +421,7 @@ extension PropertyAnimator where Object: CAEmitterLayer {
 }
 
 internal extension CAGradientLayer {
-    var _locations: [Double] {
+    var _locations: [CGFloat] {
         get { locations?.compactMap({$0.doubleValue}) ?? [] }
         set { locations = newValue as [NSNumber] }
     }
@@ -426,37 +434,12 @@ internal extension CAShapeLayer {
     }
 }
 
-internal struct GradientColors: AnimatableData {
-    var colors: [NSUIColor]
-    var animatableData: AnimatableVector {
-        var values: AnimatableVector = []
-        for rgba in colors.compactMap({$0.rgbaComponents()}) {
-            values.append(contentsOf: [rgba.red, rgba.green, rgba.blue, rgba.alpha])
-        }
-        return values
-    }
-    
-    static var zero = GradientColors([])
-    
-    init(colors: [NSUIColor]) {
-        self.colors = colors
-    }
-    init(_ animatableData: AnimatableVector) {
-        let colors = animatableData.chunked(size: 4).compactMap({ NSUIColor(red: $0[0], green: $0[1], blue: $0[2], alpha: $0[3]) })
-        self.init(colors: colors)
-    }
-}
-
 internal extension CAGradientLayer {
-    var _colors: GradientColors {
-        get {
-            let colors = (self.colors as? [CGColor])?.compactMap({$0.nsUIColor}) ?? []
-            return GradientColors(colors: colors) }
-        set {
-            self.colors = newValue.colors.compactMap({$0.cgColor})
+    var _colors: [Double] {
+        get { (self.colors as? [CGColor])?.flatMap({$0.animatableData}) ?? [] }
+        set { self.colors = newValue.chunked(size: 4).compactMap({ CGColor($0) })
         }
     }
 }
-
 
 #endif
