@@ -66,17 +66,22 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var mask: NSView? {
-        get { return getAssociatedValue(key: "_viewMaskView", object: self) }
+        get { return getAssociatedValue(key: "maskView", object: self) }
         set {
             wantsLayer = true
-            layer?.mask = nil
             Self.swizzleAnimationForKey()
-            set(associatedValue: newValue, key: "_viewMaskView", object: self)
-            if let maskView = newValue {
-                wantsLayer = true
+            newValue?.wantsLayer = true
+            if let maskView = newValue, let maskLayer = maskView.layer {
                 maskView.wantsLayer = true
-                layer?.mask = maskView.layer
+                self.addSubview(maskView)
+                layer?.mask = maskLayer
+            } else {
+                layer?.mask = nil
+                if mask?.superview == self {
+                    mask?.removeFromSuperview()
+                }
             }
+            set(associatedValue: newValue, key: "maskView", object: self)
         }
     }
 
