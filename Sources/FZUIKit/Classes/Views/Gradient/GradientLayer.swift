@@ -38,8 +38,10 @@ public class GradientLayer: CAGradientLayer {
     private func sharedInit() {
         self.masksToBounds = true
     }
-    
-    public var gradient: Gradient {
+}
+
+public extension CAGradientLayer {
+    var gradient: Gradient {
         get {
             let colors = (self.colors as? [CGColor])?.compactMap({$0.nsUIColor}) ?? []
             let locations = self.locations?.compactMap({CGFloat($0.floatValue)}) ?? []
@@ -47,6 +49,7 @@ public class GradientLayer: CAGradientLayer {
             return Gradient(stops: stops, startPoint: .init(startPoint), endPoint: .init(endPoint), type: .init(type))
         }
         set {
+            self.masksToBounds = true
             self.colors = newValue.stops.compactMap({$0.color.cgColor})
             self.locations = newValue.stops.compactMap({NSNumber($0.location)})
             self.startPoint = newValue.startPoint.point

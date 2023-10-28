@@ -7,6 +7,11 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     /**
@@ -133,6 +138,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         let start = {
             AnimationController.shared.runPropertyAnimation(self)
         }
+            
 
         if delay == .zero {
             start()

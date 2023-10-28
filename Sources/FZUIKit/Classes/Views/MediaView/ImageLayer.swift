@@ -270,7 +270,11 @@ private func setAnimatedImage(_ image: NSImage) {
                     displayingSymbolImage = image
                 }
             }
-            self.contents = image
+#if os(macOS)
+                self.contents = image.scaledLayerContents
+#else
+                self.contents = image
+#endif
         } else {
             self.contents = nil
         }

@@ -126,9 +126,17 @@ internal extension PropertyAnimator {
         var initialValue = object[keyPath: keyPath]
         var targetValue = newValue
         
-        if Value.self == CGColor.self {
-            let iniVal = (initialValue as! CGColor).nsUIColor
-            let tarVal = (newValue as! CGColor).nsUIColor
+        if var value = initialValue as? [CGFloat], var target = targetValue as? [CGFloat], value.count != target.count {
+            updateValues(value: &value, target: &target)
+            initialValue = value as! Value
+            targetValue = target as! Value
+        } else if var value = initialValue as? GradientColors, var target = targetValue as? GradientColors, value.colors.count != target.colors.count {
+            updateValues(value: &value.colors, target: &target.colors)
+            initialValue = value as! Value
+            targetValue = target as! Value
+        } else if Value.self == CGColor.self {
+            let iniVal = (object[keyPath: keyPath] as! Optional<CGColor>)?.nsUIColor
+            let tarVal = (newValue as! Optional<CGColor>)?.nsUIColor
             if iniVal?.isVisible == false || iniVal == nil {
                 initialValue = (tarVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
@@ -183,7 +191,15 @@ internal extension PropertyAnimator {
         var initialValue = object[keyPath: keyPath] ?? Value.zero
         var targetValue = newValue ?? Value.zero
         
-        if Value.self == CGColor.self {
+        if var value = initialValue as? [CGFloat], var target = targetValue as? [CGFloat], value.count != target.count {
+            updateValues(value: &value, target: &target)
+            initialValue = value as! Value
+            targetValue = target as! Value
+        } else if var value = initialValue as? GradientColors, var target = targetValue as? GradientColors, value.colors.count != target.colors.count {
+            updateValues(value: &value.colors, target: &target.colors)
+            initialValue = value as! Value
+            targetValue = target as! Value
+        } else if Value.self == CGColor.self {
             let iniVal = (object[keyPath: keyPath] as! Optional<CGColor>)?.nsUIColor
             let tarVal = (newValue as! Optional<CGColor>)?.nsUIColor
             if iniVal?.isVisible == false || iniVal == nil {
@@ -222,6 +238,17 @@ internal extension PropertyAnimator {
         }
         animations[animationKey] = animation
         animation.start(afterDelay: settings.delay)
+    }
+    
+    func updateValues<V: AnimatableData>(value: inout [V], target: inout [V]) {
+        let diff = target.count - value.count
+        if diff < 0 {
+            for i in target.count-(diff * -1)..<target.count {
+                target[i] = .zero
+            }
+        } else if diff > 0 {
+            value.append(contentsOf: Array(repeating: .zero, count: diff))
+        }
     }
 }
 
@@ -263,3 +290,4 @@ internal extension PropertyAnimator {
  }
  }
  */
+

@@ -658,7 +658,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc public dynamic var shadowPath: NSBezierPath? {
+    public dynamic var shadowPath: NSBezierPath? {
         get {
             if let cgPath = layer?.shadowPath {
                 return NSBezierPath(cgPath: cgPath)
@@ -669,11 +669,16 @@ extension NSView {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             if newValue == nil, self.isProxy() {
-                layer?.shadowPath = NSBezierPath(roundedRect: self.layer?.bounds ?? .zero, cornerRadius: self.cornerRadius).cgPath
+                self._shadowPath = NSBezierPath(roundedRect: self.layer?.bounds ?? .zero, cornerRadius: self.cornerRadius).cgPath
             } else {
-                layer?.shadowPath = newValue?.cgPath
+                self._shadowPath = newValue?.cgPath
             }
         }
+    }
+    
+    @objc dynamic internal var _shadowPath: CGPath? {
+        get { layer?.shadowPath }
+        set { layer?.shadowPath = newValue }
     }
     
     /**
@@ -949,7 +954,7 @@ internal extension NSView {
    }
 }
 
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "inverseMask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "inverseMask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "_shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius"]
 
 /*
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "dashedBorderDashPattern0", "dashedBorderDashPattern1", "dashedBorderDashPattern2", "dashedBorderDashPattern3", "dashedBorderDashPattern4", "dashedBorderDashPattern5", "dashedBorderInsetsTop", "dashedBorderInsetsBottom", "dashedBorderInsetsLeading", "dashedBorderInsetsTrailing", "dashedBorderColor", "dashedBorderWidth"]

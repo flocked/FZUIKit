@@ -218,6 +218,29 @@ extension PropertyAnimator where Object: NSControl {
         set { self[\.floatValue] = newValue }
     }
 }
+
+extension PropertyAnimator where Object: GradientView {
+    public var colors: [NSUIColor] {
+        get { self.object.gradientLayer.animator.colors }
+        set { self.object.gradientLayer.animator.colors = newValue }
+    }
+    
+    public var locations: [Double] {
+        get { self.object.gradientLayer.animator.locations }
+        set { self.object.gradientLayer.animator.locations = newValue }
+    }
+    
+    public var startPoint: CGPoint {
+        get { self.object.gradientLayer.animator.startPoint }
+        set { self.object.gradientLayer.animator.startPoint = newValue }
+    }
+    
+    public var endPoint: CGPoint {
+        get { self.object.gradientLayer.animator.endPoint }
+        set { self.object.gradientLayer.animator.endPoint = newValue }
+    }
+}
+
 #elseif canImport(UIKit)
 extension PropertyAnimator where Object: UIImageView {
     /// The tint color of the image.

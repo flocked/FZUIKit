@@ -82,6 +82,12 @@ public extension NSImage {
         image.isTemplate = false
         return image
     }
+    
+    /// Returns an object scaled to the curren screen that may be used as the contents of a layer.
+    var scaledLayerContents: Any {
+        let scale = self.recommendedLayerContentsScale(0.0)
+        return self.layerContents(forContentsScale: scale)
+    }
 
     static func maskImage(cornerRadius: CGFloat) -> NSImage {
         let image = NSImage(size: NSSize(width: cornerRadius * 2, height: cornerRadius * 2), flipped: false) { rectangle in

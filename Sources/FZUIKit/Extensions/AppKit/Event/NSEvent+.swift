@@ -85,9 +85,14 @@ public extension NSEvent.EventTypeMask {
     
     /// All user interaction event types (excluding mouse up events).
     static let userInteractions: NSEvent.EventTypeMask = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .scrollWheel, .magnify, .keyDown]
+    
     /// All user interaction event types (including mouse up events).
     static let extendedUserInteractions: NSEvent.EventTypeMask = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .rightMouseDragged, .leftMouseUp, .rightMouseUp, .scrollWheel, .magnify]
+    
     /// All mouse movement event types.
     static let mouseMovements: NSEvent.EventTypeMask = [.mouseEntered, .mouseMoved, .mouseExited]
+
+    /// All the mouse event types.
+     static let mouse: NSEvent.EventTypeMask = [.mouseMoved, .mouseExited, .mouseEntered, .leftMouseUp, .otherMouseUp, .rightMouseUp, .leftMouseDown, .otherMouseDown, .rightMouseDown, .leftMouseDragged, .otherMouseDragged, .rightMouseDragged]
 }
 #endif
