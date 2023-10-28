@@ -11,8 +11,10 @@ import SwiftUI
 
 public typealias AnimatableVector = Array<Double>
 
+public protocol SomeExtension: AdditiveArithmetic, VectorArithmetic { }
 
-extension Array: AdditiveArithmetic where Element: AdditiveArithmetic {
+
+extension Array: SomeExtension, AdditiveArithmetic, VectorArithmetic   where Element: VectorArithmetic  {
     public static func -= (lhs: inout Self, rhs: Self) {
         let range = (lhs.startIndex..<lhs.endIndex)
             .clamped(to: rhs.startIndex..<rhs.endIndex)
@@ -42,10 +44,6 @@ extension Array: AdditiveArithmetic where Element: AdditiveArithmetic {
         return lhs
     }
 
-    public static var zero: Self { .init() }
-}
-
-extension Array: VectorArithmetic where Element: VectorArithmetic {
     mutating public func scale(by rhs: Double) {
         for index in startIndex..<endIndex {
             self[index].scale(by: rhs)
@@ -57,9 +55,11 @@ extension Array: VectorArithmetic where Element: VectorArithmetic {
             result += new.magnitudeSquared
         }
     }
+
+    public static var zero: Self { .init() }
 }
 
-extension AdditiveArithmetic where Self == Array<Double> {
+extension SomeExtension where Self == Array<Double> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         Swift.print("hhh")
         let count = Swift.min(lhs.count, rhs.count)
@@ -84,9 +84,7 @@ extension AdditiveArithmetic where Self == Array<Double> {
         let count = Swift.min(lhs.count, rhs.count)
         vDSP.subtract(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
     }
-}
 
-extension VectorArithmetic where Self == Array<Double> {
     public mutating func scale(by rhs: Double) {
         self = vDSP.multiply(rhs, self)
     }
@@ -96,8 +94,7 @@ extension VectorArithmetic where Self == Array<Double> {
     }
 }
 
-
-extension VectorArithmetic where Self == Array<Float> {
+extension SomeExtension where Self == Array<Float> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         let count = Swift.min(lhs.count, rhs.count)
         return vDSP.add(lhs[0..<count], rhs[0..<count])
