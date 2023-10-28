@@ -11,19 +11,15 @@ import SwiftUI
 
 public typealias AnimatableVector = Array<Double>
 
-public protocol KyProtocol: Collection, BidirectionalCollection, MutableCollection, RandomAccessCollection, RangeReplaceableCollection, Sequence, AdditiveArithmetic, VectorArithmetic { }
-
 extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArithmetic  {
     public static func -= (lhs: inout Self, rhs: Self) {
-        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
-            Swift.print("aaa")
-            let count = Swift.min(lh.count, rh.count)
-            vDSP.subtract(lh[0..<count], rh[0..<count], result: &lh[0..<count])
-            lhs = lh as! Self
+        if var _lhs = lhs as? AnimatableVector, let _rhs = rhs as? AnimatableVector {
+            let count = Swift.min(_lhs.count, _rhs.count)
+            vDSP.subtract(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
+            lhs = _lhs as! Self
         } else {
             let range = (lhs.startIndex..<lhs.endIndex)
                 .clamped(to: rhs.startIndex..<rhs.endIndex)
-            
             for index in range {
                 lhs[index] -= rhs[index]
             }
@@ -31,10 +27,9 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     public static func - (lhs: Self, rhs: Self) -> Self {
-        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
-            Swift.print("aaa")
-            let count = Swift.min(lh.count, rh.count)
-            return vDSP.subtract(lh[0..<count], rh[0..<count]) as! Self
+        if let _lhs = lhs as? AnimatableVector, let _rhs = rhs as? AnimatableVector {
+            let count = Swift.min(_lhs.count, _rhs.count)
+            return vDSP.subtract(_lhs[0..<count], _rhs[0..<count]) as! Self
         }
         var lhs = lhs
         lhs -= rhs
@@ -42,11 +37,10 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     public static func += (lhs: inout Self, rhs: Self) {
-        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
-            Swift.print("aaa")
-            let count = Swift.min(lh.count, rh.count)
-            vDSP.add(lh[0..<count], rh[0..<count], result: &lh[0..<count])
-            lhs = lh as! Self
+        if var _lhs = lhs as? AnimatableVector, let _rhs = rhs as? AnimatableVector {
+            let count = Swift.min(_lhs.count, _rhs.count)
+            vDSP.add(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
+            lhs = _lhs as! Self
         } else {
             let range = (lhs.startIndex..<lhs.endIndex)
                 .clamped(to: rhs.startIndex..<rhs.endIndex)
@@ -57,10 +51,9 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     public static func + (lhs: Self, rhs: Self) -> Self {
-        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
-            Swift.print("aaa")
-            let count = Swift.min(lh.count, rh.count)
-            return vDSP.add(lh[0..<count], rh[0..<count]) as! Self
+        if let _lhs = lhs as? AnimatableVector, let _rhs = rhs as? AnimatableVector {
+            let count = Swift.min(_lhs.count, _rhs.count)
+            return vDSP.add(_lhs[0..<count], _rhs[0..<count]) as! Self
         }
         var lhs = lhs
         lhs += rhs
@@ -68,9 +61,8 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     mutating public func scale(by rhs: Double) {
-        if var value = self as? AnimatableVector {
-            Swift.print("aaa")
-            self = vDSP.multiply(rhs, value) as! Self
+        if let _self = self as? AnimatableVector {
+            self = vDSP.multiply(rhs, _self) as! Self
         } else {
             for index in startIndex..<endIndex {
                 self[index].scale(by: rhs)
@@ -79,8 +71,8 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     public var magnitudeSquared: Double {
-        if var value = self as? AnimatableVector {
-           return vDSP.sum(vDSP.multiply(value, value))
+        if let _self = self as? AnimatableVector {
+           return vDSP.sum(vDSP.multiply(_self, _self))
         }
        return reduce(into: 0.0) { (result, new) in
             result += new.magnitudeSquared
@@ -90,6 +82,7 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     public static var zero: Self { .init() }
 }
 
+/*
 extension VectorArithmetic where Self == Array<Double> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         Swift.print("hhh")
@@ -155,6 +148,7 @@ extension VectorArithmetic where Self == Array<Float> {
         vDSP.sum(vDSP.multiply(self, self))
     }
 }
+ */
 
 extension AnimatablePair: ExpressibleByArrayLiteral where First == Second {
     public init(arrayLiteral elements: First...) {
