@@ -15,6 +15,7 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     public static func -= (lhs: inout Self, rhs: Self) {
         let range = (lhs.startIndex..<lhs.endIndex)
             .clamped(to: rhs.startIndex..<rhs.endIndex)
+        Swift.print("nooo", type(of: self), Element.self)
 
         for index in range {
             lhs[index] -= rhs[index]
@@ -22,12 +23,16 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     public static func - (lhs: Self, rhs: Self) -> Self {
+        Swift.print("nooo", type(of: self), Element.self)
+
         var lhs = lhs
         lhs -= rhs
         return lhs
     }
 
     public static func += (lhs: inout Self, rhs: Self) {
+        Swift.print("nooo", type(of: self), Element.self)
+
         let range = (lhs.startIndex..<lhs.endIndex)
             .clamped(to: rhs.startIndex..<rhs.endIndex)
         for index in range {
@@ -36,6 +41,8 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     }
 
     public static func + (lhs: Self, rhs: Self) -> Self {
+        Swift.print("nooo", type(of: self), Element.self)
+
         var lhs = lhs
         lhs += rhs
         return lhs
