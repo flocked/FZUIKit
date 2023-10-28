@@ -11,7 +11,8 @@ import SwiftUI
 
 public typealias AnimatableVector = Array<Double>
 
-extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArithmetic  {
+
+extension Array: AdditiveArithmetic where Element: AdditiveArithmetic {
     public static func -= (lhs: inout Self, rhs: Self) {
         let range = (lhs.startIndex..<lhs.endIndex)
             .clamped(to: rhs.startIndex..<rhs.endIndex)
@@ -41,6 +42,10 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
         return lhs
     }
 
+    public static var zero: Self { .init() }
+}
+
+extension Array: VectorArithmetic where Element: VectorArithmetic {
     mutating public func scale(by rhs: Double) {
         for index in startIndex..<endIndex {
             self[index].scale(by: rhs)
@@ -52,8 +57,6 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
             result += new.magnitudeSquared
         }
     }
-
-    public static var zero: Self { .init() }
 }
 
 extension AdditiveArithmetic where Self == Array<Double> {
@@ -81,7 +84,9 @@ extension AdditiveArithmetic where Self == Array<Double> {
         let count = Swift.min(lhs.count, rhs.count)
         vDSP.subtract(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
     }
+}
 
+extension VectorArithmetic where Self == Array<Double> {
     public mutating func scale(by rhs: Double) {
         self = vDSP.multiply(rhs, self)
     }
@@ -91,7 +96,8 @@ extension AdditiveArithmetic where Self == Array<Double> {
     }
 }
 
-extension AdditiveArithmetic where Self == Array<Float> {
+
+extension VectorArithmetic where Self == Array<Float> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         let count = Swift.min(lhs.count, rhs.count)
         return vDSP.add(lhs[0..<count], rhs[0..<count])
