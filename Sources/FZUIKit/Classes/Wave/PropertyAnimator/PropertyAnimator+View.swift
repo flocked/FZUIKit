@@ -29,7 +29,7 @@ extension PropertyAnimator where Object: NSUIView {
         set { self[\.frame] = newValue }
     }
     
-    /// The size of the view. Changing this value keeps the view centered.
+    /// The size of the view. Compared to changing the size via frame, it keeps the view centered.
     public var size: CGSize {
         get { frame.size }
         set { frame.sizeCentered = newValue }

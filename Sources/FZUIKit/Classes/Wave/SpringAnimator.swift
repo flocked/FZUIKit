@@ -99,6 +99,9 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      Note: Enabling `integralizeValues` effectively quantizes `value`, so don't use this for values that are supposed to be continuous.
      */
     public var integralizeValues: Bool = false
+    
+    /// Determines if the animation is stopped upon completion. If set to `false`,  any changes to the target value will be animated.
+    public var stopOnCompletion: Bool = true
 
     /**
      A unique identifier that associates an animation with an grouped animation block.
@@ -138,21 +141,27 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         let start = {
             AnimationController.shared.runPropertyAnimation(self)
         }
-            
+        
+        delayTask?.cancel()
 
         if delay == .zero {
             start()
         } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            let task = DispatchWorkItem {
                 start()
             }
+            delayTask = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
         }
     }
+    
+    internal var delayTask: DispatchWorkItem? = nil
 
     /**
      Stops the animation at the current value.
      */
     public func stop(immediately: Bool = true) {
+        delayTask?.cancel()
         if immediately {
             state = .ended
 

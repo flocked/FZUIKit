@@ -11,47 +11,78 @@ import SwiftUI
 
 public typealias AnimatableVector = Array<Double>
 
-public protocol SomeExtension: AdditiveArithmetic, VectorArithmetic { }
+public protocol KyProtocol: Collection, BidirectionalCollection, MutableCollection, RandomAccessCollection, RangeReplaceableCollection, Sequence, AdditiveArithmetic, VectorArithmetic { }
 
-
-extension Array: SomeExtension, AdditiveArithmetic, VectorArithmetic   where Element: VectorArithmetic  {
+extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArithmetic  {
     public static func -= (lhs: inout Self, rhs: Self) {
-        let range = (lhs.startIndex..<lhs.endIndex)
-            .clamped(to: rhs.startIndex..<rhs.endIndex)
-
-        for index in range {
-            lhs[index] -= rhs[index]
+        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
+            Swift.print("aaa")
+            let count = Swift.min(lh.count, rh.count)
+            vDSP.subtract(lh[0..<count], rh[0..<count], result: &lh[0..<count])
+            lhs = lh as! Self
+        } else {
+            let range = (lhs.startIndex..<lhs.endIndex)
+                .clamped(to: rhs.startIndex..<rhs.endIndex)
+            
+            for index in range {
+                lhs[index] -= rhs[index]
+            }
         }
     }
 
     public static func - (lhs: Self, rhs: Self) -> Self {
+        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
+            Swift.print("aaa")
+            let count = Swift.min(lh.count, rh.count)
+            return vDSP.subtract(lh[0..<count], rh[0..<count]) as! Self
+        }
         var lhs = lhs
         lhs -= rhs
         return lhs
     }
 
     public static func += (lhs: inout Self, rhs: Self) {
-        let range = (lhs.startIndex..<lhs.endIndex)
-            .clamped(to: rhs.startIndex..<rhs.endIndex)
-        for index in range {
-            lhs[index] += rhs[index]
+        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
+            Swift.print("aaa")
+            let count = Swift.min(lh.count, rh.count)
+            vDSP.add(lh[0..<count], rh[0..<count], result: &lh[0..<count])
+            lhs = lh as! Self
+        } else {
+            let range = (lhs.startIndex..<lhs.endIndex)
+                .clamped(to: rhs.startIndex..<rhs.endIndex)
+            for index in range {
+                lhs[index] += rhs[index]
+            }
         }
     }
 
     public static func + (lhs: Self, rhs: Self) -> Self {
+        if var lh = lhs as? AnimatableVector, var rh = rhs as? AnimatableVector {
+            Swift.print("aaa")
+            let count = Swift.min(lh.count, rh.count)
+            return vDSP.add(lh[0..<count], rh[0..<count]) as! Self
+        }
         var lhs = lhs
         lhs += rhs
         return lhs
     }
 
     mutating public func scale(by rhs: Double) {
-        for index in startIndex..<endIndex {
-            self[index].scale(by: rhs)
+        if var value = self as? AnimatableVector {
+            Swift.print("aaa")
+            self = vDSP.multiply(rhs, value) as! Self
+        } else {
+            for index in startIndex..<endIndex {
+                self[index].scale(by: rhs)
+            }
         }
     }
 
     public var magnitudeSquared: Double {
-        reduce(into: 0.0) { (result, new) in
+        if var value = self as? AnimatableVector {
+           return vDSP.sum(vDSP.multiply(value, value))
+        }
+       return reduce(into: 0.0) { (result, new) in
             result += new.magnitudeSquared
         }
     }
@@ -59,7 +90,7 @@ extension Array: SomeExtension, AdditiveArithmetic, VectorArithmetic   where Ele
     public static var zero: Self { .init() }
 }
 
-extension SomeExtension where Self == Array<Double> {
+extension VectorArithmetic where Self == Array<Double> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         Swift.print("hhh")
         let count = Swift.min(lhs.count, rhs.count)
@@ -94,7 +125,7 @@ extension SomeExtension where Self == Array<Double> {
     }
 }
 
-extension SomeExtension where Self == Array<Float> {
+extension VectorArithmetic where Self == Array<Float> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         let count = Swift.min(lhs.count, rhs.count)
         return vDSP.add(lhs[0..<count], rhs[0..<count])
