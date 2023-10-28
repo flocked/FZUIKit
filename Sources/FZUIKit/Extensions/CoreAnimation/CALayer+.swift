@@ -1,6 +1,6 @@
 //
 //  CALayer+.swift
-//  
+//
 //
 //  Created by Florian Zand on 07.06.22.
 //
@@ -41,8 +41,8 @@ public extension CALayer {
      The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
      
      - Parameters:
-        - layer: The layer to be added.
-        - insets: Insets from the new sublayer border to the layer border.
+     - layer: The layer to be added.
+     - insets: Insets from the new sublayer border to the layer border.
      */
     func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
         self.addSublayer(layer)
@@ -55,9 +55,9 @@ public extension CALayer {
      The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
      
      - Parameters:
-        - layer: The layer to be added.
-        - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
-        - insets: Insets from the new sublayer border to the layer border.
+     - layer: The layer to be added.
+     - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
+     - insets: Insets from the new sublayer border to the layer border.
      */
     func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
         self.insertSublayer(layer, at: index)
@@ -79,7 +79,7 @@ public extension CALayer {
             if frameSize.width > insets.width, frameSize.height > insets.height {
                 shapeRect = shapeRect.inset(by: insets)
             }
-                        
+            
             let position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
             
             self.cornerRadius = layer.cornerRadius
@@ -185,7 +185,23 @@ public extension CALayer {
         UIGraphicsEndImageContext()
         return outputImage!
         #endif
-      }
+    }
+    
+    /*
+     An optional layer whose inverse alpha channel is used to mask the layer’s content.
+     
+     In contrast to `mask` transparent pixels allow the underlying content to show, while opaque pixels block the content.
+     */
+    @objc dynamic var inverseMask: CALayer? {
+        get { (self.mask as? InverseMaskLayer)?.maskLayer }
+        set {
+            if let newValue = newValue {
+                self.mask = InverseMaskLayer(maskLayer: newValue)
+            } else {
+                self.mask = nil
+            }
+        }
+    }
 }
 #endif
 

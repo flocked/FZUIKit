@@ -66,14 +66,14 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var mask: NSView? {
-        get { return getAssociatedValue(key: "maskView", object: self) }
+        get { layer?.mask?.parentView ?? (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             newValue?.wantsLayer = true
             newValue?.removeFromSuperview()
             layer?.mask = newValue?.layer
-            set(associatedValue: newValue, key: "maskView", object: self)
+          //  set(associatedValue: newValue, key: "maskView", object: self)
         }
     }
     
@@ -83,7 +83,8 @@ extension NSView {
      In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
      */
     @objc open dynamic var inverseMask: NSView? {
-        get { return getAssociatedValue(key: "maskView", object: self) }
+        get { mask }
+           // return getAssociatedValue(key: "maskView", object: self) }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
@@ -94,7 +95,7 @@ extension NSView {
             } else {
                 layer?.mask = nil
             }
-            set(associatedValue: newValue, key: "maskView", object: self)
+           // set(associatedValue: newValue, key: "maskView", object: self)
         }
     }
 
@@ -950,7 +951,7 @@ internal extension NSView {
    }
 }
 
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "inverseMask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius"]
 
 /*
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "dashedBorderDashPattern0", "dashedBorderDashPattern1", "dashedBorderDashPattern2", "dashedBorderDashPattern3", "dashedBorderDashPattern4", "dashedBorderDashPattern5", "dashedBorderInsetsTop", "dashedBorderInsetsBottom", "dashedBorderInsetsLeading", "dashedBorderInsetsTrailing", "dashedBorderColor", "dashedBorderWidth"]
