@@ -71,16 +71,7 @@ extension NSView {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             newValue?.wantsLayer = true
-            if let maskView = newValue, let maskLayer = maskView.layer {
-                maskView.wantsLayer = true
-                self.addSubview(maskView)
-                layer?.mask = maskLayer
-            } else {
-                layer?.mask = nil
-                if mask?.superview == self {
-                    mask?.removeFromSuperview()
-                }
-            }
+            layer?.mask = newValue?.layer
             set(associatedValue: newValue, key: "maskView", object: self)
         }
     }
@@ -88,9 +79,9 @@ extension NSView {
     /**
      A Boolean value that determines whether the view is opaque.
 
-     This property provides a hint to the drawing system as to how it should treat the view. If set to true, the drawing system treats the view as fully opaque, which allows the drawing system to optimize some drawing operations and improve performance. If set to false, the drawing system composites the view normally with other content. The default value of this property is true.
+     This property provides a hint to the drawing system as to how it should treat the view. If set to `true`, the drawing system treats the view as fully opaque, which allows the drawing system to optimize some drawing operations and improve performance. If set to `false`, the drawing system composites the view normally with other content. The default value of this property is true.
 
-     An opaque view is expected to fill its bounds with entirely opaque content—that is, the content should have an alpha value of 1.0. If the view is opaque and either does not fill its bounds or contains wholly or partially transparent content, the results are unpredictable. You should always set the value of this property to false if the view is fully or partially transparent.
+     An opaque view is expected to fill its bounds with entirely opaque content—that is, the content should have an alpha value of `1.0`. If the view is opaque and either does not fill its bounds or contains wholly or partially transparent content, the results are unpredictable. You should always set the value of this property to false if the view is fully or partially transparent.
 
      Using this property turns the view into a layer-backed view.
      */
