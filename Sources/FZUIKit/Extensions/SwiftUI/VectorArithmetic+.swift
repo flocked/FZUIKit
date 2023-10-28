@@ -15,37 +15,55 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     public static func -= (lhs: inout Self, rhs: Self) {
         let range = (lhs.startIndex..<lhs.endIndex)
             .clamped(to: rhs.startIndex..<rhs.endIndex)
-        Swift.print("nooo", type(of: self), Element.self)
 
         for index in range {
             lhs[index] -= rhs[index]
         }
     }
+    
+    public static func -= (lhs: inout Self, rhs: Self) where Element == Double {
+        Swift.print("hhh")
+
+        let count = Swift.min(lhs.count, rhs.count)
+        vDSP.subtract(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
+    }
 
     public static func - (lhs: Self, rhs: Self) -> Self {
-        Swift.print("nooo", type(of: self), Element.self)
-
         var lhs = lhs
         lhs -= rhs
         return lhs
     }
+    
+    public static func - (lhs: Self, rhs: Self) -> Self where Element == Double {
+        Swift.print("hhh")
+        let count = Swift.min(lhs.count, rhs.count)
+        return vDSP.subtract(lhs[0..<count], rhs[0..<count])
+    }
 
     public static func += (lhs: inout Self, rhs: Self) {
-        Swift.print("nooo", type(of: self), Element.self)
-
         let range = (lhs.startIndex..<lhs.endIndex)
             .clamped(to: rhs.startIndex..<rhs.endIndex)
         for index in range {
             lhs[index] += rhs[index]
         }
     }
+    
+    public static func += (lhs: inout Self, rhs: Self) where Element == Double {
+        Swift.print("hhh")
+        let count = Swift.min(lhs.count, rhs.count)
+        vDSP.add(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
+    }
 
     public static func + (lhs: Self, rhs: Self) -> Self {
-        Swift.print("nooo", type(of: self), Element.self)
-
         var lhs = lhs
         lhs += rhs
         return lhs
+    }
+    
+    public static func + (lhs: Self, rhs: Self) -> Self where Element == Double {
+        Swift.print("hhh")
+        let count = Swift.min(lhs.count, rhs.count)
+        return vDSP.add(lhs[0..<count], rhs[0..<count])
     }
 
     mutating public func scale(by rhs: Double) {
@@ -64,30 +82,14 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
 }
 
 
-extension Array where Element == Double {
-    public static func + (lhs: Self, rhs: Self) -> Self {
-        Swift.print("hhh")
-        let count = Swift.min(lhs.count, rhs.count)
-        return vDSP.add(lhs[0..<count], rhs[0..<count])
-    }
-    
-    public static func += (lhs: inout Self, rhs: Self) {
-        Swift.print("hhh")
-        let count = Swift.min(lhs.count, rhs.count)
-        vDSP.add(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
-    }
-    
-    public static func - (lhs: Self, rhs: Self) -> Self {
-        Swift.print("hhh")
-        let count = Swift.min(lhs.count, rhs.count)
-        return vDSP.subtract(lhs[0..<count], rhs[0..<count])
-    }
+extension Array<Double> {
 
-    public static func -= (lhs: inout Self, rhs: Self) {
-        Swift.print("hhh")
-        let count = Swift.min(lhs.count, rhs.count)
-        vDSP.subtract(lhs[0..<count], rhs[0..<count], result: &lhs[0..<count])
-    }
+    
+
+    
+
+
+
 
 
     public mutating func scale(by rhs: Double) {
@@ -99,7 +101,7 @@ extension Array where Element == Double {
     }
 }
 
-extension Array where Element == Float {
+extension Array<Float> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         let count = Swift.min(lhs.count, rhs.count)
         return vDSP.add(lhs[0..<count], rhs[0..<count])
