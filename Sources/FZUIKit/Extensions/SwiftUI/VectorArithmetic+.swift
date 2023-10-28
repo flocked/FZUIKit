@@ -56,7 +56,7 @@ extension Array: AdditiveArithmetic & VectorArithmetic where Element: VectorArit
     public static var zero: Self { .init() }
 }
 
-extension VectorArithmetic where Self == Array<Double> {
+extension AdditiveArithmetic where Self == Array<Double> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         Swift.print("hhh")
         let count = Swift.min(lhs.count, rhs.count)
@@ -91,11 +91,7 @@ extension VectorArithmetic where Self == Array<Double> {
     }
 }
 
-extension Array<Double> {
-
-}
-
-extension Array<Float> {
+extension AdditiveArithmetic where Self == Array<Float> {
     public static func + (lhs: Self, rhs: Self) -> Self {
         let count = Swift.min(lhs.count, rhs.count)
         return vDSP.add(lhs[0..<count], rhs[0..<count])
