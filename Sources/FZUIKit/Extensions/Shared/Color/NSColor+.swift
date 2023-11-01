@@ -23,7 +23,7 @@ public extension NSColor {
                      dark darkModeColor: @escaping @autoclosure () -> NSColor)
     {
         self.init(name: name, dynamicProvider: { appereance in
-            if appereance.name == .vibrantLight || appereance.name == .aqua {
+            if appereance.isLight {
                 return lightModeColor()
             } else {
                 return darkModeColor()
