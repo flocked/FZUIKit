@@ -440,6 +440,12 @@ internal extension CAGradientLayer {
         set { self.colors = newValue.chunked(size: 4).compactMap({ CGColor($0) })
         }
     }
+    
+    var __colors: [Double] {
+        get { (self.colors as? [CGColor])?.flatMap({$0.animatableData}) ?? [] }
+        set { self.colors = newValue.chunked(size: 4).compactMap({ CGColor($0) })
+        }
+    }
 }
 
 #endif

@@ -17,6 +17,7 @@ extension NSUIView: AnimatablePropertyProvider { }
 public typealias ViewAnimator = PropertyAnimator<NSUIView>
 
 extension PropertyAnimator where Object: NSUIView {
+    
     /// The bounds of the view.
     public var bounds: CGRect {
         get { self[\.bounds] }
@@ -140,7 +141,7 @@ extension PropertyAnimator where Object: NSUITextField {
     /// The text color of the text field.
     public var textColor: NSUIColor? {
         get { self[\.textColor] }
-        set { self[\.textColor] = newValue }
+        set { self[\.textColor] = newValue?.resolvedColor(for: object) }
     }
     
     /// The font size of the text field.
@@ -150,10 +151,17 @@ extension PropertyAnimator where Object: NSUITextField {
     }
 }
 
-fileprivate extension NSUITextField {
-    @objc var fontSize: CGFloat {
-        get { font?.pointSize ?? 0.0 }
-        set { font = font?.withSize(newValue) }
+extension PropertyAnimator where Object: NSUITextView {
+    /// The font size of the text view.
+    public var fontSize: CGFloat {
+        get { self[\.fontSize] }
+        set { self[\.fontSize] = newValue }
+    }
+    
+    /// The text color of the text view.
+    public var textColor: NSUIColor? {
+        get { self[\.textColor] }
+        set { self[\.textColor] = newValue?.resolvedColor(for: object) }
     }
 }
 
@@ -185,7 +193,7 @@ extension PropertyAnimator where Object: NSImageView {
     /// The tint color of the image.
     public var contentTintColor: NSUIColor? {
         get { self[\.contentTintColor] }
-        set { self[\.contentTintColor] = newValue }
+        set { self[\.contentTintColor] = newValue?.resolvedColor(for: object) }
     }
 }
 
@@ -193,7 +201,7 @@ extension PropertyAnimator where Object: NSButton {
     /// The tint color of the button.
     public var contentTintColor: NSUIColor? {
         get { self[\.contentTintColor] }
-        set { self[\.contentTintColor] = newValue }
+        set { self[\.contentTintColor] = newValue?.resolvedColor(for: object) }
     }
 }
 
@@ -201,7 +209,7 @@ extension PropertyAnimator where Object: ImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor? {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue }
+        set { self[\.tintColor] = newValue?.resolvedColor(for: object) }
     }
 }
 
@@ -246,7 +254,7 @@ extension PropertyAnimator where Object: UIImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue }
+        set { self[\.tintColor] = newValue?.resolvedColor(for: object) }
     }
 }
 
@@ -254,7 +262,7 @@ extension PropertyAnimator where Object: UIButton {
     /// The tint color of the button.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue }
+        set { self[\.tintColor] = newValue?.resolvedColor(for: object) }
     }
 }
 
@@ -262,7 +270,7 @@ extension PropertyAnimator where Object: UILabel {
     /// The text color of the label.
     public var textColor: NSUIColor {
         get { self[\.textColor] }
-        set { self[\.textColor] = newValue }
+        set { self[\.textColor] = newValue?.resolvedColor(for: object) }
     }
     
     /// The font size of the label.
@@ -272,23 +280,16 @@ extension PropertyAnimator where Object: UILabel {
     }
 }
 
-extension PropertyAnimator where Object: UITextView {
-    /// The text color of the text view.
-    public var textColor: NSUIColor? {
-        get { self[\.textColor] }
-        set { self[\.textColor] = newValue }
-    }
-    
-    /// The font size of the text view.
-    public var fontSize: CGFloat {
-        get { self[\.fontSize] }
-        set { self[\.fontSize] = newValue }
-    }
-}
-
 fileprivate extension UILabel {
     @objc var fontSize: CGFloat {
         get { font.pointSize }
+        set { font = font?.withSize(newValue) }
+    }
+}
+
+fileprivate extension UITextField {
+    @objc var fontSize: CGFloat {
+        get { font?.pointSize ?? 0.0 }
         set { font = font?.withSize(newValue) }
     }
 }

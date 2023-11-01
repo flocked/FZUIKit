@@ -21,6 +21,12 @@ public extension NSTextField {
         return cellFrame.origin.y + cellFrame.height - defaultLineHeight + height
     }
     
+    /// The font size of the text.
+     @objc dynamic var fontSize: CGFloat {
+            get { font?.pointSize ?? 0.0 }
+            set { Self.swizzleAnimationForKey()
+                font = font?.withSize(newValue) } }
+    
     /// The y-coordinate of the baseline for the last visible line of the text.
     var lastBaselineY: CGFloat? {
         guard let font = self.font else { return nil }

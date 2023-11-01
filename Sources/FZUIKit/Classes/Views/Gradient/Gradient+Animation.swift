@@ -12,6 +12,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import SwiftUI
 
 extension Gradient.Stop: AnimatableData {
     public var animatableData: Array<Double> {

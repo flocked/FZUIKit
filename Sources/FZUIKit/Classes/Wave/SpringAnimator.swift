@@ -100,8 +100,8 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      */
     public var integralizeValues: Bool = false
     
-    /// Determines if the animation is stopped upon completion. If set to `false`,  any changes to the target value will be animated.
-    public var stopOnCompletion: Bool = true
+    /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
+    public var stopsOnCompletion: Bool = true
 
     /**
      A unique identifier that associates an animation with an grouped animation block.
@@ -247,9 +247,9 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
 
         if animationFinished {
+            state = .ended
             // If an animation finishes on its own, call the completion handler with value `target`.
             completion?(.finished(at: target))
-            state = .ended
         }
     }
 }

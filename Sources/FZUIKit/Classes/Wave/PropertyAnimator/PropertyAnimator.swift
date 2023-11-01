@@ -39,6 +39,7 @@ import FZSwiftUtils
  ```
  */
 
+// @dynamicMemberLookup
 public class PropertyAnimator<Object: AnimatablePropertyProvider> {
     internal var object: Object
     
@@ -50,6 +51,18 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         get { getAssociatedValue(key: "animations", object: self, initialValue: [:]) }
         set { set(associatedValue: newValue, key: "animations", object: self) }
     }
+    
+    /*
+    public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value>) -> Value where Value: AnimatableData  {
+        get { value(for: member, key: nil) }
+        set { setValue(newValue, for: member) }
+    }
+    
+    public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value?>) -> Value? where Value: AnimatableData  {
+        get { value(for: member, key: nil) }
+        set { setValue(newValue, for: member) }
+    }
+     */
 }
 
 public extension PropertyAnimator {
@@ -131,8 +144,8 @@ internal extension PropertyAnimator {
             initialValue = value as! Value
             targetValue = target as! Value
         } else if Value.self == CGColor.self {
-            let iniVal = (object[keyPath: keyPath] as! Optional<CGColor>)?.nsUIColor
-            let tarVal = (newValue as! Optional<CGColor>)?.nsUIColor
+            let iniVal = (initialValue as! CGColor).nsUIColor
+            let tarVal = (newValue as!CGColor).nsUIColor
             if iniVal?.isVisible == false || iniVal == nil {
                 initialValue = (tarVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
             }
@@ -192,7 +205,7 @@ internal extension PropertyAnimator {
             initialValue = value as! Value
             targetValue = target as! Value
         } else if Value.self == CGColor.self {
-            let iniVal = (object[keyPath: keyPath] as! Optional<CGColor>)?.nsUIColor
+            let iniVal = (initialValue as! Optional<CGColor>)?.nsUIColor
             let tarVal = (newValue as! Optional<CGColor>)?.nsUIColor
             if iniVal?.isVisible == false || iniVal == nil {
                 initialValue = (tarVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value

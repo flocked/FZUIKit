@@ -48,6 +48,7 @@ public typealias NSUIResponder = NSResponder
 public typealias NSUIControl = NSControl
 public typealias NSUIImageView = NSImageView
 public typealias NSUIScrollView = NSScrollView
+public typealias NSUITextView = NSTextView
 
 #elseif canImport(UIKit)
 import UIKit
@@ -89,4 +90,5 @@ public typealias NSUIControl = UIControl
 public typealias NSUIImageView = UIImageView
 public typealias NSUITextField = UITextField
 public typealias NSUIScrollView = UIScrollView
+public typealias NSUITextView = UITextView
 #endif
