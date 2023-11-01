@@ -64,7 +64,8 @@ Additional `NSView` properties that can be all animated via the views `animator(
 - `transform: CGAffineTransform`
 - `transform3D: CATransform3D`
 - `anchorPoint: CGPoint`
-- `animate(duration: TimeInterval, timingFunction: CAMediaTimingFunction, animations: @escaping (Self) -> Void, completion: (() -> Void)?)`
+- NSTextField: `fontSize: CGFloat`
+
 ```
 // Convenience way of animating view properties
 view.animate(duration: 0.5) {
@@ -178,10 +179,9 @@ let toolbar = Toolbar("ToolbarIdentifier") {
         FlexibleSpace()
         Segmented("SegmentedItem") {
             Segment("Segment 1", isSelected: true)
-            Segment("Segment 2"), 
-        }
+            Segment("Segment 2"),
+        }.onAction() { /// Segmented pressed }
         Space()
-            .onAction() { /// Segmented pressed }
         Search("SearchItem")
             .onSearch() { searchField, stringValue, state in /// Searching }
 }

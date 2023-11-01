@@ -26,36 +26,62 @@ public extension ToolbarItem {
 
         internal var searchHandler: SearchHandler? = nil
 
+        /// The action handler getting called when the search string value changes.
         @discardableResult
         public func onSearch(_ action: @escaping ((_ searchfield: NSSearchField, _ stringValue: String, _ state: SearchState) -> Void)) -> Self {
             searchHandler = action
             return self
         }
 
+        /// The search field of the toolbar item.
         public var searchField: NSSearchField {
             get { searchItem.searchField }
             set { searchItem.searchField = newValue }
         }
 
+        /// The string value of the search field.
         public var stringValue: String {
             get { searchField.stringValue }
             set { searchField.stringValue = newValue }
         }
 
+        /// The placeholder string of the search field.
         public var placeholderString: String? {
             get { searchField.placeholderString }
             set { searchField.placeholderString = newValue }
         }
+        
+        /// The placeholder attributed string of the search field.
+        public var placeholderAttributedString: NSAttributedString? {
+            get { searchField.placeholderAttributedString }
+            set { searchField.placeholderAttributedString = newValue }
+        }
 
+        /// /// The placeholder string of the search field.
         @discardableResult
         public func placeholderString(_ placeholder: String?) -> Self {
-            searchField.placeholderString = placeholder
+            self.placeholderString = placeholder
             return self
         }
 
+        ///  /// The placeholder attributed string of the search field.
         @discardableResult
         public func placeholderAttributedString(_ placeholder: NSAttributedString?) -> Self {
-            searchField.placeholderAttributedString = placeholder
+            self.placeholderAttributedString = placeholder
+            return self
+        }
+        
+        /// The action to perform when the user pressed the enter key.
+        @discardableResult
+        public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
+            searchItem.searchField.actionOnEnterKeyDown = enterAction
+            return self
+        }
+        
+        /// /// The action to perform when the user pressed the escape key.
+        @discardableResult
+        public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
+            searchItem.searchField.actionOnEscapeKeyDown = escapeAction
             return self
         }
         

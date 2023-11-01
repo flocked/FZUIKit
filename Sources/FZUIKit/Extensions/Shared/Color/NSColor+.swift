@@ -98,7 +98,7 @@ public extension NSColor {
     /// Creates a new color object with a supported color space.
     func withSupportedColorSpace() -> NSColor? {
         if type == .componentBased || type == .catalog {
-            let dynamics = self.dynamicColors
+         //   let dynamics = self.dynamicColors
             for supportedColorSpace in Self.supportedColorSpaces {
                 if let supportedColor = usingColorSpace(supportedColorSpace) {
                     return supportedColor

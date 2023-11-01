@@ -214,18 +214,25 @@ extension NSTextField {
                     if let textField = object as? NSTextField {
                         switch selector {
                         case #selector(NSControl.cancelOperation(_:)):
-                            if textField.actionOnEscapeKeyDown == .endEditingAndReset {
+                            switch textField.actionOnEscapeKeyDown {
+                            case .endEditingAndReset(handler: let handler):
                                 textField.stringValue = textField.editStartString
                                 textField.adjustFontSize()
-                            }
-                            if textField.actionOnEscapeKeyDown != .none {
-                                textField.window?.makeFirstResponder(nil)
+                                handler?()
                                 return true
+                            case .endEditing(handler: let handler):
+                                textField.window?.makeFirstResponder(nil)
+                                handler?()
+                                return true
+                            case .none:
+                                break
                             }
                         case #selector(NSControl.insertNewline(_:)):
-                            if textField.actionOnEnterKeyDown == .endEditing {
-                                textField.window?.makeFirstResponder(nil)
+                            switch textField.actionOnEnterKeyDown {
+                            case .endEditing(handler: let handler):
+                                handler?()
                                 return true
+                            case .none: break
                             }
                         default: break
                         }

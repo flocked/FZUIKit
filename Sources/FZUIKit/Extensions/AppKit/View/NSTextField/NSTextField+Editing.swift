@@ -31,18 +31,18 @@ public extension NSTextField {
     enum EscapeKeyAction {
         /// No action.
         case none
-        /// Ends editing the text.
-        case endEditing
-        /// Ends editing the text and resets it to the the state before editing.
-        case endEditingAndReset
+        /// Ends editing the text and optionally calls the specified handler.
+        case endEditing(handler:(()->())? = nil)
+        /// Ends editing the text, resets it to the the state before editing and optionally calls the specified handler.
+        case endEditingAndReset(handler:(()->())? = nil)
     }
 
     /// The action to perform when the user pressed the enter key.
     enum EnterKeyAction {
         /// No action.
         case none
-        /// Ends editing the text.
-        case endEditing
+        /// Ends editing the text and optionally calls the specified handler.
+        case endEditing(handler:(()->())? = nil)
     }
     
     /// The allowed characters the user can enter when editing.
@@ -112,19 +112,22 @@ public extension NSTextField {
         set {
             
             set(associatedValue: newValue, key: "NSTextField_actionOnEnterKeyDown", object: self)
-            if newValue != .none {
+            switch newValue {
+            case .endEditing(handler: _):
                 swizzleTextField()
+            case .none: break
             }
         }
     }
 
-    /// The action to perform when the user pressed the escpae key.
+    /// The action to perform when the user pressed the escape key.
     var actionOnEscapeKeyDown: EscapeKeyAction {
         get { getAssociatedValue(key: "NSTextFIeld_actionOnEscapeKeyDown", object: self, initialValue: .none) }
         set {
             set(associatedValue: newValue, key: "NSTextFIeld_actionOnEscapeKeyDown", object: self)
-            if newValue != .none {
-                swizzleTextField()
+            switch newValue {
+            case .none: break
+            default: swizzleTextField()
             }
         }
     }
