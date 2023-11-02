@@ -184,7 +184,7 @@ extension CGQuaternion: AnimatableData {
     }
     
     public static var zero: CGQuaternion {
-        CGQuaternion(.zero)
+        CGQuaternion.init(degree: 0, axis: .init(0, 0, 0))
     }
 }
 
