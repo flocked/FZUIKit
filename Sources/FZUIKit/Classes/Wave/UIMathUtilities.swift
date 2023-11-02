@@ -29,16 +29,12 @@ public func rubberband(value: CGFloat, range: ClosedRange<CGFloat>, interval: CG
     }
 }
 
-/**
- Projects a scalar value based on a scalar velocity.
- */
+/// Projects a scalar value based on a scalar velocity.
 public func project(value: CGFloat, velocity: CGFloat, decelerationRate: CGFloat = 0.998) -> CGFloat {
     value + project(initialVelocity: velocity, decelerationRate: decelerationRate)
 }
 
-/**
- Projects a 2D point based on a 2D velocity.
- */
+/// Projects a 2D point based on a 2D velocity.
 public func project(point: CGPoint, velocity: CGPoint, decelerationRate: CGFloat = 0.998) -> CGPoint {
     CGPoint(
         x: point.x + project(initialVelocity: velocity.x, decelerationRate: decelerationRate),

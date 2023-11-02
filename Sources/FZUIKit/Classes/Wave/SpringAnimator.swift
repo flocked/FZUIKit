@@ -14,14 +14,10 @@ import UIKit
 #endif
 
 public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
-    /**
-     A unique identifier for the animation.
-     */
+    /// A unique identifier for the animation.
     public let id = UUID()
 
-    /**
-     The execution state of the animation (`inactive`, `running`, or `ended`).
-     */
+    ///  The execution state of the animation (`inactive`, `running`, or `ended`).
     public private(set) var state: AnimationState = .inactive {
         didSet {
             switch (oldValue, state) {
@@ -34,9 +30,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
     }
 
-    /**
-     The spring model that determines the animation's motion.
-     */
+    /// The spring model that determines the animation's motion.
     public var spring: Spring
 
     /**
@@ -103,9 +97,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
     public var stopsOnCompletion: Bool = true
 
-    /**
-     A unique identifier that associates an animation with an grouped animation block.
-     */
+    /// A unique identifier that associates an animation with an grouped animation block.
     var groupUUID: UUID?
 
     var startTime: TimeInterval?
@@ -157,9 +149,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     
     internal var delayTask: DispatchWorkItem? = nil
 
-    /**
-     Stops the animation at the current value.
-     */
+    /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
         delayTask?.cancel()
         if immediately {

@@ -8,21 +8,16 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import CoreGraphics
 import Foundation
-#if os(macOS)
-import AppKit
-#elseif os(iOS)
-import UIKit
-#endif
 import SwiftUI
 
 /**
  `Spring` determines the timing curve and settling duration of an animation.
 
- Springs are created by providing a `dampingRatio` greater than zero, and _either_ a ``response`` or ``stiffness`` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
+ Springs are created by providing a ``dampingRatio`` greater than zero, and _either_ a ``response`` or ``stiffness`` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
  */
-public class Spring: Equatable {
+public class Spring: Equatable, Hashable, @unchecked Sendable {
     // MARK: - Spring Properties
-
+    
     /// The amount of oscillation the spring will exhibit (i.e. "springiness").
     public let dampingRatio: CGFloat
 
@@ -60,7 +55,7 @@ public class Spring: Equatable {
 
      - Parameters:
         - dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness"). A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation. Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
-        - stiffness: Represents the spring constant, `k`. This value affects how quickly the spring animation reaches its target value.  Using `stiffness` values is an alternative to configuring springs with a `response` value.
+        - stiffness: The corresponding spring coefficient. The value affects how quickly the spring animation reaches its target value.  It's an alternative to configuring springs with a ``response`` value.
         - mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
      */
     public init(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat = 1.0) {
@@ -116,8 +111,8 @@ public class Spring: Equatable {
     }
     
     
+    /// Creates a spring from a SwiftUI spring.
     @available(macOS 14.0, iOS 17, tvOS 17, *)
-    /// Creates a spring from the values of a SwiftUI spring.
     public init(_ spring: SwiftUI.Spring) {
         dampingRatio = spring.dampingRatio
         response = spring.response
@@ -222,6 +217,15 @@ public class Spring: Equatable {
     public static func == (lhs: Spring, rhs: Spring) -> Bool {
         return lhs.dampingRatio == rhs.dampingRatio && lhs.response == rhs.response && lhs.mass == rhs.mass
     }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(dampingRatio)
+        hasher.combine(response)
+        hasher.combine(stiffness)
+        hasher.combine(mass)
+        hasher.combine(damping)
+        hasher.combine(settlingDuration)
+    }
 
     static func stiffness(response: CGFloat, mass: CGFloat) -> CGFloat {
         pow(2.0 * .pi / response, 2.0) * mass
@@ -255,8 +259,8 @@ public class Spring: Equatable {
         return (-1 * (logOfSettlingPercentage / (dampingRatio * undampedNaturalFrequency)))
     }
     
-    internal static let DefaultSettlingPercentage = 0.0001
-    static let logOfSettlingPercentage = log(Spring.DefaultSettlingPercentage)
+    static let defaultSettlingPercentage = 0.0001
+    static let logOfSettlingPercentage = log(Spring.defaultSettlingPercentage)
 
     static func undampedNaturalFrequency(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
         return sqrt(stiffness / mass)

@@ -12,7 +12,7 @@ import SwiftUI
 
 public enum Wave {
     /**
-     Performs animations based on the `Spring` value provided.
+     Performs animations based on the ``Spring`` value provided.
      
      The following objects provide animatable properties via `animator`.
      - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
@@ -27,7 +27,7 @@ public enum Wave {
      }
      ```
      - Parameters:
-        - spring: The `Spring` used to determine the timing curve and duration of the animation. The default spring is `snappy`.
+        - spring: The `Spring` used to determine the timing curve and duration of the animation. The default spring is ``Spring/snappy``.
         - delay: An optional delay, in seconds, after which to start the animation.
         - gestureVelocity: If provided, this value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.

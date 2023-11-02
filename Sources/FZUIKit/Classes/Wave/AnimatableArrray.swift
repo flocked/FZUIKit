@@ -8,12 +8,13 @@
 import Foundation
 import SwiftUI
 import Accelerate
+import FZSwiftUtils
 
 /// An array with double values that can serve as the animatable data of an animatable type (see ``AnimatableData``).
 public typealias AnimatableVector = AnimatableArray<Double>
 
 /// An array that can serve as the animatable data of an animatable type (see ``AnimatableData``).
-public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic>: MutableCollection, RangeReplaceableCollection, RandomAccessCollection, BidirectionalCollection, Sequence, Collection {
+public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic>: MutableCollection, RangeReplaceableCollection, RandomAccessCollection, BidirectionalCollection {
     internal var elements: [Element] = []
 
     public init() {}
@@ -136,8 +137,6 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic>: M
         try elements.withContiguousMutableStorageIfAvailable(body)
     }
 
-    // Collection / Mutable Collection
-
     private func isInBounds(index: Int) -> Bool {
         return indices ~= index
     }
@@ -226,15 +225,9 @@ extension AnimatableArray: ContiguousBytes {
     }
 }
 
-extension AnimatableArray: Equatable where Element: Equatable {
-    public static func == (lhs: AnimatableArray<Element>, rhs: AnimatableArray<Element>) -> Bool {
-        return lhs.elements == rhs.elements
-    }
-}
-
 extension AnimatableArray: ExpressibleByArrayLiteral {}
 
-extension AnimatableArray: AnimatableData, Comparable where Self.Element: VectorArithmetic { }
+extension AnimatableArray: AnimatableData, Comparable, Equatable { }
 
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     public static func -= (lhs: inout Self, rhs: Self) {
@@ -286,7 +279,6 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
     
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray where Element == Double {
-        Swift.print("here")
         let count = Swift.min(lhs.count, rhs.count)
         return AnimatableArray(vDSP.add(lhs[0..<count], rhs[0..<count]))
     }

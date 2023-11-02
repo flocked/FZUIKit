@@ -17,14 +17,14 @@ import FZSwiftUtils
 
 /**
  A type that describes an animatable value.
-
- A double array  (``AnimatableVector``) conforms to `VectorArithmetic` and can be used as animatable data.
+ 
+ ``AnimatableArray`` containing `VectorArithmetic` elements can be used as animatable data. ``AnimatableVector``is a animatable array with double values.
  
  Example:
  ```swift
  public struct SomeStruct {
-    let value1: CGFloat
-    let value2: CGFloat
+    let value1: Double
+    let value2: Double
  }
  
  extension SomeStruct: AnimatableData {
@@ -42,14 +42,15 @@ import FZSwiftUtils
  ```
  */
 public protocol AnimatableData: Equatable, Comparable {
-    /// The type defining the data to animate.
+    /// The type defining the animatable representation of the value.
     associatedtype AnimatableData: VectorArithmetic = Self
-    /// The data to animate.
+    /// The animatable representation of the value.
     var animatableData: AnimatableData { get }
-    /// Initializes with the specified data.
+    /// Initializes the value with the specified animatable representation of the value.
     init(_ animatableData: AnimatableData)
-    /// Scaled integral representation of the value.
+    /// The scaled integral representation of the value.
     var scaledIntegral: Self { get }
+    /// The zero value.
     static var zero: Self { get }
 }
 
@@ -82,6 +83,7 @@ extension Double: AnimatableData {
     public var animatableData: Self {
         self
     }
+    
     public init(_ animatableData: Self) {
         self = animatableData
     }
@@ -91,6 +93,7 @@ extension CGFloat: AnimatableData {
     public var animatableData: Self {
         self
     }
+    
     public init(_ animatableData: Self) {
         self = animatableData
     }
@@ -144,14 +147,12 @@ extension NSUIColor: AnimatableData {
 extension AnimatableData where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
         self = NSUIColor(animatableData).cgColor as! Self
-      //  self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
     }
 }
 
 extension CGColor: AnimatableData {
     public var animatableData: AnimatableVector {
         let rgba = self.nsUIColor?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
-        // let rgba = self.rgbaComponents() ?? (0, 0, 0, 1)
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
     }
     
@@ -160,14 +161,11 @@ extension CGColor: AnimatableData {
     }
 }
 
-// extension Array: AnimatableData, Comparable where Self.Element: VectorArithmetic { }
-
 extension CGAffineTransform: AnimatableData {
     @inlinable public init(_ animatableData: AnimatableVector) {
         self.init(animatableData[0], animatableData[1], animatableData[2], animatableData[3], animatableData[4], animatableData[5])
     }
     
-    /// `SIMD8` representation of the value.
     public var animatableData: AnimatableVector {
         return [a, b, c, d, tx, ty, 0, 0]
     }
@@ -198,6 +196,16 @@ extension NSDirectionalEdgeInsets: AnimatableData {
     
     public var animatableData: AnimatableVector {
         [top, bottom, leading, trailing]
+    }
+}
+
+extension NSEdgeInsets: AnimatableData {
+    public var animatableData: AnimatableVector {
+        [top, self.left, bottom, self.right]
+    }
+    
+    public init(_ animatableData: AnimatableVector) {
+        self.init(top: animatableData[0], left: animatableData[1], bottom: animatableData[2], right: animatableData[3])
     }
 }
 
