@@ -75,7 +75,7 @@ public extension NSCursor {
                     NSCursorAnimator.shared.frameDuration = frameDuration
                     NSCursorAnimator.shared.hotSpot = hotSpot
                     NSCursorAnimator.shared.images = images
-                    NSCursorAnimator.shared.restartAnimating()
+                    NSCursorAnimator.shared.restart()
                 }
                 }
         } catch {
@@ -91,14 +91,14 @@ public extension NSCursor {
         var index: Int = 0
         var hotSpot: CGPoint = CGPoint(x: 8, y: 8)
         
-        func restartAnimating() {
-            stopAnimating()
-            startAnimating()
+        func restart() {
+            stop()
+            start()
         }
         
-        func startAnimating() {
+        func start() {
             guard frameDuration != 0.0 && images.count > 1 else {
-                stopAnimating()
+                stop()
                 return
             }
             timer?.invalidate()
@@ -107,30 +107,15 @@ public extension NSCursor {
             })
         }
         
-        func stopAnimating() {
-            Swift.print("stopAnimating")
+        func stop() {
             timer?.invalidate()
             timer = nil
             index = 0
-            if images.isEmpty == false {
-                NSCursor(image: images[index], hotSpot: hotSpot).set()
-            } else {
-                NSCursor.arrow.set()
-                return
-            }
         }
         
         func advanceImage() {
             if self.images.contains(NSCursor.current.image) == false || images.isEmpty {
-                if self.images.contains(NSCursor.current.image) == false {
-                    Swift.print("imageContains 0", NSCursor.current.image)
-                    if self.images[index] != NSCursor.current.image {
-                        Swift.print("imageContains 1", self.images[index])
-                    }
-                } else if images.isEmpty {
-                    Swift.print("images isEmpty")
-                }
-                self.timer?.invalidate()
+                self.stop()
             } else {
                 index = index + 1
                 if index >= images.count {

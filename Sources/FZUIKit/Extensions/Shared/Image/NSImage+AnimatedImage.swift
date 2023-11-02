@@ -62,10 +62,9 @@ public extension NSImage {
     var framesCount: Int {
         #if os(macOS)
         if self.representations.count == 1, let representation = self.representations.first as? NSBitmapImageRep {
-           var frameCount = representation.frameCount
+           let frameCount = representation.frameCount
             guard let imageSource = ImageSource(image: self) else { return frameCount }
-            let imageSourceCount = imageSource.count
-            return frameCount >= imageSourceCount ? frameCount : imageSource.count
+            return max(frameCount, imageSource.count)
         }
         #endif
         guard let imageSource = ImageSource(image: self) else { return 1 }
