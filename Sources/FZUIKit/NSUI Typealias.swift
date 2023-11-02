@@ -50,6 +50,7 @@ public typealias NSUIImageView = NSImageView
 public typealias NSUIScrollView = NSScrollView
 public typealias NSUITextView = NSTextView
 public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
+public typealias NSUIScreen = NSScreen
 
 #elseif canImport(UIKit)
 import UIKit
@@ -93,4 +94,6 @@ public typealias NSUITextField = UITextField
 public typealias NSUIScrollView = UIScrollView
 public typealias NSUITextView = UITextView
 public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
+public typealias NSUIScreen = UIScreen
+
 #endif

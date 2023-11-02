@@ -198,8 +198,7 @@ extension NSDirectionalEdgeInsets: AnimatableData {
     }
 }
 
-#if os(macOS)
-extension NSEdgeInsets: AnimatableData {
+extension NSUIEdgeInsets: AnimatableData {
     public var animatableData: AnimatableVector {
         [top, self.left, bottom, self.right]
     }
@@ -208,7 +207,6 @@ extension NSEdgeInsets: AnimatableData {
         self.init(top: animatableData[0], left: animatableData[1], bottom: animatableData[2], right: animatableData[3])
     }
 }
-#endif
 
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, *)
 extension SwiftUI.Spring {

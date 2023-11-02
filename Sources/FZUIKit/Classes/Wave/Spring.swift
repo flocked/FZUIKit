@@ -15,7 +15,7 @@ import SwiftUI
 
  Springs are created by providing a ``dampingRatio`` greater than zero, and _either_ a ``response`` or ``stiffness`` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
  */
-public class Spring: Equatable, Hashable, @unchecked Sendable {
+public class Spring: @unchecked Sendable {
     // MARK: - Spring Properties
     
     /// The amount of oscillation the spring will exhibit (i.e. "springiness").
@@ -110,7 +110,6 @@ public class Spring: Equatable, Hashable, @unchecked Sendable {
         self.init(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
     
-    
     /// Creates a spring from a SwiftUI spring.
     @available(macOS 14.0, iOS 17, tvOS 17, *)
     public init(_ spring: SwiftUI.Spring) {
@@ -201,7 +200,15 @@ public class Spring: Equatable, Hashable, @unchecked Sendable {
         value = value + (velocity * deltaTime)
     }
     
-    /// Updates the current value and velocity of a spring.
+    /**
+     Updates the current value and velocity of a spring.
+     
+     - Parameters:
+        - value: The current value of the spring.
+        - velocity: The current velocity of the spring.
+        - target: The target that value is moving towards.
+        - deltaTime: The amount of time that has passed since the spring was at the position specified by value.
+     */
     public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
         var valueData = value.animatableData
         var velocityData = velocity.animatableData
@@ -211,21 +218,79 @@ public class Spring: Equatable, Hashable, @unchecked Sendable {
         value = V(valueData)
     }
     
-
-    // MARK: - Spring calculation
-
-    public static func == (lhs: Spring, rhs: Spring) -> Bool {
-        return lhs.dampingRatio == rhs.dampingRatio && lhs.response == rhs.response && lhs.mass == rhs.mass
+    // MARK: - Getting spring value
+    
+    /// Calculates the value of the spring at a given time given a target amount of change.
+    public func value<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        var value = V.zero
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return value
     }
     
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(dampingRatio)
-        hasher.combine(response)
-        hasher.combine(stiffness)
-        hasher.combine(mass)
-        hasher.combine(damping)
-        hasher.combine(settlingDuration)
+    /// Calculates the value of the spring at a given time given a target amount of change.
+    public func value<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
+        var value = V.zero
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return value
     }
+    
+    /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
+    public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        var value = fromValue
+        let target = toValue
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return value
+    }
+    
+    /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
+    public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
+        var value = fromValue
+        let target = toValue
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return value
+    }
+    
+    // MARK: - Getting spring velocity
+    
+    /// Calculates the velocity of the spring at a given time given a target amount of change.
+    public func velocity<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        var value = V.zero
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return velocity
+    }
+    
+    /// Calculates the velocity of the spring at a given time given a target amount of change.
+    public func velocity<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
+        var value = V.zero
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return velocity
+    }
+    
+    /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
+    public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+        var value = fromValue
+        let target = toValue
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return velocity
+    }
+    
+    /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
+    public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
+        var value = fromValue
+        let target = toValue
+        var velocity = initialVelocity
+        self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
+        return velocity
+    }
+
+    // MARK: - Spring calculation
 
     static func stiffness(response: CGFloat, mass: CGFloat) -> CGFloat {
         pow(2.0 * .pi / response, 2.0) * mass
@@ -260,6 +325,7 @@ public class Spring: Equatable, Hashable, @unchecked Sendable {
     }
     
     static let defaultSettlingPercentage = 0.0001
+    
     static let logOfSettlingPercentage = log(Spring.defaultSettlingPercentage)
 
     static func undampedNaturalFrequency(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
@@ -267,6 +333,20 @@ public class Spring: Equatable, Hashable, @unchecked Sendable {
     }
 }
 
+extension Spring: Hashable {
+    public static func == (lhs: Spring, rhs: Spring) -> Bool {
+        return lhs.dampingRatio == rhs.dampingRatio && lhs.response == rhs.response && lhs.mass == rhs.mass
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(dampingRatio)
+        hasher.combine(response)
+        hasher.combine(stiffness)
+        hasher.combine(mass)
+        hasher.combine(damping)
+        hasher.combine(settlingDuration)
+    }
+}
 
 extension Spring: CustomStringConvertible {
     public var description: String {
