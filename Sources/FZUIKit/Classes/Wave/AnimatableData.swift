@@ -54,7 +54,6 @@ public protocol AnimatableData: Equatable, Comparable {
     static var zero: Self { get }
 }
 
-
 public extension AnimatableData {
     var scaledIntegral: Self {
         self
