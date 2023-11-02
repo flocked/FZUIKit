@@ -123,7 +123,10 @@ public extension NSCursor {
         func advanceImage() {
             if self.images.contains(NSCursor.current.image) == false || images.isEmpty {
                 if self.images.contains(NSCursor.current.image) == false {
-                    Swift.print("image contains", NSCursor.current.image)
+                    Swift.print("imageContains 0", NSCursor.current.image)
+                    if self.images[index] != NSCursor.current.image {
+                        Swift.print("imageContains 1", self.images[index])
+                    }
                 } else if images.isEmpty {
                     Swift.print("images isEmpty")
                 }
