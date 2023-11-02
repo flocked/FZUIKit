@@ -67,6 +67,7 @@ public extension NSView {
                         break
                     }
                 }
+                self.addGestureRecognizer(panGesture!)
             }
         } else {
             if let panGesture = self.panGesture {
