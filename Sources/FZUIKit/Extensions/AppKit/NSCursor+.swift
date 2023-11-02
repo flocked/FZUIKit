@@ -66,10 +66,21 @@ public extension NSCursor {
     convenience init(animated images: [NSImage], frameDuration: TimeInterval, hotSpot: CGPoint) {
         
         self.init(image: images.first ?? NSCursor.current.image, hotSpot: images.isEmpty ? NSCursor.current.hotSpot : hotSpot)
-        NSCursorAnimator.shared.frameDuration = frameDuration
-        NSCursorAnimator.shared.hotSpot = hotSpot
-        NSCursorAnimator.shared.images = images
-        NSCursorAnimator.shared.restartAnimating()
+        do {
+            try self.replaceMethod(
+                #selector(NSCursor.set),
+                methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in { object in
+                    store.original(object, #selector(NSCursor.set))
+                    NSCursorAnimator.shared.frameDuration = frameDuration
+                    NSCursorAnimator.shared.hotSpot = hotSpot
+                    NSCursorAnimator.shared.images = images
+                    NSCursorAnimator.shared.restartAnimating()
+                }
+                }
+        } catch {
+            Swift.print(error)
+        }
     }
     
     private class NSCursorAnimator {
