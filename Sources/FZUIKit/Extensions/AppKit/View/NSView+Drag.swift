@@ -11,12 +11,15 @@ import FZSwiftUtils
 
 /// A value that indicates whether a view is movable by clicking and dragging anywhere in its background.
 public enum NSViewBackgroundDragOption: Hashable {
-    /// The view is movable and bounds to the superview.
-    case boundsToSuperview(NSDirectionalEdgeInsets = .zero)
+    /// The view is movable and bounds to the superview with the specified insets.
+    case boundsToSuperview(NSDirectionalEdgeInsets)
     /// The view is movable.
     case on
     /// The view isn't movable.
     case off
+    
+    /// The view is movable and bounds to the superview.
+    public static var boundsToSuperview = NSViewBackgroundDragOption.boundsToSuperview(.zero)
     
     internal var margins: NSDirectionalEdgeInsets? {
         switch self {
