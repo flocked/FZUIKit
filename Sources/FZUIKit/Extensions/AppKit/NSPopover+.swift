@@ -10,6 +10,44 @@ import AppKit
 import FZSwiftUtils
 
 extension NSPopover {
+    /// Handlers for a popover.
+    public struct Handlers {
+        /// Handler that gets called whenever the popover is about to show.
+        public var willShow: (()->())? = nil
+        /// Handler that gets called whenever the popover did show.
+        public var didShow: (()->())? = nil
+        /// Handler that gets called whenever the popover is about to close.
+        public var willClose: (()->())? = nil
+        /// Handler that gets called whenever the popover did close.
+        public var didClose: (()->())? = nil
+        /// Handler that determines whether the popover should close.
+        public var shouldClose: (()->(Bool))? = nil
+        /// Handler that gets called whenever the popover did detach.
+        public var didDetach: (()->())? = nil
+        /// Handler that determines whether the popover should detach.
+        public var shouldDetach: (()->(Bool))? = nil
+        
+        internal var needsSwizzle: Bool {
+            willShow != nil ||
+            didShow != nil ||
+            willClose != nil ||
+            didClose != nil ||
+            shouldClose != nil ||
+            didDetach != nil ||
+            shouldDetach != nil
+        }
+    }
+    
+    /// Handlers for the popover.
+    public var handlers: Handlers {
+        get { getAssociatedValue(key: "handlers", object: self, initialValue: Handlers()) }
+        set { set(associatedValue: newValue, key: "handlers", object: self)
+            if newValue.needsSwizzle {
+                swizzlePopover()
+            }
+        }
+    }
+    
     /// Creates and returns a popover with the specified view.
     public convenience init(view: NSView) {
         self.init()
@@ -193,30 +231,35 @@ extension NSPopover {
         
         func popoverWillShow(_ notification: Notification) {
             delegate?.popoverWillShow?(notification)
+            popover.handlers.willShow?()
         }
         
         func popoverDidShow(_ notification: Notification) {
             delegate?.popoverDidShow?(notification)
+            popover.handlers.didShow?()
         }
         
         func popoverDidClose(_ notification: Notification) {
             delegate?.popoverDidClose?(notification)
+            popover.handlers.didClose?()
         }
         
         func popoverWillClose(_ notification: Notification) {
             delegate?.popoverWillClose?(notification)
+            popover.handlers.willClose?()
         }
         
         func popoverShouldClose(_ popover: NSPopover) -> Bool {
-            delegate?.popoverShouldClose?(popover) ?? true
+            popover.handlers.shouldClose?() ?? delegate?.popoverShouldClose?(popover) ?? true
         }
         
         func popoverShouldDetach(_ popover: NSPopover) -> Bool {
-            delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
+            popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
         }
         
         func popoverDidDetach(_ popover: NSPopover) {
             delegate?.popoverDidDetach?(popover)
+            popover.handlers.didDetach?()
             if popover == self.popover {
                 self.popover.closeButton?.isHidden = self.popover.hideDetachedCloseButton
             }
