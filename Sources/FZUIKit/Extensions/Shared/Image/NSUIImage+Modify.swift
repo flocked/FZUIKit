@@ -91,6 +91,18 @@ public extension NSUIImage {
         return resized(to: size)
     }
     
+    /// Returns the image resized to the specified width while maintaining the aspect ratio.
+    func resized(toWidth width: CGFloat) -> NSImage {
+        let size = self.size.scaled(toWidth: width)
+        return resized(to: size)
+    }
+    
+    /// Returns the image resized to the specified height while maintaining the aspect ratio.
+    func resized(toHeight height: CGFloat) -> NSImage {
+        let size = self.size.scaled(toHeight: height)
+        return resized(to: size)
+    }
+    
     /// Returns the image as circle.
     func rounded() -> NSImage {
         let image = NSImage(size: size)
