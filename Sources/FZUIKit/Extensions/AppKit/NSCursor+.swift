@@ -108,6 +108,7 @@ public extension NSCursor {
         }
         
         func stopAnimating() {
+            Swift.print("stopAnimating")
             timer?.invalidate()
             timer = nil
             index = 0
@@ -121,6 +122,11 @@ public extension NSCursor {
         
         func advanceImage() {
             if self.images.contains(NSCursor.current.image) == false || images.isEmpty {
+                if self.images.contains(NSCursor.current.image) == false {
+                    Swift.print("image contains", NSCursor.current.image)
+                } else if images.isEmpty {
+                    Swift.print("images isEmpty")
+                }
                 stopAnimating()
             } else {
                 index = index + 1
