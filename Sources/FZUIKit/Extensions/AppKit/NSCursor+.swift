@@ -130,7 +130,8 @@ public extension NSCursor {
                 } else if images.isEmpty {
                     Swift.print("images isEmpty")
                 }
-                stopAnimating()
+                self.timer?.invalidate()
+               // stopAnimating()
             } else {
                 index = index + 1
                 if index >= images.count {
