@@ -62,4 +62,48 @@ public extension NSRotationGestureRecognizer {
     }
 }
 
+#elseif canImport(UIKit)
+import UIKit
+
+public extension UIPinchGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension UIRotationGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension UISwipeGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension UIPanGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension UILongPressGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension UIHoverGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
 #endif

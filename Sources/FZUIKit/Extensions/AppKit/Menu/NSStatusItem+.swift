@@ -13,15 +13,15 @@ public extension NSStatusItem {
     /// The handler to be called when the status item gets clicked.
     var onClick: NSButton.ActionBlock? {
         get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
-        set { associatedValues.set(newValue, key: "_statusItemActionBlock")
+        set { set(associatedValue: newValue, key: "_statusItemActionBlock", object: self)
             updateAction()
         }
     }
 
     /// The handler to be called when the status item gets right clicked.
     var onRightClick: NSButton.ActionBlock? {
-        get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
-        set { associatedValues.set(newValue, key: "_statusItemActionBlock")
+        get { getAssociatedValue(key: "_statusItemRightActionBlock", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "_statusItemRightActionBlock", object: self)
             updateAction()
         }
     }

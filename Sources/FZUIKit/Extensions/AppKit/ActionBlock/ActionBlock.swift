@@ -76,4 +76,71 @@ public extension TargetActionProtocol {
     }
 }
 
+#elseif canImport(UIKit)
+import UIKit
+import Foundation
+
+public protocol TargetActionProtocol: AnyObject {
+    typealias ActionBlock = (Self) -> Void
+    func addTarget(_ target: Any, action: Selector)
+    func removeTarget(_ target: Any?, action: Selector?)
+}
+
+extension UIPinchGestureRecognizer: TargetActionProtocol {}
+extension UIRotationGestureRecognizer: TargetActionProtocol {}
+extension UISwipeGestureRecognizer: TargetActionProtocol {}
+extension UIPanGestureRecognizer: TargetActionProtocol {}
+extension UILongPressGestureRecognizer: TargetActionProtocol {}
+extension UIHoverGestureRecognizer: TargetActionProtocol {}
+
+internal class ActionTrampoline<T: TargetActionProtocol>: NSObject {
+    var action: (T) -> Void
+
+    init(action: @escaping (T) -> Void) {
+        self.action = action
+    }
+
+    @objc func performAction(sender: NSObject) {
+        if let sender = sender as? T {
+            action(sender)
+        }
+    }
+}
+
+fileprivate let ActionBlockAssociatedObjectKey = "ActionBlock".address
+
+fileprivate extension String {
+    var address: UnsafeRawPointer {
+        return UnsafeRawPointer(bitPattern: abs(hashValue))!
+    }
+}
+
+public extension TargetActionProtocol {
+    var actionBlock: ActionBlock? {
+        set {
+            guard let action = newValue else {
+                if let trampoline: ActionTrampoline =
+                    objc_getAssociatedObject(self, ActionBlockAssociatedObjectKey) as? ActionTrampoline<Self> {
+                    self.removeTarget(trampoline, action:  #selector(trampoline.performAction(sender:)))
+                }
+                objc_setAssociatedObject(self, ActionBlockAssociatedObjectKey, nil,
+                                         .OBJC_ASSOCIATION_RETAIN)
+                return
+            }
+            let trampoline = ActionTrampoline(action: action)
+            self.addTarget(trampoline, action: #selector(trampoline.performAction(sender:)))
+            objc_setAssociatedObject(self, ActionBlockAssociatedObjectKey, trampoline, .OBJC_ASSOCIATION_RETAIN)
+        }
+        get {
+            guard let trampoline: ActionTrampoline =
+                objc_getAssociatedObject(self, ActionBlockAssociatedObjectKey) as? ActionTrampoline<Self> else { return nil }
+            return trampoline.action
+        }
+    }
+
+    private func setup(setup: (Self) -> Void) -> Self {
+        setup(self)
+        return self
+    }
+}
 #endif

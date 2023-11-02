@@ -49,6 +49,7 @@ public typealias NSUIControl = NSControl
 public typealias NSUIImageView = NSImageView
 public typealias NSUIScrollView = NSScrollView
 public typealias NSUITextView = NSTextView
+public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
 
 #elseif canImport(UIKit)
 import UIKit
@@ -91,4 +92,5 @@ public typealias NSUIImageView = UIImageView
 public typealias NSUITextField = UITextField
 public typealias NSUIScrollView = UIScrollView
 public typealias NSUITextView = UITextView
+public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
 #endif
