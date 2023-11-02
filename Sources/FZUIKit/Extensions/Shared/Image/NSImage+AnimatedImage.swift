@@ -60,6 +60,14 @@ public extension NSImage {
 
     /// The number of frames of an animated (e.g. GIF) image.
     var framesCount: Int {
+        #if os(macOS)
+        if self.representations.count == 1, let representation = self.representations.first as? NSBitmapImageRep {
+           var frameCount = representation.frameCount
+            guard let imageSource = ImageSource(image: self) else { return frameCount }
+            let imageSourceCount = imageSource.count
+            return frameCount >= imageSourceCount ? frameCount : imageSource.count
+        }
+        #endif
         guard let imageSource = ImageSource(image: self) else { return 1 }
         return imageSource.count
     }
@@ -84,15 +92,17 @@ public extension NSImage {
 
     /// The images of an animated (e.g. GIF) image.
     var images: [NSUIImage]? {
-        guard let source = ImageSource(image: self) else { return nil }
-        if let cgImages = try? source.images().collect() {
-            return cgImages.compactMap { NSUIImage(cgImage: $0) }
+        if let images = (try? frames?.collect())?.compactMap({ $0.image.nsUIImage}) {
+            return images
         }
         return nil
     }
 
     /// The frames of an animated (e.g. GIF) image.
     var frames: ImageFrameSequence? {
+        if self.representations.count == 1, let representation = self.representations.first as? NSBitmapImageRep, representation.frameCount > 1 {
+            return ImageFrameSequence(representation)
+        }
         return ImageSource(image: self)?.imageFrames()
     }
 }

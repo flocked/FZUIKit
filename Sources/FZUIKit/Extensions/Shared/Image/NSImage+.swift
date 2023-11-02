@@ -113,6 +113,27 @@ public extension NSBitmapImageRep {
     
     /// A data object that contains the representation in JPEG format with the specified compressio factor.
     func jpegData(compressionFactor factor: Double) -> Data? { representation(using: .tiff, properties: [:]) }
+    
+    /// The number of frames in an animated GIF image, or `1` if the image isn't a GIF.
+    var frameCount: Int {
+        (self.value(forProperty: .frameCount) as? Int) ?? 1
+    }
+    
+    /// The the current frame for an animated GIF image, or `0` if the image isn't a GIF.
+    var currentFrame: Int {
+        get { (self.value(forProperty: .currentFrame) as? Int) ?? 0 }
+        set { self.setProperty(.currentFrame, withValue: newValue) }
+    }
+    
+    /// The duration (in seconds) of the current frame for an animated GIF image, or `0` if the image isn't a GIF.
+    var currentFrameDuration: TimeInterval {
+        get { (self.value(forProperty: .currentFrameDuration) as? TimeInterval) ?? 0.0 }
+    }
+    
+    /// The number of loops to make when animating a GIF image, or `0` if the image isn't a GIF.
+    var loopCount: Int {
+        (self.value(forProperty: .loopCount) as? Int) ?? 0
+    }
 }
 
 public extension NSImage {
