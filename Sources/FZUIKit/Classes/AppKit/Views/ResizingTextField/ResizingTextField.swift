@@ -10,7 +10,7 @@
 import AppKit
 
 /// A text field that automatically resizes to fit it's text.
-public class ResizingTextField: NSTextField, NSTextFieldDelegate {
+open class ResizingTextField: NSTextField, NSTextFieldDelegate {
     /// The editing state the text field.
     public enum EditState {
         /// The user did begin editing the text.
