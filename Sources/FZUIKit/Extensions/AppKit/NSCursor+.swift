@@ -32,5 +32,71 @@ public extension NSCursor {
         // return NSCursor(image: image, hotSpot: NSPoint(x: 8, y: 8))
         return nil
     }
+    
+    /**
+     Initializes an animated cursor with the given images, frame duration and hot spot.
+     
+     - Parameters:
+        - images: The images to assign to the cursor.
+        - frameDuration: The duration each image is displayed.
+        - hotSpot: The point to set as the cursor's hot spot.
+     */
+    convenience init(images: [NSImage], frameDuration: TimeInterval, hotSpot: CGPoint) {
+        
+        self.init(image: images.first ?? NSCursor.current.image, hotSpot: images.isEmpty ? NSCursor.current.hotSpot : hotSpot)
+        NSCursorAnimator.shared.frameDuration = frameDuration
+        NSCursorAnimator.shared.hotSpot = hotSpot
+        NSCursorAnimator.shared.images = images
+        NSCursorAnimator.shared.restartAnimating()
+    }
+    
+    private class NSCursorAnimator {
+        static let shared = NSCursorAnimator()
+        var timer: Timer? = nil
+        var images: [NSImage] = []
+        var frameDuration: TimeInterval = 0.0
+        var index: Int = 0
+        var hotSpot: CGPoint = CGPoint(x: 8, y: 8)
+        
+        func restartAnimating() {
+            stopAnimating()
+            startAnimating()
+        }
+        
+        func startAnimating() {
+            guard frameDuration != 0.0 && images.count > 1 else {
+                stopAnimating()
+                return
+            }
+            timer?.invalidate()
+            timer = Timer.scheduledTimer(withTimeInterval: frameDuration, repeats: true, block: { timer in
+                self.advanceImage()
+            })
+        }
+        
+        func stopAnimating() {
+            timer?.invalidate()
+            timer = nil
+            index = 0
+            if images.isEmpty == false {
+                NSCursor(image: images[index], hotSpot: hotSpot).set()
+            } else {
+                NSCursor.arrow.set()
+                return
+            }
+        }
+        
+        func advanceImage() {
+            if self.images.contains(NSCursor.current.image) == false || images.isEmpty {
+                stopAnimating()
+            } else {
+                index = index + 1
+                if index >= images.count {
+                    index = 0
+                }
+                NSCursor(image: images[index], hotSpot: hotSpot).set()
+            }
+        }
+    }
 }
 #endif
