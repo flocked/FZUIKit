@@ -14,7 +14,7 @@ public extension NSCursor {
     /// Returns the resize-diagonal system cursor (from north-west to south-east).
     static var resizeDiagonal: NSCursor? {
         if let image = NSImage(byReferencingFile: "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/resizenorthwestsoutheast/cursor.pdf") {
-            return NSCursor(image: image, hotSpot: NSPoint(x: 8, y: 8))
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
         }
         
         // let path = Bundle.module.path(forResource: "northWestSouthEastResizeCursor", ofType: "png")!
@@ -26,7 +26,7 @@ public extension NSCursor {
     /// Returns the resize-diagonal-alernative system cursor (from north-east to south-west).
     static var resizeDiagonalAlt: NSCursor? {
         if let image = NSImage(byReferencingFile: "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/resizenortheastsouthwest/cursor.pdf") {
-            return NSCursor(image: image, hotSpot: NSPoint(x: 8, y: 8))
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
         }
         // le t path = Bundle.module.path(forResource: "northEastSouthWestResizeCursor", ofType: "png")!
         // let image = NSImage(byReferencingFile: path)!
@@ -131,7 +131,6 @@ public extension NSCursor {
                     Swift.print("images isEmpty")
                 }
                 self.timer?.invalidate()
-               // stopAnimating()
             } else {
                 index = index + 1
                 if index >= images.count {
