@@ -93,32 +93,32 @@ extension NSPopover {
         isOpeningPopover = false
     }
     
-    internal func dismissNoArrow() {
+    private func dismissNoArrow() {
         self.noArrowView?.removeFromSuperview()
         self.noArrowView = nil
         self.willCloseObserver = nil
     }
     
-    internal var closeButton: NSButton? {
+    private var closeButton: NSButton? {
         self.contentViewController?.view.superview?.subviews.last as? NSButton
     }
     
-    internal var willCloseObserver: NotificationToken? {
+    private var willCloseObserver: NotificationToken? {
         get { getAssociatedValue(key: "willClosePopoverObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "willClosePopoverObserver", object: self) }
     }
     
-    internal var noArrowView: NSView? {
+    private var noArrowView: NSView? {
         get { getAssociatedValue(key: "noArrowView", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "noArrowView", object: self) }
     }
     
-    internal var positioningViewFrameObserver: NSKeyValueObservation?  {
+    private var positioningViewFrameObserver: NSKeyValueObservation?  {
         get { getAssociatedValue(key: "positioningFrameObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "positioningFrameObserver", object: self) }
     }
     
-    internal var isOpeningPopover: Bool  {
+    private var isOpeningPopover: Bool  {
         get { getAssociatedValue(key: "isOpeningPopover", object: self, initialValue: true) }
         set { set(associatedValue: newValue, key: "isOpeningPopover", object: self) }
     }
