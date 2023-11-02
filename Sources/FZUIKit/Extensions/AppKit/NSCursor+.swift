@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import Foundation
+import FZSwiftUtils
 
 public extension NSCursor {
     /// Returns the resize-diagonal system cursor (from north-west to south-east).
@@ -37,11 +38,32 @@ public extension NSCursor {
      Initializes an animated cursor with the given images, frame duration and hot spot.
      
      - Parameters:
+        - image: The animated image (e.g. a GIF) to assign to the cursor.
+        - frameDuration: The duration each image is displayed.
+        - hotSpot: The point to set as the cursor's hot spot.
+     */
+    convenience init(animated image: NSImage, frameDuration: TimeInterval? = nil, hotSpot: CGPoint) {
+        if image.isAnimated, let imageFrames = try? image.frames?.collect() {
+            var frameDuration = frameDuration ?? imageFrames.compactMap({$0.duration}).average()
+            if frameDuration == 0.0 {
+                frameDuration = 0.12
+            }
+            let images = imageFrames.compactMap({$0.image.nsImage})
+            self.init(animated: images, frameDuration: frameDuration, hotSpot: hotSpot)
+        } else {
+            self.init(image: image, hotSpot: hotSpot)
+        }
+    }
+    
+    /**
+     Initializes an animated cursor with the given images, frame duration and hot spot.
+     
+     - Parameters:
         - images: The images to assign to the cursor.
         - frameDuration: The duration each image is displayed.
         - hotSpot: The point to set as the cursor's hot spot.
      */
-    convenience init(images: [NSImage], frameDuration: TimeInterval, hotSpot: CGPoint) {
+    convenience init(animated images: [NSImage], frameDuration: TimeInterval, hotSpot: CGPoint) {
         
         self.init(image: images.first ?? NSCursor.current.image, hotSpot: images.isEmpty ? NSCursor.current.hotSpot : hotSpot)
         NSCursorAnimator.shared.frameDuration = frameDuration
