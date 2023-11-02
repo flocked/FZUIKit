@@ -28,71 +28,62 @@ public enum NSViewBackgroundDragOption: Hashable {
 
 public extension NSView {
     /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
-    var movableByBackground: NSViewBackgroundDragOption {
-        get { getAssociatedValue(key: "movableByBackground", object: self, initialValue: .off) }
+    var movableByViewBackground: NSViewBackgroundDragOption {
+        get { getAssociatedValue(key: "movableByViewBackground", object: self, initialValue: .off) }
         set {
-            guard newValue != self.movableByBackground else { return }
-            set(associatedValue: newValue, key: "movableByBackground", object: self)
-            self.setupDragResizeMonitors()
+            guard newValue != self.movableByViewBackground else { return }
+            set(associatedValue: newValue, key: "movableByViewBackground", object: self)
+            self.setupDragResizeGesture()
         }
     }
     
-    internal func setupDragResizeMonitors() {
-        if movableByBackground != .off {
-            self.mouseDraggedMonitor = NSEvent.localMonitor(for: [.leftMouseDragged], handler: { event in
-                guard let contentView = NSApp.keyWindow?.contentView else { return event }
-                let location = event.location(in: self)
-                if self.bounds.contains(location), contentView.hitTest(event.location(in: contentView)) == self {
-                    self.frame.origin.x    += location.x - self.dragPoint.x
-                    self.frame.origin.y    += location.y - self.dragPoint.y
-                    
-                    if let margins = self.movableByBackground.margins {
-                        if self.frame.origin.x < 0 + margins.leading {
-                            self.frame.origin.x = 0 + margins.leading
-                        }
-                        if self.frame.origin.y < 0 + margins.bottom {
-                            self.frame.origin.y = 0 + margins.bottom
-                        }
-                        if let superview = self.superview {
-                            if self.frame.origin.x > superview.bounds.width - self.frame.width - margins.trailing {
-                                self.frame.origin.x = superview.bounds.width - self.frame.width - margins.trailing
+    internal func setupDragResizeGesture() {
+        if movableByViewBackground != .off {
+            if panGesture == nil {
+                panGesture = NSPanGestureRecognizer() { gesture in
+                    switch gesture.state {
+                    case .began, .ended:
+                        self.dragPoint = self.frame.origin
+                    case .changed:
+                        let translation = gesture.translation(in: self)
+                        self.frame.origin = self.dragPoint.offset(by: translation)
+                        if let margins = self.movableByViewBackground.margins {
+                            if self.frame.origin.x < 0 + margins.leading {
+                                self.frame.origin.x = 0 + margins.leading
                             }
-                            if self.frame.origin.y > superview.bounds.height - self.frame.height - margins.top {
-                                self.frame.origin.y = superview.bounds.height - self.frame.height - margins.top
+                            if self.frame.origin.y < 0 + margins.bottom {
+                                self.frame.origin.y = 0 + margins.bottom
+                            }
+                            if let superview = self.superview {
+                                if self.frame.origin.x > superview.bounds.width - self.frame.width - margins.trailing {
+                                    self.frame.origin.x = superview.bounds.width - self.frame.width - margins.trailing
+                                }
+                                if self.frame.origin.y > superview.bounds.height - self.frame.height - margins.top {
+                                    self.frame.origin.y = superview.bounds.height - self.frame.height - margins.top
+                                }
                             }
                         }
+                    default:
+                        break
                     }
                 }
-                return event
-            })
-            
-            self.mouseDownMonitor = NSEvent.localMonitor(for: [.leftMouseDown], handler: { event in
-                guard let contentView = NSApp.keyWindow?.contentView else { return event }
-                let location = event.location(in: self)
-                if self.bounds.contains(location), contentView.hitTest(event.location(in: contentView)) == self {
-                    self.dragPoint = location
-                }
-                return event
-            })
+            }
         } else {
-            self.mouseDownMonitor = nil
-            self.mouseDraggedMonitor = nil
+            if let panGesture = self.panGesture {
+                self.removeGestureRecognizer(panGesture)
+                self.panGesture = nil
+            }
         }
-    }
-    
-    private var mouseDraggedMonitor: NSEvent.Monitor? {
-        get { getAssociatedValue(key: "leftMouseDraggedMonitor", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "leftMouseDraggedMonitor", object: self) }
-    }
-    
-    private var mouseDownMonitor: NSEvent.Monitor? {
-        get { getAssociatedValue(key: "leftMouseDownMonitor", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "leftMouseDownMonitor", object: self) }
     }
     
     private var dragPoint: CGPoint {
         get { getAssociatedValue(key: "dragPoint", object: self, initialValue: .zero) }
         set { set(associatedValue: newValue, key: "dragPoint", object: self) }
+    }
+    
+    private var panGesture: NSPanGestureRecognizer? {
+        get { getAssociatedValue(key: "panGesture", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "panGesture", object: self) }
     }
 }
 #endif
