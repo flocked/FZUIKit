@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 01.11.23.
 //
 
+#if os(macOS)
 import AppKit
 
 public class DockTile {
@@ -122,3 +123,5 @@ extension DockTile {
         }
     }
 }
+
+#endif

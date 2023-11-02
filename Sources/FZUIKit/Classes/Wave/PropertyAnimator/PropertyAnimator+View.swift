@@ -254,7 +254,7 @@ extension PropertyAnimator where Object: UIImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.tintColor] = newValue.resolvedColor(for: object) }
     }
 }
 
@@ -262,7 +262,7 @@ extension PropertyAnimator where Object: UIButton {
     /// The tint color of the button.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.tintColor] = newValue.resolvedColor(for: object) }
     }
 }
 
@@ -270,7 +270,7 @@ extension PropertyAnimator where Object: UILabel {
     /// The text color of the label.
     public var textColor: NSUIColor {
         get { self[\.textColor] }
-        set { self[\.textColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.textColor] = newValue.resolvedColor(for: object) }
     }
     
     /// The font size of the label.

@@ -15,12 +15,12 @@ import UIKit
 import SwiftUI
 
 extension Gradient.Stop: AnimatableData {
-    public var animatableData: Array<Double> {
+    public var animatableData: AnimatableVector {
         let rgba = self.color.rgbaComponents()
         return [rgba.red, rgba.green, rgba.blue, rgba.red, location]
     }
     
-    public init(_ animatableData: Array<Double>) {
+    public init(_ animatableData: AnimatableVector) {
         self.color = NSUIColor(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
         self.location = animatableData[4]
     }
@@ -31,7 +31,7 @@ extension Gradient.Stop: AnimatableData {
 }
 
 extension Gradient.Point: AnimatableData {
-    public var animatableData: Array<Double> {
+    public var animatableData: AnimatableVector {
         [x, y]
     }
     
@@ -39,26 +39,26 @@ extension Gradient.Point: AnimatableData {
         Gradient.Point(x: 0, y: 0)
     }
     
-    public init(_ animatableData: Array<Double>) {
+    public init(_ animatableData: AnimatableVector) {
         self.x = animatableData[0]
         self.y = animatableData[1]
     }
 }
 
 extension Gradient: AnimatableData {
-    public var animatableData: Array<Double> {
+    public var animatableData: AnimatableVector {
         var animatableData = [Double(type.rawValue)] + startPoint.animatableData + endPoint.animatableData
         animatableData = animatableData + self.stops.flatMap({$0.animatableData})
         return animatableData
     }
     
-    public init(_ animatableData: Array<Double>) {
+    public init(_ animatableData: AnimatableVector) {
         self.type = .init(rawValue: Int(animatableData[0])) ?? .linear
         self.startPoint = .init(x: animatableData[1], y: animatableData[2])
         self.endPoint = .init(x: animatableData[3], y: animatableData[4])
         if animatableData.count > 4 {
             let chunks = Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5)
-            self.stops = chunks.compactMap({ Stop($0) })
+            self.stops = chunks.compactMap({ Stop(AnimatableVector($0)) })
         }
     }
     
