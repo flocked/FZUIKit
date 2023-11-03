@@ -257,8 +257,12 @@ fileprivate extension DisplayLink {
 
         /// If the display link is paused or not.
         var isPaused: Bool {
-            get { displayLink.isPaused }
-            set { displayLink.isPaused = newValue }
+            get { 
+                Swift.print("isPaused get", isPaused)
+               return displayLink.isPaused }
+            set {
+                Swift.print("isPaused set", newValue, isPaused)
+                displayLink.isPaused = newValue }
         }
 
         /// The CADisplayLink that powers this DisplayLink instance.
@@ -288,6 +292,7 @@ fileprivate extension DisplayLink {
         }
         
         internal func sharedInit(screen: NSScreen?) {
+            Swift.print("sharedInit")
             if let screen = screen {
                 let maximumFramesPerSecond = Float(screen.maximumFramesPerSecond)
                 let highFPSEnabled = maximumFramesPerSecond > 60
@@ -298,6 +303,7 @@ fileprivate extension DisplayLink {
             self.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
 
             target.callback = { [unowned self] frame in
+                Swift.print("callback", self.onFrame != nil)
                 self.onFrame?(frame)
             }
         }
@@ -311,6 +317,7 @@ fileprivate extension DisplayLink {
         }
 
         deinit {
+            Swift.print("deinit")
             displayLink.invalidate()
         }
 
@@ -321,6 +328,7 @@ fileprivate extension DisplayLink {
 
             /// Called for each frame from the CADisplayLink.
             @objc dynamic func frame(_ displayLink: CADisplayLink) {
+                Swift.print("target frame")
                 let frame = Frame(
                     timestamp: displayLink.timestamp,
                     duration: displayLink.duration
