@@ -43,4 +43,54 @@ public extension CGImage {
     internal var nsUIImage: NSUIImage {
         return NSUIImage(cgImage: self)
     }
+    
+    static func create(size: CGSize, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil
+    ) throws -> CGImage {
+        // Make the context. For the moment, always work in RGBA (CGColorSpace.sRGB)
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+        guard
+            let space = CGColorSpace(name: CGColorSpace.sRGB),
+            let ctx = CGContext(
+                data: nil,
+                width: Int(size.width),
+                height: Int(size.height),
+                bitsPerComponent: 8,
+                bytesPerRow: 0,
+                space: space,
+                bitmapInfo: bitmapInfo.rawValue
+            )
+        else {
+            throw ImageError.invalidContext
+        }
+
+        // Drawing defaults
+        ctx.setShouldAntialias(true)
+        ctx.setAllowsAntialiasing(true)
+        ctx.interpolationQuality = .high
+
+        // If a background color is set, fill it here
+        if let backgroundColor = backgroundColor {
+            ctx.saveGState()
+            ctx.setFillColor(backgroundColor)
+            ctx.fill([CGRect(origin: .zero, size: size)])
+            ctx.restoreGState()
+        }
+
+        // Perform the draw block
+        if let block = drawBlock {
+            ctx.saveGState()
+            block(ctx, size)
+            ctx.restoreGState()
+        }
+
+        guard let result = ctx.makeImage() else {
+            throw ImageError.unableToCreateImageFromContext
+        }
+        return result
+    }
+    
+    enum ImageError: Error {
+        case unableToCreateImageFromContext
+        case invalidContext
+    }
 }

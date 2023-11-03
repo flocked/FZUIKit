@@ -39,9 +39,16 @@ public extension NSImage {
     }
 
     var cgImage: CGImage? {
+        if let image = self.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+            return image
+        }
         guard let imageData = tiffRepresentation else { return nil }
         guard let sourceData = CGImageSourceCreateWithData(imageData as CFData, nil) else { return nil }
         return CGImageSourceCreateImageAtIndex(sourceData, 0, nil)
+    }
+    
+    var ciImage: CIImage? {
+            self.tiffRepresentation(using: .none, factor: 0).flatMap(CIImage.init)
     }
 
     var cgImageSource: CGImageSource? {
@@ -72,6 +79,36 @@ public extension NSImage {
              return self.withSymbolConfiguration(.init(paletteColors: [color])) ?? self
             }
         }
+        
+        if let cgImage = self.cgImage {
+            let rect = CGRect(.zero, cgImage.size)
+            if let tintedCGImage = try? CGImage.create(size: rect.size, { ctx, size in
+                
+                // draw black background to preserve color of transparent pixels
+                ctx.setBlendMode(.normal)
+                ctx.setFillColor(CGColor.black)
+                ctx.fill([rect])
+                
+                // Draw the image
+                ctx.setBlendMode(.normal)
+                ctx.draw(cgImage, in: rect)
+                
+                // tint image (losing alpha) - the luminosity of the original image is preserved
+                ctx.setBlendMode(.color)
+                ctx.setFillColor(color.cgColor)
+                ctx.fill([rect])
+                
+                //   if keepingAlpha {
+                // mask by alpha values of original image
+                ctx.setBlendMode(.destinationIn)
+                ctx.draw(cgImage, in: rect)
+                //  }
+            }) {
+               return NSImage(cgImage: tintedCGImage)
+           }
+            
+        }
+        
             
         let image = copy() as! NSImage
         image.lockFocus()

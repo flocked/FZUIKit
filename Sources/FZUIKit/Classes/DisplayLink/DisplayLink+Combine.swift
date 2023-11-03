@@ -83,14 +83,17 @@ public extension DisplayLink {
 #if os(macOS)
 @available(macOS 14.0, *)
 public extension DisplayLink {
+    /// Creates a display link for the specified view. It will automatically track the display the view is on, and will be automatically suspended if it isn’t on a display.
     convenience init(view: NSView) {
         self.init(platformDisplayLink: PlatformDisplayLinkMac(view: view))
     }
     
+    /// Creates a display link for the specified window. It will automatically track the display the window is on, and will be automatically suspended if it isn’t on a display.
     convenience init(window: NSWindow) {
         self.init(platformDisplayLink: PlatformDisplayLinkMac(window: window))
     }
     
+    /// Creates a display link for the specified screen.
     convenience init(screen: NSScreen) {
         self.init(platformDisplayLink: PlatformDisplayLinkMac(screen: screen))
     }
@@ -140,8 +143,8 @@ fileprivate extension DisplayLink {
         /// The target for the CADisplayLink (because CADisplayLink retains its target).
         let target = DisplayLinkTarget()
         
-        /// The framerate of the displaylink.
-        var fps: CGFloat {
+        /// The framesPerSecond of the displaylink.
+        var framesPerSecond: CGFloat {
             1 / (displayLink.targetTimestamp - displayLink.timestamp)
         }
 
@@ -216,8 +219,8 @@ fileprivate extension DisplayLink {
         }()
         
         /*
-         /// The framerate of the displaylink.
-         var fps: CGFloat {
+         /// The framesPerSecond of the displaylink.
+         var framesPerSecond: CGFloat {
              1 / (displayLink.targetTimestamp - displayLink.timestamp)
          }
          */
@@ -258,10 +261,8 @@ fileprivate extension DisplayLink {
         /// If the display link is paused or not.
         var isPaused: Bool {
             get { 
-                Swift.print("isPaused get")
                return displayLink.isPaused }
             set {
-                Swift.print("isPaused set", newValue, isPaused)
                 displayLink.isPaused = newValue }
         }
 
@@ -271,8 +272,8 @@ fileprivate extension DisplayLink {
         /// The target for the CADisplayLink (because CADisplayLink retains its target).
         let target = DisplayLinkTarget()
         
-        /// The framerate of the displaylink.
-        var fps: CGFloat {
+        /// The framesPerSecond of the displaylink.
+        var framesPerSecond: CGFloat {
             1 / (displayLink.targetTimestamp - displayLink.timestamp)
         }
         
@@ -291,8 +292,15 @@ fileprivate extension DisplayLink {
             self.sharedInit(screen: screen)
         }
         
+        /// Creates a new paused DisplayLink instance.
+       convenience init?() {
+            guard let mainScreen = NSScreen.main else {
+                return nil
+            }
+           self.init(screen: mainScreen)
+        }
+        
         internal func sharedInit(screen: NSScreen?) {
-            Swift.print("sharedInit")
             if let screen = screen {
                 let maximumFramesPerSecond = Float(screen.maximumFramesPerSecond)
                 let highFPSEnabled = maximumFramesPerSecond > 60
@@ -303,21 +311,11 @@ fileprivate extension DisplayLink {
             self.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
 
             target.callback = { [unowned self] frame in
-                Swift.print("callback", self.onFrame != nil)
                 self.onFrame?(frame)
             }
         }
 
-        /// Creates a new paused DisplayLink instance.
-       convenience init?() {
-            guard let mainScreen = NSScreen.main else {
-                return nil
-            }
-           self.init(screen: mainScreen)
-        }
-
         deinit {
-            Swift.print("deinit")
             displayLink.invalidate()
         }
 
@@ -328,7 +326,6 @@ fileprivate extension DisplayLink {
 
             /// Called for each frame from the CADisplayLink.
             @objc dynamic func frame(_ displayLink: CADisplayLink) {
-                Swift.print("target frame")
                 let frame = Frame(
                     timestamp: displayLink.timestamp,
                     duration: displayLink.duration
