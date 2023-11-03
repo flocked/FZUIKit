@@ -303,7 +303,7 @@ fileprivate extension DisplayLink {
             self.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
 
             target.callback = { [unowned self] frame in
-                Swift.print("callback", self.onFrame != nil)
+                Swift.print("callback")
                 self.onFrame?(frame)
             }
         }
@@ -317,7 +317,6 @@ fileprivate extension DisplayLink {
         }
 
         deinit {
-            Swift.print("deinit")
             displayLink.invalidate()
         }
 
