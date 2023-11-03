@@ -272,6 +272,7 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
         
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
+            return (_lhs + _rhs) as! Self
             let count = Swift.min(_lhs.count, _rhs.count)
             return AnimatableArray<Double>(vDSP.add(_lhs[0..<count], _rhs[0..<count])) as! Self
         }
