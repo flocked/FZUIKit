@@ -14,13 +14,36 @@ import FZSwiftUtils
 public typealias AnimatableVector = AnimatableArray<Double>
 
 /// An array that can serve as the animatable data of an animatable type (see ``AnimatableData``).
-public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic>: MutableCollection, RangeReplaceableCollection, RandomAccessCollection, BidirectionalCollection {
+public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
     internal var elements: [Element] = []
 
     public init() {}
 
     public init(arrayLiteral elements: Element...) {
         self.elements = elements
+    }
+    
+    public init<S>(_ elements: S) where S: Sequence, Element == S.Element {
+        self.elements = .init(elements)
+    }
+
+    public init(repeating repeatedValue: Element, count: Int) {
+        elements = .init(repeating: repeatedValue, count: count)
+    }
+    
+    public subscript(index: Int) -> Element {
+        get {  return elements[index] }
+        set {  elements[index] = newValue }
+    }
+    
+    public subscript(range: ClosedRange<Int>) -> ArraySlice<Element> {
+        get { return elements[range] }
+        set { elements[range] = newValue }
+    }
+    
+    public subscript(range: Range<Int>) -> ArraySlice<Element> {
+        get { return elements[range] }
+        set { elements[range] = newValue }
     }
 
     public var count: Int {
@@ -109,14 +132,6 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic>: M
         elements.insert(contentsOf: newElements, at: i)
     }
 
-    public init<S>(_ elements: S) where S: Sequence, Element == S.Element {
-        self.elements = .init(elements)
-    }
-
-    public init(repeating repeatedValue: Element, count: Int) {
-        elements = .init(repeating: repeatedValue, count: count)
-    }
-
     public func formIndex(after i: inout Int) {
         elements.formIndex(after: &i)
     }
@@ -149,21 +164,6 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic>: M
         return elements.endIndex
     }
 
-    public subscript(index: Int) -> Element {
-        get {  return elements[index] }
-        set {  elements[index] = newValue }
-    }
-    
-    public subscript(range: ClosedRange<Int>) -> ArraySlice<Element> {
-        get { return elements[range] }
-        set { elements[range] = newValue }
-    }
-    
-    public subscript(range: Range<Int>) -> ArraySlice<Element> {
-        get { return elements[range] }
-        set { elements[range] = newValue }
-    }
-
     public func index(after i: Int) -> Int {
         return elements.index(after: i)
     }
@@ -186,6 +186,8 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic>: M
         elements.replaceSubrange(subrange, with: newElements)
     }
 }
+
+extension AnimatableArray: MutableCollection, RangeReplaceableCollection, RandomAccessCollection, BidirectionalCollection { }
 
 extension AnimatableArray: Sendable where Element: Sendable { }
 
@@ -267,7 +269,7 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
             }
         }
     }
-    
+        
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
             let count = Swift.min(_lhs.count, _rhs.count)
@@ -279,6 +281,7 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
     
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray where Element == Double {
+        Swift.print("Double Arr")
         let count = Swift.min(lhs.count, rhs.count)
         return AnimatableArray(vDSP.add(lhs[0..<count], rhs[0..<count]))
     }

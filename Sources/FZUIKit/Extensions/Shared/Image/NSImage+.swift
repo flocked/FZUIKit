@@ -66,9 +66,11 @@ public extension NSImage {
 
 public extension NSImage {
     /**
-     Returns a new version of the image with a tint color.
+     Returns a new version of the current image with the specified tint color.
      
-     For bitmap images, this method draws the background tint color followed by the image contents using the `NSCompositingOperation.sourceAtop` mode. For symbol images, this method returns an image that always uses the specified tint color.
+     For bitmap images, this method draws the background tint color followed by the image contents using the `CGBlendMode.destinationIn mode. For symbol images, this method returns an image that always uses the specified tint color.
+     
+     The new image uses the same rendering mode as the original image.
      
      - Parameters color: The tint color to apply to the image.
      - Returns: A new version of the image that incorporates the specified tint color.
@@ -82,7 +84,7 @@ public extension NSImage {
         
         if let cgImage = self.cgImage {
             let rect = CGRect(.zero, cgImage.size)
-            if let tintedCGImage = try? CGImage.create(size: rect.size, { ctx, size in
+            if let tintedImage = try? CGImage.create(size: rect.size, { ctx, size in
                 
                 // draw black background to preserve color of transparent pixels
                 ctx.setBlendMode(.normal)
@@ -103,21 +105,12 @@ public extension NSImage {
                 ctx.setBlendMode(.destinationIn)
                 ctx.draw(cgImage, in: rect)
                 //  }
-            }) {
-               return NSImage(cgImage: tintedCGImage)
+            }).nsImage {
+               return tintedImage
            }
             
         }
-        
-            
-        let image = copy() as! NSImage
-        image.lockFocus()
-        color.set()
-        let imageRect = NSRect(origin: NSZeroPoint, size: image.size)
-        imageRect.fill(using: .sourceAtop)
-        image.unlockFocus()
-        image.isTemplate = false
-        return image
+        return self
     }
     
     /// Returns an object scaled to the curren screen that may be used as the contents of a layer.
