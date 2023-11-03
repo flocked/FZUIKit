@@ -9,12 +9,17 @@
 import Combine
 import Foundation
 
+private protocol DisplayLinkProvider: AnyObject {
+    var isPaused: Bool { get set }
+    var onFrame: ((DisplayLink.Frame) -> Void)? { get set }
+}
+
 // A publisher that emits new values when the system is about to update the display.
 public final class DisplayLink: Publisher {
     public typealias Output = Frame
     public typealias Failure = Never
 
-    fileprivate let platformDisplayLink: PlatformDisplayLink
+    fileprivate let platformDisplayLink: DisplayLinkProvider
 
     private var subscribers: [CombineIdentifier: AnySubscriber<Frame, Never>] = [:] {
         didSet {
@@ -23,7 +28,7 @@ public final class DisplayLink: Publisher {
         }
     }
 
-    fileprivate init(platformDisplayLink: PlatformDisplayLink) {
+    fileprivate init(platformDisplayLink: DisplayLinkProvider) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.platformDisplayLink = platformDisplayLink
         self.platformDisplayLink.onFrame = { [weak self] frame in
@@ -75,6 +80,23 @@ public extension DisplayLink {
     }
 }
 
+#if os(macOS)
+@available(macOS 14.0, *)
+public extension DisplayLink {
+    convenience init(view: NSView) {
+        self.init(platformDisplayLink: PlatformDisplayLinkMac(view: view))
+    }
+    
+    convenience init(window: NSWindow) {
+        self.init(platformDisplayLink: PlatformDisplayLinkMac(window: window))
+    }
+    
+    convenience init(screen: NSScreen) {
+        self.init(platformDisplayLink: PlatformDisplayLinkMac(screen: screen))
+    }
+}
+#endif
+
 public extension DisplayLink {
     static let shared = DisplayLink()
 }
@@ -102,7 +124,7 @@ import QuartzCore
 import UIKit
 
 fileprivate extension DisplayLink {
-    final class PlatformDisplayLink {
+    final class PlatformDisplayLink: DisplayLinkProvider {
         /// The callback to call for each frame.
         var onFrame: ((Frame) -> Void)?
 
@@ -167,9 +189,10 @@ fileprivate extension DisplayLink {
 #elseif os(macOS)
 
 import CoreVideo
+import AppKit
 fileprivate extension DisplayLink {
     /// DisplayLink is used to hook into screen refreshes.
-    final class PlatformDisplayLink {
+    final class PlatformDisplayLink: DisplayLinkProvider {
         /// The callback to call for each frame.
         var onFrame: ((Frame) -> Void)?
 
@@ -201,6 +224,7 @@ fileprivate extension DisplayLink {
 
         init() {
             CVDisplayLinkSetOutputHandler(displayLink) { [weak self] _, inNow, inOutputTime, _, _ -> CVReturn in
+                
                 let frame = Frame(
                     timestamp: inNow.pointee.timeInterval,
                     duration: inOutputTime.pointee.timeInterval - inNow.pointee.timeInterval
@@ -224,6 +248,89 @@ fileprivate extension DisplayLink {
             onFrame?(frame)
         }
     }
+    
+    /// DisplayLink is used to hook into screen refreshes.
+    @available(macOS 14.0, *)
+    final class PlatformDisplayLinkMac: DisplayLinkProvider {
+        /// The callback to call for each frame.
+        var onFrame: ((Frame) -> Void)?
+
+        /// If the display link is paused or not.
+        var isPaused: Bool {
+            get { displayLink.isPaused }
+            set { displayLink.isPaused = newValue }
+        }
+
+        /// The CADisplayLink that powers this DisplayLink instance.
+        let displayLink: CADisplayLink
+
+        /// The target for the CADisplayLink (because CADisplayLink retains its target).
+        let target = DisplayLinkTarget()
+        
+        /// The framerate of the displaylink.
+        var fps: CGFloat {
+            1 / (displayLink.targetTimestamp - displayLink.timestamp)
+        }
+        
+        init(view: NSView) {
+            self.displayLink = view.displayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
+            self.sharedInit(screen: view.window?.screen)
+        }
+        
+        init(window: NSWindow) {
+            self.displayLink = window.displayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
+            self.sharedInit(screen: window.screen)
+        }
+        
+        init(screen: NSScreen) {
+            self.displayLink = screen.displayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
+            self.sharedInit(screen: screen)
+        }
+        
+        internal func sharedInit(screen: NSScreen?) {
+            if let screen = screen {
+                let maximumFramesPerSecond = Float(screen.maximumFramesPerSecond)
+                let highFPSEnabled = maximumFramesPerSecond > 60
+                let minimumFPS: Float = Swift.min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
+                displayLink.preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
+            }
+            self.displayLink.isPaused = true
+            self.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
+
+            target.callback = { [unowned self] frame in
+                self.onFrame?(frame)
+            }
+        }
+
+        /// Creates a new paused DisplayLink instance.
+       convenience init?() {
+            guard let mainScreen = NSScreen.main else {
+                return nil
+            }
+           self.init(screen: mainScreen)
+        }
+
+        deinit {
+            displayLink.invalidate()
+        }
+
+        /// The target for the CADisplayLink (because CADisplayLink retains its target).
+        final class DisplayLinkTarget {
+            /// The callback to call for each frame.
+            var callback: ((DisplayLink.Frame) -> Void)?
+
+            /// Called for each frame from the CADisplayLink.
+            @objc dynamic func frame(_ displayLink: CADisplayLink) {
+                let frame = Frame(
+                    timestamp: displayLink.timestamp,
+                    duration: displayLink.duration
+                )
+
+                callback?(frame)
+            }
+        }
+    }
+    
 }
 #endif
 #endif

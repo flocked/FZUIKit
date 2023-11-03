@@ -14,10 +14,6 @@ import FZSwiftUtils
 public protocol AnimatablePropertyProvider: AnyObject {
     associatedtype Provider: AnimatablePropertyProvider = Self
     
-    var animator: PropertyAnimator<Provider> { get }
-}
-
-extension AnimatablePropertyProvider  {
     /**
      Provides animatable properties. To animate a property, change it's value in an ``Wave/animate(withSpring:delay:gestureVelocity:animations:completion:)`` animation block.
           
@@ -53,6 +49,10 @@ extension AnimatablePropertyProvider  {
      }
      ```
      */
+    var animator: PropertyAnimator<Provider> { get }
+}
+
+extension AnimatablePropertyProvider  {
     public var animator: PropertyAnimator<Self> {
         get { getAssociatedValue(key: "Animator", object: self, initialValue: PropertyAnimator(self)) }
         set { set(associatedValue: newValue, key: "Animator", object: self) }

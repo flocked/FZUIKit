@@ -13,17 +13,26 @@ import AppKit
 import UIKit
 #endif
 
-public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
+public class SpringAnimator1<T: AnimatableData>   {
+    
     /// A unique identifier for the animation.
     public let id = UUID()
+    
+    public enum SpringAnimationState {
+        /// The animation is inactive.
+        case inactive
+        /// The animation is active and ready to animate change
+        case active
+        /// The animation is animating.
+        case animating
+    }
 
     ///  The execution state of the animation (`inactive`, `running`, or `ended`).
-    public private(set) var state: AnimationState = .inactive {
+    public private(set) var state: SpringAnimationState = .inactive {
         didSet {
             switch (oldValue, state) {
-            case (.inactive, .running):
+            case (.active, .animating):
                 startTime = .now
-
             default:
                 break
             }
@@ -38,11 +47,18 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: T?
+    public var value: T? {
+        didSet { startAnimatingIfNeeded() }
+    }
     
-    func callAnimationControllerIfNeeded() {
-        if state == .running, value != nil, target != nil, value != target {
-            AnimationController.shared.runPropertyAnimation(self)
+    var shouldStartAnimating: Bool {
+        state == .active && value != nil && target != nil && value != target
+    }
+    
+    func startAnimatingIfNeeded() {
+        if shouldStartAnimating {
+            self.state = .animating
+         //   AnimationController.shared.runPropertyAnimation(self)
         }
     }
 
@@ -53,20 +69,12 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      */
     public var target: T? {
         didSet {
-            guard let oldValue = oldValue, let newValue = target else {
-                return
-            }
-
-            if oldValue == newValue {
-                return
-            }
-
-            if state == .running {
+            if state == .animating, let oldTarget = oldValue, let target = target, target != oldTarget {
                 startTime = .now
-
-                let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
+                let event = AnimationEvent.retargeted(from: oldTarget, to: target)
                 completion?(event)
             }
+            startAnimatingIfNeeded()
         }
     }
 
@@ -132,12 +140,16 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     public func start(afterDelay delay: TimeInterval = 0) {
-        precondition(value != nil, "Animation must have a non-nil `value` before starting.")
-        precondition(target != nil, "Animation must have a non-nil `target` before starting.")
-        precondition(delay >= 0, "`delay` must be greater or equal to zero.")
+        if state == .inactive {
+            state = .active
+        }
+        
+        guard shouldStartAnimating else {
+            return
+        }
 
         let start = {
-            AnimationController.shared.runPropertyAnimation(self)
+            self.startAnimatingIfNeeded()
         }
         
         delayTask?.cancel()
@@ -157,17 +169,24 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
+        guard self.state != .inactive else { return }
         delayTask?.cancel()
-        if immediately {
-            state = .ended
-
-            if let value = value, let completion = completion {
-                completion(.finished(at: value))
-            }
+        if state == .active {
+            state = .inactive
         } else {
-            target = value
+            if immediately {
+                state = .inactive
+                
+                if let value = value, let completion = completion {
+                    completion(.finished(at: value))
+                }
+            } else {
+                awaitsInactiveState = true
+                target = value
+            }
         }
     }
+    var awaitsInactiveState: Bool = false
 
     /**
      How long the animation will take to complete, based off its `spring` property.
@@ -206,8 +225,6 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             return
         }
 
-        state = .running
-
         guard let runningTime = runningTime else {
             fatalError("Found a nil `runningTime` even though the animation's state is \(state)")
         }
@@ -225,14 +242,6 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
         
-        /*
-        if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
-            let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
-            Swift.print("isApproximatelyEqual", val)
-            animationFinished = val
-        }
-         */
-        
         if animationFinished {
             self.value = target
         }
@@ -243,14 +252,19 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
 
         if animationFinished {
-            state = .ended
-            // If an animation finishes on its own, call the completion handler with value `target`.
+            
+            if awaitsInactiveState || stopsOnCompletion {
+                state = .inactive
+                awaitsInactiveState = false
+            } else {
+                state = .active
+            }
             completion?(.finished(at: target))
         }
     }
 }
 
-extension SpringAnimator: CustomStringConvertible {
+extension SpringAnimator1: CustomStringConvertible {
     public var description: String {
         """
         Animation<\(T.self)>(

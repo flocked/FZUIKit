@@ -19,8 +19,8 @@ extension PropertyAnimator where Object: NSWindow {
         set { self[\.backgroundColor] = newValue }
     }
     
-    /// The alpha of the window.
-    public var alpha: CGFloat {
+    /// The alpha value of the window.
+    public var alphaValue: CGFloat {
         get { self[\.alphaValue] }
         set { self[\.alphaValue] = newValue }
     }

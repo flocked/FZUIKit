@@ -1,8 +1,9 @@
 //
 //  CAKeyframeAnimationValueConvertible.swift
 //  
-//
-//  Created by Florian Zand on 02.11.23.
+//  Copyright (c) 2020, Adam Bell
+//  Modifed:
+//  Florian Zand on 02.11.23.
 //
 
 import Foundation

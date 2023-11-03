@@ -11,6 +11,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 extension NSUIView: AnimatablePropertyProvider { }
 
@@ -175,14 +176,24 @@ extension PropertyAnimator where Object: NSUIScrollView {
     #if os(macOS)
     /// The amount by which the content is currently scaled.
     public var magnification: CGFloat {
-        get {  self[\.magnification] }
-        set { self[\.magnification] = newValue }
+        get {  self[\.magnificationCentered] }
+        set {
+            object.animationCenterPoint = nil
+            self[\.magnificationCentered] = newValue }
+    }
+    
+    /// Magnify the content by the given amount and center the result on the given point.
+    public func setMagnification(_ magnification: CGFloat, centeredAt point: CGPoint) {
+        object.animationCenterPoint = point
+        self[\.magnificationCentered] = magnification
     }
     #elseif canImport(UIKit)
     /// The scale factor applied to the scroll view’s content.
     public var zoomScale: CGFloat {
-        get {  self[\.zoomScale] }
-        set { self[\.zoomScale] = newValue }
+        get {  self[\.zoomScaleCentered] }
+        set {
+            object.animationCenterPoint = nil
+            self[\.zoomScaleCentered] = newValue }
     }
     #endif
 }
@@ -249,7 +260,47 @@ extension PropertyAnimator where Object: GradientView {
     }
 }
 
+extension PropertyAnimator where Object: NSStackView {
+    /// The minimum spacing, in points, between adjacent views in the stack view.
+    public var spacing: CGFloat {
+        get {  self[\.spacing] }
+        set { self[\.spacing] = newValue }
+    }
+    
+    /// The geometric padding, in points, inside the stack view, surrounding its views.
+    public var edgeInsets: NSEdgeInsets {
+        get { self[\.edgeInsets] }
+        set { self[\.edgeInsets] = newValue }
+    }
+}
+
+internal extension NSUIScrollView {
+    var magnificationCentered: CGFloat {
+        get { magnification }
+        set {
+            if let animationCenterPoint = animationCenterPoint {
+                self.setMagnification(newValue, centeredAt: animationCenterPoint)
+            } else {
+                magnification = newValue
+            }
+        }
+    }
+    
+    var animationCenterPoint: CGPoint? {
+        get { getAssociatedValue(key: "animationCenterPoint", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "animationCenterPoint", object: self) }
+    }
+}
+
 #elseif canImport(UIKit)
+extension PropertyAnimator where Object: UIView {
+    /// The default spacing to use when laying out content in a view,
+    public var directionalLayoutMargins: NSDirectionalEdgeInsets {
+        get { self[\.directionalLayoutMargins] }
+        set { self[\.directionalLayoutMargins] = newValue }
+    }
+}
+
 extension PropertyAnimator where Object: UIImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor {
@@ -280,6 +331,14 @@ extension PropertyAnimator where Object: UILabel {
     }
 }
 
+extension PropertyAnimator where Object: UIStackView {
+    /// The distance in points between the adjacent edges of the stack view’s arranged views.
+    public var spacing: CGFloat {
+        get { self[\.spacing] }
+        set { self[\.spacing] = newValue }
+    }
+}
+
 fileprivate extension UILabel {
     @objc var fontSize: CGFloat {
         get { font.pointSize }
@@ -298,6 +357,46 @@ fileprivate extension UITextView {
     @objc var fontSize: CGFloat {
         get { font?.pointSize ?? 0.0 }
         set { font = font?.withSize(newValue) }
+    }
+}
+
+internal extension UIScrollView {
+    var zoomScaleCentered: CGFloat {
+        get { zoomScale }
+        set {
+            if let animationCenterPoint = animationCenterPoint {
+                self.setZoomScale(newValue, centeredAt: animationCenterPoint)
+            } else {
+                zoomScale = newValue
+            }
+        }
+    }
+    
+    var animationCenterPoint: CGPoint? {
+        get { getAssociatedValue(key: "animationCenterPoint", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "animationCenterPoint", object: self) }
+    }
+    
+    func setZoomScale(_ scale: CGFloat, centeredAt point: CGPoint) {
+        var scale = CGFloat.minimum(scale, maximumZoomScale)
+        scale = CGFloat.maximum(scale, self.minimumZoomScale)
+        
+        var translatedZoomPoint : CGPoint = .zero
+        translatedZoomPoint.x = point.x + contentOffset.x
+        translatedZoomPoint.y = point.y + contentOffset.y
+        
+        let zoomFactor = 1.0 / zoomScale
+        
+        translatedZoomPoint.x *= zoomFactor
+        translatedZoomPoint.y *= zoomFactor
+        
+        var destinationRect : CGRect = .zero
+        destinationRect.size.width = frame.width / scale
+        destinationRect.size.height = frame.height / scale
+        destinationRect.origin.x = translatedZoomPoint.x - destinationRect.width * 0.5
+        destinationRect.origin.y = translatedZoomPoint.y - destinationRect.height * 0.5
+        
+        zoom(to: destinationRect, animated: false)
     }
 }
 #endif

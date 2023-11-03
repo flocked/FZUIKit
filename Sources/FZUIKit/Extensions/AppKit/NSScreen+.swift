@@ -26,8 +26,7 @@ public extension NSScreen {
 
     /// Returns the identifier of the display.
     var displayID: CGDirectDisplayID {
-        let key = NSDeviceDescriptionKey(rawValue: "NSScreenNumber")
-        return deviceDescription[key] as? CGDirectDisplayID ?? 0
+        return deviceDescription[.screenNumber] as? CGDirectDisplayID ?? 0
     }
 
     /// Returns the ordered index of the screen.
@@ -131,5 +130,9 @@ public extension NSScreen {
         get { getAssociatedValue(key: "noSleepAssertionID", object: self, initialValue: 0) }
         set { set(associatedValue: newValue, key: "noSleepAssertionID", object: self) }
     }
+}
+
+public extension NSDeviceDescriptionKey {
+    static let screenNumber = NSDeviceDescriptionKey("NSScreenNumber")
 }
 #endif

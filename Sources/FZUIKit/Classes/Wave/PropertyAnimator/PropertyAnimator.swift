@@ -10,7 +10,6 @@
 import Foundation
 import QuartzCore
 import FZSwiftUtils
-
 /**
  Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
 
@@ -138,21 +137,7 @@ internal extension PropertyAnimator {
         
         var initialValue = object[keyPath: keyPath]
         var targetValue = newValue
-        
-        if var value = initialValue as? [Double], var target = targetValue as? [Double], value.count != target.count {
-            updateValues(value: &value, target: &target)
-            initialValue = value as! Value
-            targetValue = target as! Value
-        } else if Value.self == CGColor.self {
-            let iniVal = (initialValue as! CGColor).nsUIColor
-            let tarVal = (newValue as!CGColor).nsUIColor
-            if iniVal?.isVisible == false || iniVal == nil {
-                initialValue = (tarVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
-            }
-            if tarVal?.isVisible == false || tarVal == nil {
-                targetValue = (iniVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
-            }
-        }
+        updateValue(&initialValue, target: &targetValue)
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
 
@@ -199,22 +184,8 @@ internal extension PropertyAnimator {
         
         var initialValue = object[keyPath: keyPath] ?? Value.zero
         var targetValue = newValue ?? Value.zero
+        updateValue(&initialValue, target: &targetValue)
         
-        if var value = initialValue as? [Double], var target = targetValue as? [Double], value.count != target.count {
-            updateValues(value: &value, target: &target)
-            initialValue = value as! Value
-            targetValue = target as! Value
-        } else if Value.self == CGColor.self {
-            let iniVal = (initialValue as! Optional<CGColor>)?.nsUIColor
-            let tarVal = (newValue as! Optional<CGColor>)?.nsUIColor
-            if iniVal?.isVisible == false || iniVal == nil {
-                initialValue = (tarVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
-            }
-            if tarVal?.isVisible == false || tarVal == nil {
-                targetValue = (iniVal?.withAlphaComponent(0.0).cgColor ?? .clear) as! Value
-            }
-        }
-                
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
         let animation = (animation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
@@ -245,14 +216,38 @@ internal extension PropertyAnimator {
         animation.start(afterDelay: settings.delay)
     }
     
-    func updateValues<V: AnimatableData>(value: inout [V], target: inout [V]) {
-        let diff = target.count - value.count
-        if diff < 0 {
-            for i in target.count-(diff * -1)..<target.count {
-                target[i] = .zero
+    
+    
+    func configurateAnimation<V: AnimatableData>(_ animation: SpringAnimator<V>, value: V, target: V, key: String, settings: AnimationController.AnimationParameters) {
+        animation.configure(withSettings: settings)
+        animation.target = target
+        if let gestureVelocity = settings.gestureVelocity {
+            (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
+            (animation as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
+        }
+    }
+
+    func updateValue<V: AnimatableData>(_ value: inout V, target: inout V) {
+        if var val = value as? [Double], var tar = target as? [Double], val.count != tar.count {
+            let diff = tar.count - val.count
+            if diff < 0 {
+                for i in tar.count-(diff * -1)..<tar.count {
+                    tar[i] = .zero
+                }
+            } else if diff > 0 {
+                val.append(contentsOf: Array(repeating: .zero, count: diff))
             }
-        } else if diff > 0 {
-            value.append(contentsOf: Array(repeating: .zero, count: diff))
+            value = val as! V
+            target = tar as! V
+        } else if V.self == CGColor.self {
+            let val = (value as! CGColor).nsUIColor
+            let tar = (target as! CGColor).nsUIColor
+            if val?.isVisible == false {
+                value = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
+            }
+            if tar?.isVisible == false {
+                target = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
+            }
         }
     }
 }

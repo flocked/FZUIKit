@@ -201,7 +201,6 @@ extension NSPopover {
                 #selector(getter: delegate),
                 methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSPopoverDelegate?)).self,
                 hookSignature: (@convention(block)  (AnyObject) -> (NSPopoverDelegate?)).self) { store in { object in
-                    Swift.print("delegate getter")
                     return (object as? NSPopover)?.popoverProxy.delegate
                    // store.original(object, #selector(getter: delegate))
                 }
