@@ -258,7 +258,7 @@ fileprivate extension DisplayLink {
         /// If the display link is paused or not.
         var isPaused: Bool {
             get { 
-                Swift.print("isPaused get", isPaused)
+                Swift.print("isPaused get")
                return displayLink.isPaused }
             set {
                 Swift.print("isPaused set", newValue, isPaused)
@@ -303,7 +303,7 @@ fileprivate extension DisplayLink {
             self.displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
 
             target.callback = { [unowned self] frame in
-                Swift.print("callback")
+                Swift.print("callback", self.onFrame != nil)
                 self.onFrame?(frame)
             }
         }
@@ -317,6 +317,7 @@ fileprivate extension DisplayLink {
         }
 
         deinit {
+            Swift.print("deinit")
             displayLink.invalidate()
         }
 
