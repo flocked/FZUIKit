@@ -269,10 +269,9 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
             }
         }
     }
-        
+    
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
-            return (_lhs + _rhs) as! Self
             let count = Swift.min(_lhs.count, _rhs.count)
             return AnimatableArray<Double>(vDSP.add(_lhs[0..<count], _rhs[0..<count])) as! Self
         }
@@ -281,16 +280,9 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
         return lhs
     }
     
-    public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray where Element == Double {
-        Swift.print("Double Arr")
-        let count = Swift.min(lhs.count, rhs.count)
-        return AnimatableArray(vDSP.add(lhs[0..<count], rhs[0..<count]))
-    }
-    
     public mutating func scale(by rhs: Double) {
         if let _self = self as? AnimatableArray<Double> {
-            self.removeAll()
-            self.append(contentsOf:  vDSP.multiply(rhs, _self.elements) as! [Element])
+            self.elements = vDSP.multiply(rhs, _self.elements) as! [Element]
         } else {
             for index in startIndex..<endIndex {
                 self[index].scale(by: rhs)
