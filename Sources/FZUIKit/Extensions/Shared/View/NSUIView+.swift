@@ -259,5 +259,10 @@ public extension NSUIView {
         layer.add(transition, forKey: CATransitionType.fade.rawValue)
         #endif
     }
+    
+    /// Recursive description of the view useful for debugging.
+    var recursiveDescription: NSString {
+        return value(forKey: "recursiveDescription") as! NSString
+    }
 }
 #endif

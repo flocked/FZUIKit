@@ -1,45 +1,42 @@
 //
-//  Animation.swift
+//  File.swift
+//  
 //
-//  Modified by Florian Zand
-//  Original: Copyright (c) 2022 Janum Trivedi.
+//  Created by Florian Zand on 03.11.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
-#if os(macOS)
-import AppKit
-#elseif canImport(UIKit)
-import UIKit
-#endif
 
-public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
+public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
-
+    
     ///  The execution state of the animation (`inactive`, `running`, or `ended`).
     public private(set) var state: AnimationState = .inactive {
         didSet {
             switch (oldValue, state) {
             case (.inactive, .running):
-                startTime = .now
-
+                runningTime = 0.0
+                
             default:
                 break
             }
         }
     }
-
-    /// The spring model that determines the animation's motion.
-    public var spring: Spring
-
+    
+    public var timingFunction: TimingFunction = .easeInEaseOut
+    
+    public var duration: CGFloat = 0.0
+    
     /**
      The _current_ value of the animation. This value will change as the animation executes.
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
     public var value: T?
-
+    
+    internal var fromValue: T?
+    
     /**
      The current target value of the animation.
 
@@ -56,21 +53,18 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             }
 
             if state == .running {
-                startTime = .now
+                runningTime = 0.0
 
                 let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
                 completion?(event)
             }
         }
     }
-
-    /**
-     The current velocity of the animation.
-
-     If animating a view's `center` or `frame` with a gesture, you may want to set `velocity` to the gesture's final velocity on touch-up.
-     */
-    public var velocity: T
-
+    
+    public var fractionComplete: CGFloat = 0.0
+    
+    public var isReversed: Bool = false
+    
     /**
      The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
      */
@@ -80,12 +74,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      The completion block to call when the animation either finishes, or "re-targets" to a new target value.
      */
     public var completion: ((_ event: AnimationEvent<T>) -> Void)?
-
-    /**
-     The animation's `mode`. If set to `.nonAnimated`, the animation will snap to the target value when run.
-     */
-   // public var mode: Wave.AnimationMode = .animated
-
+    
     /**
      Whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries.
      This helps prevent drawing frames between pixels, causing aliasing issues.
@@ -94,13 +83,8 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      */
     public var integralizeValues: Bool = false
     
-    /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
-    public var stopsOnCompletion: Bool = true
-
     /// A unique identifier that associates an animation with an grouped animation block.
     var groupUUID: UUID?
-
-    var startTime: TimeInterval?
 
     var relativePriority: Int = 0
 
@@ -112,14 +96,14 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      - parameter value: The initial, starting value of the animation.
      - parameter target: The target value of the animation.
      */
-    public init(spring: Spring, value: T? = nil, target: T? = nil) {
+    public init(timingFunction: TimingFunction, duration: CGFloat, value: T? = nil, target: T? = nil) {
         self.value = value
+        self.fromValue = value
         self.target = target
-        velocity = T.zero
-
-        self.spring = spring
+        self.duration = duration
+        self.timingFunction = timingFunction
     }
-
+    
     /**
      Starts the animation (if not already running) with an optional delay.
 
@@ -148,6 +132,10 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     }
     
     internal var delayTask: DispatchWorkItem? = nil
+    
+    public func pauseAnimation() {
+        
+    }
 
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
@@ -162,70 +150,41 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             target = value
         }
     }
-
-    /**
-     How long the animation will take to complete, based off its `spring` property.
-
-     Note: This is useful for debugging purposes only. Do not use `settlingTime` to determine the animation's progress.
-     */
-    public var settlingTime: TimeInterval {
-        spring.settlingDuration
-    }
-
+    
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        spring = settings.spring
     }
 
-    var runningTime: TimeInterval? {
-        if let startTime = startTime {
-            return (.now - startTime)
-        } else {
-            return nil
-        }
-    }
-
+    var runningTime: TimeInterval = 0.0
+    
     func reset() {
-        startTime = nil
-        velocity = .zero
+        runningTime = 0.0
         state = .inactive
     }
     
-    var epsilon: Double? = nil
-    
     func updateAnimation(dt: TimeInterval) {
-        guard var value = value, let target = target else {
+        guard var value = value, let fromValue = fromValue, let target = target else {
             // Can't start an animation without a value and target
             state = .inactive
             return
         }
-
+        
         state = .running
-
-        guard let runningTime = runningTime else {
-            fatalError("Found a nil `runningTime` even though the animation's state is \(state)")
-        }
-
-
-        let isAnimated = spring.response > .zero
-
+        
+        runningTime += dt
+        
+        let isAnimated = duration > .zero
+        
         if isAnimated {
-            spring.update(value: &value, velocity: &velocity, target: target, deltaTime: dt)
+           var fraction = runningTime/duration
+            fractionComplete = timingFunction.solve(at: fraction, duration: duration)
+            value = T(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
             self.value = value
         } else {
             self.value = target
-            velocity = T.zero
         }
-
-        let animationFinished = (runningTime >= settlingTime) || !isAnimated
         
-        /*
-        if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
-            let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
-            Swift.print("isApproximatelyEqual", val)
-            animationFinished = val
-        }
-         */
+        let animationFinished = (runningTime >= duration) || !isAnimated
         
         if animationFinished {
             self.value = target
@@ -243,29 +202,3 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
     }
 }
-
-extension SpringAnimator: CustomStringConvertible {
-    public var description: String {
-        """
-        Animation<\(T.self)>(
-            uuid: \(id)
-            groupUUID: \(String(describing: groupUUID))
-
-            state: \(state)
-
-            value: \(String(describing: value))
-            target: \(String(describing: target))
-            velocity: \(String(describing: velocity))
-
-            mode: \(spring.response > 0 ? "animated" : "nonAnimated")
-            integralizeValues: \(integralizeValues)
-
-            callback: \(String(describing: valueChanged))
-            completion: \(String(describing: completion))
-
-            priority: \(relativePriority)
-        )
-        """
-    }
-}
-#endif

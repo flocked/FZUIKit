@@ -12,9 +12,12 @@ import FZSwiftUtils
 extension NSWindow {
     /// A Boolean value that indicates whether the window is fullscreen.
     public var isFullscreen: Bool {
-        styleMask.contains(.fullScreen)
+        get { styleMask.contains(.fullScreen) }
+        set { 
+            guard newValue != isFullscreen else { return }
+            self.toggleFullScreen(nil)
+        }
     }
-
     /// the index of the window tab or nil if the window isn't a tab.
     public var tabIndex: Int? {
         tabbedWindows?.firstIndex(of: self)
@@ -79,16 +82,22 @@ extension NSWindow {
 
     /// A Boolean value that indicates whether the tab bar is visible.
     public var isTabBarVisible: Bool {
-        if #available(OSX 10.13, *) {
-            // be extremely careful here. Just *accessing* the tabGroup property can
-            // affect NSWindow's tabbing behavior
-            if tabbedWindows == nil {
+        get {
+            if #available(OSX 10.13, *) {
+                // be extremely careful here. Just *accessing* the tabGroup property can
+                // affect NSWindow's tabbing behavior
+                if tabbedWindows == nil {
+                    return false
+                }
+                
+                return tabGroup?.isTabBarVisible ?? false
+            } else {
                 return false
             }
-
-            return tabGroup?.isTabBarVisible ?? false
-        } else {
-            return false
+        }
+        set {
+            guard let tabbedWindows = tabbedWindows, tabbedWindows.count > 1, let tabGroup = tabGroup, tabGroup.isTabBarVisible != newValue else { return }
+            self.toggleTabBar(nil)
         }
     }
     

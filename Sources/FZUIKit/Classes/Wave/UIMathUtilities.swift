@@ -45,3 +45,16 @@ public func project(point: CGPoint, velocity: CGPoint, decelerationRate: CGFloat
 func project(initialVelocity: CGFloat, decelerationRate: CGFloat) -> CGFloat {
     (initialVelocity / 1000) * decelerationRate / (1 - decelerationRate)
 }
+
+func initialAnimationVelocity(for gestureVelocity: CGPoint, from currentPosition: CGPoint, to finalPosition: CGPoint) -> CGVector {
+    var animationVelocity = CGVector.zero
+    let xDistance = finalPosition.x - currentPosition.x
+    let yDistance = finalPosition.y - currentPosition.y
+    if xDistance != 0 {
+        animationVelocity.dx = gestureVelocity.x / xDistance
+    }
+    if yDistance != 0 {
+        animationVelocity.dy = gestureVelocity.y / yDistance
+    }
+    return animationVelocity
+}

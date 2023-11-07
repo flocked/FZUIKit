@@ -169,15 +169,6 @@ public extension NSUIColor {
         let dyamic = self.dynamicColors
         return dyamic.light != dyamic.dark
     }
-
-    /// A Boolean value that indicates whether the color is a pattern color.
-    var isPatternColor: Bool {
-        #if os(macOS)
-        Swift.type(of: self) == NSClassFromString("NSPatternColor")
-        #else
-        Swift.type(of: self) == NSClassFromString("UIDynamicPatternColor")
-        #endif
-    }
     
     /**
      Creates a gradient color object that uses the specified colors and frame as gradient.
