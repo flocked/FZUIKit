@@ -140,8 +140,10 @@ extension PropertyAnimator where Object: NSUIView {
     
     /// The background gradient of the view.
     public var gradient: Gradient? {
-        get { return nil }
+        get {  self[\.gradient] }
         set {
+            self[\.gradient] = newValue
+            /*
             let newGradient = newValue ?? .zero
 
             var didSetupNewGradientLayer = false
@@ -170,6 +172,7 @@ extension PropertyAnimator where Object: NSUIView {
             }
             self.gradientColors = AnimatableDataArray<CGColor>(newGradient.stops.compactMap({$0.color.resolvedColor(for: object).cgColor}))
             self.object.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
+             */
         }
     }
     
@@ -278,6 +281,11 @@ internal extension NSUIView {
     var __gradientColors: AnimatableDataArray<CGColor> {
         get { AnimatableDataArray<CGColor>(_gradientColors) }
         set { self._gradientColors = newValue.elements }
+    }
+    
+    var _gradient: Gradient {
+        get { self.gradient ?? .zero }
+        set { self.gradient = newValue }
     }
 }
 
