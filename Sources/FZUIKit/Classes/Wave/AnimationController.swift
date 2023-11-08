@@ -116,7 +116,6 @@ extension AnimationController {
     struct AnimationParameters {
         let groupUUID: UUID
         let spring: Spring
-      //   let mode: Wave.AnimationMode
         let delay: CGFloat
         let gestureVelocity: CGPoint?
 

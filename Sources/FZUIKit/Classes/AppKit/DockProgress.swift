@@ -100,6 +100,7 @@ internal extension NSBezierPath {
     }
 }
 
+/*
 /**
  Provides functions for linear interpolation and easing effects.
 
@@ -164,6 +165,6 @@ internal extension NSBezierPath {
          )
      }
  }
-
+*/
 
 #endif

@@ -7,6 +7,7 @@
 
 import Foundation
 import FZSwiftUtils
+
 public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     
     /// A unique identifier for the animation.
@@ -24,6 +25,22 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     /// The total duration (in seconds) of the animation.
     public var duration: CGFloat = 0.0
     
+    /// A Boolean value indicating whether the animation repeats indefinitely.
+    public var repeats: Bool = false
+    
+    /// The completion percentage of the animation.
+    public var fractionComplete: CGFloat = 0.0 {
+        didSet {
+            if (0...1.0).contains(fractionComplete) == false {
+                fractionComplete = fractionComplete.clamped(max: 1.0)
+            }
+        }
+    }
+    
+    var resolvedFractionComplete: CGFloat {
+        timingFunction.solve(at: fractionComplete, duration: duration)
+    }
+    
     /**
      The _current_ value of the animation. This value will change as the animation executes.
 
@@ -31,7 +48,7 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
      */
     public var value: T?
     
-    internal var fromValue: T?
+    var fromValue: T?
     
     /**
      The current target value of the animation.
@@ -55,19 +72,6 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
             }
         }
     }
-    
-    /// The completion percentage of the animation.
-    public var fractionComplete: CGFloat = 0.0 {
-        didSet {
-            if (0...1.0).contains(fractionComplete) == false {
-                fractionComplete = fractionComplete.clamped(max: 1.0)
-            }
-        }
-    }
-    
-    var resolvedFractionComplete: CGFloat {
-        timingFunction.solve(at: fractionComplete, duration: duration)
-    }
         
     /// The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: T) -> Void)?
@@ -88,10 +92,11 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     var relativePriority: Int = 0
 
     /**
-     Creates a new animation with a given `Spring`, and optionally, an initial and target value.
+     Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
      While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
 
-     - parameter spring: The spring model that determines the animation's motion.
+     - parameter timingFunction: The timing curve of the animation.
+     - parameter duration: The duration of the animation.
      - parameter value: The initial, starting value of the animation.
      - parameter target: The target value of the animation.
      */
@@ -104,16 +109,31 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     }
     
     /**
+     Creates a new animation with the specified easing function, and optionally, an initial and target value.
+     While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
+
+     - parameter easing: The easing function of the animation.
+     - parameter value: The initial, starting value of the animation.
+     - parameter target: The target value of the animation.
+     */
+    convenience init(easing: EasingFunction, value: T? = nil, target: T? = nil) {
+        self.init(timingFunction: easing.timingFunction, duration: easing.duration, value: value, target: target)
+        repeats = easing.repeats
+    }
+    
+    /**
      Starts the animation (if not already running) with an optional delay.
 
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     public func start(afterDelay delay: TimeInterval = 0) {
+        guard isRunning == false else { return }
         precondition(value != nil, "Animation must have a non-nil `value` before starting.")
         precondition(target != nil, "Animation must have a non-nil `target` before starting.")
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
         let start = {
+            self.isRunning = true
             AnimationController.shared.runPropertyAnimation(self)
         }
         
@@ -130,7 +150,7 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
         }
     }
     
-    internal var delayedStart: DispatchWorkItem? = nil
+    var delayedStart: DispatchWorkItem? = nil
     
     public func pauseAnimation() {
         guard state == .running else { return }
@@ -142,9 +162,9 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
         delayedStart?.cancel()
+        isRunning = false
         if immediately {
             state = .ended
-
             if let value = value, let completion = completion {
                 completion(.finished(at: value))
             }
@@ -200,8 +220,15 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
         }
 
         if animationFinished {
-            state = .ended
-            completion?(.finished(at: target))
+            if repeats, isAnimated {
+                fractionComplete = isReversed ? 1.0 : 0.0
+                value = T(isReversed ? target.animatableData : fromValue.animatableData)
+                self.value = value
+                let callbackValue = integralizeValues ? value.scaledIntegral : value
+                valueChanged?(callbackValue)
+            } else {
+                stop(immediately: true)
+            }
         }
     }
 }

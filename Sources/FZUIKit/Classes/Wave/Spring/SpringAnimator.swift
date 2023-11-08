@@ -120,11 +120,13 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     public func start(afterDelay delay: TimeInterval = 0) {
+        guard isRunning == false else { return }
         precondition(value != nil, "Animation must have a non-nil `value` before starting.")
         precondition(target != nil, "Animation must have a non-nil `target` before starting.")
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
         let start = {
+            self.isRunning = true
             AnimationController.shared.runPropertyAnimation(self)
         }
         
@@ -141,11 +143,12 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
     }
     
-    internal var delayedStart: DispatchWorkItem? = nil
+    var delayedStart: DispatchWorkItem? = nil
 
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
         delayedStart?.cancel()
+        isRunning = false
         if immediately {
             state = .ended
 
@@ -169,6 +172,10 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
         spring = settings.spring
+        if let gestureVelocity = settings.gestureVelocity {
+            (self as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
+            (self as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
+        }
     }
 
     var runningTime: TimeInterval? {
@@ -231,9 +238,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
         }
 
         if animationFinished {
-            state = .ended
-            // If an animation finishes on its own, call the completion handler with value `target`.
-            completion?(.finished(at: target))
+            stop(immediately: true)
         }
     }
 }

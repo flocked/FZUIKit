@@ -137,32 +137,8 @@ internal extension DynamicPropertyAnimator {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
 
         let animation = (animation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
-        animation.epsilon = epsilon
-        animation.integralizeValues = integralizeValue
-        animation.configure(withSettings: settings)
-        if let gestureVelocity = settings.gestureVelocity {
-            (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
-            (animation as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
-        }
-        animation.target = targetValue
-        animation.valueChanged = { [weak self] value in
-            self?.object[keyPath: keyPath] = value
-        }
         
-        let groupUUID = animation.groupUUID
-        let animationKey = key ?? keyPath.stringValue
-        animation.completion = { [weak self] event in
-            switch event {
-            case .finished:
-                completion?()
-                self?.animations[animationKey] = nil
-                AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
-            default:
-                break
-            }
-        }
-        animations[animationKey] = animation
-        animation.start(afterDelay: settings.delay)
+        configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
     }
     
     func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
@@ -184,16 +160,23 @@ internal extension DynamicPropertyAnimator {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
         let animation = (animation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
+        
+        configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+    }
+    
+    func configurateAnimation<Value>(_ animation: SpringAnimator<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
+        animation.target = target
         animation.epsilon = epsilon
         animation.integralizeValues = integralizeValue
         animation.configure(withSettings: settings)
-        if let gestureVelocity = settings.gestureVelocity {
-            (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
-            (animation as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
-        }
-        animation.target = targetValue
-        animation.valueChanged = { [weak self] value in
-            self?.object[keyPath: keyPath] = value
+        if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
+        } else if let keyPath = keyPath as? WritableKeyPath<Object, Value?> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
         }
         let groupUUID = animation.groupUUID
         let animationKey = key ?? keyPath.stringValue
@@ -210,18 +193,18 @@ internal extension DynamicPropertyAnimator {
         animations[animationKey] = animation
         animation.start(afterDelay: settings.delay)
     }
-    
-    func configurateAnimation<V: AnimatableData>(_ animation: SpringAnimator<V>, value: V, target: V, key: String, settings: AnimationController.AnimationParameters) {
-        animation.configure(withSettings: settings)
-        animation.target = target
-        if let gestureVelocity = settings.gestureVelocity {
-            (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
-            (animation as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
-        }
-    }
 
     func updateValue<V: AnimatableData>(_ value: inout V, target: inout V) {
-        if var val = value as? [Double], var tar = target as? [Double], val.count != tar.count {
+        if V.self == CGColor.self {
+            let val = (value as! CGColor).nsUIColor
+            let tar = (target as! CGColor).nsUIColor
+            if val?.isVisible == false {
+                value = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
+            }
+            if tar?.isVisible == false {
+                target = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
+            }
+        } else if var val = value as? [Double], var tar = target as? [Double], val.count != tar.count {
             let diff = tar.count - val.count
             if diff < 0 {
                 for i in tar.count-(diff * -1)..<tar.count {
@@ -232,15 +215,6 @@ internal extension DynamicPropertyAnimator {
             }
             value = val as! V
             target = tar as! V
-        } else if V.self == CGColor.self {
-            let val = (value as! CGColor).nsUIColor
-            let tar = (target as! CGColor).nsUIColor
-            if val?.isVisible == false {
-                value = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
-            }
-            if tar?.isVisible == false {
-                target = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
-            }
         }
     }
 }
