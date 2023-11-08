@@ -51,6 +51,10 @@ internal class AnimationController {
 
         animation.updateAnimation(dt: .zero)
     }
+    
+    func stopPropertyAnimation(_ animation: AnimationProviding) {
+        animations[animation.id] = nil
+    }
 
     private func updateAnimations(_ frame: DisplayLink.Frame) {
         guard displayLink != nil else {
@@ -62,9 +66,7 @@ internal class AnimationController {
 
         let dt = frame.duration
         
-        let sortedAnimations = animations.values.sorted { lhs, rhs in
-            lhs.relativePriority > rhs.relativePriority
-        }
+        let sortedAnimations = animations.values.sorted(by: \.relativePriority, .descending)
 
         for animation in sortedAnimations {
             if animation.state == .ended {

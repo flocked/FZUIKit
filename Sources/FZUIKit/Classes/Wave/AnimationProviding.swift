@@ -9,21 +9,43 @@
 import Foundation
 
 internal protocol AnimationProviding {
+    /// A unique identifier for the animation.
     var id: UUID { get }
+    
+    /// A unique identifier that associates an animation with an grouped animation block.
     var groupUUID: UUID? { get }
+    
+    /// The relative priority of the animation.
     var relativePriority: Int { get set }
+    
+    /// The current state of the animation.
     var state: AnimationState { get }
+    
+    /// A Boolean value indicating whether the animation is currently running.
+    var isRunning: Bool { get }
 
+    /**
+     Updates the progress of the animation with the specified delta time.
+
+     - parameter dt: The delta time.
+     */
     func updateAnimation(dt: TimeInterval)
+    /**
+     Starts the animation (if not already running) with an optional delay.
+
+     - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
+     */
     func start(afterDelay delay: TimeInterval)
+    
+    /// Stops the animation at the current value.
     func stop(immediately: Bool)
+    
+    /// Resets the animation.
     func reset()
 }
 
 public enum AnimationEvent<T> {
-    /**
-     Indicates the animation has fully completed.
-     */
+    /// Indicates the animation has fully completed.
     case finished(at: T)
 
     /**

@@ -8,24 +8,20 @@
 import Foundation
 import FZSwiftUtils
 public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
+    
     /// A unique identifier for the animation.
     public let id = UUID()
     
-    ///  The execution state of the animation (`inactive`, `running`, or `ended`).
-    public private(set) var state: AnimationState = .inactive {
-        didSet {
-            switch (oldValue, state) {
-            case (.inactive, .running):
-                runningTime = 0.0
-                
-            default:
-                break
-            }
-        }
-    }
+    /// The current state of the animation (`inactive`, `running`, or `ended`).
+    public internal(set) var state: AnimationState = .inactive
     
+    /// A Boolean value indicating whether the animation is currently running.
+    public internal(set)var isRunning: Bool = false
+    
+    /// The information used to determine the timing curve for the animation.
     public var timingFunction: TimingFunction = .easeInEaseOut
     
+    /// The total duration (in seconds) of the animation.
     public var duration: CGFloat = 0.0
     
     /**
@@ -53,33 +49,36 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
             }
 
             if state == .running {
-                runningTime = 0.0
-
+                fractionComplete = 0.0
                 let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
                 completion?(event)
             }
         }
     }
     
-    public var fractionComplete: CGFloat = 0.0
+    /// The completion percentage of the animation.
+    public var fractionComplete: CGFloat = 0.0 {
+        didSet {
+            if (0...1.0).contains(fractionComplete) == false {
+                fractionComplete = fractionComplete.clamped(max: 1.0)
+            }
+        }
+    }
     
-    public var isReversed: Bool = false
-    
-    /**
-     The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
-     */
+    var resolvedFractionComplete: CGFloat {
+        timingFunction.solve(at: fractionComplete, duration: duration)
+    }
+        
+    /// The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: T) -> Void)?
 
-    /**
-     The completion block to call when the animation either finishes, or "re-targets" to a new target value.
-     */
+    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<T>) -> Void)?
     
     /**
-     Whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries.
-     This helps prevent drawing frames between pixels, causing aliasing issues.
+     A Boolean value that indicates whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
 
-     Note: Enabling `integralizeValues` effectively quantizes `value`, so don't use this for values that are supposed to be continuous.
+     - Note: Enabling `integralizeValues` effectively quantizes `value`, so don't use this for values that are supposed to be continuous.
      */
     public var integralizeValues: Bool = false
     
@@ -118,7 +117,7 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
             AnimationController.shared.runPropertyAnimation(self)
         }
         
-        delayTask?.cancel()
+        delayedStart?.cancel()
 
         if delay == .zero {
             start()
@@ -126,20 +125,23 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
             let task = DispatchWorkItem {
                 start()
             }
-            delayTask = task
+            delayedStart = task
             DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
         }
     }
     
-    internal var delayTask: DispatchWorkItem? = nil
+    internal var delayedStart: DispatchWorkItem? = nil
     
     public func pauseAnimation() {
-        
+        guard state == .running else { return }
+        delayedStart?.cancel()
+        AnimationController.shared.stopPropertyAnimation(self)
+        isRunning = false
     }
 
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
-        delayTask?.cancel()
+        delayedStart?.cancel()
         if immediately {
             state = .ended
 
@@ -154,11 +156,15 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
     }
-
-    var runningTime: TimeInterval = 0.0
     
+    /// A Boolean value indicating whether the animation is running in the reverse direction.
+    public var isReversed: Bool = false {
+        didSet { guard oldValue != isReversed else { return }
+            fractionComplete = 1.0 - fractionComplete
+        }
+    }
+        
     func reset() {
-        runningTime = 0.0
         state = .inactive
     }
     
@@ -170,21 +176,19 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
         }
         
         state = .running
-        
-        runningTime += dt
-        
+                
         let isAnimated = duration > .zero
         
         if isAnimated {
-           var fraction = runningTime/duration
-            fractionComplete = timingFunction.solve(at: fraction, duration: duration)
-            value = T(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
+            let part = duration/dt
+            fractionComplete = isReversed ? (fractionComplete - part) : (fractionComplete + part)
+            value = T(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
             self.value = value
         } else {
             self.value = target
         }
         
-        let animationFinished = (runningTime >= duration) || !isAnimated
+        let animationFinished = (isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0) || !isAnimated
         
         if animationFinished {
             self.value = target
@@ -197,7 +201,6 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
 
         if animationFinished {
             state = .ended
-            // If an animation finishes on its own, call the completion handler with value `target`.
             completion?(.finished(at: target))
         }
     }

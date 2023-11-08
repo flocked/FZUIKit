@@ -13,31 +13,26 @@ import AppKit
 import UIKit
 #endif
 
-public class SpringAnimator1<T: AnimatableData>   {
+public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
     
     /// A unique identifier for the animation.
     public let id = UUID()
-    
-    public enum SpringAnimationState {
-        /// The animation is inactive.
-        case inactive
-        /// The animation is active and ready to animate change
-        case active
-        /// The animation is animating.
-        case animating
-    }
 
-    ///  The execution state of the animation (`inactive`, `running`, or `ended`).
-    public private(set) var state: SpringAnimationState = .inactive {
+    /// The current state of the animation (`inactive`, `running`, or `ended`).
+    public internal(set) var state: AnimationState = .inactive {
         didSet {
             switch (oldValue, state) {
-            case (.active, .animating):
+            case (.inactive, .running):
                 startTime = .now
+
             default:
                 break
             }
         }
     }
+    
+    /// A Boolean value indicating whether the animation is currently running.
+    public internal(set)var isRunning: Bool = false
 
     /// The spring model that determines the animation's motion.
     public var spring: Spring
@@ -47,20 +42,7 @@ public class SpringAnimator1<T: AnimatableData>   {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: T? {
-        didSet { startAnimatingIfNeeded() }
-    }
-    
-    var shouldStartAnimating: Bool {
-        state == .active && value != nil && target != nil && value != target
-    }
-    
-    func startAnimatingIfNeeded() {
-        if shouldStartAnimating {
-            self.state = .animating
-         //   AnimationController.shared.runPropertyAnimation(self)
-        }
-    }
+    public var value: T?
 
     /**
      The current target value of the animation.
@@ -69,12 +51,20 @@ public class SpringAnimator1<T: AnimatableData>   {
      */
     public var target: T? {
         didSet {
-            if state == .animating, let oldTarget = oldValue, let target = target, target != oldTarget {
+            guard let oldValue = oldValue, let newValue = target else {
+                return
+            }
+
+            if oldValue == newValue {
+                return
+            }
+
+            if state == .running {
                 startTime = .now
-                let event = AnimationEvent.retargeted(from: oldTarget, to: target)
+
+                let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
                 completion?(event)
             }
-            startAnimatingIfNeeded()
         }
     }
 
@@ -85,26 +75,16 @@ public class SpringAnimator1<T: AnimatableData>   {
      */
     public var velocity: T
 
-    /**
-     The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
-     */
+    /// The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: T) -> Void)?
 
-    /**
-     The completion block to call when the animation either finishes, or "re-targets" to a new target value.
-     */
+    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<T>) -> Void)?
 
     /**
-     The animation's `mode`. If set to `.nonAnimated`, the animation will snap to the target value when run.
-     */
-   // public var mode: Wave.AnimationMode = .animated
+     A Boolean value that indicates whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
 
-    /**
-     Whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries.
-     This helps prevent drawing frames between pixels, causing aliasing issues.
-
-     Note: Enabling `integralizeValues` effectively quantizes `value`, so don't use this for values that are supposed to be continuous.
+     - Note: Enabling `integralizeValues` effectively quantizes `value`, so don't use this for values that are supposed to be continuous.
      */
     public var integralizeValues: Bool = false
     
@@ -140,19 +120,15 @@ public class SpringAnimator1<T: AnimatableData>   {
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     public func start(afterDelay delay: TimeInterval = 0) {
-        if state == .inactive {
-            state = .active
-        }
-        
-        guard shouldStartAnimating else {
-            return
-        }
+        precondition(value != nil, "Animation must have a non-nil `value` before starting.")
+        precondition(target != nil, "Animation must have a non-nil `target` before starting.")
+        precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
         let start = {
-            self.startAnimatingIfNeeded()
+            AnimationController.shared.runPropertyAnimation(self)
         }
         
-        delayTask?.cancel()
+        delayedStart?.cancel()
 
         if delay == .zero {
             start()
@@ -160,38 +136,31 @@ public class SpringAnimator1<T: AnimatableData>   {
             let task = DispatchWorkItem {
                 start()
             }
-            delayTask = task
+            delayedStart = task
             DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
         }
     }
     
-    internal var delayTask: DispatchWorkItem? = nil
+    internal var delayedStart: DispatchWorkItem? = nil
 
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
-        guard self.state != .inactive else { return }
-        delayTask?.cancel()
-        if state == .active {
-            state = .inactive
-        } else {
-            if immediately {
-                state = .inactive
-                
-                if let value = value, let completion = completion {
-                    completion(.finished(at: value))
-                }
-            } else {
-                awaitsInactiveState = true
-                target = value
+        delayedStart?.cancel()
+        if immediately {
+            state = .ended
+
+            if let value = value, let completion = completion {
+                completion(.finished(at: value))
             }
+        } else {
+            target = value
         }
     }
-    var awaitsInactiveState: Bool = false
 
     /**
      How long the animation will take to complete, based off its `spring` property.
 
-     Note: This is useful for debugging purposes only. Do not use `settlingTime` to determine the animation's progress.
+     - Note: This is useful for debugging purposes only. Do not use `settlingTime` to determine the animation's progress.
      */
     public var settlingTime: TimeInterval {
         spring.settlingDuration
@@ -225,6 +194,8 @@ public class SpringAnimator1<T: AnimatableData>   {
             return
         }
 
+        state = .running
+
         guard let runningTime = runningTime else {
             fatalError("Found a nil `runningTime` even though the animation's state is \(state)")
         }
@@ -242,6 +213,14 @@ public class SpringAnimator1<T: AnimatableData>   {
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
         
+        /*
+        if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
+            let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
+            Swift.print("isApproximatelyEqual", val)
+            animationFinished = val
+        }
+         */
+        
         if animationFinished {
             self.value = target
         }
@@ -252,19 +231,14 @@ public class SpringAnimator1<T: AnimatableData>   {
         }
 
         if animationFinished {
-            
-            if awaitsInactiveState || stopsOnCompletion {
-                state = .inactive
-                awaitsInactiveState = false
-            } else {
-                state = .active
-            }
+            state = .ended
+            // If an animation finishes on its own, call the completion handler with value `target`.
             completion?(.finished(at: target))
         }
     }
 }
 
-extension SpringAnimator1: CustomStringConvertible {
+extension SpringAnimator: CustomStringConvertible {
     public var description: String {
         """
         Animation<\(T.self)>(
