@@ -10,6 +10,7 @@ import AppKit
 
 extension NSWindow: AnimatablePropertyProvider { }
 
+/// The property animator for windows.
 public typealias WindowAnimator = PropertyAnimator<NSWindow>
 
 extension PropertyAnimator where Object: NSWindow {

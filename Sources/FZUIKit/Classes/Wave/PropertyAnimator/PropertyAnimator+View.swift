@@ -15,6 +15,7 @@ import FZSwiftUtils
 
 extension NSUIView: AnimatablePropertyProvider { }
 
+/// The property animator for views.
 public typealias ViewAnimator = PropertyAnimator<NSUIView>
 
 extension PropertyAnimator where Object: NSUIView {
@@ -135,6 +136,14 @@ extension PropertyAnimator where Object: NSUIView {
     public var translation: CGPoint {
         get { object.optionalLayer?.animator.translation ?? .zero }
         set { object.optionalLayer?.animator.translation = newValue }
+    }
+    
+    /// The view's layer animator.
+    public var layer: LayerAnimator {
+        #if os(macOS)
+        self.object.wantsLayer = true
+        #endif
+        return self.object.optionalLayer!.animator
     }
 }
 
@@ -336,27 +345,6 @@ extension PropertyAnimator where Object: UIStackView {
     public var spacing: CGFloat {
         get { self[\.spacing] }
         set { self[\.spacing] = newValue }
-    }
-}
-
-fileprivate extension UILabel {
-    @objc var fontSize: CGFloat {
-        get { font.pointSize }
-        set { font = font?.withSize(newValue) }
-    }
-}
-
-fileprivate extension UITextField {
-    @objc var fontSize: CGFloat {
-        get { font?.pointSize ?? 0.0 }
-        set { font = font?.withSize(newValue) }
-    }
-}
-
-fileprivate extension UITextView {
-    @objc var fontSize: CGFloat {
-        get { font?.pointSize ?? 0.0 }
-        set { font = font?.withSize(newValue) }
     }
 }
 

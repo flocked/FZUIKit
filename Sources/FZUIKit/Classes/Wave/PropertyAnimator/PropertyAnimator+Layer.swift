@@ -14,6 +14,7 @@ import UIKit
 
 extension CALayer: AnimatablePropertyProvider { }
 
+/// The property animator for layers.
 public typealias LayerAnimator = PropertyAnimator<CALayer>
 
 extension PropertyAnimator where Object: CALayer {

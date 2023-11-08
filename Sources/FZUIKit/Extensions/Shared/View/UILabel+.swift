@@ -8,7 +8,13 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 
-extension UILabel {
+public extension UILabel {
+    /// The font size of the label.
+    @objc var fontSize: CGFloat {
+        get { font.pointSize }
+        set { font = font?.withSize(newValue) }
+    }
+    
     /// Returns the number of visible lines.
     var numberOfVisibleLines: Int {
         guard let font = self.font else { return -1 }

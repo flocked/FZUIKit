@@ -22,16 +22,6 @@ public extension NSTextView {
             }
             get { return self.textStorage?.copy() as? NSAttributedString }
         }
-    
-    /**
-     The font size of the text.
-     
-     The value can be animated via `animator()`.
-     */
-     @objc dynamic var fontSize: CGFloat {
-            get { font?.pointSize ?? 0.0 }
-            set { Self.swizzleAnimationForKey()
-                font = font?.withSize(newValue) } }
 }
 
 #endif
