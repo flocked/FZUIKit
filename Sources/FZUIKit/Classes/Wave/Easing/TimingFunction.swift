@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  TimingFunction.swift
 //  
 //
 //  Created by Florian Zand on 20.10.23.

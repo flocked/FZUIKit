@@ -9,8 +9,10 @@ import Foundation
 import SwiftUI
 import Accelerate
 
-/// A synchronized dictionary.
+/// A dictionary that can serve as the animatable data of an animatable type (see ``AnimatableData``).
 public struct AnimatableDictionary< Key: Hashable, Value: VectorArithmetic & AdditiveArithmetic>: Collection, ExpressibleByDictionaryLiteral {
+    public typealias Element = (key: Key, value: Value)
+
     public init(dictionaryLiteral elements: (Value, Key)...) {
         self.dictionary = [:]
         for element in elements {
@@ -20,6 +22,22 @@ public struct AnimatableDictionary< Key: Hashable, Value: VectorArithmetic & Add
     
     public init(dict: [Key: Value] = [Key:Value]()) {
         self.dictionary = dict
+    }
+    
+    public init() {
+        self.dictionary = [:]
+    }
+    
+    public init(minimumCapacity: Int) {
+        self.dictionary = .init(minimumCapacity: minimumCapacity)
+    }
+    
+    public init<S>(uniqueKeysWithValues keysAndValues: S) where S : Sequence, S.Element == (Key, Value) {
+        self.dictionary = .init(uniqueKeysWithValues: keysAndValues)
+    }
+    
+    public init<S>(_ keysAndValues: S, uniquingKeysWith combine: (Value, Value) throws -> Value) rethrows where S : Sequence, S.Element == (Key, Value) {
+        self.dictionary = try .init(keysAndValues, uniquingKeysWith: combine)
     }
     
     private var dictionary: [Key:Value]
@@ -44,6 +62,10 @@ public extension AnimatableDictionary {
     
     var count: Int {
         return self.dictionary.count
+    }
+    
+    var capacity: Int {
+        self.dictionary.capacity
     }
     
     func forEach(_ body: ((key: Key, value: Value)) throws -> Void) rethrows {
@@ -90,10 +112,56 @@ public extension AnimatableDictionary {
     mutating func removeAll(keepingCapacity: Bool = false) {
         self.dictionary.removeAll(keepingCapacity: keepingCapacity)
     }
+    
+    @discardableResult
+    mutating func remove(at index: Dictionary<Key, Value>.Index) -> Dictionary<Key, Value>.Element {
+        self.dictionary.remove(at: index)
+    }
+    
+    var first: AnimatableDictionary.Element? {
+        self.dictionary.first
+    }
+    
+    func randomElement() -> Self.Element? {
+        self.dictionary.randomElement()
+    }
+    func randomElement<T>(using generator: inout T) -> Self.Element? where T : RandomNumberGenerator {
+        self.dictionary.randomElement(using: &generator)
+    }
+    
+    @discardableResult
+    mutating func updateValue(_ value: Value, forKey key: Key) -> Value? {
+        dictionary.updateValue(value, forKey: key)
+    }
+    
+    mutating func merge(_ other: [Key : Value], uniquingKeysWith combine: (Value, Value) throws -> Value) rethrows {
+        try dictionary.merge(other, uniquingKeysWith: combine)
+    }
+    
+    mutating func merge<S>(_ other: S, uniquingKeysWith combine: (Value, Value) throws -> Value) rethrows where S : Sequence, S.Element == (Key, Value) {
+        try dictionary.merge(other, uniquingKeysWith: combine)
+    }
+    
+    func merging(_ other: [Key : Value], uniquingKeysWith combine: (Value, Value) throws -> Value) rethrows -> [Key : Value] {
+        try dictionary.merging(other, uniquingKeysWith: combine)
+    }
+    
+    func merging<S>(_ other: S, uniquingKeysWith combine: (Value, Value) throws -> Value) rethrows -> [Key : Value] where S : Sequence, S.Element == (Key, Value) {
+        try dictionary.merging(other, uniquingKeysWith: combine)
+    }
+    
+    mutating func reserveCapacity(_ minimumCapacity: Int) {
+        dictionary.reserveCapacity(minimumCapacity)
+    }
 }
 
 extension AnimatableDictionary: @unchecked Sendable where Element: Sendable { }
 
+extension AnimatableDictionary: Comparable where Value: Comparable {
+    public static func < (lhs: AnimatableDictionary<Key, Value>, rhs: AnimatableDictionary<Key, Value>) -> Bool {
+        lhs.values < rhs.values
+    }
+}
 
 extension AnimatableDictionary: CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
     public var customMirror: Mirror {
@@ -114,9 +182,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
         for keyValue in lhs {
             if let rhsValues = rhs[keyValue.key] {
                 if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
-                    let count = Swift.min(lhsValues.count, rhsValues.count)
-                    vDSP.subtract(lhsValues[0..<count], rhsValues[0..<count], result: &lhsValues[0..<count])
-                    lhs[keyValue.key] = lhsValues as? Value
+                    lhs[keyValue.key] = AnimatableArray<Double>(lhsValues - rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value - rhsValues
                 }
@@ -129,9 +195,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
         for keyValue in lhs {
             if let rhsValues = rhs[keyValue.key] {
                 if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
-                    let count = Swift.min(lhsValues.count, rhsValues.count)
-                    lhsValues =  AnimatableArray<Double>(vDSP.subtract(lhsValues[0..<count], rhsValues[0..<count]))
-                    lhs[keyValue.key] = AnimatableArray<Double>(vDSP.subtract(lhsValues[0..<count], rhsValues[0..<count])) as? Value
+                    lhs[keyValue.key] = AnimatableArray<Double>(lhsValues - rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value - rhsValues
                 }
@@ -144,9 +208,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
         for keyValue in lhs {
             if let rhsValues = rhs[keyValue.key] {
                 if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
-                    let count = Swift.min(lhsValues.count, rhsValues.count)
-                    vDSP.add(lhsValues[0..<count], rhsValues[0..<count], result: &lhsValues[0..<count])
-                    lhs[keyValue.key] = lhsValues as? Value
+                    lhs[keyValue.key] = AnimatableArray<Double>(lhsValues + rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value + rhsValues
                 }
@@ -160,8 +222,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
             if let rhsValues = rhs[keyValue.key] {
                 if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
                     let count = Swift.min(lhsValues.count, rhsValues.count)
-                    lhsValues =  AnimatableArray<Double>(vDSP.subtract(lhsValues[0..<count], rhsValues[0..<count]))
-                    lhs[keyValue.key] = AnimatableArray<Double>(vDSP.add(lhsValues[0..<count], rhsValues[0..<count])) as? Value
+                    lhs[keyValue.key] = AnimatableArray<Double>(lhsValues + rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value + rhsValues
                 }
@@ -173,7 +234,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
     public mutating func scale(by rhs: Double) {
         for keyValue in self {
             if let value = keyValue.value as? AnimatableArray<Double> {                
-                self[keyValue.key] = vDSP.multiply(rhs, value.elements) as? Value
+                self[keyValue.key] = value.scaled(by: rhs) as? Value
             } else {
                 self[keyValue.key] = keyValue.value.scaled(by: rhs)
             }
@@ -182,8 +243,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
     
     public var magnitudeSquared: Double {
         if let values = self.values as? [AnimatableVector] {
-           let elements = values.flatMap({$0.elements})
-            return vDSP.sum(vDSP.multiply(elements, elements))
+            return AnimatableVector(values.flatMap({$0.elements})).magnitudeSquared
         }
        return reduce(into: 0.0) { (result, new) in
            result += new.value.magnitudeSquared
@@ -191,20 +251,4 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
     }
     
     public static var zero: Self { .init() }
-}
-
-extension AnimatableDictionary: Comparable where Value: Comparable {
-    public static func < (lhs: AnimatableDictionary<Key, Value>, rhs: AnimatableDictionary<Key, Value>) -> Bool {
-        let lhsValues = lhs.values
-        let rhsValues = rhs.values
-        let count = Swift.min(lhsValues.count, rhsValues.count)
-        for value in zip(lhsValues[0..<count], rhsValues[0..<count]) {
-            if value.0 > value.1 {
-                return false
-            }
-        }
-        return true
-    }
-    
-    
 }

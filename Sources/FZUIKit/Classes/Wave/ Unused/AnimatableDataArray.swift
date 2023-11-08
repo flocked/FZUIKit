@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 15.10.21.
 //
 
+/*
 import Foundation
 import SwiftUI
 import Accelerate
@@ -305,3 +306,5 @@ internal extension Array where Element: AnimatableData {
         AnimatableDataArray(self)
     }
 }
+
+*/

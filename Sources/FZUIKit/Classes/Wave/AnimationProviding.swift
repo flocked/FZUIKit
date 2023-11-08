@@ -8,6 +8,7 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
+/// A type that provides an animation.
 internal protocol AnimationProviding {
     /// A unique identifier for the animation.
     var id: UUID { get }

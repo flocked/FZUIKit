@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  EasingAnimator.swift
 //  
 //
 //  Created by Florian Zand on 03.11.23.
@@ -8,8 +8,8 @@
 import Foundation
 import FZSwiftUtils
 
-public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
-    
+/// An animator that animates a value using an easing function.
+public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -46,16 +46,16 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: T?
+    public var value: Value?
     
-    var fromValue: T?
+    var fromValue: Value?
     
     /**
      The current target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
-    public var target: T? {
+    public var target: Value? {
         didSet {
             guard let oldValue = oldValue, let newValue = target else {
                 return
@@ -74,10 +74,10 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     }
         
     /// The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
-    public var valueChanged: ((_ currentValue: T) -> Void)?
+    public var valueChanged: ((_ currentValue: Value) -> Void)?
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
-    public var completion: ((_ event: AnimationEvent<T>) -> Void)?
+    public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
     /**
      A Boolean value that indicates whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
@@ -100,7 +100,7 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
      - parameter value: The initial, starting value of the animation.
      - parameter target: The target value of the animation.
      */
-    public init(timingFunction: TimingFunction, duration: CGFloat, value: T? = nil, target: T? = nil) {
+    public init(timingFunction: TimingFunction, duration: CGFloat, value: Value? = nil, target: Value? = nil) {
         self.value = value
         self.fromValue = value
         self.target = target
@@ -116,7 +116,7 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
      - parameter value: The initial, starting value of the animation.
      - parameter target: The target value of the animation.
      */
-    convenience init(easing: EasingFunction, value: T? = nil, target: T? = nil) {
+    convenience init(easing: EasingFunction, value: Value? = nil, target: Value? = nil) {
         self.init(timingFunction: easing.timingFunction, duration: easing.duration, value: value, target: target)
         repeats = easing.repeats
     }
@@ -202,7 +202,7 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
         if isAnimated {
             let part = duration/dt
             fractionComplete = isReversed ? (fractionComplete - part) : (fractionComplete + part)
-            value = T(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
+            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
             self.value = value
         } else {
             self.value = target
@@ -222,7 +222,7 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
         if animationFinished {
             if repeats, isAnimated {
                 fractionComplete = isReversed ? 1.0 : 0.0
-                value = T(isReversed ? target.animatableData : fromValue.animatableData)
+                value = Value(isReversed ? target.animatableData : fromValue.animatableData)
                 self.value = value
                 let callbackValue = integralizeValues ? value.scaledIntegral : value
                 valueChanged?(callbackValue)
@@ -230,5 +230,34 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
                 stop(immediately: true)
             }
         }
+    }
+}
+
+extension EasingAnimator: CustomStringConvertible {
+    public var description: String {
+        """
+        EasingAnimator<\(Value.self)>(
+            uuid: \(id)
+            groupUUID: \(String(describing: groupUUID))
+
+            state: \(state)
+            isRunning: \(isRunning)
+            fractionComplete: \(fractionComplete)
+
+            value: \(String(describing: value))
+            target: \(String(describing: target))
+            from: \(String(describing: fromValue))
+
+            timingFunction: \(String(describing:timingFunction))
+            duration: \(duration)
+            repeats: \(repeats)
+            integralizeValues: \(integralizeValues)
+
+            callback: \(String(describing: valueChanged))
+            completion: \(String(describing: completion))
+
+            priority: \(relativePriority)
+        )
+        """
     }
 }

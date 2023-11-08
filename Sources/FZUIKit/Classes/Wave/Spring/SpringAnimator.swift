@@ -13,7 +13,8 @@ import AppKit
 import UIKit
 #endif
 
-public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
+/// An animator that animates a value using a physically-modeled spring.
+public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
     
     /// A unique identifier for the animation.
     public let id = UUID()
@@ -42,14 +43,14 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: T?
+    public var value: Value?
 
     /**
      The current target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
-    public var target: T? {
+    public var target: Value? {
         didSet {
             guard let oldValue = oldValue, let newValue = target else {
                 return
@@ -73,13 +74,13 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 
      If animating a view's `center` or `frame` with a gesture, you may want to set `velocity` to the gesture's final velocity on touch-up.
      */
-    public var velocity: T
+    public var velocity: Value
 
     /// The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
-    public var valueChanged: ((_ currentValue: T) -> Void)?
+    public var valueChanged: ((_ currentValue: Value) -> Void)?
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
-    public var completion: ((_ event: AnimationEvent<T>) -> Void)?
+    public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
 
     /**
      A Boolean value that indicates whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
@@ -106,10 +107,10 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
      - parameter value: The initial, starting value of the animation.
      - parameter target: The target value of the animation.
      */
-    public init(spring: Spring, value: T? = nil, target: T? = nil) {
+    public init(spring: Spring, value: Value? = nil, target: Value? = nil) {
         self.value = value
         self.target = target
-        velocity = T.zero
+        velocity = Value.zero
 
         self.spring = spring
     }
@@ -215,7 +216,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
             self.value = value
         } else {
             self.value = target
-            velocity = T.zero
+            velocity = Value.zero
         }
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
@@ -246,7 +247,7 @@ public class SpringAnimator<T: AnimatableData>: AnimationProviding   {
 extension SpringAnimator: CustomStringConvertible {
     public var description: String {
         """
-        Animation<\(T.self)>(
+        SpringAnimation<\(Value.self)>(
             uuid: \(id)
             groupUUID: \(String(describing: groupUUID))
 

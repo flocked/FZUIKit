@@ -89,7 +89,7 @@ extension CAKeyframeAnimationEmittable {
     }
 }
 
-extension SpringAnimator: CAKeyframeAnimationEmittable where T: CAKeyframeAnimationValueConvertible {
+extension SpringAnimator: CAKeyframeAnimationEmittable where Value: CAKeyframeAnimationValueConvertible {
     /// Generates and populates the `values` and `keyTimes` for a given `SpringAnimator` animating from its ``value`` to its ``target`` by ticking it by `deltaTime` until it resolves.
     public func populateKeyframeAnimationData(deltaTime: TimeInterval, values: inout [AnyObject], keyTimes: inout [NSNumber]) -> TimeInterval {
         guard var value = value, let target = target else { return 0.0 }
