@@ -216,13 +216,16 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         Swift.print("deltaTime", deltaTime, duration)
         
         if isAnimated {
+            let deltaTime = deltaTime/2.0
+
             runningTime += deltaTime
+            
             
             let part = deltaTime/duration
             
             fractionComplete = isReversed ? (fractionComplete - part) : (fractionComplete + part)
 
-            fractionComplete = runningTime / duration
+     //       fractionComplete = runningTime / duration
             
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
 
