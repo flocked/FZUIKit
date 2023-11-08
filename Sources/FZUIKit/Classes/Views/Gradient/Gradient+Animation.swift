@@ -53,11 +53,12 @@ extension Gradient: AnimatableData {
     public var animatableData: AnimatableVector {
         var animatableData = [Double(type.rawValue)] + startPoint.animatableData + endPoint.animatableData
         animatableData = animatableData + self.stops.flatMap({$0.animatableData})
+        Swift.print("gradient animatableData", animatableData.count, animatableData)
         return animatableData
     }
     
     public init(_ animatableData: AnimatableVector) {
-        Swift.print("init gradient")
+        Swift.print("init gradient", animatableData.count)
         self.type = .init(rawValue: Int(animatableData[0])) ?? .linear
         self.startPoint = .init(x: animatableData[1], y: animatableData[2])
         self.endPoint = .init(x: animatableData[3], y: animatableData[4])
