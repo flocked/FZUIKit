@@ -198,12 +198,17 @@ internal extension PropertyAnimator {
         } else if var val = value as? [Double], var tar = target as? [Double], val.count != tar.count {
             let diff = tar.count - val.count
             if diff < 0 {
+                tar.append(contentsOf: Array(repeating: .zero, count: (diff * -1)))
+                /*
                 for i in tar.count-(diff * -1)..<tar.count {
+
                     tar[i] = .zero
                 }
+                 */
             } else if diff > 0 {
                 val.append(contentsOf: Array(repeating: .zero, count: diff))
             }
+            Swift.print("tarVal count", tar.count, val.count)
             value = val as! V
             target = tar as! V
         }
