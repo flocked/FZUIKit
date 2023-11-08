@@ -197,13 +197,6 @@ extension PropertyAnimator where Object: NSUIView {
         set { self[\.__gradientColors] = newValue }
     }
     
-    /*
-    internal var gradientColors: AnimatableArray<CGColor> {
-        get { AnimatableArray<CGColor>(self[\._gradientColors]) }
-        set { self[\.__gradientLocations] = newValue }
-    }
-     */
-    
     /// The view's layer animator.
     public var layer: LayerAnimator {
         #if os(macOS)
@@ -399,7 +392,7 @@ extension PropertyAnimator where Object: NSImageView {
     /// The tint color of the image.
     public var contentTintColor: NSUIColor? {
         get { self[\.contentTintColor] }
-        set { self[\.contentTintColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.contentTintColor] = newValue }
     }
 }
 
@@ -407,7 +400,7 @@ extension PropertyAnimator where Object: NSButton {
     /// The tint color of the button.
     public var contentTintColor: NSUIColor? {
         get { self[\.contentTintColor] }
-        set { self[\.contentTintColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.contentTintColor] = newValue }
     }
 }
 
@@ -553,7 +546,7 @@ extension PropertyAnimator where Object: UIImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue.resolvedColor(for: object) }
+        set { self[\.tintColor] = newValue }
     }
 }
 
@@ -561,7 +554,7 @@ extension PropertyAnimator where Object: UIButton {
     /// The tint color of the button.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue.resolvedColor(for: object) }
+        set { self[\.tintColor] = newValue }
     }
 }
 
@@ -569,7 +562,7 @@ extension PropertyAnimator where Object: UILabel {
     /// The text color of the label.
     public var textColor: NSUIColor {
         get { self[\.textColor] }
-        set { self[\.textColor] = newValue.resolvedColor(for: object) }
+        set { self[\.textColor] = newValue }
     }
     
     /// The font size of the label.
@@ -583,7 +576,7 @@ extension PropertyAnimator where Object: UIColorWell {
     /// The selected color in the color picker.
     public var selectedColor: NSUIColor? {
         get { self[\.selectedColor] }
-        set { self[\.selectedColor] = newValue.resolvedColor(for: object) }
+        set { self[\.selectedColor] = newValue }
     }
 }
 
