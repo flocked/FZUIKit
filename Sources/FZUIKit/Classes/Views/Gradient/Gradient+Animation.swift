@@ -21,8 +21,10 @@ extension Gradient.Stop: AnimatableData {
     }
     
     public init(_ animatableData: AnimatableVector) {
+        Swift.print("init stop")
         self.color = NSUIColor(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
         self.location = animatableData[4]
+        Swift.print("init stop finish")
     }
     
     public static var zero: Gradient.Stop {
@@ -40,8 +42,10 @@ extension Gradient.Point: AnimatableData {
     }
     
     public init(_ animatableData: AnimatableVector) {
+        Swift.print("init gradientPoint")
         self.x = animatableData[0]
         self.y = animatableData[1]
+        Swift.print("init gradientPoint finish")
     }
 }
 
@@ -53,10 +57,17 @@ extension Gradient: AnimatableData {
     }
     
     public init(_ animatableData: AnimatableVector) {
+        Swift.print("init gradient")
         self.type = .init(rawValue: Int(animatableData[0])) ?? .linear
         self.startPoint = .init(x: animatableData[1], y: animatableData[2])
         self.endPoint = .init(x: animatableData[3], y: animatableData[4])
+        Swift.print("init gradient > 4", animatableData.count)
         if animatableData.count > 4 {
+            Swift.print("init gradient > 4", animatableData.count)
+            Swift.print("init gradient > 4",  Array(animatableData[safe: 5..<animatableData.count]))
+            Swift.print("init gradient > 4",  Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5))
+            Swift.print("init gradient > 4",  Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5).count)
+
             let chunks = Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5)
             self.stops = chunks.compactMap({ Stop(AnimatableVector($0)) })
         }
