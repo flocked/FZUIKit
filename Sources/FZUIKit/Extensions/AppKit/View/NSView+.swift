@@ -544,14 +544,17 @@ extension NSView {
             self.saveDynamicColor(newValue, for: \.border)
             var newColor = newValue?.resolvedColor(for: self)
              */
+            /*
             var newColor = newValue
+            
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
             if self.borderColor?.isVisible == false || self.borderColor == nil {
                 layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
-            layer?.borderColor = newColor?.cgColor
+            */
+            self._borderColor = newValue
         }
     }
     
