@@ -265,39 +265,60 @@ public extension NSUIView {
         return value(forKey: "recursiveDescription") as! NSString
     }
     
-    /// The background gradient of the view. Applying a gradient sets the `backgroundColor`of the view to `nil`.
+    #if os(macOS)
+    /**
+     The background gradient of the view. Applying a gradient sets the view's `backgroundColor` to `nil`.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
     dynamic var gradient: Gradient? {
         get { self.optionalLayer?._gradientLayer?.gradient }
         set {
-            #if os(macOS)
             Self.swizzleAnimationForKey()
-            #endif
+            let newGradient = newValue ?? .zero
+
+            var didSetupNewGradientLayer = false
             if newValue?.stops.isEmpty == false {
-            #if os(macOS)
-            self.wantsLayer = true
-            #endif
+                didSetupNewGradientLayer = true
+                self.wantsLayer = true
                 if self.optionalLayer?._gradientLayer == nil {
                     let gradientLayer = GradientLayer()
-                    
                     self.optionalLayer?.addSublayer(withConstraint: gradientLayer)
                     gradientLayer.sendToBack()
                     gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                    
+                    gradientLayer.locations = newGradient.stops.compactMap({NSNumber($0.location)})
+                    gradientLayer.startPoint = newGradient.startPoint.point
+                    gradientLayer.endPoint = newGradient.endPoint.point
                 }
+                self.layer?.backgroundColor = nil
             }
-            var newValue = newValue ?? .zero
-            self._gradientColors = newValue.stops.compactMap({$0.color.cgColor})
-            self._gradientLocations = newValue.stops.compactMap({$0.location})
-            self.gradientStartPoint = newValue.startPoint.point
-            self.gradientEndPoint = newValue.endPoint.point
-            self.optionalLayer?._gradientLayer?.type = newValue.type.gradientLayerType
+            if didSetupNewGradientLayer == false {
+                self._gradientLocations = newGradient.stops.compactMap({$0.location})
+                self.gradientStartPoint = newGradient.startPoint.point
+                self.gradientEndPoint = newGradient.endPoint.point
+            }
+            self._gradientColors = newGradient.stops.compactMap({$0.color.cgColor})
+            self.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
         }
     }
+    #elseif canImport(UIKit)
+    /// The background gradient of the view. Applying a gradient sets the view's `backgroundColor` to `nil`.
+    dynamic var gradient: Gradient? {
+        get { self.optionalLayer?._gradientLayer?.gradient }
+        set { self.configurate(using: newValue ?? .zero)
+            if newValue?.stops.isEmpty == false {
+                backgroundColor = nil
+            }
+        }
+    }
+    #endif
     
     dynamic internal var _gradientLocations: [CGFloat] {
         get { self.optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
         set {
             var newValue = newValue
-            var currentLocations =  self.optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? []
+            let currentLocations =  self.optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? []
             let diff = newValue.count - currentLocations.count
             if diff < 0 {
                 for i in newValue.count-(diff * -1)..<newValue.count {
@@ -330,7 +351,7 @@ public extension NSUIView {
         get { self.optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
         set {
             var newValue = newValue
-            var currentColors =  self.optionalLayer?._gradientLayer?.colors ?? []
+            let currentColors =  self.optionalLayer?._gradientLayer?.colors ?? []
             let diff = newValue.count - currentColors.count
             if diff < 0 {
                 for i in newValue.count-(diff * -1)..<newValue.count {
