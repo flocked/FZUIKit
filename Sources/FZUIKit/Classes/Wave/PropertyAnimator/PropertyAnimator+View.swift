@@ -140,10 +140,12 @@ extension PropertyAnimator where Object: NSUIView {
     
     /// The background gradient of the view.
     public var gradient: Gradient? {
-        get {  self[\.gradient] }
+        get {  
+            
+            self[\.gradient] }
         set {
-            self[\.gradient] = newValue
-            /*
+        //    self[\.gradient] = newValue
+            
             let newGradient = newValue ?? .zero
 
             var didSetupNewGradientLayer = false
@@ -170,9 +172,8 @@ extension PropertyAnimator where Object: NSUIView {
                 self.gradientStartPoint = newGradient.startPoint.point
                 self.gradientEndPoint = newGradient.endPoint.point
             }
-            self.gradientColors = AnimatableDataArray<CGColor>(newGradient.stops.compactMap({$0.color.resolvedColor(for: object).cgColor}))
+            self.gradientColors = AnimatableVector(newGradient.stops.compactMap({$0.color.cgColor}).flatMap({$0.animatableData}))
             self.object.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
-             */
         }
     }
     
@@ -191,7 +192,7 @@ extension PropertyAnimator where Object: NSUIView {
         set { self[\.gradientStartPoint] = newValue }
     }
     
-    internal var gradientColors: AnimatableDataArray<CGColor> {
+    internal var gradientColors: AnimatableVector {
         get { self[\.__gradientColors] }
         set { self[\.__gradientColors] = newValue }
     }
@@ -278,9 +279,9 @@ internal extension NSUIView {
         set { self._gradientLocations = newValue.elements.compactMap({ CGFloat($0) }) }
     }
     
-    var __gradientColors: AnimatableDataArray<CGColor> {
-        get { AnimatableDataArray<CGColor>(_gradientColors) }
-        set { self._gradientColors = newValue.elements }
+    var __gradientColors: AnimatableVector {
+        get { _gradientColors.flatMap({$0.animatableData}).animatableArray }
+        set { _gradientColors = newValue.elements.chunked(size: 4).compactMap({ CGColor(AnimatableVector($0))}) }
     }
     
     var _gradient: Gradient {
@@ -450,7 +451,6 @@ internal extension UIScrollView {
     func setZoomScale(_ scale: CGFloat, centeredAt point: CGPoint) {
         var scale = CGFloat.minimum(scale, maximumZoomScale)
         scale = CGFloat.maximum(scale, self.minimumZoomScale)
-        
         var translatedZoomPoint : CGPoint = .zero
         translatedZoomPoint.x = point.x + contentOffset.x
         translatedZoomPoint.y = point.y + contentOffset.y
