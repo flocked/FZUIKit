@@ -186,6 +186,7 @@ internal extension PropertyAnimator {
     }
 
     func updateValue<V: AnimatableData>(_ value: inout V, target: inout V) {
+        Swift.print("updateValue", type(of: value))
         if V.self == CGColor.self {
             let val = (value as! CGColor).nsUIColor
             let tar = (target as! CGColor).nsUIColor
