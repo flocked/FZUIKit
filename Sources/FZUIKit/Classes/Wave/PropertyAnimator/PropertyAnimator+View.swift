@@ -305,7 +305,7 @@ extension PropertyAnimator where Object: NSUITextField {
     /// The text color of the text field.
     public var textColor: NSUIColor? {
         get { self[\.textColor] }
-        set { self[\.textColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.textColor] = newValue }
     }
     
     /// The font size of the text field.
@@ -325,7 +325,7 @@ extension PropertyAnimator where Object: NSUITextView {
     /// The text color of the text view.
     public var textColor: NSUIColor? {
         get { self[\.textColor] }
-        set { self[\.textColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.textColor] = newValue }
     }
 }
 
@@ -378,6 +378,21 @@ internal extension NSUIView {
     }
 }
 
+extension PropertyAnimator where Object: NSUIStackView {
+    /// The minimum spacing, in points, between adjacent views in the stack view.
+    public var spacing: CGFloat {
+        get {  self[\.spacing] }
+        set { self[\.spacing] = newValue }
+    }
+    
+    #if os(macOS)
+    /// The geometric padding, in points, inside the stack view, surrounding its views.
+    public var edgeInsets: NSEdgeInsets {
+        get { self[\.edgeInsets] }
+        set { self[\.edgeInsets] = newValue }
+    }
+    #endif
+}
 
 #if os(macOS)
 extension PropertyAnimator where Object: NSImageView {
@@ -437,20 +452,6 @@ extension PropertyAnimator where Object: GradientView {
     public var endPoint: CGPoint {
         get { self.object.gradientLayer.animator.endPoint }
         set { self.object.gradientLayer.animator.endPoint = newValue }
-    }
-}
-
-extension PropertyAnimator where Object: NSStackView {
-    /// The minimum spacing, in points, between adjacent views in the stack view.
-    public var spacing: CGFloat {
-        get {  self[\.spacing] }
-        set { self[\.spacing] = newValue }
-    }
-    
-    /// The geometric padding, in points, inside the stack view, surrounding its views.
-    public var edgeInsets: NSEdgeInsets {
-        get { self[\.edgeInsets] }
-        set { self[\.edgeInsets] = newValue }
     }
 }
 
@@ -583,14 +584,6 @@ extension PropertyAnimator where Object: UIColorWell {
     public var selectedColor: NSUIColor? {
         get { self[\.selectedColor] }
         set { self[\.selectedColor] = newValue.resolvedColor(for: object) }
-    }
-}
-
-extension PropertyAnimator where Object: UIStackView {
-    /// The distance in points between the adjacent edges of the stack view’s arranged views.
-    public var spacing: CGFloat {
-        get { self[\.spacing] }
-        set { self[\.spacing] = newValue }
     }
 }
 

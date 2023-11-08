@@ -164,7 +164,7 @@ internal extension PropertyAnimator {
             if let animation = springAnimation(for: keyPath, key: key) {
                 animation.stop(at: targetValue)
             } else {
-                object[keyPath: keyPath] = targetValue
+                object[keyPath: keyPath] = newValue
             }
         } else {
             AnimationController.shared.executeHandler(uuid: springAnimation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
@@ -242,12 +242,9 @@ internal extension PropertyAnimator {
             } else if diff > 0 {
                 val.append(contentsOf: Array(repeating: .zero, count: diff))
             }
-            Swift.print("tarVal count", tar.count, val.count)
             value = val as! V
             target = tar as! V
         } else if var val = value as? Gradient, var tar = target as? Gradient, val.stops.count != tar.stops.count {
-            Swift.print("tarVal count start", tar.stops.count, val.stops.count)
-
             let diff = tar.stops.count - val.stops.count
             if diff < 0 {
                 tar.stops.append(contentsOf: Array(repeating: .zero, count: (diff * -1)))
@@ -260,7 +257,6 @@ internal extension PropertyAnimator {
             } else if diff > 0 {
                 val.stops.append(contentsOf: Array(repeating: .zero, count: diff))
             }
-            Swift.print("tarVal count end", tar.stops.count, val.stops.count)
             value = val as! V
             target = tar as! V
         }
