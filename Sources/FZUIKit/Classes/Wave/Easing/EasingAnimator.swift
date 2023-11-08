@@ -192,9 +192,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     func reset() {
         state = .inactive
     }
-    
-    var runningTime: TimeInterval = 0.0
-    
+        
     /**
      Updates the progress of the animation with the specified delta time.
 
@@ -212,23 +210,12 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         let isAnimated = duration > .zero
         
         guard deltaTime > 0.0 else { return }
-        
-        Swift.print("deltaTime", deltaTime, duration)
-        
+                
         if isAnimated {
-            let deltaTime = deltaTime/2.0
-
-            runningTime += deltaTime
-            
-            
-            let part = deltaTime/duration
-            
-            fractionComplete = isReversed ? (fractionComplete - part) : (fractionComplete + part)
-
-     //       fractionComplete = runningTime / duration
-            
+            let deltaTime = deltaTime/2.0 // Why?
+            let secondsElapsed = deltaTime/duration
+            fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
-
             self.value = value
         } else {
             self.value = target
