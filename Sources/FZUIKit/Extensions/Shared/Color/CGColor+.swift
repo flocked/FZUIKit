@@ -25,6 +25,11 @@ public extension CGColor {
         }
     }
     
+    /// A Boolean value that indicates whether the color is visible (alpha value isn't zero).
+    var isVisible: Bool {
+        rgbaComponents()?.alpha != 0.0
+    }
+    
     /**
      Creates a color object with the specified alpha component.
 
