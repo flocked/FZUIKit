@@ -32,10 +32,30 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     public var duration: CGFloat = 0.0
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
-    public var repeats: Bool = false
+    public var repeats: Bool = false {
+        didSet {
+            guard oldValue != repeats else { return }
+            updateAutoreverse()
+        }
+    }
     
     /// A Boolean value indicating whether the animation is running backwards and forwards (must be combined with ``repeats`` `true`).
-    public var autoreverse: Bool = false
+    public var autoreverse: Bool = false {
+        didSet {
+            guard oldValue != autoreverse else { return }
+            updateAutoreverse()
+        }
+    }
+    
+    func updateAutoreverse() {
+        if autoreverse, repeats {
+            if isAutoreversed == nil {
+                isAutoreversed = false
+            }
+        } else {
+            isAutoreversed = nil
+        }
+    }
         
     /// A Boolean value indicating whether the animation is running in the reverse direction.
     public var isReversed: Bool = false {
@@ -44,7 +64,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         }
     }
     
-    internal var autoreverseIsReversed: Bool = false
+    internal var isAutoreversed: Bool? = nil
     
     /**
      A Boolean value that indicates whether the values returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.

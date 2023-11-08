@@ -191,6 +191,20 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
             target = value
         }
     }
+    
+    /// Stops the animation immediately at the specified target.
+    internal func stop(at target: Value) {
+        AnimationController.shared.stopPropertyAnimation(self)
+        value = target
+        self.target = value
+        isRunning = false
+        state = .inactive
+        let callbackValue = integralizeValues ? target.scaledIntegral : target
+        valueChanged?(callbackValue)
+        if let completion = self.completion {
+            completion(.finished(at: target))
+        }
+    }
 
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {

@@ -32,7 +32,7 @@ extension PropertyAnimator where Object: NSUIView {
         set { self[\.frame] = newValue }
     }
     
-    /// The size of the view. Compared to changing the size via frame, it keeps the view centered.
+    /// The size of the view. Changing the value keeps the view centered. To change the size without centering use the view's frame size.
     public var size: CGSize {
         get { frame.size }
         set { frame.sizeCentered = newValue }
@@ -211,6 +211,94 @@ extension PropertyAnimator where Object: NSUIView {
         #endif
         return self.object.optionalLayer!.animator
     }
+    
+    /// The property animators for the view's subviews.
+    public var subviewa: [PropertyAnimator<NSUIView>] {
+        object.subviews.compactMap({ $0.animator })
+    }
+    
+    /// The property animator for the view's superview.
+    public var superview: PropertyAnimator<NSUIView>? {
+        object.superview?.animator
+    }
+    
+    /// The property animator for the view's mask.
+    public var mask: PropertyAnimator<NSUIView>? {
+        object.mask?.animator
+    }
+    
+    /**
+     Adds the specified view animated. The subview's alpha value gets animated to `1.0`.
+     
+     - Note: The animation only occurs if the view's subviews doesn't contain the specified subview.
+     */
+    public func addSubview(_ view: NSUIView) {
+        guard view.superview != object else { return }
+        view.alpha = 0.0
+        Wave.nonAnimate {
+            view.animator.alpha = 0.0
+        }
+        object.addSubview(view)
+        view.animator.alpha = 1.0
+    }
+    
+    /**
+     Inserts the view at the specified index animated. The subview's alpha value gets animated to `1.0`.
+     
+     - Note: The animation only occurs if the view's subviews doesn't contain the specified subview.
+     */
+    public func insertSubview(_ view: NSUIView, at index: Int) {
+        guard view.superview != object else { return }
+        view.alpha = 0.0
+        Wave.nonAnimate {
+            view.animator.alpha = 0.0
+        }
+        object.insertSubview(view, at: index)
+        view.animator.alpha = 1.0
+    }
+    
+    /**
+     Inserts the view above another view animated. The subview's alpha value gets animated to `1.0`.
+     
+     - Note: The animation only occurs if the view's subviews doesn't contain the specified subview.
+     */
+    public func insertSubview(_ view: NSUIView, aboveSubview siblingSubview: NSUIView) {
+        guard view.superview != object, object.subviews.contains(siblingSubview) else { return }
+        view.alpha = 0.0
+        Wave.nonAnimate {
+            view.animator.alpha = 0.0
+        }
+        object.insertSubview(view, aboveSubview: siblingSubview)
+        view.animator.alpha = 1.0
+    }
+    
+    /**
+     Inserts the view below another view animated. The subview's alpha value gets animated to `1.0`.
+     
+     - Note: The animation only occurs if the view's subviews doesn't contain the specified subview.
+     */
+    public func insertSubview(_ view: NSUIView, belowSubview siblingSubview: NSUIView) {
+        guard view.superview != object, object.subviews.contains(siblingSubview) else { return }
+        view.alpha = 0.0
+        Wave.nonAnimate {
+            view.animator.alpha = 0.0
+        }
+        object.insertSubview(view, belowSubview: siblingSubview)
+        view.animator.alpha = 1.0
+    }
+    
+    /**
+     Removes the view from it's superview animated. The view's alpha value gets animated to `0.0` and on completion removed from it's superview.
+     
+     - Note: The animation only occurs if the view's superview isn't `nil`.
+     */
+    public func removeFromSuperview() {
+        guard object.superview != nil else { return }
+        setValue(0.0, for: \.alpha, completion: { [weak self] in
+            guard let self = self else { return }
+            self.object.removeFromSuperview()
+        })
+    }
 }
 
 extension PropertyAnimator where Object: NSUITextField {
@@ -366,6 +454,66 @@ extension PropertyAnimator where Object: NSStackView {
     }
 }
 
+extension PropertyAnimator where Object: NSColorWell {
+    /// The selected color for the color well.
+    public var color: NSColor {
+        get { self[\.color] }
+        set { self[\.color] = newValue }
+    }
+}
+
+extension PropertyAnimator where Object: NSBox {
+    /// The color of the box’s background when the box is a custom box with a simple line border.
+    public var fillColor: NSColor {
+        get { self[\.fillColor] }
+        set { self[\.fillColor] = newValue }
+    }
+    
+    /// The distances between the border and the content view.
+    public var contentViewMargins: CGSize {
+        get { self[\.contentViewMargins] }
+        set { self[\.contentViewMargins] = newValue }
+    }
+    
+    /// The font size of the title.
+    public var titleFontSize: CGFloat {
+        get {  self[\.titleFontSize] }
+        set { self[\.titleFontSize] = newValue }
+    }
+}
+
+extension PropertyAnimator where Object: NSProgressIndicator {
+    /// The current value of the progress indicator.
+    public var doubleValue: Double {
+        get {  self[\.doubleValue] }
+        set { self[\.doubleValue] = newValue }
+    }
+    
+    /// The minimum value for the progress indicator.
+    public var minValue: Double {
+        get {  self[\.minValue] }
+        set { self[\.minValue] = newValue }
+    }
+    
+    /// The maximum value for the progress indicator.
+    public var maxValue: Double {
+        get {  self[\.maxValue] }
+        set { self[\.maxValue] = newValue }
+    }
+}
+
+internal extension NSView {
+    func insertSubview(_ view: NSUIView, aboveSubview siblingSubview: NSUIView) {
+        guard subviews.contains(siblingSubview) else { return }
+        addSubview(view, positioned: .above, relativeTo: siblingSubview)
+    }
+    
+    func insertSubview(_ view: NSUIView, belowSubview siblingSubview: NSUIView) {
+        guard subviews.contains(siblingSubview) else { return }
+        addSubview(view, positioned: .below, relativeTo: siblingSubview)
+    }
+}
+
 internal extension NSUIScrollView {
     var magnificationCentered: CGFloat {
         get { magnification }
@@ -381,6 +529,13 @@ internal extension NSUIScrollView {
     var animationCenterPoint: CGPoint? {
         get { getAssociatedValue(key: "animationCenterPoint", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "animationCenterPoint", object: self) }
+    }
+}
+
+internal extension NSBox {
+    var titleFontSize: CGFloat {
+        get { titleFont.pointSize }
+        set { titleFont = titleFont.withSize(newValue) }
     }
 }
 
@@ -423,11 +578,27 @@ extension PropertyAnimator where Object: UILabel {
     }
 }
 
+extension PropertyAnimator where Object: UIColorWell {
+    /// The selected color in the color picker.
+    public var selectedColor: NSUIColor? {
+        get { self[\.selectedColor] }
+        set { self[\.selectedColor] = newValue.resolvedColor(for: object) }
+    }
+}
+
 extension PropertyAnimator where Object: UIStackView {
     /// The distance in points between the adjacent edges of the stack view’s arranged views.
     public var spacing: CGFloat {
         get { self[\.spacing] }
         set { self[\.spacing] = newValue }
+    }
+}
+
+extension PropertyAnimator where Object: UIProgressView {
+    /// The current progress of the progress view.
+    public var progress: Float {
+        get { self[\.progress] }
+        set { self[\.progress] = newValue }
     }
 }
 
