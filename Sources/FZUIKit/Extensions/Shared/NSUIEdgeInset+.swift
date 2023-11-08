@@ -104,8 +104,10 @@ public extension NSUIEdgeInsets {
 }
 
 public extension NSDirectionalEdgeInsets {
-    /// An edge insets struct whose top, leading, bottom, and trailing fields are all set to 0.
+    #if os(macOS)
+    ///A directional edge insets structure whose top, leading, bottom, and trailing fields all have a value of 0.
     static var zero = NSDirectionalEdgeInsets(0)
+    #endif
 
     /// Creates an edge insets structure with the specified value for top, bottom, leading and trailing.
     init(_ value: CGFloat) {

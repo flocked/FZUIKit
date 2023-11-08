@@ -1,8 +1,8 @@
 //
-//  Animator.swift
+//  DynamicPropertyAnimator.swift
+//  
 //
-//
-//  Created by Florian Zand on 07.10.23.
+//  Created by Florian Zand on 07.11.23.
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
@@ -10,34 +10,33 @@
 import Foundation
 import QuartzCore
 import FZSwiftUtils
+
 /**
  Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
 
- For easier access of a animatable property, you can extend the object's PropertyAnimator.
+ All properties conforming to `AnimatableData` can be animated. A property can be accessed dynamically by writting it's name.
  
  ```swift
- extension: MyObject: AnimatablePropertyProvider { }
- 
- public extension PropertyAnimator<MyObject> {
-    var myAnimatableProperty: CGFloat {
-        get { self[\.myAnimatableProperty] }
-        set { self[\.myAnimatableProperty] = newValue }
-    }
+ public class MyObject: AnimatablePropertyProvider {
+    var floatValue: CGFloat = 1.0
+    var color: NSColor = .red
  }
  
  let object = MyObject()
  Wave.animate(withSpring: .smooth) {
-    object.animator.myAnimatableProperty = newValue
+    object.animator.floatValue = newFloat
+    object.animator.color = newColor
  }
  ```
  
- To integralize a value  to the screen's pixel boundaries when animating, use `integralizeValue`.  This helps prevent drawing frames between pixels, causing aliasing issues. Note: Enabling it effectively quantizes values, so don't use this for values that are supposed to be continuous.
+ To integralize a value  to the screen's pixel boundaries when animating, use it's keyPath and `integralizeValue`.  This helps prevent drawing frames between pixels, causing aliasing issues. Note: Enabling it effectively quantizes values, so don't use this for values that are supposed to be continuous.
  
  ```swift
  self[\.myAnimatableProperty, integralizeValue: true] = newValue
  ```
  */
-public class PropertyAnimator<Object: AnimatablePropertyProvider> {
+@dynamicMemberLookup
+public class DynamicPropertyAnimator<Object: AnimatablePropertyProvider> {
     internal var object: Object
     
     internal init(_ object: Object) {
@@ -48,9 +47,19 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         get { getAssociatedValue(key: "animations", object: self, initialValue: [:]) }
         set { set(associatedValue: newValue, key: "animations", object: self) }
     }
+    
+    public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value>) -> Value where Value: AnimatableData  {
+        get { value(for: member, key: nil) }
+        set { setValue(newValue, for: member) }
+    }
+    
+    public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value?>) -> Value? where Value: AnimatableData  {
+        get { value(for: member, key: nil) }
+        set { setValue(newValue, for: member) }
+    }
 }
 
-public extension PropertyAnimator {
+public extension DynamicPropertyAnimator {
     subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, integralizeValue integralizeValue: Bool = false) -> Value {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, integralizeValue: integralizeValue) }
@@ -72,7 +81,7 @@ public extension PropertyAnimator {
     }
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
-    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
+    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<DynamicPropertyAnimator, Value>) -> Value? {
         if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
         } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimator<Value> {
@@ -82,7 +91,7 @@ public extension PropertyAnimator {
     }
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
-    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
+    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<DynamicPropertyAnimator, Value?>) -> Value? {
         if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
         } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimator<Value> {
@@ -92,7 +101,7 @@ public extension PropertyAnimator {
     }
 }
 
-internal extension PropertyAnimator {
+internal extension DynamicPropertyAnimator {
     func animation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> SpringAnimator<Val>? {
         return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
@@ -202,8 +211,6 @@ internal extension PropertyAnimator {
         animation.start(afterDelay: settings.delay)
     }
     
-    
-    
     func configurateAnimation<V: AnimatableData>(_ animation: SpringAnimator<V>, value: V, target: V, key: String, settings: AnimationController.AnimationParameters) {
         animation.configure(withSettings: settings)
         animation.target = target
@@ -239,41 +246,3 @@ internal extension PropertyAnimator {
 }
 
 #endif
-
-/*
- func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) where Value: ApproximateEquatable {
-     setValue(newValue, for: keyPath, key: key, integralizeValue: integralizeValue, completion: completion)
-     animation(for: keyPath, key: key)?.epsilon = epsilon
- }
- 
- func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) where Value: ApproximateEquatable  {
-     setValue(newValue, for: keyPath, key: key, integralizeValue: integralizeValue, completion: completion)
-     animation(for: keyPath, key: key)?.epsilon = epsilon
- }
- */
-
-/*
- internal enum AnimationType {
-    case spring
- }
- var animationType: AnimationType
- 
- func newAnimation<Val>(value: Val, target: Val, type: AnimationType) where Val: A {
- switch type {
- case .spring(let spring):
-    return SpringAnimator<Value>(spring: spring, value: value, target: target))
- }
- }
- 
- func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil, type: AnimationType?) -> SpringAnimator<Val>? {
- if let type = type {
-    switch type {
-    case .spring(_):
-        return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
-    }
-} else {
-    return animations[key ?? keyPath.stringValue]
- }
- }
- */
-

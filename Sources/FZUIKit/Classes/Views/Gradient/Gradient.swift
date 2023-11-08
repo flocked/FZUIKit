@@ -14,6 +14,14 @@ import AppKit
 import UIKit
 #endif
 
+/*
+extension NSView {
+    dynamic var gradient: Gradient {
+        get { .zero }
+    }
+}
+*/
+
 public struct Gradient: Hashable {
     
     /// The array of color stops.
@@ -37,6 +45,24 @@ public struct Gradient: Hashable {
         - type: The type of gradient.
      */
     public init(colors: [NSUIColor], startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
+        self.stops = Self.stops(for: colors)
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
+    }
+    
+    /**
+     Creates a gradient from an array of colors.
+     
+     The gradient synthesizes its location values to evenly space the colors along the gradient.
+     
+     - Parameters:
+        - colors: An array of colors.
+        - startPoint: The start point of the gradient.
+        - endPoint: The end point of the gradient.
+        - type: The type of gradient.
+     */
+    public init(_ colors: [NSUIColor], startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
         self.stops = Self.stops(for: colors)
         self.startPoint = startPoint
         self.endPoint = endPoint
