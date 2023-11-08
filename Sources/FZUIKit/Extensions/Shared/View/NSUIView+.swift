@@ -290,6 +290,7 @@ public extension NSUIView {
                     gradientLayer.locations = newGradient.stops.compactMap({NSNumber($0.location)})
                     gradientLayer.startPoint = newGradient.startPoint.point
                     gradientLayer.endPoint = newGradient.endPoint.point
+                    gradientLayer.colors = newGradient.stops.compactMap({$0.color.withAlphaComponent(0.0).cgColor})
                 }
                 self.layer?.backgroundColor = nil
             }
