@@ -932,6 +932,7 @@ internal extension NSView {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
         
+        /*
         do {
             _ = try Swizzle(NSView.self) {
                 #selector(NSView.defaultAnimation(forKey:)) <~> #selector(swizzled_defaultAnimation(forKey:))
@@ -939,8 +940,9 @@ internal extension NSView {
         } catch {
             Swift.print(error)
         }
+         */
         
-        /*
+        
         do {
         _ = try Swizzle(NSView.self) {
             #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
@@ -948,7 +950,7 @@ internal extension NSView {
         } catch {
             Swift.print(error)
         }
-        */
+        
     }
     
     @objc static func swizzled_defaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
