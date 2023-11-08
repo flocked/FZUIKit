@@ -540,8 +540,11 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
+            /*
             self.saveDynamicColor(newValue, for: \.border)
             var newColor = newValue?.resolvedColor(for: self)
+             */
+            var newColor = newValue
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
