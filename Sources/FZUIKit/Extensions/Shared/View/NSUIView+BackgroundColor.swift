@@ -36,12 +36,12 @@ public extension BackgroundColorSettable where Self: NSView {
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
-            
+            /*
             Swift.print("backgroundColor 0", self.backgroundColor?.isVisible == false, self.layer?.backgroundColor == nil, layer?.parentView?.backgroundColor == nil)
             if let value = self.value(forKeyPath: "layer") as? CALayer {
                 Swift.print("backgroundColor 1", value.backgroundColor == nil)
             }
-            
+            */
             
             if self.backgroundColor?.isVisible == false || self.layer?.backgroundColor == nil {
                 self.layer?.backgroundColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
