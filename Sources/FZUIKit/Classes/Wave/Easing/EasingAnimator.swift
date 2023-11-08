@@ -48,17 +48,26 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      */
     public var integralizeValues: Bool = false
     
+    /**
+     A Boolean value indicating whether a paused animation scrubs linearly or uses its specified timing information.
+     
+     The default value of this property is `true`, which causes the animator to use a linear timing function during scrubbing. Setting the property to `false` causes the animator to use its specified timing curve.
+     */
+    public var scrubsLinearly: Bool = false
+    
     /// The completion percentage of the animation.
     public var fractionComplete: CGFloat = 0.0 {
         didSet {
             if (0...1.0).contains(fractionComplete) == false {
                 fractionComplete = fractionComplete.clamped(max: 1.0)
             }
+                updateValue()
         }
     }
     
     var resolvedFractionComplete: CGFloat {
-        timingFunction.solve(at: fractionComplete, duration: duration)
+        let fractionComplete = isReversed ? (1.0 - fractionComplete) : fractionComplete
+        return timingFunction.solve(at: fractionComplete, duration: duration)
     }
     
     /**
@@ -215,8 +224,8 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
             let deltaTime = deltaTime/2.0 // Why?
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
-            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
-            self.value = value
+     //       value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
+     //       self.value = value
         } else {
             self.value = target
         }
@@ -244,6 +253,21 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
             }
         }
     }
+    
+    func updateValue() {
+        guard var value = value, let fromValue = fromValue, let target = target else {
+            // Can't start an animation without a value and target
+            state = .inactive
+            return
+        }
+        let fractionComplete = isReversed ? (1.0 - fractionComplete) : fractionComplete
+        if isRunning == false, state == .running, scrubsLinearly {
+            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
+        } else {
+            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
+        }
+        self.value = value
+    }
 }
 
 extension EasingAnimator: CustomStringConvertible {
@@ -266,6 +290,7 @@ extension EasingAnimator: CustomStringConvertible {
             duration: \(duration)
             repeats: \(repeats)
             integralizeValues: \(integralizeValues)
+            scrubsLinearly: \(scrubsLinearly)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))
