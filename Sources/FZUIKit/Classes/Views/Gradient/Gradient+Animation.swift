@@ -50,27 +50,31 @@ extension Gradient.Point: AnimatableData {
 }
 
 extension Gradient: AnimatableData {
-    public var animatableData: AnimatableVector {
-        var animatableData = [Double(type.rawValue)] + startPoint.animatableData + endPoint.animatableData
-        animatableData = animatableData + self.stops.flatMap({$0.animatableData})
-        Swift.print("gradient animatableData", animatableData.count, animatableData)
-        return animatableData
+    public var animatableData: AnimatableDictionary<String, AnimatableVector> {
+
+        var dic = AnimatableDictionary<String, AnimatableVector>()
+        dic["type"] = [Double(type.rawValue)]
+        dic["start"] = [startPoint.x, startPoint.y]
+        dic["end"] = [endPoint.x, endPoint.y]
+        dic["stops"] = AnimatableVector(stops.flatMap({ $0.animatableData.elements }))
+        Swift.print("gradient animatableData", dic, dic.values.count)
+
+        return dic
     }
     
-    public init(_ animatableData: AnimatableVector) {
-        Swift.print("init gradient", animatableData.count)
-        self.type = .init(rawValue: Int(animatableData[0])) ?? .linear
-        self.startPoint = .init(x: animatableData[1], y: animatableData[2])
-        self.endPoint = .init(x: animatableData[3], y: animatableData[4])
-        Swift.print("init gradient > 4", animatableData.count)
-        if animatableData.count > 4 {
-            Swift.print("init gradient > 4", animatableData.count)
-            Swift.print("init gradient > 4",  Array(animatableData[safe: 5..<animatableData.count]))
-            Swift.print("init gradient > 4",  Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5))
-            Swift.print("init gradient > 4",  Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5).count)
-
-            let chunks = Array(animatableData[safe: 5..<animatableData.count]).chunked(size: 5)
+    public init(_ animatableData: AnimatableDictionary<String, AnimatableVector>) {
+        Swift.print("init gradient 0", animatableData.count, animatableData["type"]!.count)
+        self.type = .init(rawValue: Int(animatableData["type"]![0])) ?? .linear
+        Swift.print("init gradient 1", animatableData["start"]!.count)
+        self.startPoint = .init(x: animatableData["start"]![0], y: animatableData["start"]![1])
+        Swift.print("init gradient 2", animatableData["end"]!.count)
+        self.endPoint = .init(x: animatableData["end"]![0], y: animatableData["end"]![1])
+        Swift.print("init gradient 3", animatableData["stops"]!.count)
+        if animatableData["stops"]!.isEmpty == false {
+           let chunks = animatableData["stops"]!.chunked(size: 5)
             self.stops = chunks.compactMap({ Stop(AnimatableVector($0)) })
+        } else {
+            self.stops = []
         }
     }
     
