@@ -216,6 +216,20 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         }
     }
     
+    /// Stops the animation immediately at the specified value.
+    internal func stop(at value: Value) {
+        AnimationController.shared.stopPropertyAnimation(self)
+        self.value = value
+        target = value
+        isRunning = false
+        state = .inactive
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        valueChanged?(callbackValue)
+        if let completion = self.completion {
+            completion(.finished(at: value))
+        }
+    }
+    
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
