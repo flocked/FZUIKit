@@ -216,7 +216,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         guard deltaTime > 0.0 else { return }
         
         if isAnimated {
-            let part = duration/deltaTime
+            let part = deltaTime/duration
             
             Swift.print("updateAnimation 1", part, fractionComplete)
 
