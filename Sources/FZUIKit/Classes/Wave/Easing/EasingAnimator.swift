@@ -66,7 +66,6 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     }
     
     var resolvedFractionComplete: CGFloat {
-        let fractionComplete = isReversed ? (1.0 - fractionComplete) : fractionComplete
         return timingFunction.solve(at: fractionComplete, duration: duration)
     }
     
@@ -260,7 +259,6 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
             state = .inactive
             return
         }
-        let fractionComplete = isReversed ? (1.0 - fractionComplete) : fractionComplete
         if isRunning == false, state == .running, scrubsLinearly {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
         } else {
