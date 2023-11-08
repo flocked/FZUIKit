@@ -34,12 +34,17 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     /// A Boolean value indicating whether the animation repeats indefinitely.
     public var repeats: Bool = false
     
+    /// A Boolean value indicating whether the animation is running backwards and forwards (must be combined with ``repeats`` `true`).
+    public var autoreverse: Bool = false
+        
     /// A Boolean value indicating whether the animation is running in the reverse direction.
     public var isReversed: Bool = false {
         didSet { guard oldValue != isReversed else { return }
             fractionComplete = 1.0 - fractionComplete
         }
     }
+    
+    internal var autoreverseIsReversed: Bool = false
     
     /**
      A Boolean value that indicates whether the values returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
@@ -144,7 +149,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     public func start(afterDelay delay: TimeInterval = 0) {
-        guard isRunning == false else { return }
+        guard isRunning == false, state != .running else { return }
         precondition(value != nil, "Animation must have a non-nil `value` before starting.")
         precondition(target != nil, "Animation must have a non-nil `target` before starting.")
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
@@ -171,6 +176,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     
     public func pauseAnimation() {
         guard state == .running else { return }
+        state = .inactive
         delayedStart?.cancel()
         AnimationController.shared.stopPropertyAnimation(self)
         isRunning = false
@@ -206,7 +212,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      - parameter deltaTime: The delta time.
      */
     func updateAnimation(deltaTime: TimeInterval) {
-        guard var value = value, let fromValue = fromValue, let target = target else {
+        guard value != nil, let fromValue = fromValue, let target = target else {
             // Can't start an animation without a value and target
             state = .inactive
             return

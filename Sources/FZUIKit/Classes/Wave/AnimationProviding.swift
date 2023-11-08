@@ -45,6 +45,44 @@ internal protocol AnimationProviding {
     func reset()
 }
 
+internal protocol InternalAnimationProviding: AnimationProviding {
+    associatedtype Value: AnimatableData
+    var isRunning: Bool { get set }
+    var state: AnimationState { get set }
+    var delayedStart: DispatchWorkItem? { get set }
+    var value: Value? { get }
+    var target: Value? { get }
+}
+
+extension AnimationProviding {
+    func start(afterDelay delay: TimeInterval) {
+        guard var animation = self as? (any InternalAnimationProviding) else { return }
+        guard isRunning == false, state != .running else { return }
+        precondition(animation.value != nil, "Animation must have a non-nil `value` before starting.")
+        precondition(animation.target != nil, "Animation must have a non-nil `target` before starting.")
+        precondition(delay >= 0, "`delay` must be greater or equal to zero.")
+        
+        let start = {
+            animation.isRunning = true
+            AnimationController.shared.runPropertyAnimation(self)
+        }
+        
+        animation.delayedStart?.cancel()
+
+        if delay == .zero {
+            start()
+        } else {
+            let task = DispatchWorkItem {
+                start()
+            }
+            animation.delayedStart = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
+        }
+    }
+}
+
+
+
 public enum AnimationEvent<Value> {
     /// Indicates the animation has fully completed.
     case finished(at: Value)
