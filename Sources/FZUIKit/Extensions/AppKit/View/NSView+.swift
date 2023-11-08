@@ -925,9 +925,41 @@ internal extension NSView {
     static func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
-        _ = try? Swizzle(NSView.self) {
+        
+        do {
+            _ = try Swizzle(NSView.self) {
+                #selector(NSView.defaultAnimation(forKey:)) <~> #selector(swizzled_defaultAnimation(forKey:))
+            }
+        } catch {
+            Swift.print(error)
+        }
+        
+        /*
+        do {
+        _ = try Swizzle(NSView.self) {
             #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
         }
+        } catch {
+            Swift.print(error)
+        }
+        */
+    }
+    
+    @objc static func swizzled_defaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        Swift.print("swizzled_defaultAnimation")
+        if NSViewAnimationKeys.contains(key) {
+            let animation = CABasicAnimation()
+            animation.timingFunction = .default
+           // self.animationManager.add(animation, key: key)
+            return animation
+        }
+        let animation = self.swizzled_defaultAnimation(forKey: key)
+        /*
+        if let animation = animation as? CAAnimation {
+            self.animationManager.add(animation, key: key)
+        }
+         */
+        return animation
     }
     
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
