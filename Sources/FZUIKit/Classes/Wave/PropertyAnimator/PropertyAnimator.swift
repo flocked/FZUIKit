@@ -195,7 +195,7 @@ internal extension PropertyAnimator {
             if tar?.isVisible == false {
                 target = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
             }
-        } else if var val = value as? [Double], var tar = target as? [Double], val.count != tar.count {
+        } else if var val = value as? AnimatableVector, var tar = target as? AnimatableVector, val.count != tar.count {
             let diff = tar.count - val.count
             if diff < 0 {
                 tar.append(contentsOf: Array(repeating: .zero, count: (diff * -1)))
