@@ -37,7 +37,7 @@ public extension BackgroundColorSettable where Self: NSView {
                 newValue = .clear
             }
             
-            Swift.print("backgroundColor", self.backgroundColor?.isVisible == false, self.backgroundColor == nil)
+            Swift.print("backgroundColor", self.backgroundColor?.isVisible == false, self.layer?.backgroundColor == nil)
             /*
             if self.backgroundColor?.isVisible == false || self.backgroundColor == nil {
                 self.layer?.backgroundColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
