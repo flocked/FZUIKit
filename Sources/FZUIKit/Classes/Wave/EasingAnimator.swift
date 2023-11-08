@@ -14,7 +14,6 @@ public class EasingAnimatorN<T: AnimatableData>: AnimationProviding {
     ///  The execution state of the animation (`inactive`, `running`, or `ended`).
     public private(set) var state: AnimationState = .inactive {
         didSet {
-            MeasureTime
             switch (oldValue, state) {
             case (.inactive, .running):
                 runningTime = 0.0
