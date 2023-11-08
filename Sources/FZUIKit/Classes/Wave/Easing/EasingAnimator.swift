@@ -74,10 +74,12 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: Value?
-    
-    /// The start value of the animation.
-    var fromValue: Value?
+    public var value: Value? {
+        didSet { 
+            guard state != .running, isRunning == false else { return }
+            fromValue = value
+        }
+    }
     
     /**
      The current target value of the animation.
@@ -86,23 +88,19 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      */
     public var target: Value? {
         didSet {
-            guard let oldValue = oldValue, let newValue = target else {
-                return
-            }
-
-            if oldValue == newValue {
-                return
-            }
+            guard let oldValue = oldValue, let newValue = target, oldValue != newValue else { return }
 
             if state == .running {
-                fractionComplete = 0.0
                 let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
                 completion?(event)
             }
         }
     }
+    
+    /// The start value of the animation.
+    var fromValue: Value?
         
-    /// The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
+    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
@@ -192,6 +190,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         }
     }
     
+    /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
     }
@@ -223,8 +222,6 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
             let deltaTime = deltaTime/2.0 // Why?
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
-     //       value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
-     //       self.value = value
         } else {
             self.value = target
         }
@@ -232,24 +229,20 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         let animationFinished = (isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0) || !isAnimated
         
         if animationFinished {
-            self.value = target
+            if repeats, isAnimated {
+                fractionComplete = isReversed ? 1.0 : 0.0
+            } else {
+                self.value = isReversed ? fromValue : target
+            }
         }
-
+        
         if let value = self.value {
             let callbackValue = integralizeValues ? value.scaledIntegral : value
             valueChanged?(callbackValue)
         }
 
-        if animationFinished {
-            if repeats, isAnimated {
-                fractionComplete = isReversed ? 1.0 : 0.0
-                value = Value(isReversed ? target.animatableData : fromValue.animatableData)
-                self.value = value
-                let callbackValue = integralizeValues ? value.scaledIntegral : value
-                valueChanged?(callbackValue)
-            } else {
-                stop(immediately: true)
-            }
+        if animationFinished, !repeats || !isAnimated {
+            stop(immediately: true)
         }
     }
     

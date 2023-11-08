@@ -77,11 +77,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
      */
     public var target: Value? {
         didSet {
-            guard let oldValue = oldValue, let newValue = target else {
-                return
-            }
-
-            if oldValue == newValue {
+            guard let oldValue = oldValue, let newValue = target, oldValue != newValue else {
                 return
             }
 
@@ -101,7 +97,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
      */
     public var velocity: Value
 
-    /// The callback block to call when the animation's `value` changes as it executes. Use the `currentValue` to drive your application's animations.
+    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
@@ -196,6 +192,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
         }
     }
 
+    /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
         spring = settings.spring
