@@ -13,6 +13,12 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
+    /// A unique identifier that associates an animation with an grouped animation block.
+    var groupUUID: UUID?
+
+    /// The relative priority of the animation.
+    var relativePriority: Int = 0
+    
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive
     
@@ -27,6 +33,20 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
     public var repeats: Bool = false
+    
+    /// A Boolean value indicating whether the animation is running in the reverse direction.
+    public var isReversed: Bool = false {
+        didSet { guard oldValue != isReversed else { return }
+            fractionComplete = 1.0 - fractionComplete
+        }
+    }
+    
+    /**
+     A Boolean value that indicates whether the values returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+
+     - Note: Enabling `integralizeValues` effectively quantizes ``value``, so don't use this for values that are supposed to be continuous.
+     */
+    public var integralizeValues: Bool = false
     
     /// The completion percentage of the animation.
     public var fractionComplete: CGFloat = 0.0 {
@@ -48,6 +68,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      */
     public var value: Value?
     
+    /// The start value of the animation.
     var fromValue: Value?
     
     /**
@@ -78,27 +99,16 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
-    
-    /**
-     A Boolean value that indicates whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
-
-     - Note: Enabling `integralizeValues` effectively quantizes `value`, so don't use this for values that are supposed to be continuous.
-     */
-    public var integralizeValues: Bool = false
-    
-    /// A unique identifier that associates an animation with an grouped animation block.
-    var groupUUID: UUID?
-
-    var relativePriority: Int = 0
 
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
      While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
 
-     - parameter timingFunction: The timing curve of the animation.
-     - parameter duration: The duration of the animation.
-     - parameter value: The initial, starting value of the animation.
-     - parameter target: The target value of the animation.
+     - Parameters:
+        - timingFunction: The timing curve of the animation.
+        - duration: The duration of the animation.
+        - value: The initial, starting value of the animation.
+        - target: The target value of the animation.
      */
     public init(timingFunction: TimingFunction, duration: CGFloat, value: Value? = nil, target: Value? = nil) {
         self.value = value
@@ -112,9 +122,10 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      Creates a new animation with the specified easing function, and optionally, an initial and target value.
      While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
 
-     - parameter easing: The easing function of the animation.
-     - parameter value: The initial, starting value of the animation.
-     - parameter target: The target value of the animation.
+     - Parameters:
+        - easing: The easing function of the animation.
+        - value: The initial, starting value of the animation.
+        - target: The target value of the animation.
      */
     convenience init(easing: EasingFunction, value: Value? = nil, target: Value? = nil) {
         self.init(timingFunction: easing.timingFunction, duration: easing.duration, value: value, target: target)
@@ -177,17 +188,16 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         groupUUID = settings.groupUUID
     }
     
-    /// A Boolean value indicating whether the animation is running in the reverse direction.
-    public var isReversed: Bool = false {
-        didSet { guard oldValue != isReversed else { return }
-            fractionComplete = 1.0 - fractionComplete
-        }
-    }
-        
+    /// Resets the animation.
     func reset() {
         state = .inactive
     }
     
+    /**
+     Updates the progress of the animation with the specified delta time.
+
+     - parameter deltaTime: The delta time.
+     */
     func updateAnimation(deltaTime: TimeInterval) {
         guard var value = value, let fromValue = fromValue, let target = target else {
             // Can't start an animation without a value and target
@@ -243,12 +253,13 @@ extension EasingAnimator: CustomStringConvertible {
             state: \(state)
             isRunning: \(isRunning)
             fractionComplete: \(fractionComplete)
+            isReversed: \(isReversed)
 
             value: \(String(describing: value))
             target: \(String(describing: target))
             from: \(String(describing: fromValue))
 
-            timingFunction: \(String(describing:timingFunction))
+            timingFunction: \(timingFunction.name)
             duration: \(duration)
             repeats: \(repeats)
             integralizeValues: \(integralizeValues)

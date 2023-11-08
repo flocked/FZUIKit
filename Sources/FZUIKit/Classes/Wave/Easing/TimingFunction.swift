@@ -76,6 +76,32 @@ extension TimingFunction {
 
 import QuartzCore
 
+extension TimingFunction: Equatable { }
+
+extension TimingFunction: CustomStringConvertible {
+    internal var name: String {
+        switch self {
+        case TimingFunction.easeIn:
+            return "easeIn"
+        case TimingFunction.easeOut:
+            return "easeOut"
+        case TimingFunction.easeInEaseOut:
+            return "easeInEaseOut"
+        case TimingFunction.swiftOut:
+            return "swiftOut"
+        default: break
+        }
+        switch self {
+        case .linear:
+            return "linear"
+        case .bezier(let unitBezier):
+            return "bezier(x1: \(unitBezier.first.x),  y1: \(unitBezier.first.y), x2: \(unitBezier.second.x), y2: \(unitBezier.second.y))"
+        }
+    }
+    public var description: String {
+        return "TimingFunction: \(name)"
+    }
+}
 extension TimingFunction {
     /// Initializes a timing function with a unit bezier derived from the given Core Animation timing function.
     public init(_ coreAnimationTimingFunction: CAMediaTimingFunction) {

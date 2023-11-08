@@ -18,6 +18,12 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
     
     /// A unique identifier for the animation.
     public let id = UUID()
+    
+    /// A unique identifier that associates an animation with an grouped animation block.
+    var groupUUID: UUID?
+    
+    /// The relative priority of the animation.
+    var relativePriority: Int = 0
 
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive {
@@ -37,6 +43,25 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
 
     /// The spring model that determines the animation's motion.
     public var spring: Spring
+    
+    /**
+     How long the animation will take to complete, based off its `spring` property.
+
+     - Note: This is useful for debugging purposes only. Do not use `settlingTime` to determine the animation's progress.
+     */
+    public var settlingTime: TimeInterval {
+        spring.settlingDuration
+    }
+    
+    /**
+     A Boolean value that indicates whether the values returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+
+     - Note: Enabling `integralizeValues` effectively quantizes ``value``, so don't use this for values that are supposed to be continuous.
+     */
+    public var integralizeValues: Bool = false
+    
+    /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
+    public var stopsOnCompletion: Bool = true
 
     /**
      The _current_ value of the animation. This value will change as the animation executes.
@@ -81,37 +106,47 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
-
-    /**
-     A Boolean value that indicates whether the values returned in `valueChanged` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
-
-     - Note: Enabling `integralizeValues` effectively quantizes `value`, so don't use this for values that are supposed to be continuous.
-     */
-    public var integralizeValues: Bool = false
     
-    /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
-    public var stopsOnCompletion: Bool = true
-
-    /// A unique identifier that associates an animation with an grouped animation block.
-    var groupUUID: UUID?
-
+    /// The start time of the animation.
     var startTime: TimeInterval?
-
-    var relativePriority: Int = 0
-
+    
+    /// The total running time of the animation.
+    var runningTime: TimeInterval? {
+        if let startTime = startTime {
+            return (.now - startTime)
+        } else {
+            return nil
+        }
+    }
+    
     /**
-     Creates a new animation with a given `Spring`, and optionally, an initial and target value.
+     Creates a new animation with a ``Spring/snappy`` spring, and optionally, an initial and target value.
      While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
 
-     - parameter spring: The spring model that determines the animation's motion.
-     - parameter value: The initial, starting value of the animation.
-     - parameter target: The target value of the animation.
+     - Parameters:
+        - value: The initial, starting value of the animation.
+        - target: The target value of the animation.
+     */
+    public init(value: Value? = nil, target: Value? = nil) {
+        self.value = value
+        self.target = target
+        self.velocity = Value.zero
+        self.spring = .snappy
+    }
+
+    /**
+     Creates a new animation with a given ``Spring``, and optionally, an initial and target value.
+     While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
+
+     - Parameters:
+        - spring: The spring model that determines the animation's motion.
+        - value: The initial, starting value of the animation.
+        - target: The target value of the animation.
      */
     public init(spring: Spring, value: Value? = nil, target: Value? = nil) {
         self.value = value
         self.target = target
-        velocity = Value.zero
-
+        self.velocity = Value.zero
         self.spring = spring
     }
 
@@ -161,15 +196,6 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
         }
     }
 
-    /**
-     How long the animation will take to complete, based off its `spring` property.
-
-     - Note: This is useful for debugging purposes only. Do not use `settlingTime` to determine the animation's progress.
-     */
-    public var settlingTime: TimeInterval {
-        spring.settlingDuration
-    }
-
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
         spring = settings.spring
@@ -179,14 +205,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
         }
     }
 
-    var runningTime: TimeInterval? {
-        if let startTime = startTime {
-            return (.now - startTime)
-        } else {
-            return nil
-        }
-    }
-
+    /// Resets the animation.
     func reset() {
         startTime = nil
         velocity = .zero
@@ -195,6 +214,11 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
     
     var epsilon: Double? = nil
     
+    /**
+     Updates the progress of the animation with the specified delta time.
+
+     - parameter deltaTime: The delta time.
+     */
     func updateAnimation(deltaTime: TimeInterval) {
         guard var value = value, let target = target else {
             // Can't start an animation without a value and target
@@ -252,13 +276,16 @@ extension SpringAnimator: CustomStringConvertible {
             groupUUID: \(String(describing: groupUUID))
 
             state: \(state)
+            isRunning: \(isRunning)
 
             value: \(String(describing: value))
             target: \(String(describing: target))
             velocity: \(String(describing: velocity))
 
             mode: \(spring.response > 0 ? "animated" : "nonAnimated")
+            settlingTime: \(settlingTime)
             integralizeValues: \(integralizeValues)
+            stopsOnCompletion: \(stopsOnCompletion)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))
