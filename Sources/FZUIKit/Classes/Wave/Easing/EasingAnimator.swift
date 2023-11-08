@@ -143,6 +143,8 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         precondition(target != nil, "Animation must have a non-nil `target` before starting.")
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
+        Swift.print("start", value ?? "nil", fromValue ?? "nil", target ?? "nil", duration)
+        
         let start = {
             self.isRunning = true
             AnimationController.shared.runPropertyAnimation(self)
@@ -204,21 +206,35 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
             state = .inactive
             return
         }
-        
+                
         state = .running
                 
         let isAnimated = duration > .zero
         
+        Swift.print("updateAnimation 0", isAnimated)
+
+        
         if isAnimated {
             let part = duration/deltaTime
+            
+            Swift.print("updateAnimation 1", part, fractionComplete)
+
+            
             fractionComplete = isReversed ? (fractionComplete - part) : (fractionComplete + part)
+            Swift.print("updateAnimation 2", fractionComplete, value)
+
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
+            Swift.print("updateAnimation 3", fractionComplete, value)
+
             self.value = value
         } else {
             self.value = target
         }
         
         let animationFinished = (isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0) || !isAnimated
+        
+        Swift.print("updateAnimation 4", animationFinished)
+
         
         if animationFinished {
             self.value = target
