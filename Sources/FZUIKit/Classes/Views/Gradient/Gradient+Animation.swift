@@ -67,6 +67,7 @@ extension Gradient: AnimatableData {
     }
 }
  
+/*
 extension PropertyAnimator where Object: GradientView {
     /// The gradient of the view.
     public var gradient: Gradient {
@@ -74,5 +75,5 @@ extension PropertyAnimator where Object: GradientView {
         set { setValue(newValue, for: \.gradient, key: "gradient") }
     }
 }
-
+*/
 #endif

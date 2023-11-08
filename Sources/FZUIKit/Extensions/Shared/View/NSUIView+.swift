@@ -264,5 +264,88 @@ public extension NSUIView {
     var recursiveDescription: NSString {
         return value(forKey: "recursiveDescription") as! NSString
     }
+    
+    /// The background gradient of the view. Applying a gradient sets the `backgroundColor`of the view to `nil`.
+    dynamic var gradient: Gradient? {
+        get { self.optionalLayer?._gradientLayer?.gradient }
+        set {
+            #if os(macOS)
+            Self.swizzleAnimationForKey()
+            #endif
+            if newValue?.stops.isEmpty == false {
+            #if os(macOS)
+            self.wantsLayer = true
+            #endif
+                if self.optionalLayer?._gradientLayer == nil {
+                    let gradientLayer = GradientLayer()
+                    
+                    self.optionalLayer?.addSublayer(withConstraint: gradientLayer)
+                    gradientLayer.sendToBack()
+                    gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                }
+            }
+            var newValue = newValue ?? .zero
+            self._gradientColors = newValue.stops.compactMap({$0.color.cgColor})
+            self._gradientLocations = newValue.stops.compactMap({$0.location})
+            self.gradientStartPoint = newValue.startPoint.point
+            self.gradientEndPoint = newValue.endPoint.point
+            self.optionalLayer?._gradientLayer?.type = newValue.type.gradientLayerType
+        }
+    }
+    
+    dynamic internal var _gradientLocations: [CGFloat] {
+        get { self.optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
+        set {
+            var newValue = newValue
+            var currentLocations =  self.optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? []
+            let diff = newValue.count - currentLocations.count
+            if diff < 0 {
+                for i in newValue.count-(diff * -1)..<newValue.count {
+                    newValue[i] = 0.0
+                }
+            } else if diff > 0 {
+                newValue.append(contentsOf: Array(repeating: .zero, count: diff))
+            }
+            self.gradientLocations = newValue
+        }
+    }
+    
+    @objc dynamic internal var gradientLocations: [CGFloat] {
+        get { self.optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
+        set { self.optionalLayer?._gradientLayer?.locations = newValue.compactMap({ NSNumber($0) })
+        }
+    }
+    
+    @objc dynamic internal var gradientStartPoint: CGPoint {
+        get { self.optionalLayer?._gradientLayer?.startPoint ?? .zero }
+        set { self.optionalLayer?._gradientLayer?.startPoint = newValue }
+    }
+    
+    @objc dynamic internal var gradientEndPoint: CGPoint {
+        get { self.optionalLayer?._gradientLayer?.endPoint ?? .zero }
+        set { self.optionalLayer?._gradientLayer?.endPoint = newValue }
+    }
+    
+    dynamic internal var _gradientColors: [CGColor] {
+        get { self.optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
+        set {
+            var newValue = newValue
+            var currentColors =  self.optionalLayer?._gradientLayer?.colors ?? []
+            let diff = newValue.count - currentColors.count
+            if diff < 0 {
+                for i in newValue.count-(diff * -1)..<newValue.count {
+                    newValue[safe: i] = newValue[i].nsUIColor?.withAlphaComponent(0.0).cgColor
+                }
+            } else if diff > 0 {
+                newValue.append(contentsOf: Array(repeating: .zero, count: diff))
+            }
+            gradientColors = newValue
+        }
+    }
+    
+    @objc dynamic internal var gradientColors: [CGColor] {
+        get { self.optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
+        set { self.optionalLayer?._gradientLayer?.colors = newValue }
+    }
 }
 #endif

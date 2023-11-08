@@ -13,6 +13,7 @@ import UIKit
 #endif
 
 public extension GradientView {
+    /*
     /// The gradient.
     dynamic var gradient: Gradient {
         get { gradientLayer.gradient }
@@ -24,6 +25,7 @@ public extension GradientView {
             self.type = newValue.type.gradientLayerType
         }
     }
+    */
 }
 
 /// A view that displays a gradient.
