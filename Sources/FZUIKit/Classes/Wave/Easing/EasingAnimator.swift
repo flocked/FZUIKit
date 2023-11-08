@@ -188,7 +188,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         state = .inactive
     }
     
-    func updateAnimation(dt: TimeInterval) {
+    func updateAnimation(deltaTime: TimeInterval) {
         guard var value = value, let fromValue = fromValue, let target = target else {
             // Can't start an animation without a value and target
             state = .inactive
@@ -200,7 +200,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         let isAnimated = duration > .zero
         
         if isAnimated {
-            let part = duration/dt
+            let part = duration/deltaTime
             fractionComplete = isReversed ? (fractionComplete - part) : (fractionComplete + part)
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
             self.value = value

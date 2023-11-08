@@ -219,7 +219,7 @@ public class SpringAnimator1<T: AnimatableData>   {
     
     var epsilon: Double? = nil
     
-    func updateAnimation(dt: TimeInterval) {
+    func updateAnimation(deltaTime: TimeInterval) {
         guard var value = value, let target = target else {
             // Can't start an animation without a value and target
             state = .inactive

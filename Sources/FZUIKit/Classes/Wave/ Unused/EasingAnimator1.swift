@@ -41,7 +41,7 @@ public class EasyAnimator: AnimationProviding {
     
     public private(set) var state: AnimationState = .inactive
     
-    func updateAnimation(dt: TimeInterval) {
+    func updateAnimation(deltaTime: TimeInterval) {
         if duration.isApproximatelyEqual(to: 0.0) {
             stop(resolveImmediately: true, postValueChanged: true)
             return

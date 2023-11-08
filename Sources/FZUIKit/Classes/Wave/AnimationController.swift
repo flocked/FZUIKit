@@ -49,7 +49,7 @@ internal class AnimationController {
 
         animations[animation.id] = animation
 
-        animation.updateAnimation(dt: .zero)
+        animation.updateAnimation(deltaTime: .zero)
     }
     
     func stopPropertyAnimation(_ animation: AnimationProviding) {
@@ -73,7 +73,7 @@ internal class AnimationController {
                 animation.reset()
                 animations.removeValue(forKey: animation.id)
             } else {
-                animation.updateAnimation(dt: dt)
+                animation.updateAnimation(deltaTime: dt)
             }
         }
 

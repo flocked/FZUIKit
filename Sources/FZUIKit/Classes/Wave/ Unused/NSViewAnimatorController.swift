@@ -42,7 +42,7 @@ internal class NSViewAnimatorController {
 
         animations[animation.id] = animation
 
-        animation.updateAnimation(dt: .zero)
+        animation.updateAnimation(deltaTime: .zero)
     }
 
     private func updateAnimations(_ frame: DisplayLink.Frame) {
@@ -64,7 +64,7 @@ internal class NSViewAnimatorController {
                 animation.reset()
                 animations.removeValue(forKey: animation.id)
             } else {
-                animation.updateAnimation(dt: dt)
+                animation.updateAnimation(deltaTime: dt)
             }
         }
 
