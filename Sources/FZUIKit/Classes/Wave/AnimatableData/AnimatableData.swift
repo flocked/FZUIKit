@@ -41,7 +41,7 @@ import FZSwiftUtils
  }
  ```
  */
-public protocol AnimatableData: Equatable, Comparable {
+public protocol AnimatableData: Equatable {
     /// The type defining the animatable representation of the value.
     associatedtype AnimatableData: VectorArithmetic = Self
     /// The animatable representation of the value.

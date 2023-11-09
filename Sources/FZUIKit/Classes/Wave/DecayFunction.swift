@@ -10,10 +10,9 @@
 import Foundation
 import SwiftUI
 
-/// The standard decay constant for `UIScrollView`.
-public let UIScrollViewDecayConstant: Double = 0.998
-
 public struct DecayFunction {
+    /// The standard decay constant of a scrollview.
+    public static let ScrollViewDecayConstant: Double = 0.998
     
     /// The rate at which the velocity decays over time. Defaults to `UIKitDecayConstant`.
     public var decayConstant: Double {
@@ -38,7 +37,7 @@ public struct DecayFunction {
       - Parameters:
          - decayConstant: The rate at which the velocity decays over time. Defaults to `UIKitDecayConstant`.
       */
-     public init(decayConstant: Double = UIScrollViewDecayConstant) {
+    public init(decayConstant: Double = Self.ScrollViewDecayConstant) {
          self.decayConstant = decayConstant
          // Explicitly update constants.
          updateConstants()
@@ -78,7 +77,7 @@ public struct DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public func value<V>(value: V, velocity: V, decayConstant: Double = 0.998) -> V where V : VectorArithmetic {
+    public func value<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000
         let toValue = value - velocity.scaled(by: 1.0 / decay)
         // -2.0020026706730794
@@ -97,9 +96,20 @@ public struct DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public func value<V>(value: V, velocity: V, decayConstant: Double = 0.998) -> V where V : AnimatableData {
+    public func value<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData {
         return V(self.value(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant))
     }
+    
+    /*
+    public func value(value: AnimatableVector, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> AnimatableVector {
+        let velocity = AnimatableVector(Array(repeating: velocity, count: value.count))
+        return AnimatableVector(self.value(value: value, velocity: velocity, decayConstant: decayConstant))
+    }
+    
+    public func value<V>(value: V, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData, V.AnimatableData == AnimatableVector {
+       return V(self.value(value: value.animatableData, velocity: velocity, decayConstant: decayConstant))
+    }
+    */
     
     /**
      Solves the velocity required to reach a desired destination for a decay function based on the given parameters.
@@ -111,7 +121,7 @@ public struct DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = 0.998) -> V where V : VectorArithmetic {
+    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000.0
         return (fromValue - toValue).scaled(by: decay)
     }
@@ -126,7 +136,7 @@ public struct DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = 0.998) -> V where V : AnimatableData {
+    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData {
         V(self.velocity(fromValue: fromValue.animatableData, toValue: toValue.animatableData, decayConstant: decayConstant))
     }
 }

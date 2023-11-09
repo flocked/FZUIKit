@@ -229,7 +229,9 @@ extension AnimatableArray: ContiguousBytes {
 
 extension AnimatableArray: ExpressibleByArrayLiteral {}
 
-extension AnimatableArray: AnimatableData, Comparable, Equatable { }
+// extension AnimatableArray: AnimatableData, Comparable, Equatable { }
+
+extension AnimatableArray: Equatable { }
 
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     public static func -= (lhs: inout Self, rhs: Self) {
