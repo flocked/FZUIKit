@@ -174,7 +174,7 @@ public class DecayAnimator<Value: AnimatableData>: AnimationProviding {
 
         let animationFinished = velocity.animatableData.magnitudeSquared < 0.1
         
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished {
