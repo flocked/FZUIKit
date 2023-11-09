@@ -184,7 +184,7 @@ extension Gradient {
         internal var point: CGPoint {
             CGPoint(x, y)
         }
-        
+
         public static var leading = Point(x: 0.0, y: 0.5)
         public static var center = Point(x: 0.5, y: 0.5)
         public static var trailing = Point(x: 1.0, y: 0.5)

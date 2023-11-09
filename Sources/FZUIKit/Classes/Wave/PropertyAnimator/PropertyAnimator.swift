@@ -145,7 +145,7 @@ internal extension PropertyAnimator {
             
             configurateViewUserInteration(settings: settings)
             
-            let animation = (springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
+            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue)
             
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         }
@@ -178,7 +178,7 @@ internal extension PropertyAnimator {
             
             configurateViewUserInteration(settings: settings)
             
-            let animation = (springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
+            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue)
             
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         }

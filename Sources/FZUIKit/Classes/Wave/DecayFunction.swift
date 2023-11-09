@@ -13,7 +13,7 @@ import SwiftUI
 /// The standard decay constant for `UIScrollView`.
 public let UIScrollViewDecayConstant: Double = 0.998
 
-struct DecayFunction {
+public struct DecayFunction {
     
     /// The rate at which the velocity decays over time. Defaults to `UIKitDecayConstant`.
     public var decayConstant: Double {
@@ -78,9 +78,12 @@ struct DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public func value<V>(value: V, velocity: V, decayConstant: Double) -> V where V : VectorArithmetic {
+    public func value<V>(value: V, velocity: V, decayConstant: Double = 0.998) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000
         let toValue = value - velocity.scaled(by: 1.0 / decay)
+        // -2.0020026706730794
+        // -4
+        // 20
         return toValue
     }
     
@@ -94,7 +97,7 @@ struct DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public func value<V>(value: V, velocity: V, decayConstant: Double) -> V where V : AnimatableData {
+    public func value<V>(value: V, velocity: V, decayConstant: Double = 0.998) -> V where V : AnimatableData {
         return V(self.value(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant))
     }
     
@@ -108,7 +111,7 @@ struct DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double) -> V where V : VectorArithmetic {
+    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = 0.998) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000.0
         return (fromValue - toValue).scaled(by: decay)
     }
@@ -123,7 +126,7 @@ struct DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double) -> V where V : AnimatableData {
+    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = 0.998) -> V where V : AnimatableData {
         V(self.velocity(fromValue: fromValue.animatableData, toValue: toValue.animatableData, decayConstant: decayConstant))
     }
 }

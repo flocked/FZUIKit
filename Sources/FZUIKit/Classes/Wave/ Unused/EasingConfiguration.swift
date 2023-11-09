@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+/*
 /// An easing function.
 public struct EasingFunction {
     /// The timing curve of the function.
@@ -43,3 +43,4 @@ public struct EasingFunction {
         EasingFunction(timingFunction: .bezier(bezier), duration: duration)
     }
 }
+*/

@@ -150,20 +150,6 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     }
     
     /**
-     Creates a new animation with the specified easing function, and optionally, an initial and target value.
-     While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
-
-     - Parameters:
-        - easing: The easing function of the animation.
-        - value: The initial, starting value of the animation.
-        - target: The target value of the animation.
-     */
-    convenience init(easing: EasingFunction, value: Value? = nil, target: Value? = nil) {
-        self.init(timingFunction: easing.timingFunction, duration: easing.duration, value: value, target: target)
-        repeats = easing.repeats
-    }
-    
-    /**
      Starts the animation (if not already running) with an optional delay.
 
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.

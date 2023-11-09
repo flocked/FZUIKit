@@ -208,6 +208,20 @@ extension NSUIEdgeInsets: AnimatableData {
     }
 }
 
+extension Array: AnimatableData where Element: AnimatableData {
+    public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
+        self.init(animatableData.elements.compactMap({Element($0)}))
+    }
+    
+    public var animatableData: AnimatableArray<Element.AnimatableData> {
+        AnimatableArray<Element.AnimatableData>(self.compactMap({$0.animatableData}))
+    }
+    
+    public static var zero: Array<Element> {
+        Self.init()
+    }
+}
+
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, *)
 extension SwiftUI.Spring {
     /**
