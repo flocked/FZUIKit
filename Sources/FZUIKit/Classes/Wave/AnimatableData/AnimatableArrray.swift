@@ -233,7 +233,6 @@ extension AnimatableArray: AnimatableData, Comparable, Equatable { }
 
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     public static func -= (lhs: inout Self, rhs: Self) {
-        Swift.print("AnimatableArray -=", lhs.elements, rhs.elements)
         if var _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
             let count = Swift.min(_lhs.count, _rhs.count)
             vDSP.subtract(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
@@ -248,8 +247,6 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
     
     public static func - (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
-        Swift.print("AnimatableArray -", lhs.elements, rhs.elements)
-
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
             let count = Swift.min(_lhs.count, _rhs.count)
             return AnimatableArray<Double>(vDSP.subtract(_lhs[0..<count], _rhs[0..<count])) as! Self
@@ -260,8 +257,6 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
     
     public static func += (lhs: inout AnimatableArray, rhs: AnimatableArray) {
-        Swift.print("AnimatableArray +=", lhs.elements, rhs.elements)
-
         if var _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
             let count = Swift.min(_lhs.count, _rhs.count)
             vDSP.add(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
@@ -276,7 +271,6 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
     
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
-        Swift.print("AnimatableArray +", lhs.elements, rhs.elements)
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
             let count = Swift.min(_lhs.count, _rhs.count)
             return AnimatableArray<Double>(vDSP.add(_lhs[0..<count], _rhs[0..<count])) as! Self
@@ -287,8 +281,6 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
     
     public mutating func scale(by rhs: Double) {
-        Swift.print("AnimatableArray scale", self.elements)
-
         if let _self = self as? AnimatableArray<Double> {
             self.elements = vDSP.multiply(rhs, _self.elements) as! [Element]
         } else {
@@ -299,8 +291,6 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
     
     public var magnitudeSquared: Double {
-        Swift.print("AnimatableArray magnitudeSquared", self.elements)
-
         if let _self = self as? AnimatableArray<Double> {
             return vDSP.sum(vDSP.multiply(_self.elements, _self.elements))
         }
@@ -314,7 +304,6 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
 
 internal extension Array where Element: VectorArithmetic & AdditiveArithmetic {
     var animatableArray: AnimatableArray<Element> {
-        Swift.print("AnimatableArray animatableArray")
         return AnimatableArray(self)
     }
 }
