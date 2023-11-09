@@ -30,7 +30,7 @@ extension PropertyAnimator where Object: CALayer {
         set { self[\.frame] = newValue }
     }
     
-    /// The size of the layer. Changing this value keeps the layer centered.
+    /// The size of the layer. Changing the value keeps the layer centered. To change the size without centering use the layer's frame size.
     public var size: CGSize {
         get { frame.size }
         set {

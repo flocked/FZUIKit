@@ -35,7 +35,10 @@ extension PropertyAnimator where Object: NSUIView {
     /// The size of the view. Changing the value keeps the view centered. To change the size without centering use the view's frame size.
     public var size: CGSize {
         get { frame.size }
-        set { frame.sizeCentered = newValue }
+        set {
+            guard size != newValue else { return }
+            frame.sizeCentered = newValue
+        }
     }
     
     /// The origin of the view.
@@ -151,7 +154,9 @@ extension PropertyAnimator where Object: NSUIView {
             var didSetupNewGradientLayer = false
             if newValue?.stops.isEmpty == false {
                 didSetupNewGradientLayer = true
+                #if os(macOS)
                 self.object.wantsLayer = true
+                #endif
                 if self.object.optionalLayer?._gradientLayer == nil {
                     let gradientLayer = GradientLayer()
                     self.object.optionalLayer?.addSublayer(withConstraint: gradientLayer)
