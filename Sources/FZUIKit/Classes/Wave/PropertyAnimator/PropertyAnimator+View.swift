@@ -173,18 +173,19 @@ extension PropertyAnimator where Object: NSUIView {
                 }
             }
             if didSetupNewGradientLayer == false {
-                self.gradientLocations = AnimatableVector(newGradient.stops.compactMap({Double($0.location)}))
+                self.gradientLocations = newGradient.stops.compactMap({$0.location})
                 self.gradientStartPoint = newGradient.startPoint.point
                 self.gradientEndPoint = newGradient.endPoint.point
             }
-            self.gradientColors = AnimatableVector(newGradient.stops.compactMap({$0.color.cgColor}).flatMap({$0.animatableData}))
+            
+            self.gradientColors = newGradient.stops.compactMap({$0.color.cgColor})
             self.object.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
         }
     }
     
-    internal var gradientLocations: AnimatableVector {
-        get { self[\.__gradientLocations] }
-        set { self[\.__gradientLocations] = newValue }
+    internal var gradientLocations: [CGFloat] {
+        get { self[\._gradientLocations] }
+        set { self[\._gradientLocations] = newValue }
     }
     
     internal var gradientStartPoint: CGPoint {
@@ -197,9 +198,9 @@ extension PropertyAnimator where Object: NSUIView {
         set { self[\.gradientStartPoint] = newValue }
     }
     
-    internal var gradientColors: AnimatableVector {
-        get { self[\.__gradientColors] }
-        set { self[\.__gradientColors] = newValue }
+    internal var gradientColors: [CGColor] {
+        get { self[\._gradientColors] }
+        set { self[\._gradientColors] = newValue }
     }
     
     /// The view's layer animator.
@@ -360,16 +361,6 @@ extension PropertyAnimator where Object: NSUIScrollView {
 }
 
 internal extension NSUIView {
-    var __gradientLocations: AnimatableVector {
-        get { AnimatableVector.init(_gradientLocations.compactMap({ Double($0) })) }
-        set { self._gradientLocations = newValue.elements.compactMap({ CGFloat($0) }) }
-    }
-    
-    var __gradientColors: AnimatableVector {
-        get { _gradientColors.flatMap({$0.animatableData}).animatableArray }
-        set { _gradientColors = newValue.elements.chunked(size: 4).compactMap({ CGColor(AnimatableVector($0))}) }
-    }
-    
     var _gradient: Gradient {
         get { self.gradient ?? .zero }
         set { self.gradient = newValue }

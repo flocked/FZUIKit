@@ -14,15 +14,12 @@ public struct DecayFunction {
     /// The standard decay constant of a scrollview.
     public static let ScrollViewDecayConstant: Double = 0.998
     
-    /// The rate at which the velocity decays over time. Defaults to `UIKitDecayConstant`.
+    /// The rate at which the velocity decays over time.
     public var decayConstant: Double {
         didSet {
             updateConstants()
         }
     }
-    
-    /// A Boolean value that indicates whether the destionation value should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues. The default value is 'false'.
-    public var integralizeValues: Bool = false
 
     /// A cached invocation of `1.0 / (ln(decayConstant) * 1000.0)`
     private(set) public var one_ln_decayConstant_1000: Double = 0.0
@@ -31,7 +28,7 @@ public struct DecayFunction {
       Initializes a decay function.
 
       - Parameters:
-         - decayConstant: The rate at which the velocity decays over time. Defaults to `UIKitDecayConstant`.
+         - decayConstant: The rate at which the velocity decays over time. Defaults to ``ScrollViewDecayConstant``.
       */
     public init(decayConstant: Double = Self.ScrollViewDecayConstant) {
          self.decayConstant = decayConstant

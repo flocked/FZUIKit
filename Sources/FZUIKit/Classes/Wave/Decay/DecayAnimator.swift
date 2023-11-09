@@ -1,6 +1,8 @@
 //
 //  DecayAnimator.swift
 //
+//  Adopted from:
+//  Motion. Adam Bell on 8/20/20.
 //
 //  Created by Florian Zand on 03.11.23.
 //
@@ -27,21 +29,19 @@ public class DecayAnimator<Value: AnimatableData>: AnimationProviding {
     
     internal var decay: DecayFunction
     
-    /**
-     A Boolean value that indicates whether the values returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
-
-     - Note: Enabling `integralizeValues` effectively quantizes ``value``, so don't use this for values that are supposed to be continuous.
-     */
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
-    /**
-     The _current_ value of the animation. This value will change as the animation executes.
-     */
+    /// The rate at which the velocity decays over time.
+    public var decayConstant: Double {
+        get { decay.decayConstant }
+        set { decay.decayConstant = newValue }
+    }
+    
+    /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value
     
-    /**
-     The velocity of the animation. This value will change as the animation executes.
-     */
+    /// The velocity of the animation. This value will change as the animation executes.
     public var velocity: Value
     
     /**
@@ -63,16 +63,15 @@ public class DecayAnimator<Value: AnimatableData>: AnimationProviding {
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
-
+    
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
      While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
 
      - Parameters:
-        - timingFunction: The timing curve of the animation.
-        - duration: The duration of the animation.
-        - value: The initial, starting value of the animation.
-        - target: The target value of the animation.
+        - value: The start value of the animation.
+        - velocity: The velocity of the animation.
+        - decayConstant: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecayConstant``.
      */
     public init(value: Value, velocity: Value = .zero, decayConstant: Double = DecayFunction.ScrollViewDecayConstant) {
         self.decay = DecayFunction(decayConstant: decayConstant)
@@ -198,6 +197,7 @@ extension DecayAnimator: CustomStringConvertible {
             target: \(String(describing: target))
 
             integralizeValues: \(integralizeValues)
+            decayConstant: \(decayConstant)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))

@@ -332,8 +332,8 @@ extension PropertyAnimator where Object: CAShapeLayer {
         
     /// The dash pattern applied to the shape’s path when stroked.
     public var lineDashPattern: [Double] {
-        get { self[\._lineDashPattern].elements }
-        set { self[\._lineDashPattern] = AnimatableVector(newValue) }
+        get { self[\._lineDashPattern] }
+        set { self[\._lineDashPattern] = newValue }
     }
     
     /// The dash phase applied to the shape’s path when stroked.
@@ -428,14 +428,14 @@ extension PropertyAnimator where Object: CATiledLayer {
 extension PropertyAnimator where Object: CAGradientLayer {
     /// The fill color of the layer.
     public var colors: [NSUIColor] {
-        get { colors(for: self[\._colors]) }
-        set { self[\._colors] = animatableVector(for: newValue) }
+        get { self[\._colors].compactMap({$0.nsUIColor}) }
+        set { self[\._colors] = newValue.compactMap({$0.cgColor}) }
     }
     
     /// The locations of each gradient stop.
     public var locations: [CGFloat] {
-        get { self[\._locations].elements.compactMap({CGFloat($0)}) }
-        set { self[\._locations] = AnimatableVector(newValue.compactMap({Double($0)})) }
+        get { self[\._locations] }
+        set { self[\._locations] = newValue }
     }
     
     /// The start point of the gradient when drawn in the layer’s coordinate space.
@@ -448,14 +448,6 @@ extension PropertyAnimator where Object: CAGradientLayer {
     public var endPoint: CGPoint {
         get { self[\.endPoint] }
         set { self[\.endPoint] = newValue }
-    }
-    
-    internal func colors(for values: AnimatableVector) -> [NSUIColor] {
-        values.chunked(size: 4).compactMap({ NSUIColor(red: $0[0], green: $0[0], blue: $0[0], alpha: $0[0]) })
-    }
-    
-    internal func animatableVector(for colors: [NSUIColor]) -> AnimatableVector {
-        AnimatableVector(colors.compactMap({$0.rgbaComponents()}).flatMap({ [$0.red, $0.green, $0.blue, $0.alpha] }))
     }
 }
 
@@ -510,33 +502,25 @@ extension PropertyAnimator where Object: CAEmitterLayer {
 }
 
 internal extension CAGradientLayer {
-    var _locations: AnimatableVector {
-        get { locations?.compactMap({$0.doubleValue}).animatableArray ?? []  }
-        set { locations = newValue.elements as [NSNumber] }
+    var _locations: [CGFloat] {
+        get { locations?.compactMap({$0.doubleValue}) ?? []  }
+        set { locations = newValue as [NSNumber] }
     }
 }
 
 internal extension CAShapeLayer {
-    var _lineDashPattern: AnimatableVector {
-        get {lineDashPattern?.compactMap({$0.doubleValue}).animatableArray ?? [] }
-        set { lineDashPattern = newValue.elements as [NSNumber] }
+    var _lineDashPattern: [Double] {
+        get {lineDashPattern?.compactMap({$0.doubleValue}) ?? [] }
+        set { lineDashPattern = newValue as [NSNumber] }
     }
 }
 
 internal extension CAGradientLayer {
-    var _colors: AnimatableVector {
-        get { 
-           return (self.colors as? [CGColor])?.flatMap({$0.animatableData}).animatableArray ?? [] }
-        set { self.colors = newValue.elements.chunked(size: 4).compactMap({ CGColor(AnimatableVector($0)) })
+    var _colors: [CGColor] {
+        get {
+           return (self.colors as? [CGColor]) ??  [] }
+        set { self.colors = newValue }
         }
-    }
-    
-    var __colors:AnimatableVector {
-        get { (self.colors as? [CGColor])?.flatMap({$0.animatableData}).animatableArray ?? [] }
-        set { 
-            self.colors = newValue.elements.chunked(size: 4).compactMap({ CGColor(AnimatableVector($0)) })
-        }
-    }
 }
 
 #endif
