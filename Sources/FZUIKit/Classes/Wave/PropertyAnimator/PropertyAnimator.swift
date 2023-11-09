@@ -220,6 +220,7 @@ internal extension PropertyAnimator {
                 completion?()
                 self?.animations[animationKey] = nil
                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+                AnimationController.shared.removeMouseDownDisabledViews(uuid: groupUUID)
             default:
                 break
             }

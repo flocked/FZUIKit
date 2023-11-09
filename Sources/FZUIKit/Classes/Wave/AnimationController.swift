@@ -121,6 +121,9 @@ internal class AnimationController {
             if animation.state == .ended {
                 animation.reset()
                 animations.removeValue(forKey: animation.id)
+                if animations.contains(where: {$0.value.groupUUID == animation.groupUUID}) == false {
+                    
+                }
             } else {
                 animation.updateAnimation(deltaTime: dt)
             }
@@ -147,6 +150,11 @@ internal class AnimationController {
         displayLink?.cancel()
         displayLink = nil
     }
+    
+    internal func removeMouseDownDisabledViews(uuid: UUID?) {
+        guard let uuid = uuid else { return }
+        mouseDownDisabledViews.removeValue(forKey: uuid)
+    }
 
     internal func executeHandler(uuid: UUID?, finished: Bool, retargeted: Bool) {
         guard let uuid = uuid, let block = groupAnimationCompletionBlocks[uuid] else {
@@ -157,10 +165,6 @@ internal class AnimationController {
 
         if retargeted == false, finished {
             groupAnimationCompletionBlocks.removeValue(forKey: uuid)
-            mouseDownDisabledViews.removeValue(forKey: uuid)
-            if mouseDownDisabledViews.isEmpty {
-                mouseDownMonitor = nil
-            }
         }
     }
 }
