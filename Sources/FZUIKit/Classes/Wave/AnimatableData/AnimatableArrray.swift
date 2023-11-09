@@ -231,7 +231,7 @@ extension AnimatableArray: ExpressibleByArrayLiteral {}
 
 // extension AnimatableArray: AnimatableData, Comparable, Equatable { }
 
-extension AnimatableArray: Equatable { }
+extension AnimatableArray: Equatable, AnimatableData { }
 
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     public static func -= (lhs: inout Self, rhs: Self) {
