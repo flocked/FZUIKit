@@ -7,12 +7,12 @@
 
 import Foundation
 
-/// Timing functions are used to convert linear input time (`0.0 -> 1.0`) to transformed output time (also `0.0 -> 1.0`).
+/// Timing functions are used to convert linear input time (`0.0 -> 1.0`) to transformed output time (also `0.0 -> 1.0`)..
 public enum TimingFunction {
     /// No easing
     case linear
     
-    /// The given unit bezier will be used to drive the timing function
+    /// The given unit bezier will be used to drive the timing function.
     case bezier(UnitBezier)
     
     /// Initializes a bezier timing function with the given control points.
@@ -118,5 +118,41 @@ extension TimingFunction {
             y2: controlPoints[2].y)
     }
 }
+
+/*
+ internal extension TimingFunction {
+     static func easeOutBounce(x: Double) -> Double {
+         if (x < 1 / 2.75) {
+             return 7.5625 * x * x
+         } else if (x < 2 / 2.75) {
+             return 7.5625 * (x - 1.5 / 2.75) * (x - 1.5) + 0.75
+         } else if (x < 2.5 / 2.75) {
+             return 7.5625 * (x - 2.25 / 2.75) * (x - 2.25) + 0.9375
+         } else {
+             return 7.5625 * (x - 2.625 / 2.75) * (x - 2.625) + 0.984375
+         }
+     }
+
+     static func easeInBounce(x: Double) -> Double {
+         return 1 - easeOutBounce(x: 1 - x)
+     }
+     
+     static func easeInOutBounce(x: Double) -> Double {
+         if (x < 0.5) {
+             return (1 - easeOutBounce(x: 1 - 2 * x)) / 2
+         } else {
+             return (1 + easeOutBounce(x: 2 * x - 1)) / 2
+         }
+     }
+     
+     static func easeInOutCirc(x: Double) -> Double {
+         if (x < 0.5) {
+             return (1 - sqrt(1 - pow(2 * x, 2))) / 2
+         } else {
+             return (sqrt(1 - pow(-2 * x + 2, 2)) + 1) / 2
+         }
+     }
+ }
+ */
 
 #endif

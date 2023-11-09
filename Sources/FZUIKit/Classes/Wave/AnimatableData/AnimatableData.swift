@@ -18,6 +18,10 @@ import FZSwiftUtils
 /**
  A type that describes an animatable value.
  
+ `Double`, `Float`, `CGFloat`, `CGPoint`, `CGSize`, `CGRect`, `CGColor`, `CATransform3D`, `CGAffineTransform`, `NSUIColor`, `NSUIEdgeInsets` `NSDirectionalEdgeInsets` and `CGQuaternion` conform to `AnimatableData`.
+ 
+ An array of `AnimatableData` also conforms to it.
+ 
  ``AnimatableArray`` containing `VectorArithmetic` elements can be used as animatable data. ``AnimatableVector``is a animatable array with double values.
  
  Example:
@@ -208,7 +212,7 @@ extension NSUIEdgeInsets: AnimatableData {
     }
 }
 
-extension Array: AnimatableData where Element: AnimatableData {
+extension Array: AnimatableData, AnimatableArrayType where Element: AnimatableData {
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))
     }
@@ -219,6 +223,25 @@ extension Array: AnimatableData where Element: AnimatableData {
     
     public static var zero: Array<Element> {
         Self.init()
+    }
+    
+    internal mutating func appendZeroValues(amount: Int) {
+        self.append(contentsOf: Array(repeating: .zero, count: amount))
+    }
+}
+
+internal protocol AnimatableArrayType {
+    var count: Int { get }
+    mutating func appendZeroValues(amount: Int)
+}
+
+extension CGVector: AnimatableData {
+    public var animatableData: AnimatableVector {
+        [dx, dy]
+    }
+    
+    public init(_ animatableData: AnimatableVector) {
+        self.init(dx: animatableData[0], dy: animatableData[1])
     }
 }
 

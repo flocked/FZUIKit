@@ -107,7 +107,7 @@ internal extension PropertyAnimator {
     func springAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> SpringAnimator<Val>? {
         return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
     }
-    
+        
     /// The current value of the property at the keypath,. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableData>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
         return springAnimation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
@@ -236,35 +236,43 @@ internal extension PropertyAnimator {
             if tar?.isVisible == false {
                 target = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
             }
-        } else if var val = value as? AnimatableVector, var tar = target as? AnimatableVector, val.count != tar.count {
+        } else if var val = value as? AnimatableArrayType, var tar = target as? AnimatableArrayType, val.count != tar.count {
             let diff = tar.count - val.count
             if diff < 0 {
-                tar.append(contentsOf: Array(repeating: .zero, count: (diff * -1)))
+                tar.appendZeroValues(amount: (diff * -1))
                 /*
                 for i in tar.count-(diff * -1)..<tar.count {
                     tar[i] = .zero
                 }
                  */
             } else if diff > 0 {
-                val.append(contentsOf: Array(repeating: .zero, count: diff))
-            }
-            value = val as! V
-            target = tar as! V
-        } else if var val = value as? Gradient, var tar = target as? Gradient, val.stops.count != tar.stops.count {
-            let diff = tar.stops.count - val.stops.count
-            if diff < 0 {
-                tar.stops.append(contentsOf: Array(repeating: .zero, count: (diff * -1)))
-                /*
-                for i in tar.count-(diff * -1)..<tar.count {
-                    tar[i] = .zero
-                }
-                 */
-            } else if diff > 0 {
-                val.stops.append(contentsOf: Array(repeating: .zero, count: diff))
+                val.appendZeroValues(amount: diff)
             }
             value = val as! V
             target = tar as! V
         }
+    }
+}
+
+internal extension PropertyAnimator {
+    /// The current decay animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func decayAnimation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> DecayAnimator<Val>? {
+        return animations[key ?? keyPath.stringValue] as? DecayAnimator<Val>
+    }
+    
+    /// The current decay animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func decayAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> DecayAnimator<Val>? {
+        return animations[key ?? keyPath.stringValue] as? DecayAnimator<Val>
+    }
+    
+    /// The current easing animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func easingAnimation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> EasingAnimator<Val>? {
+        return animations[key ?? keyPath.stringValue] as? EasingAnimator<Val>
+    }
+    
+    /// The current easing animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func easingAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> EasingAnimator<Val>? {
+        return animations[key ?? keyPath.stringValue] as? EasingAnimator<Val>
     }
 }
 

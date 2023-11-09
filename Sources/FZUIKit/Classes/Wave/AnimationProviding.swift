@@ -45,18 +45,19 @@ internal protocol AnimationProviding {
     func reset()
 }
 
-internal protocol InternalAnimationProviding: AnimationProviding {
+internal protocol AnimationProvidingInternal<Value>: AnimationProviding {
     associatedtype Value: AnimatableData
-    var isRunning: Bool { get set }
-    var state: AnimationState { get set }
-    var delayedStart: DispatchWorkItem? { get set }
-    var value: Value? { get }
-    var target: Value? { get }
+    var value: Value? { get set }
+    var velocity: Value? { get set }
+    var target: Value? { get set }
+    
+    func configure(withSettings settings: AnimationController.AnimationParameters)
 }
 
+/*
 extension AnimationProviding {
     func start(afterDelay delay: TimeInterval) {
-        guard var animation = self as? (any InternalAnimationProviding) else { return }
+        guard var animation = self as? (any AnimationProvidingInternal) else { return }
         guard isRunning == false, state != .running else { return }
         precondition(animation.value != nil, "Animation must have a non-nil `value` before starting.")
         precondition(animation.target != nil, "Animation must have a non-nil `target` before starting.")
@@ -80,7 +81,7 @@ extension AnimationProviding {
         }
     }
 }
-
+*/
 
 
 public enum AnimationEvent<Value> {

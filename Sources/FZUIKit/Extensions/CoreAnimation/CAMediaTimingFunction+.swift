@@ -19,5 +19,7 @@ public extension CAMediaTimingFunction {
     static var easeOut: CAMediaTimingFunction = CAMediaTimingFunction(name: .easeOut)
     /// Ease-in-ease-out pacing, which causes an animation to begin slowly, accelerate through the middle of its duration, and then slow again before completing.
     static var easeInEaseOut: CAMediaTimingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+    
+    static let swiftOut   = CAMediaTimingFunction(controlPoints: 0.4, 0.0, 0.2, 1.0)
 }
 #endif

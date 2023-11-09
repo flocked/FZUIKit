@@ -99,7 +99,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: Value? {
+    public var value: Value {
         didSet { 
             guard state != .running, isRunning == false else { return }
             fromValue = value
@@ -111,19 +111,19 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
-    public var target: Value? {
+    public var target: Value {
         didSet {
-            guard let oldValue = oldValue, let newValue = target, oldValue != newValue else { return }
+            guard oldValue != target else { return }
 
             if state == .running {
-                let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
+                let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
             }
         }
     }
     
     /// The start value of the animation.
-    var fromValue: Value?
+    var fromValue: Value
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -141,7 +141,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         - value: The initial, starting value of the animation.
         - target: The target value of the animation.
      */
-    public init(timingFunction: TimingFunction, duration: CGFloat, value: Value? = nil, target: Value? = nil) {
+    public init(timingFunction: TimingFunction, duration: CGFloat, value: Value, target: Value) {
         self.value = value
         self.fromValue = value
         self.target = target
@@ -156,8 +156,6 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      */
     public func start(afterDelay delay: TimeInterval = 0) {
         guard isRunning == false, state != .running else { return }
-        precondition(value != nil, "Animation must have a non-nil `value` before starting.")
-        precondition(target != nil, "Animation must have a non-nil `target` before starting.")
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
         
         let start = {
@@ -194,7 +192,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
         isRunning = false
         if immediately {
             state = .ended
-            if let value = value, let completion = completion {
+            if let completion = completion {
                 completion(.finished(at: value))
             }
         } else {
@@ -232,8 +230,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
      - parameter deltaTime: The delta time.
      */
     func updateAnimation(deltaTime: TimeInterval) {
-        guard value != nil, let fromValue = fromValue, let target = target else {
-            // Can't start an animation without a value and target
+        guard value != target else {
             state = .inactive
             return
         }
@@ -262,10 +259,8 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
             }
         }
         
-        if let value = self.value {
-            let callbackValue = integralizeValues ? value.scaledIntegral : value
-            valueChanged?(callbackValue)
-        }
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
             stop(immediately: true)
@@ -273,17 +268,11 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     }
     
     func updateValue() {
-        guard var value = value, let fromValue = fromValue, let target = target else {
-            // Can't start an animation without a value and target
-            state = .inactive
-            return
-        }
         if isRunning == false, state == .running, scrubsLinearly {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
         } else {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
         }
-        self.value = value
     }
 }
 

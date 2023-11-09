@@ -68,23 +68,23 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
 
      `value` needs to be set to a non-nil value before the animation can start.
      */
-    public var value: Value?
+    public var value: Value
 
     /**
      The current target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
-    public var target: Value? {
+    public var target: Value {
         didSet {
-            guard let oldValue = oldValue, let newValue = target, oldValue != newValue else {
+            guard oldValue != target else {
                 return
             }
 
             if state == .running {
                 startTime = .now
 
-                let event = AnimationEvent.retargeted(from: oldValue, to: newValue)
+                let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
             }
         }
@@ -123,10 +123,10 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
         - value: The initial, starting value of the animation.
         - target: The target value of the animation.
      */
-    public init(value: Value? = nil, target: Value? = nil) {
+    public init(value: Value, target: Value, velocity: Value = .zero) {
         self.value = value
         self.target = target
-        self.velocity = Value.zero
+        self.velocity = velocity
         self.spring = .snappy
     }
 
@@ -139,10 +139,10 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
         - value: The initial, starting value of the animation.
         - target: The target value of the animation.
      */
-    public init(spring: Spring, value: Value? = nil, target: Value? = nil) {
+    public init(spring: Spring, value: Value, target: Value, velocity: Value = .zero) {
         self.value = value
         self.target = target
-        self.velocity = Value.zero
+        self.velocity = velocity
         self.spring = spring
     }
 
@@ -153,8 +153,6 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
      */
     public func start(afterDelay delay: TimeInterval = 0) {
         guard isRunning == false else { return }
-        precondition(value != nil, "Animation must have a non-nil `value` before starting.")
-        precondition(target != nil, "Animation must have a non-nil `target` before starting.")
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
 
         let start = {
@@ -184,7 +182,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
         if immediately {
             state = .ended
 
-            if let value = value, let completion = completion {
+            if let completion = completion {
                 completion(.finished(at: value))
             }
         } else {
@@ -231,8 +229,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
      - parameter deltaTime: The delta time.
      */
     func updateAnimation(deltaTime: TimeInterval) {
-        guard var value = value, let target = target else {
-            // Can't start an animation without a value and target
+        guard value != target else {
             state = .inactive
             return
         }
@@ -248,7 +245,6 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
 
         if isAnimated {
             spring.update(value: &value, velocity: &velocity, target: target, deltaTime: deltaTime)
-            self.value = value
         } else {
             self.value = target
             velocity = Value.zero
@@ -268,10 +264,8 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
             self.value = target
         }
 
-        if let value = self.value {
-            let callbackValue = integralizeValues ? value.scaledIntegral : value
-            valueChanged?(callbackValue)
-        }
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        valueChanged?(callbackValue)
 
         if animationFinished {
             stop(immediately: true)
