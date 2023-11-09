@@ -20,13 +20,9 @@ public struct DecayFunction {
             updateConstants()
         }
     }
-
-    /**
-     A value used to round the final value. Defaults to 0.5.
-
-     - Description: This is useful when implementing things like scroll views, where the final value will rest on nice pixel values so that text remains sharp. It defaults to 0.5, but applying 1.0 / the scale factor of the view will lead to similar behaviours as `UIScrollView`. Setting this to `0.0` disables any rounding.
-     */
-    public var roundingFactor: Double = 0.5
+    
+    /// A Boolean value that indicates whether the destionation value should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues. The default value is 'false'.
+    public var integralizeValues: Bool = false
 
     /// A cached invocation of `1.0 / (ln(decayConstant) * 1000.0)`
     private(set) public var one_ln_decayConstant_1000: Double = 0.0
@@ -66,9 +62,11 @@ public struct DecayFunction {
         value = V(valueAnimatableData)
         velocity = V(velocityAnimatableData)
     }
-    
+}
+
+extension DecayFunction {
     /**
-     Solves the destination for the decay function based on the given parameters for a `Value`.
+     Solves the destination for the specified value and starting velocity.
 
      - Parameters:
         - value: The starting value.
@@ -77,39 +75,29 @@ public struct DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public func value<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
+    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000
         let toValue = value - velocity.scaled(by: 1.0 / decay)
-        // -2.0020026706730794
-        // -4
-        // 20
         return toValue
     }
     
     /**
-     Solves the destination for the decay function based on the given parameters for a `Value`.
+     Solves the destination for the specified value and starting velocity.
 
      - Parameters:
         - value: The starting value.
         - velocity: The starting velocity of the decay.
         - decayConstant: The decay constant.
+        - integralizeValue: A Boolean value that indicates whether the destionation value should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues. The default value is 'false'.
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public func value<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData {
-        return V(self.value(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant))
+    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant, integralizeValue: Bool = false) -> V where V : AnimatableData {
+        if integralizeValue {
+            return V(self.destination(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant)).scaledIntegral
+        }
+        return V(self.destination(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant))
     }
-    
-    /*
-    public func value(value: AnimatableVector, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> AnimatableVector {
-        let velocity = AnimatableVector(Array(repeating: velocity, count: value.count))
-        return AnimatableVector(self.value(value: value, velocity: velocity, decayConstant: decayConstant))
-    }
-    
-    public func value<V>(value: V, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData, V.AnimatableData == AnimatableVector {
-       return V(self.value(value: value.animatableData, velocity: velocity, decayConstant: decayConstant))
-    }
-    */
     
     /**
      Solves the velocity required to reach a desired destination for a decay function based on the given parameters.
@@ -121,7 +109,7 @@ public struct DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
+    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000.0
         return (fromValue - toValue).scaled(by: decay)
     }
@@ -136,7 +124,43 @@ public struct DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData {
+    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData {
         V(self.velocity(fromValue: fromValue.animatableData, toValue: toValue.animatableData, decayConstant: decayConstant))
     }
 }
+
+/*
+/**
+ Solves the destination frame for the specified frame and starting velocity.
+
+ - Parameters:
+    - frame: The starting frame.
+    - velocity: The starting velocity of the decay.
+    - decayConstant: The decay constant.
+
+ - Returns: The destination frame when the decay reaches zero velocity.
+ */
+public static func destination(frame: CGRect, velocity: CGPoint, decayConstant: Double = Self.ScrollViewDecayConstant) -> CGRect {
+    var frame = frame
+    frame.origin = destination(value: frame.origin, velocity: velocity, decayConstant: decayConstant)
+    return frame
+}
+
+public func destination(value: AnimatableVector, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> AnimatableVector {
+    let velocity = AnimatableVector(Array(repeating: velocity, count: value.count))
+    return AnimatableVector(self.value(value: value, velocity: velocity, decayConstant: decayConstant))
+}
+
+public func destination<V>(value: V, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData, V.AnimatableData == AnimatableVector {
+   return V(self.value(value: value.animatableData, velocity: velocity, decayConstant: decayConstant))
+}
+*/
+
+/*
+ /**
+  A value used to round the final value. Defaults to 0.5.
+
+  - Description: This is useful when implementing things like scroll views, where the final value will rest on nice pixel values so that text remains sharp. It defaults to 0.5, but applying 1.0 / the scale factor of the view will lead to similar behaviours as `UIScrollView`. Setting this to `0.0` disables any rounding.
+  */
+ public var roundingFactor: Double = 0.5
+ */

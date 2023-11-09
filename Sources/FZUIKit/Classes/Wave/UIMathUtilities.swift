@@ -28,33 +28,3 @@ public func rubberband(value: CGFloat, range: ClosedRange<CGFloat>, interval: CG
         return range.lowerBound - b
     }
 }
-
-/// Projects a scalar value based on a scalar velocity.
-public func project(value: CGFloat, velocity: CGFloat, decelerationRate: CGFloat = 0.998) -> CGFloat {
-    value + project(initialVelocity: velocity, decelerationRate: decelerationRate)
-}
-
-/// Projects a 2D point based on a 2D velocity.
-public func project(point: CGPoint, velocity: CGPoint, decelerationRate: CGFloat = 0.998) -> CGPoint {
-    CGPoint(
-        x: point.x + project(initialVelocity: velocity.x, decelerationRate: decelerationRate),
-        y: point.y + project(initialVelocity: velocity.y, decelerationRate: decelerationRate)
-    )
-}
-
-func project(initialVelocity: CGFloat, decelerationRate: CGFloat) -> CGFloat {
-    (initialVelocity / 1000) * decelerationRate / (1 - decelerationRate)
-}
-
-public func initialAnimationVelocity(for gestureVelocity: CGPoint, from currentPosition: CGPoint, to finalPosition: CGPoint) -> CGVector {
-    var animationVelocity = CGVector.zero
-    let xDistance = finalPosition.x - currentPosition.x
-    let yDistance = finalPosition.y - currentPosition.y
-    if xDistance != 0 {
-        animationVelocity.dx = gestureVelocity.x / xDistance
-    }
-    if yDistance != 0 {
-        animationVelocity.dy = gestureVelocity.y / yDistance
-    }
-    return animationVelocity
-}
