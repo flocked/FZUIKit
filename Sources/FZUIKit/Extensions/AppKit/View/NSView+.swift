@@ -545,9 +545,10 @@ extension NSView {
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
-            if self.borderColor?.isVisible == false || self.borderColor == nil {
+            if self.layer?.borderColor?.isVisible == false || self.layer?.borderColor == nil {
                 layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
+
             self._borderColor = newValue
         }
     }
@@ -599,7 +600,7 @@ extension NSView {
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
-            if self.shadowColor?.isVisible == false || self.shadowColor == nil {
+            if self.layer?.shadowColor?.isVisible == false || self.layer?.shadowColor == nil {
                 layer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             self._shadowColor = newColor
@@ -710,8 +711,8 @@ extension NSView {
             if newColor == nil, self.isProxy() {
                 newColor = .clear
             }
-            if self.innerShadowColor?.isVisible == false || self.innerShadowColor == nil {
-                self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
+            if layer?.innerShadowLayer?.shadowColor?.isVisible == false || layer?.innerShadowLayer?.shadowColor == nil {
+                layer?.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             self.innerShadowColor = newColor
             self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
