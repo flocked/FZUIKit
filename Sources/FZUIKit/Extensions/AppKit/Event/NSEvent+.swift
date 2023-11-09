@@ -72,6 +72,22 @@ public extension NSEvent {
     }
 }
 
+public extension NSEvent.EventType {
+    /// All user interaction event types (excluding mouse up events).
+    static let userInteractions: [NSEvent.EventType] = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .scrollWheel, .magnify, .keyDown]
+    
+    /// All user interaction event types (including mouse up events).
+    static let extendedUserInteractions: [NSEvent.EventType] = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .rightMouseDragged, .leftMouseUp, .rightMouseUp, .scrollWheel, .magnify]
+    
+    static let allUserInteractions: [NSEvent.EventType] = [.leftMouseDown, .leftMouseUp, .leftMouseDragged, .rightMouseDown, .rightMouseUp, .rightMouseDragged, .scrollWheel, .magnify, .keyDown, .keyUp, .flagsChanged, .mouseMoved, .mouseExited, .mouseEntered]
+    
+    /// All mouse movement event types.
+    static let mouseMovements: [NSEvent.EventType] = [.mouseEntered, .mouseMoved, .mouseExited]
+
+    /// All the mouse event types.
+     static let mouse: [NSEvent.EventType] = [.mouseMoved, .mouseExited, .mouseEntered, .leftMouseUp, .otherMouseUp, .rightMouseUp, .leftMouseDown, .otherMouseDown, .rightMouseDown, .leftMouseDragged, .otherMouseDragged, .rightMouseDragged]
+}
+
 public extension NSEvent.EventTypeMask {
     /**
      A Boolean value that indicates whether the specified event intersects with the event type mask.
@@ -89,12 +105,12 @@ public extension NSEvent.EventTypeMask {
     /// All user interaction event types (including mouse up events).
     static let extendedUserInteractions: NSEvent.EventTypeMask = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .rightMouseDragged, .leftMouseUp, .rightMouseUp, .scrollWheel, .magnify]
     
+    static let allUserInteractions: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseUp, .leftMouseDragged, .rightMouseDown, .rightMouseUp, .rightMouseDragged, .scrollWheel, .magnify, .keyDown, .keyUp, .flagsChanged, .mouseMoved, .mouseExited, .mouseEntered]
+    
     /// All mouse movement event types.
     static let mouseMovements: NSEvent.EventTypeMask = [.mouseEntered, .mouseMoved, .mouseExited]
 
     /// All the mouse event types.
      static let mouse: NSEvent.EventTypeMask = [.mouseMoved, .mouseExited, .mouseEntered, .leftMouseUp, .otherMouseUp, .rightMouseUp, .leftMouseDown, .otherMouseDown, .rightMouseDown, .leftMouseDragged, .otherMouseDragged, .rightMouseDragged]
-    
-    static let allUserInteractions: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseUp, .leftMouseDragged, .rightMouseDown, .rightMouseUp, .rightMouseDragged, .scrollWheel, .magnify, .keyDown, .keyUp, .flagsChanged, .mouseMoved, .mouseExited, .mouseEntered]
 }
 #endif

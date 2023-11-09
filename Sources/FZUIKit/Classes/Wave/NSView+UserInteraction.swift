@@ -146,7 +146,7 @@ internal class UserInteractionMonitor {
                         }
                     }
                     
-                    if NSEvent.EventTypeMask.mouse.intersects(event) {
+                    if NSEvent.EventType.mouse.contains(event.type) {
                         if let contentView = NSApp.keyWindow?.contentView {
                             let mousePoint = event.location(in: contentView)
                             if let hitView = contentView.hitTest(mousePoint) {
