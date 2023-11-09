@@ -172,7 +172,7 @@ public class DecayAnimator<Value: AnimatableData>: AnimationProviding {
         
         decay.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
 
-        let animationFinished = velocity.animatableData.magnitudeSquared <= 0
+        let animationFinished = velocity.animatableData.magnitudeSquared < 0.05
         
         let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
