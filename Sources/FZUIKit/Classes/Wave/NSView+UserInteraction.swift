@@ -21,6 +21,9 @@ public extension NSView {
             set(associatedValue: newValue, key: "isUserInteractionEnabled", object: self)
             if newValue == false {
                 UserInteractionMonitor.shared.addView(self)
+                if self.window?.firstResponder == self {
+                    self.resignFirstResponder()
+                }
             } else {
                 UserInteractionMonitor.shared.removeView(self)
             }
