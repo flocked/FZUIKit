@@ -138,7 +138,7 @@ public class Spring: @unchecked Sendable {
     // MARK: - Default Springs
 
     /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
-    public static let interactive = Spring(dampingRatio: 0.8, response: 0.28)
+    public static let interactive = Spring(dampingRatio: 0.86, response: 0.28)
 
     /// A non animated spring which updates values immediately.
     public static let nonAnimated = Spring(dampingRatio: 1.0, response: 0.0)

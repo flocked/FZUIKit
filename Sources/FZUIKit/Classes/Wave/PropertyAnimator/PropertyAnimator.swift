@@ -174,20 +174,7 @@ internal extension PropertyAnimator {
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         }
     }
-    
-    func setValueNonAnimated<Value: AnimatableData>(_ value: Value, keyPath: WritableKeyPath<Object, Value>, key: String? = nil) {
-        if let animation = springAnimation(for: keyPath, key: key) {
-            AnimationController.shared.stopPropertyAnimation(animation)
-            object[keyPath: keyPath] = value
-            if let completion = animation.completion {
-                completion(.finished(at: value))
-            }
-            animations[key ?? keyPath.stringValue] = nil
-        } else {
-            object[keyPath: keyPath] = value
-        }
-    }
-    
+        
     func configurateAnimation<Value>(_ animation: SpringAnimator<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
         animation.epsilon = epsilon
@@ -235,7 +222,6 @@ internal extension PropertyAnimator {
                 tar.append(contentsOf: Array(repeating: .zero, count: (diff * -1)))
                 /*
                 for i in tar.count-(diff * -1)..<tar.count {
-
                     tar[i] = .zero
                 }
                  */
@@ -250,7 +236,6 @@ internal extension PropertyAnimator {
                 tar.stops.append(contentsOf: Array(repeating: .zero, count: (diff * -1)))
                 /*
                 for i in tar.count-(diff * -1)..<tar.count {
-
                     tar[i] = .zero
                 }
                  */
@@ -264,41 +249,3 @@ internal extension PropertyAnimator {
 }
 
 #endif
-
-/*
- func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) where Value: ApproximateEquatable {
-     setValue(newValue, for: keyPath, key: key, integralizeValue: integralizeValue, completion: completion)
-     springAnimation(for: keyPath, key: key)?.epsilon = epsilon
- }
- 
- func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) where Value: ApproximateEquatable  {
-     setValue(newValue, for: keyPath, key: key, integralizeValue: integralizeValue, completion: completion)
-     springAnimation(for: keyPath, key: key)?.epsilon = epsilon
- }
- */
-
-/*
- internal enum AnimationType {
-    case spring
- }
- var animationType: AnimationType
- 
- func newAnimation<Val>(value: Val, target: Val, type: AnimationType) where Val: A {
- switch type {
- case .spring(let spring):
-    return SpringAnimator<Value>(spring: spring, value: value, target: target))
- }
- }
- 
- func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil, type: AnimationType?) -> SpringAnimator<Val>? {
- if let type = type {
-    switch type {
-    case .spring(_):
-        return animations[key ?? keyPath.stringValue] as? SpringAnimator<Val>
-    }
-} else {
-    return animations[key ?? keyPath.stringValue]
- }
- }
- */
-

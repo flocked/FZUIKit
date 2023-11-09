@@ -54,8 +54,7 @@ public protocol AnimatablePropertyProvider: AnyObject {
 
 extension AnimatablePropertyProvider  {
     public var animator: PropertyAnimator<Self> {
-        get { getAssociatedValue(key: "Animator", object: self, initialValue: PropertyAnimator(self)) }
-        set { set(associatedValue: newValue, key: "Animator", object: self) }
+        get { getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: PropertyAnimator(self)) }
     }
 }
 

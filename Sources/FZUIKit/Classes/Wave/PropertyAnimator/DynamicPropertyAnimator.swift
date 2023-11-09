@@ -36,7 +36,7 @@ import FZSwiftUtils
  ```
  */
 @dynamicMemberLookup
-public class DynamicPropertyAnimator<Object: AnimatablePropertyProvider> {
+public class DynamicPropertyAnimator<Object: AnyObject> {
     internal var object: Object
     
     internal init(_ object: Object) {
