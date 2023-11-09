@@ -10,6 +10,11 @@
 import Foundation
 import QuartzCore
 import FZSwiftUtils
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 /**
  Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
 
@@ -138,6 +143,15 @@ internal extension PropertyAnimator {
         } else {
             AnimationController.shared.executeHandler(uuid: springAnimation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
             
+            if settings.isUserInteractionEnabled == false, let view = object as? NSUIView {
+                if var array = AnimationController.shared.mouseDownDisabledViews[settings.groupUUID], array.contains(view) == false {
+                    array.append(view)
+                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = array
+                } else {
+                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = [view]
+                }
+            }
+            
             let animation = (springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
             
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
@@ -168,6 +182,15 @@ internal extension PropertyAnimator {
             }
         } else {
             AnimationController.shared.executeHandler(uuid: springAnimation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
+            
+            if settings.isUserInteractionEnabled == false, let view = object as? NSUIView {
+                if var array = AnimationController.shared.mouseDownDisabledViews[settings.groupUUID], array.contains(view) == false {
+                    array.append(view)
+                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = array
+                } else {
+                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = [view]
+                }
+            }
             
             let animation = (springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
             

@@ -67,6 +67,7 @@ public enum Wave {
         withSpring spring: Spring,
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
+        isUserInteractionEnabled: Bool = true,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
@@ -75,7 +76,8 @@ public enum Wave {
             groupUUID: UUID(),
             spring: spring,
             delay: delay,
-            gestureVelocity: gestureVelocity,
+            gestureVelocity: gestureVelocity, 
+            isUserInteractionEnabled: isUserInteractionEnabled,
             completion: completion
         )
         
