@@ -94,5 +94,7 @@ public extension NSEvent.EventTypeMask {
 
     /// All the mouse event types.
      static let mouse: NSEvent.EventTypeMask = [.mouseMoved, .mouseExited, .mouseEntered, .leftMouseUp, .otherMouseUp, .rightMouseUp, .leftMouseDown, .otherMouseDown, .rightMouseDown, .leftMouseDragged, .otherMouseDragged, .rightMouseDragged]
+    
+    static let allUserInteractions: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseUp, .leftMouseDragged, .rightMouseDown, .rightMouseUp, .rightMouseDragged, .scrollWheel, .magnify, .keyDown, .keyUp, .flagsChanged]
 }
 #endif

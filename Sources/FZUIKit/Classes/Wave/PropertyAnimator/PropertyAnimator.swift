@@ -143,14 +143,7 @@ internal extension PropertyAnimator {
         } else {
             AnimationController.shared.executeHandler(uuid: springAnimation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
             
-            if settings.isUserInteractionEnabled == false, let view = object as? NSUIView {
-                if var array = AnimationController.shared.mouseDownDisabledViews[settings.groupUUID], array.contains(view) == false {
-                    array.append(view)
-                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = array
-                } else {
-                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = [view]
-                }
-            }
+            configurateViewUserInteration(settings: settings)
             
             let animation = (springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
             
@@ -183,18 +176,22 @@ internal extension PropertyAnimator {
         } else {
             AnimationController.shared.executeHandler(uuid: springAnimation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
             
-            if settings.isUserInteractionEnabled == false, let view = object as? NSUIView {
-                if var array = AnimationController.shared.mouseDownDisabledViews[settings.groupUUID], array.contains(view) == false {
-                    array.append(view)
-                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = array
-                } else {
-                    AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = [view]
-                }
-            }
+            configurateViewUserInteration(settings: settings)
             
             let animation = (springAnimation(for: keyPath, key: key) ?? SpringAnimator<Value>(spring: settings.spring, value: initialValue, target: targetValue))
             
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+        }
+    }
+    
+    func configurateViewUserInteration(settings: AnimationController.AnimationParameters) {
+        if settings.isUserInteractionEnabled == false, let view = object as? NSUIView {
+            if var array = AnimationController.shared.mouseDownDisabledViews[settings.groupUUID], array.contains(view) == false {
+                array.append(view)
+                AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = array
+            } else {
+                AnimationController.shared.mouseDownDisabledViews[settings.groupUUID] = [view]
+            }
         }
     }
         
@@ -220,7 +217,6 @@ internal extension PropertyAnimator {
                 completion?()
                 self?.animations[animationKey] = nil
                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
-                AnimationController.shared.removeMouseDownDisabledViews(uuid: groupUUID)
             default:
                 break
             }

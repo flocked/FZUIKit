@@ -29,16 +29,18 @@ public enum Wave {
      - Parameters:
         - delay: An optional delay, in seconds, after which to start the animation.
         - gestureVelocity: If provided, this value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
+        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
+        isUserInteractionEnabled: Bool = true,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
-        self.animate(withSpring: .snappy, delay: delay, gestureVelocity: gestureVelocity, animations: animations, completion: completion)
+        self.animate(withSpring: .snappy, delay: delay, gestureVelocity: gestureVelocity, isUserInteractionEnabled: isUserInteractionEnabled, animations: animations, completion: completion)
     }
     
     /**
@@ -60,6 +62,7 @@ public enum Wave {
         - spring: The `Spring` used to determine the timing curve and duration of the animation. The default spring is ``Spring/snappy``.
         - delay: An optional delay, in seconds, after which to start the animation.
         - gestureVelocity: If provided, this value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
+        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
