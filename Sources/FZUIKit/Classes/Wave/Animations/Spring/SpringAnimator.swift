@@ -257,6 +257,11 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
          */
         
         if animationFinished {
+            if self.value is CGColor || self.value is NSUIColor {
+                Swift.print("color animationFinished", value != target)
+                Swift.print(value)
+                Swift.print(target)
+            }
             self.value = target
         }
 
