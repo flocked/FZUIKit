@@ -132,7 +132,7 @@ extension CATransform3D: AnimatableData {
 
 extension AnimatableData where Self: NSUIColor {
     public init(_ animatableData: AnimatableVector) {
-        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
+        self.init(deviceRed: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
     }
 }
 
@@ -149,17 +149,13 @@ extension NSUIColor: AnimatableData {
 
 extension AnimatableData where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
-        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
-       // self = NSUIColor(animatableData).cgColor as! Self
+        self = NSUIColor(animatableData).cgColor as! Self
     }
 }
 
 extension CGColor: AnimatableData {
     public var animatableData: AnimatableVector {
-        let rgba = self.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
-        
-      //  let rgba = self.nsUIColor?.rgbaComponents() ?? (red: 0, green: 0, blue: 0, alpha: 0)
-        return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
+        self.nsUIColor?.animatableData ?? [0,0,0,0]
     }
     
     public static var zero: Self {
