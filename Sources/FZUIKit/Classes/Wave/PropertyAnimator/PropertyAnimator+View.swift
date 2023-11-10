@@ -152,7 +152,7 @@ extension PropertyAnimator where Object: NSUIView {
             let endPoint = Gradient.Point(gradientEndPoint)
             return Gradient(stops: stops, startPoint: startPoint, endPoint: endPoint, type: .init(gradientLayer.type))
            }
-        set {            
+        set {
             let newGradient = newValue ?? .init(stops: [])
 
             var didSetupNewGradientLayer = false
@@ -366,7 +366,7 @@ extension PropertyAnimator where Object: NSUIScrollView {
 
 internal extension NSUIView {
     var _gradient: Gradient {
-        get { self.gradient ?? .zero }
+        get { self.gradient ?? .init(stops: []) }
         set { self.gradient = newValue }
     }
 }

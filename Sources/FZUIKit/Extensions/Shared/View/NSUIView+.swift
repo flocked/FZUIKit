@@ -275,7 +275,7 @@ public extension NSUIView {
         get { self.optionalLayer?._gradientLayer?.gradient }
         set {
             Self.swizzleAnimationForKey()
-            let newGradient = newValue ?? .zero
+            let newGradient = newValue ?? .init(stops: [])
 
             var didSetupNewGradientLayer = false
             if newValue?.stops.isEmpty == false {
