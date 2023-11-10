@@ -14,7 +14,7 @@ import UIKit
 #endif
 import SwiftUI
 
-extension Gradient.Stop: AnimatableData {
+extension Gradient.Stop: AnimatableProperty {
     public var animatableData: AnimatableVector {
         let rgba = self.color.rgbaComponents()
         return [rgba.red, rgba.green, rgba.blue, rgba.red, location]
@@ -32,7 +32,7 @@ extension Gradient.Stop: AnimatableData {
     }
 }
 
-extension Gradient.Point: AnimatableData {
+extension Gradient.Point: AnimatableProperty {
     public var animatableData: AnimatableVector {
         [x, y]
     }
@@ -49,7 +49,7 @@ extension Gradient.Point: AnimatableData {
     }
 }
 
-extension Gradient: AnimatableData {
+extension Gradient: AnimatableProperty {
     public var animatableData: AnimatableDictionary<String, AnimatableVector> {
 
         var dic = AnimatableDictionary<String, AnimatableVector>()

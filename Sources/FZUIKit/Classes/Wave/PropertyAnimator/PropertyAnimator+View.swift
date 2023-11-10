@@ -57,6 +57,7 @@ extension PropertyAnimator where Object: NSUIView {
     public var backgroundColor: NSUIColor? {
         get { object.optionalLayer?.animator.backgroundColor }
         set {
+            object.backgroundColor
             object.optionalLayer?.animator.backgroundColor = newValue?.resolvedColor(for: object)
             #if os(macOS)
             object.dynamicColors.background = newValue
@@ -404,7 +405,7 @@ extension PropertyAnimator where Object: ImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor? {
         get { self[\.tintColor] }
-        set { self[\.tintColor] = newValue?.resolvedColor(for: object) }
+        set { self[\.tintColor] = newValue }
     }
 }
 

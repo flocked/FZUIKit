@@ -297,23 +297,5 @@ extension VectorArithmetic where Self == Array<Float> {
      }
  }
  
- extension AnimatableData {
-     public static func + (lhs: Self, rhs: Self) -> Self {
-         Self(lhs.animatableData + rhs.animatableData)
-     }
-     
-     public static func - (lhs: Self, rhs: Self) -> Self {
-         Self(lhs.animatableData - rhs.animatableData)
-     }
-     
-     public func scaled(by rhs: Double) -> Self {
-         Self(self.animatableData.scaled(by: rhs))
-     }
-     
-     public var magnitudeSquared: Double {
-         self.animatableData.magnitudeSquared
-     }
- }
-
 
  */

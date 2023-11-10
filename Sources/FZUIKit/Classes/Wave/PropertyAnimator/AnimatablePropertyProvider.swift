@@ -27,7 +27,7 @@ public protocol AnimatablePropertyProvider: AnyObject {
      myView.animator.alpha = 0.0 // Stops animating the property and changes it imminently.
      ```
      
-     To get/set a property of the object that is not provided as `animator` property, use the properties keypath on `animator`. The property needs to confirm to ``AnimatableData``.
+     To get/set a property of the object that is not provided as `animator` property, use the properties keypath on `animator`. The property needs to confirm to ``AnimatableProperty``.
      
      ```swift
      Wave.animate(withSpring: .smooth) {

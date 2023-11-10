@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 /// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
+public class SpringAnimator<Value: AnimatableProperty>: AnimationProviding   {
     
     /// A unique identifier for the animation.
     public let id = UUID()

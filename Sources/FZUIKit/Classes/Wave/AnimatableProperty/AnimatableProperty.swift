@@ -18,9 +18,9 @@ import FZSwiftUtils
 /**
  A type that describes an animatable value.
  
- `Double`, `Float`, `CGFloat`, `CGPoint`, `CGSize`, `CGRect`, `CGColor`, `CATransform3D`, `CGAffineTransform`, `NSUIColor`, `NSUIEdgeInsets` `NSDirectionalEdgeInsets` and `CGQuaternion` conform to `AnimatableData`.
+ `Double`, `Float`, `CGFloat`, `CGPoint`, `CGSize`, `CGRect`, `CGColor`, `CATransform3D`, `CGAffineTransform`, `NSUIColor`, `NSUIEdgeInsets` `NSDirectionalEdgeInsets` and `CGQuaternion` conform to `AnimatableProperty`.
  
- An array of `AnimatableData` also conforms to it.
+ An array of `AnimatableProperty` also conforms to it.
  
  ``AnimatableArray`` containing `VectorArithmetic` elements can be used as animatable data. ``AnimatableVector``is a animatable array with double values.
  
@@ -31,7 +31,7 @@ import FZSwiftUtils
     let value2: Double
  }
  
- extension SomeStruct: AnimatableData {
+ extension SomeStruct: AnimatableProperty {
     public var animatableData: AnimatableVector {
         [value1, value2]
     }
@@ -45,7 +45,7 @@ import FZSwiftUtils
  }
  ```
  */
-public protocol AnimatableData: Equatable {
+public protocol AnimatableProperty: Equatable {
     /// The type defining the animatable representation of the value.
     associatedtype AnimatableData: VectorArithmetic = Self
     /// The animatable representation of the value.
@@ -58,19 +58,19 @@ public protocol AnimatableData: Equatable {
     static var zero: Self { get }
 }
 
-public extension AnimatableData {
+public extension AnimatableProperty {
     var scaledIntegral: Self {
         self
     }
 }
 
-extension AnimatableData where Self.AnimatableData: Comparable {
+extension AnimatableProperty where Self.AnimatableData: Comparable {
     public static func < (lhs: Self, rhs: Self) -> Bool {
         return lhs.animatableData < rhs.animatableData
     }
 }
 
-extension AnimatableData where Self.AnimatableData == Self {
+extension AnimatableProperty where Self.AnimatableData == Self {
     public var animatableData: Self {
         self
     }
@@ -80,9 +80,9 @@ extension AnimatableData where Self.AnimatableData == Self {
     }
 }
 
-extension Float: AnimatableData { }
+extension Float: AnimatableProperty { }
  
-extension Double: AnimatableData {
+extension Double: AnimatableProperty {
     public var animatableData: Self {
         self
     }
@@ -92,7 +92,7 @@ extension Double: AnimatableData {
     }
 }
 
-extension CGFloat: AnimatableData {
+extension CGFloat: AnimatableProperty {
     public var animatableData: Self {
         self
     }
@@ -102,25 +102,25 @@ extension CGFloat: AnimatableData {
     }
 }
 
-extension CGPoint: AnimatableData {
+extension CGPoint: AnimatableProperty {
     public init(_ animatableData: AnimatablePair<CGFloat, CGFloat>) {
         self.init(animatableData.first, animatableData.second)
     }
 }
 
-extension CGSize: AnimatableData {
+extension CGSize: AnimatableProperty {
     public init(_ animatableData: AnimatablePair<CGFloat, CGFloat>) {
         self.init(animatableData.first, animatableData.second)
     }
 }
 
-extension CGRect: AnimatableData {
+extension CGRect: AnimatableProperty {
     public init(_ animatableData: AnimatablePair<CGPoint.AnimatableData, CGSize.AnimatableData>) {
         self.init(CGPoint(animatableData.first), CGSize(animatableData.second))
     }
 }
 
-extension CATransform3D: AnimatableData {
+extension CATransform3D: AnimatableProperty {
     public init(_ animatableData: AnimatableVector) {
         self.init(m11: animatableData[0], m12: animatableData[1], m13: animatableData[2], m14: animatableData[3], m21: animatableData[4], m22: animatableData[5], m23: animatableData[6], m24: animatableData[7], m31: animatableData[8], m32: animatableData[9], m33: animatableData[10], m34: animatableData[11], m41: animatableData[12], m42: animatableData[13], m43: animatableData[14], m44: animatableData[15])
     }
@@ -130,13 +130,13 @@ extension CATransform3D: AnimatableData {
     }
 }
 
-extension AnimatableData where Self: NSUIColor {
+extension AnimatableProperty where Self: NSUIColor {
     public init(_ animatableData: AnimatableVector) {
         self.init(deviceRed: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
     }
 }
 
-extension NSUIColor: AnimatableData {
+extension NSUIColor: AnimatableProperty {
     public var animatableData: AnimatableVector {
         let rgba = self.rgbaComponents()
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
@@ -147,13 +147,13 @@ extension NSUIColor: AnimatableData {
     }
 }
 
-extension AnimatableData where Self: CGColor {
+extension AnimatableProperty where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
         self = NSUIColor(animatableData).cgColor as! Self
     }
 }
 
-extension CGColor: AnimatableData {
+extension CGColor: AnimatableProperty {
     public var animatableData: AnimatableVector {
         self.nsUIColor?.animatableData ?? [0,0,0,0]
     }
@@ -163,7 +163,7 @@ extension CGColor: AnimatableData {
     }
 }
 
-extension CGAffineTransform: AnimatableData {
+extension CGAffineTransform: AnimatableProperty {
     @inlinable public init(_ animatableData: AnimatableVector) {
         self.init(animatableData[0], animatableData[1], animatableData[2], animatableData[3], animatableData[4], animatableData[5])
     }
@@ -177,7 +177,7 @@ extension CGAffineTransform: AnimatableData {
     }
 }
 
-extension CGQuaternion: AnimatableData {
+extension CGQuaternion: AnimatableProperty {
     public init(_ animatableData: AnimatableVector) {
         self.storage = .init(ix: animatableData[0], iy: animatableData[1], iz: animatableData[2], r: animatableData[3])
     }
@@ -191,7 +191,7 @@ extension CGQuaternion: AnimatableData {
     }
 }
 
-extension NSDirectionalEdgeInsets: AnimatableData {
+extension NSDirectionalEdgeInsets: AnimatableProperty {
     public init(_ animatableData: AnimatableVector) {
         self.init(top: animatableData[0], leading: animatableData[1], bottom: animatableData[2], trailing: animatableData[3])
     }
@@ -201,7 +201,7 @@ extension NSDirectionalEdgeInsets: AnimatableData {
     }
 }
 
-extension NSUIEdgeInsets: AnimatableData {
+extension NSUIEdgeInsets: AnimatableProperty {
     public var animatableData: AnimatableVector {
         [top, self.left, bottom, self.right]
     }
@@ -211,7 +211,7 @@ extension NSUIEdgeInsets: AnimatableData {
     }
 }
 
-extension Array: AnimatableData, AnimatableArrayType where Element: AnimatableData {
+extension Array: AnimatableProperty, AnimatableArrayType where Element: AnimatableProperty {
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))
     }
@@ -234,7 +234,7 @@ internal protocol AnimatableArrayType {
     mutating func appendZeroValues(amount: Int)
 }
 
-extension CGVector: AnimatableData {
+extension CGVector: AnimatableProperty {
     public var animatableData: AnimatableVector {
         [dx, dy]
     }
@@ -255,7 +255,7 @@ extension SwiftUI.Spring {
         - target: The target that value is moving towards.
         - deltaTime: The amount of time that has passed since the spring was at the position specified by value.
      */
-    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
+    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableProperty {
         var val = value.animatableData
         var vel = velocity.animatableData
         let tar = target.animatableData
@@ -266,7 +266,7 @@ extension SwiftUI.Spring {
     }
     
     /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
-    public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+    public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         let target = fromValue.animatableData - toValue.animatableData
         let newVal = fromValue.animatableData + self.value(target: target, initialVelocity: initialVelocity.animatableData, time: time)
         return V(newVal)
@@ -282,7 +282,7 @@ extension SwiftUI.Spring {
     }
     
     /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
-    public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+    public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         let target = fromValue.animatableData - toValue.animatableData
         let newVel = fromValue.animatableData + self.velocity(target: target, initialVelocity: initialVelocity.animatableData, time: time)
         return V(newVel)
@@ -301,7 +301,7 @@ extension SwiftUI.Spring {
      
      This value is in units of the vector type per second squared.
      */
-    public func force<V>(target: V, position: V, velocity: V) -> V where V: AnimatableData {
+    public func force<V>(target: V, position: V, velocity: V) -> V where V: AnimatableProperty {
         V(force(target: target.animatableData, position: position.animatableData, velocity: velocity.animatableData))
     }
     
@@ -310,7 +310,7 @@ extension SwiftUI.Spring {
      
      This value is in units of the vector type per second squared.
      */
-    public func force<V>(fromValue: V, toValue: V, position: V, velocity: V) -> V where V: AnimatableData {
+    public func force<V>(fromValue: V, toValue: V, position: V, velocity: V) -> V where V: AnimatableProperty {
         let fromValue = AnimatableProxy(fromValue)
         let toValue = AnimatableProxy(toValue)
         let position = AnimatableProxy(position)
@@ -324,7 +324,7 @@ extension SwiftUI.Spring {
      
      The epsilon value specifies the threshhold for how small all subsequent values need to be before the spring is considered to have settled.
      */
-    public func settlingDuration<V>(target: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
+    public func settlingDuration<V>(target: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableProperty {
         self.settlingDuration(target: target.animatableData, initialVelocity: initialVelocity.animatableData, epsilon: epsilon)
     }
     
@@ -333,7 +333,7 @@ extension SwiftUI.Spring {
      
      The epsilon value specifies the threshhold for how small all subsequent values need to be before the spring is considered to have settled.
      */
-    public func settlingDuration<V>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableData {
+    public func settlingDuration<V>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> TimeInterval where V: AnimatableProperty {
         /*
         let target = fromValue.animatableData - toValue.animatableData
         self.settlingDuration(target: target, initialVelocity: initialVelocity.animatableData, epsilon: epsilon)
@@ -346,7 +346,7 @@ extension SwiftUI.Spring {
     }
 }
 
-internal struct AnimatableProxy<Value: AnimatableData>: Animatable {
+internal struct AnimatableProxy<Value: AnimatableProperty>: Animatable {
     var animatableData: Value.AnimatableData
     
     init(_ value: Value) {

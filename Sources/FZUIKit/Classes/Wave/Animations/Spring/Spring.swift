@@ -209,7 +209,7 @@ public class Spring: @unchecked Sendable {
         - target: The target that value is moving towards.
         - deltaTime: The amount of time that has passed since the spring was at the position specified by value.
      */
-    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableData {
+    public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : AnimatableProperty {
         var valueData = value.animatableData
         var velocityData = velocity.animatableData
         
@@ -221,7 +221,7 @@ public class Spring: @unchecked Sendable {
     // MARK: - Getting spring value
     
     /// Calculates the value of the spring at a given time given a target amount of change.
-    public func value<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+    public func value<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = V.zero
         var velocity = initialVelocity
         self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
@@ -237,7 +237,7 @@ public class Spring: @unchecked Sendable {
     }
     
     /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
-    public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+    public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = fromValue
         let target = toValue
         var velocity = initialVelocity
@@ -257,7 +257,7 @@ public class Spring: @unchecked Sendable {
     // MARK: - Getting spring velocity
     
     /// Calculates the velocity of the spring at a given time given a target amount of change.
-    public func velocity<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+    public func velocity<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = V.zero
         var velocity = initialVelocity
         self.update(value: &value, velocity: &velocity, target: target, deltaTime: time)
@@ -273,7 +273,7 @@ public class Spring: @unchecked Sendable {
     }
     
     /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
-    public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableData {
+    public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = fromValue
         let target = toValue
         var velocity = initialVelocity

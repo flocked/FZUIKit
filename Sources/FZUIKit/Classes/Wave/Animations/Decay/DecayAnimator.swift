@@ -11,7 +11,7 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using a decay function.
-public class DecayAnimator<Value: AnimatableData>: AnimationProviding {
+public class DecayAnimator<Value: AnimatableProperty>: AnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     

@@ -56,28 +56,28 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
 }
 
 public extension PropertyAnimator {
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, integralizeValue integralizeValue: Bool = false) -> Value {
+    subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value>, integralizeValue integralizeValue: Bool = false) -> Value {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, integralizeValue: integralizeValue) }
     }
     
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value>, integralizeValue integralizeValue: Bool = false, epsilon epsilon: Double? = nil) -> Value  where Value: ApproximateEquatable {
+    subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value>, integralizeValue integralizeValue: Bool = false, epsilon epsilon: Double? = nil) -> Value  where Value: ApproximateEquatable {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon, integralizeValue: integralizeValue) }
     }
     
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, integralizeValue integralizeValue: Bool = false) -> Value? {
+    subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value?>, integralizeValue integralizeValue: Bool = false) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, integralizeValue: integralizeValue) }
     }
     
-    subscript<Value: AnimatableData>(keyPath: WritableKeyPath<Object, Value?>, integralizeValue integralizeValue: Bool = false, epsilon epsilon: Double? = nil) -> Value? where Value: ApproximateEquatable {
+    subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value?>, integralizeValue integralizeValue: Bool = false, epsilon epsilon: Double? = nil) -> Value? where Value: ApproximateEquatable {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, epsilon: epsilon, integralizeValue: integralizeValue) }
     }
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
-    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
+    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
         if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
         } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimator<Value> {
@@ -87,7 +87,7 @@ public extension PropertyAnimator {
     }
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
-    func animationVelocity<Value: AnimatableData>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
+    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
         if let animation = self.animations[keyPath.stringValue] as? SpringAnimator<Value> {
             return animation.velocity
         } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimator<Value> {
@@ -109,16 +109,16 @@ internal extension PropertyAnimator {
     }
         
     /// The current value of the property at the keypath,. If the property is currently animated, it returns the animation target value.
-    func value<Value: AnimatableData>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
+    func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
         return springAnimation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
     /// The current value of the property at the keypath,. If the property is currently animated, it returns the animation target value.
-    func value<Value: AnimatableData>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
+    func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
         return springAnimation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
     }
     
-    func setValue<Value: AnimatableData>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
+    func setValue<Value: AnimatableProperty>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
             Wave.animate(withSpring: .nonAnimated) {
                 self.setValue(newValue, for: keyPath, key: key)
@@ -151,7 +151,7 @@ internal extension PropertyAnimator {
         }
     }
     
-    func setValue<Value: AnimatableData>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
+    func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
             Wave.animate(withSpring: .nonAnimated) {
                 self.setValue(newValue, for: keyPath, key: key)
@@ -200,10 +200,6 @@ internal extension PropertyAnimator {
         animation.epsilon = epsilon
         animation.integralizeValues = integralizeValue
         animation.configure(withSettings: settings)
-        if let gestureVelocity = settings.gestureVelocity {
-            (animation as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
-            (animation as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
-        }
         if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
             animation.valueChanged = { [weak self] value in
                 self?.object[keyPath: keyPath] = value
@@ -230,7 +226,7 @@ internal extension PropertyAnimator {
     }
 
     /// Updates values of specific types for better animations.
-    func updateValue<V: AnimatableData>(_ value: inout V, target: inout V) {
+    func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
         if V.self == CGColor.self {
             let val = (value as! CGColor).nsUIColor
             let tar = (target as! CGColor).nsUIColor

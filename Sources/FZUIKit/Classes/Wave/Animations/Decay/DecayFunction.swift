@@ -52,7 +52,7 @@ public struct DecayFunction {
     }
     
     /// Updates the current value and velocity of a decay animation.
-    public func update<V>(value: inout V, velocity: inout V, deltaTime: TimeInterval) where V : AnimatableData {
+    public func update<V>(value: inout V, velocity: inout V, deltaTime: TimeInterval) where V : AnimatableProperty {
         var valueAnimatableData = value.animatableData
         var velocityAnimatableData = velocity.animatableData
         update(value: &valueAnimatableData, velocity: &velocityAnimatableData, deltaTime: deltaTime)
@@ -89,7 +89,7 @@ extension DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant, integralizeValue: Bool = false) -> V where V : AnimatableData {
+    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant, integralizeValue: Bool = false) -> V where V : AnimatableProperty {
         if integralizeValue {
             return V(self.destination(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant)).scaledIntegral
         }
@@ -121,7 +121,7 @@ extension DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData {
+    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableProperty {
         V(self.velocity(fromValue: fromValue.animatableData, toValue: toValue.animatableData, decayConstant: decayConstant))
     }
 }

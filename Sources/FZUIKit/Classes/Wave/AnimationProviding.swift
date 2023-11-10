@@ -46,7 +46,7 @@ internal protocol AnimationProviding {
 }
 
 internal protocol AnimationProvidingInternal<Value>: AnimationProviding {
-    associatedtype Value: AnimatableData
+    associatedtype Value: AnimatableProperty
     var value: Value? { get set }
     var velocity: Value? { get set }
     var target: Value? { get set }
