@@ -53,11 +53,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
         spring.settlingDuration
     }
     
-    /**
-     A Boolean value that indicates whether the values returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
-
-     - Note: Enabling `integralizeValues` effectively quantizes ``value``, so don't use this for values that are supposed to be continuous.
-     */
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
     /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
@@ -264,7 +260,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
             self.value = target
         }
 
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished {

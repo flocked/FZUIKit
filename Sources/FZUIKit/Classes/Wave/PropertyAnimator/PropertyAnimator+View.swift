@@ -29,7 +29,7 @@ extension PropertyAnimator where Object: NSUIView {
     /// The frame of the view.
     public var frame: CGRect {
         get { self[\.frame] }
-        set { self[\.frame] = newValue }
+        set { self[\.frame, integralizeValue: true] = newValue }
     }
     
     /// The size of the view. Changing the value keeps the view centered. To change the size without centering use the view's frame size.

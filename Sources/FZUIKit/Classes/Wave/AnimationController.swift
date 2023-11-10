@@ -158,6 +158,27 @@ extension AnimationController {
         let delay: CGFloat
         let gestureVelocity: CGPoint?
         let isUserInteractionEnabled: Bool
+        
+        struct SpringParameters {
+            let spring: Spring
+            let gestureVelocity: CGPoint?
+        }
+                
+        struct EasingParameters {
+            let duration: TimeInterval
+            let timingFunction: TimingFunction
+        }
+        
+        struct DecayParameters {
+            let gestureVelocity: CGPoint?
+        }
+        
+        enum AnimationType {
+            case spring(SpringParameters)
+            case easing(EasingParameters)
+            case decay(DecayParameters)
+            case nonAnimated
+        }
 
         let completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)?
     }

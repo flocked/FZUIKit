@@ -66,11 +66,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
     
     internal var isAutoreversed: Bool? = nil
     
-    /**
-     A Boolean value that indicates whether the values returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
-
-     - Note: Enabling `integralizeValues` effectively quantizes ``value``, so don't use this for values that are supposed to be continuous.
-     */
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
     /**
@@ -259,7 +255,7 @@ public class EasingAnimator<Value: AnimatableData>: AnimationProviding {
             }
         }
         
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
