@@ -57,7 +57,6 @@ extension PropertyAnimator where Object: NSUIView {
     public var backgroundColor: NSUIColor? {
         get { object.optionalLayer?.animator.backgroundColor }
         set {
-            object.backgroundColor
             object.optionalLayer?.animator.backgroundColor = newValue?.resolvedColor(for: object)
             #if os(macOS)
             object.dynamicColors.background = newValue

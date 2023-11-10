@@ -181,7 +181,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
     public static func -= (lhs: inout Self, rhs: Self) {
         for keyValue in lhs {
             if let rhsValues = rhs[keyValue.key] {
-                if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
+                if let lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
                     lhs[keyValue.key] = AnimatableArray<Double>(lhsValues - rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value - rhsValues
@@ -194,7 +194,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
         var lhs = lhs
         for keyValue in lhs {
             if let rhsValues = rhs[keyValue.key] {
-                if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
+                if let lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
                     lhs[keyValue.key] = AnimatableArray<Double>(lhsValues - rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value - rhsValues
@@ -207,7 +207,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
     public static func += (lhs: inout Self, rhs: Self) {
         for keyValue in lhs {
             if let rhsValues = rhs[keyValue.key] {
-                if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
+                if let lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
                     lhs[keyValue.key] = AnimatableArray<Double>(lhsValues + rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value + rhsValues
@@ -220,8 +220,7 @@ extension AnimatableDictionary: VectorArithmetic & AdditiveArithmetic {
         var lhs = lhs
         for keyValue in lhs {
             if let rhsValues = rhs[keyValue.key] {
-                if var lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
-                    let count = Swift.min(lhsValues.count, rhsValues.count)
+                if let lhsValues = keyValue.value as? AnimatableVector, let rhsValues = rhsValues as? AnimatableVector {
                     lhs[keyValue.key] = AnimatableArray<Double>(lhsValues + rhsValues) as? Value
                 } else {
                     lhs[keyValue.key] = keyValue.value + rhsValues

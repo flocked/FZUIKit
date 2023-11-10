@@ -1,5 +1,5 @@
 //
-//  DecayAnimator.swift
+//  DecayAnimation.swift
 //
 //  Adopted from:
 //  Motion. Adam Bell on 8/20/20.
@@ -11,7 +11,7 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using a decay function.
-public class DecayAnimator<Value: AnimatableProperty>: AnimationProviding {
+public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -27,16 +27,17 @@ public class DecayAnimator<Value: AnimatableProperty>: AnimationProviding {
     /// A Boolean value indicating whether the animation is currently running.
     public internal(set)var isRunning: Bool = false
     
-    internal var decay: DecayFunction
-    
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
     /// The rate at which the velocity decays over time.
     public var decayConstant: Double {
-        get { decay.decayConstant }
-        set { decay.decayConstant = newValue }
+        get { decayFunction.decayConstant }
+        set { decayFunction.decayConstant = newValue }
     }
+    
+    /// The decay function used to calculate the animation.
+    internal var decayFunction: DecayFunction
     
     /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value
@@ -51,7 +52,7 @@ public class DecayAnimator<Value: AnimatableProperty>: AnimationProviding {
      */
     public var target: Value {
         get {
-            return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decay.decayConstant)
+            return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decayFunction.decayConstant)
         }
         set {
             self.velocity = DecayFunction.velocity(fromValue: value, toValue: newValue)
@@ -71,10 +72,10 @@ public class DecayAnimator<Value: AnimatableProperty>: AnimationProviding {
      - Parameters:
         - value: The start value of the animation.
         - velocity: The velocity of the animation.
-        - decayConstant: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecayConstant``.
+        - decayConstant: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecelerationRate``.
      */
-    public init(value: Value, velocity: Value = .zero, decayConstant: Double = DecayFunction.ScrollViewDecayConstant) {
-        self.decay = DecayFunction(decayConstant: decayConstant)
+    public init(value: Value, velocity: Value = .zero, decayConstant: Double = DecayFunction.ScrollViewDecelerationRate) {
+        self.decayFunction = DecayFunction(decayConstant: decayConstant)
         self.value = value
         self.velocity = velocity
     }
@@ -169,7 +170,7 @@ public class DecayAnimator<Value: AnimatableProperty>: AnimationProviding {
                 
         state = .running
         
-        decay.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
+        decayFunction.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
 
         let animationFinished = velocity.animatableData.magnitudeSquared < 0.1
         
@@ -182,10 +183,10 @@ public class DecayAnimator<Value: AnimatableProperty>: AnimationProviding {
     }
 }
 
-extension DecayAnimator: CustomStringConvertible {
+extension DecayAnimation: CustomStringConvertible {
     public var description: String {
         """
-        DecayAnimator<\(Value.self)>(
+        DecayAnimation<\(Value.self)>(
             uuid: \(id)
             groupUUID: \(String(describing: groupUUID))
 

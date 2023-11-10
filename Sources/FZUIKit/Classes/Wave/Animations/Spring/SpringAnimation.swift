@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 /// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimator<Value: AnimatableProperty>: AnimationProviding   {
+public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding   {
     
     /// A unique identifier for the animation.
     public let id = UUID()
@@ -205,8 +205,8 @@ public class SpringAnimator<Value: AnimatableProperty>: AnimationProviding   {
         groupUUID = settings.groupUUID
         spring = settings.spring
         if let gestureVelocity = settings.gestureVelocity {
-            (self as? SpringAnimator<CGRect>)?.velocity.origin = gestureVelocity
-            (self as? SpringAnimator<CGPoint>)?.velocity = gestureVelocity
+            (self as? SpringAnimation<CGRect>)?.velocity.origin = gestureVelocity
+            (self as? SpringAnimation<CGPoint>)?.velocity = gestureVelocity
         }
     }
 
@@ -269,7 +269,7 @@ public class SpringAnimator<Value: AnimatableProperty>: AnimationProviding   {
     }
 }
 
-extension SpringAnimator: CustomStringConvertible {
+extension SpringAnimation: CustomStringConvertible {
     public var description: String {
         """
         SpringAnimation<\(Value.self)>(

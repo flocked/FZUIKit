@@ -11,8 +11,11 @@ import Foundation
 import SwiftUI
 
 public struct DecayFunction {
-    /// The standard decay constant of a scrollview.
-    public static let ScrollViewDecayConstant: Double = 0.998
+    /// The default deceleration rate for a scroll view.
+    public static let ScrollViewDecelerationRate: Double = 0.998
+    
+    /// A fast deceleration rate for a scroll view.
+    public static let ScrollViewDecelerationRateFast: Double = 0.99
     
     /// The rate at which the velocity decays over time.
     public var decayConstant: Double {
@@ -28,11 +31,10 @@ public struct DecayFunction {
       Initializes a decay function.
 
       - Parameters:
-         - decayConstant: The rate at which the velocity decays over time. Defaults to ``ScrollViewDecayConstant``.
+         - decayConstant: The rate at which the velocity decays over time. Defaults to ``ScrollViewDecelerationRate``.
       */
-    public init(decayConstant: Double = Self.ScrollViewDecayConstant) {
+    public init(decayConstant: Double = ScrollViewDecelerationRate) {
          self.decayConstant = decayConstant
-         // Explicitly update constants.
          updateConstants()
      }
 
@@ -72,7 +74,7 @@ extension DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
+    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecelerationRate) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000
         let toValue = value - velocity.scaled(by: 1.0 / decay)
         return toValue
@@ -89,7 +91,7 @@ extension DecayFunction {
 
      - Returns: The destination when the decay reaches zero velocity.
      */
-    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecayConstant, integralizeValue: Bool = false) -> V where V : AnimatableProperty {
+    public static func destination<V>(value: V, velocity: V, decayConstant: Double = Self.ScrollViewDecelerationRate, integralizeValue: Bool = false) -> V where V : AnimatableProperty {
         if integralizeValue {
             return V(self.destination(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant)).scaledIntegral
         }
@@ -106,7 +108,7 @@ extension DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : VectorArithmetic {
+    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecelerationRate) -> V where V : VectorArithmetic {
         let decay = log(decayConstant) * 1000.0
         return (fromValue - toValue).scaled(by: decay)
     }
@@ -121,7 +123,7 @@ extension DecayFunction {
 
      - Returns: The velocity required to reach `toValue`.
      */
-    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableProperty {
+    public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecelerationRate) -> V where V : AnimatableProperty {
         V(self.velocity(fromValue: fromValue.animatableData, toValue: toValue.animatableData, decayConstant: decayConstant))
     }
 }
@@ -137,18 +139,18 @@ extension DecayFunction {
 
  - Returns: The destination frame when the decay reaches zero velocity.
  */
-public static func destination(frame: CGRect, velocity: CGPoint, decayConstant: Double = Self.ScrollViewDecayConstant) -> CGRect {
+public static func destination(frame: CGRect, velocity: CGPoint, decayConstant: Double = Self.ScrollViewDecelerationRate) -> CGRect {
     var frame = frame
     frame.origin = destination(value: frame.origin, velocity: velocity, decayConstant: decayConstant)
     return frame
 }
 
-public func destination(value: AnimatableVector, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> AnimatableVector {
+public func destination(value: AnimatableVector, velocity: Double, decayConstant: Double = Self.ScrollViewDecelerationRate) -> AnimatableVector {
     let velocity = AnimatableVector(Array(repeating: velocity, count: value.count))
     return AnimatableVector(self.value(value: value, velocity: velocity, decayConstant: decayConstant))
 }
 
-public func destination<V>(value: V, velocity: Double, decayConstant: Double = Self.ScrollViewDecayConstant) -> V where V : AnimatableData, V.AnimatableData == AnimatableVector {
+public func destination<V>(value: V, velocity: Double, decayConstant: Double = Self.ScrollViewDecelerationRate) -> V where V : AnimatableData, V.AnimatableData == AnimatableVector {
    return V(self.value(value: value.animatableData, velocity: velocity, decayConstant: decayConstant))
 }
 */

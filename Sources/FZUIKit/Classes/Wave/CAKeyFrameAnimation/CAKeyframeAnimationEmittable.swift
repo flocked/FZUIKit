@@ -29,7 +29,7 @@ public protocol CAKeyframeAnimationEmittable  {
      - Note: You will be required to change the `keyPath` of the `CAKeyFrameAnimation` in order for it to be useful.
 
      ```
-     let animation = SpringAnimator(spring: .bouncy, value: 0.0, target: 100.0)
+     let animation = SpringAnimation(spring: .bouncy, value: 0.0, target: 100.0)
 
      let keyframeAnimation = animation.keyframeAnimation()
      keyFrameAnimation.keyPath = "position.y"
@@ -89,8 +89,8 @@ extension CAKeyframeAnimationEmittable {
     }
 }
 
-extension SpringAnimator: CAKeyframeAnimationEmittable where Value: CAKeyframeAnimationValueConvertible {
-    /// Generates and populates the `values` and `keyTimes` for a given `SpringAnimator` animating from its ``value`` to its ``target`` by ticking it by `deltaTime` until it resolves.
+extension SpringAnimation: CAKeyframeAnimationEmittable where Value: CAKeyframeAnimationValueConvertible {
+    /// Generates and populates the `values` and `keyTimes` for a given `SpringAnimation` animating from its ``value`` to its ``target`` by ticking it by `deltaTime` until it resolves.
     public func populateKeyframeAnimationData(deltaTime: TimeInterval, values: inout [AnyObject], keyTimes: inout [NSNumber]) -> TimeInterval {
         var velocity = velocity
 

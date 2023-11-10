@@ -14,7 +14,6 @@ import UIKit
 import SwiftUI
 import FZSwiftUtils
 
-
 /**
  A type that describes an animatable value.
  
@@ -46,14 +45,19 @@ import FZSwiftUtils
  ```
  */
 public protocol AnimatableProperty: Equatable {
+    
     /// The type defining the animatable representation of the value.
-    associatedtype AnimatableData: VectorArithmetic = Self
+    associatedtype AnimatableData: VectorArithmetic
+    
     /// The animatable representation of the value.
     var animatableData: AnimatableData { get }
+    
     /// Initializes the value with the specified animatable representation of the value.
     init(_ animatableData: AnimatableData)
-    /// The scaled integral representation of the value.
+    
+    /// The scaled integral representation of this value.
     var scaledIntegral: Self { get }
+    
     /// The zero value.
     static var zero: Self { get }
 }
@@ -211,6 +215,16 @@ extension NSUIEdgeInsets: AnimatableProperty {
     }
 }
 
+extension CGVector: AnimatableProperty {
+    public var animatableData: AnimatableVector {
+        [dx, dy]
+    }
+    
+    public init(_ animatableData: AnimatableVector) {
+        self.init(dx: animatableData[0], dy: animatableData[1])
+    }
+}
+
 extension Array: AnimatableProperty, AnimatableArrayType where Element: AnimatableProperty {
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))
@@ -234,15 +248,7 @@ internal protocol AnimatableArrayType {
     mutating func appendZeroValues(amount: Int)
 }
 
-extension CGVector: AnimatableProperty {
-    public var animatableData: AnimatableVector {
-        [dx, dy]
-    }
-    
-    public init(_ animatableData: AnimatableVector) {
-        self.init(dx: animatableData[0], dy: animatableData[1])
-    }
-}
+
 
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, *)
 extension SwiftUI.Spring {

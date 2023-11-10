@@ -41,7 +41,7 @@ public extension CALayer {
         - key: The key to be associated with the generated `CAKeyframeAnimation` when added to the layer.
         - keyPath: The key path to animate.
      */
-    func add<T: AnimatableProperty & CAKeyframeAnimationValueConvertible>(_ springAnimator: SpringAnimator<T>, forKey key: String, keyPath: WritableKeyPath<CALayer, T>) {
+    func add<T: AnimatableProperty & CAKeyframeAnimationValueConvertible>(_ springAnimator: SpringAnimation<T>, forKey key: String, keyPath: WritableKeyPath<CALayer, T>) {
         let keyframeAnimation = springAnimator.keyframeAnimation(forFramerate: nil)
         keyframeAnimation.keyPath = keyPath.stringValue
         add(keyframeAnimation, forKey: key)
@@ -57,7 +57,7 @@ public extension CALayer {
         - key: The key to be associated with the generated `CAKeyframeAnimation` when added to the layer.
         - keyPath: The key path to animate.
      */
-    func add<T: AnimatableProperty & CAKeyframeAnimationValueConvertible>(_ springAnimator: SpringAnimator<T>, forKey key: String, keyPath: WritableKeyPath<CALayer, T?>) {
+    func add<T: AnimatableProperty & CAKeyframeAnimationValueConvertible>(_ springAnimator: SpringAnimation<T>, forKey key: String, keyPath: WritableKeyPath<CALayer, T?>) {
         let keyframeAnimation = springAnimator.keyframeAnimation(forFramerate: nil)
         keyframeAnimation.keyPath = keyPath.stringValue
         add(keyframeAnimation, forKey: key)

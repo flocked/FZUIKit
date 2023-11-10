@@ -1,5 +1,5 @@
 //
-//  EasingAnimator.swift
+//  EasingAnimation.swift
 //  
 //
 //  Created by Florian Zand on 03.11.23.
@@ -9,7 +9,7 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using an easing function.
-public class EasingAnimator<Value: AnimatableProperty>: AnimationProviding {
+public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -272,10 +272,10 @@ public class EasingAnimator<Value: AnimatableProperty>: AnimationProviding {
     }
 }
 
-extension EasingAnimator: CustomStringConvertible {
+extension EasingAnimation: CustomStringConvertible {
     public var description: String {
         """
-        EasingAnimator<\(Value.self)>(
+        EasingAnimation<\(Value.self)>(
             uuid: \(id)
             groupUUID: \(String(describing: groupUUID))
 
