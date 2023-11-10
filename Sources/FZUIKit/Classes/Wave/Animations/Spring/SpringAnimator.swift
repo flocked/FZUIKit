@@ -257,13 +257,7 @@ public class SpringAnimator<Value: AnimatableData>: AnimationProviding   {
          */
         
         if animationFinished {
-            Swift.print("animationFinished", type(of: self.value))
-            if self.value is CGColor || self.value is NSUIColor {
-                Swift.print("color animationFinished", value != target)
-                Swift.print(value)
-                Swift.print(target)
-            }
-            self.value = target
+            value = target
         }
 
         let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
