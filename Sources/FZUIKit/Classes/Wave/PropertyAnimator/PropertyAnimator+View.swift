@@ -143,13 +143,17 @@ extension PropertyAnimator where Object: NSUIView {
     
     /// The background gradient of the view.
     public var gradient: Gradient? {
-        get {  
-            
-            self[\.gradient] }
-        set {
-        //    self[\.gradient] = newValue
-            
-            let newGradient = newValue ?? .zero
+        get {
+            guard let gradientLayer = object.optionalLayer?._gradientLayer else { return nil }
+            let colors = self.gradientColors.compactMap({$0.nsUIColor})
+            let locations = self.gradientLocations
+            let stops = zip(colors, locations).compactMap({ Gradient.Stop(color: $0.0, location: $0.1) })
+            let startPoint = Gradient.Point(gradientStartPoint)
+            let endPoint = Gradient.Point(gradientEndPoint)
+            return Gradient(stops: stops, startPoint: startPoint, endPoint: endPoint, type: .init(gradientLayer.type))
+           }
+        set {            
+            let newGradient = newValue ?? .init(stops: [])
 
             var didSetupNewGradientLayer = false
             if newValue?.stops.isEmpty == false {
