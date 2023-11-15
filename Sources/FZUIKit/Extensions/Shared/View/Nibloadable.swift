@@ -88,8 +88,8 @@ public extension Nibloadable {
      Initalizes the object from the storyboard.
      
      - Parameters:
-        - name: The name of the storyboard which holds the object.
-        - identifier: The storyboard identifier of the object. If you specify `nil`, the object's class name is used as identifier.
+        - name: The name of the storyboard which holds the object. The default value is `main`.
+        - identifier: The storyboard identifier of the object. If you specify `nil` (the default value), the object's class name is used as identifier.
      
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
@@ -104,7 +104,7 @@ public extension Nibloadable {
      
      - Parameters:
         - storyboard: The storyboard which holds the object.
-        - identifier: The storyboard identifier of the object. If you specify `nil`, the object's class name is used as identifier.
+        - identifier: The storyboard identifier of the object. If you specify `nil` (the default value), the object's class name is used as identifier.
      
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
