@@ -350,6 +350,7 @@ extension Spring: CustomStringConvertible {
 
             // Derived
             settlingDuration: \(String(format: "%.3f", settlingDuration))
+            damping: \(damping)
             stiffness: \(String(format: "%.3f", stiffness))
             animated: \(response != .zero)
         )
