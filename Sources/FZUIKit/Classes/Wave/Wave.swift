@@ -14,11 +14,13 @@ import SwiftUI
  Performs animations on animatable properties of an object conforming to ``AnimatablePropertyProvider``.
  
  The following objects provide animatable properties via `animator`.
- - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
- - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
+ - macOS: `NSView`, `NSTextField`, `NSTextView`, `NSImageView`, `NSControl`, `NSScrollView`, `NSButton`, `NSStackView`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
+ - iOS: `UIView`, `UITextField`, `UILabel`, `UITextView`, `UIImageView`, `UIScrollView`, `UIStackView`, `UIButton`, `NSLayoutConstraint` and `CALayer`.
  
- Animations can either ``Spring``, easing (``TimingFunction``) or decay based. To animate use either ``animate(withSpring:delay:gestureVelocity:isUserInteractionEnabled:animations:completion:)``, ``animate(withEasing:duration:delay:isUserInteractionEnabled:animations:completion:)`` or ``animate(withDecay:delay:isUserInteractionEnabled:animations:completion:)``.
+ Animations can either be ``Spring``, easing (``TimingFunction``) or decay based. To animate use either ``animate(withSpring:delay:gestureVelocity:isUserInteractionEnabled:animations:completion:)``, ``animate(withEasing:duration:delay:isUserInteractionEnabled:animations:completion:)`` or ``animate(withDecay:delay:isUserInteractionEnabled:animations:completion:)``.
  
+For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+
  ```swift
  Wave.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
     myView.animator.center = newCenterPoint
@@ -48,12 +50,10 @@ import SwiftUI
 public enum Wave {
     /**
      Performs spring animations based on a ``Spring`` configurated as ``Spring/snappy``.
-     
-     The following objects provide animatable properties via `animator`.
-     - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
-     - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
 
-     Note: For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+     
+     - Note: For a list of all objects that provide animatable properties check ``Wave``.
 
      ```swift
      Wave.animate() {
@@ -80,12 +80,10 @@ public enum Wave {
     
     /**
      Performs spring animations based on the specified ``Spring``.
-     
-     The following objects provide animatable properties via `animator`.
-     - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
-     - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
 
-     Note: For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+
+     - Note: For a list of all objects that provide animatable properties check ``Wave``.
 
      ```swift
      Wave.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
@@ -125,11 +123,9 @@ public enum Wave {
     /**
      Performs easing animations based on the specified ``TimingFunction``.
      
-     The following objects provide animatable properties via `animator`.
-     - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
-     - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
 
-     Note: For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+     - Note: For a list of all objects that provide animatable properties check ``Wave``.
 
      ```swift
      Wave.animate(withEasing: .easeInEaseOut), duration: 3.0) {
@@ -169,17 +165,18 @@ public enum Wave {
     /**
      Performs decaying animations based on the specified gesture velocity.
      
-     The following objects provide animatable properties via `animator`.
-     - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
-     - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
 
-     Note: Only `CGPoint` and `CGRect` properties can be animated decaying. For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)` instead of `myView.frame = …`.
+     - Note: Only `CGPoint` and `CGRect` properties can be animated decaying.
+     
+     - Note: For a list of all objects that provide animatable properties check ``Wave``.
 
      ```swift
      Wave.animate(withDecay: CGPoint(x: -200, y: -100))) {
         myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
      }
      ```
+     
      - Parameters:
         - gestureVelocity: The value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
         - delay: An optional delay, in seconds, after which to start the animation.
@@ -225,6 +222,10 @@ public enum Wave {
      myView.animator.center = newCenterPoint
      myView.animator.backgroundColor = .systemRed
      ```
+     
+     - Note: For a list of all objects that provide animatable properties check ``Wave``.
+     
+     - Parameters changes: A block containing the changes to your objects' animatable properties that get updated non animated.
      */
     public static func nonAnimate(changes: () -> Void) {
         precondition(Thread.isMainThread)
