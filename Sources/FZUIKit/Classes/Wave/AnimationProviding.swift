@@ -8,8 +8,12 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
-/// A type that provides an animation.
-internal protocol AnimationProviding {
+/**
+ A type that provides an animation.
+ 
+ It provides a default implementation for ``start(afterDelay:)`` and ``pauseAnimation()``.
+ */
+public protocol AnimationProviding {
     /// A unique identifier for the animation.
     var id: UUID { get }
     
@@ -38,6 +42,9 @@ internal protocol AnimationProviding {
      */
     func start(afterDelay delay: TimeInterval)
     
+    /// Pauses the animation.
+    func pauseAnimation()
+    
     /// Stops the animation at the current value.
     func stop(immediately: Bool)
     
@@ -45,23 +52,39 @@ internal protocol AnimationProviding {
     func reset()
 }
 
-internal protocol AnimationProvidingInternal<Value>: AnimationProviding {
+/// An internal extension to `AnimationProviding` used for configurating the animation.
+internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
-    var value: Value? { get set }
-    var velocity: Value? { get set }
-    var target: Value? { get set }
+    /// The current state of the animation.
+    var state: AnimationState { get set }
     
+    /// The current value of the animation.
+    var value: Value { get set }
+    
+    /// The current velocity value of the animation.
+    var velocity: Value { get set }
+    
+    /// The current target value of the animation.
+    var target: Value { get set }
+    
+    /// A Boolean value indicating whether the animation is currently running.
+    var isRunning: Bool { get set }
+    
+    /// The item that starts the animation delayed.
+    var delayedStart: DispatchWorkItem? { get set }
+    
+    /// /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters)
+    
+    var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get }
 }
+#endif
 
-/*
 extension AnimationProviding {
-    func start(afterDelay delay: TimeInterval) {
-        guard var animation = self as? (any AnimationProvidingInternal) else { return }
-        guard isRunning == false, state != .running else { return }
-        precondition(animation.value != nil, "Animation must have a non-nil `value` before starting.")
-        precondition(animation.target != nil, "Animation must have a non-nil `target` before starting.")
+    public func start(afterDelay delay: TimeInterval) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
+        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
+        guard isRunning == false, state != .running else { return }
         
         let start = {
             animation.isRunning = true
@@ -80,20 +103,15 @@ extension AnimationProviding {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
         }
     }
+
+    
+    public func pauseAnimation() {
+        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
+        guard state == .running else { return }
+        animation.state = .inactive
+        animation.delayedStart?.cancel()
+        AnimationController.shared.stopPropertyAnimation(self)
+        animation.isRunning = false
+    }
 }
-*/
 
-
-public enum AnimationEvent<Value> {
-    /// Indicates the animation has fully completed.
-    case finished(at: Value)
-
-    /**
-     Indicates that the animation's `target` value was changed in-flight (i.e. while the animation was running).
-
-     - parameter from: The previous `target` value of the animation.
-     - parameter to: The new `target` value of the animation.
-     */
-    case retargeted(from: Value, to: Value)
-}
-#endif

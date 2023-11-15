@@ -11,15 +11,15 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using a decay function.
-public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding {
+public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
     /// A unique identifier that associates an animation with an grouped animation block.
-    var groupUUID: UUID?
+    public internal(set) var groupUUID: UUID?
 
     /// The relative priority of the animation.
-    var relativePriority: Int = 0
+    public var relativePriority: Int = 0
     
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive
@@ -80,42 +80,18 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding {
         self.velocity = velocity
     }
     
-    /**
-     Starts the animation (if not already running) with an optional delay.
-
-     - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
-     */
-    public func start(afterDelay delay: TimeInterval = 0) {
-        guard isRunning == false, state != .running, velocity != .zero else { return }
-        precondition(delay >= 0, "`delay` must be greater or equal to zero.")
-        
-        let start = {
-            self.isRunning = true
-            AnimationController.shared.runPropertyAnimation(self)
-        }
-        
-        delayedStart?.cancel()
-
-        if delay == .zero {
-            start()
-        } else {
-            let task = DispatchWorkItem {
-                start()
-            }
-            delayedStart = task
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
-        }
+    internal init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero) {
+        self.value = value
+        self.velocity = velocity
+        self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
     }
     
-    var delayedStart: DispatchWorkItem? = nil
-    
-    public func pauseAnimation() {
-        guard state == .running else { return }
-        state = .inactive
-        delayedStart?.cancel()
+    deinit {
         AnimationController.shared.stopPropertyAnimation(self)
-        isRunning = false
     }
+    
+    /// The item that starts the animation delayed.
+    var delayedStart: DispatchWorkItem? = nil
 
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
@@ -148,10 +124,14 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding {
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
+        if let gestureVelocity = settings.type.gestureVelocity {
+            (self as? DecayAnimation<CGRect>)?.velocity.origin = gestureVelocity
+            (self as? DecayAnimation<CGPoint>)?.velocity = gestureVelocity
+        }
     }
     
     /// Resets the animation.
-    func reset() {
+    public func reset() {
         state = .inactive
         velocity = .zero
     }
@@ -161,7 +141,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding {
 
      - parameter deltaTime: The delta time.
      */
-    func updateAnimation(deltaTime: TimeInterval) {
+    public func updateAnimation(deltaTime: TimeInterval) {
         guard velocity != .zero else {
             // Can't start an animation without a value and target
             state = .inactive

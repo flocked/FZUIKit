@@ -154,30 +154,67 @@ internal class AnimationController {
 extension AnimationController {
     struct AnimationParameters {
         let groupUUID: UUID
-        let spring: Spring
         let delay: CGFloat
-        let gestureVelocity: CGPoint?
+        let type: AnimationType
         let isUserInteractionEnabled: Bool
-        
-        struct SpringParameters {
-            let spring: Spring
-            let gestureVelocity: CGPoint?
-        }
                 
-        struct EasingParameters {
-            let duration: TimeInterval
-            let timingFunction: TimingFunction
-        }
-        
-        struct DecayParameters {
-            let gestureVelocity: CGPoint?
-        }
-        
         enum AnimationType {
             case spring(SpringParameters)
             case easing(EasingParameters)
             case decay(DecayParameters)
             case nonAnimated
+            
+            var spring: Spring? {
+                switch self {
+                case.spring(let parameters):
+                    return parameters.spring
+                default: return nil
+                }
+            }
+            
+            var timingFunction: TimingFunction? {
+                switch self {
+                case.easing(let parameters):
+                    return parameters.timingFunction
+                default: return nil
+                }
+            }
+            
+            var easingDuration: TimeInterval? {
+                switch self {
+                case.easing(let parameters):
+                    return parameters.duration
+                default: return nil
+                }
+            }
+            
+            var gestureVelocity: CGPoint? {
+                switch self {
+                case .decay(let parameters):
+                    return parameters.gestureVelocity
+                case.spring(let parameters):
+                    return parameters.gestureVelocity
+                default: return nil
+                }
+            }
+            
+            struct SpringParameters {
+                let spring: Spring
+                let gestureVelocity: CGPoint?
+                init(spring: Spring, gestureVelocity: CGPoint?) {
+                    self.spring = spring
+                    self.gestureVelocity = gestureVelocity
+                }
+            }
+                    
+            struct EasingParameters {
+                let timingFunction: TimingFunction
+                let duration: TimeInterval
+            }
+            
+            struct DecayParameters {
+                let gestureVelocity: CGPoint?
+            }
         }
 
         let completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)?

@@ -98,16 +98,6 @@ public extension PropertyAnimator {
 }
 
 internal extension PropertyAnimator {
-    /// The current spring animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
-    func springAnimation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> SpringAnimation<Val>? {
-        return animations[key ?? keyPath.stringValue] as? SpringAnimation<Val>
-    }
-    
-    /// The current spring animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
-    func springAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> SpringAnimation<Val>? {
-        return animations[key ?? keyPath.stringValue] as? SpringAnimation<Val>
-    }
-        
     /// The current value of the property at the keypath,. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
         return springAnimation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
@@ -126,7 +116,7 @@ internal extension PropertyAnimator {
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.type.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
             return
         }
         
@@ -134,7 +124,7 @@ internal extension PropertyAnimator {
         var targetValue = newValue
         updateValue(&initialValue, target: &targetValue)
         
-        if settings.spring == .nonAnimated {
+        if settings.type.spring == .nonAnimated {
             if let animation = springAnimation(for: keyPath, key: key) {
                 animation.stop(at: targetValue)
             } else {
@@ -145,7 +135,7 @@ internal extension PropertyAnimator {
             
             configurateViewUserInteration(settings: settings)
             
-            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.spring, value: initialValue, target: targetValue)
+            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.type.spring ?? .smooth, value: initialValue, target: targetValue)
             
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         }
@@ -159,7 +149,7 @@ internal extension PropertyAnimator {
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.type.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
             return
         }
                 
@@ -167,7 +157,7 @@ internal extension PropertyAnimator {
         var targetValue = newValue ?? Value.zero
         updateValue(&initialValue, target: &targetValue)
         
-        if settings.spring == .nonAnimated {
+        if settings.type.spring == .nonAnimated {
             if let animation = springAnimation(for: keyPath, key: key) {
                 animation.stop(at: targetValue)
             } else {
@@ -178,9 +168,20 @@ internal extension PropertyAnimator {
             
             configurateViewUserInteration(settings: settings)
             
-            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.spring, value: initialValue, target: targetValue)
-            
-            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            switch settings.type {
+            case .spring(_):
+                let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: .zero, target: .zero)
+                configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            case .easing(_):
+                let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: .zero, target: .zero)
+                configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            case .decay(_):
+                let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: .zero)
+                configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            case .nonAnimated:
+                self.animation(for: keyPath, key: key)?.stop(immediately: true)
+                self.animations[key ?? keyPath.stringValue] = nil
+            }
         }
     }
     
@@ -198,6 +199,64 @@ internal extension PropertyAnimator {
     func configurateAnimation<Value>(_ animation: SpringAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
         animation.epsilon = epsilon
+        animation.integralizeValues = integralizeValue
+        animation.configure(withSettings: settings)
+        if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
+        } else if let keyPath = keyPath as? WritableKeyPath<Object, Value?> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
+        }
+        let groupUUID = animation.groupUUID
+        let animationKey = key ?? keyPath.stringValue
+        animation.completion = { [weak self] event in
+            switch event {
+            case .finished:
+                completion?()
+                self?.animations[animationKey] = nil
+                AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+            default:
+                break
+            }
+        }
+        animations[animationKey] = animation
+        animation.start(afterDelay: settings.delay)
+    }
+    
+    func configurateAnimation<Value>(_ animation: EasingAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
+        animation.target = target
+        animation.integralizeValues = integralizeValue
+        animation.configure(withSettings: settings)
+        if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
+        } else if let keyPath = keyPath as? WritableKeyPath<Object, Value?> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
+        }
+        let groupUUID = animation.groupUUID
+        let animationKey = key ?? keyPath.stringValue
+        animation.completion = { [weak self] event in
+            switch event {
+            case .finished:
+                completion?()
+                self?.animations[animationKey] = nil
+                AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+            default:
+                break
+            }
+        }
+        animations[animationKey] = animation
+        animation.start(afterDelay: settings.delay)
+    }
+    
+    func configurateAnimation<Value>(_ animation: DecayAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
+        animation.target = target
         animation.integralizeValues = integralizeValue
         animation.configure(withSettings: settings)
         if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
@@ -255,14 +314,14 @@ internal extension PropertyAnimator {
 }
 
 internal extension PropertyAnimator {
-    /// The current decay animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
-    func decayAnimation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> DecayAnimation<Val>? {
-        return animations[key ?? keyPath.stringValue] as? DecayAnimation<Val>
+    /// The current spring animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func springAnimation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> SpringAnimation<Val>? {
+        return animations[key ?? keyPath.stringValue] as? SpringAnimation<Val>
     }
     
-    /// The current decay animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
-    func decayAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> DecayAnimation<Val>? {
-        return animations[key ?? keyPath.stringValue] as? DecayAnimation<Val>
+    /// The current spring animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func springAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> SpringAnimation<Val>? {
+        return animations[key ?? keyPath.stringValue] as? SpringAnimation<Val>
     }
     
     /// The current easing animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
@@ -274,6 +333,19 @@ internal extension PropertyAnimator {
     func easingAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> EasingAnimation<Val>? {
         return animations[key ?? keyPath.stringValue] as? EasingAnimation<Val>
     }
+    
+    /// The current decay animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func decayAnimation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> DecayAnimation<Val>? {
+        return animations[key ?? keyPath.stringValue] as? DecayAnimation<Val>
+    }
+    
+    /// The current decay animation for the property at the keypath, or `nil` if there isn't an animation for the keypath.
+    func decayAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> DecayAnimation<Val>? {
+        return animations[key ?? keyPath.stringValue] as? DecayAnimation<Val>
+    }
+    
+    func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> AnimationProviding? {
+        return animations[key ?? keyPath.stringValue]
+    }
 }
-
 #endif

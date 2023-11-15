@@ -10,9 +10,34 @@ import CoreGraphics
 import Foundation
 import SwiftUI
 
+/**
+ Performs animations on animatable properties of an object conforming to ``AnimatablePropertyProvider``.
+ 
+ The following objects provide animatable properties via `animator`.
+ - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
+ - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
+ 
+ Animations can either ``Spring``, easing (``TimingFunction``) or decay based. To animate use either ``animate(withSpring:delay:gestureVelocity:isUserInteractionEnabled:animations:completion:)``, ``animate(withEasing:duration:delay:isUserInteractionEnabled:animations:completion:)`` or ``animate(withDecay:delay:isUserInteractionEnabled:animations:completion:)``.
+ 
+ ```swift
+ Wave.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
+    myView.animator.center = newCenterPoint
+    myView.animator.backgroundColor = .systemBlue
+ }
+ ```
+ 
+ To update the value of a property that is currenty animated use ``nonAnimate(changes:)``.
+ 
+ ```swift
+ Wave.nonAnimate() {
+    myView.animator.center = newCenterPoint
+    myView.animator.backgroundColor = .systemRed
+ }
+ ```
+ */
 public enum Wave {
     /**
-     Performs animations based on a ``Spring`` configurated as ``Spring/snappy``.
+     Performs spring animations based on a ``Spring`` configurated as ``Spring/snappy``.
      
      The following objects provide animatable properties via `animator`.
      - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
@@ -44,7 +69,7 @@ public enum Wave {
     }
     
     /**
-     Performs animations based on the specified ``Spring``.
+     Performs spring animations based on the specified ``Spring``.
      
      The following objects provide animatable properties via `animator`.
      - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
@@ -75,11 +100,11 @@ public enum Wave {
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
         precondition(Thread.isMainThread)
+        
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
-            spring: spring,
             delay: delay,
-            gestureVelocity: gestureVelocity, 
+            type: .spring(.init(spring: spring, gestureVelocity: gestureVelocity)),
             isUserInteractionEnabled: isUserInteractionEnabled,
             completion: completion
         )
@@ -87,9 +112,115 @@ public enum Wave {
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
     
-    /// Performs the specified changes non animated.
+    /**
+     Performs easing animations based on the specified ``TimingFunction``.
+     
+     The following objects provide animatable properties via `animator`.
+     - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
+     - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
+
+     Note: For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+
+     ```swift
+     Wave.animate(withEasing: .easeInEaseOut), duration: 3.0) {
+        myView.animator.center = view.center
+        myView.animator.backgroundColor = .systemBlue
+     }
+     ```
+     - Parameters:
+        - timingFunction: The ``TimingFunction`` used to determine the timing curve.
+        - duration: The duration of the animation.
+        - delay: An optional delay, in seconds, after which to start the animation.
+        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
+        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
+        - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
+     */
+    public static func animate(
+        withEasing timingFunction: TimingFunction,
+        duration: TimeInterval,
+        delay: TimeInterval = 0,
+        isUserInteractionEnabled: Bool = true,
+        animations: () -> Void,
+        completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
+    ) {
+        precondition(Thread.isMainThread)
+        
+        let settings = AnimationController.AnimationParameters(
+            groupUUID: UUID(),
+            delay: delay,
+            type: .easing(.init(timingFunction: timingFunction, duration: duration)),
+            isUserInteractionEnabled: isUserInteractionEnabled,
+            completion: completion
+        )
+        
+        AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
+    }
+    
+    /**
+     Performs decaying animations based on the specified gesture velocity.
+     
+     The following objects provide animatable properties via `animator`.
+     - macOS: `NSView`, `NSTextField`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
+     - iOS: `UIView`, `UITextField`, `UILabel`, `NSLayoutConstraint` and `CALayer`.
+
+     Note: Only `CGPoint` and `CGRect` properties can be animated decaying. For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)` instead of `myView.frame = …`.
+
+     ```swift
+     Wave.animate(withDecay: CGPoint(x: -200, y: -100))) {
+        myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
+     }
+     ```
+     - Parameters:
+        - gestureVelocity: The value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
+        - delay: An optional delay, in seconds, after which to start the animation.
+        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
+        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
+        - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
+     */
+    public static func animate(
+        withDecay gestureVelocity: CGPoint,
+        delay: TimeInterval = 0,
+        isUserInteractionEnabled: Bool = true,
+        animations: () -> Void,
+        completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
+    ) {
+        precondition(Thread.isMainThread)
+
+        let settings = AnimationController.AnimationParameters(
+            groupUUID: UUID(),
+            delay: delay,
+            type: .decay(.init(gestureVelocity: gestureVelocity)),
+            isUserInteractionEnabled: isUserInteractionEnabled,
+            completion: completion
+        )
+        
+        AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
+    }
+    
+    /**
+     Performs the specified changes non animated.
+     
+     Use it to update the values of a properties that are currenty animated. It will stop the animations and sets their values immediately to the specified new values.
+     
+     ```swift
+     Wave.nonAnimate() {
+        myView.animator.center = newCenterPoint
+        myView.animator.backgroundColor = .systemRed
+     }
+     ```
+     */
     public static func nonAnimate(changes: () -> Void) {
-        self.animate(withSpring: .nonAnimated, animations: changes)
+        precondition(Thread.isMainThread)
+
+        let settings = AnimationController.AnimationParameters(
+            groupUUID: UUID(),
+            delay: 0.0,
+            type: .nonAnimated,
+            isUserInteractionEnabled: true,
+            completion: nil
+        )
+        
+        AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
 }
 

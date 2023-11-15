@@ -9,15 +9,15 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using an easing function.
-public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding {
+public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
     /// A unique identifier that associates an animation with an grouped animation block.
-    var groupUUID: UUID?
+    public internal(set) var groupUUID: UUID?
 
     /// The relative priority of the animation.
-    var relativePriority: Int = 0
+    public var relativePriority: Int = 0
     
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive
@@ -90,11 +90,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding {
         return timingFunction.solve(at: fractionComplete, duration: duration)
     }
     
-    /**
-     The _current_ value of the animation. This value will change as the animation executes.
-
-     `value` needs to be set to a non-nil value before the animation can start.
-     */
+    /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value {
         didSet { 
             guard state != .running, isRunning == false else { return }
@@ -116,6 +112,12 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding {
                 completion?(event)
             }
         }
+    }
+    
+    /// Not in use and only used to confirm to `ConfigurableAnimationProviding`.
+    internal var velocity: Value {
+        get { value }
+        set { }
     }
     
     /// The start value of the animation.
@@ -145,42 +147,21 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding {
         self.timingFunction = timingFunction
     }
     
-    /**
-     Starts the animation (if not already running) with an optional delay.
-
-     - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
-     */
-    public func start(afterDelay delay: TimeInterval = 0) {
-        guard isRunning == false, state != .running else { return }
-        precondition(delay >= 0, "`delay` must be greater or equal to zero.")
-        
-        let start = {
-            self.isRunning = true
-            AnimationController.shared.runPropertyAnimation(self)
-        }
-        
-        delayedStart?.cancel()
-
-        if delay == .zero {
-            start()
-        } else {
-            let task = DispatchWorkItem {
-                start()
-            }
-            delayedStart = task
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
-        }
+    internal init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
+        self.value = value
+        self.fromValue = value
+        self.target = target
+        self.duration = settings.type.easingDuration ?? 0.0
+        self.timingFunction = settings.type.timingFunction ?? .easeInEaseOut
+        self.configure(withSettings: settings)
     }
     
-    var delayedStart: DispatchWorkItem? = nil
-    
-    public func pauseAnimation() {
-        guard state == .running else { return }
-        state = .inactive
-        delayedStart?.cancel()
+    deinit {
         AnimationController.shared.stopPropertyAnimation(self)
-        isRunning = false
     }
+    
+    /// The item that starts the animation delayed.
+    var delayedStart: DispatchWorkItem? = nil
 
     /// Stops the animation at the current value.
     public func stop(immediately: Bool = true) {
@@ -213,10 +194,16 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding {
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
+        if let timingFunction = settings.type.timingFunction {
+            self.timingFunction = timingFunction
+        }
+        if let duration = settings.type.easingDuration {
+            self.duration = duration
+        }
     }
     
     /// Resets the animation.
-    func reset() {
+    public func reset() {
         state = .inactive
     }
         
@@ -225,7 +212,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding {
 
      - parameter deltaTime: The delta time.
      */
-    func updateAnimation(deltaTime: TimeInterval) {
+    public func updateAnimation(deltaTime: TimeInterval) {
         guard value != target else {
             state = .inactive
             return

@@ -14,16 +14,15 @@ import UIKit
 #endif
 
 /// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding   {
-    
+public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
     /// A unique identifier that associates an animation with an grouped animation block.
-    var groupUUID: UUID?
+    public internal(set) var groupUUID: UUID?
     
     /// The relative priority of the animation.
-    var relativePriority: Int = 0
+    public var relativePriority: Int = 0
 
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive {
@@ -59,11 +58,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding   {
     /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
     public var stopsOnCompletion: Bool = true
 
-    /**
-     The _current_ value of the animation. This value will change as the animation executes.
-
-     `value` needs to be set to a non-nil value before the animation can start.
-     */
+    /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value
 
     /**
@@ -141,34 +136,20 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding   {
         self.velocity = velocity
         self.spring = spring
     }
-
-    /**
-     Starts the animation (if not already running) with an optional delay.
-
-     - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
-     */
-    public func start(afterDelay delay: TimeInterval = 0) {
-        guard isRunning == false else { return }
-        precondition(delay >= 0, "`delay` must be greater or equal to zero.")
-
-        let start = {
-            self.isRunning = true
-            AnimationController.shared.runPropertyAnimation(self)
-        }
-        
-        delayedStart?.cancel()
-
-        if delay == .zero {
-            start()
-        } else {
-            let task = DispatchWorkItem {
-                start()
-            }
-            delayedStart = task
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
-        }
+    
+    internal init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
+        self.value = value
+        self.target = target
+        self.velocity = velocity
+        self.spring = settings.type.spring ?? .smooth
+        self.configure(withSettings: settings)
     }
     
+    deinit {
+        AnimationController.shared.stopPropertyAnimation(self)
+    }
+    
+    /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
 
     /// Stops the animation at the current value.
@@ -203,15 +184,17 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding   {
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        spring = settings.spring
-        if let gestureVelocity = settings.gestureVelocity {
+        if let spring = settings.type.spring {
+            self.spring = spring
+        }
+        if let gestureVelocity = settings.type.gestureVelocity {
             (self as? SpringAnimation<CGRect>)?.velocity.origin = gestureVelocity
             (self as? SpringAnimation<CGPoint>)?.velocity = gestureVelocity
         }
     }
 
     /// Resets the animation.
-    func reset() {
+    public func reset() {
         startTime = nil
         velocity = .zero
         state = .inactive
@@ -224,7 +207,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding   {
 
      - parameter deltaTime: The delta time.
      */
-    func updateAnimation(deltaTime: TimeInterval) {
+    public func updateAnimation(deltaTime: TimeInterval) {
         guard value != target else {
             state = .inactive
             return
