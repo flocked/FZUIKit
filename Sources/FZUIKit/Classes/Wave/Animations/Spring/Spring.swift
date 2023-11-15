@@ -15,7 +15,7 @@ import SwiftUI
 
  Springs are created by providing a ``dampingRatio`` greater than zero, and _either_ a ``response`` or ``stiffness`` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
  */
-public class Spring: @unchecked Sendable {
+public struct Spring: @unchecked Sendable {
     // MARK: - Spring Properties
     
     /// The amount of oscillation the spring will exhibit (i.e. "springiness").
@@ -46,7 +46,7 @@ public class Spring: @unchecked Sendable {
         - duration: Defines the pace of the spring. This is approximately equal to the settling duration, but for springs with very large bounce values, will be the duration of the period of oscillation for the spring.
         - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
      */
-    public convenience init(duration: CGFloat = 0.5, bounce: CGFloat = 0.0) {
+    public init(duration: CGFloat = 0.5, bounce: CGFloat = 0.0) {
         self.init(dampingRatio: 1.0 - bounce, response: duration, mass: 1.0)
     }
 
@@ -102,7 +102,7 @@ public class Spring: @unchecked Sendable {
         - mass: Defines how the spring’s motion should be damped due to the forces of friction.
         - allowOverDamping: A value of `true` specifies that over-damping should be allowed when appropriate based on the other inputs, and a value of `false` specifies that such cases should instead be treated as critically damped.
      */
-    public convenience init (damping: CGFloat, stiffness: CGFloat, mass: CGFloat = 1.0, allowOverDamping: Bool = false) {
+    public init (damping: CGFloat, stiffness: CGFloat, mass: CGFloat = 1.0, allowOverDamping: Bool = false) {
         var dampingRatio = Self.dampingRatio(damping: damping, stiffness: stiffness, mass: mass)
         if allowOverDamping == false, dampingRatio > 1.0 {
             dampingRatio = 1.0
@@ -130,7 +130,7 @@ public class Spring: @unchecked Sendable {
         - epsilon: The threshhold for how small all subsequent values need to be before the spring is considered to have settled.
      */
     @available(macOS 14.0, iOS 17, tvOS 17, *)
-    public convenience init(settlingDuration: TimeInterval, dampingRatio: Double, epsilon: Double = 0.001) {
+    public init(settlingDuration: TimeInterval, dampingRatio: Double, epsilon: Double = 0.001) {
         let spring = SwiftUI.Spring(settlingDuration: settlingDuration, dampingRatio: dampingRatio, epsilon: epsilon)
         self.init(spring)
     }
