@@ -26,13 +26,23 @@ import SwiftUI
  }
  ```
  
- To update the value of a property that is currenty animated use ``nonAnimate(changes:)``.
+ To update the values of a properties that is currenty animated use ``nonAnimate(changes:)``.
+ 
+ To immediately update the values of properties that are currenty animated use ``nonAnimate(changes:)``. It will stop their animations and sets their values immediately to the specified new values.
+
  
  ```swift
  Wave.nonAnimate() {
     myView.animator.center = newCenterPoint
     myView.animator.backgroundColor = .systemRed
  }
+ ```
+ 
+ You can also update values non animated by using the ``AnimatablePropertyProvider/animator-54mpy`` outside of any ``Wave`` animation block.
+
+ ```swift
+ myView.animator.center = newCenterPoint
+ myView.animator.backgroundColor = .systemRed
  ```
  */
 public enum Wave {
@@ -200,13 +210,20 @@ public enum Wave {
     /**
      Performs the specified changes non animated.
      
-     Use it to update the values of a properties that are currenty animated. It will stop the animations and sets their values immediately to the specified new values.
+     Use it to immediately update the values of a properties that are currently animated. It will stop their animations and sets their values immediately to the specified new values.
      
      ```swift
      Wave.nonAnimate() {
         myView.animator.center = newCenterPoint
         myView.animator.backgroundColor = .systemRed
      }
+     ```
+     
+     You can also update values non animated by using the ``AnimatablePropertyProvider/animator-54mpy`` outside of any ``Wave`` animation block.
+
+     ```swift
+     myView.animator.center = newCenterPoint
+     myView.animator.backgroundColor = .systemRed
      ```
      */
     public static func nonAnimate(changes: () -> Void) {
