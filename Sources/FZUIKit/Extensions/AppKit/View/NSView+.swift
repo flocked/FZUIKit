@@ -923,6 +923,7 @@ internal extension CALayerContentsGravity {
 }
 
 internal extension NSView {
+    /// Swizzles views to support additional properties for animating.
     static func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
@@ -946,6 +947,7 @@ internal extension NSView {
         return animation
     }
     
+    /// A Boolean value that indicates whether views are swizzled to support additional properties for animating.
     static var didSwizzleAnimationForKey: Bool {
        get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }
        set {
@@ -954,6 +956,7 @@ internal extension NSView {
    }
 }
 
+/// The additional `NSView` keys of properties that can be animated.
 private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "inverseMask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "centerX", "centerY", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "_shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors"]
 
 #endif

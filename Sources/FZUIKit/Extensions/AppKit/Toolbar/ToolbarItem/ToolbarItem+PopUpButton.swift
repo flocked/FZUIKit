@@ -15,6 +15,7 @@ public extension ToolbarItem {
      It can be used as an item of a ``Toolbar``.
      */
     class PopupButton: ToolbarItem {
+        /// The popup button.
         public let button: NSPopUpButton
 
         @discardableResult
@@ -42,6 +43,12 @@ public extension ToolbarItem {
             button.menu = menu
             return self
         }
+        
+        /// The menu of the popup button.
+        public var menu: NSMenu? {
+            get { button.menu }
+            set { button.menu = newValue }
+        }
 
         @discardableResult
         /// The menu items of the popup button.
@@ -63,12 +70,26 @@ public extension ToolbarItem {
             button.pullsDown = pullsDown
             return self
         }
+        
+        /// A Boolean value indicating whether the button displays a pull-down or pop-up menu.
+        public var pullsDown: Bool {
+            get { button.pullsDown }
+            set { button.pullsDown = newValue }
+
+        }
 
         /// The index of the selected item, or `nil` if none is selected.
-        public var indexOfSelectedItem: Int? { (button.indexOfSelectedItem != -1) ? button.indexOfSelectedItem : nil }
+        public var indexOfSelectedItem: Int? {
+            get { (button.indexOfSelectedItem != -1) ? button.indexOfSelectedItem : nil }
+            set { button.selectItem(at: newValue ?? -1)
+            }
+        }
 
         /// The selected menu item, or `nil` if none is selected.
-        public var selectedItem: NSMenuItem? { button.selectedItem }
+        public var selectedItem: NSMenuItem? {
+            get { button.selectedItem }
+            set { button.select(newValue) }
+        }
 
         /// Selects the item of the popup button at the specified index.
         public func selectItem(at index: Int) -> Self {

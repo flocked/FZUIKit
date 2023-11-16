@@ -52,6 +52,24 @@ extension NSWindow {
     }
     
     /**
+     The center point of the window's frame rectangle.
+
+     Setting this property updates the origin of the rectangle in the frame property appropriately.
+     Use this property, instead of the frame property, when you want to change the position of a window.
+     
+     The value can be animated via `animator()`.
+     */
+    @objc open dynamic var centerPoint: CGPoint {
+        get { self.frame.center }
+        set {
+            Self.swizzleAnimationForKey()
+            var frame = self.frame
+            frame.center = newValue
+            setFrame(frame, display: true)
+        }
+    }
+    
+    /**
      Make the receiver a sensible size, given the current screen
      
      This method attempts to size the window to match the current screen aspect ratio and dimensions. It will not exceed 1024 x 900.
@@ -228,14 +246,15 @@ extension NSWindow {
 
 internal extension NSWindow {
     @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        switch key {
-        case "cornerRadius", "roundedCorners", "borderWidth", "borderColor":
-            return CABasicAnimation()
-        default:
-            return self.swizzledAnimation(forKey: key)
+        if NSWindowAnimationKeys.contains(key) {
+            let animation = CABasicAnimation()
+            animation.timingFunction = .default
+            return animation
         }
+        return self.swizzledAnimation(forKey: key)
     }
     
+    /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
     static var didSwizzleAnimationForKey: Bool {
         get { getAssociatedValue(key: "NSWindow_didSwizzleAnimationForKey", object: self, initialValue: false) }
         set {
@@ -243,6 +262,7 @@ internal extension NSWindow {
         }
     }
     
+    /// Swizzles windows to support additional properties for animating.
     static func swizzleAnimationForKey() {
         if didSwizzleAnimationForKey == false {
             didSwizzleAnimationForKey = true
@@ -256,4 +276,7 @@ internal extension NSWindow {
         }
     }
 }
+
+/// The additional `NSWindow` keys of properties that can be animated.
+private let NSWindowAnimationKeys = ["cornerRadius", "roundedCorners", "borderWidth", "borderColor", "centerPoint"]
 #endif

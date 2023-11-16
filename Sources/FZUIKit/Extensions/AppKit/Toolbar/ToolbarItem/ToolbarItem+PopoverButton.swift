@@ -15,8 +15,12 @@ public extension ToolbarItem {
      It can be used as an item of a ``Toolbar``.
      */
     class PopoverButton: ToolbarItem, NSPopoverDelegate {
+        /// The button of the toolbar item that opens the popover.
         public let button: NSButton
-        internal weak var popoverController: NSViewController?
+        
+        /// The view controller of the popover.
+        public weak var popoverViewController: NSViewController?
+        
         internal weak var popover: NSPopover?
 
         @discardableResult
@@ -157,7 +161,7 @@ public extension ToolbarItem {
             }
 
             let popover = NSPopover()
-            popover.contentViewController = popoverController
+            popover.contentViewController = popoverViewController
             popover.behavior = .transient
             popover.delegate = self
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
@@ -184,7 +188,7 @@ public extension ToolbarItem {
 
         public init(_ identifier: NSToolbarItem.Identifier, button: NSButton, popoverContentController: NSViewController) {
             self.button = button
-            popoverController = popoverContentController
+            popoverViewController = popoverContentController
             super.init(identifier)
             self.button.translatesAutoresizingMaskIntoConstraints = false
             self.item.view = self.button

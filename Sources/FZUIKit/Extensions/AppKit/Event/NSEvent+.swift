@@ -113,4 +113,51 @@ public extension NSEvent.EventTypeMask {
     /// All the mouse event types.
      static let mouse: NSEvent.EventTypeMask = [.mouseMoved, .mouseExited, .mouseEntered, .leftMouseUp, .otherMouseUp, .rightMouseUp, .leftMouseDown, .otherMouseDown, .rightMouseDown, .leftMouseDragged, .otherMouseDragged, .rightMouseDragged]
 }
+
+public extension NSEvent.ModifierFlags {
+    /// A Boolean value that indicates whether the Command key has been pressed.
+    var isCommandPressed: Bool {
+        self.contains(.command)
+    }
+    
+    /// A Boolean value that indicates whether the Function key has been pressed.
+    var isOptionPressed: Bool {
+        self.contains(.option)
+    }
+    
+    /// A Boolean value that indicates whether the Control key has been pressed.
+    var isControlPressed: Bool {
+        self.contains(.control)
+    }
+    
+    /// A Boolean value that indicates whether the Command key has been pressed.
+    var isFunctionPressed: Bool {
+        self.contains(.function)
+    }
+    
+    /// A Boolean value that indicates whether the Shift key has been pressed.
+    var isShiftPressed: Bool {
+        self.contains(.shift)
+    }
+    
+    /// A Boolean value that indicates whether the Caps Lock key has been pressed.
+    var isCapsLockPressed: Bool {
+        self.contains(.capsLock)
+    }
+    
+    /// A Boolean value that indicates whether the Help key has been pressed.
+    var isHelpPressed: Bool {
+        self.contains(.help)
+    }
+    
+    /// A Boolean value that indicates whether a key in the numeric keypad or an arrow key has been pressed.
+    var isNumericPadOrArrowPressed: Bool {
+        self.contains(.numericPad)
+    }
+    
+    /// A Boolean value that indicates whether device-independent modifier flags are masked.
+    var deviceIndependentFlagsAreMasked: Bool {
+        self.contains(.deviceIndependentFlagsMask)
+    }
+}
 #endif
