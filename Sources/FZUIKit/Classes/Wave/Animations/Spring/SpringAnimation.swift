@@ -235,7 +235,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         let isAnimated = spring.response > .zero
 
         if isAnimated {
-            spring.update(value: &value, velocity: &velocity, target: target, deltaTime: deltaTime)
+            spring.update(value: &_value, velocity: &_velocity, target: _target, deltaTime: deltaTime)
         } else {
             self._value = _target
             velocity = Value.zero
