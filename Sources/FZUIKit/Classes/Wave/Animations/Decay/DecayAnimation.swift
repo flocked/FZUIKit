@@ -72,7 +72,6 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         get { return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decayFunction.decayConstant) }
         set {
             self.velocity = DecayFunction.velocity(fromValue: value, toValue: newValue)
-            Swift.print("decay target", value, target, velocity, velocity.animatableData.magnitudeSquared)
             self.fromVelocity = self.velocity
         }
     }
@@ -162,9 +161,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         decayFunction.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
 
         let animationFinished = velocity.animatableData.magnitudeSquared < 0.05
-        
-        Swift.print("decay", velocity.animatableData.magnitudeSquared)
-        
+                
         if animationFinished, repeats {
             value = fromValue
             velocity = fromVelocity
