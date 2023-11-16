@@ -218,11 +218,11 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     }
     
     @available(macOS 13.0.0, *)
-    func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {        
-        if let fromValue = fromValue.animatableData as? (any VectorElements<CGFloat>), let target = oldTarget.animatableData as? (any VectorElements<CGFloat>), let newTarget = newTarget.animatableData as? (any VectorElements<CGFloat>) {
-            Swift.print("newDuration CGFloat")
+    func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
+        if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<CGFloat>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<CGFloat>), let newTarget = newTarget.animatableData as? (any VectorElements<CGFloat>) {
+            Swift.print("newDuration CGFloat", fromValue, oldTarget)
 
-            let range = fromValue.elements...target.elements
+            let range = fromValueAnimatable.elements...targetAnimatable.elements
             
             guard let usableIndex = newTarget.indices.first(where: { i -> Bool in
                 let fractionComplete = newTarget.elements[i] / (range.upperBound[i] - range.lowerBound[i])
@@ -234,11 +234,11 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             let newDuration = duration * fractionTime
             Swift.print("newDuration CGFloat end", newDuration)
             return newDuration
-        } else if let fromValue = fromValue.animatableData as? (any VectorElements<Double>), let target = oldTarget.animatableData as? (any VectorElements<Double>), let newTarget = newTarget.animatableData as? (any VectorElements<Double>) {
-            Swift.print("newDuration Double")
+        } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Double>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Double>), let newTarget = newTarget.animatableData as? (any VectorElements<Double>) {
+            Swift.print("newDuration Double", fromValue, oldTarget)
 
-            let range = fromValue.elements...target.elements
-            
+            let range = fromValueAnimatable.elements...targetAnimatable.elements
+
             guard let usableIndex = newTarget.indices.first(where: { i -> Bool in
                 let fractionComplete = newTarget.elements[i] / (range.upperBound[i] - range.lowerBound[i])
                 return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
@@ -250,11 +250,11 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             let newDuration = duration * fractionTime
             Swift.print("newDuration Double end", newDuration)
             return newDuration
-        } else if let fromValue = fromValue.animatableData as? (any VectorElements<Float>), let target = oldTarget.animatableData as? (any VectorElements<Float>), let newTarget = newTarget.animatableData as? (any VectorElements<Float>) {
-            Swift.print("newDuration Float")
+        } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Float>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Float>), let newTarget = newTarget.animatableData as? (any VectorElements<Float>) {
+            Swift.print("newDuration Float", fromValue, oldTarget)
 
-            let range = fromValue.elements...target.elements
-            
+            let range = fromValueAnimatable.elements...targetAnimatable.elements
+
             guard let usableIndex = newTarget.indices.first(where: { i -> Bool in
                 let fractionComplete = newTarget.elements[i] / (range.upperBound[i] - range.lowerBound[i])
                 return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
