@@ -48,6 +48,8 @@ import SwiftUI
  myView.animator.center = newCenterPoint
  myView.animator.backgroundColor = .systemRed
  ```
+ 
+ - Note: All animations are to run and be interfaced with on the main thread only. There is no support for threading of any kind.
  */
 public enum Wave {
     /**
