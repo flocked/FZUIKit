@@ -21,13 +21,6 @@ internal class AnimationController {
 
     private var animations: [UUID: AnimationProviding] = [:]
     private var animationSettingsStack = SettingsStack()
-    
-    var mouseDownDisabledViews: [UUID: [NSView]] = [:] {
-        didSet { setupMouseDownMonitor() }
-    }
-    
-    /// Monitors mouseDown events on views that are currently animated and that are disabled for user interactions while animating (`isUserInteractionEnabled`).
-    private var mouseDownMonitor: NSEvent.Monitor? = nil
 
     typealias CompletionBlock = (_ finished: Bool, _ retargeted: Bool) -> Void
     var groupAnimationCompletionBlocks: [UUID: CompletionBlock] = [:]
@@ -62,10 +55,6 @@ internal class AnimationController {
     func stopPropertyAnimation(_ animation: AnimationProviding) {
         animation.reset()
         animations.removeValue(forKey: animation.id)
-        
-        if let groupUUID = animation.groupUUID, mouseDownDisabledViews[groupUUID] != nil, animations.contains(where: {$0.value.groupUUID == animation.groupUUID}) == false {
-            mouseDownDisabledViews[groupUUID] = nil
-        }
     }
 
     private func updateAnimations(_ frame: DisplayLink.Frame) {
@@ -121,34 +110,6 @@ internal class AnimationController {
             groupAnimationCompletionBlocks.removeValue(forKey: uuid)
         }
     }
-    
-    private func setupMouseDownMonitor() {
-        if mouseDownDisabledViews.isEmpty == false {
-            Swift.print("setupMouseDownMonitor", mouseDownDisabledViews.flatMap({$0.value}).uniqued().count)
-            if mouseDownMonitor == nil {
-                mouseDownMonitor = .local(for: [.leftMouseDown]) { [weak self] event in
-                    guard let self = self else { return event }
-                    if let contentView = NSApp.keyWindow?.contentView {
-                        let mouseLocation = event.location(in: contentView)
-                        if let hitView = contentView.hitTest(mouseLocation) {
-                            let allMouseDownDisabledViews = mouseDownDisabledViews.flatMap({$0.value}).uniqued()
-                            for view in allMouseDownDisabledViews {
-                                if hitView == view || hitView.isDescendant(of: view) {
-                                    Swift.print("mouseDownMonitor nil")
-                                    return nil
-                                }
-                            }
-                        }
-                    }
-                    Swift.print("mouseDownMonitor event")
-                    return event
-                }
-            }
-        } else {
-            Swift.print("setupMouseDownMonitor disable")
-            mouseDownMonitor = nil
-        }
-    }
 }
 
 extension AnimationController {
@@ -156,7 +117,7 @@ extension AnimationController {
         let groupUUID: UUID
         let delay: CGFloat
         let type: AnimationType
-        let isUserInteractionEnabled: Bool
+     //   let isUserInteractionEnabled: Bool
                 
         enum AnimationType {
             case spring(SpringParameters)
@@ -244,3 +205,44 @@ extension AnimationController {
     }
 }
 #endif
+
+/*
+ var mouseDownDisabledViews: [UUID: [NSView]] = [:] {
+     didSet { setupMouseDownMonitor() }
+ }
+ 
+ /// Monitors mouseDown events on views that are currently animated and that are disabled for user interactions while animating (`isUserInteractionEnabled`).
+ private var mouseDownMonitor: NSEvent.Monitor? = nil
+ 
+ private func setupMouseDownMonitor() {
+     if mouseDownDisabledViews.isEmpty == false {
+         Swift.print("setupMouseDownMonitor", mouseDownDisabledViews.flatMap({$0.value}).uniqued().count)
+         if mouseDownMonitor == nil {
+             mouseDownMonitor = .local(for: [.leftMouseDown]) { [weak self] event in
+                 guard let self = self else { return event }
+                 if let contentView = NSApp.keyWindow?.contentView {
+                     let mouseLocation = event.location(in: contentView)
+                     if let hitView = contentView.hitTest(mouseLocation) {
+                         let allMouseDownDisabledViews = mouseDownDisabledViews.flatMap({$0.value}).uniqued()
+                         for view in allMouseDownDisabledViews {
+                             if hitView == view || hitView.isDescendant(of: view) {
+                                 Swift.print("mouseDownMonitor nil")
+                                 return nil
+                             }
+                         }
+                     }
+                 }
+                 Swift.print("mouseDownMonitor event")
+                 return event
+             }
+         }
+     } else {
+         Swift.print("setupMouseDownMonitor disable")
+         mouseDownMonitor = nil
+     }
+ }
+ 
+ if let groupUUID = animation.groupUUID, mouseDownDisabledViews[groupUUID] != nil, animations.contains(where: {$0.value.groupUUID == animation.groupUUID}) == false {
+     mouseDownDisabledViews[groupUUID] = nil
+ }
+ */

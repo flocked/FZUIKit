@@ -71,11 +71,10 @@ public enum Wave {
     public static func animate(
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
-        isUserInteractionEnabled: Bool = true,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
-        self.animate(withSpring: .snappy, delay: delay, gestureVelocity: gestureVelocity, isUserInteractionEnabled: isUserInteractionEnabled, animations: animations, completion: completion)
+        self.animate(withSpring: .snappy, delay: delay, gestureVelocity: gestureVelocity, animations: animations, completion: completion)
     }
     
     /**
@@ -103,7 +102,6 @@ public enum Wave {
         withSpring spring: Spring,
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
-        isUserInteractionEnabled: Bool = true,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
@@ -113,12 +111,9 @@ public enum Wave {
             groupUUID: UUID(),
             delay: delay,
             type: .spring(.init(spring: spring, gestureVelocity: gestureVelocity)),
-            isUserInteractionEnabled: isUserInteractionEnabled,
             completion: completion
         )
-        
-        Swift.print("wave spring", settings.type.spring != nil)
-        
+                
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
     
@@ -147,7 +142,6 @@ public enum Wave {
         withEasing timingFunction: TimingFunction,
         duration: TimeInterval,
         delay: TimeInterval = 0,
-        isUserInteractionEnabled: Bool = true,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
@@ -157,7 +151,6 @@ public enum Wave {
             groupUUID: UUID(),
             delay: delay,
             type: .easing(.init(timingFunction: timingFunction, duration: duration)),
-            isUserInteractionEnabled: isUserInteractionEnabled,
             completion: completion
         )
         
@@ -189,7 +182,6 @@ public enum Wave {
     public static func animate(
         withDecay gestureVelocity: CGPoint,
         delay: TimeInterval = 0,
-        isUserInteractionEnabled: Bool = true,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
@@ -199,7 +191,6 @@ public enum Wave {
             groupUUID: UUID(),
             delay: delay,
             type: .decay(.init(gestureVelocity: gestureVelocity)),
-            isUserInteractionEnabled: isUserInteractionEnabled,
             completion: completion
         )
         
@@ -236,15 +227,15 @@ public enum Wave {
             groupUUID: UUID(),
             delay: 0.0,
             type: .nonAnimated,
-            isUserInteractionEnabled: true,
             completion: nil
         )
-        
-        Swift.print("wave nonAnimate", settings.type.isNonAnimated)
-
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
 }
 
 #endif
+
+/*
+ - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
+ */
