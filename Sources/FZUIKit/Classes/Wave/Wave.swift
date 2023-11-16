@@ -184,14 +184,14 @@ public enum Wave {
      - Parameters:
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
-        - velocity: If provided, any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop. This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time. If you don't provide a velocity, the properties animate with a decaying acceleration to your provided values.
+        - velocity: If provided, any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop. This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time. If you don't provide a velocity, the properties animate with a decaying acceleration to your provided values. The default value is `nil`.
         - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - delay: An optional delay, in seconds, after which to start the animation.
      */
     public static func animate(
         withDecay animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil,
-        velocity: CGPoint?,
+        velocity: CGPoint? = nil,
         repeats: Bool = false,
         delay: TimeInterval = 0
     ) {
