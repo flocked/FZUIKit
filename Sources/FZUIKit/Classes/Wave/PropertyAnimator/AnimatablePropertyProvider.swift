@@ -73,12 +73,12 @@ public extension AnimatablePropertyProvider {
         animator.animation(for: keyPath)
     }
     
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
     func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value>) -> Value? {
         animator.animationVelocity(for: keyPath)
     }
     
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
     func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value?>) -> Value? {
         animator.animationVelocity(for: keyPath)
     }

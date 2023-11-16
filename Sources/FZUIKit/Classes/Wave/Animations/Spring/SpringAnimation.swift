@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 /// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
+public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, VelocityAnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -152,10 +152,10 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     }
     
     /// The item that starts the animation delayed.
-    var delayedStart: DispatchWorkItem? = nil
+    internal var delayedStart: DispatchWorkItem? = nil
 
     /// Configurates the animation with the specified settings.
-    func configure(withSettings settings: AnimationController.AnimationParameters) {
+    internal func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
         if let spring = settings.type.spring {
             self.spring = spring

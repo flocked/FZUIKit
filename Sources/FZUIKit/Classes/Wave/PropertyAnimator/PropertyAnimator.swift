@@ -86,22 +86,22 @@ public extension PropertyAnimator {
         self.animations[keyPath.stringValue]
     }
     
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
     func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
-        if let animation = self.animations[keyPath.stringValue] as? SpringAnimation<Value> {
-            return animation.velocity
-        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimation<Value> {
-            return animation.velocity
+        if let animation = self.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+            return animation.velocity as? Value
+        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+            return animation.velocity as? Value
         }
         return nil
     }
     
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
     func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
-        if let animation = self.animations[keyPath.stringValue] as? SpringAnimation<Value> {
-            return animation.velocity
-        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? SpringAnimation<Value> {
-            return animation.velocity
+        if let animation = self.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+            return animation.velocity as? Value
+        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+            return animation.velocity as? Value
         }
         return nil
     }
@@ -143,6 +143,7 @@ internal extension PropertyAnimator {
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .easing(_):
             let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            animation.repeats = true
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .decay(_):
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)

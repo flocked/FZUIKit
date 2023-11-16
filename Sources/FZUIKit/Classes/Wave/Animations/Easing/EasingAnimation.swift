@@ -162,7 +162,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.value = value
         self.fromValue = value
         self.target = target
-        self.duration = settings.type.easingDuration ?? 0.0
+        self.duration = settings.type.easingDuration ?? 0.25
         self.timingFunction = settings.type.timingFunction ?? .easeInEaseOut
         self.configure(withSettings: settings)
     }

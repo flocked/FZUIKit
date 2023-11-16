@@ -181,4 +181,9 @@ internal extension ConfigurableAnimationProviding  {
         completion?(.finished(at: value))
     }
 }
+
+internal protocol VelocityAnimationProviding<Value>: AnimationProviding {
+    associatedtype Value: AnimatableProperty
+    var velocity: Value { get }
+}
 #endif
