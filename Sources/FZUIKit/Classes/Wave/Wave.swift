@@ -117,6 +117,8 @@ public enum Wave {
             completion: completion
         )
         
+        Swift.print("wave spring", settings.type.spring != nil)
+        
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
     
@@ -237,6 +239,9 @@ public enum Wave {
             isUserInteractionEnabled: true,
             completion: nil
         )
+        
+        Swift.print("wave nonAnimate", settings.type.isNonAnimated)
+
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }

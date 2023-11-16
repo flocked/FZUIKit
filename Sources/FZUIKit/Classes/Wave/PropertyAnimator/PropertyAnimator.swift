@@ -106,6 +106,7 @@ internal extension PropertyAnimator {
     }
     
     func setValue<Value: AnimatableProperty>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
+        Swift.print("propertyAnimator setValue", AnimationController.shared.currentAnimationParameters != nil)
         guard let settings = AnimationController.shared.currentAnimationParameters else {
             Wave.nonAnimate {
                 self.setValue(newValue, for: keyPath, key: key)
@@ -149,7 +150,9 @@ internal extension PropertyAnimator {
     }
     
     func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
+        Swift.print("propertyAnimator setValue", AnimationController.shared.currentAnimationParameters != nil)
         guard let settings = AnimationController.shared.currentAnimationParameters else {
+            
             Wave.nonAnimate {
                 self.setValue(newValue, for: keyPath, key: key)
             }
