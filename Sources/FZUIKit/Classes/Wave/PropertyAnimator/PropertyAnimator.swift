@@ -127,7 +127,7 @@ internal extension PropertyAnimator {
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.animationType.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.animationType.isNonAnimated) else {
             return
         }
         
@@ -192,7 +192,6 @@ internal extension PropertyAnimator {
     
     /// Configurates an animation and starts it.
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, integralizeValue: Bool = false, completion: (()->())? = nil) {
-        
         animation.target = target
         animation.fromValue = animation.value
         if let easingAnimation = animation as? EasingAnimation<Value> {

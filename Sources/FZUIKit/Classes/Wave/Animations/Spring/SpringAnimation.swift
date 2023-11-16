@@ -111,6 +111,9 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     
     var _velocity: Value.AnimatableData {
         didSet {
+            if velocity == .zero {
+                Swift.print("!!velocity zero!!!")
+            }
             guard state != .running else { return }
             _fromVelocity = _velocity
         }
