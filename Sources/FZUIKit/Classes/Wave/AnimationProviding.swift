@@ -144,7 +144,7 @@ internal extension ConfigurableAnimationProviding  {
     }
     
     /// Stops the animation immediately at the current value.
-    mutating func stopAtCurrentValue() {
+    func stopAtCurrentValue() {
         self.stop(at: value)
     }
     
