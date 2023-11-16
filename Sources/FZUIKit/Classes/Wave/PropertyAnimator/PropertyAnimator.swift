@@ -107,7 +107,7 @@ internal extension PropertyAnimator {
     
     func setValue<Value: AnimatableProperty>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.animate(withSpring: .nonAnimated) {
+            Wave.nonAnimate {
                 self.setValue(newValue, for: keyPath, key: key)
             }
             return
@@ -150,7 +150,7 @@ internal extension PropertyAnimator {
     
     func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.animate(withSpring: .nonAnimated) {
+            Wave.nonAnimate {
                 self.setValue(newValue, for: keyPath, key: key)
             }
             return
@@ -213,7 +213,39 @@ internal extension PropertyAnimator {
         }
     }
     
+    /*
     /// Configurate spring animation.
+    func configurateAnimation<Value>(_ animation: SpringAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
+        animation.target = target
+        animation.epsilon = epsilon
+        animation.integralizeValues = integralizeValue
+        animation.configure(withSettings: settings)
+        if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
+        } else if let keyPath = keyPath as? WritableKeyPath<Object, Value?> {
+            animation.valueChanged = { [weak self] value in
+                self?.object[keyPath: keyPath] = value
+            }
+        }
+        let groupUUID = animation.groupUUID
+        let animationKey = key ?? keyPath.stringValue
+        animation.completion = { [weak self] event in
+            switch event {
+            case .finished:
+                completion?()
+                self?.animations[animationKey] = nil
+                AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+            default:
+                break
+            }
+        }
+        animations[animationKey] = animation
+        animation.start(afterDelay: settings.delay)
+    }
+     */
+    
     func configurateAnimation<Value>(_ animation: SpringAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
         animation.epsilon = epsilon
