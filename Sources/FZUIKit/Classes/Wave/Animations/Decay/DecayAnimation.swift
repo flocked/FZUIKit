@@ -69,11 +69,10 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
      Adjusting this is similar to providing a new `targetContentOffset` in `UIScrollView`'s `scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>)`.
      */
     public var target: Value {
-        get {
-            return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decayFunction.decayConstant)
-        }
+        get { return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decayFunction.decayConstant) }
         set {
             self.velocity = DecayFunction.velocity(fromValue: value, toValue: newValue)
+            self.fromVelocity = self.velocity
         }
     }
     
