@@ -11,7 +11,7 @@ import Foundation
 /**
  A type that provides an animation.
  
- It provides a default implementation for ``start(afterDelay:)``, ``pauseAnimation()`` and ``stop(at:)``.
+ It provides default implementations for ``start(afterDelay:)``, ``pauseAnimation()`` and ``stop(at:)``.
  */
 public protocol AnimationProviding {
     /// A unique identifier for the animation.
@@ -60,6 +60,8 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     /// The current state of the animation.
     var state: AnimationState { get set }
     
+    var groupUUID: UUID? { get set }
+    
     /// The current value of the animation.
     var value: Value { get set }
     
@@ -91,7 +93,7 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
 /// An internal extension to `AnimationProviding` for animations with velocity.
 internal protocol AnimationVelocityProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
-    var velocity: Value { get }
+    var velocity: Value { get set }
 }
 
 /// An internal extension to `AnimationProviding` for animations with running time.
@@ -155,6 +157,7 @@ internal extension ConfigurableAnimationProviding  {
     }
 }
 #endif
+
 
 /*
 mutating func _stop(immediately: Bool = true) {
