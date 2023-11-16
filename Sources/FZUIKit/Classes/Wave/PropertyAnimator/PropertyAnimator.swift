@@ -48,11 +48,8 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
     internal init(_ object: Object) {
         self.object = object
     }
-    
-    internal var animations: [String: AnimationProviding] {
-        get { getAssociatedValue(key: "animations", object: self, initialValue: [:]) }
-        set { set(associatedValue: newValue, key: "animations", object: self) }
-    }
+    /// A dictionary containing the current animated property keys and associated animations.
+    public var animations: [String: AnimationProviding] = [:]
 }
 
 public extension PropertyAnimator {
@@ -187,9 +184,20 @@ internal extension PropertyAnimator {
             Swift.print("animate nonAnimated")
             if let springAnimation = springAnimation(for: keyPath, key: key) {
                 springAnimation.stop(at: targetValue)
+            } else if let easingAnimation = easingAnimation(for: keyPath, key: key) {
+                easingAnimation.stop(at: targetValue)
+            } else if let decayAnimation = decayAnimation(for: keyPath, key: key) {
+                decayAnimation.stop(at: targetValue)
             } else {
                 self.animation(for: keyPath, key: key)?.stop(immediately: true)
             }
+            /*
+            if let springAnimation = springAnimation(for: keyPath, key: key) {
+                springAnimation.stop(at: targetValue)
+            } else {
+                self.animation(for: keyPath, key: key)?.stop(immediately: true)
+            }
+             */
             self.animations[key ?? keyPath.stringValue] = nil
         }
     }
