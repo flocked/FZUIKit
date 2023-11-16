@@ -76,7 +76,7 @@ public extension TargetActionProtocol {
     }
 }
 
-#elseif canImport(UIKit)
+#elseif os(iOS) || os(tvOS)
 import UIKit
 import Foundation
 

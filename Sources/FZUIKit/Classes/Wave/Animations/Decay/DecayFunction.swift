@@ -7,6 +7,8 @@
 //  Created by Florian Zand on 09.11.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 import SwiftUI
 
@@ -163,3 +165,5 @@ public func destination<V>(value: V, velocity: Double, decayConstant: Double = S
   */
  public var roundingFactor: Double = 0.5
  */
+
+#endif

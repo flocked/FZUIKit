@@ -307,7 +307,7 @@ public extension NSUIView {
     /// The background gradient of the view. Applying a gradient sets the view's `backgroundColor` to `nil`.
     dynamic var gradient: Gradient? {
         get { self.optionalLayer?._gradientLayer?.gradient }
-        set { self.configurate(using: newValue ?? .zero)
+        set { self.configurate(using: newValue ?? .init(stops: []))
             if newValue?.stops.isEmpty == false {
                 backgroundColor = nil
             }

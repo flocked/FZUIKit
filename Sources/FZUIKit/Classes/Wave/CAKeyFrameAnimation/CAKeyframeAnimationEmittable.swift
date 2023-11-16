@@ -6,6 +6,7 @@
 //  Florian Zand on 02.11.23.
 //
 
+#if canImport(QuartzCore)
 import Foundation
 import QuartzCore
 #if os(macOS)
@@ -152,4 +153,5 @@ fileprivate extension UIWindow {
         return nil
     }
 }
+#endif
 #endif

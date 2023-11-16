@@ -6,6 +6,7 @@
 //  Florian Zand on 02.11.23.
 //
 
+#if canImport(QuartzCore)
 import Foundation
 import QuartzCore
 
@@ -63,3 +64,4 @@ public extension CALayer {
         add(keyframeAnimation, forKey: key)
     }
 }
+#endif

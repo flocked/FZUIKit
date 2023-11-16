@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 20.10.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 
 /// Timing functions are used to convert linear input time (`0.0 -> 1.0`) to transformed output time (also `0.0 -> 1.0`)..
@@ -155,4 +157,5 @@ extension TimingFunction {
  }
  */
 
+#endif
 #endif

@@ -136,7 +136,11 @@ extension CATransform3D: AnimatableProperty {
 
 extension AnimatableProperty where Self: NSUIColor {
     public init(_ animatableData: AnimatableVector) {
+        #if os(macOS)
         self.init(deviceRed: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
+        #else
+        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
+        #endif
     }
 }
 

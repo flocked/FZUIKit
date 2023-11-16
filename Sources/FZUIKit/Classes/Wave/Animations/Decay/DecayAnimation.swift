@@ -7,6 +7,8 @@
 //  Created by Florian Zand on 03.11.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 import FZSwiftUtils
 
@@ -159,3 +161,5 @@ extension DecayAnimation: CustomStringConvertible {
         """
     }
 }
+
+#endif

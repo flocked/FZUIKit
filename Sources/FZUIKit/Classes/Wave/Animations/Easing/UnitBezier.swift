@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 20.10.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 import Accelerate
 
@@ -142,3 +144,5 @@ fileprivate struct UnitBezierSolver {
     }
     
 }
+
+#endif

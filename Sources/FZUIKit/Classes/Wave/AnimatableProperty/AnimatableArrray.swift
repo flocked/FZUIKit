@@ -231,7 +231,9 @@ extension AnimatableArray: ExpressibleByArrayLiteral {}
 
 // extension AnimatableArray: AnimatableData, Comparable, Equatable { }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 extension AnimatableArray: Equatable, AnimatableProperty { }
+#endif
 
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     public static func -= (lhs: inout Self, rhs: Self) {

@@ -62,7 +62,7 @@ public extension NSRotationGestureRecognizer {
     }
 }
 
-#elseif canImport(UIKit)
+#elseif os(iOS) || os(tvOS)
 import UIKit
 
 public extension UIPinchGestureRecognizer {

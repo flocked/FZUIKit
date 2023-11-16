@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 03.11.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 import FZSwiftUtils
 
@@ -188,7 +190,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         state = .inactive
     }
     
-    @available(macOS 13.0.0, *)
+    @available(macOS 13.0.0, iOS 16.0.0, tvOS 16.0.0, *)
     func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
         if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<CGFloat>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<CGFloat>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<CGFloat>) {
             Swift.print("newDuration CGFloat", fromValue, oldTarget, newTarget)
@@ -353,3 +355,4 @@ extension EasingAnimation: CustomStringConvertible {
     }
 }
 
+#endif

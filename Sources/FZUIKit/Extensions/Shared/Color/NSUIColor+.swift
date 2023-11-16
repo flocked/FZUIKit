@@ -145,6 +145,7 @@ public extension NSUIColor {
       return brightness >= 0.5
     }
     
+    #if os(macOS) || os(iOS) || os(tvOS)
     /**
      Generates the resolved color for the specified view,.
      
@@ -157,11 +158,6 @@ public extension NSUIColor {
         #elseif canImport(UIKit)
         self.resolvedColor(with: view.traitCollection)
         #endif
-    }
-    
-    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't zero).
-    var isVisible: Bool {
-        self.alphaComponent != 0.0
     }
     
     /// A Boolean value that indicates whether the color contains a different light and dark color variant.
@@ -185,5 +181,11 @@ public extension NSUIColor {
         backgroundGradientLayer.colors = gradientColors.map({$0.cgColor})
         let backgroundColorImage = backgroundGradientLayer.renderedImage
         self.init(patternImage: backgroundColorImage)
+    }
+    #endif
+    
+    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't zero).
+    var isVisible: Bool {
+        self.alphaComponent != 0.0
     }
 }

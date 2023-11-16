@@ -6,6 +6,8 @@
 //  Florian Zand on 02.11.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 #if os(macOS)
 import AppKit
@@ -115,3 +117,5 @@ extension NSDirectionalEdgeInsets: CAKeyframeAnimationValueConvertible {
         NSValue(directionalEdgeInsets: self)
     }
 }
+
+#endif

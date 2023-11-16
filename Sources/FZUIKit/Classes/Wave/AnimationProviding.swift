@@ -87,7 +87,6 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
 }
-#endif
 
 extension AnimationProviding {
     public func start(afterDelay delay: TimeInterval) {
@@ -182,3 +181,4 @@ internal extension ConfigurableAnimationProviding  {
         completion?(.finished(at: value))
     }
 }
+#endif
