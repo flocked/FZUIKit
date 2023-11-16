@@ -9,32 +9,38 @@
 import AppKit
 
 public extension ToolbarItem {
+    /// A toolbar item that contains a button.
     class Button: ToolbarItem {
         public let button: NSButton
         
         @discardableResult
+        /// The title of the button.
         public func title(_ title: String) -> Self {
             button.title = title
             return self
         }
-
+        
         @discardableResult
+        /// The alternate title of the button.
         public func alternateTitle(_ title: String) -> Self {
             button.alternateTitle = title
             return self
         }
 
         @discardableResult
+        /// The attributed title of the button.
         public func attributedTitle(_ title: NSAttributedString) -> Self {
             button.attributedTitle = title
             return self
         }
 
         @discardableResult
+        /// The attributed alternate title of the button.
         public func attributedAlternateTitle(_ title: NSAttributedString) -> Self {
             button.attributedAlternateTitle = title
             return self
         }
+        
 
         /// Sets the button’s type, which affects its user interface and behavior when clicked.
         @discardableResult
@@ -65,6 +71,7 @@ public extension ToolbarItem {
         }
 
         @discardableResult
+        /// The image of the button, or `nil` if none.
         public func image(_ image: NSImage?) -> Self {
             button.image = image
             return self
@@ -78,6 +85,7 @@ public extension ToolbarItem {
         }
 
         @discardableResult
+        /// The alternate image of the button, or `nil` if none.
         public func alternateImage(_ image: NSImage?) -> Self {
             button.alternateImage = image
             return self
@@ -91,6 +99,7 @@ public extension ToolbarItem {
         }
 
         @discardableResult
+        /// The image scaling of the button.
         public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
             button.imageScaling = imageScaling
             return self
@@ -119,6 +128,7 @@ public extension ToolbarItem {
         }
 
         @discardableResult
+        /// The action block of the button.
         public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
             self.button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
@@ -128,6 +138,7 @@ public extension ToolbarItem {
         }
 
         @discardableResult
+        /// The action block of the button.
         public func onAction(_ handler: @escaping () -> Void) -> Self {
             self.button.actionBlock = { _ in
                 handler()

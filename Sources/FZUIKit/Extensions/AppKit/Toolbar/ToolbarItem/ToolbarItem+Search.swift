@@ -10,6 +10,7 @@ import AppKit
 
 @available(macOS 11.0, *)
 public extension ToolbarItem {
+    /// A toolbar item that contains a search field optimized for performing text-based searches.
     class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
         internal typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
 
@@ -36,7 +37,11 @@ public extension ToolbarItem {
         /// The search field of the toolbar item.
         public var searchField: NSSearchField {
             get { searchItem.searchField }
-            set { searchItem.searchField = newValue }
+            set { 
+                guard newValue != searchField else { return }
+                searchItem.searchField = newValue
+                self.setupSearchField()
+            }
         }
 
         /// The string value of the search field.
@@ -95,11 +100,8 @@ public extension ToolbarItem {
             self.searchField.translatesAutoresizingMaskIntoConstraints = false
             self.searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
         }
-
-        public init(_ identifier: NSToolbarItem.Identifier, searchField: NSSearchField) {
-            super.init(identifier)
-            searchField.translatesAutoresizingMaskIntoConstraints = false
-            self.searchField = searchField
+        
+        internal func setupSearchField() {
             self.searchField.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 self.item.actionBlock?(self.item)
@@ -107,13 +109,16 @@ public extension ToolbarItem {
             self.searchField.delegate = self
         }
 
+        public init(_ identifier: NSToolbarItem.Identifier, searchField: NSSearchField) {
+            super.init(identifier)
+            searchField.translatesAutoresizingMaskIntoConstraints = false
+            self.searchField = searchField
+            self.setupSearchField()
+        }
+
         override public init(_ identifier: NSToolbarItem.Identifier) {
             super.init(identifier)
-            searchField.actionBlock = { [weak self] _ in
-                guard let self = self else { return }
-                self.item.actionBlock?(self.item)
-            }
-            searchField.delegate = self
+            self.setupSearchField()
         }
 
         public func searchFieldDidStartSearching(_: NSSearchField) {

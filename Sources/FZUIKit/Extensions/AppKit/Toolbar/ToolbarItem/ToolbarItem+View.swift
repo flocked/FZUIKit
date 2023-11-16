@@ -10,7 +10,9 @@ import AppKit
 import SwiftUI
 
 public extension ToolbarItem {
+    /// A toolbar item that displays a view.
     class View: ToolbarItem {
+        /// The view of the toolbar item.
         public var view: NSView {
             get { item.view! }
             set { item.view = newValue }

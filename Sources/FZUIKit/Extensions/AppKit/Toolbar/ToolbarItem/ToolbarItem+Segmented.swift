@@ -10,42 +10,50 @@ import AppKit
 import FZSwiftUtils
 
 public extension ToolbarItem {
+    /// A toolbar item that contains a segmented control.
     class Segmented: ToolbarItem {
         public typealias SwitchingMode = NSSegmentedControl.SwitchTracking
         public typealias Style = NSSegmentedControl.Style
 
+        /// The segmented control of the toolbar item.
         public let segmentedControl: NSSegmentedControl
 
+        /// The segments of the segmented control.
         public var segments: [NSSegment] {
             get { segmentedControl.segments }
             set { segmentedControl.segments = newValue }
         }
 
         @discardableResult
+        /// The type of tracking behavior the segmented control exhibits.
         public func switchingMode(_ mode: SwitchingMode) -> Self {
             segmentedControl.trackingMode = mode
             return self
         }
 
         @discardableResult
+        /// The visual style used to display the segmented control.
         public func type(_ type: Style) -> Self {
             segmentedControl.segmentStyle = type
             return self
         }
 
         @discardableResult
+        /// The color of the selected segment's bezel, in appearances that support it.
         public func selectedSegmentBezelColor(_ color: NSColor?) -> Self {
             segmentedControl.selectedSegmentBezelColor = color
             return self
         }
 
         @discardableResult
+        /// The segments of the segmented control.
         public func segments(_ segments: [NSSegment]) -> Self {
             segmentedControl.segments = segments
             return self
         }
 
         @discardableResult
+        /// The action block that is called when the selection of the segmented control changes.
         public func onSelection(_ handler: @escaping ([NSSegment]) -> Void) -> Self {
             self.segmentedControl.actionBlock = { [weak self] segment in
                 guard let self = self else { return }

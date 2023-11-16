@@ -10,6 +10,7 @@
 import AppKit
 import FZSwiftUtils
 
+/// `Toolbar` configurates a window toolbar and it's items.
 public class Toolbar: NSObject {
     /**
      Creates a newly toolbar with the specified identifier.

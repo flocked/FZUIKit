@@ -1,0 +1,32 @@
+//
+//  NSToolbarItemGroup+.swift
+//  
+//
+//  Created by Florian Zand on 16.11.23.
+//
+
+#if os(macOS)
+
+import AppKit
+
+public extension NSToolbarItemGroup {
+    /// The index values of the selected items in the group.
+    var selectedIndexes: [Int] {
+        get {
+            var selectedIndexes: [Int] = []
+            for index in 0..<subitems.count {
+                if isSelected(at: index) {
+                    selectedIndexes.append(index)
+                }
+            }
+            return selectedIndexes
+        }
+        set {
+            for index in 0..<subitems.count {
+                setSelected(newValue.contains(index), at: index)
+            }
+        }
+    }
+}
+
+#endif

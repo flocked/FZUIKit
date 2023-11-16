@@ -11,6 +11,7 @@ import SwiftUI
 
 @available(macOS 11.0, *)
 public extension ToolbarItem {    
+    /// A toolbar separator that aligns with the vertical split view in the same window.
     class TrackingSeparator: ToolbarItem {
         internal lazy var separatorItem = NSTrackingSeparatorToolbarItem(identifier)
         override internal var item: NSToolbarItem {

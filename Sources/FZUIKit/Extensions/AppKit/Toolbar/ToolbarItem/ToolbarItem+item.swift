@@ -9,6 +9,7 @@
 import AppKit
 
 public extension ToolbarItem {
+    /// A toolbar item.
     class Item: ToolbarItem {
         @discardableResult
         public func title(_ title: String) -> Self {
