@@ -52,9 +52,35 @@ public protocol AnimatablePropertyProvider: AnyObject {
     var animator: PropertyAnimator<Provider> { get }
 }
 
-extension AnimatablePropertyProvider  {
+extension AnimatablePropertyProvider {
     public var animator: PropertyAnimator<Self> {
         get { getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: PropertyAnimator(self)) }
+    }
+}
+
+public extension AnimatablePropertyProvider {
+    /// A dictionary containing the current animated property keys and associated animations.
+    var animations: [String: AnimationProviding] {
+        animator.animations
+    }
+    
+    /**
+     The current animation for the property at the specified keypath.
+     
+     - Parameters keyPath: The keypath to an animatable property.
+     */
+    func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Self, Value>) -> AnimationProviding? {
+        animator.animation(for: keyPath)
+    }
+    
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
+    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value>) -> Value? {
+        animator.animationVelocity(for: keyPath)
+    }
+    
+    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath.
+    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value?>) -> Value? {
+        animator.animationVelocity(for: keyPath)
     }
 }
 
