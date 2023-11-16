@@ -97,11 +97,11 @@ internal protocol AnimationVelocityProviding<Value>: AnimationProviding {
 }
 
 /// An internal extension to `AnimationProviding` for animations with running time.
-internal protocol RunningTimeProviding: AnimationProviding {
+internal protocol AnimationRunningTimeProviding: AnimationProviding {
     var runningTime: TimeInterval { get set }
 }
 
-extension AnimationProviding {
+extension AnimationProviding where Self: AnyObject {
     public func start(afterDelay delay: TimeInterval) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
         guard let animation = self as? (any ConfigurableAnimationProviding) else { return }
@@ -139,7 +139,7 @@ extension AnimationProviding {
     }
 }
 
-internal extension ConfigurableAnimationProviding  {
+internal extension ConfigurableAnimationProviding {
     func _stop(at position: AnimationPosition) {
         delayedStart?.cancel()
         state = .ended
@@ -151,6 +151,9 @@ internal extension ConfigurableAnimationProviding  {
         default: break
         }
         target = value
+        if var animation = (self as? AnimationRunningTimeProviding) {
+            animation.runningTime = 0.0
+        }
         completion?(.finished(at: value))
         animatorCompletion?()
         animatorCompletion = nil
@@ -169,7 +172,7 @@ mutating func _stop(immediately: Bool = true) {
         state = .ended
         completion?(.finished(at: value))
         animatorCompletion?()
-        if var animation = (self as? RunningTimeProviding) {
+        if var animation = (self as? AnimationRunningTimeProviding) {
             animation.runningTime = 0.0
         }
     } else {
@@ -190,7 +193,7 @@ mutating func stop(at value: Value) {
         velocity = .zero
     }
     state = .inactive
-    if var animation = (self as? RunningTimeProviding) {
+    if var animation = (self as? AnimationRunningTimeProviding) {
         animation.runningTime = 0.0
     }
     let callbackValue = integralizeValues ? value.scaledIntegral : value
