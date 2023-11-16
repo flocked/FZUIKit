@@ -72,7 +72,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         get { return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decayFunction.decayConstant) }
         set {
             self.velocity = DecayFunction.velocity(fromValue: value, toValue: newValue)
-            Swift.print("decay target", target, velocity, velocity.animatableData.magnitudeSquared)
+            Swift.print("decay target", value, target, velocity, velocity.animatableData.magnitudeSquared)
             self.fromVelocity = self.velocity
         }
     }
