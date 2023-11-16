@@ -107,11 +107,14 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         self.fromVelocity = velocity
     }
     
-    init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero) {
+    init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero, target: Value? = nil) {
+        self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
         self.value = value
         self.fromValue = value
         self.velocity = velocity
-        self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
+        if let target = target {
+            self.velocity = DecayFunction.velocity(fromValue: value, toValue: target)
+        }
         self.fromVelocity = velocity
         self.configure(withSettings: settings)
     }

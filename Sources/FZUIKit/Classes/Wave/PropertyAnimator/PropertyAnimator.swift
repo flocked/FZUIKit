@@ -170,6 +170,7 @@ internal extension PropertyAnimator {
         var initialValue = object[keyPath: keyPath] ?? Value.zero
         var targetValue = newValue ?? Value.zero
         updateValue(&initialValue, target: &targetValue)
+        Swift.print("initialValue", initialValue, targetValue)
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
@@ -181,7 +182,8 @@ internal extension PropertyAnimator {
             let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .decay(_,_,_):
-            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)
+            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            Swift.print("setValue animation", animation.value, animation.velocity)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
             self.animation(for: keyPath, key: key)?.stop(at: .current)
