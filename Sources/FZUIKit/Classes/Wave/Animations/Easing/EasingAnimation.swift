@@ -7,8 +7,6 @@
 
 import Foundation
 import FZSwiftUtils
-import simd
-import SwiftUI
 
 /// An animator that animates a value using an easing function.
 public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
