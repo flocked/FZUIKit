@@ -205,6 +205,7 @@ internal extension PropertyAnimator {
         }
     }
     
+    /// Configurate spring animation.
     func configurateAnimation<Value>(_ animation: SpringAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
         animation.epsilon = epsilon
@@ -235,8 +236,11 @@ internal extension PropertyAnimator {
         animation.start(afterDelay: settings.delay)
     }
     
+    /// Configurate easing animation.
     func configurateAnimation<Value>(_ animation: EasingAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
+        animation.fromValue = animation.value
+        animation.fractionComplete = 0.0
         animation.integralizeValues = integralizeValue
         animation.configure(withSettings: settings)
         if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
@@ -264,6 +268,7 @@ internal extension PropertyAnimator {
         animation.start(afterDelay: settings.delay)
     }
     
+    /// Configurate decay animation.
     func configurateAnimation<Value>(_ animation: DecayAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
         animation.integralizeValues = integralizeValue
