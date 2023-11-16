@@ -11,39 +11,57 @@ import Accelerate
 /// A bezier curve, often used to calculate timing functions.
 public struct UnitBezier: Hashable {
     
+    /// The first point of the bezier.
     public var first: ControlPoint
+    
+    /// The second point of the bezier.
     public var second: ControlPoint
     
-    /// Creates a new `UnitBezier` instance.
+    /// Creates a new `UnitBezier` instance with the specified points.
     public init(first: ControlPoint, second: ControlPoint) {
         self.first = first
         self.second = second
     }
     
-    public init(firstX: Double, firstY: Double, secondX: Double, secondY: Double) {
-        self.first = ControlPoint(x: firstX, y: firstY)
-        self.second = ControlPoint(x: secondX, y: secondY)
+    /// Creates a new `UnitBezier` instance with the specified points.
+    public init(x1: Double, y1: Double, x2: Double, y2: Double) {
+        self.first = ControlPoint(x: x1, y: y1)
+        self.second = ControlPoint(x: x2, y: y2)
     }
     
-    /// Calculates the resulting `y` for given `x`.
-    ///
-    /// - parameter x: The value to solve for.
-    /// - parameter epsilon: The required precision of the result (where `x * epsilon` is the maximum time segment to be evaluated).
-    /// - returns: The solved `y` value.
+    /**
+     Calculates the resulting `y` for given `x`.
+     
+     - Parameters:
+        - x: The value to solve for.
+        - epsilon: The required precision of the result (where `x * epsilon` is the maximum time segment to be evaluated).
+     - Returns: The solved `y` value.
+     */
     public func solve(x: Double, epsilon: Double) -> Double {
         return UnitBezierSolver(p1x: first.x, p1y: first.y, p2x: second.x, p2y: second.y).solve(x: x, eps: epsilon)
+    }
+        
+    /**
+     Calculates the resulting `y` for given `x`.
+     
+     - Parameters:
+        - x: The value to solve for.
+        - duration: The duration of the solving value. It is used to calculate the required precision of the result.
+     - Returns: The solved `y` value.
+     */
+    public func solve(x: Double, duration: Double) -> Double {
+        return UnitBezierSolver(p1x: first.x, p1y: first.y, p2x: second.x, p2y: second.y).solve(x: x, eps: 1.0 / (duration * 1000.0))
     }
 }
 
 extension UnitBezier {
-    
     /// A control point for a unit bezier.
     public struct ControlPoint: Hashable {
         
-        /// The x component
+        /// The x component.
         public var x: Double
         
-        /// The y component
+        /// The y component.
         public var y: Double
         
         /// Initializes a new control point.

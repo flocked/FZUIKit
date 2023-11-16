@@ -20,7 +20,7 @@ public enum TimingFunction {
     
     /// Initializes a bezier timing function with the given control points.
     public init(x1: Double, y1: Double, x2: Double, y2: Double) {
-        self = .bezier(UnitBezier(firstX: x1, firstY: y1, secondX: x2, secondY: y2))
+        self = .bezier(UnitBezier(x1: x1, y1: y1, x2: x2, y2: y2))
     }
     
     /**
