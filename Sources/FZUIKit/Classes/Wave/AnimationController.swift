@@ -116,7 +116,7 @@ extension AnimationController {
     struct AnimationParameters {
         let groupUUID: UUID
         let delay: CGFloat
-        let type: AnimationType
+        let animationType: AnimationType
      //   let isUserInteractionEnabled: Bool
         
         /*

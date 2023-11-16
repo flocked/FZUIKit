@@ -122,14 +122,14 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        if let gestureVelocity = settings.type.gestureVelocity {
+        if let gestureVelocity = settings.animationType.gestureVelocity {
             (self as? DecayAnimation<CGRect>)?.velocity.origin = gestureVelocity
             (self as? DecayAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
 
             (self as? DecayAnimation<CGPoint>)?.velocity = gestureVelocity
             (self as? DecayAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
-        self.repeats = settings.type.repeats
+        self.repeats = settings.animationType.repeats
     }
     
     /// Resets the animation.

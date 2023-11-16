@@ -126,7 +126,7 @@ internal extension DynamicPropertyAnimator {
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.type.spring == .nonAnimated && animation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.animationType.spring == .nonAnimated && animation(for: keyPath, key: key) != nil) else {
             return
         }
         
@@ -136,7 +136,7 @@ internal extension DynamicPropertyAnimator {
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
 
-        let animation = (animation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.type.spring ?? .smooth, value: initialValue, target: targetValue))
+        let animation = (animation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.animationType.spring ?? .smooth, value: initialValue, target: targetValue))
         
         configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
     }
@@ -149,7 +149,7 @@ internal extension DynamicPropertyAnimator {
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.type.spring == .nonAnimated && animation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.animationType.spring == .nonAnimated && animation(for: keyPath, key: key) != nil) else {
             return
         }
         
@@ -159,7 +159,7 @@ internal extension DynamicPropertyAnimator {
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
-        let animation = (animation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.type.spring ?? .smooth, value: initialValue, target: targetValue))
+        let animation = (animation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.animationType.spring ?? .smooth, value: initialValue, target: targetValue))
         
         configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
     }

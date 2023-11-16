@@ -116,7 +116,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            type: .spring(spring: spring, gestureVelocity: gestureVelocity, repeats: repeats),
+            animationType: .spring(spring: spring, gestureVelocity: gestureVelocity, repeats: repeats),
             completion: completion
         )
                 
@@ -157,7 +157,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            type: .easing(timingFunction: timingFunction, duration: duration, repeats: repeats),
+            animationType: .easing(timingFunction: timingFunction, duration: duration, repeats: repeats),
             completion: completion
         )
         
@@ -198,7 +198,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            type: .decay(gestureVelocity: gestureVelocity, repeats: repeats),
+            animationType: .decay(gestureVelocity: gestureVelocity, repeats: repeats),
             completion: completion
         )
         
@@ -234,7 +234,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: 0.0,
-            type: .nonAnimated,
+            animationType: .nonAnimated,
             completion: nil
         )
         

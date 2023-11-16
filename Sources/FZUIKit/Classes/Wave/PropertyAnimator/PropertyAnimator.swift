@@ -127,7 +127,7 @@ internal extension PropertyAnimator {
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.type.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.animationType.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
             return
         }
         
@@ -137,7 +137,7 @@ internal extension PropertyAnimator {
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
-        switch settings.type {
+        switch settings.animationType {
         case .spring(_,_,_):
             let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
@@ -162,7 +162,7 @@ internal extension PropertyAnimator {
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.type.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
+        guard value(for: keyPath, key: key) != newValue || (settings.animationType.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
             return
         }
         
@@ -172,7 +172,7 @@ internal extension PropertyAnimator {
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
-        switch settings.type {
+        switch settings.animationType {
         case .spring(_,_,_):
             let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)

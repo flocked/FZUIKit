@@ -162,9 +162,9 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.value = value
         self.fromValue = value
         self.target = target
-        self.duration = settings.type.duration ?? 0.25
-        self.timingFunction = settings.type.timingFunction ?? .easeInEaseOut
-        self.repeats = settings.type.repeats
+        self.duration = settings.animationType.duration ?? 0.25
+        self.timingFunction = settings.animationType.timingFunction ?? .easeInEaseOut
+        self.repeats = settings.animationType.repeats
         self.configure(withSettings: settings)
     }
     
@@ -178,15 +178,15 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        if let timingFunction = settings.type.timingFunction {
+        if let timingFunction = settings.animationType.timingFunction {
             self.timingFunction = timingFunction
         }
         
-        if let duration = settings.type.duration {
+        if let duration = settings.animationType.duration {
             self.duration = duration
         }
         
-        self.repeats = settings.type.repeats
+        self.repeats = settings.animationType.repeats
     }
     
     /// Resets the animation.

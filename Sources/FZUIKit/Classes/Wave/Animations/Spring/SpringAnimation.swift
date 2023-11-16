@@ -153,7 +153,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.value = value
         self.target = target
         self.velocity = velocity
-        self.spring = settings.type.spring ?? .smooth
+        self.spring = settings.animationType.spring ?? .smooth
         self.fromValue = value
         self.fromVelocity = velocity
         self.configure(withSettings: settings)
@@ -169,17 +169,17 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// Configurates the animation with the specified settings.
     internal func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        if let spring = settings.type.spring {
+        if let spring = settings.animationType.spring {
             self.spring = spring
         }
-        if let gestureVelocity = settings.type.gestureVelocity {
+        if let gestureVelocity = settings.animationType.gestureVelocity {
             (self as? SpringAnimation<CGRect>)?.velocity.origin = gestureVelocity
             (self as? SpringAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
             
             (self as? SpringAnimation<CGPoint>)?.velocity = gestureVelocity
             (self as? SpringAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
-        self.repeats = settings.type.repeats
+        self.repeats = settings.animationType.repeats
     }
 
     /// Resets the animation.
