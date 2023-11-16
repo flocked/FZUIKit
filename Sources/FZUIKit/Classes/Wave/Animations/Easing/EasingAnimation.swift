@@ -63,7 +63,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         }
     }
     
-    internal var isAutoreversed: Bool? = nil
+    var isAutoreversed: Bool? = nil
     
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
@@ -85,6 +85,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         }
     }
     
+    /// The resolved fraction complete using the timing function.
     var resolvedFractionComplete: CGFloat {
         return timingFunction.solve(at: fractionComplete, duration: duration)
     }
@@ -105,18 +106,6 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     public var target: Value {
         didSet {
             guard oldValue != target else { return }
-
-          //  fromValue.animatableData.scaled(by: 1.0 - tar)
-          //  fromValue.animatableData / target.animatableData
-            
-            if duration != 0.0, #available(macOS 13.0.0, *) {
-              //  Swift.print("VectorElements type", type(of: value.animatableData), (fromValue.animatableData as? any VectorElements) != nil, (fromValue.animatableData as? any VectorElements<CGFloat>) != nil, (fromValue.animatableData as? any VectorElements<Double>) != nil)
-                /*
-                if let duration = self.newDuration(oldTarget: oldValue, newTarget: self.target) {
-                    self.duration = duration
-                }
-                 */
-            }
             
             if state == .running {
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
@@ -126,7 +115,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     }
         
     /// The start value of the animation.
-    var fromValue: Value
+    internal var fromValue: Value
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -135,7 +124,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
 
     /// The completion block gets called to remove the animation from the animators `animations` dictionary.
-    internal var animatorCompletion: (()->())? = nil
+    var animatorCompletion: (()->())? = nil
     
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
@@ -155,7 +144,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.timingFunction = timingFunction
     }
     
-    internal init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
+    init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
         self.value = value
         self.fromValue = value
         self.target = target
@@ -190,91 +179,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     public func reset() {
         state = .inactive
     }
-    
-    @available(macOS 13.0.0, iOS 16.0.0, tvOS 16.0.0, *)
-    func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
-        if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<CGFloat>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<CGFloat>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<CGFloat>) {
-            Swift.print("newDuration CGFloat", fromValue, oldTarget, newTarget)
-
-            let range: ClosedRange<[CGFloat]>
-            if fromValueAnimatable.elements < targetAnimatable.elements {
-                range = fromValueAnimatable.elements...targetAnimatable.elements
-            } else {
-                range = targetAnimatable.elements...fromValueAnimatable.elements
-            }
             
-            guard let usableIndex = newTargetAnimated.indices.first(where: { i -> Bool in
-                let fractionComplete = newTargetAnimated.elements[i] / (range.upperBound[i] - range.lowerBound[i])
-                return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
-            }) else { return nil }
-            
-            let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
-            /*
-            if fromValueAnimatable.elements > targetAnimatable.elements {
-                fractionComplete = 1.0 - fractionComplete
-            }
-             */
-            let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
-            let newDuration = duration * fractionTime
-            Swift.print("newDuration CGFloat end", newDuration, fractionComplete)
-            return newDuration
-        } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Double>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Double>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<Double>) {
-            Swift.print("newDuration Double", fromValue, oldTarget, newTarget)
-
-            let range: ClosedRange<[Double]>
-            if fromValueAnimatable.elements < targetAnimatable.elements {
-                range = fromValueAnimatable.elements...targetAnimatable.elements
-            } else {
-                range = targetAnimatable.elements...fromValueAnimatable.elements
-            }
-
-            guard let usableIndex = newTargetAnimated.indices.first(where: { i -> Bool in
-                let fractionComplete = newTargetAnimated.elements[i] / (range.upperBound[i] - range.lowerBound[i])
-                return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
-            }) else { return nil }
-            
-            let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
-            /*
-            if fromValueAnimatable.elements > targetAnimatable.elements {
-                fractionComplete = 1.0 - fractionComplete
-            }
-             */
-            let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
-
-            let newDuration = duration * fractionTime
-            Swift.print("newDuration Double end", newDuration, fractionComplete)
-            return newDuration
-        } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Float>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Float>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<Float>) {
-            Swift.print("newDuration Float", fromValue, oldTarget, newTarget)
-
-            let range: ClosedRange<[Float]>
-            if fromValueAnimatable.elements < targetAnimatable.elements {
-                range = fromValueAnimatable.elements...targetAnimatable.elements
-            } else {
-                range = targetAnimatable.elements...fromValueAnimatable.elements
-            }
-            
-            guard let usableIndex = newTargetAnimated.indices.first(where: { i -> Bool in
-                let fractionComplete = newTargetAnimated.elements[i] / (range.upperBound[i] - range.lowerBound[i])
-                return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
-            }) else { return nil }
-            
-            let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
-            
-            let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
-            /*
-            if fromValueAnimatable.elements > targetAnimatable.elements {
-                fractionComplete = 1.0 - fractionComplete
-            }
-             */
-            let newDuration = duration * fractionTime
-            Swift.print("newDuration Float end", newDuration, fractionComplete)
-            return newDuration
-        }
-        Swift.print("newDuration nil", type(of: fromValue))
-        return nil
-    }
-        
     /**
      Updates the progress of the animation with the specified delta time.
 
@@ -357,3 +262,99 @@ extension EasingAnimation: CustomStringConvertible {
 }
 
 #endif
+
+/*
+ if duration != 0.0, #available(macOS 13.0.0, *) {
+   //  Swift.print("VectorElements type", type(of: value.animatableData), (fromValue.animatableData as? any VectorElements) != nil, (fromValue.animatableData as? any VectorElements<CGFloat>) != nil, (fromValue.animatableData as? any VectorElements<Double>) != nil)
+     /*
+     if let duration = self.newDuration(oldTarget: oldValue, newTarget: self.target) {
+         self.duration = duration
+     }
+      */
+ }
+ 
+ 
+@available(macOS 13.0.0, iOS 16.0.0, tvOS 16.0.0, *)
+func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
+    if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<CGFloat>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<CGFloat>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<CGFloat>) {
+        Swift.print("newDuration CGFloat", fromValue, oldTarget, newTarget)
+
+        let range: ClosedRange<[CGFloat]>
+        if fromValueAnimatable.elements < targetAnimatable.elements {
+            range = fromValueAnimatable.elements...targetAnimatable.elements
+        } else {
+            range = targetAnimatable.elements...fromValueAnimatable.elements
+        }
+        
+        guard let usableIndex = newTargetAnimated.indices.first(where: { i -> Bool in
+            let fractionComplete = newTargetAnimated.elements[i] / (range.upperBound[i] - range.lowerBound[i])
+            return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
+        }) else { return nil }
+        
+        let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+        /*
+        if fromValueAnimatable.elements > targetAnimatable.elements {
+            fractionComplete = 1.0 - fractionComplete
+        }
+         */
+        let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
+        let newDuration = duration * fractionTime
+        Swift.print("newDuration CGFloat end", newDuration, fractionComplete)
+        return newDuration
+    } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Double>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Double>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<Double>) {
+        Swift.print("newDuration Double", fromValue, oldTarget, newTarget)
+
+        let range: ClosedRange<[Double]>
+        if fromValueAnimatable.elements < targetAnimatable.elements {
+            range = fromValueAnimatable.elements...targetAnimatable.elements
+        } else {
+            range = targetAnimatable.elements...fromValueAnimatable.elements
+        }
+
+        guard let usableIndex = newTargetAnimated.indices.first(where: { i -> Bool in
+            let fractionComplete = newTargetAnimated.elements[i] / (range.upperBound[i] - range.lowerBound[i])
+            return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
+        }) else { return nil }
+        
+        let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+        /*
+        if fromValueAnimatable.elements > targetAnimatable.elements {
+            fractionComplete = 1.0 - fractionComplete
+        }
+         */
+        let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
+
+        let newDuration = duration * fractionTime
+        Swift.print("newDuration Double end", newDuration, fractionComplete)
+        return newDuration
+    } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Float>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Float>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<Float>) {
+        Swift.print("newDuration Float", fromValue, oldTarget, newTarget)
+
+        let range: ClosedRange<[Float]>
+        if fromValueAnimatable.elements < targetAnimatable.elements {
+            range = fromValueAnimatable.elements...targetAnimatable.elements
+        } else {
+            range = targetAnimatable.elements...fromValueAnimatable.elements
+        }
+        
+        guard let usableIndex = newTargetAnimated.indices.first(where: { i -> Bool in
+            let fractionComplete = newTargetAnimated.elements[i] / (range.upperBound[i] - range.lowerBound[i])
+            return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
+        }) else { return nil }
+        
+        let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+        
+        let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
+        /*
+        if fromValueAnimatable.elements > targetAnimatable.elements {
+            fractionComplete = 1.0 - fractionComplete
+        }
+         */
+        let newDuration = duration * fractionTime
+        Swift.print("newDuration Float end", newDuration, fractionComplete)
+        return newDuration
+    }
+    Swift.print("newDuration nil", type(of: fromValue))
+    return nil
+}
+ */

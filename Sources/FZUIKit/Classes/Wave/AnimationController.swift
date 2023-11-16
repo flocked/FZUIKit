@@ -14,6 +14,7 @@ import AppKit
 import UIKit
 #endif
 
+/// Manages all `Wave` animations.
 internal class AnimationController {
     static let shared = AnimationController()
 

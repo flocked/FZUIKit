@@ -101,9 +101,9 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         }
     }
     
-    internal var fromValue: Value
+    var fromValue: Value
     
-    internal var fromVelocity: Value
+    var fromVelocity: Value
 
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -112,7 +112,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
     /// The completion block gets called to remove the animation from the animators `animations` dictionary.
-    internal var animatorCompletion: (()->())? = nil
+    var animatorCompletion: (()->())? = nil
     
     /// The total running time of the animation.
     var runningTime: TimeInterval = 0.0
@@ -152,7 +152,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.fromVelocity = velocity
     }
     
-    internal init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
+    init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
         self.value = value
         self.target = target
         self.velocity = velocity
@@ -167,10 +167,10 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     }
     
     /// The item that starts the animation delayed.
-    internal var delayedStart: DispatchWorkItem? = nil
+    var delayedStart: DispatchWorkItem? = nil
 
     /// Configurates the animation with the specified settings.
-    internal func configure(withSettings settings: AnimationController.AnimationParameters) {
+    func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
         if let spring = settings.animationType.spring {
             self.spring = spring

@@ -8,6 +8,7 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
+/// Constants indicating that an animation either retargated or finished.
 public enum AnimationEvent<Value> {
     /// Indicates the animation has fully completed.
     case finished(at: Value)

@@ -45,7 +45,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     }
     
     /// The decay function used to calculate the animation.
-    internal var decayFunction: DecayFunction
+    var decayFunction: DecayFunction
     
     /// The current value of the animation. This value will change as the animation executes.
     public var value: Value {
@@ -77,9 +77,9 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         }
     }
     
-    internal var fromValue: Value
+    var fromValue: Value
     
-    internal var fromVelocity: Value
+    var fromVelocity: Value
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -88,7 +88,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
     /// The completion block gets called to remove the animation from the animators `animations` dictionary.
-    internal var animatorCompletion: (()->())? = nil
+    var animatorCompletion: (()->())? = nil
     
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
@@ -107,7 +107,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         self.fromVelocity = velocity
     }
     
-    internal init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero) {
+    init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero) {
         self.value = value
         self.fromValue = value
         self.velocity = velocity
@@ -120,7 +120,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     }
     
     /// The item that starts the animation delayed.
-    internal var delayedStart: DispatchWorkItem? = nil
+    var delayedStart: DispatchWorkItem? = nil
         
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
