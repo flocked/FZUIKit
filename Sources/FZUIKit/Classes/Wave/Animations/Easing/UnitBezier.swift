@@ -8,7 +8,7 @@
 import Foundation
 import Accelerate
 
-/// A bezier curve, often used to calculate timing functions.
+/// A bezier curve that can be used to calculate timing functions.
 public struct UnitBezier: Hashable {
     
     /// The first point of the bezier.

@@ -162,7 +162,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.value = value
         self.fromValue = value
         self.target = target
-        self.duration = settings.type.easingDuration ?? 0.25
+        self.duration = settings.type.duration ?? 0.25
         self.timingFunction = settings.type.timingFunction ?? .easeInEaseOut
         self.repeats = settings.type.repeats
         self.configure(withSettings: settings)
@@ -182,7 +182,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             self.timingFunction = timingFunction
         }
         
-        if let duration = settings.type.easingDuration {
+        if let duration = settings.type.duration {
             self.duration = duration
         }
         

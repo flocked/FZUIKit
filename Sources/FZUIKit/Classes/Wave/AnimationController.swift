@@ -118,81 +118,55 @@ extension AnimationController {
         let delay: CGFloat
         let type: AnimationType
      //   let isUserInteractionEnabled: Bool
-                
+        
+        /*
+         let gestureVelocity: CGPoint?
+         let repeats: Bool
+         */
         enum AnimationType {
-            case spring(SpringParameters)
-            case easing(EasingParameters)
-            case decay(DecayParameters)
+            case spring(spring: Spring, gestureVelocity: CGPoint?, repeats: Bool)
+            case easing(timingFunction: TimingFunction, duration: TimeInterval, repeats: Bool)
+            case decay(gestureVelocity: CGPoint?, repeats: Bool)
             case nonAnimated
-            
-            var isNonAnimated: Bool {
-                switch self {
-                case.nonAnimated: return true
-                default: return false
-                }
-            }
             
             var spring: Spring? {
                 switch self {
-                case.spring(let parameters):
-                    return parameters.spring
+                case.spring(let spring,_,_):
+                    return spring
                 default: return nil
                 }
             }
             
             var timingFunction: TimingFunction? {
                 switch self {
-                case.easing(let parameters):
-                    return parameters.timingFunction
+                case.easing(let timingFunction,_,_):
+                    return timingFunction
                 default: return nil
                 }
             }
             
             var repeats: Bool {
                 switch self {
-                case.easing(let parameters):
-                    return parameters.repeats
-                case .spring(let parameters):
-                    return parameters.repeats
-                case .decay(let parameters):
-                    return parameters.repeats
+                case .spring(_,_, let repeats), .easing(_,_, let repeats), .decay(_, let repeats):
+                    return repeats
                 default: return false
                 }
             }
             
-            var easingDuration: TimeInterval? {
+            var duration: TimeInterval? {
                 switch self {
-                case.easing(let parameters):
-                    return parameters.duration
+                case.easing(_, let duration, _):
+                    return duration
                 default: return nil
                 }
             }
             
             var gestureVelocity: CGPoint? {
                 switch self {
-                case .decay(let parameters):
-                    return parameters.gestureVelocity
-                case.spring(let parameters):
-                    return parameters.gestureVelocity
+                case .spring(_, let gestureVelocity, _), .decay(let gestureVelocity, _):
+                    return gestureVelocity
                 default: return nil
                 }
-            }
-            
-            struct SpringParameters {
-                let spring: Spring
-                let gestureVelocity: CGPoint?
-                let repeats: Bool
-            }
-                    
-            struct EasingParameters {
-                let timingFunction: TimingFunction
-                let duration: TimeInterval
-                let repeats: Bool
-            }
-            
-            struct DecayParameters {
-                let gestureVelocity: CGPoint?
-                let repeats: Bool
             }
         }
 
