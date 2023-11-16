@@ -64,9 +64,14 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
 
     /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value {
+        get { Value(_value) }
+        set { _value = newValue.animatableData }
+    }
+    
+    var _value: Value.AnimatableData {
         didSet {
             guard state != .running else { return }
-            fromValue = value
+            _fromValue = _value
         }
     }
 
@@ -76,14 +81,19 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
     public var target: Value {
+        get { Value(_target) }
+        set { _target = newValue.animatableData }
+    }
+    
+    var _target: Value.AnimatableData {
         didSet {
-            guard oldValue != target else {
+            guard oldValue != _target else {
                 return
             }
 
             if state == .running {
                 runningTime = 0.0
-                let event = AnimationEvent.retargeted(from: oldValue, to: target)
+                let event = AnimationEvent.retargeted(from: Value(oldValue), to: target)
                 completion?(event)
             }
         }
@@ -95,15 +105,32 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
      If animating a view's `center` or `frame` with a gesture, you may want to set `velocity` to the gesture's final velocity on touch-up.
      */
     public var velocity: Value {
-        didSet {
-            guard state != .running else { return }
-            fromVelocity = velocity
-        }
+        get { Value(_velocity) }
+        set { _velocity = newValue.animatableData }
     }
     
-    var fromValue: Value
+    var _velocity: Value.AnimatableData {
+        didSet {
+            guard state != .running else { return }
+            _fromVelocity = _velocity
+        }
+    }
+
     
-    var fromVelocity: Value
+    var fromValue: Value {
+        get { Value(_fromValue) }
+        set { _fromValue = newValue.animatableData }
+    }
+    
+    var _fromValue: Value.AnimatableData
+    
+    var fromVelocity: Value {
+        get { Value(_fromVelocity) }
+        set { _fromVelocity = newValue.animatableData }
+    }
+    
+    var _fromVelocity: Value.AnimatableData
+
 
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -126,12 +153,12 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         - target: The target value of the animation.
      */
     public init(value: Value, target: Value, velocity: Value = .zero) {
-        self.value = value
-        self.target = target
-        self.velocity = velocity
+        self._value = value.animatableData
+        self._target = target.animatableData
+        self._velocity = velocity.animatableData
         self.spring = .snappy
-        self.fromValue = value
-        self.fromVelocity = velocity
+        self._fromValue = _value
+        self._fromVelocity = _velocity
     }
 
     /**
@@ -144,21 +171,21 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         - target: The target value of the animation.
      */
     public init(spring: Spring, value: Value, target: Value, velocity: Value = .zero) {
-        self.value = value
-        self.target = target
-        self.velocity = velocity
+        self._value = value.animatableData
+        self._target = target.animatableData
+        self._velocity = velocity.animatableData
         self.spring = spring
-        self.fromValue = value
-        self.fromVelocity = velocity
+        self._fromValue = _value
+        self._fromVelocity = _velocity
     }
     
     init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
-        self.value = value
-        self.target = target
-        self.velocity = velocity
+        self._value = value.animatableData
+        self._target = target.animatableData
+        self._velocity = velocity.animatableData
         self.spring = settings.animationType.spring ?? .smooth
-        self.fromValue = value
-        self.fromVelocity = velocity
+        self._fromValue = _value
+        self._fromVelocity = _velocity
         self.configure(withSettings: settings)
     }
     
@@ -198,7 +225,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
      - parameter deltaTime: The delta time.
      */
     public func updateAnimation(deltaTime: TimeInterval) {
-        guard value != target else {
+        guard _value != _target else {
             state = .inactive
             return
         }
@@ -210,7 +237,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         if isAnimated {
             spring.update(value: &value, velocity: &velocity, target: target, deltaTime: deltaTime)
         } else {
-            self.value = target
+            self._value = _target
             velocity = Value.zero
         }
         
@@ -228,10 +255,10 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         
         if animationFinished {
             if repeats, isAnimated {
-                value = fromValue
-                velocity = fromVelocity
+                _value = _fromValue
+                _velocity = _fromVelocity
             } else {
-                value = target
+                _value = _target
             }
             runningTime = 0.0
         }
