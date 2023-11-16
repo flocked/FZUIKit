@@ -44,6 +44,12 @@ extension VectorArithmetic {
     }
 }
 
+extension VectorElements {
+    var indices: Range<Int> {
+        0..<elements.count
+    }
+}
+
 public extension AnimatablePair where First == Second {
     subscript(index: Int) -> First {
         get {
@@ -67,18 +73,35 @@ typealias DoubleVectorElements = VectorElements<Double>
 typealias FloatVectorElements = VectorElements<Float>
 typealias CGFloatVectorElements = VectorElements<CGFloat>
 
+extension CGFloat: VectorElements {
+    var elements: [CGFloat] {
+        get { [self] }
+        set { self = newValue.first ?? self }
+    }
+}
+
+extension Double: VectorElements {
+    var elements: [Double] {
+        get { [self] }
+        set { self = newValue.first ?? self }
+    }
+}
+
+extension Float: VectorElements {
+    var elements: [Float] {
+        get { [self] }
+        set { self = newValue.first ?? self }
+    }
+}
 
 protocol VectorElements<Element> {
-    associatedtype Element: FloatingPointInitializable & DivisionArithmetic & VectorArithmetic & AdditiveArithmetic & Comparable
+    associatedtype Element: DoubleConvertable & DivisionArithmetic & VectorArithmetic & AdditiveArithmetic & Comparable
     var indices: Range<Int> { get }
     var elements: [Element] { get set }
 }
 
-extension AnimatablePair: VectorElements where First: FloatingPointInitializable & VectorArithmetic & Comparable & DivisionArithmetic, First == Second {
+extension AnimatablePair: VectorElements where First: DoubleConvertable & VectorArithmetic & Comparable & DivisionArithmetic, First == Second {
     typealias Element = First
-    var indices: Range<Int> {
-        0..<1
-    }
     var elements: [First] {
         get { [first, second] }
         set {
@@ -93,7 +116,7 @@ extension AnimatablePair: VectorElements where First: FloatingPointInitializable
     }
 }
 
-extension AnimatableArray: VectorElements where Element: DivisionArithmetic & Comparable & FloatingPointInitializable { }
+extension AnimatableArray: VectorElements where Element: DivisionArithmetic & Comparable & DoubleConvertable { }
 
 protocol DivisionArithmetic: VectorArithmetic & AdditiveArithmetic {
     static func / (lhs: Self, rhs: Self) -> Self
@@ -104,21 +127,21 @@ extension CGFloat: DivisionArithmetic { }
 extension Double: DivisionArithmetic { }
 extension Float: DivisionArithmetic { }
 
-protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
+protocol DoubleConvertable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
     var doubleValue: Double { get }
 }
 
-extension Float: FloatingPointInitializable {
+extension Float: DoubleConvertable {
     var doubleValue: Double {
         Double(self)
     }
 }
-extension Double: FloatingPointInitializable {
+extension Double: DoubleConvertable {
     var doubleValue: Double {
         Double(self)
     }
 }
-extension CGFloat: FloatingPointInitializable {
+extension CGFloat: DoubleConvertable {
     var doubleValue: Double {
         Double(self)
     }
