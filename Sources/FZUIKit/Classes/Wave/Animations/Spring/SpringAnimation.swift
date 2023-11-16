@@ -238,10 +238,13 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         let isAnimated = spring.response > .zero
 
         if isAnimated {
+            Swift.print("spring update 0", velocity != .zero)
             spring.update(value: &_value, velocity: &_velocity, target: _target, deltaTime: deltaTime)
+            Swift.print("spring update 1", velocity != .zero)
         } else {
             self._value = _target
             velocity = Value.zero
+            Swift.print("spring update reset", velocity != .zero)
         }
         
         runningTime = runningTime + deltaTime
@@ -260,6 +263,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             if repeats, isAnimated {
                 _value = _fromValue
                 _velocity = _fromVelocity
+                Swift.print("spring update _fromVelocity", velocity != .zero)
             } else {
                 _value = _target
             }
