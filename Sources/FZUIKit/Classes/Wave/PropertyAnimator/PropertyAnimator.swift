@@ -17,22 +17,22 @@ import UIKit
 #endif
 /**
  Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
-
+ 
  For easier access of a animatable property, you can extend the object's PropertyAnimator.
  
  ```swift
  extension: MyObject: AnimatablePropertyProvider { }
  
  public extension PropertyAnimator<MyObject> {
-    var myAnimatableProperty: CGFloat {
-        get { self[\.myAnimatableProperty] }
-        set { self[\.myAnimatableProperty] = newValue }
-    }
+ var myAnimatableProperty: CGFloat {
+ get { self[\.myAnimatableProperty] }
+ set { self[\.myAnimatableProperty] = newValue }
+ }
  }
  
  let object = MyObject()
  Wave.animate(withSpring: .smooth) {
-    object.animator.myAnimatableProperty = newValue
+ object.animator.myAnimatableProperty = newValue
  }
  ```
  
@@ -124,20 +124,30 @@ internal extension PropertyAnimator {
         var targetValue = newValue
         updateValue(&initialValue, target: &targetValue)
         
-        if settings.type.spring == .nonAnimated {
-            if let animation = springAnimation(for: keyPath, key: key) {
-                animation.stop(at: targetValue)
-            } else {
-                object[keyPath: keyPath] = targetValue
-            }
-        } else {
-            AnimationController.shared.executeHandler(uuid: springAnimation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
-            
-            configurateViewUserInteration(settings: settings)
-            
-            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: settings.type.spring ?? .smooth, value: initialValue, target: targetValue)
-            
+        AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
+        configurateViewUserInteration(settings: settings)
+        
+        switch settings.type {
+        case .spring(_):
+            Swift.print("animate spring")
+            let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: .zero, target: .zero)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+        case .easing(_):
+            Swift.print("animate easing")
+            let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: .zero, target: .zero)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+        case .decay(_):
+            Swift.print("animate decay")
+            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: .zero)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+        case .nonAnimated:
+            Swift.print("animate nonAnimated")
+            if let springAnimation = springAnimation(for: keyPath, key: key) {
+                springAnimation.stop(at: targetValue)
+            } else {
+                self.animation(for: keyPath, key: key)?.stop(immediately: true)
+            }
+            self.animations[key ?? keyPath.stringValue] = nil
         }
     }
     
@@ -152,36 +162,35 @@ internal extension PropertyAnimator {
         guard value(for: keyPath, key: key) != newValue || (settings.type.spring == .nonAnimated && springAnimation(for: keyPath, key: key) != nil) else {
             return
         }
-                
+        
         var initialValue = object[keyPath: keyPath] ?? Value.zero
         var targetValue = newValue ?? Value.zero
         updateValue(&initialValue, target: &targetValue)
         
-        if settings.type.spring == .nonAnimated {
-            if let animation = springAnimation(for: keyPath, key: key) {
-                animation.stop(at: targetValue)
+        AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
+        configurateViewUserInteration(settings: settings)
+        
+        switch settings.type {
+        case .spring(_):
+            Swift.print("animate spring")
+            let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: .zero, target: .zero)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+        case .easing(_):
+            Swift.print("animate easing")
+            let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: .zero, target: .zero)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+        case .decay(_):
+            Swift.print("animate decay")
+            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: .zero)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+        case .nonAnimated:
+            Swift.print("animate nonAnimated")
+            if let springAnimation = springAnimation(for: keyPath, key: key) {
+                springAnimation.stop(at: targetValue)
             } else {
-                object[keyPath: keyPath] = newValue
-            }
-        } else {
-            AnimationController.shared.executeHandler(uuid: springAnimation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
-            
-            configurateViewUserInteration(settings: settings)
-            
-            switch settings.type {
-            case .spring(_):
-                let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: .zero, target: .zero)
-                configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
-            case .easing(_):
-                let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: .zero, target: .zero)
-                configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
-            case .decay(_):
-                let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: .zero)
-                configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
-            case .nonAnimated:
                 self.animation(for: keyPath, key: key)?.stop(immediately: true)
-                self.animations[key ?? keyPath.stringValue] = nil
             }
+            self.animations[key ?? keyPath.stringValue] = nil
         }
     }
     
@@ -195,7 +204,7 @@ internal extension PropertyAnimator {
             }
         }
     }
-        
+    
     func configurateAnimation<Value>(_ animation: SpringAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
         animation.epsilon = epsilon
@@ -283,7 +292,7 @@ internal extension PropertyAnimator {
         animations[animationKey] = animation
         animation.start(afterDelay: settings.delay)
     }
-
+    
     /// Updates values of specific types for better animations.
     func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
         if V.self == CGColor.self {
@@ -300,9 +309,9 @@ internal extension PropertyAnimator {
             if diff < 0 {
                 tar.appendZeroValues(amount: (diff * -1))
                 /*
-                for i in tar.count-(diff * -1)..<tar.count {
-                    tar[i] = .zero
-                }
+                 for i in tar.count-(diff * -1)..<tar.count {
+                 tar[i] = .zero
+                 }
                  */
             } else if diff > 0 {
                 val.appendZeroValues(amount: diff)

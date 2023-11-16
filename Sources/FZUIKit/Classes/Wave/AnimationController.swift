@@ -164,6 +164,13 @@ extension AnimationController {
             case decay(DecayParameters)
             case nonAnimated
             
+            var isNonAnimated: Bool {
+                switch self {
+                case.nonAnimated: return true
+                default: return false
+                }
+            }
+            
             var spring: Spring? {
                 switch self {
                 case.spring(let parameters):
