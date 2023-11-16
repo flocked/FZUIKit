@@ -111,6 +111,10 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
           //  fromValue.animatableData / target.animatableData
             
             if duration != 0.0, #available(macOS 13.0.0, *) {
+                Swift.print("VectorElements type", type(of: value), (fromValue as? any VectorElements) != nil, (fromValue as? any VectorElements<CGFloat>) != nil, (fromValue as? any VectorElements<Double>) != nil)
+                if let fromValue = fromValue as? any VectorElements {
+                    
+                }
                 if let duration = self.newDuration(oldTarget: oldValue, newTarget: self.target) {
                     self.duration = duration
                 }
