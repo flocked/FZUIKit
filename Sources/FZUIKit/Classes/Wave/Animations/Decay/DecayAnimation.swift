@@ -30,6 +30,14 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
+    /// A Boolean value indicating whether the animation repeats indefinitely.
+    public var repeats: Bool = false {
+        didSet {
+            guard oldValue != repeats else { return }
+         //   updateAutoreverse()
+        }
+    }
+    
     /// The rate at which the velocity decays over time.
     public var decayConstant: Double {
         get { decayFunction.decayConstant }
@@ -39,11 +47,21 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     /// The decay function used to calculate the animation.
     internal var decayFunction: DecayFunction
     
-    /// The _current_ value of the animation. This value will change as the animation executes.
-    public var value: Value
+    /// The current value of the animation. This value will change as the animation executes.
+    public var value: Value {
+        didSet {
+            guard state != .running else { return }
+            fromValue = value
+        }
+    }
     
     /// The velocity of the animation. This value will change as the animation executes.
-    public var velocity: Value
+    public var velocity: Value {
+        didSet {
+            guard state != .running else { return }
+            fromVelocity = velocity
+        }
+    }
     
     /**
      Computes the target value the decay animation will stop at. Getting this value will compute the estimated endpoint for the decay animation. Setting this value adjust the ``velocity`` to an value  that will result in the animation ending up at the specified target when it stops.
@@ -60,6 +78,8 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     }
     
     internal var fromValue: Value
+    
+    internal var fromVelocity: Value
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -81,6 +101,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         self.value = value
         self.fromValue = value
         self.velocity = velocity
+        self.fromVelocity = velocity
     }
     
     internal init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero) {
@@ -88,6 +109,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         self.fromValue = value
         self.velocity = velocity
         self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
+        self.fromVelocity = velocity
     }
     
     deinit {
@@ -102,8 +124,12 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         groupUUID = settings.groupUUID
         if let gestureVelocity = settings.type.gestureVelocity {
             (self as? DecayAnimation<CGRect>)?.velocity.origin = gestureVelocity
+            (self as? DecayAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
+
             (self as? DecayAnimation<CGPoint>)?.velocity = gestureVelocity
+            (self as? DecayAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
+        self.repeats = settings.type.repeats
     }
     
     /// Resets the animation.
@@ -129,10 +155,15 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
 
         let animationFinished = velocity.animatableData.magnitudeSquared < 0.1
         
+        if animationFinished, repeats {
+            value = fromValue
+            velocity = fromVelocity
+        }
+        
         let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
-
-        if animationFinished {
+        
+        if animationFinished, !repeats {
             stop(at: .current)
         }
     }

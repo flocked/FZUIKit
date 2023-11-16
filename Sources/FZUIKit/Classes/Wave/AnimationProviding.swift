@@ -157,10 +157,12 @@ internal extension ConfigurableAnimationProviding  {
         if immediately {
             state = .ended
             completion?(.finished(at: value))
+            if var animation = (self as? RunningTimeAnimationProviding) {
+                animation.runningTime = 0.0
+            }
         } else {
             target = value
         }
-        
     }
     
     /// Stops the animation immediately at the current value.
@@ -176,6 +178,9 @@ internal extension ConfigurableAnimationProviding  {
             velocity = .zero
         }
         state = .inactive
+        if var animation = (self as? RunningTimeAnimationProviding) {
+            animation.runningTime = 0.0
+        }
         let callbackValue = integralizeValues ? value.scaledIntegral : value
         valueChanged?(callbackValue)
         completion?(.finished(at: value))
@@ -185,5 +190,9 @@ internal extension ConfigurableAnimationProviding  {
 internal protocol VelocityAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
     var velocity: Value { get }
+}
+
+internal protocol RunningTimeAnimationProviding: AnimationProviding {
+    var runningTime: TimeInterval { get set }
 }
 #endif

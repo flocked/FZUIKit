@@ -148,6 +148,18 @@ extension AnimationController {
                 }
             }
             
+            var repeats: Bool {
+                switch self {
+                case.easing(let parameters):
+                    return parameters.repeats
+                case .spring(let parameters):
+                    return parameters.repeats
+                case .decay(let parameters):
+                    return parameters.repeats
+                default: return false
+                }
+            }
+            
             var easingDuration: TimeInterval? {
                 switch self {
                 case.easing(let parameters):
@@ -169,19 +181,18 @@ extension AnimationController {
             struct SpringParameters {
                 let spring: Spring
                 let gestureVelocity: CGPoint?
-                init(spring: Spring, gestureVelocity: CGPoint?) {
-                    self.spring = spring
-                    self.gestureVelocity = gestureVelocity
-                }
+                let repeats: Bool
             }
                     
             struct EasingParameters {
                 let timingFunction: TimingFunction
                 let duration: TimeInterval
+                let repeats: Bool
             }
             
             struct DecayParameters {
                 let gestureVelocity: CGPoint?
+                let repeats: Bool
             }
         }
 

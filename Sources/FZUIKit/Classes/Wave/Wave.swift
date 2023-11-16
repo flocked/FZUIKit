@@ -66,13 +66,14 @@ public enum Wave {
      - Parameters:
         - delay: An optional delay, in seconds, after which to start the animation.
         - gestureVelocity: If provided, this value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
-        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
+        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
+        repeats: Bool = false,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
@@ -96,7 +97,7 @@ public enum Wave {
         - spring: The `Spring` used to determine the timing curve and duration of the animation. The default spring is ``Spring/snappy``.
         - delay: An optional delay, in seconds, after which to start the animation.
         - gestureVelocity: If provided, this value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
-        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
+        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
@@ -104,6 +105,7 @@ public enum Wave {
         withSpring spring: Spring,
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
+        repeats: Bool = false,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
@@ -112,7 +114,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            type: .spring(.init(spring: spring, gestureVelocity: gestureVelocity)),
+            type: .spring(.init(spring: spring, gestureVelocity: gestureVelocity, repeats: repeats)),
             completion: completion
         )
                 
@@ -135,14 +137,15 @@ public enum Wave {
      - Parameters:
         - timingFunction: The ``TimingFunction`` used to determine the timing curve.
         - duration: The duration of the animation.
+        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - delay: An optional delay, in seconds, after which to start the animation.
-        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
         withEasing timingFunction: TimingFunction,
         duration: TimeInterval,
+        repeats: Bool = false,
         delay: TimeInterval = 0,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
@@ -152,7 +155,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            type: .easing(.init(timingFunction: timingFunction, duration: duration)),
+            type: .easing(.init(timingFunction: timingFunction, duration: duration, repeats: repeats)),
             completion: completion
         )
         
@@ -176,13 +179,14 @@ public enum Wave {
      
      - Parameters:
         - gestureVelocity: The value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
+        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - delay: An optional delay, in seconds, after which to start the animation.
-        - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
         withDecayVelocity gestureVelocity: CGPoint,
+        repeats: Bool = false,
         delay: TimeInterval = 0,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
@@ -192,7 +196,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            type: .decay(.init(gestureVelocity: gestureVelocity)),
+            type: .decay(.init(gestureVelocity: gestureVelocity, repeats: repeats)),
             completion: completion
         )
         

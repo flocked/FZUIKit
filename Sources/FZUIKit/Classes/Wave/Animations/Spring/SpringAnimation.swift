@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 /// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, VelocityAnimationProviding {
+public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, VelocityAnimationProviding, RunningTimeAnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -29,8 +29,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         didSet {
             switch (oldValue, state) {
             case (.inactive, .running):
-                startTime = .now
-
+                runningTime = 0.0
             default:
                 break
             }
@@ -54,9 +53,22 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     
     /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
     public var stopsOnCompletion: Bool = true
+    
+    /// A Boolean value indicating whether the animation repeats indefinitely.
+    public var repeats: Bool = false {
+        didSet {
+            guard oldValue != repeats else { return }
+         //   updateAutoreverse()
+        }
+    }
 
     /// The _current_ value of the animation. This value will change as the animation executes.
-    public var value: Value
+    public var value: Value {
+        didSet {
+            guard state != .running else { return }
+            fromValue = value
+        }
+    }
 
     /**
      The current target value of the animation.
@@ -70,8 +82,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             }
 
             if state == .running {
-                startTime = .now
-
+                runningTime = 0.0
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
             }
@@ -83,9 +94,16 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
 
      If animating a view's `center` or `frame` with a gesture, you may want to set `velocity` to the gesture's final velocity on touch-up.
      */
-    public var velocity: Value
+    public var velocity: Value {
+        didSet {
+            guard state != .running else { return }
+            fromVelocity = velocity
+        }
+    }
     
     internal var fromValue: Value
+    
+    internal var fromVelocity: Value
 
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -93,17 +111,8 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
-    /// The start time of the animation.
-    var startTime: TimeInterval?
-    
     /// The total running time of the animation.
-    var runningTime: TimeInterval? {
-        if let startTime = startTime {
-            return (.now - startTime)
-        } else {
-            return nil
-        }
-    }
+    var runningTime: TimeInterval = 0.0
     
     /**
      Creates a new animation with a ``Spring/snappy`` spring, and optionally, an initial and target value.
@@ -119,6 +128,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.velocity = velocity
         self.spring = .snappy
         self.fromValue = value
+        self.fromVelocity = velocity
     }
 
     /**
@@ -136,6 +146,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.velocity = velocity
         self.spring = spring
         self.fromValue = value
+        self.fromVelocity = velocity
     }
     
     internal init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
@@ -144,6 +155,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.velocity = velocity
         self.spring = settings.type.spring ?? .smooth
         self.fromValue = value
+        self.fromVelocity = velocity
         self.configure(withSettings: settings)
     }
     
@@ -162,13 +174,17 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         }
         if let gestureVelocity = settings.type.gestureVelocity {
             (self as? SpringAnimation<CGRect>)?.velocity.origin = gestureVelocity
+            (self as? SpringAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
+            
             (self as? SpringAnimation<CGPoint>)?.velocity = gestureVelocity
+            (self as? SpringAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
+        self.repeats = settings.type.repeats
     }
 
     /// Resets the animation.
     public func reset() {
-        startTime = nil
+        runningTime = 0.0
         velocity = .zero
         state = .inactive
     }
@@ -186,11 +202,6 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
 
         state = .running
 
-        guard let runningTime = runningTime else {
-            fatalError("Found a nil `runningTime` even though the animation's state is \(state)")
-        }
-
-
         let isAnimated = spring.response > .zero
 
         if isAnimated {
@@ -199,6 +210,8 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             self.value = target
             velocity = Value.zero
         }
+        
+        runningTime = runningTime + deltaTime
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
         
@@ -211,13 +224,19 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
          */
         
         if animationFinished {
-            value = target
+            if repeats, isAnimated {
+                value = fromValue
+                velocity = fromVelocity
+            } else {
+                value = target
+            }
+            runningTime = 0.0
         }
 
         let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
-        if animationFinished {
+        if animationFinished, !repeats || !isAnimated {
             stop(at: .current)
         }
     }
