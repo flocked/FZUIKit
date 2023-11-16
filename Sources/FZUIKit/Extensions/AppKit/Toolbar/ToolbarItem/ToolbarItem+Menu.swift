@@ -20,10 +20,20 @@ public extension ToolbarItem {
             menuItem.showsIndicator = showsIndicator
             return self
         }
+        
+        public var showsIndicator: Bool {
+            get { menuItem.showsIndicator }
+            set { menuItem.showsIndicator = newValue }
+        }
 
         public func menu(_ menu: NSMenu) -> Self {
             menuItem.menu = menu
             return self
+        }
+        
+        public var menu: NSMenu {
+            get { menuItem.menu }
+            set { menuItem.menu = newValue }
         }
 
         public func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
