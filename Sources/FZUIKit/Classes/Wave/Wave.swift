@@ -157,7 +157,7 @@ public enum Wave {
         - mode: The mode how the animation should animate properties. 
             - If `value` the properties animate with a decaying acceleration to your provided values.
             - If `velocity(CGPoint)` the value of  properties will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time. The values you assign to properties will be ignored.
-        - decelerationRate: The rate at which the animation decays over time. The default value decays the rate like scrollviews.
+        - decelerationRate: The rate at which the animation decelerates over time. The default value decelerates like scrollviews.
         - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - delay: An optional delay, in seconds, after which to start the animation.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
