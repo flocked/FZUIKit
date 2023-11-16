@@ -148,7 +148,7 @@ internal extension PropertyAnimator {
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
-            self.animation(for: keyPath, key: key)?.stopAtCurrentValue()
+            self.animation(for: keyPath, key: key)?.stop(at: .current)
             self.animations[key ?? keyPath.stringValue] = nil
         }
     }
@@ -183,7 +183,7 @@ internal extension PropertyAnimator {
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
-            self.animation(for: keyPath, key: key)?.stopAtCurrentValue()
+            self.animation(for: keyPath, key: key)?.stop(at: .current)
             self.animations[key ?? keyPath.stringValue] = nil
         }
     }
@@ -192,6 +192,7 @@ internal extension PropertyAnimator {
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         var animation = animation
         animation.target = target
+        animation.fromValue = animation.value
         if let easingAnimation = animation as? EasingAnimation<Value> {
             easingAnimation.fromValue = animation.value
             easingAnimation.fractionComplete = 0.0

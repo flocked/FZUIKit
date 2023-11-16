@@ -41,12 +41,17 @@ public protocol AnimationProviding {
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     func start(afterDelay delay: TimeInterval)
-    
+        
     /// Pauses the animation.
     func pauseAnimation()
     
-    /// Stops the animation at the current value.
-    func stop(immediately: Bool)
+    /**
+     Stops the animation at the specified position.
+     
+     - Parameters:
+        - position: The position at which the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``).
+     */
+    func stop(at position: AnimationPosition)
     
     /// Resets the animation.
     func reset()
@@ -67,21 +72,25 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     /// The current target value of the animation.
     var target: Value { get set }
     
+    /// The value at the start of the animation.
+    var fromValue: Value { get set }
+    
     /// A Boolean value indicating whether the animation is currently running.
     var isRunning: Bool { get set }
     
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? { get set }
     
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     var integralizeValues: Bool { get set }
     
     /// /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters)
     
+    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
-    
-    func stop(at value: Value)
-        
+            
+    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
 }
 #endif
@@ -119,18 +128,40 @@ extension AnimationProviding {
         animation.isRunning = false
     }
     
+    public func stop(at position: AnimationPosition) {
+        if var animation = self as? any ConfigurableAnimationProviding {
+            animation._stop(at: position)
+        }
+    }
+    
+    /*
     public func stop(immediately: Bool = true) {
         if var animation = self as? any ConfigurableAnimationProviding {
             animation._stop(immediately: immediately)
         }
     }
+     */
 }
 
 internal extension ConfigurableAnimationProviding  {
+    mutating func _stop(at position: AnimationPosition) {
+        delayedStart?.cancel()
+        isRunning = false
+        state = .ended
+        switch position {
+        case .start:
+            value = fromValue
+        case .end:
+            value = target
+        default: break
+        }
+        target = value
+        completion?(.finished(at: value))
+    }
+    
     mutating func _stop(immediately: Bool = true) {
         delayedStart?.cancel()
         isRunning = false
-        Swift.print("ConfigurableAnimationProviding stop", isRunning)
         if self is DecayAnimation<Value> {
             velocity = .zero
         }
@@ -144,7 +175,7 @@ internal extension ConfigurableAnimationProviding  {
     }
     
     /// Stops the animation immediately at the current value.
-    func stopAtCurrentValue() {
+    mutating func stopAtCurrentValue() {
         self.stop(at: value)
     }
     

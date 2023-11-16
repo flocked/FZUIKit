@@ -12,6 +12,7 @@ import FZSwiftUtils
 
 /// An animator that animates a value using a decay function.
 public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
+
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -58,6 +59,8 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
             self.velocity = DecayFunction.velocity(fromValue: value, toValue: newValue)
         }
     }
+    
+    internal var fromValue: Value
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -77,11 +80,13 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     public init(value: Value, velocity: Value = .zero, decayConstant: Double = DecayFunction.ScrollViewDecelerationRate) {
         self.decayFunction = DecayFunction(decayConstant: decayConstant)
         self.value = value
+        self.fromValue = value
         self.velocity = velocity
     }
     
     internal init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero) {
         self.value = value
+        self.fromValue = value
         self.velocity = velocity
         self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
     }
@@ -92,19 +97,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
-    
-    /// Stops the animation immediately at the specified value.
-    internal func stop(at value: Value) {
-        AnimationController.shared.stopPropertyAnimation(self)
-        self.value = value
-        velocity = .zero
-        isRunning = false
-        state = .inactive
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
-        valueChanged?(callbackValue)
-        completion?(.finished(at: value))
-    }
-    
+        
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
@@ -142,7 +135,8 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         valueChanged?(callbackValue)
 
         if animationFinished {
-            stop(immediately: true)
+            stop(at: .current)
+          //  stop(immediately: true)
         }
     }
 }

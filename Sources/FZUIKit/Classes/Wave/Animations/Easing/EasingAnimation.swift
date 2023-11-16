@@ -173,18 +173,6 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
     
-    /// Stops the animation immediately at the specified value.
-    internal func stop(at value: Value) {
-        AnimationController.shared.stopPropertyAnimation(self)
-        self.value = value
-        target = value
-        isRunning = false
-        state = .inactive
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
-        valueChanged?(callbackValue)
-        completion?(.finished(at: value))
-    }
-    
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
@@ -218,7 +206,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
                 return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
             }) else { return nil }
             
-            var fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+            let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
             /*
             if fromValueAnimatable.elements > targetAnimatable.elements {
                 fractionComplete = 1.0 - fractionComplete
@@ -243,7 +231,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
                 return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
             }) else { return nil }
             
-            var fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+            let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
             /*
             if fromValueAnimatable.elements > targetAnimatable.elements {
                 fractionComplete = 1.0 - fractionComplete
@@ -269,7 +257,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
                 return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
             }) else { return nil }
             
-            var fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+            let fractionComplete = newTargetAnimated.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
             
             let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
             /*
@@ -325,7 +313,8 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
-            stop(immediately: true)
+            stop(at: .current)
+           // stop(immediately: true)
         }
     }
     

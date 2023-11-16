@@ -87,6 +87,8 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
      If animating a view's `center` or `frame` with a gesture, you may want to set `velocity` to the gesture's final velocity on touch-up.
      */
     public var velocity: Value
+    
+    internal var fromValue: Value
 
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -119,6 +121,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.target = target
         self.velocity = velocity
         self.spring = .snappy
+        self.fromValue = value
     }
 
     /**
@@ -135,6 +138,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.target = target
         self.velocity = velocity
         self.spring = spring
+        self.fromValue = value
     }
     
     internal init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
@@ -142,6 +146,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         self.target = target
         self.velocity = velocity
         self.spring = settings.type.spring ?? .smooth
+        self.fromValue = value
         self.configure(withSettings: settings)
     }
     
@@ -151,18 +156,6 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
-    
-    /// Stops the animation immediately at the specified value.
-    internal func stop(at value: Value) {
-        AnimationController.shared.stopPropertyAnimation(self)
-        self.value = value
-        target = value
-        isRunning = false
-        state = .inactive
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
-        valueChanged?(callbackValue)
-        completion?(.finished(at: value))
-    }
 
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
@@ -182,9 +175,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         velocity = .zero
         state = .inactive
     }
-    
-    var epsilon: Double? = nil
-    
+        
     /**
      Updates the progress of the animation with the specified delta time.
 
@@ -230,7 +221,8 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         valueChanged?(callbackValue)
 
         if animationFinished {
-            stop(immediately: true)
+            stop(at: .current)
+           //  stop(immediately: true)
         }
     }
 }

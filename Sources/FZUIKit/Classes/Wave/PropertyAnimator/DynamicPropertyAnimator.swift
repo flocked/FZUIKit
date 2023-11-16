@@ -166,7 +166,6 @@ internal extension DynamicPropertyAnimator {
     
     func configurateAnimation<Value>(_ animation: SpringAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
-        animation.epsilon = epsilon
         animation.integralizeValues = integralizeValue
         animation.configure(withSettings: settings)
         if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
