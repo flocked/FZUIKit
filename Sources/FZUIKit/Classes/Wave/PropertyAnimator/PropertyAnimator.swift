@@ -191,7 +191,6 @@ internal extension PropertyAnimator {
     
     /// Configurates an animation and starts it.
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
-        var animation = animation
         animation.target = target
         animation.fromValue = animation.value
         if let easingAnimation = animation as? EasingAnimation<Value> {

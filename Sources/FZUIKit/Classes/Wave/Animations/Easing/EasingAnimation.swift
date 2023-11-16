@@ -78,9 +78,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// The completion percentage of the animation.
     public var fractionComplete: CGFloat = 0.0 {
         didSet {
-            if (0...1.0).contains(fractionComplete) == false {
-                fractionComplete = fractionComplete.clamped(max: 1.0)
-            }
+            fractionComplete = fractionComplete.clamped(max: 1.0)
                 updateValue()
         }
     }

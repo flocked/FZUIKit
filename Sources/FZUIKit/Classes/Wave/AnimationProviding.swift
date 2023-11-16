@@ -55,7 +55,7 @@ public protocol AnimationProviding {
 }
 
 /// An internal extension to `AnimationProviding` used for configurating animations.
-internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
+internal protocol ConfigurableAnimationProviding<Value>: AnyObject, AnimationProviding {
     associatedtype Value: AnimatableProperty
     /// The current state of the animation.
     var state: AnimationState { get set }
@@ -104,7 +104,7 @@ internal protocol RunningTimeProviding: AnimationProviding {
 extension AnimationProviding {
     public func start(afterDelay delay: TimeInterval) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
-        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
+        guard let animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state != .running else { return }
         
         let start = {
@@ -125,7 +125,7 @@ extension AnimationProviding {
     }
 
     public func pauseAnimation() {
-        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
+        guard let animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state == .running else { return }
         animation.state = .inactive
         animation.delayedStart?.cancel()
@@ -133,14 +133,14 @@ extension AnimationProviding {
     }
     
     public func stop(at position: AnimationPosition) {
-        if var animation = self as? any ConfigurableAnimationProviding {
+        if let animation = self as? any ConfigurableAnimationProviding {
             animation._stop(at: position)
         }
     }
 }
 
 internal extension ConfigurableAnimationProviding  {
-    mutating func _stop(at position: AnimationPosition) {
+    func _stop(at position: AnimationPosition) {
         delayedStart?.cancel()
         state = .ended
         switch position {
