@@ -127,13 +127,20 @@ extension AnimationController {
         enum AnimationType {
             case spring(spring: Spring, gestureVelocity: CGPoint?, repeats: Bool)
             case easing(timingFunction: TimingFunction, duration: TimeInterval, repeats: Bool)
-            case decay(gestureVelocity: CGPoint?, repeats: Bool)
+            case decay(gestureVelocity: CGPoint?, repeats: Bool, decelerationRate: Double)
             case nonAnimated
             
             var isNonAnimated: Bool {
                 switch self {
                 case .nonAnimated: return true
                 default: return false
+                }
+            }
+            
+            var decelerationRate: Double {
+                switch self {
+                case .decay(_, _, let decelerationRate): return decelerationRate
+                default: return DecayFunction.ScrollViewDecelerationRate
                 }
             }
             
@@ -155,7 +162,7 @@ extension AnimationController {
             
             var repeats: Bool {
                 switch self {
-                case .spring(_,_, let repeats), .easing(_,_, let repeats), .decay(_, let repeats):
+                case .spring(_,_, let repeats), .easing(_,_, let repeats), .decay(_, let repeats,_):
                     return repeats
                 default: return false
                 }
@@ -171,7 +178,7 @@ extension AnimationController {
             
             var gestureVelocity: CGPoint? {
                 switch self {
-                case .spring(_, let gestureVelocity, _), .decay(let gestureVelocity, _):
+                case .spring(_, let gestureVelocity, _), .decay(let gestureVelocity, _,_):
                     return gestureVelocity
                 default: return nil
                 }

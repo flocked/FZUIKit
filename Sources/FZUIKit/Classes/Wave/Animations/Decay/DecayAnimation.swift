@@ -112,6 +112,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         self.velocity = velocity
         self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
         self.fromVelocity = velocity
+        self.configure(withSettings: settings)
     }
     
     deinit {
@@ -132,6 +133,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
             (self as? DecayAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
         self.repeats = settings.animationType.repeats
+        self.decayConstant = settings.animationType.decelerationRate
     }
     
     /// Resets the animation.
