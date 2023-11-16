@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 /// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, VelocityAnimationProviding, RunningTimeAnimationProviding {
+public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, AnimationVelocityProviding, RunningTimeProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -110,6 +110,9 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
+    
+    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
+    internal var animatorCompletion: (()->())? = nil
     
     /// The total running time of the animation.
     var runningTime: TimeInterval = 0.0

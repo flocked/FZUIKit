@@ -63,9 +63,6 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     /// The current value of the animation.
     var value: Value { get set }
     
-    /// The current velocity value of the animation.
-    var velocity: Value { get set }
-    
     /// The current target value of the animation.
     var target: Value { get set }
     
@@ -83,9 +80,23 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
+    
+    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
+    var animatorCompletion: (()->())? { get set }
             
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
+}
+
+/// An internal extension to `AnimationProviding` for animations with velocity.
+internal protocol AnimationVelocityProviding<Value>: AnimationProviding {
+    associatedtype Value: AnimatableProperty
+    var velocity: Value { get }
+}
+
+/// An internal extension to `AnimationProviding` for animations with running time.
+internal protocol RunningTimeProviding: AnimationProviding {
+    var runningTime: TimeInterval { get set }
 }
 
 extension AnimationProviding {
@@ -124,14 +135,6 @@ extension AnimationProviding {
             animation._stop(at: position)
         }
     }
-    
-    /*
-    public func stop(immediately: Bool = true) {
-        if var animation = self as? any ConfigurableAnimationProviding {
-            animation._stop(immediately: immediately)
-        }
-    }
-     */
 }
 
 internal extension ConfigurableAnimationProviding  {
@@ -147,52 +150,50 @@ internal extension ConfigurableAnimationProviding  {
         }
         target = value
         completion?(.finished(at: value))
+        animatorCompletion?()
+        animatorCompletion = nil
     }
-    
-    mutating func _stop(immediately: Bool = true) {
-        delayedStart?.cancel()
-        if self is DecayAnimation<Value> {
-            velocity = .zero
-        }
-        if immediately {
-            state = .ended
-            completion?(.finished(at: value))
-            if var animation = (self as? RunningTimeAnimationProviding) {
-                animation.runningTime = 0.0
-            }
-        } else {
-            target = value
-        }
-    }
-    
-    /// Stops the animation immediately at the current value.
-    mutating func stopAtCurrentValue() {
-        self.stop(at: value)
-    }
-    
-    /// Stops the animation immediately at the specified value.
-    mutating func stop(at value: Value) {
-        AnimationController.shared.stopPropertyAnimation(self)
-        self.value = value
-        if self is DecayAnimation<Value> {
-            velocity = .zero
-        }
-        state = .inactive
-        if var animation = (self as? RunningTimeAnimationProviding) {
-            animation.runningTime = 0.0
-        }
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
-        valueChanged?(callbackValue)
-        completion?(.finished(at: value))
-    }
-}
-
-internal protocol VelocityAnimationProviding<Value>: AnimationProviding {
-    associatedtype Value: AnimatableProperty
-    var velocity: Value { get }
-}
-
-internal protocol RunningTimeAnimationProviding: AnimationProviding {
-    var runningTime: TimeInterval { get set }
 }
 #endif
+
+/*
+mutating func _stop(immediately: Bool = true) {
+    delayedStart?.cancel()
+    if self is DecayAnimation<Value> {
+        velocity = .zero
+    }
+    if immediately {
+        state = .ended
+        completion?(.finished(at: value))
+        animatorCompletion?()
+        if var animation = (self as? RunningTimeProviding) {
+            animation.runningTime = 0.0
+        }
+    } else {
+        target = value
+    }
+}
+
+/// Stops the animation immediately at the current value.
+mutating func stopAtCurrentValue() {
+    self.stop(at: value)
+}
+
+/// Stops the animation immediately at the specified value.
+mutating func stop(at value: Value) {
+    AnimationController.shared.stopPropertyAnimation(self)
+    self.value = value
+    if self is DecayAnimation<Value> {
+        velocity = .zero
+    }
+    state = .inactive
+    if var animation = (self as? RunningTimeProviding) {
+        animation.runningTime = 0.0
+    }
+    let callbackValue = integralizeValues ? value.scaledIntegral : value
+    valueChanged?(callbackValue)
+    completion?(.finished(at: value))
+    animatorCompletion?()
+    animatorCompletion = nil
+}
+ */

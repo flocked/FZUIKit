@@ -124,13 +124,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             }
         }
     }
-    
-    /// Not in use and only used to confirm to `ConfigurableAnimationProviding`.
-    internal var velocity: Value {
-        get { value }
-        set { }
-    }
-    
+        
     /// The start value of the animation.
     var fromValue: Value
         
@@ -140,6 +134,9 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
 
+    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
+    internal var animatorCompletion: (()->())? = nil
+    
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
      While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.

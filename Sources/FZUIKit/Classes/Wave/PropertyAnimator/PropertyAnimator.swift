@@ -88,9 +88,9 @@ public extension PropertyAnimator {
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
     func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
-        if let animation = self.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+        if let animation = self.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
             return animation.velocity as? Value
-        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
             return animation.velocity as? Value
         }
         return nil
@@ -98,9 +98,9 @@ public extension PropertyAnimator {
     
     /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
     func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
-        if let animation = self.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+        if let animation = self.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
             return animation.velocity as? Value
-        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any VelocityAnimationProviding) {
+        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
             return animation.velocity as? Value
         }
         return nil
@@ -194,7 +194,6 @@ internal extension PropertyAnimator {
         animation.target = target
         animation.fromValue = animation.value
         if let easingAnimation = animation as? EasingAnimation<Value> {
-            easingAnimation.fromValue = animation.value
             easingAnimation.fractionComplete = 0.0
         }
         animation.integralizeValues = integralizeValue
@@ -210,6 +209,11 @@ internal extension PropertyAnimator {
         }
         let groupUUID = animation.groupUUID
         let animationKey = key ?? keyPath.stringValue
+        
+        animation.animatorCompletion = { [weak self] in
+            self?.animations[animationKey] = nil
+        }
+        
         animation.completion = { [weak self] event in
             switch event {
             case .finished:

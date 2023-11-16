@@ -13,7 +13,7 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using a decay function.
-public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, VelocityAnimationProviding {
+public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, AnimationVelocityProviding {
 
     /// A unique identifier for the animation.
     public let id = UUID()
@@ -86,6 +86,9 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
+    
+    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
+    internal var animatorCompletion: (()->())? = nil
     
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
