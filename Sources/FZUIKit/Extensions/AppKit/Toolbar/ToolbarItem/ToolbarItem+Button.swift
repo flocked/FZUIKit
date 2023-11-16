@@ -9,7 +9,11 @@
 import AppKit
 
 public extension ToolbarItem {
-    /// A toolbar item that contains a button.
+    /**
+     A toolbar item that contains a button.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class Button: ToolbarItem {
         public let button: NSButton
         

@@ -10,7 +10,11 @@ import AppKit
 import SwiftUI
 
 public extension ToolbarItem {
-    /// A toolbar item that displays a view.
+    /**
+     A toolbar item that displays a view.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class View: ToolbarItem {
         /// The view of the toolbar item.
         public var view: NSView {

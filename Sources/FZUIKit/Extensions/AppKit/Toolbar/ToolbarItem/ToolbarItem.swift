@@ -8,8 +8,11 @@
 #if os(macOS)
 import AppKit
 
-// public protocol ToolbarItem: NSToolbarItem { }
-
+/**
+ A toolbar item.
+ 
+ It can be used as an item of a ``Toolbar``.
+ */
 public class ToolbarItem: NSObject {
     public typealias ActionBlock = NSToolbarItem.ActionBlock
 

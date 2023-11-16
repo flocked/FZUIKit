@@ -9,7 +9,11 @@
 import AppKit
 
 public extension ToolbarItem {
-    /// A group of subitems in a toolbar item.
+    /**
+     A group of subitems in a toolbar item.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class Group: ToolbarItem {
         public typealias SelectionMode = NSToolbarItemGroup.SelectionMode
         public typealias ControlRepresentation = NSToolbarItemGroup.ControlRepresentation

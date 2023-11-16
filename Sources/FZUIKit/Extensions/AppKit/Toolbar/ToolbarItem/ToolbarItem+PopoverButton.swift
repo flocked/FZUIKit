@@ -9,7 +9,11 @@
 import AppKit
 
 public extension ToolbarItem {
-    /// A toolbar item that contains a popover button.
+    /**
+     A toolbar item that contains a popover button.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class PopoverButton: ToolbarItem, NSPopoverDelegate {
         public let button: NSButton
         internal weak var popoverController: NSViewController?

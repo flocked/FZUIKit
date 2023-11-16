@@ -10,7 +10,11 @@ import AppKit
 import FZSwiftUtils
 
 public extension ToolbarItem {
-    /// A toolbar item that contains a segmented control.
+    /**
+     A toolbar item that contains a segmented control.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class Segmented: ToolbarItem {
         public typealias SwitchingMode = NSSegmentedControl.SwitchTracking
         public typealias Style = NSSegmentedControl.Style

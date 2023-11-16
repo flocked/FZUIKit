@@ -10,7 +10,11 @@ import AppKit
 
 @available(macOS 11.0, *)
 public extension ToolbarItem {
-    /// A toolbar item that contains a search field optimized for performing text-based searches.
+    /**
+     A toolbar item that contains a search field optimized for performing text-based searches.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
         internal typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
 

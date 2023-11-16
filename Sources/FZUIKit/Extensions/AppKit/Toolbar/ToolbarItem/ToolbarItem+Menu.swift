@@ -10,7 +10,11 @@ import AppKit
 import SwiftUI
 
 public extension ToolbarItem {
-    /// A toolbar item that presents a menu.
+    /**
+     A toolbar item that presents a menu.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class Menu: ToolbarItem {
         internal lazy var menuItem: NSMenuToolbarItem = .init(identifier)
         override internal var item: NSToolbarItem {

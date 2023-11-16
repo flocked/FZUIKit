@@ -10,7 +10,11 @@ import AppKit
 import SwiftUI
 
 public extension ToolbarItem {
-    /// A toolbar item that displays the macOS share sheet.
+    /**
+     A toolbar item that displays the macOS share sheet.
+     
+     It can be used as an item of a ``Toolbar``.
+     */
     class SharingServicePicker: ToolbarItem {
         internal lazy var servicePickerItem = NSSharingServicePickerToolbarItem(identifier)
         override internal var item: NSToolbarItem {
