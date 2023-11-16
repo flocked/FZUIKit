@@ -13,13 +13,16 @@ import SwiftUI
 /**
  Performs animations on animatable properties of an object conforming to ``AnimatablePropertyProvider``.
  
- The following objects provide animatable properties via `animator`.
- - macOS: `NSView`, `NSTextField`, `NSTextView`, `NSImageView`, `NSControl`, `NSScrollView`, `NSButton`, `NSStackView`, `NSWindow`, `NSLayoutConstraint` and `CALayer`.
- - iOS: `UIView`, `UITextField`, `UILabel`, `UITextView`, `UIImageView`, `UIScrollView`, `UIStackView`, `UIButton`, `NSLayoutConstraint` and `CALayer`.
+ Many objects provide animatable properties.
+ - macOS: `NSView`, `NSWindow`, `NSTextField`, `NSImageView`, `NSLayoutConstraint`, `CALayer` and many more.
+ - iOS: `UIView`, `UILabel`, `UIImageView`, `NSLayoutConstraint`, `CALayer`  and many more.
  
- Animations can either be ``Spring``, easing (``TimingFunction``) or decay based. To animate use either ``animate(withSpring:delay:gestureVelocity:isUserInteractionEnabled:animations:completion:)``, ``animate(withEasing:duration:delay:isUserInteractionEnabled:animations:completion:)`` or ``animate(withDecay:delay:isUserInteractionEnabled:animations:completion:)``.
+ There are three different types of animations :
+ - **Spring:** ``Wave/animate(withSpring:delay:gestureVelocity:animations:completion:)``
+ - **Easing:** ``Wave/animate(withEasing:duration:delay:animations:completion:)``
+ - **Decay:** ``Wave/animate(withDecayVelocity:delay:animations:completion:)``.
  
-For animations to work correctly, you must set values on the objects's `animator`, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+ To animate values, you must set the values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
 
  ```swift
  Wave.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
@@ -32,7 +35,6 @@ For animations to work correctly, you must set values on the objects's `animator
  
  To immediately update the values of properties that are currenty animated use ``nonAnimate(changes:)``. It will stop their animations and sets their values immediately to the specified new values.
 
- 
  ```swift
  Wave.nonAnimate() {
     myView.animator.center = newCenterPoint
@@ -180,7 +182,7 @@ public enum Wave {
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
-        withDecay gestureVelocity: CGPoint,
+        withDecayVelocity gestureVelocity: CGPoint,
         delay: TimeInterval = 0,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
