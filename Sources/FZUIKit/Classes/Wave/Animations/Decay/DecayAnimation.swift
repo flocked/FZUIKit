@@ -195,4 +195,19 @@ extension DecayAnimation: CustomStringConvertible {
     }
 }
 
+/// The mode how a decaying animation should animate properties.
+public enum DecayAnimationMode {
+    /// The value of animated properties will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time. Any values you assign to properties will be ignored.
+    case velocity(CGPoint)
+    /// The animated properties will animate with a decaying acceleration to your provided values.
+    case value
+    
+    internal var velocity: CGPoint? {
+        switch self {
+        case .velocity(let velocity): return velocity
+        case .value: return nil
+        }
+    }
+}
+
 #endif
