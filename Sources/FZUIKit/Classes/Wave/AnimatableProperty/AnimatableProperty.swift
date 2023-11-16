@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 12.10.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -124,16 +123,6 @@ extension CGRect: AnimatableProperty {
     }
 }
 
-extension CATransform3D: AnimatableProperty {
-    public init(_ animatableData: AnimatableVector) {
-        self.init(m11: animatableData[0], m12: animatableData[1], m13: animatableData[2], m14: animatableData[3], m21: animatableData[4], m22: animatableData[5], m23: animatableData[6], m24: animatableData[7], m31: animatableData[8], m32: animatableData[9], m33: animatableData[10], m34: animatableData[11], m41: animatableData[12], m42: animatableData[13], m43: animatableData[14], m44: animatableData[15])
-    }
-    
-    public var animatableData: AnimatableVector {
-        return [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]
-    }
-}
-
 extension AnimatableProperty where Self: NSUIColor {
     public init(_ animatableData: AnimatableVector) {
         #if os(macOS)
@@ -185,20 +174,6 @@ extension CGAffineTransform: AnimatableProperty {
     }
 }
 
-extension CGQuaternion: AnimatableProperty {
-    public init(_ animatableData: AnimatableVector) {
-        self.storage = .init(ix: animatableData[0], iy: animatableData[1], iz: animatableData[2], r: animatableData[3])
-    }
-    
-    public var animatableData: AnimatableVector {
-        [self.storage.vector[0], self.storage.vector[1], self.storage.vector[2], self.storage.vector[3]]
-    }
-    
-    public static var zero: CGQuaternion {
-        CGQuaternion.init(degree: 0, axis: .init(0, 0, 0))
-    }
-}
-
 extension NSDirectionalEdgeInsets: AnimatableProperty {
     public init(_ animatableData: AnimatableVector) {
         self.init(top: animatableData[0], leading: animatableData[1], bottom: animatableData[2], trailing: animatableData[3])
@@ -229,6 +204,32 @@ extension CGVector: AnimatableProperty {
     }
 }
 
+#if canImport(QuartzCore)
+extension CATransform3D: AnimatableProperty {
+    public init(_ animatableData: AnimatableVector) {
+        self.init(m11: animatableData[0], m12: animatableData[1], m13: animatableData[2], m14: animatableData[3], m21: animatableData[4], m22: animatableData[5], m23: animatableData[6], m24: animatableData[7], m31: animatableData[8], m32: animatableData[9], m33: animatableData[10], m34: animatableData[11], m41: animatableData[12], m42: animatableData[13], m43: animatableData[14], m44: animatableData[15])
+    }
+    
+    public var animatableData: AnimatableVector {
+        return [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]
+    }
+}
+
+extension CGQuaternion: AnimatableProperty {
+    public init(_ animatableData: AnimatableVector) {
+        self.storage = .init(ix: animatableData[0], iy: animatableData[1], iz: animatableData[2], r: animatableData[3])
+    }
+    
+    public var animatableData: AnimatableVector {
+        [self.storage.vector[0], self.storage.vector[1], self.storage.vector[2], self.storage.vector[3]]
+    }
+    
+    public static var zero: CGQuaternion {
+        CGQuaternion.init(degree: 0, axis: .init(0, 0, 0))
+    }
+}
+#endif
+
 extension Array: AnimatableProperty, AnimatableArrayType where Element: AnimatableProperty {
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))
@@ -253,8 +254,7 @@ internal protocol AnimatableArrayType {
 }
 
 
-
-@available(macOS 14.0, iOS 17.0, tvOS 17.0, *)
+@available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
 extension SwiftUI.Spring {
     /**
      Updates the current value and velocity of a spring.
@@ -363,5 +363,3 @@ internal struct AnimatableProxy<Value: AnimatableProperty>: Animatable {
         self.animatableData = value.animatableData
     }
 }
-
-#endif

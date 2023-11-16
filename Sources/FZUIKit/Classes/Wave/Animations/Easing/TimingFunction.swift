@@ -5,8 +5,6 @@
 //  Created by Florian Zand on 20.10.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
-
 import Foundation
 
 /// Timing functions are used to convert linear input time (`0.0 -> 1.0`) to transformed output time (also `0.0 -> 1.0`)..
@@ -74,10 +72,6 @@ extension TimingFunction {
     
 }
 
-#if canImport(QuartzCore)
-
-import QuartzCore
-
 extension TimingFunction: Equatable { }
 
 extension TimingFunction: CustomStringConvertible {
@@ -104,6 +98,11 @@ extension TimingFunction: CustomStringConvertible {
         return "TimingFunction: \(name)"
     }
 }
+
+#if canImport(QuartzCore)
+
+import QuartzCore
+
 extension TimingFunction {
     /// Initializes a timing function with a unit bezier derived from the given Core Animation timing function.
     public init(_ coreAnimationTimingFunction: CAMediaTimingFunction) {
@@ -120,6 +119,8 @@ extension TimingFunction {
             y2: controlPoints[2].y)
     }
 }
+
+#endif
 
 /*
  internal extension TimingFunction {
@@ -156,6 +157,3 @@ extension TimingFunction {
      }
  }
  */
-
-#endif
-#endif
