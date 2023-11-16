@@ -165,35 +165,35 @@ public enum Wave {
     }
         
     /**
-     Performs decaying animations.
+     Performs animations with a decaying acceleration.
      
-     If you provide a `velocity` any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.
+     If you provide a `velocity` any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
      
-     If you don't provide a velocity, the properties animate with a decaying speed to your provided values.
+     If you don't provide a velocity, the properties animate with a decaying acceleration to your provided values.
      
      - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's frame, use `myView.animator.frame = aRect` instead of `myView.frame = aRect`.
      
      - Note: For a list of all objects that provide animatable properties check ``Wave``.
 
      ```swift
-     Wave.animate(withDecay: nil) {
+     Wave.animate(withDecay: {
         myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
-     }
+     })
      ```
-     the animated properties will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.
+     
      - Parameters:
-        - velocity: If provided, any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop. If you don't provide a velocity, the properties animate with a decaying speed to your provided values.
-        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
-        - delay: An optional delay, in seconds, after which to start the animation.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
+        - velocity: If provided, any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop. This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time. If you don't provide a velocity, the properties animate with a decaying acceleration to your provided values.
+        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
+        - delay: An optional delay, in seconds, after which to start the animation.
      */
     public static func animate(
-        withDecay velocity: CGPoint?,
+        withDecay animations: () -> Void,
+        completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil,
+        velocity: CGPoint?,
         repeats: Bool = false,
-        delay: TimeInterval = 0,
-        animations: () -> Void,
-        completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
+        delay: TimeInterval = 0
     ) {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
