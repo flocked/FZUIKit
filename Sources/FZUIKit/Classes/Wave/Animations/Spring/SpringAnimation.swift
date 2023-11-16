@@ -36,9 +36,6 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             }
         }
     }
-    
-    /// A Boolean value indicating whether the animation is currently running.
-    public internal(set)var isRunning: Bool = false
 
     /// The spring model that determines the animation's motion.
     public var spring: Spring
@@ -222,7 +219,6 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
 
         if animationFinished {
             stop(at: .current)
-           //  stop(immediately: true)
         }
     }
 }
@@ -233,9 +229,8 @@ extension SpringAnimation: CustomStringConvertible {
         SpringAnimation<\(Value.self)>(
             uuid: \(id)
             groupUUID: \(String(describing: groupUUID))
-
+            priority: \(relativePriority)
             state: \(state)
-            isRunning: \(isRunning)
 
             value: \(String(describing: value))
             target: \(String(describing: target))
@@ -248,8 +243,6 @@ extension SpringAnimation: CustomStringConvertible {
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))
-
-            priority: \(relativePriority)
         )
         """
     }

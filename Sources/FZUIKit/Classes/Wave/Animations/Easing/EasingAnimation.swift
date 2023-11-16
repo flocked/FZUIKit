@@ -22,9 +22,6 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive
     
-    /// A Boolean value indicating whether the animation is currently running.
-    public internal(set)var isRunning: Bool = false
-    
     /// The information used to determine the timing curve for the animation.
     public var timingFunction: TimingFunction = .easeInEaseOut
     
@@ -93,7 +90,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value {
         didSet { 
-            guard state != .running, isRunning == false else { return }
+            guard state != .running else { return }
             fromValue = value
         }
     }
@@ -112,9 +109,11 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             
             if duration != 0.0, #available(macOS 13.0.0, *) {
               //  Swift.print("VectorElements type", type(of: value.animatableData), (fromValue.animatableData as? any VectorElements) != nil, (fromValue.animatableData as? any VectorElements<CGFloat>) != nil, (fromValue.animatableData as? any VectorElements<Double>) != nil)
+                /*
                 if let duration = self.newDuration(oldTarget: oldValue, newTarget: self.target) {
-                  //  self.duration = duration
+                    self.duration = duration
                 }
+                 */
             }
             
             if state == .running {
@@ -314,12 +313,11 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
 
         if animationFinished, !repeats || !isAnimated {
             stop(at: .current)
-           // stop(immediately: true)
         }
     }
     
     func updateValue() {
-        if isRunning == false, state == .running, scrubsLinearly {
+        if state != .running, scrubsLinearly {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
         } else {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
@@ -333,26 +331,23 @@ extension EasingAnimation: CustomStringConvertible {
         EasingAnimation<\(Value.self)>(
             uuid: \(id)
             groupUUID: \(String(describing: groupUUID))
-
+            priority: \(relativePriority)
             state: \(state)
-            isRunning: \(isRunning)
-            fractionComplete: \(fractionComplete)
-            isReversed: \(isReversed)
-
+        
             value: \(String(describing: value))
             target: \(String(describing: target))
             from: \(String(describing: fromValue))
+            fractionComplete: \(fractionComplete)
 
             timingFunction: \(timingFunction.name)
             duration: \(duration)
             repeats: \(repeats)
+            isReversed: \(isReversed)
             integralizeValues: \(integralizeValues)
             scrubsLinearly: \(scrubsLinearly)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))
-
-            priority: \(relativePriority)
         )
         """
     }

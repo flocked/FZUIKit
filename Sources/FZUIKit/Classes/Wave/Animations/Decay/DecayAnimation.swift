@@ -25,9 +25,6 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive
     
-    /// A Boolean value indicating whether the animation is currently running.
-    public internal(set)var isRunning: Bool = false
-    
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
@@ -96,7 +93,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     }
     
     /// The item that starts the animation delayed.
-    var delayedStart: DispatchWorkItem? = nil
+    internal var delayedStart: DispatchWorkItem? = nil
         
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
@@ -120,7 +117,6 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
      */
     public func updateAnimation(deltaTime: TimeInterval) {
         guard velocity != .zero else {
-            // Can't start an animation without a value and target
             state = .inactive
             return
         }
@@ -136,7 +132,6 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
 
         if animationFinished {
             stop(at: .current)
-          //  stop(immediately: true)
         }
     }
 }
@@ -147,9 +142,8 @@ extension DecayAnimation: CustomStringConvertible {
         DecayAnimation<\(Value.self)>(
             uuid: \(id)
             groupUUID: \(String(describing: groupUUID))
-
+            priority: \(relativePriority)
             state: \(state)
-            isRunning: \(isRunning)
 
             value: \(String(describing: value))
             velocity: \(String(describing: velocity))
@@ -161,7 +155,6 @@ extension DecayAnimation: CustomStringConvertible {
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))
 
-            priority: \(relativePriority)
         )
         """
     }

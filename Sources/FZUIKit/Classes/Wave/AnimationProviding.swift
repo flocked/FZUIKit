@@ -11,7 +11,7 @@ import Foundation
 /**
  A type that provides an animation.
  
- It provides a default implementation for ``start(afterDelay:)`` and ``pauseAnimation()``.
+ It provides a default implementation for ``start(afterDelay:)``, ``pauseAnimation()`` and ``stop(at:)``.
  */
 public protocol AnimationProviding {
     /// A unique identifier for the animation.
@@ -25,9 +25,6 @@ public protocol AnimationProviding {
     
     /// The current state of the animation.
     var state: AnimationState { get }
-    
-    /// A Boolean value indicating whether the animation is currently running.
-    var isRunning: Bool { get }
 
     /**
      Updates the progress of the animation with the specified delta time.
@@ -57,7 +54,7 @@ public protocol AnimationProviding {
     func reset()
 }
 
-/// An internal extension to `AnimationProviding` used for configurating the animation.
+/// An internal extension to `AnimationProviding` used for configurating animations.
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
     /// The current state of the animation.
@@ -74,9 +71,6 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     
     /// The value at the start of the animation.
     var fromValue: Value { get set }
-    
-    /// A Boolean value indicating whether the animation is currently running.
-    var isRunning: Bool { get set }
     
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? { get set }
@@ -99,10 +93,9 @@ extension AnimationProviding {
     public func start(afterDelay delay: TimeInterval) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
         guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
-        guard isRunning == false, state != .running else { return }
+        guard state != .running else { return }
         
         let start = {
-            animation.isRunning = true
             AnimationController.shared.runPropertyAnimation(self)
         }
         
@@ -125,7 +118,6 @@ extension AnimationProviding {
         animation.state = .inactive
         animation.delayedStart?.cancel()
         AnimationController.shared.stopPropertyAnimation(self)
-        animation.isRunning = false
     }
     
     public func stop(at position: AnimationPosition) {
@@ -146,7 +138,6 @@ extension AnimationProviding {
 internal extension ConfigurableAnimationProviding  {
     mutating func _stop(at position: AnimationPosition) {
         delayedStart?.cancel()
-        isRunning = false
         state = .ended
         switch position {
         case .start:
@@ -161,7 +152,6 @@ internal extension ConfigurableAnimationProviding  {
     
     mutating func _stop(immediately: Bool = true) {
         delayedStart?.cancel()
-        isRunning = false
         if self is DecayAnimation<Value> {
             velocity = .zero
         }
@@ -186,7 +176,6 @@ internal extension ConfigurableAnimationProviding  {
         if self is DecayAnimation<Value> {
             velocity = .zero
         }
-        isRunning = false
         state = .inactive
         let callbackValue = integralizeValues ? value.scaledIntegral : value
         valueChanged?(callbackValue)

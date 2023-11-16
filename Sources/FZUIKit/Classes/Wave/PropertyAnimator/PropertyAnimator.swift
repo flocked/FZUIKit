@@ -285,8 +285,8 @@ internal extension PropertyAnimator {
     }
     
     /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
-    func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> (any ConfigurableAnimationProviding)? {
-        return animations[key ?? keyPath.stringValue] as? (any ConfigurableAnimationProviding)
+    func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> AnimationProviding? {
+        return animations[key ?? keyPath.stringValue]
     }
 }
 
