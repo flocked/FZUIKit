@@ -228,8 +228,13 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             let deltaTime = deltaTime/2.0 // Why?
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
+            let animationFinished = (isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0) || !isAnimated
+            Swift.print("updateAnimation", fractionComplete, value, isAnimated, animationFinished)
         } else {
+            fractionComplete = 1.0
             self.value = target
+            let animationFinished = (isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0) || !isAnimated
+            Swift.print("updateAnimation value = target", value, isAnimated, animationFinished)
         }
         
         let animationFinished = (isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0) || !isAnimated
