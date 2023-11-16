@@ -73,10 +73,16 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? { get set }
     
+    var integralizeValues: Bool { get set }
+    
     /// /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters)
     
-    var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get }
+    var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
+    
+    func stop(at value: Value)
+        
+    var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
 }
 #endif
 
@@ -104,7 +110,6 @@ extension AnimationProviding {
         }
     }
 
-    
     public func pauseAnimation() {
         guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state == .running else { return }
@@ -113,5 +118,47 @@ extension AnimationProviding {
         AnimationController.shared.stopPropertyAnimation(self)
         animation.isRunning = false
     }
+    
+    public func stop(immediately: Bool = true) {
+        if var animation = self as? any ConfigurableAnimationProviding {
+            animation._stop(immediately: immediately)
+        }
+    }
 }
 
+internal extension ConfigurableAnimationProviding  {
+    mutating func _stop(immediately: Bool = true) {
+        delayedStart?.cancel()
+        isRunning = false
+        Swift.print("ConfigurableAnimationProviding stop", isRunning)
+        if self is DecayAnimation<Value> {
+            velocity = .zero
+        }
+        if immediately {
+            state = .ended
+            completion?(.finished(at: value))
+        } else {
+            target = value
+        }
+        
+    }
+    
+    /// Stops the animation immediately at the current value.
+    mutating func stopAtCurrentValue() {
+        self.stop(at: value)
+    }
+    
+    /// Stops the animation immediately at the specified value.
+    mutating func stop(at value: Value) {
+        AnimationController.shared.stopPropertyAnimation(self)
+        self.value = value
+        if self is DecayAnimation<Value> {
+            velocity = .zero
+        }
+        isRunning = false
+        state = .inactive
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        valueChanged?(callbackValue)
+        completion?(.finished(at: value))
+    }
+}

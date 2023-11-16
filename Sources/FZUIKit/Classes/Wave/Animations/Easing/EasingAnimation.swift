@@ -172,20 +172,6 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
-
-    /// Stops the animation at the current value.
-    public func stop(immediately: Bool = true) {
-        delayedStart?.cancel()
-        isRunning = false
-        if immediately {
-            state = .ended
-            if let completion = completion {
-                completion(.finished(at: value))
-            }
-        } else {
-            target = value
-        }
-    }
     
     /// Stops the animation immediately at the specified value.
     internal func stop(at value: Value) {
@@ -196,9 +182,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         state = .inactive
         let callbackValue = integralizeValues ? value.scaledIntegral : value
         valueChanged?(callbackValue)
-        if let completion = self.completion {
-            completion(.finished(at: value))
-        }
+        completion?(.finished(at: value))
     }
     
     /// Configurates the animation with the specified settings.

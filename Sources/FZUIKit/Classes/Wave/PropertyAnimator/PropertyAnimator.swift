@@ -123,42 +123,28 @@ internal extension PropertyAnimator {
         updateValue(&initialValue, target: &targetValue)
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
-        /*
-        #if os(iOS) || os(tvOS)
-        configurateViewUserInteration(settings: settings)
-        #endif
-         */
+
         switch settings.type {
         case .spring(_):
             Swift.print("animate spring")
             let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
-            configurateSpringAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+          //  configurateSpringAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .easing(_):
             Swift.print("animate easing")
             let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
-            configurateEasingAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+         //   configurateEasingAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .decay(_):
             Swift.print("animate decay")
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)
-            configurateDecayAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+          //  configurateDecayAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
             Swift.print("animate nonAnimated")
-            if let springAnimation = springAnimation(for: keyPath, key: key) {
-                springAnimation.stop(at: targetValue)
-            } else if let easingAnimation = easingAnimation(for: keyPath, key: key) {
-                easingAnimation.stop(at: targetValue)
-            } else if let decayAnimation = decayAnimation(for: keyPath, key: key) {
-                decayAnimation.stop(at: targetValue)
-            } else {
-                self.animation(for: keyPath, key: key)?.stop(immediately: true)
+            if var animation = self.configurableAnimation(for: keyPath, key: key) {
+                animation.stopAtCurrentValue()
             }
-            /*
-            if let springAnimation = springAnimation(for: keyPath, key: key) {
-                springAnimation.stop(at: targetValue)
-            } else {
-                self.animation(for: keyPath, key: key)?.stop(immediately: true)
-            }
-             */
             self.animations[key ?? keyPath.stringValue] = nil
         }
     }
@@ -182,49 +168,33 @@ internal extension PropertyAnimator {
         updateValue(&initialValue, target: &targetValue)
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
-        
-        /*
-        #if os(iOS) || os(tvOS)
-        configurateViewUserInteration(settings: settings)
-        #endif
-         */
-        
+     
         switch settings.type {
         case .spring(_):
             Swift.print("animate spring")
-            let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
-            configurateSpringAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+           // configurateSpringAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .easing(_):
             Swift.print("animate easing")
             let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
-            configurateEasingAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+          //  configurateEasingAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .decay(_):
             Swift.print("animate decay")
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)
-            configurateDecayAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+         //   configurateDecayAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
+            configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, epsilon: epsilon, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
             Swift.print("animate nonAnimated")
-            if let springAnimation = springAnimation(for: keyPath, key: key) {
-                springAnimation.stop(at: targetValue)
-            } else if let easingAnimation = easingAnimation(for: keyPath, key: key) {
-                easingAnimation.stop(at: targetValue)
-            } else if let decayAnimation = decayAnimation(for: keyPath, key: key) {
-                decayAnimation.stop(at: targetValue)
-            } else {
-                self.animation(for: keyPath, key: key)?.stop(immediately: true)
+            if var animation = self.configurableAnimation(for: keyPath, key: key) {
+                animation.stopAtCurrentValue()
             }
-            /*
-            if let springAnimation = springAnimation(for: keyPath, key: key) {
-                springAnimation.stop(at: targetValue)
-            } else {
-                self.animation(for: keyPath, key: key)?.stop(immediately: true)
-            }
-             */
             self.animations[key ?? keyPath.stringValue] = nil
         }
     }
 
-    
+    /*
     func configurateSpringAnimation<Value>(_ animation: SpringAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
         animation.target = target
         animation.epsilon = epsilon
@@ -242,11 +212,6 @@ internal extension PropertyAnimator {
         let groupUUID = animation.groupUUID
         let animationKey = key ?? keyPath.stringValue
         animation.completion = { [weak self] event in
-            /*
-            #if os(iOS) || os(tvOS)
-            (self?.object as? UIView).isUserInteractionEnabled = savedIsUserInteractionEnabled
-            #endif
-             */
             switch event {
             case .finished:
                 completion?()
@@ -279,11 +244,6 @@ internal extension PropertyAnimator {
         let groupUUID = animation.groupUUID
         let animationKey = key ?? keyPath.stringValue
         animation.completion = { [weak self] event in
-            /*
-            #if os(iOS) || os(tvOS)
-            (self?.object as? UIView).isUserInteractionEnabled = savedIsUserInteractionEnabled
-            #endif
-             */
             switch event {
             case .finished:
                 completion?()
@@ -296,10 +256,45 @@ internal extension PropertyAnimator {
         animations[animationKey] = animation
         animation.start(afterDelay: settings.delay)
     }
+     
+     /// Configurate decay animation.
+     func configurateDecayAnimation<Value>(_ animation: DecayAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
+         animation.target = target
+         animation.integralizeValues = integralizeValue
+         animation.configure(withSettings: settings)
+         if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
+             animation.valueChanged = { [weak self] value in
+                 self?.object[keyPath: keyPath] = value
+             }
+         } else if let keyPath = keyPath as? WritableKeyPath<Object, Value?> {
+             animation.valueChanged = { [weak self] value in
+                 self?.object[keyPath: keyPath] = value
+             }
+         }
+         let groupUUID = animation.groupUUID
+         let animationKey = key ?? keyPath.stringValue
+         animation.completion = { [weak self] event in
+             switch event {
+             case .finished:
+                 completion?()
+                 self?.animations[animationKey] = nil
+                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+             default:
+                 break
+             }
+         }
+         animations[animationKey] = animation
+         animation.start(afterDelay: settings.delay)
+     }
+     */
     
-    /// Configurate decay animation.
-    func configurateDecayAnimation<Value>(_ animation: DecayAnimation<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
+    func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, epsilon: Double? = nil, integralizeValue: Bool = false, completion: (()->())? = nil) {
+        var animation = animation
         animation.target = target
+        if var wasingAnimation = animation as? EasingAnimation<Value> {
+            wasingAnimation.fromValue = animation.value
+            wasingAnimation.fractionComplete = 0.0
+        }
         animation.integralizeValues = integralizeValue
         animation.configure(withSettings: settings)
         if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
@@ -389,6 +384,10 @@ internal extension PropertyAnimator {
     
     func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> AnimationProviding? {
         return animations[key ?? keyPath.stringValue]
+    }
+    
+    func configurableAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> (any ConfigurableAnimationProviding)? {
+        return animations[key ?? keyPath.stringValue] as? (any ConfigurableAnimationProviding)
     }
 }
 
