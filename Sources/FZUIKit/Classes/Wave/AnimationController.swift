@@ -127,7 +127,7 @@ extension AnimationController {
         enum AnimationType {
             case spring(spring: Spring, gestureVelocity: CGPoint?, repeats: Bool)
             case easing(timingFunction: TimingFunction, duration: TimeInterval, repeats: Bool)
-            case decay(repeats: Bool)
+            case decay(gestureVelocity: CGPoint?, repeats: Bool)
             case nonAnimated
             
             var spring: Spring? {
@@ -148,7 +148,7 @@ extension AnimationController {
             
             var repeats: Bool {
                 switch self {
-                case .spring(_,_, let repeats), .easing(_,_, let repeats), .decay(let repeats):
+                case .spring(_,_, let repeats), .easing(_,_, let repeats), .decay(_, let repeats):
                     return repeats
                 default: return false
                 }
@@ -164,7 +164,7 @@ extension AnimationController {
             
             var gestureVelocity: CGPoint? {
                 switch self {
-                case .spring(_, let gestureVelocity, _):
+                case .spring(_, let gestureVelocity, _), .decay(let gestureVelocity, _):
                     return gestureVelocity
                 default: return nil
                 }

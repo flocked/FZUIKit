@@ -163,78 +163,42 @@ public enum Wave {
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
-    
-    /*
+        
     /**
-     Performs decaying animations based on the specified gesture velocity.
+     Performs decaying animations.
      
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
-
-     - Note: Only `CGPoint` and `CGRect` properties can be animated decaying.
+     If you provide a `velocity` any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.
+     
+     If you don't provide a velocity, the properties animate with a decaying speed to your provided values.
+     
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's frame, use `myView.animator.frame = aRect` instead of `myView.frame = aRect`.
      
      - Note: For a list of all objects that provide animatable properties check ``Wave``.
 
      ```swift
-     Wave.animate(withDecay: CGPoint(x: -200, y: -100))) {
+     Wave.animate(withDecay: nil) {
         myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
      }
      ```
-     
+     the animated properties will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.
      - Parameters:
-        - gestureVelocity: The value will be used to set the `velocity` of whatever underlying animations run in the `animations` block. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
+        - velocity: If provided, any values you assign to animatable properties in the animation block will be ignored. Instead the properties from the animation block will increase or decrease (depending on the `velocity` supplied) and will slow to a stop. If you don't provide a velocity, the properties animate with a decaying speed to your provided values.
         - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - delay: An optional delay, in seconds, after which to start the animation.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
-        withDecayRepeats repeats: Bool = false,
+        withDecay velocity: CGPoint?,
+        repeats: Bool = false,
         delay: TimeInterval = 0,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
-        precondition(Thread.isMainThread)
-
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .decay(repeats: repeats),
-            completion: completion
-        )
-        
-        AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
-    }
-    */
-    
-    /**
-     Performs decaying animations based on the specified gesture velocity.
-     
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
-     
-     - Note: For a list of all objects that provide animatable properties check ``Wave``.
-
-     ```swift
-     Wave.animate(withDecay: {
-        myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
-     })
-     ```
-     
-     - Parameters:
-        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
-        - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
-        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
-        - delay: An optional delay, in seconds, after which to start the animation.
-     */
-    public static func animate(
-        withDecay animations: () -> Void,
-        completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil,
-        delay: TimeInterval = 0,
-        repeats: Bool = false
-    ) {
-        let settings = AnimationController.AnimationParameters(
-            groupUUID: UUID(),
-            delay: delay,
-            animationType: .decay(repeats: repeats),
+            animationType: .decay(gestureVelocity: velocity, repeats: repeats),
             completion: completion
         )
         
