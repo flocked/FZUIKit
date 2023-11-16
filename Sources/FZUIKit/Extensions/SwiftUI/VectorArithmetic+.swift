@@ -125,28 +125,6 @@ extension CGFloat: FloatingPointInitializable {
 }
 
 
-
-extension VectorElements {
-    func newDuration(newTarget: any VectorElements<Element>) -> TimeInterval? {
-        let fromValue: Self = self
-        let target: Self = self
-        
-        let range: ClosedRange<[Element]> = fromValue.elements...target.elements
-        let timingFunction: TimingFunction = .easeInEaseOut
-        let duration: TimeInterval = 3.0
-        guard let usableIndex = self.indices.first(where: { i -> Bool in
-            let fractionComplete = self.elements[i] / (range.upperBound[i] - range.lowerBound[i])
-            return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
-        }) else { return nil }
-        
-        
-        let fractionComplete = self.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
-
-        let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, epsilon: 0.0001)
-        return duration * fractionTime
-    }
-}
-
 // public typealias AnimatableVector = Array<Double>
 
 /*

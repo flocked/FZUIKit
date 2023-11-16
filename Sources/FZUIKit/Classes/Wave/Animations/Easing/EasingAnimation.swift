@@ -218,8 +218,9 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     
     @available(macOS 13.0.0, *)
     func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
-        Swift.print("newDuration")
-        if let fromValue = fromValue as? (any CGFloatVectorElements), let target = oldTarget as? (any CGFloatVectorElements), let newTarget = newTarget as? (any CGFloatVectorElements) {
+        Swift.print("newDuration", fromValue is (any VectorElements), oldTarget is (any VectorElements), fromValue is (any VectorElements<CGFloat>))
+        
+        if let fromValue = fromValue as? (any VectorElements<CGFloat>), let target = oldTarget as? (any VectorElements<CGFloat>), let newTarget = newTarget as? (any VectorElements<CGFloat>) {
             Swift.print("CGFloatVectorElements")
 
             let range = fromValue.elements...target.elements
@@ -232,7 +233,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             let fractionComplete = newTarget.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
             let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, epsilon: 0.0001)
             return duration * fractionTime
-        } else if let fromValue = fromValue as? (any DoubleVectorElements), let target = oldTarget as? (any DoubleVectorElements), let newTarget = newTarget as? (any DoubleVectorElements) {
+        } else if let fromValue = fromValue as? (any VectorElements<Double>), let target = oldTarget as? (any VectorElements<Double>), let newTarget = newTarget as? (any VectorElements<Double>) {
             Swift.print("DoubleVectorElements")
 
             let range = fromValue.elements...target.elements
@@ -245,7 +246,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
             let fractionComplete = newTarget.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
             let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, epsilon: 0.0001)
             return duration * fractionTime
-        } else if let fromValue = fromValue as? (any FloatVectorElements), let target = oldTarget as? (any FloatVectorElements), let newTarget = newTarget as? (any FloatVectorElements) {
+        } else if let fromValue = fromValue as? (any VectorElements<Float>), let target = oldTarget as? (any VectorElements<Float>), let newTarget = newTarget as? (any VectorElements<Float>) {
             Swift.print("FloatVectorElements")
 
             let range = fromValue.elements...target.elements
