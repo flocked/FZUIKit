@@ -22,7 +22,7 @@ public enum TimingFunction {
     public init(x1: Double, y1: Double, x2: Double, y2: Double) {
         self = .bezier(UnitBezier(x1: x1, y1: y1, x2: x2, y2: y2))
     }
-    
+        
     /**
      Transforms the specified time.
      
@@ -82,56 +82,7 @@ extension TimingFunction {
     public static var swiftOut: TimingFunction {
         return TimingFunction(x1: 0.4, y1: 0.0, x2: 0.2, y2: 1.0)
     }
-}
-
-extension TimingFunction: Equatable {
-    public static func == (lhs: TimingFunction, rhs: TimingFunction) -> Bool {
-        switch (lhs, rhs) {
-        case (.linear, .linear), (.easeOut, .easeOut), (.easeInEaseOut, .easeInEaseOut), (.swiftOut, .swiftOut), (.easeIn, .easeIn):
-            return true
-        case (.bezier(let bezier1), .bezier(let bezier2)):
-            return bezier1 == bezier2
-        default:
-            return false
-        }
-    }
-}
-
-extension TimingFunction: CustomStringConvertible {
-    /// The name of the timing function.
-    public var name: String {
-        switch self {
-        case .linear:
-            return "linear"
-        case .easeIn:
-            return "easeIn"
-        case .easeOut:
-            return "easeOut"
-        case .easeInEaseOut:
-            return "easeInEaseOut"
-        case .swiftOut:
-            return "swiftOut"
-        case .easeInOutCirc:
-            return "easeInOutCirc"
-        case .easeInBounce:
-            return "easeInBounce"
-        case .easeOutBounce:
-            return "easeOutBounce"
-        case .easeInOutBounce:
-            return "easeInOutBounce"
-        case .function(_):
-            return "function"
-        case .bezier(let unitBezier):
-            return "bezier(x1: \(unitBezier.first.x),  y1: \(unitBezier.first.y), x2: \(unitBezier.second.x), y2: \(unitBezier.second.y))"
-        }
-    }
     
-    public var description: String {
-        return "TimingFunction: \(name)"
-    }
-}
-
-public extension TimingFunction {
     /// A `easeInBounce` timing function.
     static var easeInBounce: TimingFunction {
         return TimingFunction.function({ x in
@@ -195,6 +146,57 @@ private extension TimingFunction {
     }
 }
 
+extension TimingFunction: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
+    
+    public static func == (lhs: TimingFunction, rhs: TimingFunction) -> Bool {
+        switch (lhs, rhs) {
+        case (.linear, .linear), (.easeOut, .easeOut), (.easeInEaseOut, .easeInEaseOut), (.swiftOut, .swiftOut), (.easeIn, .easeIn):
+            return true
+        case (.bezier(let bezier1), .bezier(let bezier2)):
+            return bezier1 == bezier2
+        default:
+            return false
+        }
+    }
+}
+
+extension TimingFunction: CustomStringConvertible {
+    /// The name of the timing function.
+    public var name: String {
+        switch self {
+        case .linear:
+            return "Linear"
+        case .easeIn:
+            return "EaseIn"
+        case .easeOut:
+            return "EaseOut"
+        case .easeInEaseOut:
+            return "EaseInEaseOut"
+        case .swiftOut:
+            return "SwiftOut"
+        case .easeInOutCirc:
+            return "EaseInOutCirc"
+        case .easeInBounce:
+            return "EaseInBounce"
+        case .easeOutBounce:
+            return "EaseOutBounce"
+        case .easeInOutBounce:
+            return "EaseInOutBounce"
+        case .function(_):
+            return "Function"
+        case .bezier(let unitBezier):
+            return "Bezier(x1: \(unitBezier.first.x),  y1: \(unitBezier.first.y), x2: \(unitBezier.second.x), y2: \(unitBezier.second.y))"
+        }
+    }
+    
+    public var description: String {
+        return "TimingFunction: \(name)"
+    }
+}
+
 #if canImport(QuartzCore)
 
 import QuartzCore
@@ -217,39 +219,3 @@ extension TimingFunction {
 }
 
 #endif
-
-/*
- internal extension TimingFunction {
-     static func easeOutBounce(x: Double) -> Double {
-         if (x < 1 / 2.75) {
-             return 7.5625 * x * x
-         } else if (x < 2 / 2.75) {
-             return 7.5625 * (x - 1.5 / 2.75) * (x - 1.5) + 0.75
-         } else if (x < 2.5 / 2.75) {
-             return 7.5625 * (x - 2.25 / 2.75) * (x - 2.25) + 0.9375
-         } else {
-             return 7.5625 * (x - 2.625 / 2.75) * (x - 2.625) + 0.984375
-         }
-     }
-
-     static func easeInBounce(x: Double) -> Double {
-         return 1 - easeOutBounce(x: 1 - x)
-     }
-     
-     static func easeInOutBounce(x: Double) -> Double {
-         if (x < 0.5) {
-             return (1 - easeOutBounce(x: 1 - 2 * x)) / 2
-         } else {
-             return (1 + easeOutBounce(x: 2 * x - 1)) / 2
-         }
-     }
-     
-     static func easeInOutCirc(x: Double) -> Double {
-         if (x < 0.5) {
-             return (1 - sqrt(1 - pow(2 * x, 2))) / 2
-         } else {
-             return (sqrt(1 - pow(-2 * x + 2, 2)) + 1) / 2
-         }
-     }
- }
- */
