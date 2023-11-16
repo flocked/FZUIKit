@@ -44,6 +44,109 @@ extension VectorArithmetic {
     }
 }
 
+public extension AnimatablePair where First == Second {
+    subscript(index: Int) -> First {
+        get {
+            if index == 0 {
+                return first
+            } else {
+                return second
+            }
+        }
+        set {
+            if index == 0 {
+                first = newValue
+            } else if index == 1 {
+                second = newValue
+            }
+        }
+    }
+}
+
+typealias DoubleVectorElements = VectorElements<Double>
+typealias FloatVectorElements = VectorElements<Float>
+typealias CGFloatVectorElements = VectorElements<CGFloat>
+
+
+protocol VectorElements<Element> {
+    associatedtype Element: FloatingPointInitializable & DivisionArithmetic & VectorArithmetic & AdditiveArithmetic & Comparable
+    var indices: Range<Int> { get }
+    var elements: [Element] { get set }
+}
+
+extension AnimatablePair: VectorElements where First: FloatingPointInitializable & VectorArithmetic & Comparable & DivisionArithmetic, First == Second {
+    typealias Element = First
+    var indices: Range<Int> {
+        0..<1
+    }
+    var elements: [First] {
+        get { [first, second] }
+        set {
+            if let first = newValue[safe: 0] {
+                self.first = first
+            }
+            
+            if let second = newValue[safe: 1] {
+                self.second = second
+            }
+        }
+    }
+}
+
+extension AnimatableArray: VectorElements where Element: DivisionArithmetic & Comparable & FloatingPointInitializable { }
+
+protocol DivisionArithmetic: VectorArithmetic & AdditiveArithmetic {
+    static func / (lhs: Self, rhs: Self) -> Self
+    static func /= (lhs: inout Self, rhs: Self)
+}
+
+extension CGFloat: DivisionArithmetic { }
+extension Double: DivisionArithmetic { }
+extension Float: DivisionArithmetic { }
+
+protocol FloatingPointInitializable: FloatingPoint & ExpressibleByFloatLiteral & Comparable {
+    var doubleValue: Double { get }
+}
+
+extension Float: FloatingPointInitializable {
+    var doubleValue: Double {
+        Double(self)
+    }
+}
+extension Double: FloatingPointInitializable {
+    var doubleValue: Double {
+        Double(self)
+    }
+}
+extension CGFloat: FloatingPointInitializable {
+    var doubleValue: Double {
+        Double(self)
+    }
+}
+
+
+
+extension VectorElements {
+    func newDuration(newTarget: any VectorElements<Element>) -> TimeInterval? {
+        let fromValue: Self = self
+        let target: Self = self
+        
+        let range: ClosedRange<[Element]> = fromValue.elements...target.elements
+        let timingFunction: TimingFunction = .easeInEaseOut
+        let duration: TimeInterval = 3.0
+        guard let usableIndex = self.indices.first(where: { i -> Bool in
+            let fractionComplete = self.elements[i] / (range.upperBound[i] - range.lowerBound[i])
+            return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
+        }) else { return nil }
+        
+        
+        let fractionComplete = self.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+
+        let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, epsilon: 0.0001)
+        return duration * fractionTime
+    }
+}
+
 // public typealias AnimatableVector = Array<Double>
 
 /*

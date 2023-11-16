@@ -7,6 +7,8 @@
 
 import Foundation
 import FZSwiftUtils
+import simd
+import SwiftUI
 
 /// An animator that animates a value using an easing function.
 public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
@@ -107,6 +109,15 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         didSet {
             guard oldValue != target else { return }
 
+          //  fromValue.animatableData.scaled(by: 1.0 - tar)
+          //  fromValue.animatableData / target.animatableData
+            
+            if duration != 0.0, #available(macOS 13.0.0, *) {
+                if let duration = self.newDuration(oldTarget: oldValue, newTarget: self.target) {
+                    self.duration = duration
+                }
+            }
+            
             if state == .running {
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
@@ -206,6 +217,52 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     public func reset() {
         state = .inactive
     }
+    
+    @available(macOS 13.0.0, *)
+    func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
+        Swift.print("newDuration")
+        if let fromValue = fromValue as? (any CGFloatVectorElements), let target = oldTarget as? (any CGFloatVectorElements), let newTarget = newTarget as? (any CGFloatVectorElements) {
+            Swift.print("CGFloatVectorElements")
+
+            let range = fromValue.elements...target.elements
+            
+            guard let usableIndex = newTarget.indices.first(where: { i -> Bool in
+                let fractionComplete = newTarget.elements[i] / (range.upperBound[i] - range.lowerBound[i])
+                return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
+            }) else { return nil }
+            
+            let fractionComplete = newTarget.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+            let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, epsilon: 0.0001)
+            return duration * fractionTime
+        } else if let fromValue = fromValue as? (any DoubleVectorElements), let target = oldTarget as? (any DoubleVectorElements), let newTarget = newTarget as? (any DoubleVectorElements) {
+            Swift.print("DoubleVectorElements")
+
+            let range = fromValue.elements...target.elements
+            
+            guard let usableIndex = newTarget.indices.first(where: { i -> Bool in
+                let fractionComplete = newTarget.elements[i] / (range.upperBound[i] - range.lowerBound[i])
+                return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
+            }) else { return nil }
+            
+            let fractionComplete = newTarget.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+            let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, epsilon: 0.0001)
+            return duration * fractionTime
+        } else if let fromValue = fromValue as? (any FloatVectorElements), let target = oldTarget as? (any FloatVectorElements), let newTarget = newTarget as? (any FloatVectorElements) {
+            Swift.print("FloatVectorElements")
+
+            let range = fromValue.elements...target.elements
+            
+            guard let usableIndex = newTarget.indices.first(where: { i -> Bool in
+                let fractionComplete = newTarget.elements[i] / (range.upperBound[i] - range.lowerBound[i])
+                return !(fractionComplete.doubleValue.isApproximatelyEqual(to: 0.0) || fractionComplete.doubleValue.isApproximatelyEqual(to: 1.0))
+            }) else { return nil }
+            
+            let fractionComplete = newTarget.elements[usableIndex] / (range.upperBound[usableIndex] - range.lowerBound[usableIndex])
+            let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, epsilon: 0.0001)
+            return duration * fractionTime
+        }
+        return nil
+    }
         
     /**
      Updates the progress of the animation with the specified delta time.
@@ -290,3 +347,4 @@ extension EasingAnimation: CustomStringConvertible {
         """
     }
 }
+
