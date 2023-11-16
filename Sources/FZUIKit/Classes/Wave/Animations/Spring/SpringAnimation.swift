@@ -111,9 +111,6 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     
     var _velocity: Value.AnimatableData {
         didSet {
-            if velocity == .zero {
-                Swift.print("!!velocity zero!!!")
-            }
             guard state != .running else { return }
             _fromVelocity = _velocity
         }
@@ -238,32 +235,20 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         let isAnimated = spring.response > .zero
 
         if isAnimated {
-            Swift.print("spring update 0", velocity != .zero)
             spring.update(value: &_value, velocity: &_velocity, target: _target, deltaTime: deltaTime)
-            Swift.print("spring update 1", velocity != .zero)
         } else {
             self._value = _target
             velocity = Value.zero
-            Swift.print("spring update reset", velocity != .zero)
         }
         
         runningTime = runningTime + deltaTime
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
         
-        /*
-        if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
-            let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
-            Swift.print("isApproximatelyEqual", val)
-            animationFinished = val
-        }
-         */
-        
         if animationFinished {
             if repeats, isAnimated {
                 _value = _fromValue
                 _velocity = _fromVelocity
-                Swift.print("spring update _fromVelocity", velocity != .zero)
             } else {
                 _value = _target
             }
@@ -304,3 +289,11 @@ extension SpringAnimation: CustomStringConvertible {
     }
 }
 #endif
+
+
+/*
+if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
+    let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
+    animationFinished = val
+}
+ */
