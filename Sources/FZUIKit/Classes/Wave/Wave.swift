@@ -164,6 +164,7 @@ public enum Wave {
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
     
+    /*
     /**
      Performs decaying animations based on the specified gesture velocity.
      
@@ -187,8 +188,7 @@ public enum Wave {
         - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
-        withDecayVelocity gestureVelocity: CGPoint,
-        repeats: Bool = false,
+        withDecayRepeats repeats: Bool = false,
         delay: TimeInterval = 0,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
@@ -198,7 +198,43 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .decay(gestureVelocity: gestureVelocity, repeats: repeats),
+            animationType: .decay(repeats: repeats),
+            completion: completion
+        )
+        
+        AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
+    }
+    */
+    
+    /**
+     Performs decaying animations based on the specified gesture velocity.
+     
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+     
+     - Note: For a list of all objects that provide animatable properties check ``Wave``.
+
+     ```swift
+     Wave.animate(withDecay: {
+        myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
+     })
+     ```
+     
+     - Parameters:
+        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
+        - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
+        - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
+        - delay: An optional delay, in seconds, after which to start the animation.
+     */
+    public static func animate(
+        withDecay animations: () -> Void,
+        completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil,
+        delay: TimeInterval = 0,
+        repeats: Bool = false
+    ) {
+        let settings = AnimationController.AnimationParameters(
+            groupUUID: UUID(),
+            delay: delay,
+            animationType: .decay(repeats: repeats),
             completion: completion
         )
         
