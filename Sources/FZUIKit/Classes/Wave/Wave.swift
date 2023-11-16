@@ -144,8 +144,14 @@ public enum Wave {
      - **velocity(CGPoint):**:  Values you assign to properties in the animation block will be ignored. Instead the properties will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
      
      ```swift
+     // This animates with a decaying acceleration to the new rect.
      Wave.animate(withDecay: .value) {
         myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
+     }
+     
+     // This increases the frame origin x & y value by 100 with a decaying acceleration.
+     Wave.animate(withDecay: .velocity(CGPoint(x: 100, y: 100)) {
+        myView.animator.frame = anyValue
      }
      ```
                
