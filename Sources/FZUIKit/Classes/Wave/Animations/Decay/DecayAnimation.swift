@@ -49,17 +49,27 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     
     /// The current value of the animation. This value will change as the animation executes.
     public var value: Value {
+        get { Value(_value) }
+        set { _value = newValue.animatableData  }
+    }
+    
+    var _value: Value.AnimatableData {
         didSet {
             guard state != .running else { return }
-            fromValue = value
+            _fromValue = _value
         }
     }
     
     /// The velocity of the animation. This value will change as the animation executes.
     public var velocity: Value {
+        get { Value(_velocity) }
+        set { _velocity = newValue.animatableData  }
+    }
+    
+    var _velocity: Value.AnimatableData {
         didSet {
             guard state != .running else { return }
-            fromVelocity = velocity
+            _fromVelocity = _velocity
         }
     }
     
@@ -71,14 +81,25 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     public var target: Value {
         get { return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decayFunction.decayConstant) }
         set {
-            self.velocity = DecayFunction.velocity(fromValue: value, toValue: newValue)
-            self.fromVelocity = self.velocity
+            self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
+            self._fromVelocity = self._velocity
         }
     }
     
-    var fromValue: Value
+    var fromValue: Value {
+        get { Value(_fromValue) }
+        set { _fromValue = newValue.animatableData }
+    }
     
-    var fromVelocity: Value
+    var _fromValue: Value.AnimatableData
+
+    
+    var fromVelocity: Value {
+        get { Value(_fromVelocity) }
+        set { _fromVelocity = newValue.animatableData }
+    }
+    
+    var _fromVelocity: Value.AnimatableData
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -100,21 +121,21 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
      */
     public init(value: Value, velocity: Value = .zero, decayConstant: Double = DecayFunction.ScrollViewDecelerationRate) {
         self.decayFunction = DecayFunction(decayConstant: decayConstant)
-        self.value = value
-        self.fromValue = value
-        self.velocity = velocity
-        self.fromVelocity = velocity
+        self._value = value.animatableData
+        self._fromValue = _value
+        self._velocity = velocity.animatableData
+        self._fromVelocity = _velocity
     }
     
     init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero, target: Value? = nil) {
         self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
-        self.value = value
-        self.fromValue = value
-        self.velocity = velocity
+        self._value = value.animatableData
+        self._fromValue = _value
+        self._velocity = velocity.animatableData
         if let target = target {
-            self.velocity = DecayFunction.velocity(fromValue: value, toValue: target)
+            self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
         }
-        self.fromVelocity = velocity
+        self._fromVelocity = _velocity
         self.configure(withSettings: settings)
     }
     
@@ -158,13 +179,13 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
                 
         state = .running
         
-        decayFunction.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
+        decayFunction.update(value: &_value, velocity: &_velocity, deltaTime: deltaTime)
 
-        let animationFinished = velocity.animatableData.magnitudeSquared < 0.05
+        let animationFinished = _velocity.magnitudeSquared < 0.05
                 
         if animationFinished, repeats {
-            value = fromValue
-            velocity = fromVelocity
+            _value = _fromValue
+            _velocity = _fromVelocity
         }
         
         let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
