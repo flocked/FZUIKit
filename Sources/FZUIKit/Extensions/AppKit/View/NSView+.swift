@@ -925,6 +925,7 @@ internal extension CALayerContentsGravity {
 internal extension NSView {
     /// Swizzles views to support additional properties for animating.
     static func swizzleAnimationForKey() {
+        Swift.print("swizzleAnimationForKey", didSwizzleAnimationForKey)
         guard didSwizzleAnimationForKey == false else { return }
         didSwizzleAnimationForKey = true
         do {
