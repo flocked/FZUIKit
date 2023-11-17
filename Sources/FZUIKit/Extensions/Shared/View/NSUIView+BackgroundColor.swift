@@ -44,7 +44,7 @@ public extension BackgroundColorSettable where Self: NSView {
                 self.layer?.backgroundColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
              */
-            self._backgroundColor = newValue
+            self.animator()._backgroundColor = newValue
         }
     }
 }
