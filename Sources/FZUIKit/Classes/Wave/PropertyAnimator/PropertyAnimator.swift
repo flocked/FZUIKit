@@ -99,11 +99,17 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
 internal extension PropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
+        if AnimationController.shared.currentAnimationParameters?.animationType.isDecayVelocity == true {
+            return decayAnimation(for: keyPath, key: key)?.velocity ?? .zero
+        }
         return (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
     }
     
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
+        if AnimationController.shared.currentAnimationParameters?.animationType.isDecayVelocity == true {
+            return decayAnimation(for: keyPath, key: key)?.velocity ?? .zero
+        }
         return (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
     }
     

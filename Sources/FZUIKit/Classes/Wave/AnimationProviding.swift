@@ -122,7 +122,7 @@ internal extension ConfigurableAnimationProviding {
         }
         completion?(.finished(at: value))
         animatorCompletion?()
-        animation.animatorCompletion = nil
+        AnimationController.shared.stopPropertyAnimation(self)
     }
 }
 
