@@ -104,7 +104,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var target: Value {
         didSet {
             guard oldValue != target else { return }
-            
+
             if state == .running {
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
@@ -359,3 +359,4 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
     return nil
 }
  */
+

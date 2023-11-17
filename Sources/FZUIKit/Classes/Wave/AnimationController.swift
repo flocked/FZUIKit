@@ -29,6 +29,10 @@ internal class AnimationController {
     var currentAnimationParameters: AnimationParameters? {
         animationSettingsStack.currentSettings
     }
+    
+    func stopAllAnimations() {
+        animations.values.forEach({$0.stop(at: .current)})
+    }
 
     func runAnimationBlock(
         settings: AnimationParameters,

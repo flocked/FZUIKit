@@ -16,8 +16,9 @@ public enum AnimationEvent<Value> {
     /**
      Indicates that the animation's `target` value was changed in-flight (i.e. while the animation was running).
 
-     - parameter from: The previous `target` value of the animation.
-     - parameter to: The new `target` value of the animation.
+     - Parameters:
+        - from: The previous `target` value of the animation.
+        - to: The new `target` value of the animation.
      */
     case retargeted(from: Value, to: Value)
 }

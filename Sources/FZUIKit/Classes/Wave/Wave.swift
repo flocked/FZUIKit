@@ -218,6 +218,11 @@ public enum Wave {
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
+    
+    /// Stops all animations at their current values.
+    public static func stopAnimating() {
+        AnimationController.shared.stopAllAnimations()
+    }
 }
 
 #endif

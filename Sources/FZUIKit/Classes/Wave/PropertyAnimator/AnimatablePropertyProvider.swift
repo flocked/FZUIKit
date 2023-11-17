@@ -16,7 +16,7 @@ public protocol AnimatablePropertyProvider: AnyObject {
     
     /**
      Provides animatable properties. To animate a property, change it's value in a ``Wave`` animation block.
-          
+               
      Example usage:
      ```swift
      Wave.animate(withSpring: .smooth) {

@@ -6,21 +6,7 @@
 //
 
 import Foundation
-import Accelerate
 import SwiftUI
-import FZSwiftUtils
-
-extension AnimatablePair: ExpressibleByArrayLiteral where First == Second {
-    public init(arrayLiteral elements: First...) {
-        self.init(elements[0], elements[1])
-    }
-}
-
-extension AnimatablePair: Comparable where First: Comparable, First == Second {
-    public static func < (lhs: AnimatablePair<First, Second>, rhs: AnimatablePair<First, Second>) -> Bool {
-        lhs.first < rhs.first && lhs.second < rhs.second
-    }
-}
 
 extension VectorArithmetic {
     public static func * (lhs: inout Self, rhs: Double)  {
@@ -44,34 +30,12 @@ extension VectorArithmetic {
     }
 }
 
+/*
 extension VectorElements {
     var indices: Range<Int> {
         0..<elements.count
     }
 }
-
-public extension AnimatablePair where First == Second {
-    subscript(index: Int) -> First {
-        get {
-            if index == 0 {
-                return first
-            } else {
-                return second
-            }
-        }
-        set {
-            if index == 0 {
-                first = newValue
-            } else if index == 1 {
-                second = newValue
-            }
-        }
-    }
-}
-
-typealias DoubleVectorElements = VectorElements<Double>
-typealias FloatVectorElements = VectorElements<Float>
-typealias CGFloatVectorElements = VectorElements<CGFloat>
 
 extension CGFloat: VectorElements {
     var elements: [CGFloat] {
@@ -146,6 +110,7 @@ extension CGFloat: DoubleConvertable {
         Double(self)
     }
 }
+*/
 
 
 // public typealias AnimatableVector = Array<Double>

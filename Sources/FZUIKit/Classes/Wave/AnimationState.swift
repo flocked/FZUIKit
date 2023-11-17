@@ -7,7 +7,7 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 
-/// The current state of an `Animation`.
+/// The current state of an ``AnimationProviding``.
 public enum AnimationState {
     /// The animation is not currently running, but is ready.
     case inactive

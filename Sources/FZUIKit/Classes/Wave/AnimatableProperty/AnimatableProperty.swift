@@ -389,7 +389,7 @@ extension SwiftUI.Spring {
         return self.settlingDuration(fromValue: fromValue, toValue: toValue, initialVelocity: initialVelocity, epsilon: epsilon)
     }
 }
-*/
+
 
 internal struct AnimatableProxy<Value: AnimatableProperty>: Animatable {
     var animatableData: Value.AnimatableData
@@ -398,3 +398,4 @@ internal struct AnimatableProxy<Value: AnimatableProperty>: Animatable {
         self.animatableData = value.animatableData
     }
 }
+*/

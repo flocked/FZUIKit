@@ -24,22 +24,16 @@ import UIKit
  extension: MyObject: AnimatablePropertyProvider { }
  
  public extension PropertyAnimator<MyObject> {
- var myAnimatableProperty: CGFloat {
- get { self[\.myAnimatableProperty] }
- set { self[\.myAnimatableProperty] = newValue }
- }
+    var myAnimatableProperty: CGFloat {
+        get { self[\.myAnimatableProperty] }
+        set { self[\.myAnimatableProperty] = newValue }
+    }
  }
  
  let object = MyObject()
  Wave.animate(withSpring: .smooth) {
- object.animator.myAnimatableProperty = newValue
+    object.animator.myAnimatableProperty = newValue
  }
- ```
- 
- To integralize a value  to the screen's pixel boundaries when animating, use `integralizeValue`.  This helps prevent drawing frames between pixels, causing aliasing issues. Note: Enabling it effectively quantizes values, so don't use this for values that are supposed to be continuous.
- 
- ```swift
- self[\.myAnimatableProperty, integralizeValue: true] = newValue
  ```
  */
 public class PropertyAnimator<Object: AnimatablePropertyProvider> {
