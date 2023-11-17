@@ -93,7 +93,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
             if state == .running {
                 startTime = .now
-                runningTime = 0.0
                 let event = AnimationEvent.retargeted(from: Value(oldValue), to: target)
                 completion?(event)
             }
@@ -145,7 +144,9 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     var startTime: TimeInterval = 0.0
     
     /// The total running time of the animation.
-    var runningTime: TimeInterval = 0.0
+    var runningTime: TimeInterval {
+        return (CACurrentMediaTime() - startTime)
+    }
     
     /**
      Creates a new animation with a ``Spring/snappy`` spring, and optionally, an initial and target value.
@@ -221,7 +222,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// Resets the animation.
     public func reset() {
         startTime = .now
-        runningTime = 0.0
         velocity = .zero
         state = .inactive
     }
@@ -238,11 +238,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
 
         state = .running
-        
-        runningTime = runningTime + (CFAbsoluteTimeGetCurrent() - startTime)
-        startTime = .now
 
-        
         let isAnimated = spring.response > .zero
 
         if isAnimated {
@@ -264,7 +260,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
                 _value = _target
             }
             startTime = .now
-            runningTime = 0.0
         }
 
         let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
