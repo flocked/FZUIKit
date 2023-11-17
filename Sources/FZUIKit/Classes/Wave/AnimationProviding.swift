@@ -7,7 +7,8 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
-
+import AppKit
+import FZSwiftUtils
 /**
  A type that provides an animation.
  
@@ -50,7 +51,7 @@ public protocol AnimationProviding {
 extension AnimationProviding where Self: AnyObject {
     public func start(afterDelay delay: TimeInterval) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
-        guard let animation = self as? (any ConfigurableAnimationProviding) else { return }
+        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state != .running else { return }
         
         let start = {
@@ -71,7 +72,7 @@ extension AnimationProviding where Self: AnyObject {
     }
 
     public func pauseAnimation() {
-        guard let animation = self as? (any ConfigurableAnimationProviding) else { return }
+        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state == .running else { return }
         animation.state = .inactive
         animation.delayedStart?.cancel()
@@ -86,7 +87,7 @@ extension AnimationProviding where Self: AnyObject {
 }
 
 /// An internal extension to `AnimationProviding` used for configurating animations.
-internal protocol ConfigurableAnimationProviding<Value>: AnyObject, AnimationProviding {
+internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
     /// The current state of the animation.
     var state: AnimationState { get set }
@@ -118,31 +119,28 @@ internal protocol AnimationVelocityProviding<Value>: AnimationProviding {
     var velocity: Value { get set }
 }
 
-/// An internal extension to `AnimationProviding` for animations with running time.
-internal protocol AnimationRunningTimeProviding: AnimationProviding {
-    var runningTime: TimeInterval { get set }
-}
-
 internal extension ConfigurableAnimationProviding {
     func _stop(at position: AnimationPosition) {
-        delayedStart?.cancel()
-        state = .ended
+        var animation = self
+        self.delayedStart?.cancel()
+        animation.state = .ended
         switch position {
         case .start:
-            value = fromValue
+            animation.value = fromValue
         case .end:
-            value = target
+            animation.value = target
         default: break
         }
-        target = value
-        if var animation = (self as? AnimationRunningTimeProviding) {
-            animation.runningTime = 0.0
+        animation.target = value
+        if let springAnimation = self as? SpringAnimation<Value> {
+            springAnimation.runningTime = 0.0
         }
         completion?(.finished(at: value))
         animatorCompletion?()
-        animatorCompletion = nil
+        animation.animatorCompletion = nil
     }
 }
+
 #endif
 
 

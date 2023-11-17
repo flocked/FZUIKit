@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 /// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, AnimationVelocityProviding, AnimationRunningTimeProviding {
+public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding, AnimationVelocityProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -130,6 +130,7 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     }
     
     var _fromVelocity: Value.AnimatableData
+
 
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?

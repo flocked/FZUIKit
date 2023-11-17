@@ -105,12 +105,12 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
 internal extension PropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
-        return springAnimation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
+        (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
     }
     
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
-        return springAnimation(for: keyPath, key: key)?.target ?? object[keyPath: keyPath]
+        (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
     }
     
     /// Animates the value of the property at the keypath to a new value.
@@ -187,6 +187,7 @@ internal extension PropertyAnimator {
     
     /// Configurates an animation and starts it.
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, integralizeValue: Bool = false, completion: (()->())? = nil) {
+        var animation = animation
         animation.target = target
         animation.fromValue = animation.value
         if let easingAnimation = animation as? EasingAnimation<Value> {
@@ -275,8 +276,8 @@ internal extension PropertyAnimator {
     }
     
     /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
-    func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> AnimationProviding? {
-        return animations[key ?? keyPath.stringValue]
+    func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> (any ConfigurableAnimationProviding)? {
+        return animations[key ?? keyPath.stringValue] as? (any ConfigurableAnimationProviding)
     }
 }
 

@@ -13,7 +13,7 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using a decay function.
-public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, AnimationVelocityProviding {
+public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding, AnimationVelocityProviding {
 
     /// A unique identifier for the animation.
     public let id = UUID()

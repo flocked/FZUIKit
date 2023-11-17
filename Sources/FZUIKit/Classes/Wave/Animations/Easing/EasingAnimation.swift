@@ -11,7 +11,7 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using an easing function.
-public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding {
+public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
