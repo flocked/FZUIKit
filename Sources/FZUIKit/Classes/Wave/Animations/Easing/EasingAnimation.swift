@@ -217,7 +217,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             }
         }
         
-        let callbackValue = (integralizeValues) ? value.scaledIntegral : value
+        let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
