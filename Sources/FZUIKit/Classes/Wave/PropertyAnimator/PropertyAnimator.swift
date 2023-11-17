@@ -105,12 +105,14 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
 internal extension PropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>, key: String? = nil) -> Value {
-        (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
+        Swift.print("value", (self.animation(for: keyPath, key: key)?.target as? Value) ?? "nil")
+        return (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
     }
     
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil) -> Value?  {
-        (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
+        Swift.print("value", (self.animation(for: keyPath, key: key)?.target as? Value) ?? "nil")
+        return (self.animation(for: keyPath, key: key)?.target as? Value) ?? object[keyPath: keyPath]
     }
     
     /// Animates the value of the property at the keypath to a new value.
