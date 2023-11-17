@@ -15,7 +15,7 @@ public protocol AnimatablePropertyProvider: AnyObject {
     associatedtype Provider: AnimatablePropertyProvider = Self
     
     /**
-     Provides animatable properties. To animate a property, change it's value in an ``Wave/animate(withSpring:delay:gestureVelocity:animations:completion:)`` animation block.
+     Provides animatable properties. To animate a property, change it's value in a ``Wave`` animation block.
           
      Example usage:
      ```swift

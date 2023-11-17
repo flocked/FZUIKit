@@ -18,9 +18,9 @@ import SwiftUI
  - iOS: `UIView`, `UILabel`, `UIImageView`, `NSLayoutConstraint`, `CALayer`  and many more.
  
  There are three different types of animations :
- - **Spring:** ``Wave/animate(withSpring:delay:gestureVelocity:repeats:animations:completion:)``
- - **Easing:** ``Wave/animate(withEasing:duration:repeats:delay:animations:completion:)``
- - **Decay:** ``Wave/animate(withDecay:repeats:delay:animations:completion:)``.
+ - **Spring:** ``Wave/animate(withSpring:delay:gestureVelocity:options:animations:completion:)``
+ - **Easing:** ``Wave/animate(withEasing:duration:options:delay:animations:completion:)``
+ - **Decay:** ``Wave/animate(withDecay:decelerationRate:options:delay:animations:completion:)``.
  
  To animate values, you must set the values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
 
@@ -30,10 +30,7 @@ import SwiftUI
     myView.animator.backgroundColor = .systemBlue
  }
  ```
- 
- To update the values of a properties that is currenty animated use ``nonAnimate(changes:)``.
- 
- To immediately update the values of properties that are currenty animated use ``nonAnimate(changes:)``. It will stop their animations and sets their values immediately to the specified new values.
+ To update values of properties that are currently animated use ``nonAnimate(changes:)``. It will stop their animations and sets their values immediately to the specified new values.
 
  ```swift
  Wave.nonAnimate() {
@@ -41,8 +38,7 @@ import SwiftUI
     myView.animator.backgroundColor = .systemRed
  }
  ```
- 
- You can also update values non animated by using the ``AnimatablePropertyProvider/animator-54mpy`` outside of any ``Wave`` animation block.
+ Alternatively you can also update values non animated by  using the ``AnimatablePropertyProvider/animator-54mpy`` outside of a ``Wave`` animation block.
 
  ```swift
  myView.animator.center = newCenterPoint
@@ -62,9 +58,7 @@ public enum Wave {
      }
      ```
 
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
-
-     - Note: For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
 
      - Parameters:
         - spring: The ``Spring`` used to determine the timing curve and duration of the animation.
@@ -78,7 +72,7 @@ public enum Wave {
         withSpring spring: Spring,
         delay: TimeInterval = 0,
         gestureVelocity: CGPoint? = nil,
-        repeats: Bool = false,
+        options: AnimationOptions = [],
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
@@ -87,7 +81,8 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .spring(spring: spring, gestureVelocity: gestureVelocity, repeats: repeats),
+            animationType: .spring(spring: spring, gestureVelocity: gestureVelocity),
+            options: options,
             completion: completion
         )
                 
@@ -104,9 +99,7 @@ public enum Wave {
      }
      ```
      
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
-
-     - Note: For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
 
      - Parameters:
         - timingFunction: The ``TimingFunction`` used to determine the timing curve.
@@ -119,7 +112,7 @@ public enum Wave {
     public static func animate(
         withEasing timingFunction: TimingFunction,
         duration: TimeInterval,
-        repeats: Bool = false,
+        options: AnimationOptions = [],
         delay: TimeInterval = 0,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
@@ -129,7 +122,8 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .easing(timingFunction: timingFunction, duration: duration, repeats: repeats),
+            animationType: .easing(timingFunction: timingFunction, duration: duration),
+            options: options,
             completion: completion
         )
         
@@ -155,9 +149,7 @@ public enum Wave {
      }
      ```
                
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's frame, use `myView.animator.frame = aRect` instead of `myView.frame = aRect`.
-     
-     - Note: For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
      
      - Parameters:
         - mode: The mode how the animation should animate properties. 
@@ -172,7 +164,7 @@ public enum Wave {
     public static func animate(
         withDecay mode: DecayAnimationMode,
         decelerationRate: Double = DecayFunction.ScrollViewDecelerationRate,
-        repeats: Bool = false,
+        options: AnimationOptions = [],
         delay: TimeInterval = 0,
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
@@ -180,7 +172,8 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .decay(gestureVelocity: mode.velocity, repeats: repeats, decelerationRate: decelerationRate),
+            animationType: .decay(gestureVelocity: mode.velocity, decelerationRate: decelerationRate),
+            options: options,
             completion: completion
         )
         
@@ -219,6 +212,7 @@ public enum Wave {
             groupUUID: UUID(),
             delay: 0.0,
             animationType: .nonAnimated,
+            options: [],
             completion: nil
         )
         
@@ -227,7 +221,3 @@ public enum Wave {
 }
 
 #endif
-
-/*
- - isUserInteractionEnabled: A Boolean value indicating whether views receive mouse/touch events while animated.
- */

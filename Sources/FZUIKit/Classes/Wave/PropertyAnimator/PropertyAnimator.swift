@@ -133,13 +133,13 @@ internal extension PropertyAnimator {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
         switch settings.animationType {
-        case .spring(_,_,_):
+        case .spring(_,_):
             let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
-        case .easing(_,_,_):
+        case .easing(_,_):
             let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
-        case .decay(_,_,_):
+        case .decay(_,_):
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
@@ -169,13 +169,13 @@ internal extension PropertyAnimator {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath, key: key)?.groupUUID, finished: false, retargeted: true)
         
         switch settings.animationType {
-        case .spring(_,_,_):
+        case .spring(_,_):
             let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
-        case .easing(_,_,_):
+        case .easing(_,_):
             let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
-        case .decay(_,_,_):
+        case .decay(_,_):
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
@@ -207,8 +207,19 @@ internal extension PropertyAnimator {
         let groupUUID = animation.groupUUID
         let animationKey = key ?? keyPath.stringValue
         
+        #if os(iOS) || os(tvOS)
+        if settings.preventUserInteraction {
+            (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.insert(animation.id)
+        } else {
+            (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
+        }
+        #endif
         animation.animatorCompletion = { [weak self] in
-            self?.animations[animationKey] = nil
+            guard let self = self else { return }
+            self.animations[animationKey] = nil
+            #if os(iOS) || os(tvOS)
+            (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
+            #endif
         }
         
         animation.completion = { [weak self] event in

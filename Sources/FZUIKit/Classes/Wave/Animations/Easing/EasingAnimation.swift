@@ -148,7 +148,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         self.target = target
         self.duration = settings.animationType.duration ?? 0.25
         self.timingFunction = settings.animationType.timingFunction ?? .easeInEaseOut
-        self.repeats = settings.animationType.repeats
+        self.repeats = settings.repeats
         self.configure(withSettings: settings)
     }
     
@@ -170,7 +170,10 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             self.duration = duration
         }
         
-        self.repeats = settings.animationType.repeats
+        self.repeats = settings.repeats
+        if settings.integralizeValues == true {
+            self.integralizeValues = settings.integralizeValues
+        }
     }
     
     /// Resets the animation.

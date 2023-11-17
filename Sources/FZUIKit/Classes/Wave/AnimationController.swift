@@ -118,16 +118,26 @@ extension AnimationController {
         let groupUUID: UUID
         let delay: CGFloat
         let animationType: AnimationType
-     //   let isUserInteractionEnabled: Bool
+        let options: AnimationOptions
         
-        /*
-         let gestureVelocity: CGPoint?
-         let repeats: Bool
-         */
+        var repeats: Bool {
+            options.contains(.repeats)
+        }
+        
+        var integralizeValues: Bool {
+            options.contains(.integralizeValues)
+        }
+        
+        #if os(iOS) || os(tvOS)
+        var preventUserInteraction: Bool {
+            options.contains(.preventUserInteraction)
+        }
+        #endif
+        
         enum AnimationType {
-            case spring(spring: Spring, gestureVelocity: CGPoint?, repeats: Bool)
-            case easing(timingFunction: TimingFunction, duration: TimeInterval, repeats: Bool)
-            case decay(gestureVelocity: CGPoint?, repeats: Bool, decelerationRate: Double)
+            case spring(spring: Spring, gestureVelocity: CGPoint?)
+            case easing(timingFunction: TimingFunction, duration: TimeInterval)
+            case decay(gestureVelocity: CGPoint?, decelerationRate: Double)
             case nonAnimated
             
             var isNonAnimated: Bool {
@@ -139,14 +149,14 @@ extension AnimationController {
             
             var decelerationRate: Double {
                 switch self {
-                case .decay(_, _, let decelerationRate): return decelerationRate
+                case .decay(_, let decelerationRate): return decelerationRate
                 default: return DecayFunction.ScrollViewDecelerationRate
                 }
             }
             
             var spring: Spring? {
                 switch self {
-                case.spring(let spring,_,_):
+                case.spring(let spring,_):
                     return spring
                 default: return nil
                 }
@@ -154,23 +164,15 @@ extension AnimationController {
             
             var timingFunction: TimingFunction? {
                 switch self {
-                case.easing(let timingFunction,_,_):
+                case.easing(let timingFunction,_):
                     return timingFunction
                 default: return nil
                 }
             }
             
-            var repeats: Bool {
-                switch self {
-                case .spring(_,_, let repeats), .easing(_,_, let repeats), .decay(_, let repeats,_):
-                    return repeats
-                default: return false
-                }
-            }
-            
             var duration: TimeInterval? {
                 switch self {
-                case.easing(_, let duration, _):
+                case.easing(_, let duration):
                     return duration
                 default: return nil
                 }
@@ -178,7 +180,7 @@ extension AnimationController {
             
             var gestureVelocity: CGPoint? {
                 switch self {
-                case .spring(_, let gestureVelocity, _), .decay(let gestureVelocity, _,_):
+                case .spring(_, let gestureVelocity), .decay(let gestureVelocity, _):
                     return gestureVelocity
                 default: return nil
                 }

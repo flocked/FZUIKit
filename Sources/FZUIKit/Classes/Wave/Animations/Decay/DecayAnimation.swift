@@ -48,9 +48,9 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     /// The rate at which the velocity decays over time.
-    public var decayConstant: Double {
-        get { decayFunction.decayConstant }
-        set { decayFunction.decayConstant = newValue }
+    public var decelerationRate: Double {
+        get { decayFunction.decelerationRate }
+        set { decayFunction.decelerationRate = newValue }
     }
     
     /// The decay function used to calculate the animation.
@@ -88,7 +88,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
      Adjusting this is similar to providing a new `targetContentOffset` in `UIScrollView`'s `scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>)`.
      */
     public var target: Value {
-        get { return DecayFunction.destination(value: value, velocity: velocity, decayConstant: decayFunction.decayConstant) }
+        get { return DecayFunction.destination(value: value, velocity: velocity, decelerationRate: decayFunction.decelerationRate) }
         set {
             self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
             self._fromVelocity = self._velocity
@@ -140,7 +140,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     func updateTotalDuration() {
-      // totalDuration = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decayConstant: decayConstant)
+      // totalDuration = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decelerationRate: decelerationRate)
     }
     
     /**
@@ -150,10 +150,10 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
      - Parameters:
         - value: The start value of the animation.
         - velocity: The velocity of the animation.
-        - decayConstant: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecelerationRate``.
+        - decelerationRate: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecelerationRate``.
      */
-    public init(value: Value, velocity: Value = .zero, decayConstant: Double = DecayFunction.ScrollViewDecelerationRate) {
-        self.decayFunction = DecayFunction(decayConstant: decayConstant)
+    public init(value: Value, velocity: Value = .zero, decelerationRate: Double = DecayFunction.ScrollViewDecelerationRate) {
+        self.decayFunction = DecayFunction(decelerationRate: decelerationRate)
         self._value = value.animatableData
         self._fromValue = _value
         self._velocity = velocity.animatableData
@@ -162,7 +162,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero, target: Value? = nil) {
-        self.decayFunction = DecayFunction(decayConstant: DecayFunction.ScrollViewDecelerationRate)
+        self.decayFunction = DecayFunction(decelerationRate: DecayFunction.ScrollViewDecelerationRate)
         self._value = value.animatableData
         self._fromValue = _value
         self._velocity = velocity.animatableData
@@ -193,9 +193,12 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
             (self as? DecayAnimation<CGPoint>)?.fromVelocity = gestureVelocity
             (self as? DecayAnimation<CGPoint>)?.updateTotalDuration()
         }
-        self.repeats = settings.animationType.repeats
-        if self.decayConstant != settings.animationType.decelerationRate {
-            self.decayConstant = settings.animationType.decelerationRate
+        self.repeats = settings.repeats
+        if settings.integralizeValues == true {
+            self.integralizeValues = settings.integralizeValues
+        }
+        if self.decelerationRate != settings.animationType.decelerationRate {
+            self.decelerationRate = settings.animationType.decelerationRate
             self.updateTotalDuration()
         }
     }
@@ -254,7 +257,7 @@ extension DecayAnimation: CustomStringConvertible {
             target: \(String(describing: target))
 
             integralizeValues: \(integralizeValues)
-            decayConstant: \(decayConstant)
+            decelerationRate: \(decelerationRate)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))

@@ -7,8 +7,6 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
-import AppKit
-import FZSwiftUtils
 /**
  A type that provides an animation.
  
@@ -89,28 +87,17 @@ extension AnimationProviding where Self: AnyObject {
 /// An internal extension to `AnimationProviding` used for configurating animations.
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
-    /// The current state of the animation.
     var state: AnimationState { get set }
-    /// A unique identifier that associates an animation with an grouped animation block.
     var groupUUID: UUID? { get set }
-    /// The current value of the animation.
-    var value: Value { get set }
-    /// The current target value of the animation.
-    var target: Value { get set }
-    /// The value at the start of the animation.
-    var fromValue: Value { get set }
-    /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? { get set }
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+    var value: Value { get set }
+    var target: Value { get set }
+    var fromValue: Value { get set }
     var integralizeValues: Bool { get set }
-    /// /// Configurates the animation with the specified settings.
-    func configure(withSettings settings: AnimationController.AnimationParameters)
-    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
-    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
     var animatorCompletion: (()->())? { get set }
-    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
+    func configure(withSettings settings: AnimationController.AnimationParameters)
 }
 
 /// An internal extension to `AnimationProviding` for animations with velocity.
@@ -127,13 +114,15 @@ internal extension ConfigurableAnimationProviding {
         switch position {
         case .start:
             animation.value = fromValue
+            animation.valueChanged?(value)
         case .end:
             animation.value = target
+            animation.valueChanged?(value)
         default: break
         }
         animation.target = value
         if let springAnimation = self as? SpringAnimation<Value> {
-            springAnimation.runningTime = 0.0
+            springAnimation.startTime = .now
         }
         completion?(.finished(at: value))
         animatorCompletion?()
