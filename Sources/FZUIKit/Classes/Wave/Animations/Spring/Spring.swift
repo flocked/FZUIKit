@@ -292,12 +292,6 @@ public struct Spring: @unchecked Sendable, Hashable {
 
     // MARK: - Spring calculation
     
-    /// The SwiftUI representation of the spring.
-    @available(macOS 14.0, iOS 17, tvOS 17, *)
-    var swiftUI: SwiftUI.Spring {
-        SwiftUI.Spring.init(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true)
-    }
-
     static func stiffness(response: CGFloat, mass: CGFloat) -> CGFloat {
         pow(2.0 * .pi / response, 2.0) * mass
     }
@@ -339,6 +333,42 @@ public struct Spring: @unchecked Sendable, Hashable {
     }
 }
 
+@available(macOS 14.0, iOS 17, tvOS 17, *)
+public extension Spring {
+    /// The SwiftUI representation of the spring.
+    var swiftUI: SwiftUI.Spring {
+        SwiftUI.Spring.init(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true)
+    }
+    
+    /// Calculates the force upon the spring given a current position, target, and velocity amount of change.
+    func force<V: VectorArithmetic>(target: V, position: V, velocitx: V) -> V {
+        swiftUI.force(target: target, position: position, velocity: velocitx)
+    }
+    
+    /// Calculates the force upon the spring given a current position, velocity, and divisor from the starting and end values for the spring to travel.
+    func force<V: AnimatableProperty>(fromValue: V, toValue: V, position: V, velocity: V) -> V {
+        let fromValue = AnimatableProxy(fromValue)
+        let toValue = AnimatableProxy(toValue)
+        let position = AnimatableProxy(position)
+        let velocity = AnimatableProxy(velocity)
+        let force = swiftUI.force(fromValue: fromValue, toValue: toValue, position: position, velocity: velocity)
+        return V(force.animatableData)
+    }
+    
+    /// The estimated duration required for the spring system to be considered at rest.
+    func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double) -> CGFloat {
+        swiftUI.settlingDuration(target: target, initialVelocity: initialVelocity, epsilon: epsilon)
+    }
+    
+    /// The estimated duration required for the spring system to be considered at rest.
+    func settlingDuration<V: AnimatableProperty>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> CGFloat {
+        let fromValue = AnimatableProxy(fromValue)
+        let toValue = AnimatableProxy(toValue)
+        let initialVelocity = AnimatableProxy(initialVelocity)
+        return swiftUI.settlingDuration(fromValue: fromValue, toValue: toValue, initialVelocity: initialVelocity, epsilon: epsilon)
+    }
+}
+
 extension Spring: CustomStringConvertible {
     public var description: String {
         """
@@ -357,4 +387,13 @@ extension Spring: CustomStringConvertible {
         """
     }
 }
+
+internal struct AnimatableProxy<Value: AnimatableProperty>: Animatable {
+    var animatableData: Value.AnimatableData
+    
+    init(_ value: Value) {
+        self.animatableData = value.animatableData
+    }
+}
+
 #endif
