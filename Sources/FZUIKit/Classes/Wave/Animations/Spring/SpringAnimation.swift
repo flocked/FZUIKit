@@ -263,8 +263,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             startTime = .now
         }
 
-        Swift.print(integralizeValues)
-        let callbackValue = (integralizeValues) ? value.scaledIntegral : value
+        let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
