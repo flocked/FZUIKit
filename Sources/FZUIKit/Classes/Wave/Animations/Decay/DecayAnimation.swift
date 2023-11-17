@@ -234,7 +234,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         
         runningTime = runningTime + deltaTime
         
-        let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
+        let callbackValue = (integralizeValues) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
         
         if animationFinished, !repeats {

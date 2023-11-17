@@ -79,7 +79,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     var fractionComplete: CGFloat = 0.0 {
         didSet {
             fractionComplete = fractionComplete.clamped(max: 1.0)
-                updateValue()
+            updateValue()
         }
     }
     
@@ -217,7 +217,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             }
         }
         
-        let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
+        let callbackValue = (integralizeValues) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
