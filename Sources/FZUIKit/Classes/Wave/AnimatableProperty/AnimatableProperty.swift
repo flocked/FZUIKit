@@ -230,7 +230,40 @@ extension CGQuaternion: AnimatableProperty {
 }
 #endif
 
-extension Array: AnimatableProperty, AnimatableArrayType where Element: AnimatableProperty {
+// Ensures that two collections have the same amount of values for animating between them. If a collection is smaller than the other zero values are added.
+internal protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
+    var count: Int { get }
+    // Append new zero values.
+    mutating func appendNewValues(amount: Int)
+    // Replaces the removed values with zero.
+    mutating func removeValues(amount: Int)
+    // Ensures both collections have the same amount of values for animating between them.
+    mutating func makeInterpolatable(to collection: inout any AnimatableCollection)
+}
+
+extension AnimatableCollection {
+    internal mutating func removeValues(amount: Int) {
+        let amount = amount.clamped(max: count)
+        self.removeLast(amount)
+        appendNewValues(amount: amount)
+    }
+    
+    mutating func makeInterpolatable(to collection: inout any AnimatableCollection) {
+        let diff = self.count - collection.count
+        if diff < 0 {
+            collection.appendNewValues(amount: (diff * -1))
+            /*
+             for i in tar.count-(diff * -1)..<tar.count {
+             tar[i] = .zero
+             }
+             */
+        } else if diff > 0 {
+            self.appendNewValues(amount: diff)
+        }
+    }
+}
+
+extension Array: AnimatableProperty, AnimatableCollection where Element: AnimatableProperty {
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))
     }
@@ -243,16 +276,16 @@ extension Array: AnimatableProperty, AnimatableArrayType where Element: Animatab
         Self.init()
     }
     
-    internal mutating func appendZeroValues(amount: Int) {
+    internal mutating func appendNewValues(amount: Int) {
         self.append(contentsOf: Array(repeating: .zero, count: amount))
     }
 }
 
-internal protocol AnimatableArrayType {
-    var count: Int { get }
-    mutating func appendZeroValues(amount: Int)
+extension AnimatableArray: AnimatableCollection {
+    internal mutating func appendNewValues(amount: Int) {
+        self.append(contentsOf: Array(repeating: .zero, count: amount))
+    }
 }
-
 
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
 extension SwiftUI.Spring {

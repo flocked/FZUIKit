@@ -227,28 +227,18 @@ internal extension PropertyAnimator {
     /// Updates the value and target of an animatable property for better animations.
     func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
         if V.self == CGColor.self {
-            let val = (value as! CGColor).nsUIColor
-            let tar = (target as! CGColor).nsUIColor
-            if val?.isVisible == false {
-                value = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
+            let color = (value as! CGColor).nsUIColor
+            let targetColor = (target as! CGColor).nsUIColor
+            if color?.isVisible == false {
+                value = (targetColor?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
             }
-            if tar?.isVisible == false {
-                target = (tar?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
+            if targetColor?.isVisible == false {
+                target = (color?.withAlphaComponent(0.0).cgColor ?? .clear) as! V
             }
-        } else if var val = value as? AnimatableArrayType, var tar = target as? AnimatableArrayType, val.count != tar.count {
-            let diff = tar.count - val.count
-            if diff < 0 {
-                tar.appendZeroValues(amount: (diff * -1))
-                /*
-                 for i in tar.count-(diff * -1)..<tar.count {
-                 tar[i] = .zero
-                 }
-                 */
-            } else if diff > 0 {
-                val.appendZeroValues(amount: diff)
-            }
-            value = val as! V
-            target = tar as! V
+        } else if var collection = value as? (any AnimatableCollection), var targetCollection = target as? (any AnimatableCollection), collection.count != targetCollection.count {
+            collection.makeInterpolatable(to: &targetCollection)
+            value = collection as! V
+            target = targetCollection as! V
         }
     }
 }

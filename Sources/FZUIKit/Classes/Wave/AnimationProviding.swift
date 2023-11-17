@@ -16,16 +16,12 @@ import Foundation
 public protocol AnimationProviding {
     /// A unique identifier for the animation.
     var id: UUID { get }
-    
     /// A unique identifier that associates an animation with an grouped animation block.
     var groupUUID: UUID? { get }
-    
     /// The relative priority of the animation.
     var relativePriority: Int { get set }
-    
     /// The current state of the animation.
     var state: AnimationState { get }
-
     /**
      Updates the progress of the animation with the specified delta time.
 
@@ -38,10 +34,8 @@ public protocol AnimationProviding {
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     func start(afterDelay delay: TimeInterval)
-        
     /// Pauses the animation.
     func pauseAnimation()
-    
     /**
      Stops the animation at the specified position.
      
@@ -49,56 +43,8 @@ public protocol AnimationProviding {
         - position: The position at which the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``).
      */
     func stop(at position: AnimationPosition)
-    
     /// Resets the animation.
     func reset()
-}
-
-/// An internal extension to `AnimationProviding` used for configurating animations.
-internal protocol ConfigurableAnimationProviding<Value>: AnyObject, AnimationProviding {
-    associatedtype Value: AnimatableProperty
-    /// The current state of the animation.
-    var state: AnimationState { get set }
-    
-    var groupUUID: UUID? { get set }
-    
-    /// The current value of the animation.
-    var value: Value { get set }
-    
-    /// The current target value of the animation.
-    var target: Value { get set }
-    
-    /// The value at the start of the animation.
-    var fromValue: Value { get set }
-    
-    /// The item that starts the animation delayed.
-    var delayedStart: DispatchWorkItem? { get set }
-    
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
-    var integralizeValues: Bool { get set }
-    
-    /// /// Configurates the animation with the specified settings.
-    func configure(withSettings settings: AnimationController.AnimationParameters)
-    
-    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
-    var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
-    
-    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
-    var animatorCompletion: (()->())? { get set }
-            
-    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
-    var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
-}
-
-/// An internal extension to `AnimationProviding` for animations with velocity.
-internal protocol AnimationVelocityProviding<Value>: AnimationProviding {
-    associatedtype Value: AnimatableProperty
-    var velocity: Value { get set }
-}
-
-/// An internal extension to `AnimationProviding` for animations with running time.
-internal protocol AnimationRunningTimeProviding: AnimationProviding {
-    var runningTime: TimeInterval { get set }
 }
 
 extension AnimationProviding where Self: AnyObject {
@@ -137,6 +83,44 @@ extension AnimationProviding where Self: AnyObject {
             animation._stop(at: position)
         }
     }
+}
+
+/// An internal extension to `AnimationProviding` used for configurating animations.
+internal protocol ConfigurableAnimationProviding<Value>: AnyObject, AnimationProviding {
+    associatedtype Value: AnimatableProperty
+    /// The current state of the animation.
+    var state: AnimationState { get set }
+    /// A unique identifier that associates an animation with an grouped animation block.
+    var groupUUID: UUID? { get set }
+    /// The current value of the animation.
+    var value: Value { get set }
+    /// The current target value of the animation.
+    var target: Value { get set }
+    /// The value at the start of the animation.
+    var fromValue: Value { get set }
+    /// The item that starts the animation delayed.
+    var delayedStart: DispatchWorkItem? { get set }
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+    var integralizeValues: Bool { get set }
+    /// /// Configurates the animation with the specified settings.
+    func configure(withSettings settings: AnimationController.AnimationParameters)
+    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
+    var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
+    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
+    var animatorCompletion: (()->())? { get set }
+    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
+    var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
+}
+
+/// An internal extension to `AnimationProviding` for animations with velocity.
+internal protocol AnimationVelocityProviding<Value>: AnimationProviding {
+    associatedtype Value: AnimatableProperty
+    var velocity: Value { get set }
+}
+
+/// An internal extension to `AnimationProviding` for animations with running time.
+internal protocol AnimationRunningTimeProviding: AnimationProviding {
+    var runningTime: TimeInterval { get set }
 }
 
 internal extension ConfigurableAnimationProviding {

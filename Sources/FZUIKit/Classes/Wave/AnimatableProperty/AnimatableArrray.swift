@@ -229,8 +229,6 @@ extension AnimatableArray: ContiguousBytes {
 
 extension AnimatableArray: ExpressibleByArrayLiteral {}
 
-// extension AnimatableArray: AnimatableData, Comparable, Equatable { }
-
 #if os(macOS) || os(iOS) || os(tvOS)
 extension AnimatableArray: Equatable, AnimatableProperty { }
 #endif
@@ -304,10 +302,4 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     }
 
     public static var zero: Self { .init() }
-}
-
-internal extension Array where Element: VectorArithmetic & AdditiveArithmetic {
-    var animatableArray: AnimatableArray<Element> {
-        return AnimatableArray(self)
-    }
 }
