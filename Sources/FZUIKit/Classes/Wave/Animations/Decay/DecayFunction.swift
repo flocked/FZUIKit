@@ -128,6 +128,74 @@ extension DecayFunction {
     public static func velocity<V>(fromValue: V, toValue: V, decayConstant: Double = Self.ScrollViewDecelerationRate) -> V where V : AnimatableProperty {
         V(self.velocity(fromValue: fromValue.animatableData, toValue: toValue.animatableData, decayConstant: decayConstant))
     }
+    
+    /**
+     Solves the duration required to reach a desired destination for a decay function based on the given parameters.
+
+     - Parameters:
+        - value: The starting value.
+        - velocity: The starting velocity of the decay.
+        - decayConstant: The decay constant.
+
+     - Returns: The duration required to reach `toValue`.
+     */
+    public static func duration<Value: VectorArithmetic>(value: Value, velocity: Value, decayConstant: Double = Self.ScrollViewDecelerationRate) -> TimeInterval {
+        var value = value
+        var velocity = velocity
+        let decayFunction = DecayFunction(decayConstant: decayConstant)
+        let deltaTime = 1.0 / 60.0
+        var duration: TimeInterval = 0.0
+        var hasResolved = false
+        while !hasResolved {
+            decayFunction.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
+            hasResolved = velocity.magnitudeSquared < 0.05
+            duration = duration + deltaTime
+        }
+        return duration
+    }
+    
+    /**
+     Solves the duration required to reach a desired destination for a decay function based on the given parameters.
+
+     - Parameters:
+        - value: The starting value.
+        - toValue: The desired destination for the decay.
+        - decayConstant: The decay constant.
+
+     - Returns: The duration required to reach `toValue`.
+     */
+    public static func duration<Value: VectorArithmetic>(fromValue value: Value, toValue: Value, decayConstant: Double = Self.ScrollViewDecelerationRate) -> TimeInterval {
+        let velocity = DecayFunction.velocity(fromValue: value, toValue: toValue)
+        return self.duration(value: value, velocity: velocity, decayConstant: decayConstant)
+    }
+    
+    /**
+     Solves the duration required to reach a desired destination for a decay function based on the given parameters.
+
+     - Parameters:
+        - value: The starting value.
+        - velocity: The starting velocity of the decay.
+        - decayConstant: The decay constant.
+
+     - Returns: The duration required to reach `toValue`.
+     */
+    public static func duration<Value: AnimatableProperty>(value: Value, velocity: Value, decayConstant: Double = Self.ScrollViewDecelerationRate) -> TimeInterval {
+        return duration(value: value.animatableData, velocity: velocity.animatableData, decayConstant: decayConstant)
+    }
+    
+    /**
+     Solves the duration required to reach a desired destination for a decay function based on the given parameters.
+
+     - Parameters:
+        - value: The starting value.
+        - toValue: The desired destination for the decay.
+        - decayConstant: The decay constant.
+
+     - Returns: The duration required to reach `toValue`.
+     */
+    public static func duration<Value: AnimatableProperty>(fromValue value: Value, toValue: Value, decayConstant: Double = Self.ScrollViewDecelerationRate) -> TimeInterval {
+        return duration(fromValue: value.animatableData, toValue: toValue.animatableData, decayConstant: decayConstant)
+    }
 }
 
 /*

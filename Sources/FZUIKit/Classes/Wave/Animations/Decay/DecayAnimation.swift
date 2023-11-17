@@ -165,7 +165,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         state = .inactive
         velocity = .zero
     }
-        
+            
     /**
      Updates the progress of the animation with the specified delta time.
 

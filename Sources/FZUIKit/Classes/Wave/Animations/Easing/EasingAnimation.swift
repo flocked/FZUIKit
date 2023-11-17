@@ -176,6 +176,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     /// Resets the animation.
     public func reset() {
         state = .inactive
+        fractionComplete = 0.0
     }
             
     /**
