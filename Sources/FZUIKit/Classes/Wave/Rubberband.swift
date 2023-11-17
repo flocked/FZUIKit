@@ -1,5 +1,5 @@
 //
-//  UIMathUtilities.swift
+//  Rubberband.swift
 //
 //  Modified by Florian Zand
 //  Original: Copyright (c) 2022 Janum Trivedi.
