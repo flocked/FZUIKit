@@ -36,9 +36,11 @@ public extension BackgroundColorSettable where Self: NSView {
             if newValue == nil, self.isProxy() {
                 newValue = .clear
             }
+            /*
             if self.layer?.backgroundColor?.isVisible == false || self.layer?.backgroundColor == nil {
                 self.layer?.backgroundColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
             }
+             */
             self._backgroundColor = newValue
         }
     }
