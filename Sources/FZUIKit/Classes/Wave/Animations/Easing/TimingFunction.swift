@@ -82,10 +82,16 @@ extension TimingFunction {
     public static var swiftOut: TimingFunction {
         return TimingFunction(x1: 0.4, y1: 0.0, x2: 0.2, y2: 1.0)
     }
+    
+    /// The system default timing function. Use this function to ensure that the timing of your animations matches that of most system animations.
+    public static var `default`: TimingFunction {
+        return TimingFunction(x1: 0.25, y1: 0.1, x2: 0.25, y2: 1.0)
+    }
 }
 
 extension TimingFunction {
     public struct Easing {
+        
         //MARK: Quadratic
 
         /// A `easeInQuad` timing function.

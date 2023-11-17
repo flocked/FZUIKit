@@ -198,40 +198,4 @@ extension DecayFunction {
     }
 }
 
-/*
-/**
- Solves the destination frame for the specified frame and starting velocity.
-
- - Parameters:
-    - frame: The starting frame.
-    - velocity: The starting velocity of the decay.
-    - decelerationRate: The decay constant.
-
- - Returns: The destination frame when the decay reaches zero velocity.
- */
-public static func destination(frame: CGRect, velocity: CGPoint, decelerationRate: Double = Self.ScrollViewDecelerationRate) -> CGRect {
-    var frame = frame
-    frame.origin = destination(value: frame.origin, velocity: velocity, decelerationRate: decelerationRate)
-    return frame
-}
-
-public func destination(value: AnimatableVector, velocity: Double, decelerationRate: Double = Self.ScrollViewDecelerationRate) -> AnimatableVector {
-    let velocity = AnimatableVector(Array(repeating: velocity, count: value.count))
-    return AnimatableVector(self.value(value: value, velocity: velocity, decelerationRate: decelerationRate))
-}
-
-public func destination<V>(value: V, velocity: Double, decelerationRate: Double = Self.ScrollViewDecelerationRate) -> V where V : AnimatableData, V.AnimatableData == AnimatableVector {
-   return V(self.value(value: value.animatableData, velocity: velocity, decelerationRate: decelerationRate))
-}
-*/
-
-/*
- /**
-  A value used to round the final value. Defaults to 0.5.
-
-  - Description: This is useful when implementing things like scroll views, where the final value will rest on nice pixel values so that text remains sharp. It defaults to 0.5, but applying 1.0 / the scale factor of the view will lead to similar behaviours as `UIScrollView`. Setting this to `0.0` disables any rounding.
-  */
- public var roundingFactor: Double = 0.5
- */
-
 #endif

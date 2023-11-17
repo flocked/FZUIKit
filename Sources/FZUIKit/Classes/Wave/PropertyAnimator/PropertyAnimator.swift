@@ -145,7 +145,7 @@ internal extension PropertyAnimator {
         case .nonAnimated:
             self.animation(for: keyPath, key: key)?.stop(at: .current)
             self.animations[key ?? keyPath.stringValue] = nil
-            self.object[keyPath: keyPath] = targetValue
+            self.object[keyPath: keyPath] = newValue
         }
     }
     
@@ -181,7 +181,7 @@ internal extension PropertyAnimator {
         case .nonAnimated:
             self.animation(for: keyPath, key: key)?.stop(at: .current)
             self.animations[key ?? keyPath.stringValue] = nil
-            self.object[keyPath: keyPath] = targetValue
+            self.object[keyPath: keyPath] = newValue
         }
     }
     
