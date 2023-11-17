@@ -105,6 +105,22 @@ extension CGFloat: AnimatableProperty {
     }
 }
 
+extension AnimatableProperty where Self: NSNumber {
+    public init(_ animatableData: AnimatableVector) {
+        self.init(value: animatableData[0])
+    }
+}
+
+extension NSNumber: AnimatableProperty {
+    public var animatableData: AnimatableVector {
+        [doubleValue]
+    }
+    
+    public static var zero: Self {
+        Self(value: 0.0)
+    }
+}
+
 extension CGPoint: AnimatableProperty {
     public init(_ animatableData: AnimatablePair<CGFloat, CGFloat>) {
         self.init(animatableData.first, animatableData.second)

@@ -17,11 +17,14 @@ import SwiftUI
 public extension CGColor {
     /// Returns the RGBA (red, green, blue, alpha) components.
     func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
-        guard let components = self.components, components.count == 2 || components.count == 4 else { return nil }
-        if components.count == 2 {
+        guard let components = self.components else { return nil }
+        if numberOfComponents == 2 {
             return (components[0], components[0], components[0], components[1])
-        } else  {
+        } else if numberOfComponents == 4  {
             return (components[0], components[1], components[2], components[3])
+        } else {
+            let ciColor = CIColor(cgColor: self)
+            return (ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
         }
     }
     

@@ -126,7 +126,8 @@ extension AnimationController {
         let delay: CGFloat
         let animationType: AnimationType
         let options: AnimationOptions
-        
+        let completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)?
+
         var repeats: Bool {
             options.contains(.repeats)
         }
@@ -202,8 +203,6 @@ extension AnimationController {
                 }
             }
         }
-
-        let completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)?
     }
 
     private class SettingsStack {

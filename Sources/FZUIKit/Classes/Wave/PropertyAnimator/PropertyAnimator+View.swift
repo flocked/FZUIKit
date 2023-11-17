@@ -290,10 +290,22 @@ extension PropertyAnimator where Object: NSUIScrollView {
     #elseif canImport(UIKit)
     /// The scale factor applied to the scroll view’s content.
     public var zoomScale: CGFloat {
-        get {  self[\.zoomScaleCentered] }
+        get { self[\.zoomScaleCentered] }
         set {
             object.animationCenterPoint = nil
             self[\.zoomScaleCentered] = newValue }
+    }
+    
+    /// The size of the content view.
+    public var contentSize: CGSize {
+        get { self[\.contentSize] }
+        set { self[\.contentSize] = newValue }
+    }
+    
+    /// The custom distance that the content view is inset from the safe area or scroll view edges.
+    public var contentInset: UIEdgeInsets {
+        get { self[\.contentInset] }
+        set { self[\.contentInset] = newValue }
     }
     #endif
 }

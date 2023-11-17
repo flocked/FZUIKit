@@ -230,8 +230,15 @@ internal extension PropertyAnimator {
                 break
             }
         }
-        animations[animationKey] = animation
+        addAnimation(animation, key: animationKey)
         animation.start(afterDelay: settings.delay)
+    }
+    
+    func addAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, key: String) {
+        if let oldAnimation = animations[key], oldAnimation.id != animation.id {
+            oldAnimation.stop(at: .current)
+        }
+        animations[key] = animation
     }
     
     /// Updates the value and target of an animatable property for better animations.
@@ -254,6 +261,11 @@ internal extension PropertyAnimator {
 }
 
 internal extension PropertyAnimator {
+    /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
+    func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> (any ConfigurableAnimationProviding)? {
+        return animations[key ?? keyPath.stringValue] as? (any ConfigurableAnimationProviding)
+    }
+    
     /// The current spring animation for the property at the keypath or key, or `nil` if there isn't a spring animation for the keypath.
     func springAnimation<Val>(for keyPath: WritableKeyPath<Object, Val?>, key: String? = nil) -> SpringAnimation<Val>? {
         return animations[key ?? keyPath.stringValue] as? SpringAnimation<Val>
@@ -282,11 +294,6 @@ internal extension PropertyAnimator {
     /// The current decay animation for the property at the keypath or key, or `nil` if there isn't a decay animation for the keypath.
     func decayAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> DecayAnimation<Val>? {
         return animations[key ?? keyPath.stringValue] as? DecayAnimation<Val>
-    }
-    
-    /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
-    func animation<Val>(for keyPath: WritableKeyPath<Object, Val>, key: String? = nil) -> (any ConfigurableAnimationProviding)? {
-        return animations[key ?? keyPath.stringValue] as? (any ConfigurableAnimationProviding)
     }
 }
 
