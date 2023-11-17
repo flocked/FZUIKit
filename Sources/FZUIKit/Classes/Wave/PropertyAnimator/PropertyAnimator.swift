@@ -182,7 +182,7 @@ internal extension PropertyAnimator {
     /// Configurates an animation and starts it.
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, integralizeValue: Bool = false, completion: (()->())? = nil) {
         var animation = animation
-        if settings.animationType.isDecayVelocityMode, let animation = animation as? DecayAnimation<Value> {
+        if settings.animationType.isDecayVelocity, let animation = animation as? DecayAnimation<Value> {
             animation.velocity = target
         } else {
             animation.target = target

@@ -23,6 +23,15 @@ public struct Spring: @unchecked Sendable, Hashable {
 
     /// The stiffness of the spring, defined as an approximate duration in seconds.
     public let response: CGFloat
+    
+    /**
+     How bouncy the spring is.
+     
+     A value of `0` indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of `1.0` (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of `-1.0`.
+     */
+    public var bounce: CGFloat {
+        1.0 - dampingRatio
+    }
 
     /// The spring stiffness coefficient. Increasing the stiffness reduces the number of oscillations and will reduce the settling duration.
     public let stiffness: CGFloat
@@ -67,13 +76,7 @@ public struct Spring: @unchecked Sendable, Hashable {
         self.mass = mass
         self.response = Spring.response(stiffness: stiffness, mass: mass)
         self.damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
-        
-        if #available(macOS 14.0, *) {
-            self.settlingDuration =  SwiftUI.Spring.init(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
-        } else {
-            self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
-        }
-        
+        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
 
     /**
@@ -96,11 +99,7 @@ public struct Spring: @unchecked Sendable, Hashable {
         let unbandedDampingCoefficient = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.damping = rubberband(value: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
 
-        if #available(macOS 14.0, *) {
-            self.settlingDuration =  SwiftUI.Spring.init(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
-        } else {
-            self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
-        }
+        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
     
     /**
@@ -150,9 +149,10 @@ public struct Spring: @unchecked Sendable, Hashable {
     /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
     public static let interactive = Spring(dampingRatio: 0.86, response: 0.28)
 
+    /*
     /// A non animated spring which updates values immediately.
     public static let nonAnimated = Spring(dampingRatio: 1.0, response: 0.0)
-    
+    */
     
     /// A spring with a predefined duration and higher amount of bounce.
     public static let bouncy = Spring.bouncy()

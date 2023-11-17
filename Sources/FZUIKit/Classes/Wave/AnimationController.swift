@@ -147,7 +147,7 @@ extension AnimationController {
             case decay(mode: DecayAnimationMode, decelerationRate: Double)
             case nonAnimated
             
-            var isDecayVelocityMode: Bool {
+            var isDecayVelocity: Bool {
                 switch self {
                 case .decay(let mode, _):
                     return mode == .velocity

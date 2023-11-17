@@ -165,7 +165,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         self.decayFunction = DecayFunction(decelerationRate: DecayFunction.ScrollViewDecelerationRate)
         self._value = value.animatableData
         self._fromValue = _value
-        if settings.animationType.isDecayVelocityMode {
+        if settings.animationType.isDecayVelocity {
             self._velocity = target.animatableData
         } else {
             self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
