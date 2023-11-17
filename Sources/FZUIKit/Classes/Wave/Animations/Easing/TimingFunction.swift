@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// Timing functions are used to convert linear input time (`0.0 -> 1.0`) to transformed output time (also `0.0 -> 1.0`).
+/// The function maps an input time normalized to the range `[0,1]` to an output time also in the range `[0,1]`. It's used to define the pacing of an animation as a timing curve. There are many additional timing functions at ``Easing`` provided.
 public enum TimingFunction {
     /// No easing.
     case linear
