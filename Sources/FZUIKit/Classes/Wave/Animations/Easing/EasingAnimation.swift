@@ -76,7 +76,7 @@ public class EasingAnimation<Value: AnimatableProperty>: AnimationProviding, Con
     public var scrubsLinearly: Bool = false
     
     /// The completion percentage of the animation.
-    public var fractionComplete: CGFloat = 0.0 {
+    var fractionComplete: CGFloat = 0.0 {
         didSet {
             fractionComplete = fractionComplete.clamped(max: 1.0)
                 updateValue()

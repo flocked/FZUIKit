@@ -58,30 +58,4 @@ extension AnimatablePropertyProvider {
     }
 }
 
-public extension AnimatablePropertyProvider {
-    /// A dictionary containing the current animated property keys and associated animations.
-    var animations: [String: AnimationProviding] {
-        animator.animations
-    }
-    
-    /**
-     The current animation for the property at the specified keypath.
-     
-     - Parameters keyPath: The keypath to an animatable property.
-     */
-    func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Self, Value>) -> AnimationProviding? {
-        animator.animation(for: keyPath)
-    }
-    
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
-    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value>) -> Value? {
-        animator.animationVelocity(for: keyPath)
-    }
-    
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
-    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value?>) -> Value? {
-        animator.animationVelocity(for: keyPath)
-    }
-}
-
 #endif

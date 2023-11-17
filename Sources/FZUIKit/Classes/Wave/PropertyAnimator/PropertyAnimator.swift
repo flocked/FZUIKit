@@ -50,9 +50,7 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
     }
     /// A dictionary containing the current animated property keys and associated animations.
     public var animations: [String: AnimationProviding] = [:]
-}
-
-public extension PropertyAnimator {
+    
     /**
      The current value of the property at the specified keypath. Assigning a new value inside a ``Wave`` animation block animates to the new value.
      
@@ -60,7 +58,7 @@ public extension PropertyAnimator {
         - keyPath: The keypath to the animatable property.
         - integralizeValue: A Boolean value that indicates whether new values should be integralized to the screen's pixel boundaries while animating. This helps prevent drawing frames between pixels, causing aliasing issues. The default value is `false`.
      */
-    subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value>, integralizeValue integralizeValue: Bool = false) -> Value {
+    public subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value>, integralizeValue integralizeValue: Bool = false) -> Value {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, integralizeValue: integralizeValue) }
     }
@@ -72,7 +70,7 @@ public extension PropertyAnimator {
         - keyPath: The keypath to the animatable property.
         - integralizeValue: A Boolean value that indicates whether new values should be integralized to the screen's pixel boundaries while animating. This helps prevent drawing frames between pixels, causing aliasing issues. The default value is `false`.
      */
-    subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value?>, integralizeValue integralizeValue: Bool = false) -> Value? {
+    public subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Value?>, integralizeValue integralizeValue: Bool = false) -> Value? {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath, integralizeValue: integralizeValue) }
     }
@@ -82,28 +80,25 @@ public extension PropertyAnimator {
      
      - Parameters keyPath: The keypath to an animatable property.
      */
-    func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> AnimationProviding? {
-        self.animations[keyPath.stringValue]
-    }
-    
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
-    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value>) -> Value? {
-        if let animation = self.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
-            return animation.velocity as? Value
-        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
-            return animation.velocity as? Value
+    public func animation(for keyPath: PartialKeyPath<PropertyAnimator>) -> AnimationProviding? {
+        var key = keyPath.stringValue
+        if let animation = self.animations[key] {
+            return animation
+        } else if key.contains("layer."), let viewAnimator = self as? PropertyAnimator<NSUIView> {
+            key = key.replacingOccurrences(of: "layer.", with: "")
+            return viewAnimator.object.optionalLayer?.animator.animations[key]
         }
         return nil
     }
     
-    /// The current animation velocity of the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
-    func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
-        if let animation = self.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
-            return animation.velocity as? Value
-        } else if let animation = (object as? NSUIView)?.optionalLayer?.animator.animations[keyPath.stringValue] as? (any AnimationVelocityProviding) {
-            return animation.velocity as? Value
-        }
-        return nil
+    /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator, Value>) -> Value? {
+        return (self.animation(for: keyPath) as? (any AnimationVelocityProviding))?.velocity as? Value
+    }
+    
+    /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values..
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
+        return (self.animation(for: keyPath) as? (any AnimationVelocityProviding))?.velocity as? Value
     }
 }
 

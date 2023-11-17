@@ -48,6 +48,11 @@ public class SpringAnimation<Value: AnimatableProperty>: AnimationProviding, Con
         spring.settlingDuration
     }
     
+    /// The completion percentage of the animation.
+    var fractionComplete: CGFloat {
+        runningTime / settlingTime
+    }
+    
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     

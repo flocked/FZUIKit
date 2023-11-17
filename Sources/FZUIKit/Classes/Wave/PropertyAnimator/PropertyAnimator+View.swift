@@ -141,72 +141,6 @@ extension PropertyAnimator where Object: NSUIView {
         set { object.optionalLayer?.animator.translation = newValue }
     }
     
-    /// The background gradient of the view.
-    public var gradient: Gradient? {
-        get {
-            guard let gradientLayer = object.optionalLayer?._gradientLayer else { return nil }
-            let colors = self.gradientColors.compactMap({$0.nsUIColor})
-            let locations = self.gradientLocations
-            let stops = zip(colors, locations).compactMap({ Gradient.Stop(color: $0.0, location: $0.1) })
-            let startPoint = Gradient.Point(gradientStartPoint)
-            let endPoint = Gradient.Point(gradientEndPoint)
-            return Gradient(stops: stops, startPoint: startPoint, endPoint: endPoint, type: .init(gradientLayer.type))
-           }
-        set {
-            let newGradient = newValue ?? .init(stops: [])
-
-            var didSetupNewGradientLayer = false
-            if newValue?.stops.isEmpty == false {
-                didSetupNewGradientLayer = true
-                #if os(macOS)
-                self.object.wantsLayer = true
-                #endif
-                if self.object.optionalLayer?._gradientLayer == nil {
-                    let gradientLayer = GradientLayer()
-                    self.object.optionalLayer?.addSublayer(withConstraint: gradientLayer)
-                    gradientLayer.sendToBack()
-                    gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
-                    
-                    gradientLayer.locations = newGradient.stops.compactMap({NSNumber($0.location)})
-                    gradientLayer.startPoint = newGradient.startPoint.point
-                    gradientLayer.endPoint = newGradient.endPoint.point
-                    gradientLayer.colors = newGradient.stops.compactMap({$0.color.resolvedColor(for: object).withAlphaComponent(0.0).cgColor})
-                }
-                Wave.nonAnimate {
-                    self.object.backgroundColor = nil
-                }
-            }
-            if didSetupNewGradientLayer == false {
-                self.gradientLocations = newGradient.stops.compactMap({$0.location})
-                self.gradientStartPoint = newGradient.startPoint.point
-                self.gradientEndPoint = newGradient.endPoint.point
-            }
-            
-            self.gradientColors = newGradient.stops.compactMap({$0.color.cgColor})
-            self.object.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
-        }
-    }
-    
-    internal var gradientLocations: [CGFloat] {
-        get { self[\._gradientLocations] }
-        set { self[\._gradientLocations] = newValue }
-    }
-    
-    internal var gradientStartPoint: CGPoint {
-        get { self[\.gradientStartPoint] }
-        set { self[\.gradientStartPoint] = newValue }
-    }
-    
-    internal var gradientEndPoint: CGPoint {
-        get { self[\.gradientStartPoint] }
-        set { self[\.gradientStartPoint] = newValue }
-    }
-    
-    internal var gradientColors: [CGColor] {
-        get { self[\._gradientColors] }
-        set { self[\._gradientColors] = newValue }
-    }
-    
     /// The view's layer animator.
     public var layer: LayerAnimator {
         #if os(macOS)
@@ -628,3 +562,71 @@ internal extension UIScrollView {
 }
 #endif
 #endif
+
+/*
+/// The background gradient of the view.
+public var gradient: Gradient? {
+    get {
+        guard let gradientLayer = object.optionalLayer?._gradientLayer else { return nil }
+        let colors = self.gradientColors.compactMap({$0.nsUIColor})
+        let locations = self.gradientLocations
+        let stops = zip(colors, locations).compactMap({ Gradient.Stop(color: $0.0, location: $0.1) })
+        let startPoint = Gradient.Point(gradientStartPoint)
+        let endPoint = Gradient.Point(gradientEndPoint)
+        return Gradient(stops: stops, startPoint: startPoint, endPoint: endPoint, type: .init(gradientLayer.type))
+       }
+    set {
+        let newGradient = newValue ?? .init(stops: [])
+
+        var didSetupNewGradientLayer = false
+        if newValue?.stops.isEmpty == false {
+            didSetupNewGradientLayer = true
+            #if os(macOS)
+            self.object.wantsLayer = true
+            #endif
+            if self.object.optionalLayer?._gradientLayer == nil {
+                let gradientLayer = GradientLayer()
+                self.object.optionalLayer?.addSublayer(withConstraint: gradientLayer)
+                gradientLayer.sendToBack()
+                gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                
+                gradientLayer.locations = newGradient.stops.compactMap({NSNumber($0.location)})
+                gradientLayer.startPoint = newGradient.startPoint.point
+                gradientLayer.endPoint = newGradient.endPoint.point
+                gradientLayer.colors = newGradient.stops.compactMap({$0.color.resolvedColor(for: object).withAlphaComponent(0.0).cgColor})
+            }
+            Wave.nonAnimate {
+                self.object.backgroundColor = nil
+            }
+        }
+        if didSetupNewGradientLayer == false {
+            self.gradientLocations = newGradient.stops.compactMap({$0.location})
+            self.gradientStartPoint = newGradient.startPoint.point
+            self.gradientEndPoint = newGradient.endPoint.point
+        }
+        
+        self.gradientColors = newGradient.stops.compactMap({$0.color.cgColor})
+        self.object.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
+    }
+}
+
+internal var gradientLocations: [CGFloat] {
+    get { self[\._gradientLocations] }
+    set { self[\._gradientLocations] = newValue }
+}
+
+internal var gradientStartPoint: CGPoint {
+    get { self[\.gradientStartPoint] }
+    set { self[\.gradientStartPoint] = newValue }
+}
+
+internal var gradientEndPoint: CGPoint {
+    get { self[\.gradientStartPoint] }
+    set { self[\.gradientStartPoint] = newValue }
+}
+
+internal var gradientColors: [CGColor] {
+    get { self[\._gradientColors] }
+    set { self[\._gradientColors] = newValue }
+}
+*/

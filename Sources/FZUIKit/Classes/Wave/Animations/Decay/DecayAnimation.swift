@@ -25,7 +25,16 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     public var relativePriority: Int = 0
     
     /// The current state of the animation (`inactive`, `running`, or `ended`).
-    public internal(set) var state: AnimationState = .inactive
+    public internal(set) var state: AnimationState = .inactive {
+        didSet {
+            switch (oldValue, state) {
+            case (.inactive, .running):
+                runningTime = 0.0
+            default:
+                break
+            }
+        }
+    }
     
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
@@ -83,6 +92,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         set {
             self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
             self._fromVelocity = self._velocity
+            self.runningTime = 0.0
         }
     }
     
@@ -91,7 +101,12 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         set { _fromValue = newValue.animatableData }
     }
     
-    var _fromValue: Value.AnimatableData
+    var _fromValue: Value.AnimatableData {
+        didSet {
+            guard oldValue != _fromValue else { return }
+            updateTotalDuration()
+        }
+    }
 
     
     var fromVelocity: Value {
@@ -99,7 +114,12 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         set { _fromVelocity = newValue.animatableData }
     }
     
-    var _fromVelocity: Value.AnimatableData
+    var _fromVelocity: Value.AnimatableData {
+        didSet {
+            guard oldValue != _fromVelocity else { return }
+            updateTotalDuration()
+        }
+    }
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -109,6 +129,19 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
     
     /// The completion block gets called to remove the animation from the animators `animations` dictionary.
     var animatorCompletion: (()->())? = nil
+    
+    var totalDuration: TimeInterval = 0.0
+    
+    var runningTime: TimeInterval = 0.0
+    
+    /// The completion percentage of the animation.
+    var fractionComplete: CGFloat {
+        runningTime / totalDuration
+    }
+    
+    func updateTotalDuration() {
+      // totalDuration = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decayConstant: decayConstant)
+    }
     
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
@@ -125,6 +158,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         self._fromValue = _value
         self._velocity = velocity.animatableData
         self._fromVelocity = _velocity
+        self.updateTotalDuration()
     }
     
     init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero, target: Value? = nil) {
@@ -137,6 +171,7 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         }
         self._fromVelocity = _velocity
         self.configure(withSettings: settings)
+        self.updateTotalDuration()
     }
     
     deinit {
@@ -152,18 +187,24 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
         if let gestureVelocity = settings.animationType.gestureVelocity {
             (self as? DecayAnimation<CGRect>)?.velocity.origin = gestureVelocity
             (self as? DecayAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
-
+            (self as? DecayAnimation<CGRect>)?.updateTotalDuration()
+            
             (self as? DecayAnimation<CGPoint>)?.velocity = gestureVelocity
             (self as? DecayAnimation<CGPoint>)?.fromVelocity = gestureVelocity
+            (self as? DecayAnimation<CGPoint>)?.updateTotalDuration()
         }
         self.repeats = settings.animationType.repeats
-        self.decayConstant = settings.animationType.decelerationRate
+        if self.decayConstant != settings.animationType.decelerationRate {
+            self.decayConstant = settings.animationType.decelerationRate
+            self.updateTotalDuration()
+        }
     }
     
     /// Resets the animation.
     public func reset() {
         state = .inactive
         velocity = .zero
+        runningTime = 0.0
     }
             
     /**
@@ -187,6 +228,8 @@ public class DecayAnimation<Value: AnimatableProperty>: AnimationProviding, Conf
             _value = _fromValue
             _velocity = _fromVelocity
         }
+        
+        runningTime = runningTime + deltaTime
         
         let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
