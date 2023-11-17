@@ -216,7 +216,6 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
      - parameter deltaTime: The delta time.
      */
     public func updateAnimation(deltaTime: TimeInterval) {
-
         guard velocity != .zero else {
             state = .inactive
             return

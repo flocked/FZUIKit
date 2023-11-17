@@ -66,7 +66,10 @@ internal class AnimationController {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
 
-        let dt = frame.duration
+        var dt = frame.duration
+        #if os(macOS)
+        dt = dt / 2.0
+        #endif
         
         let sortedAnimations = animations.values.sorted(by: \.relativePriority, .descending)
 

@@ -200,7 +200,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         guard deltaTime > 0.0 else { return }
                 
         if isAnimated {
-            let deltaTime = deltaTime/2.0 // Why?
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
         } else {
