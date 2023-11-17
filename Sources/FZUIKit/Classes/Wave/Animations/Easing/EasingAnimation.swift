@@ -95,7 +95,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             fromValue = value
         }
     }
-    
+
     /**
      The current target value of the animation.
 

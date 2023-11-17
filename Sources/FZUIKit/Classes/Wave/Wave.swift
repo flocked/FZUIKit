@@ -134,27 +134,29 @@ public enum Wave {
      Performs animations with a decaying acceleration.
      
      There are two decay modes:
-     - **value:** The properties animate with a decaying acceleration to your values.
-     - **velocity(CGPoint):**:  Values you assign to properties in the animation block will be ignored. Instead the properties will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
+     - **value:** The properties will animate to your values with a decelerating acceleration.
+     - **velocity:**:  The properties will increase or decrease depending on the values applied and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
      
      ```swift
-     // This animates with a decaying acceleration to the new rect.
-     Wave.animate(withDecay: .value) {
-        myView.animator.frame = CGRect(x: 50, y: 50, width: 100, height: 100)
-     }
+     // Value based decay animation
+     Wave.animate(withDecay: .value, animations: {
+         // Animates the view's origin to the point with a decelerating rate.
+         view.animator.frame.origin = CGPoint(x: 50, y: 50)
+     })
      
-     // This increases the frame origin x & y value by 100 with a decaying acceleration.
-     Wave.animate(withDecay: .velocity(CGPoint(x: 100, y: 100)) {
-        myView.animator.frame = anyValue
-     }
+     // Velocity based decay animation
+     Wave.animate(withDecay: .velocity, animations: {
+         // Increaes the view's origin by 50 points with a decelerating rate.
+         view.animator.frame.origin = CGPoint(x: 50, y: 50)
+     })
      ```
                
      - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
      
      - Parameters:
         - mode: The mode how the animation should animate properties. 
-            - If `value` the properties animate with a decaying acceleration to your provided values.
-            - If `velocity(CGPoint)` the value of  properties will increase or decrease (depending on the `velocity` supplied) and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time. The values you assign to properties will be ignored.
+            - `value` will animate the properties to your provided values with a decaying acceleration.
+            - `velocity` will increase or decrease the properties depending on the values applied and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
         - decelerationRate: The rate at which the animation decelerates over time. The default value decelerates like scrollviews.
         - repeats: A Boolean value that indicates whether the animation repeats indefinitely. The default value is `false`.
         - delay: An optional delay, in seconds, after which to start the animation.
@@ -172,7 +174,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .decay(gestureVelocity: mode.velocity, decelerationRate: decelerationRate),
+            animationType: .decay(mode: mode, decelerationRate: decelerationRate),
             options: options,
             completion: completion
         )

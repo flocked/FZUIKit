@@ -161,12 +161,13 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         self.updateTotalDuration()
     }
     
-    init(settings: AnimationController.AnimationParameters, value: Value, velocity: Value = .zero, target: Value? = nil) {
+    init(settings: AnimationController.AnimationParameters, value: Value, target: Value) {
         self.decayFunction = DecayFunction(decelerationRate: DecayFunction.ScrollViewDecelerationRate)
         self._value = value.animatableData
         self._fromValue = _value
-        self._velocity = velocity.animatableData
-        if let target = target {
+        if settings.animationType.isDecayVelocityMode {
+            self._velocity = target.animatableData
+        } else {
             self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
         }
         self._fromVelocity = _velocity
@@ -184,15 +185,6 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        if let gestureVelocity = settings.animationType.gestureVelocity {
-            (self as? DecayAnimation<CGRect>)?.velocity.origin = gestureVelocity
-            (self as? DecayAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
-            (self as? DecayAnimation<CGRect>)?.updateTotalDuration()
-            
-            (self as? DecayAnimation<CGPoint>)?.velocity = gestureVelocity
-            (self as? DecayAnimation<CGPoint>)?.fromVelocity = gestureVelocity
-            (self as? DecayAnimation<CGPoint>)?.updateTotalDuration()
-        }
         self.repeats = settings.repeats
         if settings.integralizeValues == true {
             self.integralizeValues = settings.integralizeValues
@@ -269,17 +261,10 @@ extension DecayAnimation: CustomStringConvertible {
 
 /// The mode how a decaying animation should animate properties.
 public enum DecayAnimationMode {
-    /// The value of animated properties will increase or decrease (depending on the `velocity` supplied) with a decelerating rate.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time. Any values you assign to properties will be ignored.
-    case velocity(CGPoint)
-    /// The animated properties will animate with a decelerating rate to your provided values.
+    /// The value of animated properties will increase or decrease (depending on the values applied) with a decelerating rate.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
+    case velocity
+    /// The animated properties will animate to the applied values  with a decelerating rate.
     case value
-    
-    internal var velocity: CGPoint? {
-        switch self {
-        case .velocity(let velocity): return velocity
-        case .value: return nil
-        }
-    }
 }
 
 #endif

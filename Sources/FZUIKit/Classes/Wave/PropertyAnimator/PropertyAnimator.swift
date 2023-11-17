@@ -134,7 +134,7 @@ internal extension PropertyAnimator {
             let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .decay(_,_):
-            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue)
+            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
             self.animation(for: keyPath, key: key)?.stop(at: .current)
@@ -182,7 +182,11 @@ internal extension PropertyAnimator {
     /// Configurates an animation and starts it.
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, integralizeValue: Bool = false, completion: (()->())? = nil) {
         var animation = animation
-        animation.target = target
+        if settings.animationType.isDecayVelocityMode, let animation = animation as? DecayAnimation<Value> {
+            animation.velocity = target
+        } else {
+            animation.target = target
+        }
         animation.fromValue = animation.value
         if let easingAnimation = animation as? EasingAnimation<Value> {
             easingAnimation.fractionComplete = 0.0
