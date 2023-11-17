@@ -262,7 +262,7 @@ extension AnimatableCollection {
         }
     }
 }
-
+ 
 extension Array: AnimatableProperty, AnimatableCollection where Element: AnimatableProperty {
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))
@@ -287,6 +287,7 @@ extension AnimatableArray: AnimatableCollection {
     }
 }
 
+/*
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
 extension SwiftUI.Spring {
     /**
@@ -388,6 +389,7 @@ extension SwiftUI.Spring {
         return self.settlingDuration(fromValue: fromValue, toValue: toValue, initialVelocity: initialVelocity, epsilon: epsilon)
     }
 }
+*/
 
 internal struct AnimatableProxy<Value: AnimatableProperty>: Animatable {
     var animatableData: Value.AnimatableData
