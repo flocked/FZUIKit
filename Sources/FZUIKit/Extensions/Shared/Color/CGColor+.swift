@@ -17,13 +17,20 @@ import SwiftUI
 public extension CGColor {
     /// Returns the RGBA (red, green, blue, alpha) components.
     func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
-        guard let components = self.components else { return nil }
-        if numberOfComponents == 2 {
+        var color = self
+        if color.colorSpace?.model != .rgb, #available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *) {
+            color = color.converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil) ?? color
+        }
+        guard let components = color.components else { return nil }
+        switch numberOfComponents {
+        case 2:
             return (components[0], components[0], components[0], components[1])
-        } else if numberOfComponents == 4  {
+        case 3:
+            return (components[0], components[1], components[2], 1.0)
+        case 4:
             return (components[0], components[1], components[2], components[3])
-        } else {
-            let ciColor = CIColor(cgColor: self)
+        default:
+            let ciColor = CIColor(cgColor: color)
             return (ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
         }
     }

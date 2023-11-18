@@ -167,7 +167,7 @@ extension AnimationController {
             var decelerationRate: Double {
                 switch self {
                 case .decay(_, let decelerationRate): return decelerationRate
-                default: return DecayFunction.ScrollViewDecelerationRate
+                default: return ScrollViewDecelerationRate
                 }
             }
             

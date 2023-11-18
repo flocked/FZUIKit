@@ -165,7 +165,7 @@ public enum Wave {
      */
     public static func animate(
         withDecay mode: DecayAnimationMode,
-        decelerationRate: Double = DecayFunction.ScrollViewDecelerationRate,
+        decelerationRate: Double = ScrollViewDecelerationRate,
         options: AnimationOptions = [],
         delay: TimeInterval = 0,
         animations: () -> Void,

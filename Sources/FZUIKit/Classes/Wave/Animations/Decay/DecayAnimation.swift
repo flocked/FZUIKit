@@ -152,7 +152,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         - velocity: The velocity of the animation.
         - decelerationRate: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecelerationRate``.
      */
-    public init(value: Value, velocity: Value = .zero, decelerationRate: Double = DecayFunction.ScrollViewDecelerationRate) {
+    public init(value: Value, velocity: Value = .zero, decelerationRate: Double = ScrollViewDecelerationRate) {
         self.decayFunction = DecayFunction(decelerationRate: decelerationRate)
         self._value = value.animatableData
         self._fromValue = _value
@@ -162,7 +162,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     init(settings: AnimationController.AnimationParameters, value: Value, target: Value) {
-        self.decayFunction = DecayFunction(decelerationRate: DecayFunction.ScrollViewDecelerationRate)
+        self.decayFunction = DecayFunction(decelerationRate: ScrollViewDecelerationRate)
         self._value = value.animatableData
         self._fromValue = _value
         if settings.animationType.isDecayVelocity {
