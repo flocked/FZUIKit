@@ -1,5 +1,5 @@
 //
-//  ArrayBase.swift
+//  AnimatableArrray.swift
 //
 //
 //  Created by Florian Zand on 15.10.21.

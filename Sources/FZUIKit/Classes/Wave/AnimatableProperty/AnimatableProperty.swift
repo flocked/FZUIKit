@@ -1,5 +1,5 @@
 //
-//  AnimatableData.swift
+//  AnimatableProperty.swift
 //
 //
 //  Created by Florian Zand on 12.10.23.
