@@ -11,26 +11,33 @@ import Foundation
 public protocol AnimationProviding {
     /// A unique identifier for the animation.
     var id: UUID { get }
+    
     /// A unique identifier that associates an animation with an grouped animation block.
     var groupUUID: UUID? { get }
+    
     /// The relative priority of the animation.
     var relativePriority: Int { get set }
+    
     /// The current state of the animation.
     var state: AnimationState { get }
+    
     /**
      Updates the progress of the animation with the specified delta time.
 
      - parameter deltaTime: The delta time.
      */
     func updateAnimation(deltaTime: TimeInterval)
+    
     /**
      Starts the animation (if not already running) with an optional delay.
 
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     func start(afterDelay delay: TimeInterval)
+    
     /// Pauses the animation.
-    func pauseAnimation()
+    func pause()
+    
     /**
      Stops the animation at the specified position.
      
@@ -38,6 +45,7 @@ public protocol AnimationProviding {
         - position: The position at which the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``).
      */
     func stop(at position: AnimationPosition)
+    
     /// Resets the animation.
     func reset()
 }
@@ -65,7 +73,7 @@ extension AnimationProviding where Self: AnyObject {
         }
     }
 
-    public func pauseAnimation() {
+    public func pause() {
         guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state == .running else { return }
         animation.state = .inactive
