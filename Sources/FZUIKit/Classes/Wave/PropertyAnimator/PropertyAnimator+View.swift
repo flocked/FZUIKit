@@ -13,13 +13,13 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+
 extension NSUIView: AnimatablePropertyProvider { }
 
 /// The property animator for views.
 public typealias ViewAnimator = PropertyAnimator<NSUIView>
 
 extension PropertyAnimator where Object: NSUIView {
-    
     /// The bounds of the view.
     public var bounds: CGRect {
         get { self[\.bounds] }
@@ -663,3 +663,38 @@ internal var gradientColors: [CGColor] {
     set { self[\._gradientColors] = newValue }
 }
 */
+
+/*
+ if var animation = object.optionalLayer?.animator.setValue(newValue?.resolvedColor(for: object).cgColor, for: \.backgroundColor, completion: { [weak self] in
+     guard let self = self else { return }
+     self.animations[self.key(for: \.backgroundColor)] = nil }) {
+ }
+ 
+ if var animation = object.optionalLayer?.animator.setValue(Float(newValue), for: \.opacity, completion: { [weak self] in
+     guard let self = self else { return }
+     self.animations[self.key(for: \.alpha)] = nil }) {
+ }
+ */
+
+
+/*
+ internal func setLayerValue<Value: AnimatableProperty>(_ value: Value, for keyPath: WritableKeyPath<CALayer, Value>) {
+     if let animation = self.object.optionalLayer?.animator.setValue(value, for: keyPath, completion: { [weak self] in
+         guard let self = self else { return }
+         self.animations[keyPath.stringValue] = nil
+         
+     }) {
+         self.animations[keyPath.stringValue] = animation
+     }
+ }
+ 
+ internal func setLayerValue<Value: AnimatableProperty>(_ value: Value, for keyPath: WritableKeyPath<CALayer, Value?>) {
+     if let animation = self.object.optionalLayer?.animator.setValue(value, for: keyPath, completion: { [weak self] in
+         guard let self = self else { return }
+         self.animations[keyPath.stringValue] = nil
+         
+     }) {
+         self.animations[keyPath.stringValue] = animation
+     }
+ }
+ */

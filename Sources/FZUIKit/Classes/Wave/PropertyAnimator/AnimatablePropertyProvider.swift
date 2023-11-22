@@ -56,6 +56,70 @@ extension AnimatablePropertyProvider {
     public var animator: PropertyAnimator<Self> {
         get { getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: PropertyAnimator(self)) }
     }
+    
+    #if os(macOS)
+    public var propertyAnimations: [String: AnimationProviding] {
+        get { getAssociatedValue(key: "propertyAnimations", object: self, initialValue: [:]) }
+        set { set(associatedValue: newValue, key: "propertyAnimations", object: self) }
+    }
+    
+    /**
+     The current animation for the property at the specified keypath.
+     
+     - Parameters keyPath: The keypath to an animatable property.
+     */
+    public func propertyAnimation(for keyPath: PartialKeyPath<PropertyAnimator<Self>>) -> AnimationProviding? {
+        var key = keyPath.stringValue
+        if let animation = self.propertyAnimations[key] {
+            return animation
+        } else if key.contains("layer."), let viewAnimator = self as? PropertyAnimator<NSUIView> {
+            key = key.replacingOccurrences(of: "layer.", with: "")
+            return viewAnimator.object.optionalLayer?.animator.animations[key]
+        }
+        return nil
+    }
+    
+    /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator<Self>, Value>) -> Value? {
+        return (self.propertyAnimation(for: keyPath) as? (any AnimationVelocityProviding))?.velocity as? Value
+    }
+    
+    /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value?>) -> Value? {
+        return (self.propertyAnimation(for: keyPath) as? (any AnimationVelocityProviding))?.velocity as? Value
+    }
+    #else
+    public var animations: [String: AnimationProviding] {
+        get { getAssociatedValue(key: "propertyAnimations", object: self, initialValue: [:]) }
+        set { set(associatedValue: newValue, key: "propertyAnimations", object: self) }
+    }
+    
+    /**
+     The current animation for the property at the specified keypath.
+     
+     - Parameters keyPath: The keypath to an animatable property.
+     */
+    public func animation(for keyPath: PartialKeyPath<PropertyAnimator<Self>>) -> AnimationProviding? {
+        var key = keyPath.stringValue
+        if let animation = self.animations[key] {
+            return animation
+        } else if key.contains("layer."), let viewAnimator = self as? PropertyAnimator<NSUIView> {
+            key = key.replacingOccurrences(of: "layer.", with: "")
+            return viewAnimator.object.optionalLayer?.animator.animations[key]
+        }
+        return nil
+    }
+    
+    /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator<Self>, Value>) -> Value? {
+        return (self.animation(for: keyPath) as? (any AnimationVelocityProviding))?.velocity as? Value
+    }
+    
+    /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator<Self>, Value?>) -> Value? {
+        return (self.animation(for: keyPath) as? (any AnimationVelocityProviding))?.velocity as? Value
+    }
+    #endif
 }
 
 #endif

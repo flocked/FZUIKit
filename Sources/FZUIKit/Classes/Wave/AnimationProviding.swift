@@ -97,9 +97,30 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
 }
 
 /// An internal extension to `AnimationProviding` for animations with velocity.
-internal protocol AnimationVelocityProviding<Value>: AnimationProviding {
-    associatedtype Value: AnimatableProperty
+internal protocol AnimationVelocityProviding<Value>: ConfigurableAnimationProviding {
     var velocity: Value { get set }
+}
+
+internal extension AnimationVelocityProviding {
+    func setVelocity(_ value: Any, delay: TimeInterval = 0.0) {
+        var animation = self
+        
+        let velocityUpdate = {
+            if let value = value as? Value {
+                animation.velocity = value
+            }
+        }
+        
+        if delay == .zero {
+            velocityUpdate()
+        } else {
+            let task = DispatchWorkItem {
+                velocityUpdate()
+            }
+            animation.delayedStart = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
+        }
+    }
 }
 
 internal extension ConfigurableAnimationProviding {

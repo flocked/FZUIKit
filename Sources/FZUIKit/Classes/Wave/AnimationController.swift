@@ -147,15 +147,29 @@ extension AnimationController {
             case easing(timingFunction: TimingFunction, duration: TimeInterval)
             case decay(mode: DecayAnimationMode, decelerationRate: Double)
             case nonAnimated
+            case velocityUpdate
             
             var isDecayVelocity: Bool {
                 switch self {
-                case .decay(let mode, _):
-                    return mode == .velocity
-                default: 
-                    return false
+                case .decay(let mode, _): return mode == .velocity
+                default: return false
                 }
             }
+            
+            var isVelocityUpdate: Bool {
+                switch self {
+                case .velocityUpdate: return true
+                default: return false
+                }
+            }
+            
+            var isAnyVelocity: Bool {
+                switch self {
+                case .velocityUpdate, .decay(_, _): return true
+                default: return false
+                }
+            }
+            
             
             var isNonAnimated: Bool {
                 switch self {
@@ -173,32 +187,28 @@ extension AnimationController {
             
             var spring: Spring? {
                 switch self {
-                case.spring(let spring,_):
-                    return spring
+                case.spring(let spring,_):  return spring
                 default: return nil
                 }
             }
             
             var timingFunction: TimingFunction? {
                 switch self {
-                case.easing(let timingFunction,_):
-                    return timingFunction
+                case.easing(let timingFunction,_): return timingFunction
                 default: return nil
                 }
             }
             
             var duration: TimeInterval? {
                 switch self {
-                case.easing(_, let duration):
-                    return duration
+                case.easing(_, let duration): return duration
                 default: return nil
                 }
             }
             
             var gestureVelocity: CGPoint? {
                 switch self {
-                case .spring(_, let gestureVelocity):
-                    return gestureVelocity
+                case .spring(_, let gestureVelocity): return gestureVelocity
                 default: return nil
                 }
             }

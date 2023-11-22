@@ -482,11 +482,13 @@ extension PropertyAnimator where Object: CAEmitterLayer {
         set { self[\.spin] = Float(newValue) }
     }
     
+    /*
     /// Defines a multiplier applied to the cell-defined particle velocity.
     public var velocity: CGFloat {
         get { CGFloat(self[\.velocity]) }
         set { self[\.velocity] = Float(newValue) }
     }
+    */
     
     /// Defines a multiplier that is applied to the cell-defined birth rate.
     public var birthRate: CGFloat {
