@@ -1,5 +1,5 @@
 //
-//  Animator+LayoutConstraint.swift
+//  PropertyAnimator+LayoutConstraint.swift
 //
 //
 //  Created by Florian Zand on 29.09.23.

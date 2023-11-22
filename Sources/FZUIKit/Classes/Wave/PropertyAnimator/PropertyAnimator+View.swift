@@ -1,5 +1,5 @@
 //
-//  Animator+View.swift
+//  PropertyAnimator+View.swift
 //
 //  Modified by Florian Zand
 //  Original: Copyright (c) 2022 Janum Trivedi.

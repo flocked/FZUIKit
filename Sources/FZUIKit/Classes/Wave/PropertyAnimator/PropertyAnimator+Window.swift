@@ -1,5 +1,5 @@
 //
-//  Animator+Window.swift
+//  PropertyAnimator+Window.swift
 //
 //
 //  Created by Florian Zand on 29.09.23.
