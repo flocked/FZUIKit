@@ -164,6 +164,19 @@ extension AnimatableProperty where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
         self = NSUIColor(animatableData).cgColor as! Self
     }
+    
+    /**
+     Creates a color object using the specified opacity and RGB component values in a device-dependent color space.
+     
+     - Parameters:
+        - red: The red component, specified as a value from `0.0` to `1.0`.
+        - green: The green component, specified as a value from `0.0` to `1.0`.
+        - blue: The blue component, specified as a value from `0.0` to `1.0`.
+        - alpha: The opacity value, specified as a value from `0.0` to `1.0`.
+     */
+    public init(deviceRed red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        self.init(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [red, green, blue, alpha])!
+    }
 }
 
 extension CGColor: AnimatableProperty {
