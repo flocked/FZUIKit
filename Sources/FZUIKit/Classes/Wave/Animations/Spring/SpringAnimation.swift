@@ -208,7 +208,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             velocity = Value.zero
         }
         
-        Swift.print("update", _velocity)
+        Swift.print("update", velocity)
         
      //   runningTime = runningTime + deltaTime
 
