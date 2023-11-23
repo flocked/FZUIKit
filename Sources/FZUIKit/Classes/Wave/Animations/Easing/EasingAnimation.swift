@@ -168,6 +168,18 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         delayedStart?.cancel()
         fractionComplete = 0.0
     }
+    
+    func retargetFractionComplete(newTarget: Value) {
+        if let newTarget = newTarget.animatableData as? (any InterpolatablePosition) {
+            if let interolatePosition = newTarget.interolatePositionAny(fromValue: fromValue.animatableData, toValue: target.animatableData) {
+                Swift.print("retarget", interolatePosition, fractionComplete)
+            } else {
+                Swift.print("retarget no position")
+            }
+        } else {
+            Swift.print("retarget: nil")
+        }
+    }
             
     /**
      Updates the progress of the animation with the specified delta time.

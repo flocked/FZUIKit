@@ -368,15 +368,64 @@ extension AnimatableArray: Comparable where Element: Comparable {
     }
 }
 
-/*
-extension AnimatableArray where Element: FloatingPointInitializable {
-    func interolatePosition(in range: ClosedRange<Self> ) {
-        var positions: [Element] = []
+protocol InterpolatablePosition {
+    func interolatePosition(fromValue: Self, toValue: Self) -> Double
+}
+
+extension InterpolatablePosition {
+    func interolatePositionAny(fromValue: Any, toValue: Any) -> Double? {
+        guard let fromValue = fromValue as? Self, let toValue = toValue as? Self else { return nil }
+        return interolatePosition(fromValue: fromValue, toValue: toValue)
+    }
+}
+
+extension CGFloat: InterpolatablePosition {
+    func interolatePosition(fromValue: Self, toValue: Self) -> Double {
+         self - fromValue / (toValue - fromValue)
+    }
+}
+
+extension Double: InterpolatablePosition {
+    func interolatePosition(fromValue: Self, toValue: Self) -> Double {
+         self - fromValue / (toValue - fromValue)
+    }
+}
+
+extension Float: InterpolatablePosition {
+    func interolatePosition(fromValue: Self, toValue: Self) -> Double {
+         Double(self - fromValue / (toValue - fromValue))
+    }
+}
+
+extension AnimatablePair: InterpolatablePosition where First: InterpolatablePosition, Second: InterpolatablePosition {
+    func interolatePosition(fromValue: Self, toValue: Self) -> Double {
+        let first = first.interolatePosition(fromValue: fromValue.first, toValue: toValue.first)
+        let second = second.interolatePosition(fromValue: fromValue.second, toValue: toValue.second)
+        return [first, second].average()
+    }
+}
+
+
+extension AnimatableArray: InterpolatablePosition where Element: InterpolatablePosition {
+    func interolatePosition(fromValue: Self, toValue: Self) -> Double {
+        var positions: [Double] = []
         for (index, value) in self.elements.enumerated() {
-           let position = (value - range.upperBound[index]) / (range.upperBound[index] - range.lowerBound[index])
+            let position = value.interolatePosition(fromValue: fromValue[index], toValue: toValue[index])
             positions.append(position)
         }
-        positions.average()
+        return positions.average()
+    }
+}
+
+/*
+extension AnimatableArray where Element: FloatingPointInitializable {
+    func interolatePosition(fromValue: Self, toValue: Self) -> Double {
+        var positions: [Element] = []
+        for (index, value) in self.elements.enumerated() {
+           let position = (value - fromValue[index]) / (toValue[index] - fromValue[index])
+            positions.append(position)
+        }
+        return positions.average()
     }
 }
  */

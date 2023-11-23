@@ -149,6 +149,7 @@ internal extension ConfigurableAnimationProviding {
             default: break
             }
             animation.target = value
+            animation.reset()
             (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
             (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
             completion?(.finished(at: value))
