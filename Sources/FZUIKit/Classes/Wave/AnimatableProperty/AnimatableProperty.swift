@@ -162,7 +162,7 @@ extension NSUIColor: AnimatableProperty {
 
 extension AnimatableProperty where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
-        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
+        self.init(deviceRed: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
       //  self = NSUIColor(animatableData).cgColor as! Self
     }
     
