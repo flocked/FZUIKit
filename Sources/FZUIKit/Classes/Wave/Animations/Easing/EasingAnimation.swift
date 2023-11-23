@@ -106,8 +106,8 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             guard oldValue != target else { return }
             
             if state == .running {
-                let event = AnimationEvent.retargeted(from: oldValue, to: target)
-                completion?(event)
+             //   let event = AnimationEvent.retargeted(from: oldValue, to: target)
+             //   completion?(event)
             }
         }
     }
