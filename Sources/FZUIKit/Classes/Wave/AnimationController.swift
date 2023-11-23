@@ -59,7 +59,7 @@ internal class AnimationController {
     }
     
     func stopAllPropertyAnimations(immediately: Bool = true) {
-        animations.values.forEach({$0.stop(at: .current, immediately: true)})
+        animations.values.forEach({$0.stop(at: .current, immediately: immediately)})
     }
 
     private func updateAnimations(_ frame: DisplayLink.Frame) {
