@@ -150,7 +150,7 @@ internal extension ConfigurableAnimationProviding {
             }
             animation.target = value
             (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
-            (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
+        //    (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
             completion?(.finished(at: value))
             AnimationController.shared.stopPropertyAnimation(self)
         }
