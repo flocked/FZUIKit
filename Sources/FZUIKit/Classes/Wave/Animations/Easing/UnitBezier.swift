@@ -7,40 +7,41 @@
 
 import Foundation
 import Accelerate
+import FZSwiftUtils
 
 /// A bezier curve that can be used to calculate timing functions.
 public struct UnitBezier: Hashable {
     
     /// The first point of the bezier.
-    public var first: ControlPoint
+    public var first: CGPoint {
+        didSet {
+            self.first = CGPoint(first.x.clamped(max: 1.0), first.y.clamped(max: 1.0))
+        }
+    }
     
     /// The second point of the bezier.
-    public var second: ControlPoint
+    public var second: CGPoint {
+        didSet {
+            self.second = CGPoint(second.x.clamped(max: 1.0), second.y.clamped(max: 1.0))
+        }
+    }
     
     /// Creates a new `UnitBezier` instance with the specified points.
-    public init(first: ControlPoint, second: ControlPoint) {
-        self.first = first
-        self.second = second
+    public init(first: CGPoint, second: CGPoint) {
+        self.first = CGPoint(first.x.clamped(max: 1.0), first.y.clamped(max: 1.0))
+        self.second = CGPoint(second.x.clamped(max: 1.0), second.y.clamped(max: 1.0))
     }
     
     /// Creates a new `UnitBezier` instance with the specified points.
     public init(x1: Double, y1: Double, x2: Double, y2: Double) {
-        self.first = ControlPoint(x: x1, y: y1)
-        self.second = ControlPoint(x: x2, y: y2)
+        self.init(first: CGPoint(x1, y1), second: CGPoint(x2, y2))
     }
     
-    /**
-     Calculates the resulting `y` for given `x`.
-     
-     - Parameters:
-        - x: The value to solve for.
-        - epsilon: The required precision of the result (where `x * epsilon` is the maximum time segment to be evaluated).
-     - Returns: The solved `y` value.
-     */
-    public func solve(x: Double, epsilon: Double) -> Double {
-        return UnitBezierSolver(p1x: first.x, p1y: first.y, p2x: second.x, p2y: second.y).solve(x: x, eps: epsilon)
+    /// Creates a new `UnitBezier` instance with the specified points.
+    public init(_ x1: Double, _ y1: Double, _ x2: Double, _ y2: Double) {
+        self.init(first: CGPoint(x1, y1), second: CGPoint(x2, y2))
     }
-        
+
     /**
      Calculates the resulting `y` for given `x`.
      
@@ -54,26 +55,7 @@ public struct UnitBezier: Hashable {
     }
 }
 
-extension UnitBezier {
-    /// A control point for a unit bezier.
-    public struct ControlPoint: Hashable {
-        
-        /// The x component.
-        public var x: Double
-        
-        /// The y component.
-        public var y: Double
-        
-        /// Initializes a new control point.
-        public init(x: Double, y: Double) {
-            self.x = x
-            self.y = y
-        }
-    }
-}
-
 fileprivate struct UnitBezierSolver {
-    
     private let ax: Double
     private let bx: Double
     private let cx: Double
@@ -158,5 +140,4 @@ fileprivate struct UnitBezierSolver {
         
         return t2
     }
-    
 }

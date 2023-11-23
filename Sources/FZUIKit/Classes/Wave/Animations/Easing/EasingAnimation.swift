@@ -55,6 +55,8 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             isAutoreversed = nil
         }
     }
+    
+    var isAutoreversed: Bool? = nil
         
     /// A Boolean value indicating whether the animation is running in the reverse direction.
     public var isReversed: Bool = false {
@@ -62,9 +64,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             fractionComplete = 1.0 - fractionComplete
         }
     }
-    
-    var isAutoreversed: Bool? = nil
-    
+        
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
@@ -158,8 +158,8 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     /// Resets the animation.
-    public func reset() {
-        state = .inactive
+    func reset() {
+        delayedStart?.cancel()
         fractionComplete = 0.0
     }
             
@@ -208,13 +208,13 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     func updateValue() {
-        /*
-        if state != .running, scrubsLinearly {
+        guard state != .running else { return }
+        if scrubsLinearly {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
         } else {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
         }
-         */
+        valueChanged?(value)
     }
 }
 

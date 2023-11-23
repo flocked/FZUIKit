@@ -177,9 +177,11 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        if let spring = settings.animationType.spring {
-            self.spring = spring
-        }
+        spring = settings.animationType.spring ?? spring
+        repeats = settings.repeats
+        autoStarts = settings.autoStarts
+        integralizeValues = settings.integralizeValues
+        
         if let gestureVelocity = settings.animationType.gestureVelocity {
             (self as? SpringAnimation<CGRect>)?.velocity.origin = gestureVelocity
             (self as? SpringAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
@@ -187,9 +189,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             (self as? SpringAnimation<CGPoint>)?.velocity = gestureVelocity
             (self as? SpringAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
-        self.repeats = settings.repeats
-        self.autoStarts = settings.autoStarts
-        self.integralizeValues = settings.integralizeValues
     }
         
     /**
