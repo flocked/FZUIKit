@@ -221,16 +221,18 @@ public enum Wave {
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
     
-    /// Stops all animations at their current values.
-    public static func stopAnimating() {
-        AnimationController.shared.stopAllAnimations()
+    /**
+     Stops all animations at their current values.
+     
+     - Parameters immediately: A Boolean value indicating whether the animations should stop immediately at their values. The default value is `true`.
+     */
+    public static func stopAnimating(immediately: Bool = true) {
+        AnimationController.shared.stopAllAnimations(immediately: immediately)
     }
     
     /**
-     Updates the animation velocity for properties that are currently animated by animations that support velocity (``SpringAnimation`` and ``DecayAnimation``).
-     
-     Use it to immediately update the values of a properties that are currently animated. It will stop their animations and sets their values immediately to the specified new values.
-     
+     Updates the animation velocities for animations that support velocity values (``SpringAnimation`` and ``DecayAnimation``).
+
      ```swift
      Wave.updateVelocity() {
         myView.animator.frame.origin = newVelocity
@@ -249,7 +251,6 @@ public enum Wave {
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
-    
 }
 
 #endif

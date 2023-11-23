@@ -97,7 +97,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
 
     /**
-     The current target value of the animation.
+     The target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */

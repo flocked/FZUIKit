@@ -30,7 +30,7 @@ internal class AnimationController {
         animationSettingsStack.currentSettings
     }
     
-    func stopAllAnimations() {
+    func stopAllAnimations(immediately: Bool = true) {
         animations.values.forEach({$0.stop(at: .current, immediately: true)})
     }
 

@@ -94,14 +94,19 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
     var state: AnimationState { get set }
     var groupUUID: UUID? { get set }
-    var delayedStart: DispatchWorkItem? { get set }
+    /// The current value of the animation.
     var value: Value { get set }
+    /// The target value of the animation.
     var target: Value { get set }
-    var fromValue: Value { get set }
-    var integralizeValues: Bool { get set }
+    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
-    var animatorCompletion: (()->())? { get set }
+    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
+    
+    var fromValue: Value { get set }
+    var delayedStart: DispatchWorkItem? { get set }
+    var integralizeValues: Bool { get set }
+    var animatorCompletion: (()->())? { get set }
     func configure(withSettings settings: AnimationController.AnimationParameters)
 }
 
