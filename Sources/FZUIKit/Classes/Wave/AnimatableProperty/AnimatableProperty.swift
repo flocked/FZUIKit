@@ -162,7 +162,8 @@ extension NSUIColor: AnimatableProperty {
 
 extension AnimatableProperty where Self: CGColor {
     public init(_ animatableData: AnimatableVector) {
-        self = NSUIColor(animatableData).cgColor as! Self
+        self.init(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
+      //  self = NSUIColor(animatableData).cgColor as! Self
     }
     
     /**
@@ -181,7 +182,9 @@ extension AnimatableProperty where Self: CGColor {
 
 extension CGColor: AnimatableProperty {
     public var animatableData: AnimatableVector {
-        self.nsUIColor?.animatableData ?? [0,0,0,0]
+        let components = self.rgbaComponents() ?? (0, 0, 0, 0)
+        return [components.red, components.green, components.blue, components.alpha]
+       // self.nsUIColor?.animatableData ?? [0,0,0,0]
     }
     
     public static var zero: Self {
