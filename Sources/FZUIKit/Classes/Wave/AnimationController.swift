@@ -15,36 +15,6 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-protocol ObjectAnimationProviding: NSObject, AnimationProviding {
-    
-}
-
-public struct AnyWeak: Equatable, Hashable, WeakReference {
-    public weak var object : AnyObject?
-    public init (_ object: AnyObject) {
-        self.object = object
-    }
-    
-    public static func == (lhs: AnyWeak, rhs: AnyWeak) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        if let object = object {
-            hasher.combine(ObjectIdentifier(object))
-        } else {
-            hasher.combine(0)
-        }
-    }
-}
-
-
-func test() {
-    var animations: [UUID: SpringAnimation<CGRect>?] = [:]
-    animations.reap()
-    animations[UUID()]?.object
-}
-
 /// Manages all `Wave` animations.
 internal class AnimationController {
     static let shared = AnimationController()

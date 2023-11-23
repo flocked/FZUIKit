@@ -19,8 +19,8 @@ import FZSwiftUtils
  `Double`, `Float`, `CGFloat`, `CGPoint`, `CGSize`, `CGRect`, `CGColor`, `CATransform3D`, `CGAffineTransform`, `NSUIColor`, `NSUIEdgeInsets` `NSDirectionalEdgeInsets` and `CGQuaternion` conform to `AnimatableProperty`.
  
  An array of `AnimatableProperty` also conforms to it.
- 
- ``AnimatableArray`` containing `VectorArithmetic` elements can be used as animatable data. ``AnimatableVector``is a animatable array with double values.
+  
+ ``AnimatableArray`` containing `VectorArithmetic` values can be used as animatable data. ``AnimatableVector``is a animatable array with double values.
  
  Example:
  ```swift
