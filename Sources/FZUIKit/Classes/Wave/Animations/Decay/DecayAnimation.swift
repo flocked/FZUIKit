@@ -82,13 +82,13 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         didSet {
             guard oldValue != _velocity else { return }
             let oldTarget = calculatedTarget
-            calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
+        //    calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
             if autoStarts, state != .running, _velocity != .zero {
                 start(afterDelay: 0.0)
             }
             if state == .running {
-                let event = AnimationEvent.retargeted(from: oldTarget, to: target)
-                completion?(event)
+         //       let event = AnimationEvent.retargeted(from: oldTarget, to: target)
+       //         completion?(event)
             } else {
                 _fromVelocity = _velocity
             }
