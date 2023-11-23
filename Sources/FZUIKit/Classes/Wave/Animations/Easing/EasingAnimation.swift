@@ -68,6 +68,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
+    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes to a value that isn't equal to ``value``.
+    public var autoStarts: Bool = false
+    
     /**
      A Boolean value indicating whether a paused animation scrubs linearly or uses its specified timing information.
      
@@ -105,7 +108,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         didSet {
             guard oldValue != target else { return }
             
-            if state == .running {
+            if autoStarts, state != .running, target != value {
+                start(afterDelay: 0.0)
+            } else if state == .running {
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
             }
@@ -120,9 +125,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
-
-    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
-    var animatorCompletion: (()->())? = nil
     
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
@@ -149,6 +151,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         self.duration = settings.animationType.duration ?? 0.25
         self.timingFunction = settings.animationType.timingFunction ?? .easeInEaseOut
         self.repeats = settings.repeats
+        self.autoStarts = settings.autoStarts
         self.configure(withSettings: settings)
     }
     

@@ -55,7 +55,7 @@ internal class AnimationController {
     }
     
     func stopPropertyAnimation(_ animation: AnimationProviding) {
-        animations.removeValue(forKey: animation.id)
+        animations[animation.id] = nil
     }
     
     func stopAllPropertyAnimations(immediately: Bool = true) {
@@ -136,6 +136,10 @@ extension AnimationController {
         
         var integralizeValues: Bool {
             options.contains(.integralizeValues)
+        }
+        
+        var autoStarts: Bool {
+            options.contains(.autoStarts)
         }
         
         #if os(iOS) || os(tvOS)

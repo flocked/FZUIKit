@@ -278,19 +278,14 @@ internal extension DynamicPropertyAnimator {
             (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
         }
         #endif
-        animation.animatorCompletion = { [weak self] in
-            guard let self = self else { return }
-            self.animations[animationKey] = nil
-            #if os(iOS) || os(tvOS)
-            (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
-            #endif
-        }
-        
         animation.completion = { [weak self] event in
             switch event {
             case .finished:
                 completion?()
                 self?.animations[animationKey] = nil
+                #if os(iOS) || os(tvOS)
+                (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
+                #endif
                 AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
             default:
                 break

@@ -51,6 +51,9 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
+    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes to a value that isn't equal to ``value``.
+    public var autoStarts: Bool = false
+    
     /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
     public var stopsOnCompletion: Bool = true
     
@@ -90,8 +93,10 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             guard oldValue != _target else {
                 return
             }
-
-            if state == .running {
+            
+            if autoStarts, state != .running, _target != _value {
+                start(afterDelay: 0.0)
+            } else if state == .running {
                 startTime = .now
                 let event = AnimationEvent.retargeted(from: Value(oldValue), to: target)
                 completion?(event)
@@ -137,9 +142,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
-    
-    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
-    var animatorCompletion: (()->())? = nil
     
     var startTime: TimeInterval = 0.0
     
@@ -195,7 +197,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     deinit {
         AnimationController.shared.stopPropertyAnimation(self)
-        animatorCompletion?()
     }
     
     /// The item that starts the animation delayed.
@@ -215,6 +216,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             (self as? SpringAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
         self.repeats = settings.repeats
+        self.autoStarts = settings.autoStarts
         self.integralizeValues = settings.integralizeValues
     }
         

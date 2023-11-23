@@ -48,8 +48,8 @@ public protocol AnimationProviding {
     func stop(at position: AnimationPosition, immediately: Bool)
 }
 
-extension AnimationProviding where Self: AnyObject {
-    public func start(afterDelay delay: TimeInterval) {
+extension AnimationProviding {
+    public func start(afterDelay delay: TimeInterval = 0.0) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
         guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state != .running else { return }
@@ -88,27 +88,18 @@ extension AnimationProviding where Self: AnyObject {
 /// An internal extension to `AnimationProviding` used for configurating animations.
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
-    /// The current state of the animation.
     var state: AnimationState { get set }
-    /// The current value of the animation.
     var value: Value { get set }
-    /// The target value of the animation.
     var target: Value { get set }
-    /// The start value of the animation.
     var fromValue: Value { get set }
-    /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
-    /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
-    
     var delayedStart: DispatchWorkItem? { get set }
-    var integralizeValues: Bool { get set }
-    var animatorCompletion: (()->())? { get set }
     func configure(withSettings settings: AnimationController.AnimationParameters)
 }
 
 /// An internal extension to `AnimationProviding` for animations with velocity.
-internal protocol AnimationVelocityProviding<Value>: ConfigurableAnimationProviding {
+internal protocol AnimationVelocityProviding: ConfigurableAnimationProviding {
     var velocity: Value { get set }
 }
 
@@ -137,7 +128,7 @@ internal extension ConfigurableAnimationProviding {
     func internal_stop(at position: AnimationPosition, immediately: Bool = true) {
         var animation = self
         self.delayedStart?.cancel()
-        if immediately == false, (isSpringAnimation || isDecayAnimation) {
+        if immediately == false, isVelocityAnimation {
             switch position {
             case .start:
                 animation.target = fromValue
@@ -164,27 +155,24 @@ internal extension ConfigurableAnimationProviding {
                 springAnimation.startTime = .now
             }
             completion?(.finished(at: value))
-            animatorCompletion?()
             AnimationController.shared.stopPropertyAnimation(self)
         }
     }
     
-    /// A Boolean value that indicates whether the animation's type is ``SpringAnimation``.
-    var isSpringAnimation: Bool {
-        (self as? SpringAnimation<Value>) != nil
+    /// A Boolean value that indicates whether the animation can be started.
+    var canBeStarted: Bool {
+        guard state != .running else { return false }
+        if let animation = (self as? DecayAnimation<Value>) {
+            return animation._velocity != .zero
+        }
+        return value != target
     }
     
-    /// A Boolean value that indicates whether the animation's type is ``DecayAnimation``.
-    var isDecayAnimation: Bool {
-        (self as? DecayAnimation<Value>) != nil
-    }
-    
-    /// A Boolean value that indicates whether the animation's type is ``EasingAnimation``.
-    var isEasingAnimation: Bool {
-        (self as? EasingAnimation<Value>) != nil
+    /// A Boolean value that indicates whether the animation has a velocity value.
+    var isVelocityAnimation: Bool {
+        (self as? SpringAnimation<Value>) != nil || (self as? DecayAnimation<Value>) != nil
     }
 }
-
 #endif
 
 /*
@@ -202,23 +190,5 @@ internal extension ConfigurableAnimationProviding {
      var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
      /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
      var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
- }
-
- import FZSwiftUtils
- extension PropertyAnimationProviding where Self: AnyObject {
-     var state: AnimationState {
-         get { getAssociatedValue(key: "state", object: self, initialValue: .inactive) }
-         set { set(associatedValue: newValue, key: "state", object: self) }
-     }
-     
-     var completion: ((_ event: AnimationEvent<Value>) -> Void)? {
-         get { getAssociatedValue(key: "completion", object: self, initialValue: nil) }
-         set { set(associatedValue: newValue, key: "completion", object: self) }
-     }
-     
-     var valueChanged: ((_ currentValue: Value) -> Void)? {
-         get { getAssociatedValue(key: "valueChanged", object: self, initialValue: nil) }
-         set { set(associatedValue: newValue, key: "valueChanged", object: self) }
-     }
  }
  */
