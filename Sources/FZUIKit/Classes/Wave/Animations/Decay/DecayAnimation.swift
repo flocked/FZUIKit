@@ -194,13 +194,6 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
             self.updateTotalDuration()
         }
     }
-    
-    /// Resets the animation.
-    public func reset() {
-        state = .inactive
-        velocity = .zero
-        runningTime = 0.0
-    }
             
     /**
      Updates the progress of the animation with the specified delta time.
@@ -266,5 +259,14 @@ public enum DecayAnimationMode {
     /// The animated properties will animate to the applied values  with a decelerating rate.
     case value
 }
+
+/*
+ /// Resets the animation.
+ public func reset() {
+     state = .inactive
+     velocity = .zero
+     fromValue = value
+ } 
+ */
 
 #endif

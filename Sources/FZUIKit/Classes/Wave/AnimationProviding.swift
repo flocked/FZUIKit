@@ -46,9 +46,6 @@ public protocol AnimationProviding {
         - immediately: A Boolean value that indicates whether the animation should stop immediately  at the specified position.
      */
     func stop(at position: AnimationPosition, immediately: Bool)
-    
-    /// Resets the animation.
-    func reset()
 }
 
 extension AnimationProviding where Self: AnyObject {
@@ -83,9 +80,7 @@ extension AnimationProviding where Self: AnyObject {
     }
     
     public func stop(at position: AnimationPosition, immediately: Bool = true) {
-        if let animation = self as? any ConfigurableAnimationProviding {
-            animation._stop(at: position, immediately: immediately)
-        }
+        (self as? any ConfigurableAnimationProviding)?.stop(at: position, immediately: immediately)
     }
 }
 
@@ -117,12 +112,11 @@ internal protocol AnimationVelocityProviding<Value>: ConfigurableAnimationProvid
 
 internal extension AnimationVelocityProviding {
     func setVelocity(_ value: Any, delay: TimeInterval = 0.0) {
+        guard let value = value as? Value else { return }
         var animation = self
         
         let velocityUpdate = {
-            if let value = value as? Value {
-                animation.velocity = value
-            }
+            animation.velocity = value
         }
         
         if delay == .zero {
@@ -138,10 +132,9 @@ internal extension AnimationVelocityProviding {
 }
 
 internal extension ConfigurableAnimationProviding {
-    func _stop(at position: AnimationPosition, immediately: Bool = true) {
+    func internal_stop(at position: AnimationPosition, immediately: Bool = true) {
         var animation = self
         self.delayedStart?.cancel()
-        animation.state = .ended
         if immediately == false, (isSpringAnimation || isDecayAnimation) {
             switch position {
             case .start:
@@ -151,6 +144,7 @@ internal extension ConfigurableAnimationProviding {
             default: break
             }
         } else {
+            animation.state = .ended
             switch position {
             case .start:
                 animation.value = fromValue
@@ -161,6 +155,9 @@ internal extension ConfigurableAnimationProviding {
             default: break
             }
             animation.target = value
+            if let velocityAnimation = self as? (any AnimationVelocityProviding) {
+                velocityAnimation.setVelocity(Value.zero)
+            }
             if let springAnimation = self as? SpringAnimation<Value> {
                 springAnimation.startTime = .now
             }
@@ -187,46 +184,3 @@ internal extension ConfigurableAnimationProviding {
 }
 
 #endif
-
-
-/*
-mutating func _stop(immediately: Bool = true) {
-    delayedStart?.cancel()
-    if self is DecayAnimation<Value> {
-        velocity = .zero
-    }
-    if immediately {
-        state = .ended
-        completion?(.finished(at: value))
-        animatorCompletion?()
-        if var animation = (self as? AnimationRunningTimeProviding) {
-            animation.runningTime = 0.0
-        }
-    } else {
-        target = value
-    }
-}
-
-/// Stops the animation immediately at the current value.
-mutating func stopAtCurrentValue() {
-    self.stop(at: value)
-}
-
-/// Stops the animation immediately at the specified value.
-mutating func stop(at value: Value) {
-    AnimationController.shared.stopPropertyAnimation(self)
-    self.value = value
-    if self is DecayAnimation<Value> {
-        velocity = .zero
-    }
-    state = .inactive
-    if var animation = (self as? AnimationRunningTimeProviding) {
-        animation.runningTime = 0.0
-    }
-    let callbackValue = integralizeValues ? value.scaledIntegral : value
-    valueChanged?(callbackValue)
-    completion?(.finished(at: value))
-    animatorCompletion?()
-    animatorCompletion = nil
-}
- */

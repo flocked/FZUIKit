@@ -219,13 +219,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             self.integralizeValues = settings.integralizeValues
         }
     }
-
-    /// Resets the animation.
-    public func reset() {
-        startTime = .now
-        velocity = .zero
-        state = .inactive
-    }
         
     /**
      Updates the progress of the animation with the specified delta time.
@@ -305,3 +298,14 @@ if animationFinished == false, let epsilon = self.epsilon, let value = self.valu
     animationFinished = val
 }
  */
+
+/*
+/// Resets the animation.
+public func reset() {
+    state = .inactive
+    velocity = .zero
+    target = value
+    fromValue = value
+    startTime = .now
+}
+*/

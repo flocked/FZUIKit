@@ -175,12 +175,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             self.integralizeValues = settings.integralizeValues
         }
     }
-    
-    /// Resets the animation.
-    public func reset() {
-        state = .inactive
-        fractionComplete = 0.0
-    }
             
     /**
      Updates the progress of the animation with the specified delta time.
@@ -360,3 +354,12 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
 }
  */
 
+/*
+ /// Resets the animation.
+ public func reset() {
+     state = .inactive
+     target = value
+     fromValue = value
+     fractionComplete = 0.0
+ }
+ */

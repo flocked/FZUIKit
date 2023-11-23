@@ -29,10 +29,6 @@ internal class AnimationController {
     var currentAnimationParameters: AnimationParameters? {
         animationSettingsStack.currentSettings
     }
-    
-    func stopAllAnimations(immediately: Bool = true) {
-        animations.values.forEach({$0.stop(at: .current, immediately: true)})
-    }
 
     func runAnimationBlock(
         settings: AnimationParameters,
@@ -58,8 +54,11 @@ internal class AnimationController {
     }
     
     func stopPropertyAnimation(_ animation: AnimationProviding) {
-        animation.reset()
         animations.removeValue(forKey: animation.id)
+    }
+    
+    func stopAllPropertyAnimations(immediately: Bool = true) {
+        animations.values.forEach({$0.stop(at: .current, immediately: true)})
     }
 
     private func updateAnimations(_ frame: DisplayLink.Frame) {

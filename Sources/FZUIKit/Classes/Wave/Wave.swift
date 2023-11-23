@@ -227,7 +227,7 @@ public enum Wave {
      - Parameters immediately: A Boolean value indicating whether the animations should stop immediately at their values. The default value is `true`.
      */
     public static func stopAnimating(immediately: Bool = true) {
-        AnimationController.shared.stopAllAnimations(immediately: immediately)
+        AnimationController.shared.stopAllPropertyAnimations(immediately: immediately)
     }
     
     /**
