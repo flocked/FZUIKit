@@ -178,8 +178,8 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     /// Resets the animation.
     public func reset() {
-        state = .inactive
-        fractionComplete = 0.0
+      //  state = .inactive
+     //   fractionComplete = 0.0
     }
             
     /**
