@@ -201,6 +201,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         if isAnimated {
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
+            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
         } else {
             fractionComplete = 1.0
             self.value = target
@@ -211,6 +212,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         if animationFinished {
             if repeats, isAnimated {
                 fractionComplete = isReversed ? 1.0 : 0.0
+                value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
             } else {
                 self.value = isReversed ? fromValue : target
             }
@@ -225,11 +227,13 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     func updateValue() {
+        /*
         if state != .running, scrubsLinearly {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
         } else {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
         }
+         */
     }
 }
 
