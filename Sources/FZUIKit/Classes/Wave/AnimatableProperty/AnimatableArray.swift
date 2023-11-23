@@ -381,19 +381,19 @@ extension InterpolatablePosition {
 
 extension CGFloat: InterpolatablePosition {
     func interolatePosition(fromValue: Self, toValue: Self) -> Double {
-         self - fromValue / (toValue - fromValue)
+         (self - fromValue) / (toValue - fromValue)
     }
 }
 
 extension Double: InterpolatablePosition {
     func interolatePosition(fromValue: Self, toValue: Self) -> Double {
-         self - fromValue / (toValue - fromValue)
+         (self - fromValue) / (toValue - fromValue)
     }
 }
 
 extension Float: InterpolatablePosition {
     func interolatePosition(fromValue: Self, toValue: Self) -> Double {
-         Double(self - fromValue / (toValue - fromValue))
+         Double((self - fromValue) / (toValue - fromValue))
     }
 }
 
