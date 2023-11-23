@@ -98,15 +98,15 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
     }
     
-    func retargetFractionComplete(oldTarget: Value) {
+    func retargetFractionComplete(newValue: Value) {
         var foundValue: Bool = false
         let frameDuration = 1.0/60.0
         let fraction = frameDuration / duration
         var fractionComplete: Double = 0.0
-        let targetMagnitude = target.animatableData.magnitudeSquared
+        let targetMagnitude = newValue.animatableData.magnitudeSquared
         while !foundValue && fractionComplete <= 1.0 {
             fractionComplete = fractionComplete + fraction
-            let value = fromValue.animatableData.interpolated(towards: oldTarget.animatableData, amount: fractionComplete)
+            let value = fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete)
             foundValue = targetMagnitude.isApproximatelyEqual(to: value.magnitudeSquared, epsilon: 0.1)
         }
         if foundValue {
@@ -124,7 +124,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var target: Value {
         didSet {
             guard oldValue != target else { return }
-            retargetFractionComplete(oldTarget: oldValue)
             if state == .running {
                 fractionComplete = 0.0
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
