@@ -208,6 +208,8 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             velocity = Value.zero
         }
         
+        Swift.print("update", _velocity)
+        
      //   runningTime = runningTime + deltaTime
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
