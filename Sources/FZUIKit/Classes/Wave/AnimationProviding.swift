@@ -81,10 +81,7 @@ extension AnimationProviding where Self: AnyObject {
     
     public func stop(at position: AnimationPosition, immediately: Bool = true) {
         guard state == .running else { return }
-        if var animation = self as? any ConfigurableAnimationProviding {
-            Swift.print("StopAt")
-        }
-      //  (self as? any ConfigurableAnimationProviding)?.stop(at: position, immediately: immediately)
+        (self as? any ConfigurableAnimationProviding)?.internal_stop(at: position, immediately: immediately)
     }
 }
 
