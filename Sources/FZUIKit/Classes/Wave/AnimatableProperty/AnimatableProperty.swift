@@ -252,7 +252,7 @@ extension ContentConfiguration.Shadow: AnimatableProperty {
     }
     
     public init(_ animatableData: AnimatableVector) {
-        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2]]), opacity: animatableData[3], radius: animatableData[4], offset: .init(animatableData[5], animatableData[6]))
+        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), opacity: animatableData[4], radius: animatableData[5], offset: .init(animatableData[6], animatableData[7]))
     }
     
     public var animatableData: AnimatableVector {
@@ -266,7 +266,7 @@ extension ContentConfiguration.InnerShadow: AnimatableProperty {
     }
     
     public init(_ animatableData: AnimatableVector) {
-        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2]]), opacity: animatableData[3], radius: animatableData[4], offset: .init(animatableData[5], animatableData[6]))
+        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), opacity: animatableData[4], radius: animatableData[5], offset: .init(animatableData[6], animatableData[7]))
     }
     
     public var animatableData: AnimatableVector {
