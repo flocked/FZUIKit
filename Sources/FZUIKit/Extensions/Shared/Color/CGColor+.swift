@@ -66,7 +66,7 @@ public extension CGColor {
      - Parameters alpha: The opacity value of the new color object, specified as a value from 0.0 to 1.0. Alpha values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new `CGColor` object.
      */
-    func alpha(_ alpha: CGFloat) -> CGColor {
+    func withAlpha(_ alpha: CGFloat) -> CGColor {
         return copy(alpha: alpha) ?? self
     }
 
@@ -99,28 +99,33 @@ public extension CGColor {
     var nsColor: NSColor? {
         return NSColor(cgColor: self)
     }
-
+    
+    /// Returns a `Color` representation of the color.
+    var swiftUI: Color? {
+        if let color = self.nsColor {
+            return Color(color)
+        }
+        return nil
+    }
     #elseif canImport(UIKit)
     /// Returns a `UIColor` representation of the color.
-    var uiColor: UIColor? {
+    var uiColor: UIColor {
         return UIColor(cgColor: self)
+    }
+    
+    /// Returns a `Color` representation of the color.
+    var swiftUI: Color {
+        Color(self.uiColor)
+    }
+    
+    /// The clear color in the Generic gray color space.
+    static var clear: CGColor {
+        return UIColor.clear.cgColor
     }
     #endif
     
     internal var nsUIColor: NSUIColor? {
         return NSUIColor(cgColor: self)
-    }
-    
-    /// Returns a `Color` representation of the color.
-    var swiftUI: Color? {
-        #if os(macOS)
-        if let color = NSUIColor(cgColor: self) {
-            return Color(color)
-        }
-        return nil
-#elseif canImport(UIKit)
-        Color(UIColor(cgColor: self))
-#endif
     }
 }
 
@@ -129,12 +134,3 @@ extension CGColor: CustomStringConvertible {
         return CFCopyDescription(self) as String
     }
 }
-
-#if canImport(UIKit)
-public extension CGColor {
-    /// The clear color in the Generic gray color space.
-    static var clear: CGColor {
-        return UIColor.clear.cgColor
-    }
-}
-#endif

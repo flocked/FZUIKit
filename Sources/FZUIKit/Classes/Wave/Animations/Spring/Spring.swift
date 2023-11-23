@@ -77,11 +77,14 @@ public struct Spring: @unchecked Sendable, Hashable {
         self.response = Spring.response(stiffness: stiffness, mass: mass)
         self.damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         
+        /*
         if #available(macOS 14.0, iOS 17, tvOS 17, *) {
             self.settlingDuration =  SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
         } else {
             self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
         }
+        */
+        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
 
     /**
@@ -104,11 +107,14 @@ public struct Spring: @unchecked Sendable, Hashable {
         let unbandedDampingCoefficient = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.damping = rubberband(value: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
         
+        /*
         if #available(macOS 14.0, iOS 17, tvOS 17, *) {
             self.settlingDuration =  SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
         } else {
             self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
         }
+        */
+        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
     }
     
     /**
