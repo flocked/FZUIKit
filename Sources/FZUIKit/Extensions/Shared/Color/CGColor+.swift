@@ -22,7 +22,7 @@ public extension CGColor {
             color = color.converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil) ?? color
         }
         guard let components = color.components else { return nil }
-        switch numberOfComponents {
+        switch components.count {
         case 2:
             return (components[0], components[0], components[0], components[1])
         case 3:
