@@ -186,9 +186,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
         self.repeats = settings.repeats
-        if settings.integralizeValues == true {
-            self.integralizeValues = settings.integralizeValues
-        }
+        self.integralizeValues = settings.integralizeValues
         if self.decelerationRate != settings.animationType.decelerationRate {
             self.decelerationRate = settings.animationType.decelerationRate
             self.updateTotalDuration()

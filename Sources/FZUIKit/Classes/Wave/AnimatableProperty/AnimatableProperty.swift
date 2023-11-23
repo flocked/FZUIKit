@@ -246,6 +246,34 @@ extension CGQuaternion: AnimatableProperty {
 }
 #endif
 
+extension ContentConfiguration.Shadow: AnimatableProperty {
+    public static var zero: ContentConfiguration.Shadow {
+        .none()
+    }
+    
+    public init(_ animatableData: AnimatableVector) {
+        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2]]), opacity: animatableData[3], radius: animatableData[4], offset: .init(animatableData[5], animatableData[6]))
+    }
+    
+    public var animatableData: AnimatableVector {
+        (self._resolvedColor ?? .zero).animatableData + [opacity, radius, offset.x, offset.y]
+    }
+}
+
+extension ContentConfiguration.InnerShadow: AnimatableProperty {
+    public static var zero: ContentConfiguration.InnerShadow {
+        .none()
+    }
+    
+    public init(_ animatableData: AnimatableVector) {
+        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2]]), opacity: animatableData[3], radius: animatableData[4], offset: .init(animatableData[5], animatableData[6]))
+    }
+    
+    public var animatableData: AnimatableVector {
+        (self._resolvedColor ?? .zero).animatableData + [opacity, radius, offset.x, offset.y]
+    }
+}
+
 // Ensures that two collections have the same amount of values for animating between them. If a collection is smaller than the other zero values are added.
 internal protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
     var count: Int { get }
@@ -278,7 +306,7 @@ extension AnimatableCollection {
         }
     }
 }
- 
+
 extension Array: AnimatableProperty, AnimatableCollection where Element: AnimatableProperty {
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))

@@ -215,9 +215,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             (self as? SpringAnimation<CGPoint>)?.fromVelocity = gestureVelocity
         }
         self.repeats = settings.repeats
-        if settings.integralizeValues == true {
-            self.integralizeValues = settings.integralizeValues
-        }
+        self.integralizeValues = settings.integralizeValues
     }
         
     /**

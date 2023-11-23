@@ -171,9 +171,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
         
         self.repeats = settings.repeats
-        if settings.integralizeValues == true {
-            self.integralizeValues = settings.integralizeValues
-        }
+        self.integralizeValues = settings.integralizeValues
     }
             
     /**

@@ -125,14 +125,8 @@ extension PropertyAnimator where Object: CALayer {
     
     /// The shadow of the layer.
     public var shadow: ContentConfiguration.Shadow {
-        get { ContentConfiguration.Shadow(color: shadowColor != .clear ? shadowColor : nil, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height) ) }
-        set {
-            guard newValue != shadow else { return }
-            self.shadowColor = newValue.color
-            self.shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
-            self.shadowRadius = newValue.radius
-            self.shadowOpacity = newValue.opacity
-        }
+        get { self[\.shadow] }
+        set { self[\.shadow] = newValue }
     }
     
     internal var shadowOpacity: CGFloat {
@@ -157,13 +151,8 @@ extension PropertyAnimator where Object: CALayer {
     
     /// The inner shadow of the layer.
     public var innerShadow: ContentConfiguration.InnerShadow {
-        get { ContentConfiguration.InnerShadow(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: innerShadowOffset ) }
-        set {
-            innerShadowColor = newValue.color
-            innerShadowRadius = newValue.radius
-            innerShadowOffset = newValue.offset
-            innerShadowOpacity = newValue.opacity
-        }
+        get { self[\.innerShadow] }
+        set { self[\.innerShadow] = newValue }
     }
     
     /// The property animators for the layer's sublayers.
@@ -297,6 +286,12 @@ fileprivate extension CATextLayer {
 }
 
 fileprivate extension CALayer {
+    var shadow: ContentConfiguration.Shadow {
+        get { ContentConfiguration.Shadow(color: shadowColor != .clear ? shadowColor?.nsUIColor : nil, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+        set { self.configurate(using: newValue) }
+    }
+        
+    
     var innerShadow: ContentConfiguration.InnerShadow {
         get { self.innerShadowLayer?.configuration ?? .none() }
         set { self.configurate(using: newValue) }
