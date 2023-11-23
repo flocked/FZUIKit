@@ -76,17 +76,9 @@ public struct Spring: @unchecked Sendable, Hashable {
         self.mass = mass
         self.response = Spring.response(stiffness: stiffness, mass: mass)
         self.damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
-        
-        /*
-        if #available(macOS 14.0, iOS 17, tvOS 17, *) {
-            self.settlingDuration =  SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
-        } else {
-            self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
-        }
-        */
-        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
+        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
     }
-
+    
     /**
      Creates a spring with the given damping ratio and frequency response.
 
@@ -106,15 +98,8 @@ public struct Spring: @unchecked Sendable, Hashable {
 
         let unbandedDampingCoefficient = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.damping = rubberband(value: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
-        
-        /*
-        if #available(macOS 14.0, iOS 17, tvOS 17, *) {
-            self.settlingDuration =  SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
-        } else {
-            self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
-        }
-        */
-        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
+
+        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
     }
     
     /**
@@ -332,10 +317,16 @@ public struct Spring: @unchecked Sendable, Hashable {
     static func dampingRatio(damping: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
         return damping / (2 * sqrt(stiffness * mass))
     }
+    
+    static func settlingTime(dampingRatio: CGFloat, damping: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+        if #available(macOS 14.0, iOS 17, tvOS 17, *) {
+            return SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
+        } else {
+            return Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
+        }
+    }
 
     static func settlingTime(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
-      //  SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: da
-     //   SwiftUI.Spring(response: <#T##Double#>, dampingRatio: <#T##Double#>)
         if stiffness == .infinity {
             // A non-animated mode (i.e. a `response` of 0) results in a stiffness of infinity, and a settling time of 0.
             // We need the settling time to be non-zero such that the display link stays alive.
