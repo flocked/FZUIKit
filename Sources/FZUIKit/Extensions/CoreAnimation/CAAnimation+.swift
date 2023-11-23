@@ -26,25 +26,25 @@ extension CAAnimation {
         }
     }
     
-    internal var animationDelegate: AnimationDelegate? {
-        get { getAssociatedValue(key: "animationDelegate", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "animationDelegate", object: self) }
+    internal var delegateProxy: DelegateProxy? {
+        get { getAssociatedValue(key: "delegateProxy", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "delegateProxy", object: self) }
     }
     
     internal func updateAnimationDelegate() {
         if onStart != nil || onStop != nil {
-            if animationDelegate == nil || !(delegate is AnimationDelegate) {
-                animationDelegate = AnimationDelegate(self, delegate: self.delegate)
+            if delegateProxy == nil || !(delegate is DelegateProxy) {
+                delegateProxy = DelegateProxy(self, delegate: self.delegate)
             }
         } else {
-            if (delegate is AnimationDelegate) {
+            if (delegate is DelegateProxy) {
                 self.delegate = nil
             }
-            animationDelegate = nil
+            delegateProxy = nil
         }
     }
     
-    internal class AnimationDelegate: NSObject, CAAnimationDelegate {
+    internal class DelegateProxy: NSObject, CAAnimationDelegate {
         weak var animation: CAAnimation?
         var delegate: CAAnimationDelegate? = nil
         init(_ animation: CAAnimation, delegate: CAAnimationDelegate? = nil) {
