@@ -224,11 +224,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      - parameter deltaTime: The delta time.
      */
     public func updateAnimation(deltaTime: TimeInterval) {
-        guard _value != _target else {
-            state = .inactive
-            return
-        }
-
         state = .running
 
         let isAnimated = spring.response > .zero
