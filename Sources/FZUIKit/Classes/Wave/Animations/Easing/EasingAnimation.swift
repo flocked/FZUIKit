@@ -97,6 +97,24 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             fromValue = value
         }
     }
+    
+    func retargetFractionComplete(oldTarget: Value) {
+        var foundValue: Bool = false
+        let frameDuration = 1.0/60.0
+        let fraction = frameDuration / duration
+        var factionComplete: Double = 0.0
+        let targetMagnitude = target.animatableData.magnitudeSquared
+        while !foundValue && fractionComplete <= 1.0 {
+            factionComplete = factionComplete + fraction
+            let value = fromValue.animatableData.interpolated(towards: oldTarget.animatableData, amount: factionComplete)
+            foundValue = targetMagnitude.isApproximatelyEqual(to: value.magnitudeSquared, epsilon: 0.1)
+        }
+        if foundValue {
+            Swift.print("retargetFraction: ", factionComplete)
+        } else {
+            Swift.print("retargetFraction: nil")
+        }
+    }
 
     /**
      Thex target value of the animation.
@@ -106,6 +124,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var target: Value {
         didSet {
             guard oldValue != target else { return }
+            retargetFractionComplete(oldTarget: oldValue)
             if state == .running {
                 fractionComplete = 0.0
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
