@@ -43,8 +43,9 @@ public protocol AnimationProviding {
      
      - Parameters:
         - position: The position at which the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``).
+        - immediately: A Boolean value that indicates whether the animation should stop immediately  at the specified position.
      */
-    func stop(at position: AnimationPosition)
+    func stop(at position: AnimationPosition, immediately: Bool)
     
     /// Resets the animation.
     func reset()
@@ -81,9 +82,9 @@ extension AnimationProviding where Self: AnyObject {
         AnimationController.shared.stopPropertyAnimation(self)
     }
     
-    public func stop(at position: AnimationPosition) {
+    public func stop(at position: AnimationPosition, immediately: Bool = true) {
         if let animation = self as? any ConfigurableAnimationProviding {
-            animation._stop(at: position)
+            animation._stop(at: position, immediately: immediately)
         }
     }
 }
@@ -132,26 +133,51 @@ internal extension AnimationVelocityProviding {
 }
 
 internal extension ConfigurableAnimationProviding {
-    func _stop(at position: AnimationPosition) {
+    func _stop(at position: AnimationPosition, immediately: Bool = true) {
         var animation = self
         self.delayedStart?.cancel()
         animation.state = .ended
-        switch position {
-        case .start:
-            animation.value = fromValue
-            animation.valueChanged?(value)
-        case .end:
-            animation.value = target
-            animation.valueChanged?(value)
-        default: break
+        if immediately == false, (isSpringAnimation || isDecayAnimation) {
+            switch position {
+            case .start:
+                animation.target = fromValue
+            case .current:
+                animation.target = value
+            default: break
+            }
+        } else {
+            switch position {
+            case .start:
+                animation.value = fromValue
+                animation.valueChanged?(value)
+            case .end:
+                animation.value = target
+                animation.valueChanged?(value)
+            default: break
+            }
+            animation.target = value
+            if let springAnimation = self as? SpringAnimation<Value> {
+                springAnimation.startTime = .now
+            }
+            completion?(.finished(at: value))
+            animatorCompletion?()
+            AnimationController.shared.stopPropertyAnimation(self)
         }
-        animation.target = value
-        if let springAnimation = self as? SpringAnimation<Value> {
-            springAnimation.startTime = .now
-        }
-        completion?(.finished(at: value))
-        animatorCompletion?()
-        AnimationController.shared.stopPropertyAnimation(self)
+    }
+    
+    /// A Boolean value that indicates whether the animation's type is ``SpringAnimation``.
+    var isSpringAnimation: Bool {
+        (self as? SpringAnimation<Value>) != nil
+    }
+    
+    /// A Boolean value that indicates whether the animation's type is ``DecayAnimation``.
+    var isDecayAnimation: Bool {
+        (self as? DecayAnimation<Value>) != nil
+    }
+    
+    /// A Boolean value that indicates whether the animation's type is ``EasingAnimation``.
+    var isEasingAnimation: Bool {
+        (self as? EasingAnimation<Value>) != nil
     }
 }
 
