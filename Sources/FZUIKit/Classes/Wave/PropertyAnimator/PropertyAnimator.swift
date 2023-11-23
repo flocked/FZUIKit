@@ -176,7 +176,7 @@ internal extension PropertyAnimator {
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
             return animation
         case .nonAnimated:
-            self.animation(for: keyPath, key: key)?.stop(at: .current)
+            self.animation(for: keyPath, key: key)?.stop(at: .current, immediately: true)
             self.animations[key ?? keyPath.stringValue] = nil
             self.object[keyPath: keyPath] = newValue
             return nil
@@ -226,7 +226,7 @@ internal extension PropertyAnimator {
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
             return animation
         case .nonAnimated:
-            self.animation(for: keyPath, key: key)?.stop(at: .current)
+            self.animation(for: keyPath, key: key)?.stop(at: .current, immediately: true)
             self.animations[key ?? keyPath.stringValue] = nil
             self.object[keyPath: keyPath] = newValue
             return nil
@@ -287,15 +287,11 @@ internal extension PropertyAnimator {
                 break
             }
         }
-        addAnimation(animation, key: animationKey)
-        animation.start(afterDelay: settings.delay)
-    }
-    
-    func addAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, key: String) {
-        if let oldAnimation = animations[key], oldAnimation.id != animation.id {
-            oldAnimation.stop(at: .current)
+        if let oldAnimation = animations[animationKey], oldAnimation.id != animation.id {
+            oldAnimation.stop(at: .current, immediately: true)
         }
-        animations[key] = animation
+        animations[animationKey] = animation
+        animation.start(afterDelay: settings.delay)
     }
     
     /// Updates the value and target of an animatable property for better animations.

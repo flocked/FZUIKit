@@ -198,7 +198,7 @@ internal extension DynamicPropertyAnimator {
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
-            self.animation(for: keyPath, key: key)?.stop(at: .current)
+            self.animation(for: keyPath, key: key)?.stop(at: .current, immediately: true)
             self.animations[key ?? keyPath.stringValue] = nil
             self.object[keyPath: keyPath] = newValue
         case .velocityUpdate:
@@ -243,7 +243,7 @@ internal extension DynamicPropertyAnimator {
             let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, integralizeValue: integralizeValue, completion: completion)
         case .nonAnimated:
-            self.animation(for: keyPath, key: key)?.stop(at: .current)
+            self.animation(for: keyPath, key: key)?.stop(at: .current, immediately: true)
             self.animations[key ?? keyPath.stringValue] = nil
             self.object[keyPath: keyPath] = newValue
         case .velocityUpdate:
@@ -302,6 +302,9 @@ internal extension DynamicPropertyAnimator {
             default:
                 break
             }
+        }
+        if let oldAnimation = animations[animationKey], oldAnimation.id != animation.id {
+            oldAnimation.stop(at: .current, immediately: true)
         }
         animations[animationKey] = animation
         animation.start(afterDelay: settings.delay)
