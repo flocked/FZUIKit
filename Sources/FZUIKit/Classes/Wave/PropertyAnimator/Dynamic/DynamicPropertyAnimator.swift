@@ -185,13 +185,13 @@ internal extension DynamicPropertyAnimator {
         
         switch settings.animationType {
         case .spring(_,_):
-            let animation = springAnimation(for: keyPath, key: key) ??  SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: .smooth, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, completion: completion)
         case .easing(_,_):
-            let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(timingFunction: .linear, duration: 1.0, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, completion: completion)
         case .decay(_,_):
-            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, completion: completion)
         case .nonAnimated:
             self.animation(for: keyPath, key: key)?.stop(at: .current, immediately: true)
@@ -228,13 +228,13 @@ internal extension DynamicPropertyAnimator {
         
         switch settings.animationType {
         case .spring(_,_):
-            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            let animation = springAnimation(for: keyPath, key: key) ?? SpringAnimation<Value>(spring: .smooth, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, completion: completion)
         case .easing(_,_):
-            let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            let animation = easingAnimation(for: keyPath, key: key) ?? EasingAnimation<Value>(timingFunction: .linear, duration: 1.0, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, completion: completion)
         case .decay(_,_):
-            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(settings: settings, value: initialValue, target: targetValue)
+            let animation = decayAnimation(for: keyPath, key: key) ?? DecayAnimation<Value>(value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, key: key, settings: settings, completion: completion)
         case .nonAnimated:
             self.animation(for: keyPath, key: key)?.stop(at: .current, immediately: true)
@@ -248,16 +248,14 @@ internal extension DynamicPropertyAnimator {
     /// Configurates an animation and starts it.
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, key: String? = nil, settings: AnimationController.AnimationParameters, completion: (()->())? = nil) {
         var animation = animation
-        animation.delayedStart?.cancel()
+        animation.reset()
         if settings.animationType.isDecayVelocity, let animation = animation as? DecayAnimation<Value> {
             animation.velocity = target
+            animation._fromVelocity = animation._velocity
         } else {
             animation.target = target
         }
         animation.fromValue = animation.value
-        if let easingAnimation = animation as? EasingAnimation<Value> {
-            easingAnimation.fractionComplete = 0.0
-        }
         animation.configure(withSettings: settings)
         if let keyPath = keyPath as? WritableKeyPath<Object, Value> {
             animation.valueChanged = { [weak self] value in
@@ -268,9 +266,6 @@ internal extension DynamicPropertyAnimator {
                 self?.object[keyPath: keyPath] = value
             }
         }
-        let groupUUID = animation.groupUUID
-        let animationKey = key ?? keyPath.stringValue
-        
         #if os(iOS) || os(tvOS)
         if settings.preventUserInteraction {
             (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.insert(animation.id)
@@ -278,6 +273,8 @@ internal extension DynamicPropertyAnimator {
             (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
         }
         #endif
+        
+        let animationKey = key ?? keyPath.stringValue
         animation.completion = { [weak self] event in
             switch event {
             case .finished:
@@ -286,7 +283,7 @@ internal extension DynamicPropertyAnimator {
                 #if os(iOS) || os(tvOS)
                 (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
                 #endif
-                AnimationController.shared.executeHandler(uuid: groupUUID, finished: true, retargeted: false)
+                AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
             default:
                 break
             }

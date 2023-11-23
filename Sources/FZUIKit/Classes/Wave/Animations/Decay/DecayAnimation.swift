@@ -75,14 +75,14 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// The velocity of the animation. This value will change as the animation executes.
     public var velocity: Value {
         get { Value(_velocity) }
-        set { _velocity = newValue.animatableData }
+        set {   _velocity = newValue.animatableData }
     }
     
     var _velocity: Value.AnimatableData {
         didSet {
             guard oldValue != _velocity else { return }
-            let oldTarget = _target
-            _target = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
+            let oldTarget = calculatedTarget
+            calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
             if autoStarts, state != .running, _velocity != .zero {
                 start(afterDelay: 0.0)
             }
@@ -101,7 +101,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
      Adjusting this is similar to providing a new `targetContentOffset` in `UIScrollView`'s `scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>)`.
      */
     public var target: Value {
-        get { return _target }
+        get { return calculatedTarget }
         set {
             self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
             self._fromVelocity = self._velocity
@@ -109,7 +109,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         }
     }
     
-    internal var _target: Value = .zero
+    internal var calculatedTarget: Value = .zero
     
     var fromValue: Value {
         get { Value(_fromValue) }
@@ -156,26 +156,25 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     /**
-     Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
-     While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
+     Creates a new animation with the specified initial value and velocity.
 
      - Parameters:
         - value: The start value of the animation.
         - velocity: The velocity of the animation.
         - decelerationRate: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecelerationRate``.
      */
-    public init(value: Value, velocity: Value = .zero, decelerationRate: Double = ScrollViewDecelerationRate) {
+    public init(value: Value, velocity: Value, decelerationRate: Double = ScrollViewDecelerationRate) {
         self.decayFunction = DecayFunction(decelerationRate: decelerationRate)
         self._value = value.animatableData
         self._fromValue = _value
         self._velocity = velocity.animatableData
         self._fromVelocity = _velocity
-        self._target = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
+        self.calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
         self.updateTotalDuration()
     }
     
     /**
-     Creates a new animation with the specified timing curve and duration, initial and target value.
+     Creates a new animation with the specified initial value and target.
 
      - Parameters:
         - value: The start value of the animation.
@@ -188,22 +187,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         self._fromValue = _value
         self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
         self._fromVelocity = _velocity
-        self._target = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
-        self.updateTotalDuration()
-    }
-    
-    init(settings: AnimationController.AnimationParameters, value: Value, target: Value) {
-        self.decayFunction = DecayFunction(decelerationRate: ScrollViewDecelerationRate)
-        self._value = value.animatableData
-        self._fromValue = _value
-        if settings.animationType.isDecayVelocity {
-            self._velocity = target.animatableData
-        } else {
-            self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
-        }
-        self._fromVelocity = _velocity
-        self._target = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
-        self.configure(withSettings: settings)
+        self.calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
         self.updateTotalDuration()
     }
     

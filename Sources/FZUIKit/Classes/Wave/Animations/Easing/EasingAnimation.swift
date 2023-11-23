@@ -144,17 +144,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         self.timingFunction = timingFunction
     }
     
-    init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
-        self.value = value
-        self.fromValue = value
-        self.target = target
-        self.duration = settings.animationType.duration ?? 0.25
-        self.timingFunction = settings.animationType.timingFunction ?? .easeInEaseOut
-        self.repeats = settings.repeats
-        self.autoStarts = settings.autoStarts
-        self.configure(withSettings: settings)
-    }
-    
     deinit {
         AnimationController.shared.stopPropertyAnimation(self)
     }
@@ -226,6 +215,11 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         } else {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
         }
+    }
+    
+    func reset() {
+        fractionComplete = 0.0
+        delayedStart?.cancel()
     }
 }
 

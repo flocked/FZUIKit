@@ -121,7 +121,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
     }
 
-    
     var fromValue: Value {
         get { Value(_fromValue) }
         set { _fromValue = newValue.animatableData }
@@ -149,23 +148,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     var runningTime: TimeInterval {
         return (CACurrentMediaTime() - startTime)
     }
-    
-    /**
-     Creates a new animation with a ``Spring/snappy`` spring, and optionally, an initial and target value.
-     While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
-
-     - Parameters:
-        - value: The initial, starting value of the animation.
-        - target: The target value of the animation.
-     */
-    public init(value: Value, target: Value, velocity: Value = .zero) {
-        self._value = value.animatableData
-        self._target = target.animatableData
-        self._velocity = velocity.animatableData
-        self.spring = .snappy
-        self._fromValue = _value
-        self._fromVelocity = _velocity
-    }
 
     /**
      Creates a new animation with a given ``Spring``, and optionally, an initial and target value.
@@ -183,16 +165,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         self.spring = spring
         self._fromValue = _value
         self._fromVelocity = _velocity
-    }
-    
-    init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
-        self._value = value.animatableData
-        self._target = target.animatableData
-        self._velocity = velocity.animatableData
-        self.spring = settings.animationType.spring ?? .smooth
-        self._fromValue = _value
-        self._fromVelocity = _velocity
-        self.configure(withSettings: settings)
     }
     
     deinit {
@@ -257,6 +229,11 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         if animationFinished, !repeats || !isAnimated {
             stop(at: .current)
         }
+    }
+    
+    func reset() {
+        startTime = .now
+        delayedStart?.cancel()
     }
 }
 

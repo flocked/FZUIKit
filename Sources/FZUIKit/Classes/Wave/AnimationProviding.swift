@@ -96,6 +96,7 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
     var delayedStart: DispatchWorkItem? { get set }
     func configure(withSettings settings: AnimationController.AnimationParameters)
+    func reset()
 }
 
 /// An internal extension to `AnimationProviding` for animations with velocity.
@@ -157,6 +158,10 @@ internal extension ConfigurableAnimationProviding {
             completion?(.finished(at: value))
             AnimationController.shared.stopPropertyAnimation(self)
         }
+    }
+    
+    func reset() {
+        delayedStart?.cancel()
     }
     
     /// A Boolean value that indicates whether the animation can be started.
