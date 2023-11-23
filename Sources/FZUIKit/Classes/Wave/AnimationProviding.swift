@@ -8,7 +8,7 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 ///  A type that provides an animation.
-public protocol AnimationProviding {
+public protocol AnimationProviding: AnyObject {
     /// A unique identifier for the animation.
     var id: UUID { get }
     
@@ -80,6 +80,7 @@ extension AnimationProviding where Self: AnyObject {
     }
     
     public func stop(at position: AnimationPosition, immediately: Bool = true) {
+        guard state == .running else { return }
         (self as? any ConfigurableAnimationProviding)?.stop(at: position, immediately: immediately)
     }
 }
@@ -87,18 +88,19 @@ extension AnimationProviding where Self: AnyObject {
 /// An internal extension to `AnimationProviding` used for configurating animations.
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
+    /// The current state of the animation.
     var state: AnimationState { get set }
-    var groupUUID: UUID? { get set }
     /// The current value of the animation.
     var value: Value { get set }
     /// The target value of the animation.
     var target: Value { get set }
+    /// The start value of the animation.
+    var fromValue: Value { get set }
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
     
-    var fromValue: Value { get set }
     var delayedStart: DispatchWorkItem? { get set }
     var integralizeValues: Bool { get set }
     var animatorCompletion: (()->())? { get set }
@@ -184,3 +186,39 @@ internal extension ConfigurableAnimationProviding {
 }
 
 #endif
+
+/*
+ public protocol PropertyAnimationProviding<Value>: AnimationProviding {
+     associatedtype Value: AnimatableProperty
+     /// The current state of the animation.
+     var state: AnimationState { get set }
+     /// The current value of the animation.
+     var value: Value { get set }
+     /// The target value of the animation.
+     var target: Value { get set }
+    /// The start value of the animation.
+    var fromValue: Value { get set }
+     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
+     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
+     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
+     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
+ }
+
+ import FZSwiftUtils
+ extension PropertyAnimationProviding where Self: AnyObject {
+     var state: AnimationState {
+         get { getAssociatedValue(key: "state", object: self, initialValue: .inactive) }
+         set { set(associatedValue: newValue, key: "state", object: self) }
+     }
+     
+     var completion: ((_ event: AnimationEvent<Value>) -> Void)? {
+         get { getAssociatedValue(key: "completion", object: self, initialValue: nil) }
+         set { set(associatedValue: newValue, key: "completion", object: self) }
+     }
+     
+     var valueChanged: ((_ currentValue: Value) -> Void)? {
+         get { getAssociatedValue(key: "valueChanged", object: self, initialValue: nil) }
+         set { set(associatedValue: newValue, key: "valueChanged", object: self) }
+     }
+ }
+ */
