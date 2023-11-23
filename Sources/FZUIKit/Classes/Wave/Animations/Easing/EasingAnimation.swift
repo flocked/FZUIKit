@@ -68,9 +68,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
-    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes to a value that isn't equal to ``value``.
-    public var autoStarts: Bool = false
-    
     /**
      A Boolean value indicating whether a paused animation scrubs linearly or uses its specified timing information.
      
@@ -100,7 +97,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
 
     /**
-     The target value of the animation.
+     Thex target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
@@ -108,9 +105,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         didSet {
             guard oldValue != target else { return }
             
-            if autoStarts, state != .running, target != value {
-                start(afterDelay: 0.0)
-            } else if state == .running {
+            if state == .running {
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
             }
@@ -125,6 +120,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
+
+    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
+    var animatorCompletion: (()->())? = nil
     
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.
@@ -142,6 +140,16 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         self.target = target
         self.duration = duration
         self.timingFunction = timingFunction
+    }
+    
+    init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
+        self.value = value
+        self.fromValue = value
+        self.target = target
+        self.duration = settings.animationType.duration ?? 0.25
+        self.timingFunction = settings.animationType.timingFunction ?? .easeInEaseOut
+        self.repeats = settings.repeats
+        self.configure(withSettings: settings)
     }
     
     deinit {
@@ -163,7 +171,15 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
         
         self.repeats = settings.repeats
-        self.integralizeValues = settings.integralizeValues
+        if settings.integralizeValues == true {
+            self.integralizeValues = settings.integralizeValues
+        }
+    }
+    
+    /// Resets the animation.
+    public func reset() {
+        state = .inactive
+        fractionComplete = 0.0
     }
             
     /**
@@ -215,11 +231,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         } else {
             value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
         }
-    }
-    
-    func reset() {
-        fractionComplete = 0.0
-        delayedStart?.cancel()
     }
 }
 
@@ -349,12 +360,3 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
 }
  */
 
-/*
- /// Resets the animation.
- public func reset() {
-     state = .inactive
-     target = value
-     fromValue = value
-     fractionComplete = 0.0
- }
- */
