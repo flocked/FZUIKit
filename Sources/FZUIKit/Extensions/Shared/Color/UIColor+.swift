@@ -52,7 +52,7 @@ public extension UIColor {
         - fraction: The amount of the color to blend with the receiver's color. The method converts color and a copy of the receiver to RGB, and then sets each component of the returned color to fraction of color’s value plus 1 – fraction of the receiver’s.
         - color: The color to blend with the receiver's color.
      
-     - Returns: The resulting color object or nil if the colors can’t be converted.
+     - Returns: The resulting color object.
      */
     func blended(withFraction fraction: CGFloat, of color: UIColor) -> UIColor {
         let progress = fraction.clamped(max: 1.0)

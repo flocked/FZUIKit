@@ -35,6 +35,26 @@ public extension CGColor {
         }
     }
     
+    /**
+     Creates a new color object whose component values are a weighted sum of the current color object and the specified color object's.
+     
+     - Parameters:
+        - fraction: The amount of the color to blend with the receiver's color. The method converts color and a copy of the receiver to RGB, and then sets each component of the returned color to fraction of color’s value plus 1 – fraction of the receiver’s.
+        - color: The color to blend with the receiver's color.
+     
+     - Returns: The resulting color object or `nil` if the color couldn't be created.
+     */
+    func blended(withFraction fraction: CGFloat, of color: CGColor) -> CGColor? {
+        guard let c1 = rgbaComponents(), let c2 = color.rgbaComponents() else { return nil }
+        
+        let red   = c1.red + (fraction * (c2.red - c1.red))
+        let green = c1.green + (fraction * (c2.green - c1.green))
+        let blue  = c1.blue + (fraction * (c2.blue - c1.blue))
+        let alpha = c1.alpha + (fraction * (c2.alpha - c1.alpha))
+        
+        return CGColor(red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
     /// A Boolean value that indicates whether the color is visible (alpha value isn't zero).
     var isVisible: Bool {
         rgbaComponents()?.alpha != 0.0

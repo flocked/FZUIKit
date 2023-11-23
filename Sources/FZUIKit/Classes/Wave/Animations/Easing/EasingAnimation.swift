@@ -98,26 +98,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
     }
     
-    func retargetFractionComplete(newValue: Value) {
-        var foundValue: Bool = false
-        let frameDuration = 1.0/60.0
-        let fraction = frameDuration / duration
-        var fractionComplete: Double = 0.0
-        let targetMagnitude = newValue.animatableData.magnitudeSquared
-        let targetAnimatable = newValue.animatableData
-        while !foundValue && fractionComplete <= 1.0 {
-            fractionComplete = fractionComplete + fraction
-            let value = fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete)
-            foundValue = targetAnimatable == value
-        //    foundValue = targetMagnitude.isApproximatelyEqual(to: value.magnitudeSquared, epsilon: 0.1)
-        }
-        if foundValue {
-            Swift.print("retargetFraction: ", fractionComplete)
-        } else {
-            Swift.print("retargetFraction: nil")
-        }
-    }
-
     /**
      Thex target value of the animation.
 
@@ -370,3 +350,24 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
 }
  */
 
+/*
+ func retargetFractionComplete(newValue: Value) {
+     var foundValue: Bool = false
+     let frameDuration = 1.0/60.0
+     let fraction = frameDuration / duration
+     var fractionComplete: Double = 0.0
+     let targetMagnitude = newValue.animatableData.magnitudeSquared
+     let targetAnimatable = newValue.animatableData
+     while !foundValue && fractionComplete <= 1.0 {
+         fractionComplete = fractionComplete + fraction
+         let value = fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete)
+         foundValue = targetAnimatable == value
+     //    foundValue = targetMagnitude.isApproximatelyEqual(to: value.magnitudeSquared, epsilon: 0.1)
+     }
+     if foundValue {
+         Swift.print("retargetFraction: ", fractionComplete)
+     } else {
+         Swift.print("retargetFraction: nil")
+     }
+ }
+ */

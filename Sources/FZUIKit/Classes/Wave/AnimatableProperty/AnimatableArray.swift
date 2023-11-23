@@ -354,3 +354,29 @@ extension AnimatableArray: MultiplicativeArithmetic where Element: Multiplicativ
         }
     }
 }
+
+extension AnimatableArray: Comparable where Element: Comparable {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        for (leftElement, rightElement) in zip(lhs.elements, rhs.elements) {
+            if leftElement < rightElement {
+                return true
+            } else if leftElement > rightElement {
+                return false
+            }
+        }
+        return lhs.count < rhs.count
+    }
+}
+
+/*
+extension AnimatableArray where Element: FloatingPointInitializable {
+    func interolatePosition(in range: ClosedRange<Self> ) {
+        var positions: [Element] = []
+        for (index, value) in self.elements.enumerated() {
+           let position = (value - range.upperBound[index]) / (range.upperBound[index] - range.lowerBound[index])
+            positions.append(position)
+        }
+        positions.average()
+    }
+}
+ */
