@@ -75,25 +75,21 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// The velocity of the animation. This value will change as the animation executes.
     public var velocity: Value {
         get { Value(_velocity) }
-        set {   _velocity = newValue.animatableData }
+        set {
+            _velocity = newValue.animatableData
+            calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
+        }
     }
     
     var _velocity: Value.AnimatableData {
         didSet {
             guard oldValue != _velocity else { return }
-            let oldTarget = calculatedTarget
-            calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
             if autoStarts, state != .running, _velocity != .zero {
                 start(afterDelay: 0.0)
             }
-            if state == .running {
-            //    let event = AnimationEvent.retargeted(from: oldValue, to: target)
-       //         completion?(event)
-            } else {
+            if state != .running {
                 _fromVelocity = _velocity
             }
-
-            
         }
     }
     
@@ -111,7 +107,14 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         }
     }
     
-    internal var calculatedTarget: Value = .zero
+    internal var calculatedTarget: Value = .zero {
+        didSet {
+            if state == .running {
+                let event = AnimationEvent.retargeted(from: oldValue, to: calculatedTarget)
+                completion?(event)
+            }
+        }
+    }
     
     var fromValue: Value {
         get { Value(_fromValue) }
