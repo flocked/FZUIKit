@@ -68,6 +68,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
+    /// A Boolean value that indicates whether the animation automatically starts when the ``velocity`` value isn't `zero`.
+    public var autoStarts: Bool = false
+    
     /**
      A Boolean value indicating whether a paused animation scrubs linearly or uses its specified timing information.
      
@@ -107,6 +110,8 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
                 fractionComplete = 0.0
                 let event = AnimationEvent.retargeted(from: oldValue, to: target)
                 completion?(event)
+            } else if autoStarts {
+                start(afterDelay: 0.0)
             }
         }
     }
@@ -155,6 +160,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         duration = settings.animationType.duration ?? duration
         integralizeValues = settings.integralizeValues
         repeats = settings.repeats
+        autoStarts = settings.autoStarts
     }
     
     /// Resets the animation.
@@ -229,7 +235,7 @@ extension EasingAnimation: CustomStringConvertible {
         
             value: \(String(describing: value))
             target: \(String(describing: target))
-            from: \(String(describing: fromValue))
+            fromValue: \(String(describing: fromValue))
             fractionComplete: \(fractionComplete)
 
             timingFunction: \(timingFunction.name)

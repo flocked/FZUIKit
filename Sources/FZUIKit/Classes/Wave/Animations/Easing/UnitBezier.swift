@@ -36,10 +36,17 @@ public struct UnitBezier: Hashable {
     public init(x1: Double, y1: Double, x2: Double, y2: Double) {
         self.init(first: CGPoint(x1, y1), second: CGPoint(x2, y2))
     }
-    
-    /// Creates a new `UnitBezier` instance with the specified points.
-    public init(_ x1: Double, _ y1: Double, _ x2: Double, _ y2: Double) {
-        self.init(first: CGPoint(x1, y1), second: CGPoint(x2, y2))
+
+    /**
+     Calculates the resulting `y` for given `x`.
+     
+     - Parameters:
+        - x: The value to solve for.
+        - epsilon: The required precision of the result (where `x * epsilon` is the maximum time segment to be evaluated).
+     - Returns: The solved `y` value.
+     */
+    public func solve(x: Double, epsilon: Double) -> Double {
+        return UnitBezierSolver(p1x: first.x, p1y: first.y, p2x: second.x, p2y: second.y).solve(x: x, eps: epsilon)
     }
 
     /**

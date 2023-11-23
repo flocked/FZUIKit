@@ -206,12 +206,12 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        self.repeats = settings.repeats
-        self.autoStarts = settings.autoStarts
-        self.integralizeValues = settings.integralizeValues
-        if self.decelerationRate != settings.animationType.decelerationRate {
-            self.decelerationRate = settings.animationType.decelerationRate
-            self.updateTotalDuration()
+        repeats = settings.repeats
+        autoStarts = settings.autoStarts
+        integralizeValues = settings.integralizeValues
+        if decelerationRate != settings.animationType.decelerationRate {
+            decelerationRate = settings.animationType.decelerationRate ?? decelerationRate
+            updateTotalDuration()
         }
     }
             
@@ -261,7 +261,6 @@ extension DecayAnimation: CustomStringConvertible {
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))
-
         )
         """
     }

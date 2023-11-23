@@ -29,21 +29,21 @@ public protocol AnimationProviding {
     func updateAnimation(deltaTime: TimeInterval)
     
     /**
-     Starts the animation (if not already running) with an optional delay.
-
+     Starts the animation from its current position with an optional delay.
+     
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     func start(afterDelay delay: TimeInterval)
     
-    /// Pauses the animation.
+    /// Pauses the animation at the current position.
     func pause()
     
     /**
      Stops the animation at the specified position.
      
      - Parameters:
-        - position: The position at which the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``).
-        - immediately: A Boolean value that indicates whether the animation should stop immediately  at the specified position.
+        - position: The position at which position the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``). The default value is `current`.
+        - immediately: A Boolean value that indicates whether the animation should stop immediately at the specified position. The default value is `true`.
      */
     func stop(at position: AnimationPosition, immediately: Bool)
 }
@@ -79,7 +79,7 @@ extension AnimationProviding {
         AnimationController.shared.stopPropertyAnimation(self)
     }
     
-    public func stop(at position: AnimationPosition, immediately: Bool = true) {
+    public func stop(at position: AnimationPosition = .current, immediately: Bool = true) {
         guard state == .running else { return }
         (self as? any ConfigurableAnimationProviding)?.internal_stop(at: position, immediately: immediately)
     }

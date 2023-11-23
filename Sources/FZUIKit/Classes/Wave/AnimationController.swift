@@ -117,7 +117,7 @@ internal class AnimationController {
         block(finished, retargeted)
 
         if retargeted == false, finished {
-            groupAnimationCompletionBlocks.removeValue(forKey: uuid)
+            groupAnimationCompletionBlocks[uuid] = nil
         }
     }
 }
@@ -184,10 +184,10 @@ extension AnimationController {
                 }
             }
             
-            var decelerationRate: Double {
+            var decelerationRate: Double? {
                 switch self {
                 case .decay(_, let decelerationRate): return decelerationRate
-                default: return ScrollViewDecelerationRate
+                default: return nil
                 }
             }
             

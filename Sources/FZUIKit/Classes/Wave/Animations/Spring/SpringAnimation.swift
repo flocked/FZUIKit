@@ -253,6 +253,7 @@ extension SpringAnimation: CustomStringConvertible {
             settlingTime: \(settlingTime)
             integralizeValues: \(integralizeValues)
             stopsOnCompletion: \(stopsOnCompletion)
+            autoStarts: \(autoStarts)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))
