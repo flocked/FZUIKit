@@ -159,7 +159,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         - target: The target value of the animation.
      */
     public init(spring: Spring, value: Value, target: Value, velocity: Value = .zero) {
-        Swift.print("spring setup")
         self._value = value.animatableData
         self._target = target.animatableData
         self._velocity = velocity.animatableData

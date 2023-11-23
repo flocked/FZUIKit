@@ -79,7 +79,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     var fractionComplete: CGFloat = 0.0 {
         didSet {
             fractionComplete = fractionComplete.clamped(max: 1.0)
-            updateValue()
         }
     }
     
@@ -92,7 +91,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var value: Value {
         didSet { 
             guard state != .running else { return }
-            Swift.print("value", value)
             fromValue = value
         }
     }
@@ -105,16 +103,14 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var target: Value {
         didSet {
             guard oldValue != target else { return }
-            Swift.print("target", target)
-            
             if state == .running {
                 fractionComplete = 0.0
-             //   let event = AnimationEvent.retargeted(from: oldValue, to: target)
-             //   completion?(event)
+                let event = AnimationEvent.retargeted(from: oldValue, to: target)
+                completion?(event)
             }
         }
     }
-        
+            
     /// The start value of the animation.
     internal var fromValue: Value
         
@@ -138,23 +134,11 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         - target: The target value of the animation.
      */
     public init(timingFunction: TimingFunction, duration: CGFloat, value: Value, target: Value) {
-        Swift.print("easing setup")
         self.value = value
         self.fromValue = value
         self.target = target
         self.duration = duration
         self.timingFunction = timingFunction
-    }
-    
-    init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
-        Swift.print("easing setup")
-        self.value = value
-        self.fromValue = value
-        self.target = target
-        self.duration = settings.animationType.duration ?? 0.25
-        self.timingFunction = settings.animationType.timingFunction ?? .easeInEaseOut
-        self.repeats = settings.repeats
-        self.configure(withSettings: settings)
     }
     
     deinit {
@@ -175,8 +159,8 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     /// Resets the animation.
     public func reset() {
-      //  state = .inactive
-     //   fractionComplete = 0.0
+        state = .inactive
+        fractionComplete = 0.0
     }
             
     /**
@@ -185,14 +169,11 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      - parameter deltaTime: The delta time.
      */
     public func updateAnimation(deltaTime: TimeInterval) {
-        /*
-        guard value != target else {
-            state = .inactive
-            return
-        }
-         */
-                
         state = .running
+        
+        if value == target {
+            fractionComplete = 1.0
+        }
                 
         let isAnimated = duration > .zero
         
@@ -201,7 +182,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         if isAnimated {
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
-            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
+            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
         } else {
             fractionComplete = 1.0
             self.value = target
@@ -212,7 +193,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         if animationFinished {
             if repeats, isAnimated {
                 fractionComplete = isReversed ? 1.0 : 0.0
-                value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
+                value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
             } else {
                 self.value = isReversed ? fromValue : target
             }
