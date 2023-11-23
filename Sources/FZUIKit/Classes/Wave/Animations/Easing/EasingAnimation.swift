@@ -108,6 +108,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             Swift.print("target", target)
             
             if state == .running {
+                fractionComplete = 0.0
              //   let event = AnimationEvent.retargeted(from: oldValue, to: target)
              //   completion?(event)
             }
