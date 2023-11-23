@@ -102,15 +102,15 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         var foundValue: Bool = false
         let frameDuration = 1.0/60.0
         let fraction = frameDuration / duration
-        var factionComplete: Double = 0.0
+        var fractionComplete: Double = 0.0
         let targetMagnitude = target.animatableData.magnitudeSquared
         while !foundValue && fractionComplete <= 1.0 {
-            factionComplete = factionComplete + fraction
-            let value = fromValue.animatableData.interpolated(towards: oldTarget.animatableData, amount: factionComplete)
+            fractionComplete = fractionComplete + fraction
+            let value = fromValue.animatableData.interpolated(towards: oldTarget.animatableData, amount: fractionComplete)
             foundValue = targetMagnitude.isApproximatelyEqual(to: value.magnitudeSquared, epsilon: 0.1)
         }
         if foundValue {
-            Swift.print("retargetFraction: ", factionComplete)
+            Swift.print("retargetFraction: ", fractionComplete)
         } else {
             Swift.print("retargetFraction: nil")
         }
