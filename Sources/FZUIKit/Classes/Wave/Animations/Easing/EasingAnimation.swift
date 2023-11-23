@@ -92,6 +92,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var value: Value {
         didSet { 
             guard state != .running else { return }
+            Swift.print("value", value)
             fromValue = value
         }
     }
@@ -136,6 +137,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         - target: The target value of the animation.
      */
     public init(timingFunction: TimingFunction, duration: CGFloat, value: Value, target: Value) {
+        Swift.print("easing setup")
         self.value = value
         self.fromValue = value
         self.target = target
@@ -144,6 +146,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     init(settings: AnimationController.AnimationParameters, value: Value, target: Value, velocity: Value = .zero) {
+        Swift.print("easing setup")
         self.value = value
         self.fromValue = value
         self.target = target
@@ -163,18 +166,10 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        if let timingFunction = settings.animationType.timingFunction {
-            self.timingFunction = timingFunction
-        }
-        
-        if let duration = settings.animationType.duration {
-            self.duration = duration
-        }
-        
-        self.repeats = settings.repeats
-        if settings.integralizeValues == true {
-            self.integralizeValues = settings.integralizeValues
-        }
+        timingFunction = settings.animationType.timingFunction ?? timingFunction
+        duration = settings.animationType.duration ?? duration
+        integralizeValues = settings.integralizeValues
+        repeats = settings.repeats
     }
     
     /// Resets the animation.
@@ -189,10 +184,12 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      - parameter deltaTime: The delta time.
      */
     public func updateAnimation(deltaTime: TimeInterval) {
+        /*
         guard value != target else {
             state = .inactive
             return
         }
+         */
                 
         state = .running
                 
