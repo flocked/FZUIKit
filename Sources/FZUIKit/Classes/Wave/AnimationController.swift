@@ -31,7 +31,7 @@ internal class AnimationController {
     }
     
     func stopAllAnimations() {
-        animations.values.forEach({$0.stop(at: .current)})
+        animations.values.forEach({$0.stop(at: .current, immediately: true)})
     }
 
     func runAnimationBlock(
