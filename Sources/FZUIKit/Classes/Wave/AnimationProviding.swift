@@ -149,12 +149,8 @@ internal extension ConfigurableAnimationProviding {
             default: break
             }
             animation.target = value
-            if let velocityAnimation = self as? (any AnimationVelocityProviding) {
-                velocityAnimation.setVelocity(Value.zero)
-            }
-            if let springAnimation = self as? SpringAnimation<Value> {
-                springAnimation.startTime = .now
-            }
+            (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
+            (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
             completion?(.finished(at: value))
             AnimationController.shared.stopPropertyAnimation(self)
         }
