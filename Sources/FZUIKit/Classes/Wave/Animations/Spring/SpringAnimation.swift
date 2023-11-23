@@ -27,12 +27,14 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive {
         didSet {
+            /*
             switch (oldValue, state) {
             case (.inactive, .running):
                 startTime = .now
             default:
                 break
             }
+             */
         }
     }
 
@@ -97,7 +99,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             if autoStarts, state != .running, _target != _value {
                 start(afterDelay: 0.0)
             } else if state == .running {
-                startTime = .now
+                runningTime = 0.0
                 let event = AnimationEvent.retargeted(from: Value(oldValue), to: target)
                 completion?(event)
             }
@@ -142,12 +144,16 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
-    var startTime: TimeInterval = 0.0
+    var runningTime: TimeInterval = 0.0
     
+    /*
+     var startTime: TimeInterval = 0.0
+
     /// The total running time of the animation.
     var runningTime: TimeInterval {
         return (CACurrentMediaTime() - startTime)
     }
+     */
 
     /**
      Creates a new animation with a given ``Spring``, and optionally, an initial and target value.
@@ -207,10 +213,8 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             self._value = _target
             velocity = Value.zero
         }
-        
-        Swift.print("update", velocity)
-        
-     //   runningTime = runningTime + deltaTime
+                
+        runningTime = runningTime + deltaTime
 
         let animationFinished = (runningTime >= settlingTime) || !isAnimated
         
@@ -221,7 +225,8 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             } else {
                 _value = _target
             }
-            startTime = .now
+            // startTime = .now
+            runningTime = 0.0
         }
 
         let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
@@ -233,7 +238,8 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     func reset() {
-        startTime = .now
+      //  startTime = .now
+        runningTime = 0.0
         delayedStart?.cancel()
     }
 }
