@@ -145,7 +145,7 @@ extension DecayFunction {
         let decayFunction = DecayFunction(decelerationRate: decelerationRate)
         let deltaTime = 1.0 / 60.0
         var duration: TimeInterval = 0.0
-        let velocityThreshold: Double = 0.01
+        let velocityThreshold: Double = 0.05
         
         while velocity.magnitudeSquared > velocityThreshold {
             decayFunction.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
