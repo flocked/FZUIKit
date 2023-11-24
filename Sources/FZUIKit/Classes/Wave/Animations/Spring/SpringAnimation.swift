@@ -49,12 +49,13 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var stopsOnCompletion: Bool = true
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
-    public var repeats: Bool = false {
-        didSet {
-            guard oldValue != repeats else { return }
-         //   updateAutoreverse()
-        }
-    }
+    public var repeats: Bool = false
+    
+    /// A Boolean value indicating whether the animation is running backwards and forwards (must be combined with ``repeats`` `true`).
+    public var autoreverse: Bool = false
+        
+    /// A Boolean value indicating whether the animation is running in the reverse direction.
+    public var isReversed: Bool = false
 
     /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value {
@@ -167,6 +168,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         spring = settings.animationType.spring ?? spring
         repeats = settings.repeats
         autoStarts = settings.autoStarts
+        autoreverse = settings.autoreverse
         integralizeValues = settings.integralizeValues
         
         if let gestureVelocity = settings.animationType.gestureVelocity {
@@ -189,7 +191,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         let isAnimated = spring.response > .zero
 
         if isAnimated {
-            spring.update(value: &_value, velocity: &_velocity, target: _target, deltaTime: deltaTime)
+            spring.update(value: &_value, velocity: &_velocity, target: isReversed ? _fromValue : _target, deltaTime: deltaTime)
         } else {
             self._value = _target
             velocity = Value.zero
@@ -201,8 +203,11 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         
         if animationFinished {
             if repeats, isAnimated {
-                _value = _fromValue
-                _velocity = _fromVelocity
+                if autoreverse {
+                    isReversed = !isReversed
+                }
+                _value = isReversed ? _target : _fromValue
+                _velocity = isReversed ? .zero : _fromVelocity
             } else {
                 _value = _target
             }

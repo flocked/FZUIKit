@@ -142,6 +142,10 @@ extension AnimationController {
             options.contains(.autoStarts)
         }
         
+        var autoreverse: Bool {
+            options.contains(.autoreverse)
+        }
+                
         #if os(iOS) || os(tvOS)
         var preventUserInteraction: Bool {
             options.contains(.preventUserInteraction)

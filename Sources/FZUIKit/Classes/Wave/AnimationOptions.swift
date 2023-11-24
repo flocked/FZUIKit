@@ -19,12 +19,15 @@ public struct AnimationOptions: OptionSet, Sendable {
     /// The animation repeats indefinitely.
     public static let repeats = AnimationOptions(rawValue: 1 << 1)
     
-    /// The animation automatically starts when it's `target` value changes to a value that isn't equal to `value`.
-    public static let autoStarts = AnimationOptions(rawValue: 1 << 2)
+    /// The animation runs backwards and forwards (must be combined with the ``repeats`` option).
+    public static let autoreverse = AnimationOptions(rawValue: 1 << 2)
+    
+    /// The animation starts automatically when it's `target` value changes to a value that isn't equal to it's current `value`.
+    public static let autoStarts = AnimationOptions(rawValue: 1 << 3)
     
     #if os(iOS) || os(tvOS)
     /// Prevents the user to interact with views while they are being animated.
-    public static let preventUserInteraction = AnimationOptions(rawValue: 1 << 3)
+    public static let preventUserInteraction = AnimationOptions(rawValue: 1 << 4)
     #endif
 
     /// Creates a structure that represents animation options.

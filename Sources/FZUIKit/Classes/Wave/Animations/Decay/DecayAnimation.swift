@@ -43,12 +43,13 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     public var autoStarts: Bool = false
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
-    public var repeats: Bool = false {
-        didSet {
-            guard oldValue != repeats else { return }
-         //   updateAutoreverse()
-        }
-    }
+    public var repeats: Bool = false
+    
+    /// A Boolean value indicating whether the animation is running backwards and forwards (must be combined with ``repeats`` `true`).
+    public var autoreverse: Bool = false
+        
+    /// A Boolean value indicating whether the animation is running in the reverse direction.
+    public var isReversed: Bool = false
     
     /// The rate at which the velocity decays over time.
     public var decelerationRate: Double {

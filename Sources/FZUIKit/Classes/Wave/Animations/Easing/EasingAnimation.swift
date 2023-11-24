@@ -31,39 +31,13 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var duration: CGFloat = 0.0
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
-    public var repeats: Bool = false {
-        didSet {
-            guard oldValue != repeats else { return }
-            updateAutoreverse()
-        }
-    }
+    public var repeats: Bool = false
     
     /// A Boolean value indicating whether the animation is running backwards and forwards (must be combined with ``repeats`` `true`).
-    public var autoreverse: Bool = false {
-        didSet {
-            guard oldValue != autoreverse else { return }
-            updateAutoreverse()
-        }
-    }
-    
-    func updateAutoreverse() {
-        if autoreverse, repeats {
-            if isAutoreversed == nil {
-                isAutoreversed = false
-            }
-        } else {
-            isAutoreversed = nil
-        }
-    }
-    
-    var isAutoreversed: Bool? = nil
+    public var autoreverse: Bool = false
         
     /// A Boolean value indicating whether the animation is running in the reverse direction.
-    public var isReversed: Bool = false {
-        didSet { guard oldValue != isReversed else { return }
-            fractionComplete = 1.0 - fractionComplete
-        }
-    }
+    public var isReversed: Bool = false
         
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
@@ -161,6 +135,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         integralizeValues = settings.integralizeValues
         repeats = settings.repeats
         autoStarts = settings.autoStarts
+        autoreverse = settings.autoreverse
     }
     
     /// Resets the animation.
@@ -198,6 +173,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         
         if animationFinished {
             if repeats, isAnimated {
+                if autoreverse {
+                    isReversed = !isReversed
+                }
                 fractionComplete = isReversed ? 1.0 : 0.0
                 value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
             } else {
