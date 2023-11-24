@@ -145,7 +145,7 @@ extension DecayFunction {
         let decayFunction = DecayFunction(decelerationRate: decelerationRate)
         let deltaTime = 1.0 / 60.0
         var duration: TimeInterval = 0.0
-        let velocityThreshold: Double = 0.1
+        let velocityThreshold: Double = 0.01
         
         while velocity.magnitudeSquared > velocityThreshold {
             decayFunction.update(value: &value, velocity: &velocity, deltaTime: deltaTime)
@@ -220,6 +220,14 @@ extension DecayFunction {
         durationNew(fromValue: fromValue.animatableData, toValue: toValue.animatableData, decelerationRate: decelerationRate)
     }
 }
+ 
+ private func getAdequatelyDuration<Value: VectorArithmetic>(_ velocity: Value, decelerationRate: Double = 0.998) -> TimeInterval {
+     guard velocity.magnitudeSquared > 0 else { return 0 }
+     var threshold = (decelerationRate == 0.998) ? 0.5 : 0.05 / (NSScreen.main?.backingScaleFactor ?? 1.0)
+     let decay = log(decelerationRate) * 1000.0
+     return TimeInterval(log(-decay * threshold / velocity.magnitudeSquared) / decay)
+ }
+
  */
 
 #endif
