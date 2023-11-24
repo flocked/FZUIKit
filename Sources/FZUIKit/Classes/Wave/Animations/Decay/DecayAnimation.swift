@@ -58,7 +58,12 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     /// The decay function used to calculate the animation.
-    var decayFunction: DecayFunction
+    var decayFunction: DecayFunction {
+        didSet {
+            guard oldValue.decelerationRate != decayFunction.decelerationRate else { return }
+            updateAnimationDuration()
+        }
+    }
     
     /// The current value of the animation. This value will change as the animation executes.
     public var value: Value {
@@ -84,12 +89,10 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     
     var _velocity: Value.AnimatableData {
         didSet {
-            guard oldValue != _velocity else { return }
-            if autoStarts, state != .running, _velocity != .zero {
+            guard oldValue != _velocity, state != .running else { return }
+            _fromVelocity = _velocity
+            if autoStarts, _velocity != .zero {
                 start(afterDelay: 0.0)
-            }
-            if state != .running {
-                _fromVelocity = _velocity
             }
         }
     }
@@ -125,7 +128,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     var _fromValue: Value.AnimatableData {
         didSet {
             guard oldValue != _fromValue else { return }
-            updateTotalDuration()
+            updateAnimationDuration()
         }
     }
     
@@ -137,7 +140,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     var _fromVelocity: Value.AnimatableData {
         didSet {
             guard oldValue != _fromVelocity else { return }
-            updateTotalDuration()
+            updateAnimationDuration()
         }
     }
         
@@ -156,7 +159,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         runningTime / totalDuration
     }
     
-    func updateTotalDuration() {
+    func updateAnimationDuration() {
       // totalDuration = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decelerationRate: decelerationRate)
     }
     
@@ -175,7 +178,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         self._velocity = velocity.animatableData
         self._fromVelocity = _velocity
         self.calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
-        self.updateTotalDuration()
+        self.updateAnimationDuration()
     }
     
     /**
@@ -193,7 +196,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
         self._fromVelocity = _velocity
         self.calculatedTarget = Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate))
-        self.updateTotalDuration()
+        self.updateAnimationDuration()
     }
     
     deinit {
@@ -211,7 +214,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         integralizeValues = settings.integralizeValues
         if decelerationRate != settings.animationType.decelerationRate {
             decelerationRate = settings.animationType.decelerationRate ?? decelerationRate
-            updateTotalDuration()
+            updateAnimationDuration()
         }
     }
             
@@ -240,6 +243,10 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         if animationFinished, !repeats {
             stop(at: .current)
         }
+    }
+    
+    func reset() {
+        delayedStart?.cancel()
     }
 }
 

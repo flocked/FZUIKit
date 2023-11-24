@@ -157,10 +157,6 @@ internal extension ConfigurableAnimationProviding {
         }
     }
     
-    func reset() {
-        delayedStart?.cancel()
-    }
-    
     /// A Boolean value that indicates whether the animation can be started.
     var canBeStarted: Bool {
         guard state != .running else { return false }

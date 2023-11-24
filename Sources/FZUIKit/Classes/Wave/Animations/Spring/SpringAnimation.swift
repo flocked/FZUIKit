@@ -127,7 +127,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     var _fromVelocity: Value.AnimatableData
 
-
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
 
