@@ -132,10 +132,6 @@ extension DecayFunction {
      */
     public static func velocity<V>(fromValue: V, toValue: V, decelerationRate: Double = ScrollViewDecelerationRate) -> V where V : VectorArithmetic {
         let decay = log(decelerationRate) * 1000.0
-        let velocity = (fromValue - toValue).scaled(by: decay)
-        let duration = -Double(velocity.magnitudeSquared) / decay
-        Swift.print("update velocity", duration)
-        // -Double(velocity.magnitude) / deca
         return (fromValue - toValue).scaled(by: decay)
     }
     
@@ -236,6 +232,7 @@ extension DecayFunction {
     public static func durationNew<V>(fromValue: V, toValue: V, decelerationRate: Double = ScrollViewDecelerationRate) -> (Double) where V : VectorArithmetic {
         let decay = log(decelerationRate) * 1000.0
         let velocity = (fromValue - toValue).scaled(by: decay)
+        Swift.print("durationNew!", (velocity / decay).magnitudeSquared)
         return -Double(velocity.magnitudeSquared) / decay
     }
     
