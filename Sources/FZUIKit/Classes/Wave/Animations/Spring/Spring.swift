@@ -374,12 +374,12 @@ public extension Spring {
     }
     
     /// The estimated duration required for the spring system to be considered at rest.
-    func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double) -> CGFloat {
+    func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double = 0.001) -> CGFloat {
         swiftUI.settlingDuration(target: target, initialVelocity: initialVelocity, epsilon: epsilon)
     }
     
     /// The estimated duration required for the spring system to be considered at rest.
-    func settlingDuration<V: AnimatableProperty>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double) -> CGFloat {
+    func settlingDuration<V: AnimatableProperty>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double = 0.001) -> CGFloat {
         let fromValue = AnimatableProxy(fromValue)
         let toValue = AnimatableProxy(toValue)
         let initialVelocity = AnimatableProxy(initialVelocity)
@@ -391,12 +391,10 @@ extension Spring: CustomStringConvertible {
     public var description: String {
         """
         Spring(
-            // Parameters
             dampingRatio: \(dampingRatio)
             response: \(response)
             mass: \(mass)
-
-            // Derived
+        
             settlingDuration: \(String(format: "%.3f", settlingDuration))
             damping: \(damping)
             stiffness: \(String(format: "%.3f", stiffness))

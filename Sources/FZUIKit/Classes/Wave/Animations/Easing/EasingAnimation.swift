@@ -207,20 +207,22 @@ extension EasingAnimation: CustomStringConvertible {
         """
         EasingAnimation<\(Value.self)>(
             uuid: \(id)
-            groupUUID: \(String(describing: groupUUID))
+            groupUUID: \(groupUUID?.description ?? "nil")
             priority: \(relativePriority)
             state: \(state)
         
-            value: \(String(describing: value))
-            target: \(String(describing: target))
-            fromValue: \(String(describing: fromValue))
+            value: \(value)
+            target: \(target)
+            fromValue: \(fromValue)
             fractionComplete: \(fractionComplete)
 
             timingFunction: \(timingFunction.name)
             duration: \(duration)
             repeats: \(repeats)
+            autoreverse: \(autoreverse)
             isReversed: \(isReversed)
             integralizeValues: \(integralizeValues)
+            autoStarts: \(autoStarts)
             scrubsLinearly: \(scrubsLinearly)
 
             callback: \(String(describing: valueChanged))

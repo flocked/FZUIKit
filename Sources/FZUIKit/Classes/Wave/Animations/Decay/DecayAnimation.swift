@@ -249,16 +249,20 @@ extension DecayAnimation: CustomStringConvertible {
         """
         DecayAnimation<\(Value.self)>(
             uuid: \(id)
-            groupUUID: \(String(describing: groupUUID))
+            groupUUID: \(groupUUID?.description ?? "nil")
             priority: \(relativePriority)
             state: \(state)
 
-            value: \(String(describing: value))
-            velocity: \(String(describing: velocity))
-            target: \(String(describing: target))
+            value: \(value)
+            velocity: \(velocity)
+            target: \(target)
 
-            integralizeValues: \(integralizeValues)
             decelerationRate: \(decelerationRate)
+            repeats: \(repeats)
+            autoreverse: \(autoreverse)
+            isReversed: \(isReversed)
+            integralizeValues: \(integralizeValues)
+            autoStarts: \(autoStarts)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))

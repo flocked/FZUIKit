@@ -89,6 +89,9 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             if autoStarts, state != .running, _target != _value {
                 start(afterDelay: 0.0)
             } else if state == .running {
+                if #available(macOS 14.0, *) {
+                    Swift.print(spring.settlingDuration(fromValue: value, toValue: target, initialVelocity: velocity), settlingTime, type(of: value))
+                }
                 runningTime = 0.0
                 let event = AnimationEvent.retargeted(from: Value(oldValue), to: target)
                 completion?(event)
@@ -233,18 +236,20 @@ extension SpringAnimation: CustomStringConvertible {
         """
         SpringAnimation<\(Value.self)>(
             uuid: \(id)
-            groupUUID: \(String(describing: groupUUID))
+            groupUUID: \(groupUUID?.description ?? "nil")
             priority: \(relativePriority)
             state: \(state)
 
-            value: \(String(describing: value))
-            target: \(String(describing: target))
-            velocity: \(String(describing: velocity))
+            value: \(value)
+            target: \(target)
+            velocity: \(velocity)
 
             mode: \(spring.response > 0 ? "animated" : "nonAnimated")
             settlingTime: \(settlingTime)
+            repeats: \(repeats)
+            autoreverse: \(autoreverse)
+            isReversed: \(isReversed)
             integralizeValues: \(integralizeValues)
-            stopsOnCompletion: \(stopsOnCompletion)
             autoStarts: \(autoStarts)
 
             callback: \(String(describing: valueChanged))
