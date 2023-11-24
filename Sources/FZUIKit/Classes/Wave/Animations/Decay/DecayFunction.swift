@@ -18,26 +18,6 @@ public let ScrollViewDecelerationRate: Double = 0.998
 /// A fast deceleration rate for a scroll view.
 public let ScrollViewDecelerationRateFast: Double = 0.99
 
-func decayAnimation() {
-    let decelerationRate: Double = 0.998
-    var value: CGFloat = 10
-    var velocity: CGFloat = 100
-    let deltaTime: TimeInterval = 1/60
-    updateDecay(value: &value, velocity: &velocity, deltaTime: deltaTime, decelerationRate: decelerationRate)
-}
-
-public func updateDecay<V>(value: inout V, velocity: inout V, deltaTime: TimeInterval, decelerationRate: Double) where V : VectorArithmetic {
-    let one_ln_decelerationRate_1000 =  1.0 / (log(decelerationRate) * 1000.0)
-    
-    let d_1000_dt = pow(decelerationRate, deltaTime * 1000.0)
-    
-    // Analytic decay equation with constants extracted out.
-    value = value + velocity.scaled(by:  ((d_1000_dt - 1.0) * one_ln_decelerationRate_1000))
-    
-    // Velocity is the derivative of the above equation
-    velocity = velocity.scaled(by: d_1000_dt)
-}
-
 public struct DecayFunction: Hashable {
     /// The rate at which the velocity decays over time.
     public var decelerationRate: Double {
@@ -46,7 +26,7 @@ public struct DecayFunction: Hashable {
         }
     }
 
-    /// A cached invocation of `1.0 / (ln(decelerationRate) * 1000.0)`
+    /// A cached invocation of `1.0 / (log(decelerationRate) * 1000.0)`
     private(set) public var one_ln_decelerationRate_1000: Double = 0.0
     
     /**
@@ -132,6 +112,11 @@ extension DecayFunction {
      */
     public static func velocity<V>(fromValue: V, toValue: V, decelerationRate: Double = ScrollViewDecelerationRate) -> V where V : VectorArithmetic {
         let decay = log(decelerationRate) * 1000.0
+        
+        let velocity = (fromValue - toValue).scaled(by: decay)
+        let duration = log(velocity.magnitudeSquared) / log(decelerationRate)
+        Swift.print("decayDuration", duration)
+        
         return (fromValue - toValue).scaled(by: decay)
     }
     
