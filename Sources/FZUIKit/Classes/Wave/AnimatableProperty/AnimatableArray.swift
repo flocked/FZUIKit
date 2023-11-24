@@ -368,6 +368,7 @@ extension AnimatableArray: Comparable where Element: Comparable {
     }
 }
 
+/*
 protocol InterpolatablePosition {
     func interolatePosition(fromValue: Self, toValue: Self) -> Double
 }
@@ -405,7 +406,6 @@ extension AnimatablePair: InterpolatablePosition where First: InterpolatablePosi
     }
 }
 
-
 extension AnimatableArray: InterpolatablePosition where Element: InterpolatablePosition {
     func interolatePosition(fromValue: Self, toValue: Self) -> Double {
         var positions: [Double] = []
@@ -416,16 +416,4 @@ extension AnimatableArray: InterpolatablePosition where Element: InterpolatableP
         return positions.average()
     }
 }
-
-/*
-extension AnimatableArray where Element: FloatingPointInitializable {
-    func interolatePosition(fromValue: Self, toValue: Self) -> Double {
-        var positions: [Element] = []
-        for (index, value) in self.elements.enumerated() {
-           let position = (value - fromValue[index]) / (toValue[index] - fromValue[index])
-            positions.append(position)
-        }
-        return positions.average()
-    }
-}
- */
+*/
