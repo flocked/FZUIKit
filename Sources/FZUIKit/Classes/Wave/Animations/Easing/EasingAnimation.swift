@@ -53,7 +53,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var scrubsLinearly: Bool = false
     
     /// The completion percentage of the animation.
-    var fractionComplete: CGFloat = 0.0 {
+    public var fractionComplete: CGFloat = 0.0 {
         didSet {
             fractionComplete = fractionComplete.clamped(max: 1.0)
         }
@@ -98,9 +98,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
-
-    /// The completion block gets called to remove the animation from the animators `animations` dictionary.
-    var animatorCompletion: (()->())? = nil
     
     /**
      Creates a new animation with the specified timing curve and duration, and optionally, an initial and target value.

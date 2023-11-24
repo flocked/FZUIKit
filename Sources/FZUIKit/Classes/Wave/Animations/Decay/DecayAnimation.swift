@@ -128,7 +128,6 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
             updateTotalDuration()
         }
     }
-
     
     var fromVelocity: Value {
         get { Value(_fromVelocity) }
