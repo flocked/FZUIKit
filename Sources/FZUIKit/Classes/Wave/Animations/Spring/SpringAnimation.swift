@@ -89,9 +89,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             if autoStarts, state != .running, _target != _value {
                 start(afterDelay: 0.0)
             } else if state == .running {
-                if #available(macOS 14.0, *) {
-                    Swift.print(spring.settlingDuration(fromValue: value, toValue: target, initialVelocity: .zero), settlingTime, type(of: value))
-                }
                 runningTime = 0.0
                 let event = AnimationEvent.retargeted(from: Value(oldValue), to: target)
                 completion?(event)
