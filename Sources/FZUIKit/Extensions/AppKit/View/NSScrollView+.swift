@@ -13,13 +13,29 @@ import FZSwiftUtils
 
 public extension NSScrollView {
     /**
-     The point at which the origin of the content view is offset from the origin of the scroll view.
+     The point at which the origin of the document view is offset from the origin of the scroll view.
 
-     The default value is CGPointZero.
+     The default value is `zero`. The value can be animated via `animator()`.
      */
     @objc dynamic var contentOffset: CGPoint {
         get { return documentVisibleRect.origin }
-        set {  documentView?.scroll(newValue) }
+        set {
+            NSView.swizzleAnimationForKey()
+            documentView?.scroll(newValue)
+        }
+    }
+    
+    /**
+     The size of the document view, or `nil` if there isn't a document view.
+     
+     The value can be animated via `animator()`.
+     */
+    @objc dynamic var documentSize: CGSize {
+        get { documentView?.frame.size ?? NSSize.zero }
+        set {
+            NSView.swizzleAnimationForKey()
+            documentView?.setFrameSize(newValue)
+        }
     }
 
     /**

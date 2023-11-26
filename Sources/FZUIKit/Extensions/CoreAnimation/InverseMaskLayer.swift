@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  InverseMaskLayer.swift
 //  
 //
 //  Created by Florian Zand on 28.10.23.

@@ -15,7 +15,7 @@ import SwiftUI
 
  Springs are created by providing a ``dampingRatio`` greater than zero, and _either_ a ``response`` or ``stiffness`` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
  */
-public struct Spring: @unchecked Sendable, Hashable {
+public struct Spring: Sendable, Hashable {
     // MARK: - Spring Properties
     
     /// The amount of oscillation the spring will exhibit (i.e. "springiness").

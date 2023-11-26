@@ -24,6 +24,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive
     
+    /// The delay (in seconds) after which the animations begin.
+    public internal(set) var delay: TimeInterval = 0.0
+    
     /// The information used to determine the timing curve for the animation.
     public var timingFunction: TimingFunction = .easeInEaseOut
     
@@ -118,7 +121,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     deinit {
-        AnimationController.shared.stopPropertyAnimation(self)
+        AnimationController.shared.stopAnimation(self)
     }
     
     /// The item that starts the animation delayed.

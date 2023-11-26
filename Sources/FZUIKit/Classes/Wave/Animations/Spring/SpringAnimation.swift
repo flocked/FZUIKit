@@ -26,6 +26,9 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
     /// The current state of the animation (`inactive`, `running`, or `ended`).
     public internal(set) var state: AnimationState = .inactive
+    
+    /// The delay (in seconds) after which the animations begin.
+    public internal(set) var delay: TimeInterval = 0.0
 
     /// The spring model that determines the animation's motion.
     public var spring: Spring
@@ -155,7 +158,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     deinit {
-        AnimationController.shared.stopPropertyAnimation(self)
+        AnimationController.shared.stopAnimation(self)
     }
     
     /// The item that starts the animation delayed.
@@ -255,22 +258,3 @@ extension SpringAnimation: CustomStringConvertible {
     }
 }
 #endif
-
-
-/*
-if animationFinished == false, let epsilon = self.epsilon, let value = self.value?.animatableValue as? AnimatableVector, let target = self.target?.animatableValue as? AnimatableVector {
-    let val = value.isApproximatelyEqual(to: target, epsilon: epsilon)
-    animationFinished = val
-}
- */
-
-/*
-/// Resets the animation.
-public func reset() {
-    state = .inactive
-    velocity = .zero
-    target = value
-    fromValue = value
-    startTime = .now
-}
-*/

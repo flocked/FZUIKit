@@ -10,7 +10,7 @@ import Accelerate
 import FZSwiftUtils
 
 /// A bezier curve that can be used to calculate timing functions.
-public struct UnitBezier: Hashable {
+public struct UnitBezier: Hashable, Sendable {
     
     /// The first point of the bezier.
     public var first: CGPoint {

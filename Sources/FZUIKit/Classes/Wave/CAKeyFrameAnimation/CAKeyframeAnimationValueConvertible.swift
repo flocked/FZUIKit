@@ -18,37 +18,33 @@ import FZSwiftUtils
 
 // MARK: - CAKeyframeAnimationValueConvertible
 
-/**
- A protocol for types to supply the ability to convert themselves into `NSValue` or `NSNumber` for use with `CAKeyframeAnimation`. This is required for `CAKeyframeAnimationEmittable`.
-
- - Note: This is required for using `CAKeyframeAnimationEmittable`.
- */
+///  A type that can be converted to a value that can be used with `CAKeyframeAnimation` . It is required for ``CAKeyframeAnimationEmittable``.
 public protocol CAKeyframeAnimationValueConvertible {
-    func toKeyframeValue() -> AnyObject
+    associatedtype KeyFrameValue: AnyObject
+    /// The representation of the value that can be used `CAKeyframeAnimation`.
+    func toKeyframeValue() -> KeyFrameValue
 }
 
 extension Float: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSNumber {
         return self as NSNumber
     }
 }
 
 extension Double: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSNumber {
         return self as NSNumber
     }
 }
 
-// MARK: CoreGraphics Types
-
 extension CGFloat: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSNumber {
         return self as NSNumber
     }
 }
 
 extension CGPoint: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSValue {
         #if os(macOS)
         return NSValue(point: self)
         #else
@@ -58,7 +54,7 @@ extension CGPoint: CAKeyframeAnimationValueConvertible {
 }
 
 extension CGSize: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSValue {
         #if os(macOS)
         return NSValue(size: self)
         #else
@@ -69,7 +65,7 @@ extension CGSize: CAKeyframeAnimationValueConvertible {
 }
 
 extension CGRect: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSValue {
         #if os(macOS)
         return NSValue(rect: self)
         #else
@@ -79,31 +75,31 @@ extension CGRect: CAKeyframeAnimationValueConvertible {
 }
 
 extension CGColor: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> CGColor {
         self
     }
 }
 
 extension NSUIColor: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> CGColor {
         self.cgColor
     }
 }
 
 extension CATransform3D: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSValue {
         NSValue(caTransform3D: self)
     }
 }
 
 extension CGAffineTransform: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSValue {
         NSValue(cgAffineTransform: self)
     }
 }
 
 extension NSUIEdgeInsets: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSValue {
         #if os(macOS)
         NSValue(edgeInsets: self)
         #else
@@ -113,7 +109,7 @@ extension NSUIEdgeInsets: CAKeyframeAnimationValueConvertible {
 }
 
 extension NSDirectionalEdgeInsets: CAKeyframeAnimationValueConvertible {
-    public func toKeyframeValue() -> AnyObject {
+    public func toKeyframeValue() -> NSValue {
         NSValue(directionalEdgeInsets: self)
     }
 }

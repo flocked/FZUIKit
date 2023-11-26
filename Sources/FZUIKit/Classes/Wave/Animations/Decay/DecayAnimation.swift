@@ -25,16 +25,10 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     public var relativePriority: Int = 0
     
     /// The current state of the animation (`inactive`, `running`, or `ended`).
-    public internal(set) var state: AnimationState = .inactive {
-        didSet {
-            switch (oldValue, state) {
-            case (.inactive, .running):
-                runningTime = 0.0
-            default:
-                break
-            }
-        }
-    }
+    public internal(set) var state: AnimationState = .inactive
+    
+    /// The delay (in seconds) after which the animations begin.
+    public internal(set) var delay: TimeInterval = 0.0
     
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
@@ -60,7 +54,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// The decay function used to calculate the animation.
     var decayFunction: DecayFunction {
         didSet {
-            guard oldValue.decelerationRate != decayFunction.decelerationRate else { return }
+            guard oldValue != decayFunction else { return }
             updateAnimationDuration()
         }
     }
@@ -200,7 +194,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     deinit {
-        AnimationController.shared.stopPropertyAnimation(self)
+        AnimationController.shared.stopAnimation(self)
     }
     
     /// The item that starts the animation delayed.

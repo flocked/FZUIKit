@@ -10,9 +10,6 @@ import SwiftUI
 import Accelerate
 import FZSwiftUtils
 
-/// An array with double values that can serve as the animatable data of an animatable type (see ``AnimatableProperty``).
-public typealias AnimatableVector = AnimatableArray<Double>
-
 /// An array that can serve as the animatable data of an animatable type (see ``AnimatableProperty``).
 public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
     internal var elements: [Element] = []

@@ -21,6 +21,15 @@ public protocol AnimationProviding {
     /// The current state of the animation.
     var state: AnimationState { get }
     
+    /// The delay (in seconds) after which the animations begin.
+    /**
+     The delay (in seconds) after which the animations begin.
+     
+     The default value of this property is `0`. When the value is greater than `0`, the start of any animations is delayed by the specified amount of time.
+     To set a value for this property, use the ``start(afterDelay:)`` method when starting your animations.
+     */
+    var delay: TimeInterval { get }
+    
     /**
      Updates the progress of the animation with the specified delta time.
 
@@ -55,10 +64,11 @@ extension AnimationProviding {
         guard state != .running else { return }
         
         let start = {
-            AnimationController.shared.runPropertyAnimation(self)
+            AnimationController.shared.runAnimation(self)
         }
         
         animation.delayedStart?.cancel()
+        animation.delay = delay
 
         if delay == .zero {
             start()
@@ -76,7 +86,7 @@ extension AnimationProviding {
         guard state == .running else { return }
         animation.state = .inactive
         animation.delayedStart?.cancel()
-        AnimationController.shared.stopPropertyAnimation(self)
+        AnimationController.shared.stopAnimation(self)
     }
     
     public func stop(at position: AnimationPosition = .current, immediately: Bool = true) {
@@ -89,6 +99,7 @@ extension AnimationProviding {
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
     var state: AnimationState { get set }
+    var delay: TimeInterval { get set }
     var value: Value { get set }
     var target: Value { get set }
     var fromValue: Value { get set }
@@ -153,7 +164,7 @@ internal extension ConfigurableAnimationProviding {
             (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
             (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
             completion?(.finished(at: value))
-            AnimationController.shared.stopPropertyAnimation(self)
+            AnimationController.shared.stopAnimation(self)
         }
     }
     

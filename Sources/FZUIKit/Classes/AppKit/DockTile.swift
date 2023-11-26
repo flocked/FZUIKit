@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DockTile.swift
 //  
 //
 //  Created by Florian Zand on 01.11.23.

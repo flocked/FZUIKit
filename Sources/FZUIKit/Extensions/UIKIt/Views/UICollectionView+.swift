@@ -1,40 +1,37 @@
 //
-//  NSCollectionView+DisplayingItems.swift
-//  
+//  UICollectionView+.swift
 //
-//  Created by Florian Zand on 05.07.23.
+//
+//  Created by Florian Zand on 26.11.23.
 //
 
-#if os(macOS)
+#if os(iOS) || os(tvOS)
+import UIKit
 
-import AppKit
-import Foundation
-import FZSwiftUtils
-
-public extension NSCollectionView {
-    /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
+public extension UICollectionView {
+    /// Returns the index paths of the currently displayed cells. Unlike `indexPathsForVisibleItems()`  it only returns the cells with visible frame.
     func displayingIndexPaths() -> [IndexPath] {
-        return (displayingItems().compactMap { self.indexPath(for: $0) }).sorted()
+        return (displayingCells().compactMap { self.indexPath(for: $0) }).sorted()
     }
     
-    /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
-    func displayingItems() -> [NSCollectionViewItem] {
-        let visibleItems = self.visibleItems()
+    /// Returns an array of all displayed cells. Unlike `visibleCells()` it only returns the items with visible frame.
+    func displayingCells() -> [UICollectionViewCell] {
+        let visibleCells = self.visibleCells()
         let visibleRect = self.visibleRect
-        return visibleItems.filter { NSIntersectsRect($0.view.frame, visibleRect) }
+        return visibleCells.filter { NSIntersectsRect($0.frame, visibleRect) }
     }
     
-    /// Handlers that get called whenever the collection view is displaying new items (e.g. when the enclosing scrollview gets scrolled to new items).
+    /// Handlers that get called whenever the collection view is displaying new items.
     var displayingItemsHandlers: DisplayingItemsHandlers {
-        get { getAssociatedValue(key: "NSCollectionView_displayingItemsHandlers", object: self, initialValue: DisplayingItemsHandlers()) }
+        get { getAssociatedValue(key: "displayingItemsHandlers", object: self, initialValue: DisplayingItemsHandlers()) }
         set {
-            set(associatedValue: newValue, key: "NSCollectionView_displayingItemsHandlers", object: self)
+            set(associatedValue: newValue, key: "displayingItemsHandlers", object: self)
             setupDisplayingItemsTracking()
         }
     }
     
     /**
-     Handlers for the displaying items (e.g. when the enclosing scrollview gets scrolled to new items).
+     Handlers for the displaying items.
      
      The handlers get called whenever the collection view is displaying new items.
      */
@@ -46,13 +43,18 @@ public extension NSCollectionView {
     }
     
     internal var previousDisplayingIndexPaths: [IndexPath] {
-        get { getAssociatedValue(key: "NSCollectionView_previousDisplayingIndexPaths", object: self, initialValue: []) }
+        get { getAssociatedValue(key: "previousDisplayingIndexPaths", object: self, initialValue: []) }
         set {
-            set(associatedValue: newValue, key: "NSCollectionView_previousDisplayingIndexPaths", object: self)
+            set(associatedValue: newValue, key: "previousDisplayingIndexPaths", object: self)
         }
     }
     
-    @objc internal func didScroll(_ any: Any) {
+    internal var contentOffsetObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "contentOffsetObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "contentOffsetObserver", object: self) }
+    }
+    
+    @objc internal func didScroll() {
         let isDisplaying = self.displayingItemsHandlers.isDisplaying
         let didEndDisplaying = self.displayingItemsHandlers.didEndDisplaying
         guard isDisplaying != nil || didEndDisplaying != nil else { return }
@@ -81,10 +83,14 @@ public extension NSCollectionView {
     internal func setupDisplayingItemsTracking() {
         guard let contentView = self.enclosingScrollView?.contentView else { return }
         if self.displayingItemsHandlers.isDisplaying != nil || self.displayingItemsHandlers.didEndDisplaying != nil {
-            contentView.postsBoundsChangedNotifications = true
-            NotificationCenter.default.addObserver(self, selector: #selector(self.didScroll(_:)), name: NSView.boundsDidChangeNotification, object: contentView)
+            if contentOffsetObserver == nil {
+                contentOffsetObserver = self.observeChanges(for: \.contentOffset, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.didScroll()
+                })
+            }
         } else {
-            NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: contentView)
+            contentOffsetObserver = nil
         }
     }
 }

@@ -9,6 +9,7 @@
 
 import AppKit
 import Foundation
+import FZSwiftUtils
 
 public extension NSCollectionView {
     /**
@@ -75,29 +76,50 @@ public extension NSCollectionView {
         }
     }
 
-    var contentOffset: CGPoint {
-        get { return enclosingScrollView?.contentOffset ?? .zero }
-        set { enclosingScrollView?.contentOffset = newValue }
+    /**
+     The point at which the origin of the document view is offset from the origin of the scroll view.
+
+     The default value is `zero`. The value can be animated via `animator()`.
+     */
+    @objc dynamic var contentOffset: CGPoint {
+        get { enclosingScrollView?.contentOffset ?? .zero }
+        set { 
+            NSView.swizzleAnimationForKey()
+            enclosingScrollView?.contentOffset = newValue }
     }
 
-    var contentSize: CGSize { return enclosingScrollView?.contentSize ?? .zero }
+    /**
+     The size of the document view, or `nil` if there isn't a document view.
+     
+     The value can be animated via `animator()`.
+     */
+    @objc dynamic var documentSize: CGSize {
+        get { enclosingScrollView?.documentView?.frame.size ?? NSSize.zero }
+        set {
+            NSView.swizzleAnimationForKey()
+            enclosingScrollView?.documentView?.setFrameSize(newValue)
+        }
+    }
 }
 
 public extension NSCollectionView {
-    typealias SavedScrollPosition = NSScrollView.SavedScrollPosition
+    /// A saved scroll position.
+    struct SavedScrollPosition {
+        let displayingIndexPaths: [IndexPath]
+    }
     
     /// Saves the current scroll position.
     func saveScrollPosition() -> SavedScrollPosition {
-        return SavedScrollPosition(bounds: bounds, visible: visibleRect)
+        SavedScrollPosition(displayingIndexPaths: displayingIndexPaths())
     }
-
+    
     /**
      Restores the specified saved scroll position.
      
      - Parameters scrollPosition: The scroll position to restore.
      */
     func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
-        self.enclosingScrollView?.restoreScrollPosition(scrollPosition)
+        self.scrollToItems(at: .init(scrollPosition.displayingIndexPaths), scrollPosition: [])
     }
 }
 

@@ -17,7 +17,7 @@ import FZSwiftUtils
 
 /// Manages all `Wave` animations.
 internal class AnimationController {
-    static let shared = AnimationController()
+    public static let shared = AnimationController()
 
     private var displayLink: AnyCancellable?
 
@@ -44,7 +44,7 @@ internal class AnimationController {
         animationSettingsStack.pop()
     }
 
-    func runPropertyAnimation(_ animation: AnimationProviding) {
+    public func runAnimation(_ animation: AnimationProviding) {
         if animations.isEmpty {
             startDisplayLink()
         }
@@ -54,11 +54,11 @@ internal class AnimationController {
         animation.updateAnimation(deltaTime: .zero)
     }
     
-    func stopPropertyAnimation(_ animation: AnimationProviding) {
+    public func stopAnimation(_ animation: AnimationProviding) {
         animations[animation.id] = nil
     }
     
-    func stopAllPropertyAnimations(immediately: Bool = true) {
+    public func stopAllAnimations(immediately: Bool = true) {
         animations.values.forEach({$0.stop(at: .current, immediately: immediately)})
     }
 
@@ -81,7 +81,7 @@ internal class AnimationController {
 
         for animation in sortedAnimations {
             if animation.state == .ended {
-                self.stopPropertyAnimation(animation)
+                self.stopAnimation(animation)
             } else {
                 animation.updateAnimation(deltaTime: dt)
             }
@@ -241,6 +241,7 @@ extension AnimationController {
         }
     }
 }
+
 #endif
 
 /*

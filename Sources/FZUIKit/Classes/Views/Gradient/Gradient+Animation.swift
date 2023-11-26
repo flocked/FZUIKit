@@ -13,18 +13,16 @@ import AppKit
 import UIKit
 #endif
 import SwiftUI
-/*
+
 extension Gradient.Stop: AnimatableProperty {
-    public var animatableData: AnimatableVector {
+    public var animatableData: AnimatableArray<Double> {
         let rgba = self.color.rgbaComponents()
         return [rgba.red, rgba.green, rgba.blue, rgba.red, location]
     }
     
-    public init(_ animatableData: AnimatableVector) {
-        Swift.print("init stop")
+    public init(_ animatableData: AnimatableArray<Double>) {
         self.color = NSUIColor(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
         self.location = animatableData[4]
-        Swift.print("init stop finish")
     }
     
     public static var zero: Gradient.Stop {
@@ -33,30 +31,29 @@ extension Gradient.Stop: AnimatableProperty {
 }
 
 extension Gradient.Point: AnimatableProperty {
-    public var animatableData: AnimatableVector {
+    public init(_ animatableData: AnimatableArray<Double>) {
+        self.x = animatableData[0]
+        self.y = animatableData[1]
+    }
+    
+    public var animatableData: AnimatableArray<Double> {
         [x, y]
     }
     
     public static var zero: Gradient.Point {
         Gradient.Point(x: 0, y: 0)
     }
-    
-    public init(_ animatableData: AnimatableVector) {
-        Swift.print("init gradientPoint")
-        self.x = animatableData[0]
-        self.y = animatableData[1]
-        Swift.print("init gradientPoint finish")
-    }
 }
 
+/*
 extension Gradient: AnimatableProperty {
-    public var animatableData: AnimatableVector {
-        var animatableData: AnimatableVector = [Double(type.rawValue), startPoint.x, startPoint.y, endPoint.x, endPoint.y]
+    public var animatableData: AnimatableArray<Double> {
+        var animatableData: AnimatableArray<Double> = [Double(type.rawValue), startPoint.x, startPoint.y, endPoint.x, endPoint.y]
         animatableData.append(contentsOf: stops.flatMap({ $0.animatableData.elements }))
         return animatableData
     }
     
-    public init(_ animatableData: AnimatableVector) {
+    public init(_ animatableData: AnimatableArray<Double>) {
         self.type = .init(rawValue: Int(animatableData[0])) ?? .linear
         self.startPoint = .init(x: animatableData[1], y: animatableData[2])
         self.endPoint = .init(x: animatableData[3], y: animatableData[4])
@@ -66,7 +63,7 @@ extension Gradient: AnimatableProperty {
         Swift.print("init gradient 3", animatableData["stops"]!.count)
         if animatableData["stops"]!.isEmpty == false {
            let chunks = animatableData["stops"]!.chunked(size: 5)
-            self.stops = chunks.compactMap({ Stop(AnimatableVector($0)) })
+            self.stops = chunks.compactMap({ Stop(AnimatableArray<Double>($0)) })
         } else {
             self.stops = []
         }
