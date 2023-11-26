@@ -80,10 +80,11 @@ extension NSView {
      The view whose inverse alpha channel is used to mask a view’s content.
 
      In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var inverseMask: NSView? {
         get { mask }
-           // return getAssociatedValue(key: "maskView", object: self) }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
