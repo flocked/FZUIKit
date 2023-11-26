@@ -268,9 +268,9 @@ internal extension DynamicPropertyAnimator {
         }
         #if os(iOS) || os(tvOS)
         if settings.preventUserInteraction {
-            (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.insert(animation.id)
+            (self as? DynamicPropertyAnimator<UIView>)?.preventingUserInteractionAnimations.insert(animation.id)
         } else {
-            (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
+            (self as? DynamicPropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
         }
         #endif
         
@@ -281,7 +281,7 @@ internal extension DynamicPropertyAnimator {
                 completion?()
                 self?.animations[animationKey] = nil
                 #if os(iOS) || os(tvOS)
-                (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
+                (self as? DynamicPropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
                 #endif
                 AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
             default:

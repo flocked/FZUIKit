@@ -9,7 +9,6 @@
 #if canImport(QuartzCore)
 import Foundation
 import QuartzCore
-import AppKit
 public extension CALayer {
     /**
      Adds a supported animation conforming to `CAKeyframeAnimationEmittable` to the layer.
@@ -62,12 +61,6 @@ public extension CALayer {
         let keyframeAnimation = springAnimation.keyframeAnimation(forFramerate: nil)
         keyframeAnimation.keyPath = keyPath.stringValue
         add(keyframeAnimation, forKey: key ?? keyPath.stringValue)
-    }
-    
-    
-    func test() {
-        let springAnimation = SpringAnimation(spring: .bouncy, value: NSColor.red.cgColor, target: NSColor.red.cgColor)
-        self.add(springAnimation, keyPath: \.backgroundColor)
     }
     
     /**

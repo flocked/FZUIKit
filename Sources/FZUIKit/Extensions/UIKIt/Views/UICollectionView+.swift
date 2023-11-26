@@ -7,6 +7,7 @@
 
 #if os(iOS) || os(tvOS)
 import UIKit
+import FZSwiftUtils
 
 public extension UICollectionView {
     /// Returns the index paths of the currently displayed cells. Unlike `indexPathsForVisibleItems()`  it only returns the cells with visible frame.
@@ -16,9 +17,9 @@ public extension UICollectionView {
     
     /// Returns an array of all displayed cells. Unlike `visibleCells()` it only returns the items with visible frame.
     func displayingCells() -> [UICollectionViewCell] {
-        let visibleCells = self.visibleCells()
-        let visibleRect = self.visibleRect
-        return visibleCells.filter { NSIntersectsRect($0.frame, visibleRect) }
+        let visibleCells = self.visibleCells
+        let visibleRect = CGRectIntersection(self.frame, superview?.bounds ?? self.frame)
+        return visibleCells.filter { $0.frame.intersects(visibleRect) }
     }
     
     /// Handlers that get called whenever the collection view is displaying new items.
@@ -81,7 +82,6 @@ public extension UICollectionView {
     }
     
     internal func setupDisplayingItemsTracking() {
-        guard let contentView = self.enclosingScrollView?.contentView else { return }
         if self.displayingItemsHandlers.isDisplaying != nil || self.displayingItemsHandlers.didEndDisplaying != nil {
             if contentOffsetObserver == nil {
                 contentOffsetObserver = self.observeChanges(for: \.contentOffset, handler: { [weak self] old, new in
