@@ -15,7 +15,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-/// Manages all `Wave` animations.
+/// Manages all ``Wave`` animations.
 internal class AnimationController {
     public static let shared = AnimationController()
 
@@ -23,7 +23,7 @@ internal class AnimationController {
 
     private var animations: [UUID: AnimationProviding] = [:]
     private var animationSettingsStack = SettingsStack()
-
+    
     typealias CompletionBlock = (_ finished: Bool, _ retargeted: Bool) -> Void
     var groupAnimationCompletionBlocks: [UUID: CompletionBlock] = [:]
 
@@ -60,7 +60,7 @@ internal class AnimationController {
         animations[animation.id] = nil
     }
     
-    public func stopAllAnimations(immediately: Bool = true) {
+    func stopAllAnimations(immediately: Bool = true) {
         animations.values.forEach({$0.stop(at: .current, immediately: immediately)})
     }
 
@@ -72,12 +72,11 @@ internal class AnimationController {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
 
-        var dt = frame.duration
-    
         #if os(macOS)
-        dt = dt / 2.0
+        let deltaTime = frame.duration / 2.0
+        #else
+        let deltaTime = frame.duration
         #endif
-         
         
         let sortedAnimations = animations.values.sorted(by: \.relativePriority, .descending)
 
@@ -85,7 +84,7 @@ internal class AnimationController {
             if animation.state == .ended {
                 self.stopAnimation(animation)
             } else {
-                animation.updateAnimation(deltaTime: dt)
+                animation.updateAnimation(deltaTime: deltaTime)
             }
         }
 
@@ -99,9 +98,8 @@ internal class AnimationController {
     private func startDisplayLink() {
         if displayLink == nil {
             displayLink = DisplayLink.shared.sink { [weak self] frame in
-                if let self = self {
-                    self.updateAnimations(frame)
-                }
+                guard let self = self else { return }
+                self.updateAnimations(frame)
             }
         }
     }
@@ -115,7 +113,7 @@ internal class AnimationController {
         guard let uuid = uuid, let block = groupAnimationCompletionBlocks[uuid] else {
             return
         }
-
+        
         block(finished, retargeted)
 
         if retargeted == false, finished {

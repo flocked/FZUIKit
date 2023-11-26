@@ -23,9 +23,21 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     /// The relative priority of the animation.
     public var relativePriority: Int = 0
-
+    
     /// The current state of the animation (`inactive`, `running`, or `ended`).
-    public internal(set) var state: AnimationState = .inactive
+    public internal(set) var state: AnimationState = .inactive {
+        didSet { 
+            guard oldValue != state else { return }
+            switch state {
+            case .inactive:
+                AnimationController.shared.stopAnimation(self)
+            case .running:
+                AnimationController.shared.runAnimation(self)
+            case .ended:
+                break
+            }
+        }
+    }
     
     /// The delay (in seconds) after which the animations begin.
     public internal(set) var delay: TimeInterval = 0.0

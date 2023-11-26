@@ -162,18 +162,16 @@ internal extension DynamicPropertyAnimator {
     /// Animates the value of the property at the keypath to a new value.
     func setValue<Value: AnimatableProperty>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, key: String? = nil, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.nonAnimate {
-                self.setValue(newValue, for: keyPath, key: key)
-            }
+            Wave.nonAnimate { self.setValue(newValue, for: keyPath, key: key) }
             return
         }
         
         guard settings.animationType.isVelocityUpdate == false else {
-            (self.animation(for: keyPath, key: key) as? (any AnimationVelocityProviding))?.setVelocity(newValue, delay: settings.delay)
+            self.velocityAnimation(for: keyPath, key: key)?.setVelocity(newValue, delay: settings.delay)
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.animationType.isNonAnimated) else {
+        guard value(for: keyPath, key: key) != newValue || settings.animationType.isNonAnimated else {
             return
         }
         
@@ -205,18 +203,16 @@ internal extension DynamicPropertyAnimator {
     /// Animates the value of the property at the keypath to a new value.
     func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, key: String? = nil, completion: (()->())? = nil)  {
         guard let settings = AnimationController.shared.currentAnimationParameters else {
-            Wave.nonAnimate {
-                self.setValue(newValue, for: keyPath, key: key)
-            }
+            Wave.nonAnimate { self.setValue(newValue, for: keyPath, key: key) }
             return
         }
         
         guard settings.animationType.isVelocityUpdate == false else {
-            (self.animation(for: keyPath, key: key) as? (any AnimationVelocityProviding))?.setVelocity(newValue ?? .zero, delay: settings.delay)
+            self.velocityAnimation(for: keyPath, key: key)?.setVelocity(newValue ?? .zero, delay: settings.delay)
             return
         }
         
-        guard value(for: keyPath, key: key) != newValue || (settings.animationType.isNonAnimated) else {
+        guard value(for: keyPath, key: key) != newValue || settings.animationType.isNonAnimated else {
             return
         }
         

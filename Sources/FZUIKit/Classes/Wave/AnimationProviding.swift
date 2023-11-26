@@ -21,7 +21,6 @@ public protocol AnimationProviding {
     /// The current state of the animation.
     var state: AnimationState { get }
     
-    /// The delay (in seconds) after which the animations begin.
     /**
      The delay (in seconds) after which the animations begin.
      
@@ -59,7 +58,7 @@ public protocol AnimationProviding {
 
 extension AnimationProviding {
     public func start(afterDelay delay: TimeInterval = 0.0) {
-        precondition(delay >= 0, "`delay` must be greater or equal to zero.")
+        precondition(delay >= 0, "Animation start delay must be greater or equal to zero.")
         guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state != .running else { return }
         
@@ -110,6 +109,7 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     func configure(withSettings settings: AnimationController.AnimationParameters)
     func reset()
 }
+
 
 /// An internal extension to `AnimationProviding` for animations with velocity.
 internal protocol AnimationVelocityProviding: ConfigurableAnimationProviding {
