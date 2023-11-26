@@ -11,16 +11,16 @@ import Foundation
 import SwiftUI
 
 /**
- Performs animations on animatable properties of an object conforming to ``AnimatablePropertyProvider``.
+ Performs animations on animatable properties of objects conforming to ``AnimatablePropertyProvider``.
  
  Many objects provide animatable properties.
  - macOS: `NSView`, `NSWindow`, `NSTextField`, `NSImageView`, `NSLayoutConstraint`, `CALayer` and many more.
  - iOS: `UIView`, `UILabel`, `UIImageView`, `NSLayoutConstraint`, `CALayer`  and many more.
  
  There are three different types of animations :
- - **Spring:** ``Wave/animate(withSpring:delay:gestureVelocity:options:animations:completion:)``
- - **Easing:** ``Wave/animate(withEasing:duration:options:delay:animations:completion:)``
- - **Decay:** ``Wave/animate(withDecay:decelerationRate:options:delay:animations:completion:)``.
+ - **Spring:** ``animate(withSpring:gestureVelocity:delay:options:animations:completion:)``
+ - **Easing:** ``animate(withEasing:duration:delay:options:animations:completion:)``
+ - **Decay:** ``animate(withDecay:decelerationRate:delay:options:animations:completion:)``.
  
  To animate values, you must set the values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
 
@@ -38,7 +38,7 @@ import SwiftUI
     myView.animator.backgroundColor = .systemRed
  }
  ```
- Alternatively you can also update values non animated by  using the ``AnimatablePropertyProvider/animator-54mpy`` outside of a ``Wave`` animation block.
+ Alternatively you can also update values non animated by  using the ``AnimatablePropertyProvider/animator-54mpy`` outside of a `Wave` animation block.
 
  ```swift
  myView.animator.center = newCenterPoint
@@ -51,6 +51,7 @@ public enum Wave {
     /**
      Performs spring animations based on the specified ``Spring``.
      
+     Example usage:
      ```swift
      Wave.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
         myView.animator.center = view.center
@@ -58,11 +59,11 @@ public enum Wave {
      }
      ```
      
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
-     
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
+          
      - Parameters:
         - spring: The ``Spring`` used to determine the timing curve and duration of the animation.
-        - gestureVelocity: If provided, this value will be used to set the `velocity` of whatever underlying animations run in the `animations` block and that animate `CGPoint` or `CGRect` values. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
+        - gestureVelocity: If provided, this value will be used to set the spring ``SpringAnimation/velocity`` of whatever underlying animations run in the `animations` block and that animate `CGPoint` or `CGRect` values. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
         - delay: An optional delay, in seconds, after which to start the animation.
         - options: The options to apply to the animations. For a list of options, see ``AnimationOptions``. The default value doesn't apply any options.
         - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
@@ -76,8 +77,6 @@ public enum Wave {
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
-        precondition(Thread.isMainThread)
-        
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
@@ -92,6 +91,7 @@ public enum Wave {
     /**
      Performs easing animations based on the specified ``TimingFunction``.
      
+     Example usage:
      ```swift
      Wave.animate(withEasing: .easeInEaseOut), duration: 3.0) {
         myView.animator.center = view.center
@@ -117,8 +117,6 @@ public enum Wave {
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
-        precondition(Thread.isMainThread)
-        
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
@@ -137,6 +135,7 @@ public enum Wave {
      - **value:** The properties will animate to your values with a decelerating acceleration.
      - **velocity:**:  The properties will increase or decrease depending on the values applied and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
      
+     Example usage:
      ```swift
      // Value based decay animation
      Wave.animate(withDecay: .value, animations: {
@@ -186,17 +185,12 @@ public enum Wave {
     
     /**
      Performs the specified changes non animated.
-               
-     Use it to immediately update values of properties. If the properties
      
-     For properties that are currently animated, it will stop them
-     
-     that are currently animated. It will stop their animations and applies the new values immediately.
+     Use it to immediately update values of properties. For properties that are currently animated, the animations stop.
      
      ```swift
      Wave.nonAnimate() {
         myView.animator.center = newCenterPoint
-        myView.animator.backgroundColor = .systemRed
      }
      ```
      
@@ -204,22 +198,16 @@ public enum Wave {
      
      ```swift
      myView.animator.center = newCenterPoint
-     myView.animator.backgroundColor = .systemRed
      ```
      
      - Note: For a list of all objects that provide animatable properties check ``Wave``.
      
-     - Parameters changes: A block containing the changes to your objects' animatable properties that get updated non animated.
+     - Parameter changes: A block containing the changes to your objects' animatable properties that get updated non animated.
      */
     public static func nonAnimate(changes: () -> Void) {
-        precondition(Thread.isMainThread)
-        
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
-            delay: 0.0,
-            animationType: .nonAnimated,
-            options: [],
-            completion: nil
+            animationType: .nonAnimated
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
@@ -237,6 +225,7 @@ public enum Wave {
     /**
      Updates the animation velocities for animations that support velocity values (``SpringAnimation`` and ``DecayAnimation``).
 
+     Example usage:
      ```swift
      Wave.updateVelocity() {
         myView.animator.frame.origin = newVelocity
@@ -244,13 +233,9 @@ public enum Wave {
      ```
      */
     public static func updateVelocity(changes: () -> Void) {
-        precondition(Thread.isMainThread)
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
-            delay: 0.0,
-            animationType: .velocityUpdate,
-            options: [],
-            completion: nil
+            animationType: .velocityUpdate
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)

@@ -36,6 +36,8 @@ internal class AnimationController {
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
+        precondition(Thread.isMainThread, "All Wave animations are to run and be interfaced with on the main thread only. There is no support for threading of any kind.")
+
         // Register the handler
         groupAnimationCompletionBlocks[settings.groupUUID] = completion
 
@@ -129,6 +131,14 @@ extension AnimationController {
         let animationType: AnimationType
         let options: AnimationOptions
         let completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)?
+        
+        init(groupUUID: UUID, delay: CGFloat = 0.0, animationType: AnimationType, options: AnimationOptions = [], completion: ( (_: Bool, _: Bool) -> Void)? = nil) {
+            self.groupUUID = groupUUID
+            self.delay = delay
+            self.animationType = animationType
+            self.options = options
+            self.completion = completion
+        }
 
         var repeats: Bool {
             options.contains(.repeats)

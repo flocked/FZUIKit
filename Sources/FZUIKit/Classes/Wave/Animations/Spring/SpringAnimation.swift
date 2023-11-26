@@ -45,7 +45,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
-    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes to a value that isn't equal to ``value``.
+    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes and it isn't running.
     public var autoStarts: Bool = false
     
     /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
@@ -85,16 +85,13 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     var _target: Value.AnimatableData {
         didSet {
-            guard oldValue != _target else {
-                return
-            }
-            
-            if autoStarts, state != .running, _target != _value {
-                start(afterDelay: 0.0)
-            } else if state == .running {
+            guard oldValue != _target else { return }
+            if state == .running {
                 runningTime = 0.0
                 let event = AnimationEvent.retargeted(from: Value(oldValue), to: target)
                 completion?(event)
+            } else if autoStarts, _target != _value {
+                start(afterDelay: 0.0)
             }
         }
     }

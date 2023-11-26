@@ -86,6 +86,7 @@ extension AnimationProviding {
         guard state == .running else { return }
         animation.state = .inactive
         animation.delayedStart?.cancel()
+        animation.delay = 0.0
         AnimationController.shared.stopAnimation(self)
     }
     
@@ -140,6 +141,7 @@ internal extension ConfigurableAnimationProviding {
     func internal_stop(at position: AnimationPosition, immediately: Bool = true) {
         var animation = self
         self.delayedStart?.cancel()
+        animation.delay = 0.0
         if immediately == false, isVelocityAnimation {
             switch position {
             case .start:
