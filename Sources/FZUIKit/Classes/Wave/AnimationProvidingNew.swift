@@ -9,31 +9,31 @@ import Foundation
 
 
 open class BaseAnimation<Value: AnimatableProperty>: AnimationProviding, ConfigurableAnimationProviding, AnimationVelocityProviding {
-    public var id: UUID = UUID()
-    public internal(set) var groupUUID: UUID?
-    public var relativePriority: Int = 0
-    public internal(set) var state: AnimationState = .inactive
-    public internal(set) var delay: TimeInterval = 0.0
+    open var id: UUID = UUID()
+    open internal(set) var groupUUID: UUID?
+    open var relativePriority: Int = 0
+    open internal(set) var state: AnimationState = .inactive
+    open internal(set) var delay: TimeInterval = 0.0
     internal var delayedStart: DispatchWorkItem?
-    public var fromValue: Value
-    public var value: Value
-    public var target: Value
-    public var velocity: Value
-    public var valueChanged: ((Value) -> Void)? = nil
-    public var completion: ((AnimationEvent<Value>) -> Void)?
+    open var fromValue: Value
+    open var value: Value
+    open var target: Value
+    open var velocity: Value
+    open var valueChanged: ((Value) -> Void)? = nil
+    open var completion: ((AnimationEvent<Value>) -> Void)?
 
-    public init(value: Value, target: Value) {
+    internal init(value: Value, target: Value) {
         self.value = value
         self.target = target
         self.fromValue = value
         self.velocity = .zero
     }
     
-    public func updateAnimation(deltaTime: TimeInterval) {
+    open func updateAnimation(deltaTime: TimeInterval) {
         
     }
     
-    public func start(afterDelay delay: TimeInterval = 0.0) {
+    open func start(afterDelay delay: TimeInterval = 0.0) {
         precondition(delay >= 0, "`delay` must be greater or equal to zero.")
         guard state != .running else { return }
         
@@ -55,7 +55,7 @@ open class BaseAnimation<Value: AnimatableProperty>: AnimationProviding, Configu
         }
     }
     
-    public func pause() {
+    open func pause() {
         guard state == .running else { return }
         self.state = .inactive
         self.delayedStart?.cancel()
@@ -63,7 +63,7 @@ open class BaseAnimation<Value: AnimatableProperty>: AnimationProviding, Configu
         AnimationController.shared.stopAnimation(self)
     }
     
-    public func stop(at position: AnimationPosition = .current, immediately: Bool = true) {
+    open func stop(at position: AnimationPosition = .current, immediately: Bool = true) {
         self.delayedStart?.cancel()
         self.delay = 0.0
         if immediately == false, isVelocityAnimation {
@@ -91,7 +91,7 @@ open class BaseAnimation<Value: AnimatableProperty>: AnimationProviding, Configu
         }
     }
     
-    public func reset() {
+    open func reset() {
         
     }
     
