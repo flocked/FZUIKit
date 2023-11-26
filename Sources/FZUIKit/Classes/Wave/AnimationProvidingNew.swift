@@ -12,7 +12,7 @@ open class BaseAnimation<Value: AnimatableProperty>: AnimationProviding, Configu
     open var id: UUID = UUID()
     open internal(set) var groupUUID: UUID?
     open var relativePriority: Int = 0
-    open internal(set) var state: AnimationState = .inactive
+    public internal(set) var state: AnimationState = .inactive
     open internal(set) var delay: TimeInterval = 0.0
     internal var delayedStart: DispatchWorkItem?
     open var fromValue: Value
@@ -91,7 +91,7 @@ open class BaseAnimation<Value: AnimatableProperty>: AnimationProviding, Configu
         }
     }
     
-    open func reset() {
+    public func reset() {
         
     }
     
