@@ -134,7 +134,7 @@ internal extension PropertyAnimator {
     }
     
     /// Animates the value of the property at the keypath to a new value.
-    func setValue<Value: AnimatableProperty>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>) {
+    func setValue<Value: AnimatableProperty>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, completion: (()->())? = nil) {
         guard let settings = AnimationController.shared.currentAnimationParameters, settings.isAnimation else {
             self.animation(for: keyPath)?.stop(at: .current, immediately: true)
             self.object[keyPath: keyPath] = newValue
@@ -148,14 +148,14 @@ internal extension PropertyAnimator {
         var initialValue = object[keyPath: keyPath]
         var target = newValue
         updateValue(&initialValue, target: &target)
-        var valueChanged: ((_ currentValue: Value) -> Void)? = { [weak self] value in
+        let valueChanged: ((_ currentValue: Value) -> Void)? = { [weak self] value in
             self?.object[keyPath: keyPath] = value
         }
-        setupAnimation(initialValue, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged)
+        setupAnimation(initialValue, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
     }
     
     /// Animates the value of the property at the keypath to a new value.
-    func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>) {
+    func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, completion: (()->())? = nil) {
         guard let settings = AnimationController.shared.currentAnimationParameters, settings.isAnimation else {
             self.animation(for: keyPath)?.stop(at: .current, immediately: true)
             self.object[keyPath: keyPath] = newValue
@@ -168,26 +168,26 @@ internal extension PropertyAnimator {
                 
         var initialValue = object[keyPath: keyPath] ?? Value.zero
         var target = newValue ?? Value.zero
-        var valueChanged: ((_ currentValue: Value) -> Void)? = { [weak self] value in
+        let valueChanged: ((_ currentValue: Value) -> Void)? = { [weak self] value in
             self?.object[keyPath: keyPath] = value
         }
         updateValue(&initialValue, target: &target)
-        setupAnimation(initialValue, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged)
+        setupAnimation(initialValue, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
     }
     
     /// Setups an animation for the specified value of the property at the keypath to a new value.
-    func setupAnimation<Value: AnimatableProperty>(_ value: Value, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters,  valueChanged: ((_ currentValue: Value) -> Void)?) {
+    func setupAnimation<Value: AnimatableProperty>(_ value: Value, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters,  valueChanged: ((_ currentValue: Value) -> Void)?, completion: (()->())? = nil) {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
         switch settings.animationType {
         case .spring(_,_):
             let animation = springAnimation(for: keyPath) ?? SpringAnimation(spring: .smooth, value: value, target: target)
-            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged)
+            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
         case .easing(_,_):
             let animation = easingAnimation(for: keyPath) ?? EasingAnimation(timingFunction: .linear, duration: 1.0, value: value, target: target)
-            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged)
+            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
         case .decay(_,_):
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
-            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged)
+            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
         case .velocityUpdate:
             velocityAnimation(for: keyPath)?.setVelocity(target, delay: settings.delay)
         case .nonAnimated:
@@ -196,7 +196,7 @@ internal extension PropertyAnimator {
     }
     
     /// Configurates an animation and starts it.
-    func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters, valueChanged: ((_ currentValue: Value) -> Void)?) {
+    func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters, valueChanged: ((_ currentValue: Value) -> Void)?, completion: (()->())? = nil) {
         var animation = animation
         animation.reset()
         
@@ -223,6 +223,7 @@ internal extension PropertyAnimator {
         animation.completion = { [weak self] event in
             switch event {
             case .finished:
+                completion?()
                 self?.animations[animationKey] = nil
                 #if os(iOS) || os(tvOS)
                 (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
