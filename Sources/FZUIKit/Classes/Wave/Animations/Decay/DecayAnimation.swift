@@ -61,14 +61,13 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         set { 
             guard newValue != decelerationRate else { return }
             decayFunction.decelerationRate = newValue
-            needsDurationUpdate = true
             updateTarget()
         }
     }
     
     func updateTarget() {
         _target = DecayFunction.destination(value: _fromValue, velocity: _fromVelocity, decelerationRate: decayFunction.decelerationRate)
-        // duration  = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decelerationRate: decelerationRate)
+        duration = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decelerationRate: decelerationRate)
     }
     
     /// The decay function used to calculate the animation.
@@ -83,7 +82,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         didSet {
             guard state != .running else { return }
             _fromValue = _value
-            needsDurationUpdate = true
+            updateTarget()
         }
     }
     
@@ -93,7 +92,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         set {
             guard newValue != velocity else { return }
             _velocity = newValue.animatableData
-            needsDurationUpdate = true
+            updateTarget()
             runningTime = 0.0
         }
     }
@@ -119,10 +118,11 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         set {
             let newVelocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
             if newVelocity != _velocity {
-                self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
-                self._fromVelocity = self._velocity
-                self.needsDurationUpdate = true
-                self.runningTime = 0.0
+                _velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
+                _fromVelocity = _velocity
+                duration = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decelerationRate: decelerationRate)
+                _target = newValue.animatableData
+                runningTime = 0.0
             }
         }
     }
@@ -132,7 +132,6 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
             if state == .running {
                 completion?(.retargeted(from: Value(oldValue), to: Value(_target)))
             }
-            // duration  = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decelerationRate: decelerationRate)
         }
     }
     
@@ -166,15 +165,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
-    var duration: TimeInterval  {
-        if needsDurationUpdate {
-            _duration = DecayFunction.duration(value: _fromValue, velocity: _fromVelocity, decelerationRate: decelerationRate)
-            needsDurationUpdate = false
-        }
-        return _duration 
-    }
-    var _duration: TimeInterval = 0.0
-    var needsDurationUpdate: Bool = true
+    var duration: TimeInterval = 0.0
 
     var runningTime: TimeInterval = 0.0
     
@@ -189,15 +180,15 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
      - Parameters:
         - value: The start value of the animation.
         - velocity: The velocity of the animation.
-        - decelerationRate: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecelerationRate``.
+        - decelerationRate: The rate at which the velocity decays over time. The default value decelerates like scrollviews.
      */
     public init(value: Value, velocity: Value, decelerationRate: Double = ScrollViewDecelerationRate) {
-        self.decayFunction = DecayFunction(decelerationRate: decelerationRate)
-        self._value = value.animatableData
-        self._fromValue = _value
-        self._velocity = velocity.animatableData
-        self._fromVelocity = _velocity
-        self.updateTarget()
+        decayFunction = DecayFunction(decelerationRate: decelerationRate)
+        _value = value.animatableData
+        _fromValue = _value
+        _velocity = velocity.animatableData
+        _fromVelocity = _velocity
+        updateTarget()
     }
     
     /**
@@ -206,15 +197,15 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
      - Parameters:
         - value: The start value of the animation.
         - target: The target value of the animation.
-        - decelerationRate: The rate at which the velocity decays over time. Defaults to ``DecayFunction/ScrollViewDecelerationRate``.
+        - decelerationRate: The rate at which the velocity decays over time. The default value decelerates like scrollviews.
      */
     public init(value: Value, target: Value, decelerationRate: Double = ScrollViewDecelerationRate) {
-        self.decayFunction = DecayFunction(decelerationRate: decelerationRate)
-        self._value = value.animatableData
-        self._fromValue = _value
-        self._velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
-        self._fromVelocity = _velocity
-        self.updateTarget()
+        decayFunction = DecayFunction(decelerationRate: decelerationRate)
+        _value = value.animatableData
+        _fromValue = _value
+        _velocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: target.animatableData)
+        _fromVelocity = _velocity
+        updateTarget()
     }
     
     deinit {
