@@ -432,6 +432,8 @@ public class NoKeyDownPlayerView: AVPlayerView {
     /// A Boolean value that indicates whether to ignore `keyDown` events.
     public var ignoreKeyDown = true
     
+    public var ignoreMouseDown = true
+    
     /// Handlers for a player view.
     public struct Handlers {
         /// Handler that gets called whenever the player view receives a `keyDown` event.
@@ -452,7 +454,11 @@ public class NoKeyDownPlayerView: AVPlayerView {
     
     public override func mouseDown(with event: NSEvent) {
         if (handlers.mouseDown?(event) ?? false) == false {
-            super.mouseDown(with: event)
+            if ignoreMouseDown {
+                nextResponder?.mouseDown(with: event)
+            } else {
+                super.mouseDown(with: event)
+            }
         }
     }
     
