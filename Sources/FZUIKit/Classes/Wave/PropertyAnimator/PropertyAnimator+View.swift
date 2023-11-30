@@ -142,7 +142,7 @@ extension PropertyAnimator where Object: NSUIView {
     }
     
     /// The view's layer animator.
-    public var layer: LayerAnimator {
+    public var layer: PropertyAnimator<CALayer> {
         #if os(macOS)
         self.object.wantsLayer = true
         #endif
@@ -150,7 +150,7 @@ extension PropertyAnimator where Object: NSUIView {
     }
     
     /// The property animators for the view's subviews.
-    public var subviewa: [PropertyAnimator<NSUIView>] {
+    public var subviews: [PropertyAnimator<NSUIView>] {
         object.subviews.compactMap({ $0.animator })
     }
     
