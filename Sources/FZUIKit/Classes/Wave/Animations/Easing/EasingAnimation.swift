@@ -144,6 +144,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     deinit {
+        delayedStart?.cancel()
         AnimationController.shared.stopAnimation(self)
     }
     

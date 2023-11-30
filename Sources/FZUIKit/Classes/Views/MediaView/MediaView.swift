@@ -11,7 +11,7 @@ import AVKit
 import Foundation
 import FZSwiftUtils
 
-public class MediaView: NSView {
+open class MediaView: NSView {
     public enum VideoPlaybackOption {
         case autostart
         case previousPlaybackState
@@ -355,7 +355,7 @@ public class MediaView: NSView {
         return imageView
     }()
 
-    public lazy var videoView: NoKeyDownPlayerView = {
+    internal lazy var videoView: NoKeyDownPlayerView = {
         let videoView = NoKeyDownPlayerView()
         videoView.isHidden = true
         videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: self.contentScaling) ?? .resizeAspectFill
@@ -377,7 +377,7 @@ public class MediaView: NSView {
         sharedInit()
     }
 
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }
@@ -388,15 +388,93 @@ public class MediaView: NSView {
         addSubview(withConstraint: imageView)
         addSubview(withConstraint: videoView)
     }
+    
+    open override func keyDown(with event: NSEvent) {
+        if (handlers.keyDown?(event) ?? false) == false {
+            super.keyDown(with: event)
+        }
+    }
+    
+    open override func mouseDown(with event: NSEvent) {
+        if (handlers.mouseDown?(event) ?? false) == false {
+            super.mouseDown(with: event)
+        }
+    }
+    
+    open override func rightMouseDown(with event: NSEvent) {
+        if (handlers.rightMouseDown?(event) ?? false) == false {
+            super.rightMouseDown(with: event)
+        }
+    }
+    
+    /// Handlers for a media view.
+    public struct Handlers {
+        /// Handler that gets called whenever the player view receives a `keyDown` event.
+        public var keyDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `mouseDown` event.
+        public var mouseDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
+        public var rightMouseDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `flagsChanged` event.
+        public var flagsChanged: ((NSEvent)->(Bool))? = nil
+    }
+    
+    
+    /// Handlers for the media view.
+    public var handlers: Handlers = Handlers()
 }
 
 public class NoKeyDownPlayerView: AVPlayerView {
+    
+    /// A Boolean value that indicates whether to ignore `keyDown` events.
     public var ignoreKeyDown = true
+    
+    /// Handlers for a player view.
+    public struct Handlers {
+        /// Handler that gets called whenever the player view receives a `keyDown` event.
+        public var keyDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `mouseDown` event.
+        public var mouseDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
+        public var rightMouseDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `flagsChanged` event.
+        public var flagsChanged: ((NSEvent)->(Bool))? = nil
+    }
+    
+    /// Handlers for the player view.
+    public var handlers: Handlers = Handlers()
+    
+    public override func mouseDown(with event: NSEvent) {
+        if (handlers.mouseDown?(event) ?? false) == false {
+            super.mouseDown(with: event)
+        }
+    }
+    
+    public override func rightMouseDown(with event: NSEvent) {
+        if (handlers.rightMouseDown?(event) ?? false) == false {
+            super.rightMouseDown(with: event)
+        }
+    }
+    
     override public func keyDown(with event: NSEvent) {
-        if ignoreKeyDown {
-            nextResponder?.keyDown(with: event)
-        } else {
-            super.keyDown(with: event)
+        if (handlers.keyDown?(event) ?? false) == false {
+            if ignoreKeyDown {
+                nextResponder?.keyDown(with: event)
+            } else {
+                super.keyDown(with: event)
+            }
+        }
+    }
+    
+    public override func flagsChanged(with event: NSEvent) {
+        if (handlers.flagsChanged?(event) ?? false) == false {
+            super.flagsChanged(with: event)
         }
     }
 }

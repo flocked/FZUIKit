@@ -125,8 +125,13 @@ extension PropertyAnimator where Object: CALayer {
     
     /// The shadow of the layer.
     public var shadow: ContentConfiguration.Shadow {
-        get { self[\.shadow] }
-        set { self[\.shadow] = newValue }
+        get { .init(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
+        set {
+            shadowColor = newValue._resolvedColor
+            shadowOffset = newValue.offset
+            shadowRadius = newValue.radius
+            shadowOpacity = newValue.opacity
+        }
     }
     
     internal var shadowOpacity: CGFloat {
@@ -139,9 +144,9 @@ extension PropertyAnimator where Object: CALayer {
         set { self[\.shadowColor] = newValue?.cgColor }
     }
     
-    internal var shadowOffset: CGSize {
-        get { self[\.shadowOffset] }
-        set { self[\.shadowOffset] = newValue }
+    internal var shadowOffset: CGPoint {
+        get { self[\.shadowOffset].point }
+        set { self[\.shadowOffset] = newValue.size }
     }
     
     internal var shadowRadius: CGFloat {
@@ -151,8 +156,33 @@ extension PropertyAnimator where Object: CALayer {
     
     /// The inner shadow of the layer.
     public var innerShadow: ContentConfiguration.InnerShadow {
-        get { self[\.innerShadow] }
-        set { self[\.innerShadow] = newValue }
+        get { .init(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: innerShadowOffset) }
+        set {
+            innerShadowColor = newValue._resolvedColor
+            innerShadowOffset = newValue.offset
+            innerShadowRadius = newValue.radius
+            innerShadowOpacity = newValue.opacity
+        }
+    }
+    
+    internal var innerShadowOpacity: CGFloat {
+        get { self[\.innerShadowOpacity] }
+        set { self[\.innerShadowOpacity] = newValue }
+    }
+    
+    internal var innerShadowRadius: CGFloat {
+        get { self[\.innerShadowRadius] }
+        set { self[\.innerShadowRadius] = newValue }
+    }
+    
+    internal var innerShadowOffset: CGPoint {
+        get { self[\.innerShadowOffset] }
+        set { self[\.innerShadowOffset] = newValue }
+    }
+    
+    internal var innerShadowColor: NSUIColor? {
+        get { self[\.innerShadowColor] }
+        set { self[\.innerShadowColor] = newValue }
     }
     
     /// The property animators for the layer's sublayers.
@@ -246,26 +276,6 @@ extension PropertyAnimator where Object: CALayer {
             self.object.removeFromSuperlayer()
         })
     }
-    
-    internal var innerShadowOpacity: CGFloat {
-        get { self[\.innerShadowOpacity] }
-        set { self[\.innerShadowOpacity] = newValue }
-    }
-    
-    internal var innerShadowRadius: CGFloat {
-        get { self[\.innerShadowRadius] }
-        set { self[\.innerShadowRadius] = newValue }
-    }
-    
-    internal var innerShadowOffset: CGPoint {
-        get { self[\.innerShadowOffset] }
-        set { self[\.innerShadowOffset] = newValue }
-    }
-    
-    internal var innerShadowColor: NSUIColor? {
-        get { self[\.innerShadowColor] }
-        set { self[\.innerShadowColor] = newValue }
-    }
 }
 
 extension PropertyAnimator where Object: CATextLayer {
@@ -289,18 +299,7 @@ fileprivate extension CATextLayer {
     }
 }
 
-fileprivate extension CALayer {
-    var shadow: ContentConfiguration.Shadow {
-        get { ContentConfiguration.Shadow(color: shadowColor != .clear ? shadowColor?.nsUIColor : nil, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
-        set { self.configurate(using: newValue) }
-    }
-        
-    
-    var innerShadow: ContentConfiguration.InnerShadow {
-        get { self.innerShadowLayer?.configuration ?? .none() }
-        set { self.configurate(using: newValue) }
-    }
-        
+fileprivate extension CALayer {        
    @objc var innerShadowOpacity: CGFloat {
         get { innerShadow.opacity }
         set { innerShadow.opacity = newValue }

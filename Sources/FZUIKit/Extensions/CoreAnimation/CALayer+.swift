@@ -16,17 +16,32 @@ import FZSwiftUtils
 
 #if os(macOS) || os(iOS) || os(tvOS)
 public extension CALayer {
+    /// The shadow of the layer.
+    dynamic var shadow: ContentConfiguration.Shadow {
+        get { .init(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
+        set {
+            shadowColor = newValue._resolvedColor?.cgColor
+            shadowOpacity = Float(newValue.opacity)
+            shadowRadius = newValue.radius
+            shadowOffset = newValue.offset.size
+        }
+    }
+    
+    /// The inner shadow of the layer.
+    dynamic var innerShadow: ContentConfiguration.InnerShadow {
+        get { self.innerShadowLayer?.configuration ?? .none() }
+        set { self.configurate(using: newValue) }
+    }
+    
     /// Sends the layer to the front of it's superlayer.
     func sendToFront() {
         guard let superlayer = superlayer else { return }
-        removeFromSuperlayer()
         superlayer.addSublayer(self)
     }
     
     /// Sends the layer to the back of it's superlayer.
     func sendToBack() {
         guard let superlayer = superlayer else { return }
-        removeFromSuperlayer()
         superlayer.insertSublayer(self, at: 0)
     }
     

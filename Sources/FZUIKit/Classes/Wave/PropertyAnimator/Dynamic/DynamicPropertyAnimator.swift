@@ -167,7 +167,7 @@ internal extension DynamicPropertyAnimator {
         }
         
         guard settings.animationType.isVelocityUpdate == false else {
-            self.velocityAnimation(for: keyPath)?.setVelocity(newValue, delay: settings.delay)
+            self.velocityAnimation(for: keyPath)?.setVelocity(newValue)
             return
         }
         
@@ -208,7 +208,7 @@ internal extension DynamicPropertyAnimator {
         }
         
         guard settings.animationType.isVelocityUpdate == false else {
-            self.velocityAnimation(for: keyPath)?.setVelocity(newValue ?? .zero, delay: settings.delay)
+            self.velocityAnimation(for: keyPath)?.setVelocity(newValue ?? .zero)
             return
         }
         

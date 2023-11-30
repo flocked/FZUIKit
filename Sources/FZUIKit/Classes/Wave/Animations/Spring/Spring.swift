@@ -431,8 +431,8 @@ extension Spring: CustomStringConvertible {
     public var description: String {
         """
         Spring(
-            dampingRatio: \(dampingRatio)
             response: \(response)
+            dampingRatio: \(dampingRatio)
             mass: \(mass)
         
             settlingDuration: \(String(format: "%.3f", settlingDuration))

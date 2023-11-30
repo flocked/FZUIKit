@@ -154,6 +154,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     deinit {
+        delayedStart?.cancel()
         AnimationController.shared.stopAnimation(self)
     }
     

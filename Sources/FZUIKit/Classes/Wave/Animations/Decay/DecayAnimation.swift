@@ -209,6 +209,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     }
     
     deinit {
+        delayedStart?.cancel()
         AnimationController.shared.stopAnimation(self)
     }
     

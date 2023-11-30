@@ -118,23 +118,16 @@ internal protocol AnimationVelocityProviding: ConfigurableAnimationProviding {
 }
 
 internal extension AnimationVelocityProviding {
-    func setVelocity(_ value: Any, delay: TimeInterval = 0.0) {
-        guard let value = value as? Value else { return }
+    func setAnimatableVelocity(_ velocity: Any) {
+        guard let velocity = velocity as? Value.AnimatableData, velocity != _velocity else { return }
         var animation = self
-        
-        let velocityUpdate = {
-            animation.velocity = value
-        }
-        
-        if delay == .zero {
-            velocityUpdate()
-        } else {
-            let task = DispatchWorkItem {
-                velocityUpdate()
-            }
-            animation.delayedStart = task
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
-        }
+        animation._velocity = velocity
+    }
+    
+    func setVelocity(_ velocity: Any) {
+        guard let velocity = velocity as? Value, velocity != self.velocity else { return }
+        var animation = self
+        animation.velocity = velocity
     }
 }
 

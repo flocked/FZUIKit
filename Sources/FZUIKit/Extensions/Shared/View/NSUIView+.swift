@@ -33,24 +33,22 @@ public extension NSUIView {
 
     /// Sends the view to the front of it's superview.
     func sendToFront() {
-        if let superview = superview {
-            #if os(macOS)
-            superview.addSubview(self)
-            #else
-            superview.bringSubviewToFront(self)
-            #endif
-        }
+        guard let superview = superview else { return }
+        #if os(macOS)
+        superview.addSubview(self)
+        #else
+        superview.bringSubviewToFront(self)
+        #endif
     }
 
     /// Sends the view to the back of it's superview.
     func sendToBack() {
-        if let superview = superview {
-            #if os(macOS)
-            superview.addSubview(self, positioned: .below, relativeTo: nil)
-            #else
-            superview.sendSubviewToBack(self)
-            #endif
-        }
+        guard let superview = superview else { return }
+        #if os(macOS)
+        superview.addSubview(self, positioned: .below, relativeTo: nil)
+        #else
+        superview.sendSubviewToBack(self)
+        #endif
     }
     
     /**

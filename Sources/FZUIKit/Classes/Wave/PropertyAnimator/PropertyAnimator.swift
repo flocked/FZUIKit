@@ -189,7 +189,7 @@ internal extension PropertyAnimator {
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
         case .velocityUpdate:
-            velocityAnimation(for: keyPath)?.setVelocity(target, delay: settings.delay)
+            velocityAnimation(for: keyPath)?.setVelocity(target)
         case .nonAnimated:
             break
         }
@@ -197,6 +197,7 @@ internal extension PropertyAnimator {
     
     /// Configurates an animation and starts it.
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters, valueChanged: ((_ currentValue: Value) -> Void)?, completion: (()->())? = nil) {
+        
         var animation = animation
         animation.reset()
         
@@ -233,7 +234,11 @@ internal extension PropertyAnimator {
                 break
             }
         }
+        
         if let oldAnimation = animations[animationKey], oldAnimation.id != animation.id {
+            if settings.options.contains(.keepVelocity), let velocity = velocityAnimation(for: keyPath)?._velocity as? Value.AnimatableData, velocity != .zero {
+                (animation as? any AnimationVelocityProviding)?.setAnimatableVelocity(velocity)
+            }
             oldAnimation.stop(at: .current, immediately: true)
         }
         animations[animationKey] = animation

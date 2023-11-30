@@ -32,6 +32,7 @@ open class MagnifyMediaView: NSView {
     }
 
     open var doubleClickZoomFactor: CGFloat = 0.5
+    
     override open func mouseDown(with event: NSEvent) {
         window?.makeFirstResponder(self)
         if event.clickCount == 2 {
@@ -49,20 +50,21 @@ open class MagnifyMediaView: NSView {
     }
 
     override open func keyDown(with event: NSEvent) {
-        if event.keyCode == 30 { // Zoom In
+        switch event.keyCode {
+        case 30:
             if event.modifierFlags.contains(.command) {
                 setMagnification(maxMagnification)
             } else {
                 zoomIn(factor: 0.3)
             }
-        } else if event.keyCode == 44 { // Zoom Out
+        case 44:
             if event.modifierFlags.contains(.command) {
                 //  self.setMagnification(self.minMagnification, animationDuration: 0.1)
                 setMagnification(1.0)
             } else {
                 zoomOut(factor: 0.3)
             }
-        } else {
+        default:
             super.keyDown(with: event)
         }
     }
@@ -353,5 +355,24 @@ open class MagnifyMediaView: NSView {
         backgroundColor = .black
         enclosingScrollView?.backgroundColor = .black
     }
+    
+    /// Handlers for a media view.
+    public struct Handlers {
+        /// Handler that gets called whenever the player view receives a `keyDown` event.
+        public var keyDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `mouseDown` event.
+        public var mouseDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
+        public var rightMouseDown: ((NSEvent)->(Bool))? = nil
+        
+        /// Handler that gets called whenever the player view receives a `flagsChanged` event.
+        public var flagsChanged: ((NSEvent)->(Bool))? = nil
+    }
+    
+    
+    /// Handlers for the media view.
+    public var handlers: Handlers = Handlers()
 }
 #endif
