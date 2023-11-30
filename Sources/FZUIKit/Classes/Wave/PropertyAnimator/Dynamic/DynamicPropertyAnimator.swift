@@ -101,8 +101,8 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
      - Parameters velocity: The keypath to the animatable property for the velocity.
      */
     public subscript<Value: AnimatableProperty>(velocity velocity: WritableKeyPath<Object, Value>) -> Value {
-        get { ((self.animation(for: velocity) as? any AnimationVelocityProviding)?.velocity as? Value) ?? .zero }
-        set { (self.animation(for: velocity) as? any AnimationVelocityProviding)?.setVelocity(newValue) }
+        get { ((self.animation(for: velocity)?.velocity as? Value)) ?? .zero  }
+        set { self.animation(for: velocity)?.setVelocity(newValue) }
     }
         
     /**
@@ -111,8 +111,8 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
      - Parameters velocity: The keypath to the animatable property for the velocity.
      */
     public subscript<Value: AnimatableProperty>(velocity velocity: WritableKeyPath<Object, Value?>) -> Value {
-        get { ((self.animation(for: velocity) as? any AnimationVelocityProviding)?.velocity as? Value) ?? .zero }
-        set { (self.animation(for: velocity) as? any AnimationVelocityProviding)?.setVelocity(newValue) }
+        get { ((self.animation(for: velocity)?.velocity as? Value)) ?? .zero  }
+        set { self.animation(for: velocity)?.setVelocity(newValue) }
     }
     
     /**
@@ -133,12 +133,12 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
     
     /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<DynamicPropertyAnimator, Value>) -> Value? {
-        return (self.animation(for: keyPath) as? any AnimationVelocityProviding)?.velocity as? Value
+        return (self.animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
     
     /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<DynamicPropertyAnimator, Value?>) -> Value? {
-        return (self.animation(for: keyPath) as? any AnimationVelocityProviding)?.velocity as? Value
+        return (self.animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
 }
 
@@ -146,7 +146,7 @@ internal extension DynamicPropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> Value {
         if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
-            return (self.velocityAnimation(for: keyPath)?.velocity as? Value) ?? .zero
+            return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
         }
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
     }
@@ -154,7 +154,7 @@ internal extension DynamicPropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>) -> Value?  {
         if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
-            return (self.velocityAnimation(for: keyPath)?.velocity as? Value) ?? .zero
+            return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
         }
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
     }
@@ -167,7 +167,7 @@ internal extension DynamicPropertyAnimator {
         }
         
         guard settings.animationType.isVelocityUpdate == false else {
-            self.velocityAnimation(for: keyPath)?.setVelocity(newValue)
+            self.animation(for: keyPath)?.setVelocity(newValue)
             return
         }
         
@@ -208,7 +208,7 @@ internal extension DynamicPropertyAnimator {
         }
         
         guard settings.animationType.isVelocityUpdate == false else {
-            self.velocityAnimation(for: keyPath)?.setVelocity(newValue ?? .zero)
+            self.animation(for: keyPath)?.setVelocity(newValue ?? .zero)
             return
         }
         
@@ -314,11 +314,6 @@ internal extension DynamicPropertyAnimator {
     /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
     func animation<Val>(for keyPath: WritableKeyPath<Object, Val>) -> (any ConfigurableAnimationProviding)? {
         return animations[keyPath.stringValue] as? any ConfigurableAnimationProviding
-    }
-    
-    /// The current animation that supports velocity for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
-    func velocityAnimation<Val>(for keyPath: WritableKeyPath<Object, Val>) -> (any AnimationVelocityProviding)? {
-        return self.animation(for: keyPath) as? any AnimationVelocityProviding
     }
     
     /// The current spring animation for the property at the keypath or key, or `nil` if there isn't a spring animation for the keypath.

@@ -106,18 +106,13 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
     var delayedStart: DispatchWorkItem? { get set }
+    var velocity: Value { get set }
+    var _velocity: Value.AnimatableData { get set }
     func configure(withSettings settings: AnimationController.AnimationParameters)
     func reset()
 }
 
-
-/// An internal extension to `AnimationProviding` for animations with velocity.
-internal protocol AnimationVelocityProviding: ConfigurableAnimationProviding {
-    var velocity: Value { get set }
-    var _velocity: Value.AnimatableData { get set }
-}
-
-internal extension AnimationVelocityProviding {
+extension ConfigurableAnimationProviding {
     func setAnimatableVelocity(_ velocity: Any) {
         guard let velocity = velocity as? Value.AnimatableData, velocity != _velocity else { return }
         var animation = self
@@ -158,7 +153,8 @@ internal extension ConfigurableAnimationProviding {
             }
             animation.target = value
             animation.reset()
-            (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
+            animation.velocity = .zero
+        //    (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
             (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
             completion?(.finished(at: value))
         }

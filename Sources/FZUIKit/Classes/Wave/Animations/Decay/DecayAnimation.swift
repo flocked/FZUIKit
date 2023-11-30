@@ -12,8 +12,19 @@
 import Foundation
 import FZSwiftUtils
 
-/// An animator that animates a value using a decay function.
-public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding, AnimationVelocityProviding {
+/**
+ An animation that animates a value with a decaying acceleration.
+ 
+ Example usage:
+ ```swift
+ let decayAnimation = DecayAnimation(value: CGPoint(x: 0, y: 0), target: CGPoint(x: 50, y: 100))
+ decayAnimation.valueChanged = { newValue in
+    view.frame.origin = newValue
+ }
+ decayAnimation.start()
+ ```
+ */
+public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
 
     /// A unique identifier for the animation.
     public let id = UUID()
@@ -30,7 +41,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// The delay (in seconds) after which the animations begin.
     public internal(set) var delay: TimeInterval = 0.0
     
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
     /// A Boolean value that indicates whether the animation automatically starts when the ``velocity`` value isn't `zero`.
@@ -246,7 +257,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         
         runningTime = runningTime + deltaTime
         
-        let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
         valueChanged?(callbackValue)
         
         if animationFinished, !repeats {
@@ -274,9 +285,9 @@ extension DecayAnimation: CustomStringConvertible {
             target: \(target)
 
             decelerationRate: \(decelerationRate)
+            isReversed: \(isReversed)
             repeats: \(repeats)
             autoreverse: \(autoreverse)
-            isReversed: \(isReversed)
             integralizeValues: \(integralizeValues)
             autoStarts: \(autoStarts)
 

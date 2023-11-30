@@ -396,8 +396,6 @@ open class MediaView: NSView {
     }
     
     open override func mouseDown(with event: NSEvent) {
-        Swift.print("mediaView mouseDown")
-
         if (handlers.mouseDown?(event) ?? false) == false {
             super.mouseDown(with: event)
         }
@@ -455,7 +453,6 @@ public class NoKeyDownPlayerView: AVPlayerView {
     public var handlers: Handlers = Handlers()
     
     public override func mouseDown(with event: NSEvent) {
-        Swift.print("NoKeyDownPlayerView mouseDown")
         if (handlers.mouseDown?(event) ?? false) == false {
             if ignoreMouseDown {
                 nextResponder?.mouseDown(with: event)

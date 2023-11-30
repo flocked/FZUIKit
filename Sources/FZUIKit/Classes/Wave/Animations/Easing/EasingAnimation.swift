@@ -10,8 +10,19 @@
 import Foundation
 import FZSwiftUtils
 
-/// An animator that animates a value using an easing function.
-public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding, AnimationVelocityProviding {
+/**
+ An animation that animates a value using an easing function (like `easeIn` or `linear`).
+ 
+ Example usage:
+ ```swift
+ let easingAnimation = EasingAnimation(timingFunction = .easeIn, duration: 3.0, value: CGPoint(x: 0, y: 0), target: CGPoint(x: 50, y: 100))
+ easingAnimation.valueChanged = { newValue in
+    view.frame.origin = newValue
+ }
+ easingAnimation.start()
+ ```
+ */
+public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
     
     /// A unique identifier for the animation.
     public let id = UUID()
@@ -43,18 +54,20 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value indicating whether the animation is running in the reverse direction.
     public var isReversed: Bool = false
         
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
     /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes and it isn't running.
     public var autoStarts: Bool = false
     
+    /*
     /**
      A Boolean value indicating whether a paused animation scrubs linearly or uses its specified timing information.
      
      The default value of this property is `true`, which causes the animator to use a linear timing function during scrubbing. Setting the property to `false` causes the animator to use its specified timing curve.
      */
     var scrubsLinearly: Bool = false
+    */
     
     /// The completion percentage of the animation.
     public var fractionComplete: CGFloat = 0.0 {
@@ -192,8 +205,8 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
             _value = _fromValue.interpolated(towards: _target, amount: resolvedFractionComplete)
         } else {
-            fractionComplete = 1.0
-            self.value = target
+            fractionComplete = isReversed ? 0.0 : 1.0
+            _value = isReversed ? _fromValue : _target
         }
         
         _velocity = (_value - previousValue).scaled(by: 1.0/deltaTime)
@@ -208,11 +221,11 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
                 fractionComplete = isReversed ? 1.0 : 0.0
                 _value = _fromValue.interpolated(towards: _target, amount: resolvedFractionComplete)
             } else {
-                self._value = isReversed ? _fromValue : _target
+                _value = isReversed ? _fromValue : _target
             }
         }
         
-        let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if (animationFinished && !repeats) || !isAnimated {
@@ -220,6 +233,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
     }
     
+    /*
     func updateValue() {
         guard state != .running else { return }
         if scrubsLinearly {
@@ -229,6 +243,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
         valueChanged?(value)
     }
+    */
 }
 
 extension EasingAnimation: CustomStringConvertible {
@@ -243,16 +258,16 @@ extension EasingAnimation: CustomStringConvertible {
             value: \(value)
             target: \(target)
             fromValue: \(fromValue)
+            velocity: \(velocity)
             fractionComplete: \(fractionComplete)
 
             timingFunction: \(timingFunction.name)
             duration: \(duration)
+            isReversed: \(isReversed)
             repeats: \(repeats)
             autoreverse: \(autoreverse)
-            isReversed: \(isReversed)
             integralizeValues: \(integralizeValues)
             autoStarts: \(autoStarts)
-            scrubsLinearly: \(scrubsLinearly)
 
             callback: \(String(describing: valueChanged))
             completion: \(String(describing: completion))

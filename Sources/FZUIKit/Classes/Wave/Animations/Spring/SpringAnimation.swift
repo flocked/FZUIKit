@@ -13,8 +13,19 @@ import AppKit
 import UIKit
 #endif
 
-/// An animator that animates a value using a physically-modeled spring.
-public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding, AnimationVelocityProviding {
+/**
+ An animation that animates a value using a physically-modeled spring.
+ 
+ Example usage:
+ ```swift
+ let springAnimation = SpringAnimation(spring: .bouncy, value: CGPoint(x: 0, y: 0), target: CGPoint(x: 50, y: 100))
+ springAnimation.valueChanged = { newValue in
+    view.frame.origin = newValue
+ }
+ springAnimation.start()
+ ```
+ */
+public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -33,23 +44,16 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The spring model that determines the animation's motion.
     public var spring: Spring
     
-    /**
-     How long the animation will take to complete, based off its `spring` property.
-
-     - Note: This is useful for debugging purposes only. Do not use `settlingTime` to determine the animation's progress.
-     */
+    /// The estimated duration required for the animation to complete, based off its `spring` property.
     public var settlingTime: TimeInterval {
         spring.settlingDuration
     }
     
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` when the animation finishes should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues. 
     public var integralizeValues: Bool = false
     
     /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes and it isn't running.
     public var autoStarts: Bool = false
-    
-    /// Determines if the animation is stopped upon reaching `target`. If set to `false`,  any changes to the target value will be animated.
-    public var stopsOnCompletion: Bool = true
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
     public var repeats: Bool = false
@@ -213,7 +217,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             runningTime = 0.0
         }
 
-        let callbackValue = (animationFinished && integralizeValues) ? value.scaledIntegral : value
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
@@ -242,9 +246,9 @@ extension SpringAnimation: CustomStringConvertible {
 
             mode: \(spring.response > 0 ? "animated" : "nonAnimated")
             settlingTime: \(settlingTime)
+            isReversed: \(isReversed)
             repeats: \(repeats)
             autoreverse: \(autoreverse)
-            isReversed: \(isReversed)
             integralizeValues: \(integralizeValues)
             autoStarts: \(autoStarts)
 

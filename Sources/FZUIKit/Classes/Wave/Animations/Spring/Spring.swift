@@ -11,12 +11,21 @@ import Foundation
 import SwiftUI
 
 /**
- `Spring` determines the timing curve and settling duration of an animation.
-
- Springs are created by providing a ``dampingRatio`` greater than zero, and _either_ a ``response`` or ``stiffness`` value. See the initializers ``init(dampingRatio:response:mass:)`` and ``init(dampingRatio:stiffness:mass:)`` for usage information.
+ A representation of a spring’s motion.
+ 
+ ```swift
+ let spring = Spring(duration: 0.5, bounce: 0.3)
+ let (dampingRatio, stiffness, mass) = (spring.dampingRatio, spring.stiffness, spring.mass)
+ // (0.7, 157.91367041742973, 1.0)
+ ```
+ 
+ You can also use it to query for a value/velocity for a given set of inputs:
+ ```swift
+ spring.value(fromValue: 0.0, toValue: 200.0, initialVelocity: 0.0, time: 0.5),
+ ```
  */
 public struct Spring: Sendable, Hashable {
-    // MARK: - Spring Properties
+    // MARK: - Getting spring characteristics
     
     /// The amount of oscillation the spring will exhibit (i.e. "springiness").
     public let dampingRatio: Double
@@ -46,7 +55,7 @@ public struct Spring: Sendable, Hashable {
     public let settlingDuration: TimeInterval
 
     
-    // MARK: - Spring Initialization
+    // MARK: - Creating a spring
     
     /**
      Creates a spring with the specified duration and bounce.
@@ -68,15 +77,15 @@ public struct Spring: Sendable, Hashable {
         - mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
      */
     public init(stiffness: Double, dampingRatio: Double, mass: Double = 1.0) {
-        precondition(stiffness > 0)
-        precondition(dampingRatio > 0)
+        precondition(stiffness > 0, "The stiffness of the spring has to be > 0")
+        precondition(dampingRatio > 0, "The dampingRatio of the spring has to be > 0")
 
         self.dampingRatio = dampingRatio
         self.stiffness = stiffness
         self.mass = mass
-        self.response = Spring.response(stiffness: stiffness, mass: mass)
-        self.damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
-        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
+        self.response = Self.response(stiffness: stiffness, mass: mass)
+        self.damping = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
+        self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
     }
     
     /**
@@ -88,18 +97,18 @@ public struct Spring: Sendable, Hashable {
         - mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
      */
     public init(response: Double, dampingRatio: Double, mass: Double = 1.0) {
-        precondition(dampingRatio >= 0)
-        precondition(response >= 0)
+        precondition(dampingRatio >= 0, "The dampingRatio of the spring has to be >= 0")
+        precondition(response >= 0, "The response of the spring has to be >= 0")
 
         self.dampingRatio = dampingRatio
         self.response = response
         self.mass = mass
-        self.stiffness = Spring.stiffness(response: response, mass: mass)
+        self.stiffness = Self.stiffness(response: response, mass: mass)
 
-        let unbandedDampingCoefficient = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
+        let unbandedDampingCoefficient = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.damping = rubberband(value: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
-
-        self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
+        
+        self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
     }
     
     /*
@@ -138,7 +147,7 @@ public struct Spring: Sendable, Hashable {
      - Parameters:
         - settlingDuration: The approximate time it will take for the spring to come to rest.
         - dampingRatio: The amount of drag applied as a fraction of the amount needed to produce critical damping.
-        - epsilon: The threshold for how small all subsequent values need to be before the spring is considered to have settled.
+        - epsilon: The threshold for how small all subsequent values need to be before the spring is considered to have settled. The default value is `0.001`.
      */
     @available(macOS 14.0, iOS 17, tvOS 17, *)
     public init(settlingDuration: TimeInterval, dampingRatio: Double, epsilon: Double = 0.001) {
@@ -146,15 +155,10 @@ public struct Spring: Sendable, Hashable {
         self.init(spring)
     }
 
-    // MARK: - Default Springs
+    // MARK: - Built-in springs
 
     /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
     public static let interactive = Spring(response: 0.28, dampingRatio: 0.86)
-
-    /*
-    /// A non animated spring which updates values immediately.
-    public static let nonAnimated = Spring(dampingRatio: 1.0, response: 0.0)
-    */
     
     /// A spring with a predefined duration and higher amount of bounce.
     public static let bouncy = Spring.bouncy()
@@ -306,7 +310,14 @@ public struct Spring: Sendable, Hashable {
     
     // MARK: - Getting spring velocity
     
-    /// Calculates the velocity of the spring at a given time given a target amount of change.
+    /**
+     Calculates the velocity of the spring at a given time given a target amount of change.
+     
+     - Parameters:
+        - target: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func velocity<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = V.zero
         var velocity = initialVelocity
@@ -314,7 +325,14 @@ public struct Spring: Sendable, Hashable {
         return velocity
     }
     
-    /// Calculates the velocity of the spring at a given time given a target amount of change.
+    /**
+     Calculates the velocity of the spring at a given time given a target amount of change.
+     
+     - Parameters:
+        - target: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func velocity<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
         var value = V.zero
         var velocity = initialVelocity
@@ -322,7 +340,15 @@ public struct Spring: Sendable, Hashable {
         return velocity
     }
     
-    /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
+    /**
+     Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
+     
+     - Parameters:
+        - fromValue: The starting value of the spring.
+        - toValue: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = fromValue
         let target = toValue
@@ -331,7 +357,15 @@ public struct Spring: Sendable, Hashable {
         return velocity
     }
     
-    /// Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
+    /**
+     Calculates the velocity of the spring at a given time given a starting and ending value for the spring to travel.
+     
+     - Parameters:
+        - fromValue: The starting value of the spring.
+        - toValue: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func velocity<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
         var value = fromValue
         let target = toValue
@@ -360,13 +394,14 @@ public struct Spring: Sendable, Hashable {
     
     static func settlingTime(dampingRatio: Double, damping: Double, stiffness: Double, mass: Double) -> Double {
         if #available(macOS 14.0, iOS 17, tvOS 17, *) {
+            // SwiftUI`s spring calculates a more precise settling duration.
             return SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
         } else {
             return Spring.settlingTime(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
         }
     }
 
-    static func settlingTime(dampingRatio: Double, stiffness: Double, mass: Double) -> Double {
+    static func settlingTime(dampingRatio: Double, stiffness: Double, mass: Double, epsilon: Double = defaultSettlingPercentage) -> Double {
         if stiffness == .infinity {
             // A non-animated mode (i.e. a `response` of 0) results in a stiffness of infinity, and a settling time of 0.
             // We need the settling time to be non-zero such that the display link stays alive.
@@ -379,13 +414,11 @@ public struct Spring: Sendable, Hashable {
         }
 
         let undampedNaturalFrequency = Spring.undampedNaturalFrequency(stiffness: stiffness, mass: mass) // ωn
-        return (-1 * (logOfSettlingPercentage / (dampingRatio * undampedNaturalFrequency)))
+        return (-1 * (log(epsilon) / (dampingRatio * undampedNaturalFrequency)))
     }
     
-    static let defaultSettlingPercentage = 0.0001
-    
-    static let logOfSettlingPercentage = log(defaultSettlingPercentage)
-
+    static let defaultSettlingPercentage = 0.001
+        
     static func undampedNaturalFrequency(stiffness: Double, mass: Double) -> Double {
         return sqrt(stiffness / mass)
     }
@@ -397,6 +430,8 @@ public extension Spring {
     internal var swiftUI: SwiftUI.Spring {
         SwiftUI.Spring.init(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true)
     }
+    
+    // MARK: - Calculating forces and durations
     
     /// Calculates the force upon the spring given a current position, target, and velocity amount of change.
     func force<V: VectorArithmetic>(target: V, position: V, velocitx: V) -> V {
@@ -412,7 +447,7 @@ public extension Spring {
         let force = swiftUI.force(fromValue: fromValue, toValue: toValue, position: position, velocity: velocity)
         return V(force.animatableData)
     }
-    
+        
     /// The estimated duration required for the spring system to be considered at rest.
     func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double = 0.001) -> Double {
         swiftUI.settlingDuration(target: target, initialVelocity: initialVelocity, epsilon: epsilon)

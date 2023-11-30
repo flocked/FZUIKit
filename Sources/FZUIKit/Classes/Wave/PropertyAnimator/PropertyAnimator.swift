@@ -71,8 +71,8 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
      - Parameters velocity: The keypath to the animatable property for the velocity.
      */
     public subscript<Value: AnimatableProperty>(velocity velocity: WritableKeyPath<Object, Value>) -> Value {
-        get { ((self.animation(for: velocity) as? any AnimationVelocityProviding)?.velocity as? Value) ?? .zero }
-        set { (self.animation(for: velocity) as? any AnimationVelocityProviding)?.setVelocity(newValue) }
+        get { ((self.animation(for: velocity)?.velocity as? Value)) ?? .zero  }
+        set { self.animation(for: velocity)?.setVelocity(newValue) }
     }
         
     /**
@@ -81,8 +81,8 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
      - Parameters velocity: The keypath to the animatable property for the velocity.
      */
     public subscript<Value: AnimatableProperty>(velocity velocity: WritableKeyPath<Object, Value?>) -> Value {
-        get { ((self.animation(for: velocity) as? any AnimationVelocityProviding)?.velocity as? Value) ?? .zero }
-        set { (self.animation(for: velocity) as? any AnimationVelocityProviding)?.setVelocity(newValue) }
+        get { ((self.animation(for: velocity)?.velocity as? Value)) ?? .zero  }
+        set { self.animation(for: velocity)?.setVelocity(newValue) }
     }
     
     /**
@@ -102,13 +102,13 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
     }
     
     /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
-    public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator, Value>) -> Value? {
-        return (self.animation(for: keyPath) as? any AnimationVelocityProviding)?.velocity as? Value
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator, Value>) -> Value? {        
+        return (self.animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
     
     /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
-        return (self.animation(for: keyPath) as? any AnimationVelocityProviding)?.velocity as? Value
+        return (self.animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
 }
 
@@ -120,7 +120,7 @@ internal extension PropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> Value {
         if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
-            return (self.velocityAnimation(for: keyPath)?.velocity as? Value) ?? .zero
+            return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
         }
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
     }
@@ -128,7 +128,7 @@ internal extension PropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>) -> Value?  {
         if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
-            return (self.velocityAnimation(for: keyPath)?.velocity as? Value) ?? .zero
+            return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
         }
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
     }
@@ -189,7 +189,7 @@ internal extension PropertyAnimator {
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
         case .velocityUpdate:
-            velocityAnimation(for: keyPath)?.setVelocity(target)
+            animation(for: keyPath)?.setVelocity(target)
         case .nonAnimated:
             break
         }
@@ -236,8 +236,8 @@ internal extension PropertyAnimator {
         }
         
         if let oldAnimation = animations[animationKey], oldAnimation.id != animation.id {
-            if settings.options.contains(.keepVelocity), let velocity = velocityAnimation(for: keyPath)?._velocity as? Value.AnimatableData, velocity != .zero {
-                (animation as? any AnimationVelocityProviding)?.setAnimatableVelocity(velocity)
+            if settings.options.contains(.keepVelocity), let velocity = self.animation(for: keyPath)?._velocity as? Value.AnimatableData, velocity != .zero {
+                animation.setAnimatableVelocity(velocity)
             }
             oldAnimation.stop(at: .current, immediately: true)
         }
@@ -268,11 +268,6 @@ internal extension PropertyAnimator {
     /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
     func animation(for keyPath: PartialKeyPath<Object>) -> (any ConfigurableAnimationProviding)? {
         return animations[keyPath.stringValue] as? any ConfigurableAnimationProviding
-    }
-    
-    /// The current animation that supports velocity for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
-    func velocityAnimation(for keyPath: PartialKeyPath<Object>) -> (any AnimationVelocityProviding)? {
-        return self.animation(for: keyPath) as? any AnimationVelocityProviding
     }
 
     /// The current spring animation for the property at the keypath or key, or `nil` if there isn't a spring animation for the keypath.
