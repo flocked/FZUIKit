@@ -303,28 +303,15 @@ internal protocol AnimatableCollection: RangeReplaceableCollection, Bidirectiona
     var count: Int { get }
     // Append new zero values.
     mutating func appendNewValues(amount: Int)
-    // Replaces the removed values with zero.
-    mutating func removeValues(amount: Int)
     // Ensures both collections have the same amount of values for animating between them.
-    mutating func makeInterpolatable(to collection: inout any AnimatableCollection)
+    mutating func makeAnimatable(to collection: inout any AnimatableCollection)
 }
 
 extension AnimatableCollection {
-    internal mutating func removeValues(amount: Int) {
-        let amount = amount.clamped(max: count)
-        self.removeLast(amount)
-        appendNewValues(amount: amount)
-    }
-    
-    mutating func makeInterpolatable(to collection: inout any AnimatableCollection) {
+    mutating func makeAnimatable(to collection: inout any AnimatableCollection) {
         let diff = self.count - collection.count
         if diff < 0 {
             collection.appendNewValues(amount: (diff * -1))
-            /*
-             for i in tar.count-(diff * -1)..<tar.count {
-             tar[i] = .zero
-             }
-             */
         } else if diff > 0 {
             self.appendNewValues(amount: diff)
         }

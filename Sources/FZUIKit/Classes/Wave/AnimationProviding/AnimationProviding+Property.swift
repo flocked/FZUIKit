@@ -10,7 +10,15 @@
 import Foundation
 import FZSwiftUtils
 
-/// An animation that animates an animatable property conforming to ``AnimatableProperty``.
+/**
+ An animation that animates an animatable property conforming to ``AnimatableProperty``.
+ 
+ It provides default implementations for ``start(afterDelay:)``, ``pause()`` and ``stop(at:immediately:)``. They manage the ``state``  and add/remove the animation from the shared `AnimationController`.
+ 
+ If you don't use the default implementations, you have to manually mange the ``state`` of the animation and:
+ - Start the animation via `AnimationController.shared.runAnimation(yourAnimation)`.
+ - Pause or stop the animation via  `AnimationController.shared.stopAnimation(yourAnimation)`.
+ */
 public protocol PropertyAnimationProviding<Value>: AnyObject, AnimationProviding {
     associatedtype Value: AnimatableProperty
     var state: AnimationState { get set }
@@ -26,31 +34,6 @@ public protocol PropertyAnimationProviding<Value>: AnyObject, AnimationProviding
     var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
     /// Resets the animation.
     func reset()
-}
-
-public class TestAnimation<Value: AnimatableProperty>: PropertyAnimationProviding {
-    public func reset() {
-    }
-    
-    public var state: AnimationState = .inactive
-    public var value: Value
-    public var fromValue: Value
-    public var toValue: Value
-    public init(value: Value) {
-        self.value = value
-        self.toValue = value
-        self.fromValue = value
-    }
-    
-    public var completion: ((AnimationEvent<Value>) -> Void)?
-    public var valueChanged: ((Value) -> Void)?
-    public var id = UUID()
-    public var groupUUID: UUID? = nil
-    public var relativePriority: Int = 0
-    public var delay: TimeInterval = 0.0
-    public func updateAnimation(deltaTime: TimeInterval) {
-        
-    }
 }
 
 public extension PropertyAnimationProviding {
@@ -109,6 +92,10 @@ public extension PropertyAnimationProviding {
             self.completion?(.finished(at: value))
             AnimationController.shared.stopAnimation(self)
         }
+    }
+    
+    func reset() {
+        
     }
     
     internal var delayedStart: DispatchWorkItem? {

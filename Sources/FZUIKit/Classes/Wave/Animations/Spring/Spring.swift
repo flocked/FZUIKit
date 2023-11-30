@@ -19,28 +19,28 @@ public struct Spring: Sendable, Hashable {
     // MARK: - Spring Properties
     
     /// The amount of oscillation the spring will exhibit (i.e. "springiness").
-    public let dampingRatio: CGFloat
+    public let dampingRatio: Double
 
     /// The stiffness of the spring, defined as an approximate duration in seconds.
-    public let response: CGFloat
+    public let response: Double
     
     /**
      How bouncy the spring is.
      
      A value of `0` indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of `1.0` (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of `-1.0`.
      */
-    public var bounce: CGFloat {
+    public var bounce: Double {
         1.0 - dampingRatio
     }
 
     /// The spring stiffness coefficient. Increasing the stiffness reduces the number of oscillations and will reduce the settling duration.
-    public let stiffness: CGFloat
+    public let stiffness: Double
 
     /// The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
-    public let mass: CGFloat
+    public let mass: Double
 
     /// Defines how the spring’s motion should be damped due to the forces of friction.
-    public let damping: CGFloat
+    public let damping: Double
 
     /// The estimated duration required for the spring system to be considered at rest.
     public let settlingDuration: TimeInterval
@@ -55,19 +55,19 @@ public struct Spring: Sendable, Hashable {
         - duration: Defines the pace of the spring. This is approximately equal to the settling duration, but for springs with very large bounce values, will be the duration of the period of oscillation for the spring.
         - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
      */
-    public init(duration: CGFloat = 0.5, bounce: CGFloat = 0.0) {
-        self.init(dampingRatio: 1.0 - bounce, response: duration, mass: 1.0)
+    public init(duration: Double = 0.5, bounce: Double = 0.0) {
+        self.init(response: duration, dampingRatio: 1.0 - bounce, mass: 1.0)
     }
 
     /**
      Creates a spring with the given damping ratio and frequency response.
 
      - Parameters:
-        - dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness"). A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation. Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
         - stiffness: The corresponding spring coefficient. The value affects how quickly the spring animation reaches its target value.  It's an alternative to configuring springs with a ``response`` value.
+        - dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness"). A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation. Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
         - mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
      */
-    public init(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat = 1.0) {
+    public init(stiffness: Double, dampingRatio: Double, mass: Double = 1.0) {
         precondition(stiffness > 0)
         precondition(dampingRatio > 0)
 
@@ -83,11 +83,11 @@ public struct Spring: Sendable, Hashable {
      Creates a spring with the given damping ratio and frequency response.
 
      - parameters:
-        - dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness"). A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation. Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
         - response: Represents the frequency response of the spring. This value affects how quickly the spring animation reaches its target value. The frequency response is the duration of one period in the spring's undamped system, measured in seconds. Values closer to `0` create a very fast animation, while values closer to `1.0` create a relatively slower animation.
+        - dampingRatio: The amount of oscillation the spring will exhibit (i.e. "springiness"). A value of `1.0` (critically damped) will cause the spring to smoothly reach its target value without any oscillation. Values closer to `0.0` (underdamped) will increase oscillation (and overshoot the target) before settling.
         - mass: The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
      */
-    public init(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat = 1.0) {
+    public init(response: Double, dampingRatio: Double, mass: Double = 1.0) {
         precondition(dampingRatio >= 0)
         precondition(response >= 0)
 
@@ -102,22 +102,24 @@ public struct Spring: Sendable, Hashable {
         self.settlingDuration = Spring.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
     }
     
+    /*
     /**
      Creates a spring with the specified mass, stiffness, and damping.
      
      - Parameters:
-        - damping: The corresponding spring coefficient.
         - stiffness: Specifies that property of the object attached to the end of the spring.
+        - damping: The corresponding spring coefficient.
         - mass: Defines how the spring’s motion should be damped due to the forces of friction.
         - allowOverDamping: A value of `true` specifies that over-damping should be allowed when appropriate based on the other inputs, and a value of `false` specifies that such cases should instead be treated as critically damped.
      */
-    public init (damping: CGFloat, stiffness: CGFloat, mass: CGFloat = 1.0, allowOverDamping: Bool = false) {
+    public init (stiffness: Double, damping: Double, mass: Double = 1.0, allowOverDamping: Bool = false) {
         var dampingRatio = Self.dampingRatio(damping: damping, stiffness: stiffness, mass: mass)
         if allowOverDamping == false, dampingRatio > 1.0 {
             dampingRatio = 1.0
         }
-        self.init(dampingRatio: dampingRatio, stiffness: stiffness, mass: mass)
+        self.init(stiffness: stiffness, dampingRatio: dampingRatio, mass: mass)
     }
+    */
     
     /// Creates a spring from a SwiftUI spring.
     @available(macOS 14.0, iOS 17, tvOS 17, *)
@@ -147,7 +149,7 @@ public struct Spring: Sendable, Hashable {
     // MARK: - Default Springs
 
     /// A reasonable, slightly underdamped spring to use for interactive animations (like dragging an item around).
-    public static let interactive = Spring(dampingRatio: 0.86, response: 0.28)
+    public static let interactive = Spring(response: 0.28, dampingRatio: 0.86)
 
     /*
     /// A non animated spring which updates values immediately.
@@ -164,8 +166,8 @@ public struct Spring: Sendable, Hashable {
         - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
         - extraBounce: How much additional bounciness should be added to the base bounce of 0.3.
      */
-    public static func bouncy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
-        Spring(dampingRatio: 0.7-extraBounce, response: duration, mass: 1.0)
+    public static func bouncy(duration: Double = 0.5, extraBounce: Double = 0.0) -> Spring {
+        Spring(response: duration, dampingRatio: 0.7-extraBounce, mass: 1.0)
     }
     
     /// A smooth spring with a predefined duration and no bounce.
@@ -178,8 +180,8 @@ public struct Spring: Sendable, Hashable {
         - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
         - extraBounce: How much additional bounciness should be added to the base bounce of 0.
      */
-    public static func smooth(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
-        Spring(dampingRatio: 1.0-extraBounce, response: duration, mass: 1.0)
+    public static func smooth(duration: Double = 0.5, extraBounce: Double = 0.0) -> Spring {
+        Spring(response: duration, dampingRatio: 1.0-extraBounce, mass: 1.0)
     }
     
     /// A spring with a predefined duration and small amount of bounce that feels more snappy.
@@ -192,13 +194,21 @@ public struct Spring: Sendable, Hashable {
         - duration: The perceptual duration, which defines the pace of the spring. This is approximately equal to the settling duration, but for very bouncy springs, will be the duration of the period of oscillation for the spring.
         - extraBounce: How much additional bounciness should be added to the base bounce of 0.15.
      */
-    public static func snappy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> Spring {
-        return Spring(dampingRatio: 0.85-extraBounce, response: duration, mass: 1.0)
+    public static func snappy(duration: Double = 0.5, extraBounce: Double = 0.0) -> Spring {
+        return Spring(response: duration, dampingRatio: 0.85-extraBounce, mass: 1.0)
     }
     
     // MARK: - Updating values
 
-    /// Updates the current value and velocity of a spring.
+    /**
+     Updates the current value and velocity of a spring.
+     
+     - Parameters:
+        - value: The current value of the spring.
+        - velocity: The current velocity of the spring.
+        - target: The target that value is moving towards.
+        - deltaTime: The amount of time that has passed since the spring was at the position specified by value.
+     */
     public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
         let displacement = value - target
         let springForce = displacement * -self.stiffness
@@ -230,7 +240,14 @@ public struct Spring: Sendable, Hashable {
     
     // MARK: - Getting spring value
     
-    /// Calculates the value of the spring at a given time given a target amount of change.
+    /**
+     Calculates the value of the spring at a given time given a target amount of change.
+     
+     - Parameters:
+        - target: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func value<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = V.zero
         var velocity = initialVelocity
@@ -238,7 +255,14 @@ public struct Spring: Sendable, Hashable {
         return value
     }
     
-    /// Calculates the value of the spring at a given time given a target amount of change.
+    /**
+     Calculates the value of the spring at a given time given a target amount of change.
+     
+     - Parameters:
+        - target: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func value<V>(target: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
         var value = V.zero
         var velocity = initialVelocity
@@ -246,7 +270,15 @@ public struct Spring: Sendable, Hashable {
         return value
     }
     
-    /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
+    /**
+     Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
+
+     - Parameters:
+        - fromValue: The starting value of the spring.
+        - toValue: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: AnimatableProperty {
         var value = fromValue
         let target = toValue
@@ -255,7 +287,15 @@ public struct Spring: Sendable, Hashable {
         return value
     }
     
-    /// Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
+    /**
+     Calculates the value of the spring at a given time for a starting and ending value for the spring to travel.
+
+     - Parameters:
+        - fromValue: The starting value of the spring.
+        - toValue: The target that value is moving towards.
+        - initialVelocity: The initial velocity of the spring.
+        - time: The amount of time that has passed since start of the spring.
+     */
     public func value<V>(fromValue: V, toValue: V, initialVelocity: V, time: TimeInterval) -> V where V: VectorArithmetic {
         var value = fromValue
         let target = toValue
@@ -302,23 +342,23 @@ public struct Spring: Sendable, Hashable {
 
     // MARK: - Spring calculation
     
-    static func stiffness(response: CGFloat, mass: CGFloat) -> CGFloat {
+    static func stiffness(response: Double, mass: Double) -> Double {
         pow(2.0 * .pi / response, 2.0) * mass
     }
 
-    static func response(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+    static func response(stiffness: Double, mass: Double) -> Double {
         (2.0 * .pi) / sqrt(stiffness * mass)
     }
 
-    static func damping(dampingRatio: CGFloat, response: CGFloat, mass: CGFloat) -> CGFloat {
+    static func damping(dampingRatio: Double, response: Double, mass: Double) -> Double {
         4.0 * .pi * dampingRatio * mass / response
     }
     
-    static func dampingRatio(damping: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+    static func dampingRatio(damping: Double, stiffness: Double, mass: Double) -> Double {
         return damping / (2 * sqrt(stiffness * mass))
     }
     
-    static func settlingTime(dampingRatio: CGFloat, damping: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+    static func settlingTime(dampingRatio: Double, damping: Double, stiffness: Double, mass: Double) -> Double {
         if #available(macOS 14.0, iOS 17, tvOS 17, *) {
             return SwiftUI.Spring(mass: mass, stiffness: stiffness, damping: damping, allowOverDamping: true).settlingDuration
         } else {
@@ -326,7 +366,7 @@ public struct Spring: Sendable, Hashable {
         }
     }
 
-    static func settlingTime(dampingRatio: CGFloat, stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+    static func settlingTime(dampingRatio: Double, stiffness: Double, mass: Double) -> Double {
         if stiffness == .infinity {
             // A non-animated mode (i.e. a `response` of 0) results in a stiffness of infinity, and a settling time of 0.
             // We need the settling time to be non-zero such that the display link stays alive.
@@ -344,9 +384,9 @@ public struct Spring: Sendable, Hashable {
     
     static let defaultSettlingPercentage = 0.0001
     
-    static let logOfSettlingPercentage = log(Spring.defaultSettlingPercentage)
+    static let logOfSettlingPercentage = log(defaultSettlingPercentage)
 
-    static func undampedNaturalFrequency(stiffness: CGFloat, mass: CGFloat) -> CGFloat {
+    static func undampedNaturalFrequency(stiffness: Double, mass: Double) -> Double {
         return sqrt(stiffness / mass)
     }
 }
@@ -374,12 +414,12 @@ public extension Spring {
     }
     
     /// The estimated duration required for the spring system to be considered at rest.
-    func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double = 0.001) -> CGFloat {
+    func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double = 0.001) -> Double {
         swiftUI.settlingDuration(target: target, initialVelocity: initialVelocity, epsilon: epsilon)
     }
     
     /// The estimated duration required for the spring system to be considered at rest.
-    func settlingDuration<V: AnimatableProperty>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double = 0.001) -> CGFloat {
+    func settlingDuration<V: AnimatableProperty>(fromValue: V, toValue: V, initialVelocity: V, epsilon: Double = 0.001) -> Double {
         let fromValue = AnimatableProxy(fromValue)
         let toValue = AnimatableProxy(toValue)
         let initialVelocity = AnimatableProxy(initialVelocity)

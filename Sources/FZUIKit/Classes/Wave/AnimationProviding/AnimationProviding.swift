@@ -83,10 +83,10 @@ extension AnimationProviding {
     public func pause() {
         guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
         guard state == .running else { return }
+        AnimationController.shared.stopAnimation(self)
         animation.state = .inactive
         animation.delayedStart?.cancel()
         animation.delay = 0.0
-        AnimationController.shared.stopAnimation(self)
     }
     
     public func stop(at position: AnimationPosition = .current, immediately: Bool = true) {
@@ -114,6 +114,7 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
 /// An internal extension to `AnimationProviding` for animations with velocity.
 internal protocol AnimationVelocityProviding: ConfigurableAnimationProviding {
     var velocity: Value { get set }
+    var _velocity: Value.AnimatableData { get set }
 }
 
 internal extension AnimationVelocityProviding {
@@ -140,7 +141,7 @@ internal extension AnimationVelocityProviding {
 internal extension ConfigurableAnimationProviding {
     func internal_stop(at position: AnimationPosition, immediately: Bool = true) {
         var animation = self
-        self.delayedStart?.cancel()
+        animation.delayedStart?.cancel()
         animation.delay = 0.0
         if immediately == false, isVelocityAnimation {
             switch position {
@@ -151,7 +152,8 @@ internal extension ConfigurableAnimationProviding {
             default: break
             }
         } else {
-            animation.state = .ended
+            AnimationController.shared.stopAnimation(self)
+            animation.state = .inactive
             switch position {
             case .start:
                 animation.value = fromValue
@@ -166,7 +168,6 @@ internal extension ConfigurableAnimationProviding {
             (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
             (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
             completion?(.finished(at: value))
-            AnimationController.shared.stopAnimation(self)
         }
     }
     

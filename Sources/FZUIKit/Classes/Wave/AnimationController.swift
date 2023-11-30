@@ -60,6 +60,7 @@ internal class AnimationController {
         animations[animation.id] = nil
     }
     
+    /// ``AnimationController/runAnimation(_:)``
     func stopAllAnimations(immediately: Bool = true) {
         animations.values.forEach({$0.stop(at: .current, immediately: immediately)})
     }
@@ -152,6 +153,10 @@ extension AnimationController {
         
         var autoreverse: Bool {
             options.contains(.autoreverse)
+        }
+        
+        var isAnimation: Bool {
+            !animationType.isNonAnimated
         }
                 
         #if os(iOS) || os(tvOS)

@@ -62,6 +62,20 @@ public enum TimingFunction {
     }
 }
 
+import SwiftUI
+public extension TimingFunction {
+    func update<V>(value: inout V, fromValue: V, target: V, fractionComplete: inout Double, duration: TimeInterval, deltaTime: TimeInterval) where V : VectorArithmetic {
+        fractionComplete = (fractionComplete + (deltaTime / duration)).clamped(max: 1.0)
+        let resolvedFractionComplete = solve(at: fractionComplete, duration: duration)
+        value = fromValue.interpolated(towards: target, amount: resolvedFractionComplete)
+    }
+    func update<V>(value: inout V, fromValue: V, target: V, fractionComplete: inout Double, duration: TimeInterval, deltaTime: TimeInterval) where V : AnimatableProperty {
+        var _value = value.animatableData
+        update(value: &_value, fromValue: fromValue.animatableData, target: target.animatableData, fractionComplete: &fractionComplete, duration: duration, deltaTime: deltaTime)
+        value = V(_value)
+    }
+}
+
 extension TimingFunction {
     /// A `easeIn` timing function, equivalent to `kCAMediaTimingFunctionEaseIn`.
     public static var easeIn: TimingFunction {

@@ -11,7 +11,8 @@ import Foundation
 import FZSwiftUtils
 
 /// An animator that animates a value using an easing function.
-public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
+public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding, AnimationVelocityProviding {
+    
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -53,7 +54,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      
      The default value of this property is `true`, which causes the animator to use a linear timing function during scrubbing. Setting the property to `false` causes the animator to use its specified timing curve.
      */
-    public var scrubsLinearly: Bool = false
+    var scrubsLinearly: Bool = false
     
     /// The completion percentage of the animation.
     public var fractionComplete: CGFloat = 0.0 {
@@ -69,9 +70,14 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value {
-        didSet { 
+        get { Value(_value) }
+        set { _value = newValue.animatableData }
+    }
+    
+    var _value: Value.AnimatableData {
+        didSet {
             guard state != .running else { return }
-            fromValue = value
+            _fromValue = _value
         }
     }
     
@@ -81,20 +87,37 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
     public var target: Value {
+        get { Value(_target) }
+        set { _target = newValue.animatableData }
+    }
+    
+    internal var _target: Value.AnimatableData {
         didSet {
-            guard oldValue != target else { return }
+            guard oldValue != _target else { return }
             if state == .running {
                 fractionComplete = 0.0
-                let event = AnimationEvent.retargeted(from: oldValue, to: target)
-                completion?(event)
+                completion?(.retargeted(from: Value(oldValue), to: target))
             } else if autoStarts, target != value {
                 start(afterDelay: 0.0)
             }
         }
     }
+
             
     /// The start value of the animation.
-    internal var fromValue: Value
+    internal var fromValue: Value {
+        get { Value(_fromValue) }
+        set { _fromValue = newValue.animatableData }
+    }
+    
+    internal var _fromValue: Value.AnimatableData
+    
+    internal var velocity: Value {
+        get { Value(_velocity) }
+        set { _velocity = newValue.animatableData }
+    }
+    
+    internal var _velocity: Value.AnimatableData = .zero
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
@@ -113,9 +136,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         - target: The target value of the animation.
      */
     public init(timingFunction: TimingFunction, duration: CGFloat, value: Value, target: Value) {
-        self.value = value
-        self.fromValue = value
-        self.target = target
+        self._value = value.animatableData
+        self._fromValue = _value
+        self._target = target.animatableData
         self.duration = duration
         self.timingFunction = timingFunction
     }
@@ -142,6 +165,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     func reset() {
         delayedStart?.cancel()
         fractionComplete = 0.0
+        _velocity = .zero
     }
             
     /**
@@ -160,14 +184,18 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         
         guard deltaTime > 0.0 else { return }
                 
+        let previousValue = _value
+
         if isAnimated {
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
-            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
+            _value = _fromValue.interpolated(towards: _target, amount: resolvedFractionComplete)
         } else {
             fractionComplete = 1.0
             self.value = target
         }
+        
+        _velocity = (_value - previousValue).scaled(by: 1.0/deltaTime)
         
         let animationFinished = (isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0) || !isAnimated
         
@@ -177,9 +205,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
                     isReversed = !isReversed
                 }
                 fractionComplete = isReversed ? 1.0 : 0.0
-                value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
+                _value = _fromValue.interpolated(towards: _target, amount: resolvedFractionComplete)
             } else {
-                self.value = isReversed ? fromValue : target
+                self._value = isReversed ? _fromValue : _target
             }
         }
         
@@ -194,9 +222,9 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     func updateValue() {
         guard state != .running else { return }
         if scrubsLinearly {
-            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: fractionComplete))
+            _value = _fromValue.interpolated(towards: _target, amount: fractionComplete)
         } else {
-            value = Value(fromValue.animatableData.interpolated(towards: target.animatableData, amount: resolvedFractionComplete))
+            _value = _fromValue.interpolated(towards: _target, amount: resolvedFractionComplete)
         }
         valueChanged?(value)
     }
