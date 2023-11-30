@@ -34,6 +34,8 @@ open class MagnifyMediaView: NSView {
     open var doubleClickZoomFactor: CGFloat = 0.5
     
     override open func mouseDown(with event: NSEvent) {
+        Swift.print("magnify mouseDown")
+
         window?.makeFirstResponder(self)
         if event.clickCount == 2 {
             if magnification != 1.0 {
