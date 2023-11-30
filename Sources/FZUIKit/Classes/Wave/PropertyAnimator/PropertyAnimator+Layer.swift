@@ -237,6 +237,10 @@ extension PropertyAnimator where Object: CALayer {
      */
     public func removeFromSuperlayer() {
         guard object.superlayer != nil else { return }
+        guard object.opacity != 0.0 else {
+            object.removeFromSuperlayer()
+            return
+        }
         setValue(0.0, for: \.opacity, completion: { [weak self] in
             guard let self = self else { return }
             self.object.removeFromSuperlayer()

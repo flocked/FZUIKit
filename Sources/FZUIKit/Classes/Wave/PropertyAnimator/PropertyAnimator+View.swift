@@ -231,6 +231,10 @@ extension PropertyAnimator where Object: NSUIView {
      */
     public func removeFromSuperview() {
         guard object.superview != nil else { return }
+        guard object.alpha != 0.0 else {
+            object.removeFromSuperview()
+            return
+        }
         setValue(0.0, for: \.alpha, completion: { [weak self] in
             guard let self = self else { return }
             self.object.removeFromSuperview()
