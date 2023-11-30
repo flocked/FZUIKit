@@ -25,7 +25,6 @@ import FZSwiftUtils
  ```
  */
 public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
-
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -41,10 +40,10 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// The delay (in seconds) after which the animations begin.
     public internal(set) var delay: TimeInterval = 0.0
     
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries when the animation finishes. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
-    /// A Boolean value that indicates whether the animation automatically starts when the ``velocity`` value isn't `zero`.
+    /// A Boolean value that indicates whether the animation automatically starts when the ``velocity`` value isn't `zero` or the `target` changes.
     public var autoStarts: Bool = false
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
@@ -75,8 +74,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// The decay function used to calculate the animation.
     var decayFunction: DecayFunction
     
-    /// The current value of the animation. This value will change as the animation executes.
-    public var value: Value {
+     public var value: Value {
         get { Value(_value) }
         set { _value = newValue.animatableData  }
     }
@@ -116,7 +114,8 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
      Adjusting this is similar to providing a new `targetContentOffset` in `UIScrollView`'s `scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>)`.
      */
     public var target: Value {
-        get { return Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate)) }
+        get { 
+            _velocity == .zero ? value : Value(DecayFunction.destination(value: _value, velocity: _velocity, decelerationRate: decayFunction.decelerationRate)) }
         set {
             let newVelocity = DecayFunction.velocity(fromValue: value.animatableData, toValue: newValue.animatableData)
             if newVelocity != _velocity {
@@ -177,7 +176,6 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     var _duration: TimeInterval = 0.0
     var needsDurationUpdate: Bool = true
 
-    
     var runningTime: TimeInterval = 0.0
     
     /// The completion percentage of the animation.
@@ -257,7 +255,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         
         runningTime = runningTime + deltaTime
         
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
         
         if animationFinished, !repeats {
@@ -298,21 +296,12 @@ extension DecayAnimation: CustomStringConvertible {
     }
 }
 
-/// The mode how a decaying animation should animate properties.
+/// The mode how ``Wave`` should animate properties with a decaying animation.
 public enum DecayAnimationMode {
     /// The value of animated properties will increase or decrease (depending on the values applied) with a decelerating rate.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
     case velocity
     /// The animated properties will animate to the applied values  with a decelerating rate.
     case value
 }
-
-/*
- /// Resets the animation.
- public func reset() {
-     state = .inactive
-     velocity = .zero
-     fromValue = value
- } 
- */
 
 #endif

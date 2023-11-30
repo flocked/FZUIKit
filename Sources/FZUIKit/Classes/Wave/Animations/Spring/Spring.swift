@@ -13,15 +13,21 @@ import SwiftUI
 /**
  A representation of a spring’s motion.
  
+ Example usage:
  ```swift
  let spring = Spring(duration: 0.5, bounce: 0.3)
  let (dampingRatio, stiffness, mass) = (spring.dampingRatio, spring.stiffness, spring.mass)
- // (0.7, 157.91367041742973, 1.0)
+ // (0.7, 157.9, 1.0)
  ```
  
  You can also use it to query for a value/velocity for a given set of inputs:
+ 
  ```swift
- spring.value(fromValue: 0.0, toValue: 200.0, initialVelocity: 0.0, time: 0.5),
+ let value = spring.value(fromValue: 0.0, toValue: 200.0, initialVelocity: .zero, time: 0.1)
+ // 84.66
+ 
+ let velocity = spring.value(fromValue: 0.0, toValue: 200.0, initialVelocity: .zero, time: 0.1)
+ // 1141.51
  ```
  */
 public struct Spring: Sendable, Hashable {

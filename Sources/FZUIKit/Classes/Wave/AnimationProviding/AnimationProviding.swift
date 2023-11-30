@@ -96,7 +96,7 @@ extension AnimationProviding {
 }
 
 /// An internal extension to `AnimationProviding` used for configurating animations.
-public protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
+internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     associatedtype Value: AnimatableProperty
     var state: AnimationState { get set }
     var delay: TimeInterval { get set }

@@ -7,7 +7,18 @@
 
 import Foundation
 
-/// The function maps an input time normalized to the range `[0,1]` to an output time also in the range `[0,1]`. It's used to define the pacing of an animation as a timing curve. There are many additional timing functions at ``Easing`` provided.
+/**
+ The timing function maps an input time normalized to the range `[0,1]` to an output time also in the range `[0,1]`. It's used to define the pacing of an animation as a timing curve.
+ 
+ ```swift
+ let timingFunction = TimingFunction.easeIn
+ let time = 0.3
+ let solvedTime = timingFunction.solve(at: time)
+ // 0.13
+ ```
+ 
+ > Tip:  ``Easing`` provides addtional timing functions.
+ */
 public enum TimingFunction {
     /// No easing.
     case linear
@@ -28,10 +39,10 @@ public enum TimingFunction {
      
      - Parameters:
         - x: The input time (ranges between 0.0 and 1.0).
-        - epsilon: The required precision of the result (where `x * epsilon` is the maximum time segment to be evaluated).
+        - epsilon: The required precision of the result (where `x * epsilon` is the maximum time segment to be evaluated). The default value is `0.0001`.
      - Returns: The resulting output time.
      */
-    public func solve(at time: Double, epsilon: Double) -> Double {
+    public func solve(at time: Double, epsilon: Double = 0.0001) -> Double {
         switch self {
         case .linear:
             return time

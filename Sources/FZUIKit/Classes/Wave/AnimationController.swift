@@ -16,7 +16,7 @@ import UIKit
 import FZSwiftUtils
 
 /// Manages all ``Wave`` animations.
-public class AnimationController {
+internal class AnimationController {
     public static let shared = AnimationController()
 
     private var displayLink: AnyCancellable?
@@ -123,7 +123,7 @@ public class AnimationController {
     }
 }
 
-public extension AnimationController {
+extension AnimationController {
     struct AnimationParameters {
         let groupUUID: UUID
         let delay: CGFloat

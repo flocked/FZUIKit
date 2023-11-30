@@ -23,7 +23,6 @@ import FZSwiftUtils
  ```
  */
 public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
-    
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -54,7 +53,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value indicating whether the animation is running in the reverse direction.
     public var isReversed: Bool = false
         
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries when the animation finishes. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
     /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes and it isn't running.
@@ -225,7 +224,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             }
         }
         
-        let callbackValue = integralizeValues ? value.scaledIntegral : value
+        let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if (animationFinished && !repeats) || !isAnimated {

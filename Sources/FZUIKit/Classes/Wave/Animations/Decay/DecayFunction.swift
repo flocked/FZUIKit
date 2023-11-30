@@ -13,11 +13,26 @@ import Foundation
 import SwiftUI
 
 /// The default deceleration rate for a scroll view.
-public let ScrollViewDecelerationRate: Double = 0.998
+public let ScrollViewDecelerationRate = 0.998
 
 /// A fast deceleration rate for a scroll view.
-public let ScrollViewDecelerationRateFast: Double = 0.99
+public let ScrollViewDecelerationRateFast = 0.99
 
+/**
+ The decay function calculates values with a decaying acceleration.
+
+ Example usage:
+ ```swift
+ let destination = DecayFunction.destination(value: 5.0, velocity: 100.0)
+ // 54.95
+ 
+ let duration = DecayFunction.duration(value: 5.0, velocity: 100.0)
+ // 3.05
+ 
+ let velocity = DecayFunction.velocity(fromValue: 5.0, toValue: 200.0)
+ // 390.4
+ ```
+ */
 public struct DecayFunction: Hashable {
     /// The rate at which the velocity decays over time.
     public var decelerationRate: Double {
