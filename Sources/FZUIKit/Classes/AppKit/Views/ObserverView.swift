@@ -13,7 +13,6 @@ import FZSwiftUtils
  A view that provides various handlers for mouse, key, view, window and drag & drop events.
  */
 public class ObservingView: NSView {
-    
     public var windowHandlers = WindowHandlers() {
         didSet { self.updateWindowObserver() }
     }
@@ -158,26 +157,10 @@ public class ObservingView: NSView {
         }
     }
     
-    internal func pasteboardWritings(for sender: NSDraggingInfo) -> [PasteboardWriting] {
-        var items = [PasteboardWriting]()
-        if let fileURLs = sender.draggingPasteboard.fileURLs {
-            items.append(contentsOf: fileURLs)
-        }
-        
-        if let string = sender.draggingPasteboard.string {
-            items.append(string)
-        }
-        
-        if let images = sender.draggingPasteboard.images {
-            items.append(contentsOf: images)
-        }
-        return items
-    }
-    
     public override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return false }
         
-        let items = pasteboardWritings(for: sender)
+        let items = sender.pasteboardWritings()
         guard items.count > 0 else { return false }
         return (canDrop(items).count > 0)
     }
@@ -203,7 +186,7 @@ public class ObservingView: NSView {
 
     public override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return [] }
-        let items = pasteboardWritings(for: sender)
+        let items = sender.pasteboardWritings()
         guard items.count > 0 else { return [] }
         guard (canDrop(items).count > 0) else { return [] }
         
@@ -212,7 +195,7 @@ public class ObservingView: NSView {
 
 
     public override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        var items = pasteboardWritings(for: sender)
+        var items = sender.pasteboardWritings()
         items = dragAndDropHandlers.canDrop?(items) ?? items
         guard items.count > 0 else { return false }
         dragAndDropHandlers.didDrop?(items)
@@ -408,14 +391,46 @@ public extension ObservingView {
         }
     }
 }
+
+
 public protocol PasteboardWriting { }
 extension String: PasteboardWriting { }
 extension NSImage: PasteboardWriting { }
 extension URL: PasteboardWriting { }
+extension NSColor: PasteboardWriting { }
 
 internal extension PasteboardWriting {
     var nsPasteboardWriting: NSPasteboardWriting? {
         return (self as? NSPasteboardWriting) ?? (self as? NSURL)
     }
 }
+
+internal extension NSPasteboard {
+    func pasteboardWritings() -> [PasteboardWriting] {
+        var items = [PasteboardWriting]()
+        if let fileURLs = self.fileURLs {
+            items.append(contentsOf: fileURLs)
+        }
+        
+        if let color = self.color {
+            items.append(color)
+        }
+        
+        if let string = self.string {
+            items.append(string)
+        }
+        
+        if let images = self.images {
+            items.append(contentsOf: images)
+        }
+        return items
+    }
+}
+
+internal extension NSDraggingInfo {
+    func pasteboardWritings() -> [PasteboardWriting] {
+        return self.draggingPasteboard.pasteboardWritings()
+    }
+}
+
 #endif

@@ -43,7 +43,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries when the animation finishes. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
-    /// A Boolean value that indicates whether the animation automatically starts when the ``velocity`` value isn't `zero` or the `target` changes.
+    /// A Boolean value that indicates whether the animation automatically starts when the target changes or the ``velocity`` changes to a non `zero` value.
     public var autoStarts: Bool = false
     
     /// A Boolean value indicating whether the animation repeats indefinitely.

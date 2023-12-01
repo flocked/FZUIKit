@@ -11,6 +11,7 @@ import AppKit
 public extension NSPasteboard {
     /**
      Writes the specifed string to the pasteboard.
+     
      - Parameters string: The string to be written.
      */
     func write(_ string: String) {
@@ -20,6 +21,7 @@ public extension NSPasteboard {
     
     /**
      Writes the specified images to the pasteboard.
+     
      - Parameters images: An array of images.
      */
     func write(_ images: [NSImage]) {
@@ -40,10 +42,10 @@ public extension NSPasteboard {
     
     /// Returns images for the pasteboard or `nil` if no images are available.
     var images: [NSImage]? {
-        guard let images = readObjects(forClasses: [NSImage.self], options: nil) as? [NSImage] else {
+        guard let images = readObjects(for: NSImage.self), images.isEmpty == false else {
             return nil
         }
-        return images.count == 0 ? nil : images
+        return images
     }
     
     /// Returns a string for the pasteboard or `nil` if no string is available.
@@ -53,11 +55,20 @@ public extension NSPasteboard {
     
     /// Returns file urls for the pasteboard or `nil` if no urls are available.
     var fileURLs: [URL]? {
-        guard let objs = self.readObjects(forClasses: [NSURL.self], options: nil) as? [NSURL] else {
+        guard let urls = readObjects(for: NSURL.self), urls.isEmpty == false else {
             return nil
         }
-        let urls = objs.compactMap { $0 as URL }
-        return urls.count == 0 ? nil : urls
+        return urls.compactMap({$0 as URL})
+    }
+    
+    /// Returns a color for the pasteboard or `nil` if no color is available.
+    var color: NSColor? {
+        NSColor(from: self)
+    }
+    
+    /// Reads from the receiver objects that match the specified type.
+    internal func readObjects<V: NSPasteboardReading>(for: V.Type, options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> [V]?  {
+        readObjects(forClasses: [V.self], options: nil) as? [V]
     }
 }
 
@@ -76,5 +87,11 @@ public extension NSDraggingInfo {
     var fileURLs: [URL]? {
         self.draggingPasteboard.fileURLs
     }
+    
+    /// Returns a color for the dragging info or `nil` if no color is available.
+    var color: NSColor? {
+        self.draggingPasteboard.color
+    }
 }
+
 #endif

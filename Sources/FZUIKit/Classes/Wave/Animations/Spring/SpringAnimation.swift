@@ -53,7 +53,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries when the animation finishes. This helps prevent drawing frames between pixels, causing aliasing issues. 
     public var integralizeValues: Bool = false
     
-    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes and it isn't running.
+    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes.
     public var autoStarts: Bool = false
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
@@ -141,18 +141,18 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     var runningTime: TimeInterval = 0.0
 
     /**
-     Creates a new animation with a given ``Spring``, and optionally, an initial and target value.
-     While `value` and `target` are optional in the initializer, they must be set to non-nil values before the animation can start.
-
+     Creates a new animation with a given ``Spring``, value, target and optional inital velocity.
+     
      - Parameters:
         - spring: The spring model that determines the animation's motion.
         - value: The initial, starting value of the animation.
         - target: The target value of the animation.
+        - initialVelocity: The initial velocity of the animation.
      */
-    public init(spring: Spring, value: Value, target: Value, velocity: Value = .zero) {
+    public init(spring: Spring, value: Value, target: Value, initialVelocity: Value = .zero) {
         self._value = value.animatableData
         self._target = target.animatableData
-        self._velocity = velocity.animatableData
+        self._velocity = initialVelocity.animatableData
         self.spring = spring
         self._fromValue = _value
         self._fromVelocity = _velocity

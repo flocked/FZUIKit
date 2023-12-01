@@ -56,7 +56,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries when the animation finishes. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
-    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes and it isn't running.
+    /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes.
     public var autoStarts: Bool = false
     
     /*

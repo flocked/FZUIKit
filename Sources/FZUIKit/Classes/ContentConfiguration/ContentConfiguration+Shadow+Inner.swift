@@ -39,14 +39,16 @@ public extension ContentConfiguration {
         
         /// The opacity of the shadow.
         public var opacity: CGFloat = 0.5
+        
         /// The blur radius of the shadow.
         public var radius: CGFloat = 2.0
+        
         /// The offset of the shadow.
         public var offset: CGPoint = .init(x: 1.0, y: -1.5)
 
         /// A Boolean value that indicates whether the shadow is invisible (when the color is `nil`, `clear` or the opacity `0`).
         public var isInvisible: Bool {
-            return (_resolvedColor == nil || _resolvedColor == .clear || opacity == 0.0)
+            return (_resolvedColor == nil || _resolvedColor?.alphaComponent == 0.0 || opacity == 0.0)
         }
         
         internal var _resolvedColor: NSUIColor? = nil
@@ -69,9 +71,6 @@ public extension ContentConfiguration {
 
         /// A configuration without inner shadow.
         public static func none() -> Self { return Self(color: nil, opacity: 0.0) }
-        
-        /// A default configuration for a black inner shadow.
-        public static func `default`(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { return Self(opacity: opacity, radius: radius, offset: offset) }
         
         /// A configuration for a black inner shadow.
         public static func black(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { return Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
