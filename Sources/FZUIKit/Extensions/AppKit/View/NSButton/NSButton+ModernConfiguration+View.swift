@@ -22,7 +22,8 @@ extension NSButton.ModernConfiguration.ButtonView {
 
         var titleFont: Font {
             switch configuration.size {
-            case .large, .regular: return .system(.body) // 13
+            case .large: return .system(.title3) // 13
+            case .regular: return .system(.body) // 13
             case .small: return .system(.subheadline) //
             case .mini: return .system(.caption2)
             @unknown default: return .system(.body)
@@ -31,7 +32,8 @@ extension NSButton.ModernConfiguration.ButtonView {
         
         var subtitleFont: Font {
             switch configuration.size {
-            case .large, .regular: return .system(.subheadline) // 13
+            case .large: return .system(.body) // 13
+            case .regular: return .system(.subheadline) // 13
             case .small: return .system(.caption2) //
             case .mini: return .system(.caption2)
             @unknown default: return .system(.subheadline)
