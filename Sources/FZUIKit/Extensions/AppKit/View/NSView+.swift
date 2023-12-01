@@ -310,36 +310,6 @@ extension NSView {
     }
     
     /**
-     The horizontal center of the view's frame rectangle.
-
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var centerX: CGFloat {
-        get { frame.centerX }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.centerX = newValue }
-    }
-    
-    /**
-     The vertical center of the view's frame rectangle.
-
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var centerY: CGFloat {
-        get { frame.centerY }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.centerY = newValue }
-    }
-
-    /**
      Specifies the transform applied to the view, relative to the center of its bounds.
 
      Use this property to scale or rotate the view's frame rectangle within its superview's coordinate system. (To change the position of the view, modify the center property instead.) The default value of this property is CGAffineTransformIdentity.

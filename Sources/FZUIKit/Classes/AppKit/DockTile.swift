@@ -5,13 +5,11 @@
 //  Created by Florian Zand on 01.11.23.
 //
 
+/*
 #if os(macOS)
 import AppKit
 
 public class DockTile {
-    
-    
-    
     internal var dockTile: NSDockTile {
         NSApp.dockTile
     }
@@ -125,3 +123,4 @@ extension DockTile {
 }
 
 #endif
+*/
