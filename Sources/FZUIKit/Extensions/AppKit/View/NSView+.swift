@@ -932,18 +932,6 @@ private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_
 
 #endif
 
-
-/*
- let basicAnimation = CASpringAnimation(keyPath: "position")
- basicAnimation.fromValue = NSValue(cgPoint: initialPos)
- basicAnimation.toValue = NSValue(cgPoint: finalPos)
- basicAnimation.duration = basicAnimation.settlingDuration
- basicAnimation.damping = 14
- basicAnimation.initialVelocity = 5
- basicAnimation.isRemovedOnCompletion = false
- basicAnimation.fillMode = CAMediaTimingFillMode.forwards
- */
-
 /*
  func wizzleAnimationForKey() {
      guard didSwizzleAnimationForKey == false else { return }

@@ -18,6 +18,7 @@ extension NSWindow {
             self.toggleFullScreen(nil)
         }
     }
+    
     /// the index of the window tab or nil if the window isn't a tab.
     public var tabIndex: Int? {
         tabbedWindows?.firstIndex(of: self)
@@ -37,6 +38,7 @@ extension NSWindow {
         origin.y = screenFrame.origin.y + point.y
         setFrameOrigin(origin)
     }
+    
     /**
      Sets the window’s location to the center of the specified screen.
      
@@ -164,6 +166,7 @@ extension NSWindow {
         }
     }
 
+    /*
     /**
      The window’s corner radius.
 
@@ -177,6 +180,7 @@ extension NSWindow {
             updateCornerRadius()
         }
     }
+    */
 
     /**
      The window’s corner curve.
@@ -225,13 +229,15 @@ extension NSWindow {
         }
     }
 
+    /*
     internal func updateCornerRadius() {
         if cornerRadius >= 0 {
             backgroundColor = .clear
             isOpaque = false
             styleMask.insert(.borderless)
             styleMask.insert(.fullSizeContentView)
-
+            styleMask.remove(.titled)
+            
             contentView?.wantsLayer = true
             contentView?.layer?.cornerRadius = cornerRadius
             contentView?.layer?.masksToBounds = true
@@ -242,6 +248,7 @@ extension NSWindow {
             contentView?.layer?.cornerCurve = .circular
         }
     }
+    */
 }
 
 internal extension NSWindow {

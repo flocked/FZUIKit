@@ -21,10 +21,14 @@ extension NSButton {
         /// A Boolean value that indicates whether the mouse is hovering the button.
         public var isHovered: Bool = false
         
-        internal init(state: NSControl.StateValue, isEnabled: Bool, isHovered: Bool) {
+        /// A Boolean value that indicates whether the button is pressed down.
+        public var isPressed: Bool = false
+        
+        internal init(state: NSControl.StateValue, isEnabled: Bool, isHovered: Bool, isPressed: Bool) {
             self.state = state
             self.isHovered = isHovered
             self.isEnabled = isEnabled
+            self.isPressed = isPressed
         }
     }
 }

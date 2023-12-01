@@ -1,5 +1,5 @@
 //
-//  NSButton+ModernConfiguration+View.swift
+//  NSButton+AdvanceConfiguration+View.swift
 //
 //
 //  Created by Florian Zand on 24.06.23.
@@ -12,11 +12,11 @@ import FZSwiftUtils
 import SwiftUI
 
 @available(macOS 13.0, *)
-extension NSButton.ModernConfiguration.ButtonView {
+extension NSButton.AdvanceConfiguration.ButtonView {
     internal struct ContentView: View {
-        let configuration: NSButton.ModernConfiguration
+        let configuration: NSButton.AdvanceConfiguration
         
-        public init(configuration: NSButton.ModernConfiguration) {
+        public init(configuration: NSButton.AdvanceConfiguration) {
             self.configuration = configuration
         }
 
@@ -119,10 +119,10 @@ extension NSButton.ModernConfiguration.ButtonView {
 }
 
 @available(macOS 13, *)
-internal extension NSButton.ModernConfiguration {
+internal extension NSButton.AdvanceConfiguration {
     class ButtonView: NSView {
         /// The current configuration of the view.
-        public var configuration: NSButton.ModernConfiguration {
+        public var configuration: NSButton.AdvanceConfiguration {
             didSet {
                 if oldValue != self.configuration {
                     self.updateConfiguration()
@@ -130,15 +130,24 @@ internal extension NSButton.ModernConfiguration {
             }
         }
         
-        lazy var trackinArea = TrackingArea(for: self, options: [.activeInKeyWindow, .mouseEnteredAndExited, .mouseMoved, .inVisibleRect])
-        
-        public override func updateTrackingAreas() {
-            
-            super.updateTrackingAreas()
+        var button: NSButton? {
+            superview as? NSButton
         }
         
+        override func mouseDown(with event: NSEvent) {
+            button?.isPressed = true
+        }
+                
+        override func mouseUp(with event: NSEvent) {
+            button?.isPressed = false
+            if self.frame.contains(event.location(in: self)) {
+                button?.sendAction()
+            }
+        }
+        
+        
         /// Creates a item content view with the specified content configuration.
-        public init(configuration: NSButton.ModernConfiguration) {
+        public init(configuration: NSButton.AdvanceConfiguration) {
             self.configuration = configuration
             super.init(frame: .zero)
             self.hostingViewConstraints = addSubview(withConstraint: hostingController.view)
@@ -182,30 +191,5 @@ internal extension NSButton.ModernConfiguration {
         }
     }
 }
-
-/*
-struct NSButton_ContentView_Previews: PreviewProvider {
-    static let titleImage = NSButtonContentConfiguration(title: "Button", image: NSImage(systemSymbolName: "photo"), baseBackgroundColor: .systemBlue, baseForegroundColor: .white)
-    static let titleSubtitleImage = NSButtonContentConfiguration(title: "Button", subtitle: "Subtitle", image: NSImage(systemSymbolName: "photo"), baseBackgroundColor: .systemBlue, baseForegroundColor: .white, cornerStyle: .small)
-
-    static let subtitle = NSButtonContentConfiguration(title: "Button", subtitle: "Subtitle", baseBackgroundColor: .systemBlue, baseForegroundColor: .white, cornerStyle: .large)
-    
-    static let capsule = NSButtonContentConfiguration(title: "Button", contentInsets: .init(width: 26, height: 10.0), baseBackgroundColor: NSColor.systemBlue.tinted(by: 0.7), baseForegroundColor: .systemBlue, cornerStyle: .capsule)
-    
-    static let borderClear = NSButtonContentConfiguration(title: "Button", contentInsets: .init(width: 26, height: 10.0), baseBackgroundColor: nil, baseForegroundColor: .systemBlue, cornerStyle: .capsule, borderWidth: 1.0)
-
-    
-    static var previews: some View {
-        VStack {
-            NSButtonContentView.ContentView(configuration: titleImage)
-            NSButtonContentView.ContentView(configuration: titleSubtitleImage)
-            NSButtonContentView.ContentView(configuration: subtitle)
-            NSButtonContentView.ContentView(configuration: capsule)
-            NSButtonContentView.ContentView(configuration: borderClear)
-
-        }.padding()
-    }
-}
-*/
 
 #endif

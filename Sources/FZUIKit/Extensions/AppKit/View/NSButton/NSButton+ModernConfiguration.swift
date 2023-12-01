@@ -1,5 +1,5 @@
 //
-//  NSButton+ModernConfiguration.swift
+//  NSButton+AdvanceConfiguration.swift
 //  
 //
 //  Created by Florian Zand on 29.06.23.
@@ -13,7 +13,7 @@ import FZSwiftUtils
 @available(macOS 13.0, *)
 public extension NSButton {
     /// A configuration that specifies the appearance and behavior of a button and its contents.
-    struct ModernConfiguration: NSButtonConfiguration, Hashable {
+    struct AdvanceConfiguration: NSButtonConfiguration, Hashable {
         /**
          Specifies how to align a button’s title and subtitle.
          
@@ -236,39 +236,39 @@ public extension NSButton {
         }
         
         ///  Creates a configuration for a button with a transparent background.
-        public static func plain(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
-            var configuration = NSButton.ModernConfiguration()
+        public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+            var configuration = NSButton.AdvanceConfiguration()
             configuration.foregroundColor = color
             return configuration
         }
         
         /// Creates a configuration for a button with a gray background.
-        public static func gray() -> NSButton.ModernConfiguration {
-            var configuration = NSButton.ModernConfiguration()
+        public static func gray() -> NSButton.AdvanceConfiguration {
+            var configuration = NSButton.AdvanceConfiguration()
             configuration.backgroundColor = .gray.withAlphaComponent(0.5)
             configuration.foregroundColor = .controlAccentColor
             return configuration
         }
         
         /// Creates a configuration for a button with a tinted background color.
-        public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
-            var configuration = NSButton.ModernConfiguration()
+        public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+            var configuration = NSButton.AdvanceConfiguration()
             configuration.backgroundColor = color.tinted().withAlphaComponent(0.5)
             configuration.foregroundColor = color
             return configuration
         }
         
         /// Creates a configuration for a button with a background filled with the button’s tint color.
-        public static func filled(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
-            var configuration = NSButton.ModernConfiguration()
+        public static func filled(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+            var configuration = NSButton.AdvanceConfiguration()
             configuration.foregroundColor = .white
             configuration.backgroundColor = color
             return configuration
         }
         
         /// Creates a configuration for a button that has a bordered style.
-        public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
-            var configuration = NSButton.ModernConfiguration()
+        public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+            var configuration = NSButton.AdvanceConfiguration()
             configuration.foregroundColor = color
             configuration.borderWidth = 1.0
             return configuration
@@ -296,6 +296,39 @@ public extension NSButton {
                     self.imageSymbolConfiguration?.color = .hierarchical(foregroundColor ?? color)
                 }
             }
+        }
+        
+        /**
+         Returns a copy of the configuration, updated for the given state.
+         
+         - Parameter state: A state to use as a basis for the update.
+         */
+        public func updated(for state: ConfigurationState) -> Self {
+            var configuration = self
+            if state.isEnabled == false {
+                if let transformer = configuration.foregroundColorTransformer {
+                    configuration.foregroundColorTransformer = transformer + .systemEffect(.disabled)
+                } else {
+                    configuration.foregroundColorTransformer = .systemEffect(.disabled)
+                }
+                if let transformer = configuration.backgroundColorTransformer {
+                    configuration.backgroundColorTransformer = transformer + .systemEffect(.disabled)
+                } else {
+                    configuration.backgroundColorTransformer = .systemEffect(.disabled)
+                }
+            } else if state.isPressed {
+                if let transformer = configuration.foregroundColorTransformer {
+                    configuration.foregroundColorTransformer = transformer + .systemEffect(.pressed)
+                } else {
+                    configuration.foregroundColorTransformer = .systemEffect(.pressed)
+                }
+                if let transformer = configuration.backgroundColorTransformer {
+                    configuration.backgroundColorTransformer = transformer + .systemEffect(.pressed)
+                } else {
+                    configuration.backgroundColorTransformer = .systemEffect(.pressed)
+                }
+            }
+            return configuration
         }
         
         internal func resolvedTitleAlignment() -> TitleAlignment {

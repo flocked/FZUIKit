@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 09.11.23.
 //
 
+/*
 #if os(macOS)
 
 import AppKit
@@ -238,3 +239,4 @@ internal class UserInteractionMonitor {
 }
 
 #endif
+*/

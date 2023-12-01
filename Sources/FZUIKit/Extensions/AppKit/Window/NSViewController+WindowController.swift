@@ -9,7 +9,7 @@
 import AppKit
 
 public extension NSViewController {
-    /// Returns a window controller with initalized content view controller.
+    /// Returns a window controller with the view controller as content view controller.
     static func windowController() -> NSWindowController {
         let viewController = Self()
         let window = NSWindow(contentViewController: viewController)

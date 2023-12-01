@@ -20,7 +20,7 @@ extension NSButton {
      
      There are two types of configurations you can assign:
      - ``Configuration`` which provides standard macOS styling (like the default push button).
-     - ``ModernConfiguration`` which supports several options and behaviors unavailable with other configuration methods. Features include subtitle labels, extended control over shape, color and more.
+     - ``AdvanceConfiguration`` which supports several options and behaviors unavailable with other configuration methods. Features include subtitle labels, extended control over shape, color and more.
      
      ```swift
      var configuration: NSButton.Configuration = .tinted(color: .systemBlue)
@@ -36,19 +36,21 @@ extension NSButton {
         set {
             let oldValue = self.configuration
             set(associatedValue: newValue, key: "NSButton_Configuration", object: self)
-            var needsConfigurationUpdate = true
-            if let oldValue = oldValue as? NSButton.ModernConfiguration, let newValue = newValue as? NSButton.ModernConfiguration, newValue == oldValue {
-                needsConfigurationUpdate = false
+            if newValue is NSButton.AdvanceConfiguration == false {
+                AdvanceConfigurationButtonView?.removeFromSuperview()
+                AdvanceConfigurationButtonView = nil
+            }
+            guard newValue != nil else { return  }
+            
+            if let oldValue = oldValue as? NSButton.AdvanceConfiguration, let newValue = newValue as? NSButton.AdvanceConfiguration, newValue == oldValue {
+                return
             } else if let oldValue = oldValue as? NSButton.Configuration, let newValue = newValue as? NSButton.Configuration, newValue == oldValue {
-                needsConfigurationUpdate = false
+                return
             }
             
-            if needsConfigurationUpdate {
-                self.updateConfiguration()
-                
-                if self.automaticallyUpdatesConfiguration == true, newValue != nil {
-                    setupConfigurationStateObserver()
-                }
+            self.updateConfiguration()
+            if self.automaticallyUpdatesConfiguration == true, newValue != nil {
+                setupConfigurationStateObserver()
             }
         }
     }
@@ -77,16 +79,20 @@ extension NSButton {
                 keyValueObserver = KeyValueObserver(self)
                 keyValueObserver?.add(\.state) { [weak self] old, new in
                     guard let self = self, old != new else { return }
-                    self.updateConfiguration()
+                    if self.automaticallyUpdatesConfiguration {
+                        self.updateConfiguration()
+                    }
                     self.configurationUpdateHandler?(self.configurationState)
                 }
                 keyValueObserver?.add(\.isEnabled) { [weak self] old, new in
                     guard let self = self, old != new else { return }
-                    self.updateConfiguration()
+                    if self.automaticallyUpdatesConfiguration {
+                        self.updateConfiguration()
+                    }
                     self.configurationUpdateHandler?(self.configurationState)
                 }
                 /*
-                keyValueObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
+                 keyValueObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
                  */
             }
             
@@ -97,7 +103,7 @@ extension NSButton {
                     self.isHovered = false
                     return true
                 }
-
+                
                 observerView.mouseHandlers.setup([.moved, .dragged, .entered]) { [weak self] event in
                     guard let self = self else { return true }
                     self.isHovered = true
@@ -125,7 +131,7 @@ extension NSButton {
     }
     
     internal var configurationState: ConfigurationState {
-        ConfigurationState(state: self.state, isEnabled: self.isEnabled, isHovered: self.isHovered)
+        ConfigurationState(state: self.state, isEnabled: self.isEnabled, isHovered: self.isHovered, isPressed: isPressed)
     }
     
     /**
@@ -164,7 +170,7 @@ extension NSButton {
             self.contentTintColor = configuration._resolvedContentTintColor
             self.sound = configuration.sound
             self.sizeToFit()
-        } else if var configuration = configuration as? NSButton.ModernConfiguration {
+        } else if var configuration = configuration as? NSButton.AdvanceConfiguration {
             self.bezelStyle = .rounded
             self.isBordered = false
             self.title = ""
@@ -173,27 +179,18 @@ extension NSButton {
             self.alternateImage = nil
             self.sound = configuration.sound
             
-            if isEnabled == false {
-                if let transformer = configuration.foregroundColorTransformer {
-                    configuration.foregroundColorTransformer = transformer + .systemEffect(.disabled)
-                } else {
-                    configuration.foregroundColorTransformer = .systemEffect(.disabled)
-                }
-                if let transformer = configuration.backgroundColorTransformer {
-                    configuration.backgroundColorTransformer = transformer + .systemEffect(.disabled)
-                } else {
-                    configuration.backgroundColorTransformer = .systemEffect(.disabled)
-                }
+            if automaticallyUpdatesConfiguration {
+                configuration = configuration.updated(for: configurationState)
             }
-
-            if let modernConfigurationButtonView = self.modernConfigurationButtonView {
-                modernConfigurationButtonView.configuration = configuration
+            
+            if let AdvanceConfigurationButtonView = self.AdvanceConfigurationButtonView {
+                AdvanceConfigurationButtonView.configuration = configuration
             } else {
-                let buttonView = NSButton.ModernConfiguration.ButtonView(configuration: configuration)
-                self.modernConfigurationButtonView = buttonView
+                let buttonView = NSButton.AdvanceConfiguration.ButtonView(configuration: configuration)
+                self.AdvanceConfigurationButtonView = buttonView
                 self.addSubview(withConstraint: buttonView)
             }
-            self.frame.size = self.modernConfigurationButtonView?.fittingSize ?? .zero
+            self.frame.size = self.AdvanceConfigurationButtonView?.fittingSize ?? .zero
         }
         self.configurationUpdateHandler?(self.configurationState)
     }
@@ -215,15 +212,15 @@ extension NSButton {
     /**
      A closure to update the configuration of a button.
      
-    - Parameter state: The current state of the button.
+     - Parameter state: The current state of the button.
      */
     public typealias ConfigurationUpdateHandler  = (_ state: ConfigurationState) -> Void
-
     
-    internal var modernConfigurationButtonView: NSButton.ModernConfiguration.ButtonView? {
-        get { getAssociatedValue(key: "NSButton_modernConfigurationButtonView", object: self, initialValue: nil) }
+    
+    internal var AdvanceConfigurationButtonView: NSButton.AdvanceConfiguration.ButtonView? {
+        get { getAssociatedValue(key: "NSButton_AdvanceConfigurationButtonView", object: self, initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "NSButton_modernConfigurationButtonView", object: self)
+            set(associatedValue: newValue, key: "NSButton_AdvanceConfigurationButtonView", object: self)
         }
     }
     
@@ -232,6 +229,23 @@ extension NSButton {
         set {
             set(associatedValue: newValue, key: "NSButton_observerView", object: self)
         }
+    }
+    
+    internal var isPressed: Bool {
+        get { getAssociatedValue(key: "isPressed", object: self, initialValue: false) }
+        set {
+            guard newValue != self.isPressed else { return }
+            set(associatedValue: newValue, key: "isPressed", object: self)
+            if (self.automaticallyUpdatesConfiguration) {
+                self.updateConfiguration()
+            }
+        }
+    }
+    
+    internal func sendAction() {
+        guard let action = action, let target = target else { return }
+        sendAction(action, to: target)
+        sound?.play()
     }
 }
 

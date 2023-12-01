@@ -21,27 +21,27 @@ public protocol NSButtonConfiguration {
 @available(macOS 13.0, *)
 extension NSButtonConfiguration {
     /// Creates a configuration for a button with a transparent background.
-    public static func plain(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
+    public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
         return .plain(color: color)
     }
     
     /// Creates a configuration for a button with a gray background.
-    public static func gray() -> NSButton.ModernConfiguration {
+    public static func gray() -> NSButton.AdvanceConfiguration {
         return .gray()
     }
     
     /// Creates a configuration for a button with a tinted background color.
-    public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
+    public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
         return .tinted(color: color)
     }
     
     /// Creates a configuration for a button with a background filled with the button’s tint color.
-    public static func filled(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
+    public static func filled(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
         return .filled(color: color)
     }
     
     /// Creates a configuration for a button that has a bordered style.
-    public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.ModernConfiguration {
+    public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
         return .bordered(color: color)
     }
     
