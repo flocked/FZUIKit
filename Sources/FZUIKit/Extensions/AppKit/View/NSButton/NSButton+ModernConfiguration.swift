@@ -128,11 +128,35 @@ public extension NSButton {
                 updateResolvedValues()
             } } }
         
+        internal var foregroundColorTransformer: ColorTransformer? = nil  { didSet {
+            if oldValue != self.foregroundColorTransformer {
+                updateResolvedValues()
+            } } }
+        
+        internal func resolvedForegroundColor() -> NSColor? {
+            if let foregroundColor = foregroundColor {
+                return foregroundColorTransformer?(foregroundColor) ?? foregroundColor
+            }
+            return nil
+        }
+        
         /// The untransformed color for background views.
         public var backgroundColor: NSColor? = nil { didSet {
             if oldValue != self.backgroundColor {
                 updateResolvedValues()
             } } }
+        
+        internal var backgroundColorTransformer: ColorTransformer? = nil  { didSet {
+            if oldValue != self.backgroundColorTransformer {
+                updateResolvedValues()
+            } } }
+        
+        internal func resolvedBackgroundColor() -> NSColor? {
+            if let backgroundColor = backgroundColor {
+                return backgroundColorTransformer?(backgroundColor) ?? backgroundColor
+            }
+            return nil
+        }
         
         /// The distance between the title and subtitle labels.
         public var titlePadding: CGFloat = 2.0
@@ -248,10 +272,15 @@ public extension NSButton {
         
         internal var _resolvedTitleAlignment: TitleAlignment = .automatic
         internal var _resolvedBorderColor: NSColor? = nil
+        internal var _resolvedForegroundColor: NSColor? = nil
+        internal var _resolvedBackgroundColor: NSColor? = nil
         
         internal mutating func updateResolvedValues() {
             _resolvedTitleAlignment = resolvedTitleAlignment()
             _resolvedBorderColor = resolvedBorderColor()
+            _resolvedForegroundColor = resolvedForegroundColor()
+            _resolvedBackgroundColor = resolvedBackgroundColor()
+            
             if let colorConfiguration = self.imageSymbolConfiguration?.color {
                 switch colorConfiguration {
                 case .palette(let primary, let secondary, let ter):

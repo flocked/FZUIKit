@@ -1,11 +1,12 @@
 //
 //  NSButton+ModernConfiguration+View.swift
-//  
+//
 //
 //  Created by Florian Zand on 24.06.23.
 //
 
 #if os(macOS)
+
 import AppKit
 import FZSwiftUtils
 import SwiftUI
@@ -50,10 +51,10 @@ extension NSButton.ModernConfiguration.ButtonView {
             VStack(alignment: configuration._resolvedTitleAlignment.alignment, spacing: configuration.titlePadding) {
                 titleItem
                     .font(titleFont)
-                    .foregroundColor(configuration.foregroundColor?.swiftUI)
+                    .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
                 subtitleItem
                     .font(subtitleFont)
-                    .foregroundColor(configuration.foregroundColor?.swiftUI)
+                    .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
             }
         }
         
@@ -79,7 +80,7 @@ extension NSButton.ModernConfiguration.ButtonView {
         var imageItem: some View {
             if let image = configuration.image {
                 Image( image)
-                    .foregroundColor(configuration.foregroundColor?.swiftUI)
+                    .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
                     .symbolConfiguration(configuration.imageSymbolConfiguration)
             }
         }
@@ -115,15 +116,15 @@ extension NSButton.ModernConfiguration.ButtonView {
             stackItem
                 .padding(configuration.contentInsets.edgeInsets)
                 .scaleEffect(configuration.scaleTransform)
-                .background(configuration.backgroundColor?.swiftUI)
+                .background(configuration._resolvedBackgroundColor?.swiftUI)
                 .clipShape(configuration.cornerStyle.shape)
-                .overlay(configuration.cornerStyle.shape.stroke(lineWidth: configuration.borderWidth).foregroundColor(configuration.foregroundColor?.swiftUI))
+                .overlay(configuration.cornerStyle.shape.stroke(lineWidth: configuration.borderWidth).foregroundColor(configuration._resolvedForegroundColor?.swiftUI))
                 .opacity(configuration.opacity)
         }
     }
 }
 
-@available(macOS 13.0, *)
+@available(macOS 13, *)
 internal extension NSButton.ModernConfiguration {
     class ButtonView: NSView {
         /// The current configuration of the view.

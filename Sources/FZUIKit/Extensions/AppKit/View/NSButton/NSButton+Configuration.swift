@@ -159,7 +159,7 @@ extension NSButton {
             self.contentTintColor = configuration._resolvedContentTintColor
             self.sound = configuration.sound
             self.sizeToFit()
-        } else if let configuration =  configuration as? NSButton.ModernConfiguration {
+        } else if var configuration = configuration as? NSButton.ModernConfiguration {
             self.bezelStyle = .rounded
             self.isBordered = false
             self.title = ""
@@ -167,6 +167,11 @@ extension NSButton {
             self.image = nil
             self.alternateImage = nil
             self.sound = configuration.sound
+            
+            if isEnabled == false {
+                configuration.foregroundColorTransformer = .systemEffect(.disabled)
+                configuration.backgroundColorTransformer = .systemEffect(.disabled)
+            }
 
             if let modernConfigurationButtonView = self.modernConfigurationButtonView {
                 modernConfigurationButtonView.configuration = configuration
