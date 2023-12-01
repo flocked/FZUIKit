@@ -18,9 +18,7 @@ public extension ContentConfiguration {
     /**
      A configuration that specifies the appearance of a shadow.
      
-     On AppKit `NSView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Shadow)`.
-     
-     On UIKit `UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Shadow)`.
+     `NSView/UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Shadow)`.     
      */
     struct Shadow: Hashable {
         /// The color of the shadow.
@@ -57,7 +55,7 @@ public extension ContentConfiguration {
         }
         
         /// Initalizes a shadow configuration.
-        public init(color: NSUIColor? = nil,
+        public init(color: NSUIColor? = .shadowColor,
                     opacity: CGFloat = 0.3,
                     radius: CGFloat = 2.0,
                     offset: CGPoint = CGPoint(x: 1.0, y: -1.5))

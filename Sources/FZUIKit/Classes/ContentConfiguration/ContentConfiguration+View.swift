@@ -18,9 +18,7 @@ public extension ContentConfiguration {
     /**
      A configuration that specifies the appearance of a view.
      
-     On AppKit `NSView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.View)`.
-     
-     On UIKit `UIView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.View)`.
+     `NSView/UIView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.View)`.     
      */
     struct View: Hashable {
         /// The background color.
@@ -72,6 +70,9 @@ public extension ContentConfiguration {
         /// The rotation of the view.
         public var rotation: CGQuaternion = .zero
         
+        /// The background configuration of the view.
+        public var backgrpundConfiguration: NSContentConfiguration? = nil
+        
         public init() {
             
         }
@@ -79,6 +80,27 @@ public extension ContentConfiguration {
         internal var _backgroundColor: NSUIColor? = nil
         internal mutating func updateResolvedColor() {
             _backgroundColor = resolvedBackgroundColor()
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(backgroundColor)
+            hasher.combine(backgroundColorTransformer)
+            hasher.combine(_backgroundColor)
+            hasher.combine(visualEffect)
+            hasher.combine(border)
+            hasher.combine(shadow)
+            hasher.combine(innerShadow)
+            hasher.combine(alpha)
+            hasher.combine(cornerRadius)
+            hasher.combine(cornerCurve)
+            hasher.combine(roundedCorners)
+            hasher.combine(mask)
+            hasher.combine(scale)
+            hasher.combine(rotation)
+        }
+        
+        public static func == (lhs: ContentConfiguration.View, rhs: ContentConfiguration.View) -> Bool {
+            lhs.hashValue == rhs.hashValue
         }
     }
 }
@@ -108,6 +130,61 @@ public extension NSUIView {
         self.visualEffect = configuration.visualEffect
         self.scale = CGPoint(configuration.scale.width, configuration.scale.height)
         self.rotation = configuration.rotation
+        
+        if let backgrpundConfiguration = configuration.backgrpundConfiguration {
+            if let backgroundView = backgroundView {
+                backgroundView.configuration = backgrpundConfiguration
+            } else {
+                let backgroundView = BackgroundView(configuration: backgrpundConfiguration)
+                self.insertSubview(withConstraint: backgroundView, at: 0)
+            }
+        } else {
+            backgroundView?.removeFromSuperview()
+        }
+    }
+    
+    fileprivate var backgroundView: BackgroundView? {
+        self.viewWithTag(24532453) as? BackgroundView
+    }
+    
+    fileprivate class BackgroundView: NSUIView {
+        #if os(macOS)
+        override var tag: Int {
+            return 24532453
+        }
+        #endif
+        
+        var configuration: NSContentConfiguration {
+            didSet {
+                updateConfiguration()
+            }
+        }
+        
+        var contentView: (NSUIView & NSContentView)
+        
+        init(configuration: NSContentConfiguration) {
+            self.configuration = configuration
+            self.contentView = configuration.makeContentView()
+            super.init(frame: .zero)
+            self.addSubview(withConstraint: contentView)
+            #if os(iOS) || os(tvOS)
+            self.tag = 24532453
+            #endif
+        }
+        
+        func updateConfiguration() {
+            if self.contentView.supports(configuration) {
+                self.contentView.configuration = configuration
+            } else {
+                self.contentView.removeFromSuperview()
+                self.contentView = configuration.makeContentView()
+                self.addSubview(withConstraint: contentView)
+            }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
     }
 }
 

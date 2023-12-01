@@ -18,9 +18,7 @@ public extension ContentConfiguration {
     /**
      A configuration that specifies the image.
      
-     On AppKit `NSImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Image)`.
-     
-     On UIKit `UIImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Image)`.
+     `NSImageView/UIImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Image)`.     
      */
     struct Image: Hashable {
 #if os(macOS)

@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 26.11.23.
 //
 
+/*
 #if os(macOS) || os(iOS) || os(tvOS)
 
 import Foundation
@@ -105,3 +106,4 @@ public extension PropertyAnimationProviding {
 }
 
 #endif
+*/

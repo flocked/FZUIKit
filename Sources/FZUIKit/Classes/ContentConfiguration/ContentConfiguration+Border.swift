@@ -17,9 +17,7 @@ public extension ContentConfiguration {
     /**
      A configuration that specifies the appearance of a border.
      
-     On AppKit `NSView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Border)`.
-     
-     On UIKit `UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Border)`.
+     `NSView/UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Border)`.     
      */
     struct Border: Hashable {
         
@@ -64,9 +62,7 @@ public extension ContentConfiguration {
         }
 
         /// A border configuration without a border.
-        public static func none() -> Self {
-            return Self()
-        }
+        public static func none() -> Self { return Self() }
         
         /// A configuration for a black border.
         public static func black(width: CGFloat = 2.0) -> Self {

@@ -95,7 +95,7 @@ extension PropertyAnimator where Object: NSUIView {
     /// The shadow of the view.
     public var shadow: ContentConfiguration.Shadow {
         get { object.optionalLayer?.animator.shadow ?? .none() }
-        set { 
+        set {
             #if os(macOS)
             object.dynamicColors.shadow = newValue._resolvedColor
             #endif

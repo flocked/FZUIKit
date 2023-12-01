@@ -95,7 +95,7 @@ public extension UIColor {
     }
 }
 
-public extension UIColor {
+internal extension UIColor {
     /// The color to use for virtual shadows cast by raised objects on the screen.
     static var shadowColor: UIColor {
         return UIColor.black

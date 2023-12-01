@@ -15,6 +15,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+
 /**
  Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
  

@@ -12,11 +12,11 @@ public extension ContentConfiguration {
     /**
      A configuration that specifies the appearance of a visual effect view.
      
-     `VisualEffect` can be configurated by passing the configuration to `configurate(using configuration: VisualEffect)`.
+     `NSVisualEffectView` can be configurated by passing the configuration to `configurate(using configuration: VisualEffect)`.
      
      `NSView` can be configurated via it's ``AppKit/NSView/visualEffect`` property.  It adds a visual effect view as background to the view.
      
-     `NSWindow` can also be configurated via it's ``AppKit/NSWindow/visualEffect`` property.  It adds a visual effect view as background to it's `contentView`.
+     `NSWindow` can be configurated via it's ``AppKit/NSWindow/visualEffect`` property.  It adds a visual effect view as background to it's `contentView`.
      */
     struct VisualEffect: Hashable {
         public typealias Material = NSVisualEffectView.Material

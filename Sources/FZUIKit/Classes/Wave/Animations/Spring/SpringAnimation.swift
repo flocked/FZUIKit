@@ -6,6 +6,7 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
+
 import Foundation
 #if os(macOS)
 import AppKit

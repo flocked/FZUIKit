@@ -10,35 +10,6 @@ import SwiftUI
 import Accelerate
 import FZSwiftUtils
 
-protocol FloatCovertable { }
-extension Double: FloatCovertable { }
-extension Float: FloatCovertable { }
-
-protocol AccelerateFloatingPoint {
-    associatedtype Element: FloatingPoint & VectorArithmetic & AdditiveArithmetic
-    var elements: [Element] { get set }
-    
-    func subtract(_ other: Self)
-}
-
-extension AccelerateFloatingPoint {
-    func subtract(_ other: Self) where Element == Double {
-        
-    }
-    
-    func subtract(_ other: Self) where Element == Float {
-        
-    }
-    
-    func subtract(_ other: Self) {
-        
-    }
-}
-
-extension AnimatableArray: AccelerateFloatingPoint where Element: FloatingPoint {
-    
-}
-
 /// An array that can serve as the animatable data of an animatable type (see ``AnimatableProperty``).
 public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
     internal var elements: [Element] = []

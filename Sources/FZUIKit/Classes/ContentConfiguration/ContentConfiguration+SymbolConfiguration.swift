@@ -19,18 +19,18 @@ public extension ContentConfiguration {
     /**
      An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
      
-     On AppKit `NSImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.SymbolConfiguration)`.
-     A configuration can also be applied to a `NSImage` via `withSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
+     `NSImageView/UIImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.SymbolConfiguration)`.
+     
+     `NSImage` can be configurated via `withSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
 `
-     On UIKit `UIImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.SymbolConfiguration)`.
-     A configuration can also be applied to a `UIImage` via `applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
+     `UIImage` can be configurated via `applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
      */
     struct SymbolConfiguration: Hashable {
         /// The font of the symbol configuration.
         public var font: FontConfiguration? = nil
         
         /// The color configuration of the symbol configuration.
-        public var colorConfiguration: ColorConfiguration? = nil {
+        public var color: ColorConfiguration? = nil {
             didSet { updateResolvedColors() } }
         
         /// The color transformer for resolving the color style.
@@ -41,6 +41,7 @@ public extension ContentConfiguration {
         public var imageScale: ImageScale? = nil
         
         /// Sets the font of the symbol configuration.
+        @discardableResult
         public func font(_ font: FontConfiguration?) -> Self {
             var configuration = self
             configuration.font = font
@@ -48,13 +49,15 @@ public extension ContentConfiguration {
         }
         
         /// Sets the color configuration of the symbol configuration.
-        public func colorConfiguration(_ configuration: ColorConfiguration?) -> Self {
+        @discardableResult
+        public func color(_ configuration: ColorConfiguration?) -> Self {
             var newConfiguration = self
-            newConfiguration.colorConfiguration = configuration
+            newConfiguration.color = configuration
             return newConfiguration
         }
         
         /// Sets the color transformer of the symbol configuration.
+        @discardableResult
         public func colorTransformer(_ transformer: ColorTransformer?) -> Self {
             var newConfiguration = self
             newConfiguration.colorTransform = transformer
@@ -62,6 +65,7 @@ public extension ContentConfiguration {
         }
         
         /// Sets the image scale of the symbol configuration.
+        @discardableResult
         public func imageScale(_ scale: ImageScale?) -> Self {
             var configuration = self
             configuration.imageScale = scale
@@ -73,15 +77,15 @@ public extension ContentConfiguration {
          
          - Parameters:
             - font: The font.
-            - colorConfiguration: The color configuration.
+            - color: The color configuration.
             - colorTransform: The color transformer.
             - imageScale: The image scaling.
          
          - Returns: a symbol configuration object.
          */
-        public init(font: FontConfiguration? = nil, colorConfiguration: ColorConfiguration? = nil, colorTransform: ColorTransformer? = nil, imageScale: ImageScale? = nil) {
+        public init(font: FontConfiguration? = nil, color: ColorConfiguration? = nil, colorTransform: ColorTransformer? = nil, imageScale: ImageScale? = nil) {
             self.font = font
-            self.colorConfiguration = colorConfiguration
+            self.color = color
             self.colorTransform = colorTransform
             self.imageScale = imageScale
             self.updateResolvedColors()
@@ -89,37 +93,42 @@ public extension ContentConfiguration {
         
         /// Creates a configuration with a monochrome color configuration.
         public static var monochrome: SymbolConfiguration {
-            SymbolConfiguration(colorConfiguration: .monochrome)
+            SymbolConfiguration(color: .monochrome)
         }
         
         /// Creates a configuration with a hierarchical color configuration with the specified color.
         public static func hierarchical(_ color: NSUIColor) -> SymbolConfiguration {
-            SymbolConfiguration(colorConfiguration: .hierarchical(color))
+            SymbolConfiguration(color: .hierarchical(color))
         }
         
         /// Creates a configuration with a multicolor configuration with the specified color.
         public static func multicolor(_ color: NSUIColor) -> SymbolConfiguration {
-            SymbolConfiguration(colorConfiguration: .multicolor(color))
+            SymbolConfiguration(color: .multicolor(color))
         }
         
         /// Creates a configuration with a palette color configuration with the specified primary, secondary and tertiary color.
-        public static func palette(_ primary: NSUIColor, secondary: NSUIColor, tertiary: NSUIColor? = nil) -> SymbolConfiguration {
-            SymbolConfiguration(colorConfiguration: .palette(primary, secondary, tertiary))
+        public static func palette(_ primary: NSUIColor, _ secondary: NSUIColor, _ tertiary: NSUIColor? = nil) -> SymbolConfiguration {
+            SymbolConfiguration(color: .palette(primary, secondary, tertiary))
         }
         
         /// Creates a configuration with the specified font style and weight.
-        public static func font(_ style: NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight = .regular) -> SymbolConfiguration {
-            SymbolConfiguration(font: .textStyle(style, weight:  weight))
+        public static func font(_ style: NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> SymbolConfiguration {
+            SymbolConfiguration(font: .textStyle(style, weight:  weight, design: design))
         }
         
         /// Creates a configuration with the specified font size and weight.
-        public static func font(size: CGFloat, weight: NSUIImage.SymbolWeight = .regular) -> SymbolConfiguration {
-            SymbolConfiguration(font: .systemFont(size: size, weight: weight))
+        public static func font(size: CGFloat, weight: NSUIImage.SymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> SymbolConfiguration {
+            SymbolConfiguration(font: .systemFont(size: size, weight: weight, design: design))
+        }
+        
+        /// Creates a configuration with the specified image scale.
+        public static func imageScale(_ imageScale: ImageScale) -> SymbolConfiguration {
+            SymbolConfiguration(imageScale: imageScale)
         }
         
         /// Generates the resolved primary color for the specified color style, using the color style and color transformer.
         public func resolvedPrimaryColor() -> NSUIColor? {
-            if let primary = self.colorConfiguration?.primary {
+            if let primary = self.color?.primary {
                 return self.colorTransform?(primary) ?? primary
             }
             return nil
@@ -127,7 +136,7 @@ public extension ContentConfiguration {
         
         /// Generates the resolved secondary color for the specified color style, using the color style and color transformer.
         public func resolvedSecondaryColor() -> NSUIColor? {
-            if let secondary = self.colorConfiguration?.secondary {
+            if let secondary = self.color?.secondary {
                 return self.colorTransform?(secondary) ?? secondary
             }
             return nil
@@ -135,7 +144,7 @@ public extension ContentConfiguration {
         
         /// Generates the resolved tertiary color for the specified color style, using the color style and color transformer.
         public func resolvedTertiaryColor() -> NSUIColor? {
-            if let tertiary = self.colorConfiguration?.tertiary {
+            if let tertiary = self.color?.tertiary {
                 return self.colorTransform?(tertiary) ?? tertiary
             }
             return nil
@@ -159,6 +168,7 @@ public extension ContentConfiguration {
             case textStyle(NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
             
             /// Sets the weight of the font.
+            @discardableResult
             public func weight(_ weight: NSUIImage.SymbolWeight?) -> Self {
                 switch self {
                 case .systemFont(let size, _, let design):
@@ -169,6 +179,7 @@ public extension ContentConfiguration {
             }
             
             /// Sets the design of the font.
+            @discardableResult
             public func design(_ design: NSUIFontDescriptor.SystemDesign) -> Self {
                 switch self {
                 case .systemFont(let size, let weight, _):
@@ -308,7 +319,7 @@ public extension ContentConfiguration.SymbolConfiguration {
     #endif
     internal func nsUI() -> NSUIImage.SymbolConfiguration {
         var configuration: NSUIImage.SymbolConfiguration
-        switch self.colorConfiguration {
+        switch self.color {
         case .hierarchical(let color):
             configuration = .hierarchical(color)
         case .monochrome:
@@ -357,8 +368,8 @@ public extension View {
         if let configuration = configuration {
             self
                 .imageScale(configuration.imageScale?.swiftui)
-                .symbolRenderingMode(configuration.colorConfiguration?.renderingMode)
-                .foregroundStyle(tintColor ?? configuration.colorConfiguration?.primary?.swiftUI, configuration.colorConfiguration?.secondary?.swiftUI, configuration.colorConfiguration?.tertiary?.swiftUI)
+                .symbolRenderingMode(configuration.color?.renderingMode)
+                .foregroundStyle(tintColor ?? configuration.color?.primary?.swiftUI, configuration.color?.secondary?.swiftUI, configuration.color?.tertiary?.swiftUI)
                 .font(configuration.font?.swiftui)
         } else {
             self
@@ -375,8 +386,8 @@ public extension View {
         if let configuration = configuration {
             self
                 .imageScale(configuration.imageScale?.swiftui)
-                .symbolRenderingMode(configuration.colorConfiguration?.renderingMode)
-                .foregroundStyle(configuration.colorConfiguration?.primary?.swiftUI, configuration.colorConfiguration?.secondary?.swiftUI, configuration.colorConfiguration?.tertiary?.swiftUI)
+                .symbolRenderingMode(configuration.color?.renderingMode)
+                .foregroundStyle(configuration.color?.primary?.swiftUI, configuration.color?.secondary?.swiftUI, configuration.color?.tertiary?.swiftUI)
                 .font(configuration.font?.swiftui)
         } else {
             self
