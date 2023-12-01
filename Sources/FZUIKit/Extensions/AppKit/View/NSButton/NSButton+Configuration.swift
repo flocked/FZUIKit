@@ -19,12 +19,17 @@ extension NSButton {
      Setting a configuration opts the button into a configuration system based on ``NSButtonConfiguration``.
      
      There are two types of configurations you can assign:
-     - ``Configuration-swift.struct`` which provides standard macOS styling (like the default push button).
+     - ``Configuration`` which provides standard macOS styling (like the default push button).
      - ``ModernConfiguration`` which supports several options and behaviors unavailable with other configuration methods. Features include subtitle labels, extended control over shape, color and more.
      
-     When using a configuration, the button ignores other methods and properties of `NSButton`.
+     ```swift
+     var configuration: NSButton.Configuration = .tinted(color: .systemBlue)
+     configuration.title = "The Title"
+     configuration.subtitle = "Subtitle"
+     configuration.image = NSImage(systemSymbolName: "photo")
      
-     If the configuration is `nil`, other supported properties and methods of `NSButton`, such as `title`,  `alternateTitle` and `image` control the apearance of the button.
+     button.configuration = configuration
+     ```
      */
     public var configuration: NSButtonConfiguration? {
         get { getAssociatedValue(key: "NSButton_Configuration", object: self, initialValue: nil) }
