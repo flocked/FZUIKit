@@ -17,34 +17,31 @@ import SwiftUI
  - macOS: `NSView`, `NSWindow`, `NSTextField`, `NSImageView`, `NSLayoutConstraint`, `CALayer` and many more.
  - iOS: `UIView`, `UILabel`, `UIImageView`, `NSLayoutConstraint`, `CALayer`  and many more.
  
+ To animate values, you must set the values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
+ 
+ ## Animations
+ 
  There are three different types of animations :
  - **Spring:** ``animate(withSpring:gestureVelocity:delay:options:animations:completion:)``
  - **Easing:** ``animate(withEasing:duration:delay:options:animations:completion:)``
  - **Decay:** ``animate(withDecay:decelerationRate:delay:options:animations:completion:)``.
  
- To animate values, you must set the values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`.
-
+ Example usage with a spring animation:
+ 
  ```swift
- Wave.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
+ Wave.animate(withSpring: .bouncy) {
     myView.animator.center = newCenterPoint
     myView.animator.backgroundColor = .systemBlue
  }
  ```
- To update values of properties that are currently animated use ``nonAnimate(changes:)``. It will stop their animations and sets their values immediately to the specified new values.
+ To update values of properties that are currently animated use ``nonAnimate(changes:)`` or update the values using ``AnimatablePropertyProvider/animator-54mpy`` outside of a `Wave` animation block. It will stop their animations and sets their values immediately to the specified new values.
 
  ```swift
- Wave.nonAnimate() {
-    myView.animator.center = newCenterPoint
-    myView.animator.backgroundColor = .systemRed
- }
- ```
- Alternatively you can also update values non animated by  using the ``AnimatablePropertyProvider/animator-54mpy`` outside of a `Wave` animation block.
-
- ```swift
+ // outside of an animation block
  myView.animator.center = newCenterPoint
- myView.animator.backgroundColor = .systemRed
+ myView.animator.backgroundColor = .black
  ```
- 
+
  - Note: All animations are to run and be interfaced with on the main thread only. There is no support for threading of any kind.
  */
 public enum Wave {
@@ -59,15 +56,15 @@ public enum Wave {
      }
      ```
      
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
           
      - Parameters:
         - spring: The ``Spring`` used to determine the timing curve and duration of the animation.
         - gestureVelocity: If provided, this value will be used to set the spring ``SpringAnimation/velocity`` of whatever underlying animations run in the `animations` block and that animate `CGPoint` or `CGRect` values. This should be primarily used to "inject" the velocity of a gesture recognizer (when the gesture ends) into the animations.
         - delay: An optional delay, in seconds, after which to start the animation.
-        - options: The options to apply to the animations. For a list of options, see ``AnimationOptions``. The default value doesn't apply any options.
-        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
-        - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
+        - options: The options to apply to the animations. For a list of options, see ``AnimationOptions``. The default value is `[]`.
+        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself.
+        - completion: An optional block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
         withSpring spring: Spring,
@@ -100,14 +97,14 @@ public enum Wave {
      ```
      
      - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
-     
+
      - Parameters:
         - timingFunction: The ``TimingFunction`` used to determine the timing curve.
         - duration: The duration of the animation.
         - delay: An optional delay, in seconds, after which to start the animation.
-        - options: The options to apply to the animations. For a list of options, see ``AnimationOptions``. The default value doesn't apply any options.
-        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
-        - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
+        - options: The options to apply to the animations. For a list of options, see ``AnimationOptions``. The default value is `[]`.
+        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself.
+        - completion: An optional block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
         withEasing timingFunction: TimingFunction,
@@ -151,16 +148,16 @@ public enum Wave {
      ```
      
      - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
-     
+
      - Parameters:
-        - mode: The mode how the animation should animate properties.
-            - `value` will animate the properties to your applied values with a decaying acceleration.
-            - `velocity` will increase or decrease the properties depending on the values applied and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
+        - mode: The mode how the animation should animate properties:
+            - ``DecayAnimationMode/value`` will animate properties to the applied values with a decaying acceleration.
+            - ``DecayAnimationMode/velocity`` will increase or decrease properties depending on the values applied and will slow to a stop.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
         - decelerationRate: The rate at which the animation decelerates over time. The default value decelerates like scrollviews.
         - delay: An optional delay, in seconds, after which to start the animation.
-        - options: The options to apply to the animations. For a list of options, see ``AnimationOptions``. The default value doesn't apply any options.
-        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's `animator`, not just the object itself.
-        - completion: A block to be executed when the specified animations have either finished or retargeted to a new value.
+        - options: The options to apply to the animations. For a list of options, see ``AnimationOptions``. The default value is `[]`.
+        - animations: A block containing the changes to your objects' animatable properties. Note that for animations to work correctly, you must set values on the object's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself.
+        - completion: An optional block to be executed when the specified animations have either finished or retargeted to a new value.
      */
     public static func animate(
         withDecay mode: DecayAnimationMode,
@@ -186,23 +183,20 @@ public enum Wave {
     /**
      Performs the specified changes non animated.
      
-     Use it to immediately update values of properties. For properties that are currently animated, the animations stop.
+     Use it to immediately update values of properties. For properties that are currently animated, the animations stop. You can also update values non animated by using the ``AnimatablePropertyProvider/animator-54mpy`` outside of any ``Wave`` animation block.
      
      ```swift
      Wave.nonAnimate() {
         myView.animator.center = newCenterPoint
      }
-     ```
      
-     You can also update values non animated by using the ``AnimatablePropertyProvider/animator-54mpy`` outside of any ``Wave`` animation block.
-     
-     ```swift
+     // or outside an animation block
      myView.animator.center = newCenterPoint
      ```
      
      - Note: For a list of all objects that provide animatable properties check ``Wave``.
      
-     - Parameter changes: A block containing the changes to your objects' animatable properties that get updated non animated.
+     - Parameter changes: A block containing the changes to your objects animatable properties that get updated non animated.
      */
     public static func nonAnimate(changes: () -> Void) {
         let settings = AnimationController.AnimationParameters(
@@ -214,9 +208,9 @@ public enum Wave {
     }
     
     /**
-     Stops all animations at their current values.
+     Stops all animations.
      
-     - Parameters immediately: A Boolean value indicating whether the animations should stop immediately at their values. The default value is `true`.
+     - Parameter immediately: A Boolean value indicating whether the animations should stop immediately at their values. The default value is `true`.
      */
     public static func stopAnimating(immediately: Bool = true) {
         AnimationController.shared.stopAllAnimations(immediately: immediately)
@@ -231,6 +225,10 @@ public enum Wave {
         myView.animator.frame.origin = newVelocity
      }
      ```
+     
+     - Parameter changes: A block containing the updated velocities.
+     
+     - Note: For a list of all objects that provide animatable properties check ``Wave``.
      */
     public static func updateVelocity(changes: () -> Void) {
         let settings = AnimationController.AnimationParameters(
