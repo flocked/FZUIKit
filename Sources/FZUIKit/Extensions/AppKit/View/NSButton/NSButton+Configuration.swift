@@ -169,8 +169,16 @@ extension NSButton {
             self.sound = configuration.sound
             
             if isEnabled == false {
-                configuration.foregroundColorTransformer = .systemEffect(.disabled)
-                configuration.backgroundColorTransformer = .systemEffect(.disabled)
+                if let transformer = configuration.foregroundColorTransformer {
+                    configuration.foregroundColorTransformer = transformer + .systemEffect(.disabled)
+                } else {
+                    configuration.foregroundColorTransformer = .systemEffect(.disabled)
+                }
+                if let transformer = configuration.backgroundColorTransformer {
+                    configuration.backgroundColorTransformer = transformer + .systemEffect(.disabled)
+                } else {
+                    configuration.backgroundColorTransformer = .systemEffect(.disabled)
+                }
             }
 
             if let modernConfigurationButtonView = self.modernConfigurationButtonView {

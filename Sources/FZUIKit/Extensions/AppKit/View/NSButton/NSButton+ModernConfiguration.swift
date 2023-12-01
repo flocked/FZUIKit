@@ -128,12 +128,14 @@ public extension NSButton {
                 updateResolvedValues()
             } } }
         
-        internal var foregroundColorTransformer: ColorTransformer? = nil  { didSet {
+        /// The color transformer for resolving the foreground color.
+        public var foregroundColorTransformer: ColorTransformer? = nil  { didSet {
             if oldValue != self.foregroundColorTransformer {
                 updateResolvedValues()
             } } }
         
-        internal func resolvedForegroundColor() -> NSColor? {
+        /// Generates the resolved foreground color, using the foreground color and color transformer.
+        public func resolvedForegroundColor() -> NSColor? {
             if let foregroundColor = foregroundColor {
                 return foregroundColorTransformer?(foregroundColor) ?? foregroundColor
             }
@@ -146,12 +148,14 @@ public extension NSButton {
                 updateResolvedValues()
             } } }
         
-        internal var backgroundColorTransformer: ColorTransformer? = nil  { didSet {
+        /// The color transformer for resolving the background color.
+        public var backgroundColorTransformer: ColorTransformer? = nil  { didSet {
             if oldValue != self.backgroundColorTransformer {
                 updateResolvedValues()
             } } }
         
-        internal func resolvedBackgroundColor() -> NSColor? {
+        /// Generates the resolved background color, using the background color and color transformer.
+        public func resolvedBackgroundColor() -> NSColor? {
             if let backgroundColor = backgroundColor {
                 return backgroundColorTransformer?(backgroundColor) ?? backgroundColor
             }
