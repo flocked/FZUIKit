@@ -19,15 +19,7 @@ extension NSButton.ModernConfiguration.ButtonView {
         public init(configuration: NSButton.ModernConfiguration) {
             self.configuration = configuration
         }
-        
-        var fontSize: CGFloat {
-            NSFont.systemFontSize(for: configuration.size)
-        }
-        
-        var subtitleFontSize: CGFloat {
-            (self.fontSize * 0.75).rounded()
-        }
-        
+
         var titleFont: Font {
             switch configuration.size {
             case .large, .regular: return .system(.body) // 13
