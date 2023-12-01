@@ -1,193 +1,220 @@
 //
 //  NSButton+Configuration.swift
-//  
+//  NobraControl
 //
-//  Created by Florian Zand on 25.05.23.
+//  Created by Florian Zand on 29.06.23.
 //
 
 #if os(macOS)
-/*
+
 import AppKit
+import SwiftUI
 import FZSwiftUtils
 
-@available(macOS 12, *)
-public extension NSButton {
-    struct Configuration: NSContentConfiguration {
-        public enum Size {
-            case mini
-            case small
-            case medium
-            case large
-        }
-        
-        public enum TitleAlignment {
-            /// Align title & subtitle automatically
-            case automatic
-            /// Align title & subtitle along their leading edges
-            case leading
-            /// Align title & subtitle to be centered with respect to each other
-            case center
-            /// Align title & subtitle along their trailing edges
-            case trailing
-        }
-        
-        public enum CornerStyle {
-            /// The corner radius provided by the background style will be used as is, without adjusting for dynamic type
-            case fixed
-            /// The corner radius provided by the background style is adjusted based on dynamic type
-            case dynamic
-            /// Ignore the corner radius provided by the background style and substitute a small system defined corner radius.
-            case small
-            /// Ignore the corner radius provided by the background style and substitute a medium system defined corner radius.
-            case medium
-            /// Ignore the corner radius provided by the background style and substitute a large system defined corner radius.
-            case large
-            /// Ignore the corner radius provided by the background style and always set the corner radius to generate a capsule.
-            case capsule
-        }
-        
-        public enum Indicator {
-            /// Automatically determine an indicator based on the button's properties.
-            case automatic
-            /// Don't show any indicator
-            case none
-            /// Show an indicator appropriate for a popup-style button
-            case popup
-        }
-        
-        public static func plain() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        public static func tinted() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        public static func gray() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        public static func filled() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        public static func borderless() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        public static func bordered() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        public static func borderedTinted() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        public static func borderedProminent() -> NSButton.Configuration {
-            let configuration = NSButton.Configuration()
-            return configuration
-        }
-
-        /// The corner style controls how background.cornerRadius is interpreted by the button. Defaults to `.dynamic`.
-        public var cornerStyle: NSButton.Configuration.CornerStyle = .medium
-
-        /// Determines the metrics and ideal size of the button. Clients may resize the button arbitrarily regardless of this value.
-        public var buttonSize: NSButton.Configuration.Size? = nil
-
-        /// The base color to use for foreground elements. This color may be modified before being passed to a transformer, and finally applied to specific elements. Setting nil will cede full control to the configuration to select a color appropriate to the style.
-        public var baseForegroundColor: NSColor? = .controlAccentColor
-
-        /// The base color to use for background elements. This color may be modified before being passed to a transformer, and finally applied to specific elements. Setting nil will cede full control to the configuration to select a color appropriate to the style.
-        public var baseBackgroundColor: NSColor? = nil
-
-        public var image: NSImage? = nil
-
-        public var imageColorTransformer: ColorTransformer? = nil
-
-        public var preferredSymbolConfigurationForImage: NSImage.SymbolConfiguration? = nil
-
-        /// Shows an activity indicator in place of an image. Its placement is controlled by the imagePlacement property.
-        public var showsActivityIndicator: Bool = false
-
-        public var activityIndicatorColorTransformer: ColorTransformer? = nil
-
-        public var title: String? = nil
-
-        public var attributedTitle: AttributedString? = nil
-
-        public var titleTextAttributesTransformer: TextAttributesTransformer? = nil
-
-        public var subtitle: String? = nil
-
-        public var attributedSubtitle: AttributedString? = nil
-
-        public var subtitleTextAttributesTransformer: TextAttributesTransformer? = nil
-
-        public var indicator: NSButton.Configuration.Indicator = .none
-
-        public var indicatorColorTransformer: ColorTransformer? = nil
-
-        /// By default the button's content region is inset from its bounds based on the button's styling properties. The contentInsets are an additional inset applied afterwards.
-        public var contentInsets: NSDirectionalEdgeInsets = .zero
-
-        /*
-        /// Restore the default content insets.
-        public mutating func setDefaultContentInsets()
-*/
-        
-        /// Defaults to Leading, only single edge values (top/leading/bottom/trailing) are supported.
-        public var imagePlacement: NSDirectionalRectEdge = .leading
-
-        /// When a button has both image and text content, this value is the padding between the image and the text.
-        public var imagePadding: CGFloat = 2.0
-
-        /// When a button has both a title & subtitle, this value is the padding between those titles.
-        public var titlePadding: CGFloat = 2.0
-
-        /// The alignment to use for relative layout between title & subtitle.
-        public var titleAlignment: NSButton.Configuration.TitleAlignment = .automatic
-
-        /// If the style should automatically update when the button is selected. Default varies by style. Disable to customize selection behavior.
-        public var automaticallyUpdateForSelection: Bool = false
-        
-        public func makeContentView() -> NSView & NSContentView {
-            return NSButtonContentView(configuration: self)
-        }
-        
-        public func updated(for state: NSConfigurationState) -> NSButton.Configuration {
-            return self
-        }
-    }
-    
-    class NSButtonContentView: NSView, NSContentView {
-        public var configuration: NSContentConfiguration {
-            get { _configuration }
-            set {
-                if let newValue = newValue as? NSButton.Configuration {
-                _configuration = newValue
+@available(macOS 13.0, *)
+extension NSButton {
+    /**
+     The configuration for the button’s appearance.
+     
+     Setting a configuration opts the button into a configuration system based on ``NSButtonConfiguration``.
+     
+     There are two types of configurations you can assign:
+     - ``Configuration-swift.struct`` which provides standard macOS styling (like the default push button).
+     - ``ModernConfiguration`` which supports several options and behaviors unavailable with other configuration methods. Features include subtitle labels, extended control over shape, color and more.
+     
+     When using a configuration, the button ignores other methods and properties of `NSButton`.
+     
+     If the configuration is `nil`, other supported properties and methods of `NSButton`, such as `title`,  `alternateTitle` and `image` control the apearance of the button.
+     */
+    public var configuration: NSButtonConfiguration? {
+        get { getAssociatedValue(key: "NSButton_Configuration", object: self, initialValue: nil) }
+        set {
+            let oldValue = self.configuration
+            set(associatedValue: newValue, key: "NSButton_Configuration", object: self)
+            var needsConfigurationUpdate = true
+            if let oldValue = oldValue as? NSButton.ModernConfiguration, let newValue = newValue as? NSButton.ModernConfiguration, newValue == oldValue {
+                needsConfigurationUpdate = false
+            } else if let oldValue = oldValue as? NSButton.Configuration, let newValue = newValue as? NSButton.Configuration, newValue == oldValue {
+                needsConfigurationUpdate = false
+            }
+            
+            if needsConfigurationUpdate {
+                self.updateConfiguration()
+                
+                if self.automaticallyUpdatesConfiguration == true, newValue != nil {
+                    setupConfigurationStateObserver()
                 }
             }
         }
-        
-        internal var _configuration: NSButton.Configuration
-        
-        init(configuration: NSButton.Configuration) {
-            self._configuration = configuration
-            super.init(frame: .zero)
+    }
+    
+    /**
+     A Boolean value that determines whether the button configuration changes when button’s state changes.
+     
+     Set this property to true to have the button call `updated(for:)` when the button state changes and apply the changes to the button. The default value is true.
+     */
+    public var automaticallyUpdatesConfiguration: Bool {
+        get { getAssociatedValue(key: "NSButton_automaticallyUpdatesConfiguration", object: self, initialValue: true) }
+        set {
+            set(associatedValue: newValue, key: "NSButton_automaticallyUpdatesConfiguration", object: self)
+            self.setupConfigurationStateObserver()
         }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+    }
+    
+    internal var keyValueObserver: KeyValueObserver<NSButton>? {
+        get { getAssociatedValue(key: "keyValueObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "keyValueObserver", object: self) }
+    }
+    
+    internal func setupConfigurationStateObserver() {
+        if self.automaticallyUpdatesConfiguration == true || configurationUpdateHandler != nil {
+            if keyValueObserver == nil {
+                keyValueObserver = KeyValueObserver(self)
+                keyValueObserver?.add(\.state) { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.updateConfiguration()
+                    self.configurationUpdateHandler?(self.configurationState)
+                }
+                keyValueObserver?.add(\.isEnabled) { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.updateConfiguration()
+                    self.configurationUpdateHandler?(self.configurationState)
+                }
+                /*
+                keyValueObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
+                 */
+            }
+            
+            if observerView == nil {
+                let observerView = ObservingView(frame: .zero)
+                observerView.mouseHandlers.exited = { [weak self] event in
+                    guard let self = self else { return true }
+                    self.isHovered = false
+                    return true
+                }
+
+                observerView.mouseHandlers.setup([.moved, .dragged, .entered]) { [weak self] event in
+                    guard let self = self else { return true }
+                    self.isHovered = true
+                    return true }
+                self.observerView = observerView
+                self.addSubview(withConstraint: observerView)
+                observerView.sendToBack()
+            }
+        } else {
+            keyValueObserver = nil
+            observerView?.removeFromSuperview()
+            observerView = nil
+        }
+    }
+    
+    internal var isHovered: Bool {
+        get { getAssociatedValue(key: "isHovered", object: self, initialValue: false) }
+        set {
+            guard newValue != self.isHovered else { return }
+            set(associatedValue: newValue, key: "isHovered", object: self)
+            if (self.automaticallyUpdatesConfiguration) {
+                self.updateConfiguration()
+            }
+        }
+    }
+    
+    internal var configurationState: ConfigurationState {
+        ConfigurationState(state: self.state, isEnabled: self.isEnabled, isHovered: self.isHovered)
+    }
+    
+    /**
+     Requests the system update the button configuration.
+     
+     Call this method to make the system call ``updateConfiguration()``. The system calls this method automatically when the button’s state changes. If you call this method multiple times before the system calls `updateConfiguration()`, the system calls `updateConfiguration() once.
+     */
+    public func setNeedsUpdateConfiguration() {
+        self.updateConfiguration()
+    }
+    
+    /**
+     Updates button configuration in response to button state change.
+     
+     Override this method in your subclass to respond changes to the button’s state. Make any necessary changes and update the button’s configuration.
+     
+     Don’t call this method directly. Call ``setNeedsUpdateConfiguration()`` to request an update to your button.
+     */
+    @objc open func updateConfiguration() {
+        if let configuration = configuration as? NSButton.Configuration {
+            self.isBordered = true
+            self.bezelStyle = configuration.style.bezelStyle
+            self.setButtonType(configuration.style.buttonStyle)
+            if let attributedTitle = configuration.attributedTitle {
+                self.attributedTitle = attributedTitle
+                self.attributedAlternateTitle = attributedTitle
+            } else {
+                self.title = configuration.title ?? ""
+                self.alternateTitle = configuration.title ?? ""
+            }
+            self.image = configuration.image
+            self.alternateImage = configuration.image
+            self.imagePosition = configuration.imagePosition
+            self.symbolConfiguration = configuration.imageSymbolConfiguration?.nsSymbolConfiguration()
+            self.bezelColor = configuration._resolvedBorderColor
+            self.contentTintColor = configuration._resolvedContentTintColor
+            self.sound = configuration.sound
+            self.sizeToFit()
+        } else if let configuration =  configuration as? NSButton.ModernConfiguration {
+            self.bezelStyle = .rounded
+            self.isBordered = false
+            self.title = ""
+            self.alternateTitle = ""
+            self.image = nil
+            self.alternateImage = nil
+            self.sound = configuration.sound
+
+            if let modernConfigurationButtonView = self.modernConfigurationButtonView {
+                modernConfigurationButtonView.configuration = configuration
+            } else {
+                let buttonView = NSButton.ModernConfiguration.ButtonView(configuration: configuration)
+                self.modernConfigurationButtonView = buttonView
+                self.addSubview(withConstraint: buttonView)
+            }
+            self.frame.size = self.modernConfigurationButtonView?.fittingSize ?? .zero
+        }
+        self.configurationUpdateHandler?(self.configurationState)
+    }
+    
+    /**
+     A closure that executes when the button state changes.
+     
+     Use this property as an alternative to overriding ``updateConfiguration()``. Set a closure to respond to button state changes by updating the button configuration.
+     */
+    public var configurationUpdateHandler: ConfigurationUpdateHandler? {
+        get { getAssociatedValue(key: "NSButton_configurationUpdateHandler", object: self, initialValue: nil) }
+        set {
+            set(associatedValue: newValue, key: "NSButton_configurationUpdateHandler", object: self)
+            self.setupConfigurationStateObserver()
+            self.setNeedsUpdateConfiguration()
+        }
+    }
+    
+    /**
+     A closure to update the configuration of a button.
+     
+    - Parameter state: The current state of the button.
+     */
+    public typealias ConfigurationUpdateHandler  = (_ state: ConfigurationState) -> Void
+
+    
+    internal var modernConfigurationButtonView: NSButton.ModernConfiguration.ButtonView? {
+        get { getAssociatedValue(key: "NSButton_modernConfigurationButtonView", object: self, initialValue: nil) }
+        set {
+            set(associatedValue: newValue, key: "NSButton_modernConfigurationButtonView", object: self)
+        }
+    }
+    
+    internal var observerView: ObservingView? {
+        get { getAssociatedValue(key: "NSButton_observerView", object: self, initialValue: nil) }
+        set {
+            set(associatedValue: newValue, key: "NSButton_observerView", object: self)
         }
     }
 }
- */
 
 #endif
