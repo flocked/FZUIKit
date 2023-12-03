@@ -51,7 +51,7 @@ extension CASpringAnimation {
         self.mass = mass
         self.stiffness = Spring.stiffness(response: response, mass: mass)
         let unbandedDamping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
-        self.damping = rubberband(value: unbandedDamping, range: 0 ... 60, interval: 15)
+        self.damping = Rubberband.value(for: unbandedDamping, range: 0 ... 60, interval: 15)
         self.duration = response
     }
     
