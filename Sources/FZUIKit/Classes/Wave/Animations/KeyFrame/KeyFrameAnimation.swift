@@ -144,6 +144,7 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
             currentKeyFrameIndex = isReversed ? currentKeyFrameIndex - 1 : currentKeyFrameIndex - 1
             runningTime = currentKeyFrame.totalDuration - runningTime
             startValue = currentKeyFrame._target
+            Swift.print("next", currentKeyFrameIndex, runningTime, startValue)
         }
         
         if let currentKeyFrame = keyFrames[safe: currentKeyFrameIndex] {
@@ -157,7 +158,9 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
             }
         }
         
-        let animationFinished = (_value == (isReversed ? _fromValue : _target) || keyFrames[safe: currentKeyFrameIndex] == nil) || !isAnimated
+        _velocity = (_value - previousValue).scaled(by: 1.0/deltaTime)
+        
+        let animationFinished = (keyFrames[safe: currentKeyFrameIndex] == nil) || !isAnimated
         
         if animationFinished {
             if repeats, isAnimated {
@@ -282,6 +285,10 @@ extension KeyFrameAnimation {
     public enum KeyFrameBuilder {
         public static func buildBlock(_ block: [KeyFrame]...) -> [KeyFrame] {
             block.flatMap { $0 }
+        }
+        
+        public static func buildExpression(_ expr: KeyFrame) -> [KeyFrame] {
+            [expr]
         }
     }
 }
