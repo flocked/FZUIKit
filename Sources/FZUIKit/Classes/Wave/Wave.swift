@@ -161,7 +161,7 @@ public enum Wave {
      */
     public static func animate(
         withDecay mode: DecayAnimationMode,
-        decelerationRate: Double = ScrollViewDecelerationRate,
+        decelerationRate: Double = DecayFunction.ScrollViewDecelerationRate,
         delay: TimeInterval = 0,
         options: AnimationOptions = [],
         animations: () -> Void,
@@ -237,6 +237,14 @@ public enum Wave {
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
+    }
+}
+
+func test() {
+    let view = NSView()
+    Wave.animate(withDecay: .velocity) {
+        view.animator.frame.origin.x = 2000
+        view.animator.backgroundColor?.redComponent
     }
 }
 

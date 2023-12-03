@@ -64,9 +64,9 @@ extension PropertyAnimator where Object: CALayer {
     }
     
     /// The background color of the layer.
-    public var backgroundColor: NSUIColor? {
-        get { self[\.backgroundColor]?.nsUIColor }
-        set { self[\.backgroundColor] = newValue?.cgColor }
+    public var backgroundColor: CGColor? {
+        get { self[\.backgroundColor] }
+        set { self[\.backgroundColor] = newValue }
     }
     
     /// The anchor point for the layer’s position along the z axis.
@@ -112,9 +112,9 @@ extension PropertyAnimator where Object: CALayer {
     }
     
     /// The border color of the layer.
-    public var borderColor: NSUIColor? {
-        get { self[\.borderColor]?.nsUIColor }
-        set { self[\.borderColor] = newValue?.cgColor }
+    public var borderColor: CGColor? {
+        get { self[\.borderColor] }
+        set { self[\.borderColor] = newValue }
     }
     
     /// The border width of the layer.
@@ -286,16 +286,16 @@ extension PropertyAnimator where Object: CATextLayer {
     }
     
     /// The text color of the layer.
-    public var textColor: NSUIColor? {
+    public var textColor: CGColor? {
         get { self[\.textColor] }
         set { self[\.textColor] = newValue }
     }
 }
 
 fileprivate extension CATextLayer {
-    @objc var textColor: NSUIColor? {
-        get { self.foregroundColor?.nsUIColor }
-        set { self.foregroundColor = newValue?.cgColor }
+    @objc var textColor: CGColor? {
+        get { self.foregroundColor }
+        set { self.foregroundColor = newValue }
     }
 }
 
@@ -323,9 +323,9 @@ fileprivate extension CALayer {
 
 extension PropertyAnimator where Object: CAShapeLayer {
     /// The color used to fill the shape’s path.
-    public var fillColor: NSUIColor? {
-        get { self[\.fillColor]?.nsUIColor }
-        set { self[\.fillColor] = newValue?.cgColor }
+    public var fillColor: CGColor? {
+        get { self[\.fillColor] }
+        set { self[\.fillColor] = newValue }
     }
         
     /// The dash pattern applied to the shape’s path when stroked.
@@ -353,9 +353,9 @@ extension PropertyAnimator where Object: CAShapeLayer {
     }
         
     /// The color used to stroke the shape’s path.
-    public var strokeColor: NSUIColor? {
-        get { self[\.strokeColor]?.nsUIColor }
-        set { self[\.strokeColor] = newValue?.cgColor }
+    public var strokeColor: CGColor? {
+        get { self[\.strokeColor] }
+        set { self[\.strokeColor] = newValue }
     }
     
     /// The relative location at which to begin stroking the path.
@@ -385,9 +385,9 @@ extension PropertyAnimator where Object: CAReplicatorLayer {
     }
     
     /// Defines the color used to multiply the source object.
-    public var instanceColor: NSUIColor? {
-        get { self[\.instanceColor]?.nsUIColor }
-        set { self[\.instanceColor] = newValue?.cgColor }
+    public var instanceColor: CGColor? {
+        get { self[\.instanceColor] }
+        set { self[\.instanceColor] = newValue }
     }
     
     /// Defines the offset added to the red component of the color for each replicated instance. Animatable.
@@ -425,9 +425,9 @@ extension PropertyAnimator where Object: CATiledLayer {
 
 extension PropertyAnimator where Object: CAGradientLayer {
     /// The fill color of the layer.
-    public var colors: [NSUIColor] {
-        get { self[\._colors].compactMap({$0.nsUIColor}) }
-        set { self[\._colors] = newValue.compactMap({$0.cgColor}) }
+    public var colors: [CGColor] {
+        get { self[\._colors]}
+        set { self[\._colors] = newValue }
     }
     
     /// The locations of each gradient stop.
