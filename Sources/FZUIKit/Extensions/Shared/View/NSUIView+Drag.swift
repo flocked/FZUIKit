@@ -61,8 +61,7 @@ public extension NSUIView {
                         self.dragPoint = self.frame.origin
                     case .ended:
                         self.dragPoint = self.frame.origin
-                        let velocity = gesture.velocity(in: self)
-                        self.movableViewVelocity?(velocity)
+                        self.movableViewVelocity?(gesture.velocity(in: self))
                     case .changed:
                         let translation = gesture.translation(in: self)
                         self.frame.origin = self.dragPoint.offset(by: translation)

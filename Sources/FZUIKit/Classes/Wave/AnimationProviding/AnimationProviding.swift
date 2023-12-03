@@ -151,7 +151,7 @@ internal extension ConfigurableAnimationProviding {
                 animation.valueChanged?(value)
             default: break
             }
-            animation.target = value
+    //        animation.target = value
             animation.reset()
             animation.velocity = .zero
         //    (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)

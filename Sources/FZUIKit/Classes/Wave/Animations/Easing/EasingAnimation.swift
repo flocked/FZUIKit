@@ -42,7 +42,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public var timingFunction: TimingFunction = .easeInEaseOut
     
     /// The total duration (in seconds) of the animation.
-    public var duration: CGFloat = 0.0
+    public var duration: TimeInterval = 0.0
     
     /// A Boolean value indicating whether the animation repeats indefinitely.
     public var repeats: Bool = false
@@ -94,7 +94,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
     /**
-     Thex target value of the animation.
+     The target value of the animation.
 
      You may modify this value while the animation is in-flight to "retarget" to a new target value.
      */
