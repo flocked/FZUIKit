@@ -15,7 +15,11 @@ import FZSwiftUtils
 
 
 extension NSUIView: AnimatablePropertyProvider { 
-    public var animator: ViewAnimator<NSUIView> {
+ 
+}
+
+extension AnimatablePropertyProvider where Self: NSUIView {
+    public var animator: ViewAnimator<Self> {
         get { getAssociatedValue(key: "ViewAnimator", object: self, initialValue: ViewAnimator(self)) }
     }
 }
