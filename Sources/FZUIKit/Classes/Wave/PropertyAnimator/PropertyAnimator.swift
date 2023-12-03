@@ -55,7 +55,8 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
-        
+    
+    /*
     /**
      The current value of the property at the specified keypath. Assigning a new value inside a ``Wave`` animation block animates to the new value.
      
@@ -65,6 +66,7 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         get { value(for: keyPath) }
         set { setValue(newValue, for: keyPath) }
     }
+     */
     
     /**
      The current animation velocity of the property at the specified keypath, or `zero` if there isn't an animation for the property or the animation doesn't support velocity values.
@@ -76,6 +78,7 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         set { self.animation(for: velocity)?.setVelocity(newValue) }
     }
         
+    /*
     /**
      The current animation velocity of the property at the specified keypath, or `zero` if there isn't an animation for the property or the animation doesn't support velocity values.
 
@@ -85,13 +88,14 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         get { ((self.animation(for: velocity)?.velocity as? Value)) ?? .zero  }
         set { self.animation(for: velocity)?.setVelocity(newValue) }
     }
+     */
     
     /**
      The current animation for the property at the specified keypath.
      
      - Parameters keyPath: The keypath to an animatable property.
      */
-    public func animation(for keyPath: PartialKeyPath<PropertyAnimator>) -> AnimationProviding? {
+    public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator, Value>) -> AnimationProviding? {
         var key = keyPath.stringValue
         if let animation = self.animations[key] {
             return animation
@@ -107,17 +111,15 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         return (self.animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
     
+    /*
     /// The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: KeyPath<PropertyAnimator, Value?>) -> Value? {
         return (self.animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
+     */
 }
 
 internal extension PropertyAnimator {
-    func key(for keyPath: PartialKeyPath<Object>) -> String {
-        keyPath.stringValue
-    }
-    
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> Value {
         if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
@@ -126,6 +128,7 @@ internal extension PropertyAnimator {
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
     }
     
+    /*
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>) -> Value?  {
         if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
@@ -133,6 +136,7 @@ internal extension PropertyAnimator {
         }
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
     }
+     */
     
     /// Animates the value of the property at the keypath to a new value.
     func setValue<Value: AnimatableProperty>(_ newValue: Value, for keyPath: WritableKeyPath<Object, Value>, completion: (()->())? = nil) {
@@ -146,14 +150,31 @@ internal extension PropertyAnimator {
             return
         }
         
-        var initialValue = object[keyPath: keyPath]
+        var value = object[keyPath: keyPath]
         var target = newValue
-        updateValue(&initialValue, target: &target)
+        updateValue(&value, target: &target)
         let valueChanged: ((_ currentValue: Value) -> Void)? = { [weak self] value in
             self?.object[keyPath: keyPath] = value
         }
-        setupAnimation(initialValue, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
-    }
+
+        AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
+        switch settings.animationType {
+        case .spring(_,_):
+            let animation = springAnimation(for: keyPath) ?? SpringAnimation(spring: .smooth, value: value, target: target)
+            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
+        case .easing(_,_):
+            let animation = easingAnimation(for: keyPath) ?? EasingAnimation(timingFunction: .linear, duration: 1.0, value: value, target: target)
+            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
+        case .decay(_,_):
+            let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
+            configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
+        case .velocityUpdate:
+            animation(for: keyPath)?.setVelocity(target)
+        case .nonAnimated:
+            break
+        }    }
+    
+    /*
     
     /// Animates the value of the property at the keypath to a new value.
     func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, completion: (()->())? = nil) {
@@ -175,7 +196,7 @@ internal extension PropertyAnimator {
         updateValue(&initialValue, target: &target)
         setupAnimation(initialValue, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)
     }
-    
+         
     /// Setups an animation for the specified value of the property at the keypath to a new value.
     func setupAnimation<Value: AnimatableProperty>(_ value: Value, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters,  valueChanged: ((_ currentValue: Value) -> Void)?, completion: (()->())? = nil) {
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
@@ -195,9 +216,10 @@ internal extension PropertyAnimator {
             break
         }
     }
+     */
     
     /// Configurates an animation and starts it.
-    func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters, valueChanged: ((_ currentValue: Value) -> Void)?, completion: (()->())? = nil) {
+    func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: WritableKeyPath<Object, Value>, settings: AnimationController.AnimationParameters, valueChanged: ((_ currentValue: Value) -> Void)?, completion: (()->())? = nil) {
         
         var animation = animation
         animation.reset()

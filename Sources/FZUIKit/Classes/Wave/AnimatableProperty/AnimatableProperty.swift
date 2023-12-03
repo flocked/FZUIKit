@@ -67,6 +67,20 @@ public extension AnimatableProperty {
     }
 }
 
+extension Optional: AnimatableProperty where Wrapped: AnimatableProperty {
+    public var animatableData: Wrapped.AnimatableData {
+        self.optional?.animatableData ?? Wrapped.zero.animatableData
+    }
+    
+    public init(_ animatableData: Wrapped.AnimatableData) {
+        self = Wrapped.init(animatableData)
+    }
+    
+    public static var zero: Optional<Wrapped> {
+        Wrapped.zero
+    }
+}
+
 extension AnimatableProperty where Self.AnimatableData: Comparable {
     public static func < (lhs: Self, rhs: Self) -> Bool {
         return lhs.animatableData < rhs.animatableData
