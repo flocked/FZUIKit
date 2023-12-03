@@ -191,7 +191,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      */
     public func updateAnimation(deltaTime: TimeInterval) {
         state = .running
-        Swift.print(deltaTime)
+        
         let isAnimated = spring.response > .zero
 
         if isAnimated {
