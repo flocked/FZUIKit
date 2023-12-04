@@ -511,7 +511,7 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            self.saveDynamicColor(newValue, for: \.border)
+            self.dynamicColors.border = borderColor
             var newColor = newValue?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {
                 newColor = .clear
@@ -565,8 +565,7 @@ extension NSView {
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            self.saveDynamicColor(newValue, for: \.shadow)
-
+            self.dynamicColors.shadow = newValue
             var newColor = newValue?.resolvedColor(for: self)
             if newColor == nil, self.isProxy() {
                 newColor = .clear
@@ -668,7 +667,7 @@ extension NSView {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
             self.proxyInnerShadow = newValue
-            self.saveDynamicColor(newValue._resolvedColor, for: \.innerShadow)
+            self.dynamicColors.innerShadow = newValue._resolvedColor
             
             if self.innerShadowLayer == nil {
                 let innerShadowLayer = InnerShadowLayer()

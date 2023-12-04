@@ -30,7 +30,7 @@ public extension BackgroundColorSettable where Self: NSView {
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
-            self.saveDynamicColor(newValue, for: \.background)
+            self.dynamicColors.background = newValue
             
             var newValue = newValue?.resolvedColor(for: effectiveAppearance)
             if newValue == nil, self.isProxy() {
@@ -53,20 +53,15 @@ internal extension NSView {
         }
     }
     
-    func saveDynamicColor(_ color: NSColor?, for keyPath: WritableKeyPath<DynamicColors, NSColor?>) {
-        let isDynamic = color?.isDynamic ?? false
-        if self.isProxy() {
-            (self.layer?.delegate as? NSView)?.dynamicColors[keyPath: keyPath] = isDynamic ? color : nil
-        } else {
-            self.dynamicColors[keyPath: keyPath] = isDynamic ? color : nil
-        }
-    }
-    
     struct DynamicColors {
-        var shadow: NSColor? = nil
-        var innerShadow: NSColor? = nil
-        var border: NSColor? = nil
-        var background: NSColor? = nil
+        var shadow: NSColor? = nil {
+            didSet { if shadow?.isDynamic == false { shadow = nil } } }
+        var innerShadow: NSColor? = nil {
+            didSet { if innerShadow?.isDynamic == false { innerShadow = nil } } }
+        var border: NSColor? = nil {
+            didSet { if border?.isDynamic == false { border = nil } } }
+        var background: NSColor? = nil {
+            didSet { if background?.isDynamic == false { background = nil } } }
         
         var needsAppearanceObserver: Bool {
             background != nil || border != nil || shadow != nil || innerShadow != nil

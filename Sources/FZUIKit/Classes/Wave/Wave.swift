@@ -177,9 +177,7 @@ public enum Wave {
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
-    
-    /// DecayAnimationMode
-    
+        
     /**
      Performs the specified changes non animated.
      

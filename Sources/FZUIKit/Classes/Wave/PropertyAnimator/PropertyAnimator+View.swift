@@ -14,17 +14,16 @@ import UIKit
 import FZSwiftUtils
 
 
-extension NSUIView: AnimatablePropertyProvider { 
- 
-}
+extension NSUIView: AnimatablePropertyProvider { }
 
 extension AnimatablePropertyProvider where Self: NSUIView {
+    /// Provides animatable properties of the view.
     public var animator: ViewAnimator<Self> {
         get { getAssociatedValue(key: "ViewAnimator", object: self, initialValue: ViewAnimator(self)) }
     }
 }
 
-/// The property animator for views.
+/// Provides animatable properties of a view.
 public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     /// The bounds of the view.
     public var bounds: CGRect {
