@@ -196,7 +196,7 @@ extension AnimatableProperty where Self: CGColor {
 
 extension CGColor: AnimatableProperty {
     public var animatableData: AnimatableArray<Double> {
-        let components = self.rgbaComponents() ?? (0, 0, 0, 0)
+        let components = self.rgbaComponents() ?? .zero
         return [components.red, components.green, components.blue, components.alpha]
        // self.nsUIColor?.animatableData ?? [0,0,0,0]
     }

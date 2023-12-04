@@ -57,6 +57,8 @@ public struct RGBAComponents: Codable, Hashable {
         Color(red: red, green: green, blue: blue, opacity: alpha)
     }
     
+    internal static let zero = RGBAComponents(0.0, 0.0, 0.0, 0.0)
+    
     public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
         self.red = red
         self.green = green

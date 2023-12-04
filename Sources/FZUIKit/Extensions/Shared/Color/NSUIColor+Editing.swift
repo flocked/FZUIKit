@@ -115,7 +115,8 @@ public extension NSUIColor {
      - Returns: The grayscaled color.
      */
     func grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
-        let (r, g, b, a) = rgbaComponents()
+        let rgba = rgbaComponents()
+        let (r, g, b, a) = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
 
         let l: CGFloat
         switch mode {
