@@ -163,14 +163,15 @@ internal extension PropertyAnimator {
         
         let animationKey = keyPath.stringValue
         animation.completion = { [weak self] event in
+            guard event.isFinished else { return }
             switch event {
-            case .finished:
+            case .finished(let val):
                 completion?()
                 self?.animations[animationKey] = nil
                 #if os(iOS) || os(tvOS)
                 (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
                 #endif
-                Swift.print("executeHandler", true, animation is SpringAnimation<Value>, animation is EasingAnimation<Value>)
+                Swift.print("executeHandler", val, animation is SpringAnimation<Value>, animation is EasingAnimation<Value>)
                 AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
             default:
                 break
