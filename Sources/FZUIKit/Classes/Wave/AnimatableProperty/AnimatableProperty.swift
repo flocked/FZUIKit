@@ -357,6 +357,7 @@ extension Array: Animatable where Element: Animatable {
     
 }
 
+/*
 public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
     var alpha: CGFloat { get }
     func animatable(to other: any AnimatableColor) -> Self
@@ -413,4 +414,53 @@ extension Optional: AnimatableColor where Wrapped: AnimatableColor {
     public var alpha: CGFloat {
         return self.optional?.alpha ?? 0.0
     }
+}
+*/
+
+public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
+    var alpha: CGFloat { get }
+    func animatable(to other: any AnimatableColor) -> Self
+}
+
+public extension AnimatableColor {
+    func animatable(to other: any AnimatableColor) -> Self {
+        if self.alpha == 0.0 {
+            var animatableData = other.animatableData
+            animatableData[safe: 3] = 0.0
+            return Self(animatableData)
+        }
+        return self
+    }
+}
+
+extension CGColor: AnimatableColor {
+    /*
+    public var isZero: Bool {
+        self == .zero
+    }
+     */
+}
+
+extension NSUIColor: AnimatableColor {
+    public var alpha: CGFloat {
+        return alphaComponent
+    }
+    
+    /*
+    public var isZero: Bool {
+        self == .zero
+    }
+     */
+}
+
+extension Optional: AnimatableColor where Wrapped: AnimatableColor {
+    public var alpha: CGFloat {
+        (self.optional ?? Wrapped.zero).alpha
+    }
+    
+    /*
+    public var isZero: Bool {
+        self == .zero
+    }
+     */
 }
