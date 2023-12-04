@@ -198,10 +198,12 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public func updateAnimation(deltaTime: TimeInterval) {
         state = .running
         
+        /*
         if value == target {
             Swift.print("value == target", value == target)
             fractionComplete = 1.0
         }
+        */
                 
         let isAnimated = duration > .zero
         
