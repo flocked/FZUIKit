@@ -188,7 +188,9 @@ extension AnimationController {
             
             var isAnyVelocity: Bool {
                 switch self {
-                case .velocityUpdate, .decay(_, _): return true
+                case .velocityUpdate: return true
+                case .decay(let mode, _):
+                    return mode == .velocity
                 default: return false
                 }
             }
