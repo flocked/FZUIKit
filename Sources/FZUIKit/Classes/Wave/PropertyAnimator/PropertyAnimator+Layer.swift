@@ -134,6 +134,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         get { .init(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
         set {
             Swift.print("new shadow", newValue._resolvedColor?.cgColor.rgbaComponents() ?? "nil", object.shadowColor?.rgbaComponents() ?? "nil")
+            Swift.print("new shadow", newValue._resolvedColor?.cgColor ?? "nil", object.shadowColor ?? "nil")
             shadowColor = newValue._resolvedColor
             shadowOffset = newValue.offset
             shadowRadius = newValue.radius
