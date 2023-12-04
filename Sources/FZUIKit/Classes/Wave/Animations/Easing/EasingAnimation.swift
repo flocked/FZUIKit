@@ -228,7 +228,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         valueChanged?(callbackValue)
 
         if (animationFinished && !repeats) || !isAnimated {
-            Swift.print("easing stop here", isAnimated, repeats, fractionComplete, isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0)
+            Swift.print("easing stop here", isAnimated, repeats, fractionComplete, isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0, duration)
             stop(at: .current)
         }
     }
