@@ -59,6 +59,9 @@ public struct Spring: Sendable, Hashable {
 
     /// The estimated duration required for the spring system to be considered at rest.
     public let settlingDuration: TimeInterval
+    
+    let w0: Double
+    let wD: Double
 
     
     // MARK: - Creating a spring
@@ -71,11 +74,14 @@ public struct Spring: Sendable, Hashable {
         - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
      */
     public init(duration: Double = 0.5, bounce: Double = 0.0) {
+        /*
         if #available(macOS 14.0, iOS 17, tvOS 17, *) {
             self = .init(SwiftUI.Spring(duration: duration, bounce: bounce))
         } else {
             self.init(response: duration, dampingRatio: 1.0 - bounce, mass: 1.0)
         }
+         */
+        self.init(response: duration, dampingRatio: 1.0 - bounce, mass: 1.0)
     }
 
     /**
@@ -96,6 +102,9 @@ public struct Spring: Sendable, Hashable {
         self.response = Self.response(stiffness: stiffness, mass: mass)
         self.damping = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
+        
+        self.w0 = sqrt(stiffness)
+        self.wD = w0 * sqrt(1.0 - dampingRatio * dampingRatio)
     }
     
     /**
@@ -120,6 +129,8 @@ public struct Spring: Sendable, Hashable {
         self.damping = Rubberband.value(for: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
         
         self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
+        self.w0 = sqrt(stiffness)
+        self.wD = w0 * sqrt(1.0 - dampingRatio * dampingRatio)
     }
     
     /*
@@ -150,6 +161,8 @@ public struct Spring: Sendable, Hashable {
         mass = spring.mass
         damping = spring.damping
         settlingDuration = spring.settlingDuration
+        self.w0 = sqrt(stiffness)
+        self.wD = w0 * sqrt(1.0 - dampingRatio * dampingRatio)
     }
         
     /**
@@ -225,6 +238,30 @@ public struct Spring: Sendable, Hashable {
         - deltaTime: The amount of time that has passed since the spring was at the position specified by value.
      */
     public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
+        
+        /*
+        if dampingRatio < 1.0 {
+            let dampingRatio_w0 = dampingRatio * w0
+            let decayEnvelope = exp(-dampingRatio_w0 * deltaTime)
+            let sin_wD_dt = sin(wD * deltaTime)
+            let cos_wD_dt = cos(wD * deltaTime)
+            
+            let velocity_x0_dampingRatio_w0 =  velocity + value.scaled(by: dampingRatio_w0)
+            
+            let A = value
+            let B = velocity_x0_dampingRatio_w0 / wD
+            
+            let x = (A.scaled(by: cos_wD_dt) + B.scaled(by: sin_wD_dt)).scaled(by: decayEnvelope)
+            let d_x = (velocity_x0_dampingRatio_w0 * cos_wD_dt) - value.scaled(by: wD * sin_wD_dt)
+            dampingRatio_w0.scaled(by: x)
+            
+            /*
+             let d_x = velocity_x0_dampingRatio_w0 * cos_wD_dt - x0 * (wD * sin_wD_dt)
+             velocity = -(dampingRatio_w0 * x - decayEnvelope * d_x)
+             */
+        }
+        */
+        
         let displacement = value - target
         let springForce = displacement * -self.stiffness
         let dampingForce = velocity.scaled(by: self.damping)
@@ -432,6 +469,10 @@ public struct Spring: Sendable, Hashable {
         
     static func undampedNaturalFrequency(stiffness: Double, mass: Double) -> Double {
         return sqrt(stiffness / mass)
+    }
+    
+    static func dampedNaturalFrequency(stiffness: Double, mass: Double, dampingRatio: Double) -> CGFloat {
+        return undampedNaturalFrequency(stiffness: stiffness, mass: mass) * sqrt(abs(1 - pow(dampingRatio, 2)))
     }
 }
 
