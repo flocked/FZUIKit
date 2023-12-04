@@ -44,7 +44,7 @@ public class TrackingArea {
 
     /**
     Updates the tracking area.
-    - Note: This should be called in your `NSView#updateTrackingAreas()` method.
+    - Note: This should be called in your `updateTrackingAreas()` method.
     */
     public func update() {
         if let trackingArea = self.trackingArea {

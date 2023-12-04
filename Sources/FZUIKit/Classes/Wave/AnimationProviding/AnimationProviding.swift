@@ -124,6 +124,12 @@ extension ConfigurableAnimationProviding {
         var animation = self
         animation.velocity = velocity
     }
+    
+    func getVelocity(from animation: some ConfigurableAnimationProviding) {
+        guard let velocity = animation._velocity as? Value.AnimatableData else { return }
+        var animation = self
+        animation._velocity = velocity
+    }
 }
 
 internal extension ConfigurableAnimationProviding {
@@ -160,15 +166,6 @@ internal extension ConfigurableAnimationProviding {
         }
     }
     
-    /// A Boolean value that indicates whether the animation can be started.
-    var canBeStarted: Bool {
-        guard state != .running else { return false }
-        if let animation = (self as? DecayAnimation<Value>) {
-            return animation._velocity != .zero
-        }
-        return value != target
-    }
-    
     /// A Boolean value that indicates whether the animation has a velocity value.
     var isVelocityAnimation: Bool {
         (self as? SpringAnimation<Value>) != nil || (self as? DecayAnimation<Value>) != nil
@@ -177,6 +174,15 @@ internal extension ConfigurableAnimationProviding {
 #endif
 
 /*
+ /// A Boolean value that indicates whether the animation can be started.
+ var canBeStarted: Bool {
+     guard state != .running else { return false }
+     if let animation = (self as? DecayAnimation<Value>) {
+         return animation._velocity != .zero
+     }
+     return value != target
+ }
+ 
  public protocol PropertyAnimationProviding<Value>: AnimationProviding {
      associatedtype Value: AnimatableProperty
      /// The current state of the animation.

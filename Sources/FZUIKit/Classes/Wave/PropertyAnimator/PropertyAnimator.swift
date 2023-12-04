@@ -120,6 +120,10 @@ internal extension PropertyAnimator {
         switch settings.animationType {
         case .spring(_,_):
             let animation = springAnimation(for: keyPath) ?? SpringAnimation(spring: .smooth, value: value, target: target)
+            if let oldAnimation = self.animation(for: keyPath), oldAnimation.id != animation.id {
+                // settings.options.contains(.keepVelocity)
+                animation.getVelocity(from: oldAnimation)
+            }
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .easing(_,_):
             let animation = easingAnimation(for: keyPath) ?? EasingAnimation(timingFunction: .linear, duration: 1.0, value: value, target: target)
@@ -178,9 +182,6 @@ internal extension PropertyAnimator {
         }
         
         if let oldAnimation = animations[animationKey], oldAnimation.id != animation.id {
-            if settings.options.contains(.keepVelocity), let velocity = self.animation(for: keyPath)?._velocity as? Value.AnimatableData, velocity != .zero {
-                animation.setAnimatableVelocity(velocity)
-            }
             oldAnimation.stop(at: .current, immediately: true)
         }
         animations[animationKey] = animation
