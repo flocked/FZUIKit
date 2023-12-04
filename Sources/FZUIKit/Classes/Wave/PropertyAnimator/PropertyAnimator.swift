@@ -122,12 +122,13 @@ internal extension PropertyAnimator {
             Swift.print(keyPath.stringValue, value == target)
             isShadow = true
         }
-        if let target = newValue as? AnimatableColor, let currentValue = currentValue as? AnimatableColor {
-            Swift.print("AnimatableColor", target.animatableData, currentValue.animatableData)
-            guard target.animatableData != currentValue.animatableData else {
+        if let target = newValue as? AnimatableColor, let curr = currentValue as? AnimatableColor {
+            Swift.print("AnimatableColor", target.animatableData, curr.animatableData)
+            Swift.print("AnimatableColor", newValue, currentValue)
+            guard target.animatableData != curr.animatableData else {
                 return
             }
-            if target.animatableData == currentValue.animatableData {
+            if target.animatableData == curr.animatableData {
                 Swift.print("Color Still")
             }
         }
