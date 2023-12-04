@@ -228,6 +228,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         valueChanged?(callbackValue)
 
         if (animationFinished && !repeats) || !isAnimated {
+            Swift.print("easing stop here")
             stop(at: .current)
         }
     }
