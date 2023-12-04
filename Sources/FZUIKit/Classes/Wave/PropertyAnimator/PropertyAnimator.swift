@@ -135,7 +135,7 @@ internal extension PropertyAnimator {
         
         if let target = newValue as? Optional<CGColor>, let currentValue = currentValue as? Optional<CGColor> {
         
-            Swift.print("as cgcolor", (target?.nsUIColor ?? .zero).rgbaComponents(), (currentValue?.nsUIColor ?? .zero).rgbaComponents())
+         //   Swift.print("as cgcolor", (target?.nsUIColor ?? .zero).rgbaComponents(), (currentValue?.nsUIColor ?? .zero).rgbaComponents())
         }
 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
