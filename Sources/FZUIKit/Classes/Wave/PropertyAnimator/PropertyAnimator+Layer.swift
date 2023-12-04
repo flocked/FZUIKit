@@ -142,22 +142,30 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     
     internal var shadowOpacity: CGFloat {
         get { CGFloat(self[\.shadowOpacity]) }
-        set { self[\.shadowOpacity] = Float(newValue) }
+        set { 
+            Swift.print("shadowOpacity", self[\.shadowOpacity] == Float(newValue))
+            self[\.shadowOpacity] = Float(newValue) }
     }
     
     internal var shadowColor: NSUIColor? {
         get { self[\.shadowColor]?.nsUIColor }
-        set { self[\.shadowColor] = newValue?.cgColor }
+        set { 
+            Swift.print("shadowColor", self[\.shadowColor] == newValue?.cgColor)
+            self[\.shadowColor] = newValue?.cgColor }
     }
     
     internal var shadowOffset: CGPoint {
         get { self[\.shadowOffset].point }
-        set { self[\.shadowOffset] = newValue.size }
+        set { 
+            Swift.print("shadowOffset", self[\.shadowOffset] == newValue.size)
+            self[\.shadowOffset] = newValue.size }
     }
     
     internal var shadowRadius: CGFloat {
         get { self[\.shadowRadius] }
-        set { self[\.shadowRadius] = newValue }
+        set { 
+            Swift.print("shadowRadius", self[\.shadowRadius] == newValue)
+            self[\.shadowRadius] = newValue }
     }
     
     /// The inner shadow of the layer.
