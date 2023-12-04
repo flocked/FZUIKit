@@ -158,6 +158,10 @@ extension AnimationController {
         var isAnimation: Bool {
             !animationType.isNonAnimated
         }
+        
+        var restartVelocity: Bool {
+            options.contains(.restartVelocity)
+        }
                 
         #if os(iOS) || os(tvOS)
         var preventUserInteraction: Bool {
@@ -182,6 +186,13 @@ extension AnimationController {
             var isVelocityUpdate: Bool {
                 switch self {
                 case .velocityUpdate: return true
+                default: return false
+                }
+            }
+            
+            var isDecayAnimation: Bool {
+                switch self {
+                case .decay: return true
                 default: return false
                 }
             }
