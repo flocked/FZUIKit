@@ -131,17 +131,21 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     
     /// The shadow of the layer.
     public var shadow: ContentConfiguration.Shadow {
-        get { .init(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
+        get { self[\.shadow] }
         set {
+            /*
             Swift.print("new cg rgba", newValue._resolvedColor?.cgColor.rgbaComponents() ?? "nil", shadowColor.rgbaComponents())
             Swift.print("new ns rgba", newValue._resolvedColor?.rgbaComponents() ?? "nil", shadowColor.rgbaComponents())
             Swift.print("new cg", newValue._resolvedColor?.cgColor ?? "nil", shadowColor)
             Swift.print("new ns", newValue._resolvedColor ?? "nil", shadowColor)
-
+*/
+            self[\.shadow] = newValue
+            /*
             shadowColor = newValue._resolvedColor ?? .zero
             shadowOffset = newValue.offset
             shadowRadius = newValue.radius
             shadowOpacity = newValue.opacity
+             */
         }
     }
     
