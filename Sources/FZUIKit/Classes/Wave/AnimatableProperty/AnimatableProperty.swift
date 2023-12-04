@@ -357,66 +357,6 @@ extension Array: Animatable where Element: Animatable {
     
 }
 
-/*
-public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
-    var alpha: CGFloat { get }
-    func animatable(to other: any AnimatableColor) -> Self
-    func withAlphaValuw(_ alpha: CGFloat) -> Self
-}
-
-public extension AnimatableColor {
-    
-    func animatable(to other: any AnimatableColor) -> Self {
-        if self.alpha == 0.0 {
-            return (other as? Self)?.withAlphaValuw(0.0) ?? self
-        }
-        return self
-    }
-    
-}
-
-extension CGColor: AnimatableColor {
-    public func withAlphaValuw(_ alpha: CGFloat) -> Self {
-        self.withAlpha(alpha) as! Self
-    }
-    
-    public func animatable(to other: any AnimatableColor) -> Self {
-        if self.alpha == 0.0 {
-            return (other as! Self).withAlpha(0.0) as! Self
-        }
-        return self
-    }
-}
-
-extension NSUIColor: AnimatableColor {
-    public func withAlphaValuw(_ alpha: CGFloat) -> Self {
-        self.withAlphaComponent(alpha) as! Self
-    }
-    
-    public var alpha: CGFloat {
-        return alphaComponent
-    }
-    
-    public func animatable(to other: any AnimatableColor) -> Self {
-        if self.alpha == 0.0 {
-            return (other as! Self).withAlphaComponent(0.0) as! Self
-        }
-        return self
-    }
-}
-
-extension Optional: AnimatableColor where Wrapped: AnimatableColor {
-    public func withAlphaValuw(_ alpha: CGFloat) -> Optional<Wrapped> {
-        let val = self.optional ?? Wrapped.zero
-        return val.withAlphaValuw(0.0)
-    }
-    
-    public var alpha: CGFloat {
-        return self.optional?.alpha ?? 0.0
-    }
-}
-*/
-
 public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
     var alpha: CGFloat { get }
     func animatable(to other: any AnimatableColor) -> Self
@@ -433,34 +373,16 @@ public extension AnimatableColor {
     }
 }
 
-extension CGColor: AnimatableColor {
-    /*
-    public var isZero: Bool {
-        self == .zero
-    }
-     */
-}
+extension CGColor: AnimatableColor { }
 
 extension NSUIColor: AnimatableColor {
     public var alpha: CGFloat {
         return alphaComponent
     }
-    
-    /*
-    public var isZero: Bool {
-        self == .zero
-    }
-     */
 }
 
 extension Optional: AnimatableColor where Wrapped: AnimatableColor {
     public var alpha: CGFloat {
-        (self.optional ?? Wrapped.zero).alpha
+        self.optional?.alpha ?? 0.0
     }
-    
-    /*
-    public var isZero: Bool {
-        self == .zero
-    }
-     */
 }

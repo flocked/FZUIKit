@@ -226,72 +226,39 @@ extension AnimatableArray: ContiguousBytes {
 
 extension AnimatableArray: ExpressibleByArrayLiteral {}
 
-/*
-#if os(macOS) || os(iOS) || os(tvOS)
-extension AnimatableArray: Equatable, AnimatableProperty { }
-#endif
-*/
 
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
-    public static func -= (lhs: inout Self, rhs: Self) {
-        if var _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
-            let count = Swift.min(_lhs.count, _rhs.count)
-            vDSP.subtract(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
-            lhs = _lhs as! Self
-        } else {
-            let range = (lhs.startIndex..<lhs.endIndex)
-                .clamped(to: rhs.startIndex..<rhs.endIndex)
-            for index in range {
-                lhs[index] -= rhs[index]
-            }
+    
+    public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
+        let count = Swift.min(lhs.count, rhs.count)
+        if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
+            return AnimatableArray<Double>(vDSP.add(_lhs[0..<count], _rhs[0..<count])) as! Self
         }
-        if var _lhs = lhs as? AnimatableArray<Float>, let _rhs = rhs as? AnimatableArray<Float> {
-            let count = Swift.min(_lhs.count, _rhs.count)
-            vDSP.subtract(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
-            lhs = _lhs as! Self
+        var lhs = lhs
+        for index in 0..<count {
+            lhs[index] += rhs[index]
         }
+        return lhs
+    }
+    
+    public static func += (lhs: inout AnimatableArray, rhs: AnimatableArray) {
+        lhs = lhs + rhs
     }
     
     public static func - (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
+        let count = Swift.min(lhs.count, rhs.count)
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
-            let count = Swift.min(_lhs.count, _rhs.count)
             return AnimatableArray<Double>(vDSP.subtract(_lhs[0..<count], _rhs[0..<count])) as! Self
         }
-        if let _lhs = lhs as? AnimatableArray<Float>, let _rhs = rhs as? AnimatableArray<Float> {
-            let count = Swift.min(_lhs.count, _rhs.count)
-            return AnimatableArray<Float>(vDSP.subtract(_lhs[0..<count], _rhs[0..<count])) as! Self
-        }
         var lhs = lhs
-        lhs -= rhs
-        return lhs
-    }
-        
-    public static func += (lhs: inout AnimatableArray, rhs: AnimatableArray) {
-        if var _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
-            let count = Swift.min(_lhs.count, _rhs.count)
-            vDSP.add(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
-            lhs = _lhs as! Self
-        } else {
-            let range = (lhs.startIndex..<lhs.endIndex)
-                .clamped(to: rhs.startIndex..<rhs.endIndex)
-            for index in range {
-                lhs[index] += rhs[index]
-            }
+        for index in 0..<count {
+            lhs[index] += rhs[index]
         }
+        return lhs
     }
     
-    public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
-        if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
-            let count = Swift.min(_lhs.count, _rhs.count)
-            return AnimatableArray<Double>(vDSP.add(_lhs[0..<count], _rhs[0..<count])) as! Self
-        }
-        if let _lhs = lhs as? AnimatableArray<Float>, let _rhs = rhs as? AnimatableArray<Float> {
-            let count = Swift.min(_lhs.count, _rhs.count)
-            return AnimatableArray<Float>(vDSP.add(_lhs[0..<count], _rhs[0..<count])) as! Self
-        }
-        var lhs = lhs
-        lhs += rhs
-        return lhs
+    public static func -= (lhs: inout Self, rhs: Self) {
+        lhs = lhs - rhs
     }
     
     public mutating func scale(by rhs: Double) {
@@ -318,58 +285,46 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
 
 extension AnimatableArray: MultiplicativeArithmetic where Element: MultiplicativeArithmetic {
     public static func / (lhs: Self, rhs: Self) -> Self {
+        let count = Swift.min(lhs.count, rhs.count)
         if let lhs = lhs as? AnimatableArray<Double>, let rhs = rhs as? AnimatableArray<Double> {
-            let count = Swift.min(lhs.count, rhs.count)
             return AnimatableArray<Double>(vDSP.divide(lhs[0..<count], rhs[0..<count])) as! Self
         }
         if let lhs = lhs as? AnimatableArray<Float>, let rhs = rhs as? AnimatableArray<Float> {
-            let count = Swift.min(lhs.count, rhs.count)
             return AnimatableArray<Float>(vDSP.divide(lhs[0..<count], rhs[0..<count])) as! Self
         }
-        let range = Swift.min(lhs.count, rhs.count)
+        var lhs = lhs
+        for i in 0..<count {
+            lhs[index] = lhs[index] / rhs[index]
+        }
+        
         var array = Self()
-        for i in 0..<range {
+        for i in 0..<count {
             array.append(lhs[i] / rhs[i])
         }
         return array
     }
     
     public static func /= (lhs: inout AnimatableArray, rhs: AnimatableArray) {
-        if var _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
-            let count 
-            = Swift.min(_lhs.count, _rhs.count)
-            vDSP.divide(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
-            lhs = _lhs as! Self
-        } else {
-            lhs = lhs / rhs
-        }
+        lhs = lhs / rhs
     }
 
     public static func * (lhs: Self, rhs: Self) -> Self {
+        let count = Swift.min(lhs.count, rhs.count)
         if let lhs = lhs as? AnimatableArray<Double>, let rhs = rhs as? AnimatableArray<Double> {
-            let count = Swift.min(lhs.count, rhs.count)
             return AnimatableArray<Double>(vDSP.multiply(lhs[0..<count], rhs[0..<count])) as! Self
         }
         if let lhs = lhs as? AnimatableArray<Float>, let rhs = rhs as? AnimatableArray<Float> {
-            let count = Swift.min(lhs.count, rhs.count)
             return AnimatableArray<Float>(vDSP.multiply(lhs[0..<count], rhs[0..<count])) as! Self
         }
-        let range = Swift.min(lhs.count, rhs.count)
         var array = Self()
-        for i in 0..<range {
+        for i in 0..<count {
             array.append(lhs[i] * rhs[i])
         }
         return array
     }
     
     public static func *= (lhs: inout AnimatableArray, rhs: AnimatableArray) {
-        if var _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
-            let count = Swift.min(_lhs.count, _rhs.count)
-            vDSP.multiply(_lhs[0..<count], _rhs[0..<count], result: &_lhs[0..<count])
-            lhs = _lhs as! Self
-        } else {
-            lhs = lhs * rhs
-        }
+        lhs = lhs * rhs
     }
 }
 
