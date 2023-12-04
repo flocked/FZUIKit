@@ -108,8 +108,15 @@ internal extension PropertyAnimator {
             return
         }
         
+        let currentValue = value(for: keyPath)
         guard value(for: keyPath) != newValue else {
             return
+        }
+        if let target = newValue as? AnimatableColor, let currentValue = currentValue as? AnimatableColor {
+            Swift.print("AnimatableColor", target.animatableData != currentValue.animatableData)
+            guard target.animatableData != currentValue.animatableData else {
+                return
+            }
         }
         
         var value = object[keyPath: keyPath]
@@ -133,10 +140,12 @@ internal extension PropertyAnimator {
         case .decay(_,_):
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
             if isShadow {
-                Swift.print("magni", animation._velocity.magnitudeSquared)
+                if Value.self == Optional<CGColor>.self {
                     Swift.print(value)
                     Swift.print(target)
                     Swift.print(animation._velocity)
+                }
+                Swift.print("magni", animation._velocity.magnitudeSquared)
             }
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .velocityUpdate:
@@ -262,6 +271,19 @@ internal extension DynamicPropertyAnimator<UIView> {
     }
 }
 #endif
+
+internal protocol AnimatableColor {
+    var animatableData: AnimatableArray<Double> { get }
+}
+
+extension CGColor: AnimatableColor { }
+extension NSUIColor: AnimatableColor { }
+extension Optional: AnimatableColor where Wrapped: AnimatableColor {
+    var animatableData: AnimatableArray<Double> {
+        optional?.animatableData ?? .zero
+    }
+}
+
 
 #endif
 
