@@ -192,7 +192,7 @@ internal extension PropertyAnimator {
     
     /// Updates the current  and target of an animatable property for better interpolation/animations.
     func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
-        if let color = value as? any AnimatableColor, let targetColor = target.animatableData as? any AnimatableColor {
+        if let color = value as? any AnimatableColor, let targetColor = target as? any AnimatableColor {
             Swift.print("AnimatableColor")
             value = color.animatable(too: targetColor) as! V
             target = targetColor.animatable(too: color) as! V
