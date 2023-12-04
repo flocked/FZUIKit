@@ -193,39 +193,12 @@ internal extension PropertyAnimator {
     /// Updates the current  and target of an animatable property for better interpolation/animations.
     func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
         if let color = value as? any AnimatableColor, let targetColor = target as? any AnimatableColor {
-            Swift.print("AnimatableColor")
-            value = color.animatable(too: targetColor) as! V
-            target = targetColor.animatable(too: color) as! V
+            value = color.animatable(to: targetColor) as! V
+            target = targetColor.animatable(to: color) as! V
+        } else if let collection = value.animatableData as? any AnimatableCollection, let targetCollection = target.animatableData as? any AnimatableCollection, collection.count != targetCollection.count {
+            value =  V(collection.animatable(to: targetCollection) as! V.AnimatableData)
+            target =  V(targetCollection.animatable(to: collection) as! V.AnimatableData)
         }
-        /*
-        switch V.self {
-        case is CGColor.Type:
-            let color = value as! CGColor
-            let targetColor = target as! CGColor
-            value = color.animatable(to: targetColor) as! V
-            target = targetColor.animatable(to: color) as! V
-        case is Optional<CGColor>.Type:
-            let color = (value as! Optional<CGColor>) ?? .zero
-            let targetColor = (target as! Optional<CGColor>) ?? .zero
-            value = color.animatable(to: targetColor) as! V
-            target = targetColor.animatable(to: color) as! V
-        case is NSUIColor.Type:
-            let color = value as! NSUIColor
-            let targetColor = target as! NSUIColor
-            value = color.animatable(to: targetColor) as! V
-            target = targetColor.animatable(to: color) as! V
-        case is Optional<NSUIColor>.Type:
-            let color = (value as! Optional<NSUIColor>) ?? .zero
-            let targetColor = (target as! Optional<NSUIColor>) ?? .zero
-            value = color.animatable(to: targetColor) as! V
-            target = targetColor.animatable(to: color) as! V
-        default:
-            if let collection = value.animatableData as? any AnimatableCollection, let targetCollection = target.animatableData as? any AnimatableCollection, collection.count != targetCollection.count {
-                value =  V(collection.animatable(to: targetCollection) as! V.AnimatableData)
-                target =  V(targetCollection.animatable(to: collection) as! V.AnimatableData)
-            }
-        }
-         */
     }
 }
 

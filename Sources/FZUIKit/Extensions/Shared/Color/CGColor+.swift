@@ -16,7 +16,7 @@ import SwiftUI
 
 public extension CGColor {
     /// Returns the RGBA (red, green, blue, alpha) components.
-    func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
+    func rgbaComponents() -> RGBAComponents? {
         var color = self
         if color.colorSpace?.model != .rgb, #available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *) {
             color = color.converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil) ?? color
@@ -24,14 +24,14 @@ public extension CGColor {
         guard let components = color.components else { return nil }
         switch components.count {
         case 2:
-            return (components[0], components[0], components[0], components[1])
+            return RGBAComponents(components[0], components[0], components[0], components[1])
         case 3:
-            return (components[0], components[1], components[2], 1.0)
+            return RGBAComponents(components[0], components[1], components[2], 1.0)
         case 4:
-            return (components[0], components[1], components[2], components[3])
+            return RGBAComponents(components[0], components[1], components[2], components[3])
         default:
             let ciColor = CIColor(cgColor: color)
-            return (ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
+            return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
         }
     }
     
@@ -57,7 +57,7 @@ public extension CGColor {
     
     /// A Boolean value that indicates whether the color is visible (alpha value isn't zero).
     var isVisible: Bool {
-        rgbaComponents()?.alpha != 0.0
+        alpha != 0.0
     }
     
     /**

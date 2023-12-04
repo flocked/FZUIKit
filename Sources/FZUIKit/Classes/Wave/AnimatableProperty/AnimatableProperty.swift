@@ -312,17 +312,6 @@ extension ContentConfiguration.InnerShadow: AnimatableProperty, Animatable {
     }
 }
 
-internal extension CGColor {
-    func animatable(to other: CGColor) -> CGColor {
-        self.alpha == 0 ? other.withAlpha(0.0) : self
-    }
-}
-
-internal extension NSUIColor {
-    func animatable(to other: NSUIColor) -> NSUIColor {
-        self.alphaComponent == 0 ? other.withAlphaComponent(0.0) : self
-    }
-}
 
 // Ensures that two collections have the same amount of values for animating between them. If a collection is smaller than the other zero values are added.
 internal protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
@@ -370,22 +359,31 @@ extension Array: Animatable where Element: Animatable {
 
 public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
     var alpha: CGFloat { get }
-    func animatable(too other: any AnimatableColor) -> Self
+    func animatable(to other: any AnimatableColor) -> Self
     func withAlphaValuw(_ alpha: CGFloat) -> Self
 }
 
 public extension AnimatableColor {
-    func animatable(too other: any AnimatableColor) -> Self {
+    
+    func animatable(to other: any AnimatableColor) -> Self {
         if self.alpha == 0.0 {
-            return (other as! Self).withAlphaValuw(0.0)
+            return (other as? Self)?.withAlphaValuw(0.0) ?? self
         }
         return self
     }
+    
 }
 
 extension CGColor: AnimatableColor {
     public func withAlphaValuw(_ alpha: CGFloat) -> Self {
         self.withAlpha(alpha) as! Self
+    }
+    
+    public func animatable(to other: any AnimatableColor) -> Self {
+        if self.alpha == 0.0 {
+            return (other as! Self).withAlpha(0.0) as! Self
+        }
+        return self
     }
 }
 
@@ -396,6 +394,13 @@ extension NSUIColor: AnimatableColor {
     
     public var alpha: CGFloat {
         return alphaComponent
+    }
+    
+    public func animatable(to other: any AnimatableColor) -> Self {
+        if self.alpha == 0.0 {
+            return (other as! Self).withAlphaComponent(0.0) as! Self
+        }
+        return self
     }
 }
 

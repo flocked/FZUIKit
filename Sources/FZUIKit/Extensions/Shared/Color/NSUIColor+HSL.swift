@@ -51,7 +51,7 @@ extension NSUIColor {
 
    - returns: The HSL components as a tuple (h, s, l).
    */
-    public final func hslaComponents() -> (hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
+    public final func hslaComponents() -> HSLAComponents {
         var (h, s, b, a) = (CGFloat(), CGFloat(), CGFloat(), CGFloat())
         #if os(macOS)
         let color = self.withSupportedColorSpace() ?? self
@@ -71,9 +71,50 @@ extension NSUIColor {
             s = (s * b) / (2.0 - l * 2.0)
         }
 
-        return (h * 360.0, s, l, a)
+        return HSLAComponents(h * 360.0, s, l, a)
   }
 }
+
+/// The HSLA (hue, saturation, lightness, alpha) components of a color.
+public struct HSLAComponents {
+    /// The hue component of the color.
+    public var hue: CGFloat
+    
+    /// The saturation component of the color.
+    public var saturation: CGFloat
+    
+    /// The lightness component of the color.
+    public var lightness: CGFloat
+    
+    /// The alpha value of the color.
+    public var alpha: CGFloat
+    
+    public init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
+        self.hue = hue
+        self.saturation = saturation
+        self.lightness = lightness
+        self.alpha = alpha
+    }
+    
+    internal init(_ hue: CGFloat, _ saturation: CGFloat, _ lightness: CGFloat, _ alpha: CGFloat) {
+        self.hue = hue
+        self.saturation = saturation
+        self.lightness = lightness
+        self.alpha = alpha
+    }
+    
+    /// Returns the color.
+    public func toColor() -> NSUIColor {
+        NSUIColor(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha)
+    }
+}
+
+public extension NSUIColor {
+    convenience init(_ hslaComponents: HSLAComponents) {
+        self.init(hue: hslaComponents.hue, saturation: hslaComponents.saturation, lightness: hslaComponents.lightness, alpha: hslaComponents.alpha)
+    }
+}
+
 /*
 /// Hue-saturation-lightness structure to make the color manipulation easier.
 internal struct HSL {

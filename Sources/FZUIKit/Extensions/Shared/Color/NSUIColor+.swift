@@ -15,7 +15,7 @@ import UIKit
 
 public extension NSUIColor {
     /// Returns the RGBA (red, green, blue, alpha) components.
-    final func rgbaComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+    final func rgbaComponents() -> RGBAComponents {
       var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
 
       #if os(iOS) || os(tvOS) || os(watchOS)
@@ -29,7 +29,7 @@ public extension NSUIColor {
 
         rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
 
-        return (r, g, b, a)
+        return RGBAComponents(r, g, b, a)
       #endif
     }
 
