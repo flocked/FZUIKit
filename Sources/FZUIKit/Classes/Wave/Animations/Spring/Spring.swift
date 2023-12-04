@@ -71,7 +71,11 @@ public struct Spring: Sendable, Hashable {
         - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
      */
     public init(duration: Double = 0.5, bounce: Double = 0.0) {
-        self.init(response: duration, dampingRatio: 1.0 - bounce, mass: 1.0)
+        if #available(macOS 14.0, iOS 17, tvOS 17, *) {
+            self = .init(SwiftUI.Spring(duration: duration, bounce: bounce))
+        } else {
+            self.init(response: duration, dampingRatio: 1.0 - bounce, mass: 1.0)
+        }
     }
 
     /**
@@ -105,12 +109,12 @@ public struct Spring: Sendable, Hashable {
     public init(response: Double, dampingRatio: Double, mass: Double = 1.0) {
         precondition(dampingRatio >= 0, "The dampingRatio of the spring has to be >= 0")
         precondition(response >= 0, "The response of the spring has to be >= 0")
-
+        
         self.dampingRatio = dampingRatio
         self.response = response
         self.mass = mass
         self.stiffness = Self.stiffness(response: response, mass: mass)
-
+        
         let unbandedDampingCoefficient = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         
         self.damping = Rubberband.value(for: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
