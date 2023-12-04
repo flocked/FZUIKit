@@ -327,24 +327,13 @@ internal extension NSUIColor {
 // Ensures that two collections have the same amount of values for animating between them. If a collection is smaller than the other zero values are added.
 internal protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
     var count: Int { get }
-    // Append new zero values.
-    mutating func appendNewValues(amount: Int)
-    // Ensures both collections have the same amount of values for animating between them.
-    mutating func makeAnimatable(to collection: inout any AnimatableCollection)
+    // Returns the collection with new zero values.
     func withNewValues(amount: Int) -> Self
+    // Ensures the collection has the same amount of values for animating between them.
     func animatable(to collection: any AnimatableCollection) -> Self
 }
 
 extension AnimatableCollection {
-    mutating func makeAnimatable(to collection: inout any AnimatableCollection) {
-        let diff = self.count - collection.count
-        if diff < 0 {
-            collection.appendNewValues(amount: (diff * -1))
-        } else if diff > 0 {
-            self.appendNewValues(amount: diff)
-        }
-    }
-    
     func animatable(to collection: any AnimatableCollection) -> Self {
         let diff = collection.count - self.count
         return diff > 0 ? withNewValues(amount: diff) : self
@@ -364,20 +353,12 @@ extension Array: AnimatableProperty, AnimatableCollection where Element: Animata
         Self.init()
     }
     
-    internal mutating func appendNewValues(amount: Int) {
-        self.append(contentsOf: Array(repeating: .zero, count: amount))
-    }
-    
     internal func withNewValues(amount: Int) -> Self {
         self + Array(repeating: .zero, count: amount)
     }
 }
 
 extension AnimatableArray: AnimatableCollection {
-    internal mutating func appendNewValues(amount: Int) {
-        self.append(contentsOf: Array(repeating: .zero, count: amount))
-    }
-    
     internal func withNewValues(amount: Int) -> Self {
         self + Array(repeating: .zero, count: amount)
     }
@@ -385,4 +366,47 @@ extension AnimatableArray: AnimatableCollection {
 
 extension Array: Animatable where Element: Animatable {
     
+}
+
+public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
+    var alpha: CGFloat { get }
+    var isZero: Bool { get }
+    func animatable(too other: any AnimatableColor) -> Self
+}
+
+public extension AnimatableColor {
+    func animatable(too other: any AnimatableColor) -> Self {
+        if self.alpha == 0.0, !other.isZero {
+            var animatableData = other.animatableData
+            animatableData[safe: 3] = 0.0
+            return Self(animatableData)
+        }
+        return self
+    }
+}
+
+extension CGColor: AnimatableColor {
+    public var isZero: Bool {
+        self == .zero
+    }
+}
+
+extension NSUIColor: AnimatableColor {
+    public var alpha: CGFloat {
+        return alphaComponent
+    }
+    
+    public var isZero: Bool {
+        self == .zero
+    }
+}
+
+extension Optional: AnimatableColor where Wrapped: AnimatableColor {
+    public var alpha: CGFloat {
+        (self.optional ?? Wrapped.zero).alpha
+    }
+    
+    public var isZero: Bool {
+        self == .zero
+    }
 }

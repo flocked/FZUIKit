@@ -192,6 +192,12 @@ internal extension PropertyAnimator {
     
     /// Updates the current  and target of an animatable property for better interpolation/animations.
     func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
+        if let color = value as? any AnimatableColor, let targetColor = target.animatableData as? any AnimatableColor {
+            Swift.print("AnimatableColor")
+            value = color.animatable(too: targetColor) as! V
+            target = targetColor.animatable(too: color) as! V
+        }
+        /*
         switch V.self {
         case is CGColor.Type:
             let color = value as! CGColor
@@ -213,36 +219,13 @@ internal extension PropertyAnimator {
             let targetColor = (target as! Optional<NSUIColor>) ?? .zero
             value = color.animatable(to: targetColor) as! V
             target = targetColor.animatable(to: color) as! V
-        case is (any AnimatableCollection).Type:
-            let collection = value as! any AnimatableCollection
-            let targetCollection = target as! any AnimatableCollection
-            value = collection.animatable(to: targetCollection) as! V
-            target = targetCollection.animatable(to: collection) as! V
         default:
-            if V.AnimatableData.self is (any AnimatableCollection).Type {
-                Swift.print("V.AnimatableData", type(of: value), type(of: value.animatableData))
-            }
-            if V.self is (any AnimatableCollection).Type {
-                Swift.print("V.self", type(of: value), type(of: value.animatableData))
-            }
-            if type(of: value.animatableData) is (any AnimatableCollection).Type {
-                Swift.print("AnimatableData type", type(of: value), type(of: value.animatableData))
-            }
-            if var collection = value.animatableData as? any AnimatableCollection, var targetCollection = target.animatableData as? any AnimatableCollection {
-                Swift.print("V.animatableData as collection", type(of: value), type(of: value.animatableData))
-            }
-            
-            if var collection = value as? any AnimatableCollection, var targetCollection = target as? any AnimatableCollection {
-                Swift.print("V as collection", type(of: value), type(of: value.animatableData))
-            }
-            
-            if var collection = value as? any AnimatableCollection, var targetCollection = target as? any AnimatableCollection, collection.count != targetCollection.count {
-                Swift.print("V as collection", type(of: value), type(of: value.animatableData))
-                collection.makeAnimatable(to: &targetCollection)
-                value = collection as! V
-                target = targetCollection as! V
+            if let collection = value.animatableData as? any AnimatableCollection, let targetCollection = target.animatableData as? any AnimatableCollection, collection.count != targetCollection.count {
+                value =  V(collection.animatable(to: targetCollection) as! V.AnimatableData)
+                target =  V(targetCollection.animatable(to: collection) as! V.AnimatableData)
             }
         }
+         */
     }
 }
 

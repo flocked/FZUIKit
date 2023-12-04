@@ -195,6 +195,7 @@ internal extension DynamicPropertyAnimator {
     
     /// Updates the value and target of an animatable property for better animations.
     func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
+        /*
         if V.self == CGColor.self {
             let color = value as! CGColor
             let targetColor = target as! CGColor
@@ -209,6 +210,7 @@ internal extension DynamicPropertyAnimator {
             value = collection as! V
             target = targetCollection as! V
         }
+        */
     }
 }
 
