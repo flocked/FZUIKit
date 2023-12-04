@@ -132,6 +132,11 @@ internal extension PropertyAnimator {
                 Swift.print("Color Still")
             }
         }
+        
+        if let target = newValue as? Optional<CGColor>, let currentValue = currentValue as? Optional<CGColor> {
+        
+            Swift.print("as cgcolor", (target?.nsUIColor ?? .zero).rgbaComponents(), (currentValue?.nsUIColor ?? .zero).rgbaComponents())
+        }
 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
         switch settings.animationType {
