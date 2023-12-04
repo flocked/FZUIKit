@@ -112,12 +112,6 @@ internal extension PropertyAnimator {
         guard value(for: keyPath) != newValue else {
             return
         }
-        if let target = newValue as? AnimatableColor, let currentValue = currentValue as? AnimatableColor {
-            Swift.print("AnimatableColor", target.animatableData != currentValue.animatableData)
-            guard target.animatableData != currentValue.animatableData else {
-                return
-            }
-        }
         
         var value = object[keyPath: keyPath]
         var target = newValue
@@ -127,6 +121,15 @@ internal extension PropertyAnimator {
         if keyPath.stringValue.lowercased().contains("shadow") {
             Swift.print(keyPath.stringValue, value == target)
             isShadow = true
+        }
+        if let target = newValue as? AnimatableColor, let currentValue = currentValue as? AnimatableColor {
+            Swift.print("AnimatableColor", target.animatableData, currentValue.animatableData)
+            guard target.animatableData != currentValue.animatableData else {
+                return
+            }
+            if target.animatableData == currentValue.animatableData {
+                Swift.print("Color Still")
+            }
         }
 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
