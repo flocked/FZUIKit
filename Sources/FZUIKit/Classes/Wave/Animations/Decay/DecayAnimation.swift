@@ -237,7 +237,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
         
         decayFunction.update(value: &_value, velocity: &_velocity, deltaTime: deltaTime)
 
-        let animationFinished = _velocity.magnitudeSquared < 0.05
+        let animationFinished = _velocity.magnitudeSquared < 0.01
                 
         if animationFinished, repeats {
             _value = _fromValue
