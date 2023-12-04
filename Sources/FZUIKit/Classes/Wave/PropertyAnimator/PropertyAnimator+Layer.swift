@@ -154,6 +154,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     internal var shadowColor: CGColor {
         get { self[\.shadowColor] ?? .clear }
         set {
+            guard newValue.animatableData != self[\.shadowColor]?.animatableData else { return }
             Swift.print("shadowColor", self[\.shadowColor] == newValue)
             self[\.shadowColor] = newValue }
     }
