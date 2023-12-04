@@ -135,61 +135,12 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         set { self[\.shadow] = newValue }
     }
     
-    internal var shadowOpacity: CGFloat {
-        get { CGFloat(self[\.shadowOpacity]) }
-        set { 
-            Swift.print("shadowOpacity", self[\.shadowOpacity] == Float(newValue))
-            self[\.shadowOpacity] = Float(newValue) }
-    }
-    
-    internal var shadowColor: NSUIColor {
-        get { self[\._shadowColor] }
-        set {
-            guard newValue.animatableData != self[\._shadowColor].animatableData else { return }
-            Swift.print("shadowColor", self[\._shadowColor] == newValue)
-            self[\._shadowColor] = newValue }
-    }
-    
-    internal var shadowOffset: CGPoint {
-        get { self[\.shadowOffset].point }
-        set { 
-            Swift.print("shadowOffset", self[\.shadowOffset] == newValue.size)
-            self[\.shadowOffset] = newValue.size }
-    }
-    
-    internal var shadowRadius: CGFloat {
-        get { self[\.shadowRadius] }
-        set { 
-            Swift.print("shadowRadius", self[\.shadowRadius] == newValue)
-            self[\.shadowRadius] = newValue }
-    }
-    
     /// The inner shadow of the layer.
     public var innerShadow: ContentConfiguration.InnerShadow {
         get { self[\.innerShadow] }
         set { self[\.innerShadow] = newValue }
     }
-    
-    internal var innerShadowOpacity: CGFloat {
-        get { self[\.innerShadowOpacity] }
-        set { self[\.innerShadowOpacity] = newValue }
-    }
-    
-    internal var innerShadowRadius: CGFloat {
-        get { self[\.innerShadowRadius] }
-        set { self[\.innerShadowRadius] = newValue }
-    }
-    
-    internal var innerShadowOffset: CGPoint {
-        get { self[\.innerShadowOffset] }
-        set { self[\.innerShadowOffset] = newValue }
-    }
-    
-    internal var innerShadowColor: NSUIColor? {
-        get { self[\.innerShadowColor] }
-        set { self[\.innerShadowColor] = newValue }
-    }
-    
+
     /// The property animators for the layer's sublayers.
     public var sublayers: [LayerAnimator<CALayer>] {
         object.sublayers?.compactMap({$0.animator}) ?? []
