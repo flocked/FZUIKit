@@ -112,11 +112,15 @@ internal extension PropertyAnimator {
             return
         }
         
-        Swift.print(keyPath.stringValue)
-        
         var value = object[keyPath: keyPath]
         var target = newValue
         updateValue(&value, target: &target)
+        
+        var isShadow = false
+        if keyPath.stringValue.lowercased().contains("shadow") {
+            Swift.print(keyPath.stringValue, value == target)
+            isShadow = true
+        }
 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
         switch settings.animationType {
@@ -128,6 +132,9 @@ internal extension PropertyAnimator {
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .decay(_,_):
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
+            if isShadow {
+                Swift.print("magni", animation._velocity.magnitudeSquared)
+            }
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .velocityUpdate:
             animation(for: keyPath)?.setVelocity(target)
