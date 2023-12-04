@@ -170,7 +170,7 @@ internal extension PropertyAnimator {
                 #if os(iOS) || os(tvOS)
                 (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
                 #endif
-                Swift.print("executeHandler", true)
+                Swift.print("executeHandler", true, animation is SpringAnimation<Value>, animation is EasingAnimation<Value>)
                 AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
             default:
                 break
