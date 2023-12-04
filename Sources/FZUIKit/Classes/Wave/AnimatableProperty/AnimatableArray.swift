@@ -292,11 +292,7 @@ extension AnimatableArray: MultiplicativeArithmetic where Element: Multiplicativ
         if let lhs = lhs as? AnimatableArray<Float>, let rhs = rhs as? AnimatableArray<Float> {
             return AnimatableArray<Float>(vDSP.divide(lhs[0..<count], rhs[0..<count])) as! Self
         }
-        var lhs = lhs
-        for i in 0..<count {
-            lhs[index] = lhs[index] / rhs[index]
-        }
-        
+
         var array = Self()
         for i in 0..<count {
             array.append(lhs[i] / rhs[i])
