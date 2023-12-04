@@ -170,6 +170,7 @@ internal extension PropertyAnimator {
                 #if os(iOS) || os(tvOS)
                 (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
                 #endif
+                Swift.print("executeHandler", true)
                 AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
             default:
                 break

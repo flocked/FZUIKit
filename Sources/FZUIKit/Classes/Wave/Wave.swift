@@ -237,13 +237,4 @@ public enum Wave {
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
 }
-
-func test() {
-    let view = NSView()
-    Wave.animate(withDecay: .velocity) {
-        view.animator.frame.origin.x = 2000
-        view.animator.backgroundColor?.redComponent
-    }
-}
-
 #endif
