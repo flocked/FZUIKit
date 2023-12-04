@@ -331,6 +331,8 @@ internal protocol AnimatableCollection: RangeReplaceableCollection, Bidirectiona
     mutating func appendNewValues(amount: Int)
     // Ensures both collections have the same amount of values for animating between them.
     mutating func makeAnimatable(to collection: inout any AnimatableCollection)
+    func withNewValues(amount: Int) -> Self
+    func animatable(to collection: any AnimatableCollection) -> Self
 }
 
 extension AnimatableCollection {
@@ -341,6 +343,11 @@ extension AnimatableCollection {
         } else if diff > 0 {
             self.appendNewValues(amount: diff)
         }
+    }
+    
+    func animatable(to collection: any AnimatableCollection) -> Self {
+        let diff = collection.count - self.count
+        return diff > 0 ? withNewValues(amount: diff) : self
     }
 }
 
@@ -360,11 +367,19 @@ extension Array: AnimatableProperty, AnimatableCollection where Element: Animata
     internal mutating func appendNewValues(amount: Int) {
         self.append(contentsOf: Array(repeating: .zero, count: amount))
     }
+    
+    internal func withNewValues(amount: Int) -> Self {
+        self + Array(repeating: .zero, count: amount)
+    }
 }
 
 extension AnimatableArray: AnimatableCollection {
     internal mutating func appendNewValues(amount: Int) {
         self.append(contentsOf: Array(repeating: .zero, count: amount))
+    }
+    
+    internal func withNewValues(amount: Int) -> Self {
+        self + Array(repeating: .zero, count: amount)
     }
 }
 

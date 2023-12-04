@@ -213,6 +213,12 @@ internal extension PropertyAnimator {
             let targetColor = (target as! Optional<NSUIColor>) ?? .zero
             value = color.animatable(to: targetColor) as! V
             target = targetColor.animatable(to: color) as! V
+        case is any AnimatableCollection:
+            Swift.print("AnimatableCollection")
+            let collection = value as! any AnimatableCollection
+            let targetCollection = target as! any AnimatableCollection
+            value = collection.animatable(to: targetCollection) as! V
+            target = targetCollection.animatable(to: collection) as! V
         default:
             if var collection = value as? any AnimatableCollection, var targetCollection = target as? any AnimatableCollection, collection.count != targetCollection.count {
                 collection.makeAnimatable(to: &targetCollection)
