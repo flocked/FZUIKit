@@ -132,21 +132,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     /// The shadow of the layer.
     public var shadow: ContentConfiguration.Shadow {
         get { self[\.shadow] }
-        set {
-            /*
-            Swift.print("new cg rgba", newValue._resolvedColor?.cgColor.rgbaComponents() ?? "nil", shadowColor.rgbaComponents())
-            Swift.print("new ns rgba", newValue._resolvedColor?.rgbaComponents() ?? "nil", shadowColor.rgbaComponents())
-            Swift.print("new cg", newValue._resolvedColor?.cgColor ?? "nil", shadowColor)
-            Swift.print("new ns", newValue._resolvedColor ?? "nil", shadowColor)
-*/
-            self[\.shadow] = newValue
-            /*
-            shadowColor = newValue._resolvedColor ?? .zero
-            shadowOffset = newValue.offset
-            shadowRadius = newValue.radius
-            shadowOpacity = newValue.opacity
-             */
-        }
+        set { self[\.shadow] = newValue }
     }
     
     internal var shadowOpacity: CGFloat {
@@ -180,13 +166,8 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     
     /// The inner shadow of the layer.
     public var innerShadow: ContentConfiguration.InnerShadow {
-        get { .init(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: innerShadowOffset) }
-        set {
-            innerShadowColor = newValue._resolvedColor
-            innerShadowOffset = newValue.offset
-            innerShadowRadius = newValue.radius
-            innerShadowOpacity = newValue.opacity
-        }
+        get { self[\.innerShadow] }
+        set { self[\.innerShadow] = newValue }
     }
     
     internal var innerShadowOpacity: CGFloat {
