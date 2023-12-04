@@ -213,14 +213,23 @@ internal extension PropertyAnimator {
             let targetColor = (target as! Optional<NSUIColor>) ?? .zero
             value = color.animatable(to: targetColor) as! V
             target = targetColor.animatable(to: color) as! V
-        case is any AnimatableCollection:
-            Swift.print("AnimatableCollection")
+        case is (any AnimatableCollection).Type:
             let collection = value as! any AnimatableCollection
             let targetCollection = target as! any AnimatableCollection
             value = collection.animatable(to: targetCollection) as! V
             target = targetCollection.animatable(to: collection) as! V
         default:
+            if V.AnimatableData.self is (any AnimatableCollection).Type {
+                Swift.print("V.AnimatableData", type(of: value), type(of: value.animatableData))
+            }
+            if V.self is (any AnimatableCollection).Type {
+                Swift.print("V.self", type(of: value), type(of: value.animatableData))
+            }
+            if type(of: value.animatableData) is (any AnimatableCollection).Type {
+                Swift.print("AnimatableData type", type(of: value), type(of: value.animatableData))
+            }
             if var collection = value as? any AnimatableCollection, var targetCollection = target as? any AnimatableCollection, collection.count != targetCollection.count {
+                Swift.print("V as collection", type(of: value), type(of: value.animatableData))
                 collection.makeAnimatable(to: &targetCollection)
                 value = collection as! V
                 target = targetCollection as! V
