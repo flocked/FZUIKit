@@ -182,6 +182,7 @@ internal extension PropertyAnimator {
             if settings.options.contains(.keepVelocity), let velocity = self.animation(for: keyPath)?._velocity as? Value.AnimatableData, velocity != .zero {
                 animation.setAnimatableVelocity(velocity)
             }
+            Swift.print("stop old", oldAnimation is EasingAnimation<Value>)
             oldAnimation.stop(at: .current, immediately: true)
         }
         animations[animationKey] = animation
