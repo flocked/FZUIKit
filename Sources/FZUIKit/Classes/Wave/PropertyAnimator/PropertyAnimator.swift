@@ -192,6 +192,56 @@ internal extension PropertyAnimator {
     
     /// Updates the current  and target of an animatable property for better interpolation/animations.
     func updateValue<V: AnimatableProperty>(_ value: inout V, target: inout V) {
+        switch V.self {
+        case is CGColor.Type:
+            Swift.print("updateValue CGColor")
+            var color = value as! CGColor
+            var targetColor = target as! CGColor
+            if color.alpha == 0.0 {
+                value = (targetColor.copy(alpha: 0.0) ?? .clear) as! V
+            }
+            if targetColor.alpha == 0.0 {
+                target = (color.copy(alpha: 0.0) ?? .clear) as! V
+            }
+        case is Optional<CGColor>.Type:
+            Swift.print("updateValue Optional CGColor")
+            var color = (value as! Optional<CGColor>) ?? .zero
+            var targetColor = (target as! Optional<CGColor>) ?? .zero
+            if color.alpha == 0.0 {
+                value = (targetColor.copy(alpha: 0.0) ?? .clear) as! V
+            }
+            if targetColor.alpha == 0.0 {
+                target = (color.copy(alpha: 0.0) ?? .clear) as! V
+            }
+        case is NSUIColor.Type:
+            Swift.print("updateValue NSUIColor")
+            var color = value as! NSUIColor
+            var targetColor = target as! NSUIColor
+            if color.alphaComponent == 0.0 {
+                value = targetColor.withAlphaComponent(0.0) as! V
+            }
+            if targetColor.alphaComponent == 0.0 {
+                target = color.withAlphaComponent(0.0) as! V
+            }
+        case is Optional<NSUIColor>.Type:
+            Swift.print("updateValue Optional NSUIColor")
+            var color = (value as! Optional<NSUIColor>) ?? .zero
+            var targetColor = (target as! Optional<NSUIColor>) ?? .zero
+            if color.alphaComponent == 0.0 {
+                value = targetColor.withAlphaComponent(0.0) as! V
+            }
+            if targetColor.alphaComponent == 0.0 {
+                target = color.withAlphaComponent(0.0) as! V
+            }
+        default:
+            if var collection = value as? any AnimatableCollection, var targetCollection = target as? any AnimatableCollection, collection.count != targetCollection.count {
+                collection.makeAnimatable(to: &targetCollection)
+                value = collection as! V
+                target = targetCollection as! V
+            }
+        }
+        
+        /*
         if V.self == CGColor.self {
             let color = value as! CGColor
             let targetColor = target as! CGColor
@@ -206,6 +256,7 @@ internal extension PropertyAnimator {
             value = collection as! V
             target = targetCollection as! V
         }
+        */
     }
 }
 
