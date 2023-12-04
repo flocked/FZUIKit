@@ -83,11 +83,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value {
         get { Value(_value) }
-        set { 
-            Swift.print("newValue", value, newValue)
-
-            _value = newValue.animatableData
-        }
+        set { _value = newValue.animatableData }
     }
     
     var _value: Value.AnimatableData {
@@ -104,11 +100,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      */
     public var target: Value {
         get { Value(_target) }
-        set {
-            Swift.print("newTarget", target, newValue)
-
-            _target = newValue.animatableData
-        }
+        set {  _target = newValue.animatableData }
     }
     
     internal var _target: Value.AnimatableData {
@@ -159,7 +151,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         self._value = value.animatableData
         self._fromValue = _value
         self._target = target.animatableData
-        Swift.print("init", value == target)
         self.duration = duration
         self.timingFunction = timingFunction
     }
@@ -197,14 +188,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      */
     public func updateAnimation(deltaTime: TimeInterval) {
         state = .running
-        
-        /*
-        if value == target {
-            Swift.print("value == target", value == target)
-            fractionComplete = 1.0
-        }
-        */
-                
+
         let isAnimated = duration > .zero
         
         guard deltaTime > 0.0 else { return }
@@ -241,7 +225,6 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         valueChanged?(callbackValue)
 
         if (animationFinished && !repeats) || !isAnimated {
-            Swift.print("easing stop here", isAnimated, repeats, fractionComplete, previousFraction, isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0, duration)
             stop(at: .current)
         }
     }

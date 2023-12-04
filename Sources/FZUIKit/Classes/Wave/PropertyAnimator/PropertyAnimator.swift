@@ -123,7 +123,6 @@ internal extension PropertyAnimator {
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .easing(_,_):
             let animation = easingAnimation(for: keyPath) ?? EasingAnimation(timingFunction: .linear, duration: 1.0, value: value, target: target)
-            Swift.print("new easing", value == target)
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .decay(_,_):
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
@@ -172,7 +171,6 @@ internal extension PropertyAnimator {
                 #if os(iOS) || os(tvOS)
                 (self as? PropertyAnimator<UIView>)?.preventingUserInteractionAnimations.remove(animation.id)
                 #endif
-                Swift.print("executeHandler", animation.id, val, animation is SpringAnimation<Value>, animation is EasingAnimation<Value>)
                 AnimationController.shared.executeHandler(uuid: animation.groupUUID, finished: true, retargeted: false)
             default:
                 break
@@ -183,7 +181,6 @@ internal extension PropertyAnimator {
             if settings.options.contains(.keepVelocity), let velocity = self.animation(for: keyPath)?._velocity as? Value.AnimatableData, velocity != .zero {
                 animation.setAnimatableVelocity(velocity)
             }
-            Swift.print("stop old", oldAnimation is EasingAnimation<Value>)
             oldAnimation.stop(at: .current, immediately: true)
         }
         animations[animationKey] = animation
