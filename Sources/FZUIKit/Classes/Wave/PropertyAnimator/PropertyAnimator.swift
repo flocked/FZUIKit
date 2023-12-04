@@ -228,6 +228,14 @@ internal extension PropertyAnimator {
             if type(of: value.animatableData) is (any AnimatableCollection).Type {
                 Swift.print("AnimatableData type", type(of: value), type(of: value.animatableData))
             }
+            if var collection = value.animatableData as? any AnimatableCollection, var targetCollection = target.animatableData as? any AnimatableCollection {
+                Swift.print("V.animatableData as collection", type(of: value), type(of: value.animatableData))
+            }
+            
+            if var collection = value as? any AnimatableCollection, var targetCollection = target as? any AnimatableCollection {
+                Swift.print("V as collection", type(of: value), type(of: value.animatableData))
+            }
+            
             if var collection = value as? any AnimatableCollection, var targetCollection = target as? any AnimatableCollection, collection.count != targetCollection.count {
                 Swift.print("V as collection", type(of: value), type(of: value.animatableData))
                 collection.makeAnimatable(to: &targetCollection)
