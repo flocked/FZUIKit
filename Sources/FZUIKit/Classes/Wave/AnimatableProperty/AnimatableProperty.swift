@@ -376,6 +376,7 @@ public protocol AnimatableColor: AnimatableProperty where AnimatableData == Anim
 }
 
 public extension AnimatableColor {
+    /*
     func animatable(too other: any AnimatableColor) -> Self {
         if self.alpha == 0.0, !other.isZero {
             var animatableData = other.animatableData
@@ -384,6 +385,7 @@ public extension AnimatableColor {
         }
         return self
     }
+    */
 }
 
 extension CGColor: AnimatableColor {
