@@ -372,6 +372,7 @@ public protocol AnimatableColor: AnimatableProperty where AnimatableData == Anim
     var alpha: CGFloat { get }
     var isZero: Bool { get }
     func animatable(too other: any AnimatableColor) -> Self
+    func withAlphaVal(_ alpha: CGFloat) -> Self
 }
 
 public extension AnimatableColor {
@@ -386,12 +387,27 @@ public extension AnimatableColor {
 }
 
 extension CGColor: AnimatableColor {
+    public func withAlphaVal(_ alpha: CGFloat) -> Self {
+        self.withAlpha(alpha) as! Self
+    }
+    
     public var isZero: Bool {
         self == .zero
+    }
+    
+    public func animatable(too other: any AnimatableColor) -> Self {
+        if self.alpha == 0.0 {
+            return (other as! Self).withAlpha(0.0) as! Self
+        }
+        return self
     }
 }
 
 extension NSUIColor: AnimatableColor {
+    public func withAlphaVal(_ alpha: CGFloat) -> Self {
+        self.withAlphaComponent(alpha) as! Self
+    }
+    
     public var alpha: CGFloat {
         return alphaComponent
     }
@@ -399,14 +415,34 @@ extension NSUIColor: AnimatableColor {
     public var isZero: Bool {
         self == .zero
     }
+    
+    public func animatable(too other: any AnimatableColor) -> Self {
+        if self.alphaComponent == 0.0 {
+            return (other as! Self).withAlphaComponent(0.0) as! Self
+        }
+        return self
+    }
 }
 
 extension Optional: AnimatableColor where Wrapped: AnimatableColor {
+    public func withAlphaVal(_ alpha: CGFloat) -> Optional<Wrapped> {
+        let val = self.optional ?? Wrapped.zero
+        return val.withAlphaVal(0.0)
+       // (self.optional ?? Wrapped.zero).withAlphaVal(alpha)
+    }
+    
     public var alpha: CGFloat {
         (self.optional ?? Wrapped.zero).alpha
     }
     
     public var isZero: Bool {
         self == .zero
+    }
+    
+    public func animatable(too other: any AnimatableColor) -> Self {
+        if self?.alpha == 0.0 {
+            return (other as! Self).withAlphaVal(0.0)
+        }
+        return self
     }
 }
