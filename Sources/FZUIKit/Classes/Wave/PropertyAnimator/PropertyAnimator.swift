@@ -133,6 +133,11 @@ internal extension PropertyAnimator {
         case .decay(_,_):
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
             if isShadow {
+                if Value.self == CGColor.self {
+                    Swift.print(value)
+                    Swift.print(target)
+                    Swift.print(animation._velocity)
+                }
                 Swift.print("magni", animation._velocity.magnitudeSquared)
             }
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
