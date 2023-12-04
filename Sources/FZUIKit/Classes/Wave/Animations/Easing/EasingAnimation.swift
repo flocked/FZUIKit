@@ -83,7 +83,11 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The _current_ value of the animation. This value will change as the animation executes.
     public var value: Value {
         get { Value(_value) }
-        set { _value = newValue.animatableData }
+        set { 
+            Swift.print("newValue", value, newValue)
+
+            _value = newValue.animatableData
+        }
     }
     
     var _value: Value.AnimatableData {
@@ -100,7 +104,11 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
      */
     public var target: Value {
         get { Value(_target) }
-        set { _target = newValue.animatableData }
+        set {
+            Swift.print("newTarget", target, newValue)
+
+            _target = newValue.animatableData
+        }
     }
     
     internal var _target: Value.AnimatableData {
@@ -151,6 +159,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         self._value = value.animatableData
         self._fromValue = _value
         self._target = target.animatableData
+        Swift.print("init", value == target)
         self.duration = duration
         self.timingFunction = timingFunction
     }

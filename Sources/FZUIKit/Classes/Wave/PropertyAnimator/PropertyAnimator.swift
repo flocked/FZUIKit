@@ -123,7 +123,7 @@ internal extension PropertyAnimator {
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .easing(_,_):
             let animation = easingAnimation(for: keyPath) ?? EasingAnimation(timingFunction: .linear, duration: 1.0, value: value, target: target)
-            Swift.print("new easing", animation.id)
+            Swift.print("new easing", value == target)
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .decay(_,_):
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
