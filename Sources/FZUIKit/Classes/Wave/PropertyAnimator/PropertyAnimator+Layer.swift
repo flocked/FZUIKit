@@ -131,11 +131,13 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     
     /// The shadow of the layer.
     public var shadow: ContentConfiguration.Shadow {
-        get { .init(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
+        get { .init(color: shadowColor.nsUIColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
         set {
             Swift.print("new shadow", newValue._resolvedColor?.cgColor.rgbaComponents() ?? "nil", object.shadowColor?.rgbaComponents() ?? "nil")
             Swift.print("new shadow", newValue._resolvedColor?.cgColor ?? "nil", object.shadowColor ?? "nil")
-            shadowColor = newValue._resolvedColor
+            Swift.print("new shadow", newValue._resolvedColor?.cgColor ?? "nil", object.shadowColor ?? "nil")
+
+            shadowColor = newValue._resolvedColor?.cgColor ?? .zero
             shadowOffset = newValue.offset
             shadowRadius = newValue.radius
             shadowOpacity = newValue.opacity
@@ -149,11 +151,11 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
             self[\.shadowOpacity] = Float(newValue) }
     }
     
-    internal var shadowColor: NSUIColor? {
-        get { self[\._shadowColor] }
+    internal var shadowColor: CGColor {
+        get { self[\.shadowColor] ?? .clear }
         set {
-            Swift.print("shadowColor", self[\._shadowColor] == newValue)
-            self[\._shadowColor] = newValue }
+            Swift.print("shadowColor", self[\.shadowColor] == newValue)
+            self[\.shadowColor] = newValue }
     }
     
     internal var shadowOffset: CGPoint {
