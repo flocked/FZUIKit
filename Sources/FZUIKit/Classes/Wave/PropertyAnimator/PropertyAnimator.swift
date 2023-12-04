@@ -112,6 +112,8 @@ internal extension PropertyAnimator {
             return
         }
         
+        Swift.print(keyPath.stringValue)
+        
         var value = object[keyPath: keyPath]
         var target = newValue
         updateValue(&value, target: &target)
@@ -165,7 +167,7 @@ internal extension PropertyAnimator {
         animation.completion = { [weak self] event in
             guard event.isFinished else { return }
             switch event {
-            case .finished(let val):
+            case .finished:
                 completion?()
                 self?.animations[animationKey] = nil
                 #if os(iOS) || os(tvOS)
