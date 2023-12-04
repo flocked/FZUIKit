@@ -156,7 +156,6 @@ internal extension ConfigurableAnimationProviding {
             animation.velocity = .zero
         //    (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
             (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
-            Swift.print("stop at", value, animation is EasingAnimation<Value>)
             completion?(.finished(at: value))
         }
     }
