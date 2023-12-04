@@ -190,6 +190,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         state = .running
         
         if value == target {
+            Swift.print("value == target", value == target)
             fractionComplete = 1.0
         }
                 
@@ -199,6 +200,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
                 
         let previousValue = _value
 
+        let previousFraction = fractionComplete
         if isAnimated {
             let secondsElapsed = deltaTime/duration
             fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
@@ -228,7 +230,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         valueChanged?(callbackValue)
 
         if (animationFinished && !repeats) || !isAnimated {
-            Swift.print("easing stop here", isAnimated, repeats, fractionComplete, isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0, duration)
+            Swift.print("easing stop here", isAnimated, repeats, fractionComplete, previousFraction, isReversed ? fractionComplete <= 0.0 : fractionComplete >= 1.0, duration)
             stop(at: .current)
         }
     }
