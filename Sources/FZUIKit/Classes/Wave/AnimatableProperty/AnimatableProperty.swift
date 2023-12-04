@@ -370,81 +370,42 @@ extension Array: Animatable where Element: Animatable {
 
 public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
     var alpha: CGFloat { get }
-    var isZero: Bool { get }
     func animatable(too other: any AnimatableColor) -> Self
-    func withAlphaVal(_ alpha: CGFloat) -> Self
+    func withAlphaValuw(_ alpha: CGFloat) -> Self
 }
 
 public extension AnimatableColor {
-    /*
     func animatable(too other: any AnimatableColor) -> Self {
-        if self.alpha == 0.0, !other.isZero {
-            var animatableData = other.animatableData
-            animatableData[safe: 3] = 0.0
-            return Self(animatableData)
+        if self.alpha == 0.0 {
+            return (other as! Self).withAlphaValuw(0.0)
         }
         return self
     }
-    */
 }
 
 extension CGColor: AnimatableColor {
-    public func withAlphaVal(_ alpha: CGFloat) -> Self {
+    public func withAlphaValuw(_ alpha: CGFloat) -> Self {
         self.withAlpha(alpha) as! Self
-    }
-    
-    public var isZero: Bool {
-        self == .zero
-    }
-    
-    public func animatable(too other: any AnimatableColor) -> Self {
-        if self.alpha == 0.0 {
-            return (other as! Self).withAlpha(0.0) as! Self
-        }
-        return self
     }
 }
 
 extension NSUIColor: AnimatableColor {
-    public func withAlphaVal(_ alpha: CGFloat) -> Self {
+    public func withAlphaValuw(_ alpha: CGFloat) -> Self {
         self.withAlphaComponent(alpha) as! Self
     }
     
     public var alpha: CGFloat {
         return alphaComponent
     }
-    
-    public var isZero: Bool {
-        self == .zero
-    }
-    
-    public func animatable(too other: any AnimatableColor) -> Self {
-        if self.alphaComponent == 0.0 {
-            return (other as! Self).withAlphaComponent(0.0) as! Self
-        }
-        return self
-    }
 }
 
 extension Optional: AnimatableColor where Wrapped: AnimatableColor {
-    public func withAlphaVal(_ alpha: CGFloat) -> Optional<Wrapped> {
+    public func withAlphaValuw(_ alpha: CGFloat) -> Optional<Wrapped> {
         let val = self.optional ?? Wrapped.zero
-        return val.withAlphaVal(0.0)
-       // (self.optional ?? Wrapped.zero).withAlphaVal(alpha)
+        return val.withAlphaValuw(0.0)
     }
     
     public var alpha: CGFloat {
-        (self.optional ?? Wrapped.zero).alpha
-    }
-    
-    public var isZero: Bool {
-        self == .zero
-    }
-    
-    public func animatable(too other: any AnimatableColor) -> Self {
-        if self?.alpha == 0.0 {
-            return (other as! Self).withAlphaVal(0.0)
-        }
-        return self
+        return self.optional?.alpha ?? 0.0
     }
 }
