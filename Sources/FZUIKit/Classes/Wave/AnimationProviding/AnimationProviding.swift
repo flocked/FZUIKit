@@ -56,44 +56,6 @@ public protocol AnimationProviding {
     func stop(at position: AnimationPosition, immediately: Bool)
 }
 
-extension AnimationProviding {
-    public func start(afterDelay delay: TimeInterval = 0.0) {
-        precondition(delay >= 0, "Animation start delay must be greater or equal to zero.")
-        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
-        guard state != .running else { return }
-        
-        let start = {
-            AnimationController.shared.runAnimation(self)
-        }
-        
-        animation.delayedStart?.cancel()
-        animation.delay = delay
-
-        if delay == .zero {
-            start()
-        } else {
-            let task = DispatchWorkItem {
-                start()
-            }
-            animation.delayedStart = task
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
-        }
-    }
-
-    public func pause() {
-        guard var animation = self as? (any ConfigurableAnimationProviding) else { return }
-        guard state == .running else { return }
-        AnimationController.shared.stopAnimation(self)
-        animation.state = .inactive
-        animation.delayedStart?.cancel()
-        animation.delay = 0.0
-    }
-    
-    public func stop(at position: AnimationPosition = .current, immediately: Bool = true) {
-        guard state == .running else { return }
-        (self as? any ConfigurableAnimationProviding)?.internal_stop(at: position, immediately: immediately)
-    }
-}
 
 /// An internal extension to `AnimationProviding` used for configurating animations.
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
@@ -123,52 +85,6 @@ extension ConfigurableAnimationProviding {
         guard let velocity = velocity as? Value, velocity != self.velocity else { return }
         var animation = self
         animation.velocity = velocity
-    }
-    
-    func setVelocity(from animation: some ConfigurableAnimationProviding) {
-        guard let velocity = animation._velocity as? Value.AnimatableData else { return }
-        var animation = self
-        animation._velocity = velocity
-    }
-}
-
-internal extension ConfigurableAnimationProviding {
-    func internal_stop(at position: AnimationPosition, immediately: Bool = true) {
-        var animation = self
-        animation.delayedStart?.cancel()
-        animation.delay = 0.0
-        if immediately == false, isVelocityAnimation {
-            switch position {
-            case .start:
-                animation.target = fromValue
-            case .current:
-                animation.target = value
-            default: break
-            }
-        } else {
-            AnimationController.shared.stopAnimation(self)
-            animation.state = .inactive
-            switch position {
-            case .start:
-                animation.value = fromValue
-                animation.valueChanged?(value)
-            case .end:
-                animation.value = target
-                animation.valueChanged?(value)
-            default: break
-            }
-    //        animation.target = value
-            animation.reset()
-            animation.velocity = .zero
-        //    (self as? (any AnimationVelocityProviding))?.setVelocity(Value.zero)
-            (self as? EasingAnimation<Value>)?.fractionComplete = 1.0
-            completion?(.finished(at: value))
-        }
-    }
-    
-    /// A Boolean value that indicates whether the animation has a velocity value.
-    var isVelocityAnimation: Bool {
-        (self as? SpringAnimation<Value>) != nil || (self as? DecayAnimation<Value>) != nil
     }
 }
 #endif

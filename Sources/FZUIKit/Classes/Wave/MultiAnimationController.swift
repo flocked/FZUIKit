@@ -1,5 +1,5 @@
 //
-//  AnimationController.swift
+//  AnimationControllerMac.swift
 //
 //  Modified by Florian Zand
 //  Original: Copyright (c) 2022 Janum Trivedi.
@@ -16,8 +16,8 @@ import UIKit
 import FZSwiftUtils
 
 /// Manages all ``Wave`` animations.
-internal class AnimationController {
-    public static let shared = AnimationController()
+internal class AnimationControllerMac {
+    public static let shared = AnimationControllerMac()
 
     private var displayLink: AnyCancellable?
 
@@ -60,7 +60,7 @@ internal class AnimationController {
         animations[animation.id] = nil
     }
     
-    /// ``AnimationController/runAnimation(_:)``
+    /// ``AnimationControllerMac/runAnimation(_:)``
     func stopAllAnimations(immediately: Bool = true) {
         animations.values.forEach({$0.stop(at: .current, immediately: immediately)})
     }
@@ -123,7 +123,7 @@ internal class AnimationController {
     }
 }
 
-extension AnimationController {
+extension AnimationControllerMac {
     struct AnimationParameters {
         let groupUUID: UUID
         let delay: CGFloat
@@ -151,12 +151,12 @@ extension AnimationController {
             options.contains(.autoreverse)
         }
         
-        var resetSpringVelocity: Bool {
-            options.contains(.resetSpringVelocity)
-        }
-        
         var isAnimation: Bool {
             !type.isNonAnimated
+        }
+        
+        var resetSpringVelocity: Bool {
+            options.contains(.resetSpringVelocity)
         }
         
         var needsVelocityValue: Bool {
@@ -194,10 +194,19 @@ extension AnimationController {
                 default: return false
                 }
             }
-   
+            
             var isNonAnimated: Bool {
                 switch self {
                 case .nonAnimated: return true
+                default: return false
+                }
+            }
+            
+            var needsVelocityValue: Bool {
+                switch self {
+                case .velocityUpdate: return true
+                case .decay(let mode, _):
+                    return mode == .velocity
                 default: return false
                 }
             }
@@ -298,3 +307,26 @@ extension AnimationController {
      mouseDownDisabledViews[groupUUID] = nil
  }
  */
+
+protocol AnimationEnvironment {
+    var nextAnimationEnvironment: AnimationEnvironment? { get }
+}
+
+extension NSView: AnimationEnvironment {
+    var nextAnimationEnvironment: AnimationEnvironment? {
+        return self.window
+    }
+}
+
+
+extension NSWindow: AnimationEnvironment {
+    var nextAnimationEnvironment: AnimationEnvironment? {
+        return self.screen
+    }
+}
+
+extension NSScreen: AnimationEnvironment {
+    var nextAnimationEnvironment: AnimationEnvironment? {
+        return nil
+    }
+}

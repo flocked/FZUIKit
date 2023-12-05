@@ -1,5 +1,5 @@
 //
-//  AppKitDisplayLink.swift
+//  DisplayLinker.swift
 //
 //
 //  Created by Florian Zand on 04.12.23.
@@ -10,20 +10,24 @@ import QuartzCore
 import SwiftUI
 
 @available(macOS 14.0, *)
-public final class AppKitDisplayLink {
+public final class DisplayLinker {
+    
     // Represents a frame that is about to be drawn
     public struct Frame {
         // The system timestamp for the frame to be drawn
-        public var timestamp: TimeInterval
+        public let timestamp: TimeInterval
         
-        // The duration between each display update
-        public var duration: TimeInterval
+        /// The time interval that represents when the next frame displays.
+        public let targetTimestamp: TimeInterval
+        
+        /// The duration between each display update
+        public let duration: TimeInterval
     }
     
     /// The callback to call for each frame.
     public var onFrame: ((Frame) -> Void)?
     
-    /// If the display link is paused or not.
+    /// A Boolean value that indicates the display link is paused or not.
     public var isPaused: Bool {
         get { displayLink.isPaused }
         set { displayLink.isPaused = newValue }
@@ -35,22 +39,7 @@ public final class AppKitDisplayLink {
         set { displayLink.preferredFrameRateRange = newValue }
     }
     
-    /// The time interval between screen refresh updates.
-    public var duration: CFTimeInterval {
-        displayLink.duration
-    }
-    
-    /// The time interval that represents when the last frame displayed.
-    public var timestamp: CFTimeInterval {
-        displayLink.timestamp
-    }
-    
-    /// The time interval that represents when the next frame displays.
-    public var targetTimestamp: CFTimeInterval {
-        displayLink.targetTimestamp
-    }
-    
-    /// The framesPerSecond of the displaylink.
+    /// The `frames per second` of the displaylink.
     public var framesPerSecond: CGFloat {
         1 / (displayLink.targetTimestamp - displayLink.timestamp)
     }
@@ -112,6 +101,7 @@ public final class AppKitDisplayLink {
         @objc dynamic func frame(_ displayLink: CADisplayLink) {
             let frame = Frame(
                 timestamp: displayLink.timestamp,
+                targetTimestamp: displayLink.targetTimestamp,
                 duration: displayLink.duration
             )
             callback?(frame)

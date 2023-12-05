@@ -112,7 +112,6 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
         groupUUID = settings.groupUUID
         integralizeValues = settings.integralizeValues
         repeats = settings.repeats
-        autoStarts = settings.autoStarts
         autoreverse = settings.autoreverse
     }
     
@@ -245,6 +244,65 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
         self._value = value.animatableData
         self._fromValue = _value
         self.keyFrames = keyFrames()
+    }
+    
+    public func start(afterDelay delay: TimeInterval = 0.0) {
+        precondition(delay >= 0, "Animation start delay must be greater or equal to zero.")
+        guard state != .running else { return }
+        
+        let start = {
+            AnimationController.shared.runAnimation(self)
+        }
+        
+        delayedStart?.cancel()
+        self.delay = delay
+
+        if delay == .zero {
+            start()
+        } else {
+            let task = DispatchWorkItem {
+                start()
+            }
+            delayedStart = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
+        }
+    }
+
+    public func pause() {
+        guard state == .running else { return }
+        AnimationController.shared.stopAnimation(self)
+        state = .inactive
+        delayedStart?.cancel()
+        delay = 0.0
+    }
+    
+    public func stop(at position: AnimationPosition, immediately: Bool = true) {
+        delayedStart?.cancel()
+        delay = 0.0
+        if immediately == false {
+            switch position {
+            case .start:
+                target = fromValue
+            case .current:
+                target = value
+            default: break
+            }
+        } else {
+            AnimationController.shared.stopAnimation(self)
+            state = .inactive
+            switch position {
+            case .start:
+                value = fromValue
+                valueChanged?(value)
+            case .end:
+                value = target
+                valueChanged?(value)
+            default: break
+            }
+            reset()
+            velocity = .zero
+            completion?(.finished(at: value))
+        }
     }
 }
 

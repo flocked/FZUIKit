@@ -77,7 +77,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .spring(spring: spring, gestureVelocity: gestureVelocity),
+            type: .spring(spring: spring, gestureVelocity: gestureVelocity),
             options: options,
             completion: completion
         )
@@ -117,7 +117,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .easing(timingFunction: timingFunction, duration: duration),
+            type: .easing(timingFunction: timingFunction, duration: duration),
             options: options,
             completion: completion
         )
@@ -170,7 +170,7 @@ public enum Wave {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
             delay: delay,
-            animationType: .decay(mode: mode, decelerationRate: decelerationRate),
+            type: .decay(mode: mode, decelerationRate: decelerationRate),
             options: options,
             completion: completion
         )
@@ -199,7 +199,7 @@ public enum Wave {
     public static func nonAnimate(changes: () -> Void) {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
-            animationType: .nonAnimated
+            type: .nonAnimated
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
@@ -231,7 +231,7 @@ public enum Wave {
     public static func updateVelocity(changes: () -> Void) {
         let settings = AnimationController.AnimationParameters(
             groupUUID: UUID(),
-            animationType: .velocityUpdate
+            type: .velocityUpdate
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)

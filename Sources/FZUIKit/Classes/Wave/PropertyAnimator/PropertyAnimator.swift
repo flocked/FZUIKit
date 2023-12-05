@@ -94,7 +94,7 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
 internal extension PropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> Value {
-        if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
+        if AnimationController.shared.currentAnimationParameters?.needsVelocityValue == true {
             return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
         }
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
@@ -117,21 +117,18 @@ internal extension PropertyAnimator {
         updateValue(&value, target: &target)
 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
-        switch settings.animationType {
-        case .spring(_,_):
-            let animation = springAnimation(for: keyPath) ?? SpringAnimation(spring: .smooth, value: value, target: target)
-            if let oldAnimation = self.animation(for: keyPath), oldAnimation.id != animation.id {
-                animation.setVelocity(from: oldAnimation)
-            }
-            if settings.restartVelocity, !settings.animationType.isDecayAnimation {
-                animation._velocity = .zero
-            }
+        switch settings.type {
+        case .decay(_,_):
+            let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .easing(_,_):
             let animation = easingAnimation(for: keyPath) ?? EasingAnimation(timingFunction: .linear, duration: 1.0, value: value, target: target)
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
-        case .decay(_,_):
-            let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
+        case .spring(_,_):
+            let animation = springAnimation(for: keyPath) ?? SpringAnimation(spring: .smooth, value: value, target: target)
+            if let oldAnimation = self.animation(for: keyPath), oldAnimation.id != animation.id, let velocity = oldAnimation._velocity as? Value.AnimatableData {
+                animation._velocity = velocity
+            }
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
         case .velocityUpdate:
             animation(for: keyPath)?.setVelocity(target)
@@ -146,7 +143,7 @@ internal extension PropertyAnimator {
         var animation = animation
         animation.reset()
         
-        if settings.animationType.isDecayVelocity, let animation = animation as? DecayAnimation<Value> {
+        if settings.type.isVelocityDecayAnimation, let animation = animation as? DecayAnimation<Value> {
             animation.velocity = target
             animation._fromVelocity = animation._velocity
         } else {
@@ -282,7 +279,7 @@ public subscript<Value: AnimatableProperty>(keyPath: WritableKeyPath<Object, Val
 /*
 /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
 func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>) -> Value?  {
-    if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
+    if AnimationController.shared.currentAnimationParameters?.type.needsVelocityValue == true {
         return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
     }
     return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
@@ -313,7 +310,7 @@ func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value
  /// Setups an animation for the specified value of the property at the keypath to a new value.
  func setupAnimation<Value: AnimatableProperty>(_ value: Value, target: Value, keyPath: PartialKeyPath<Object>, settings: AnimationController.AnimationParameters,  valueChanged: ((_ currentValue: Value) -> Void)?, completion: (()->())? = nil) {
      AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
-     switch settings.animationType {
+     switch settings.type {
      case .spring(_,_):
          let animation = springAnimation(for: keyPath) ?? SpringAnimation(spring: .smooth, value: value, target: target)
          configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, valueChanged: valueChanged, completion: completion)

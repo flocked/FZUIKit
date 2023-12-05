@@ -169,13 +169,15 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupUUID
-        spring = settings.animationType.spring ?? spring
+        spring = settings.type.spring ?? spring
         repeats = settings.repeats
-        autoStarts = settings.autoStarts
         autoreverse = settings.autoreverse
         integralizeValues = settings.integralizeValues
+        if settings.resetSpringVelocity {
+            _velocity = .zero
+        }
         
-        if let gestureVelocity = settings.animationType.gestureVelocity {
+        if let gestureVelocity = settings.type.gestureVelocity {
             (self as? SpringAnimation<CGRect>)?.velocity.origin = gestureVelocity
             (self as? SpringAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
             
@@ -223,6 +225,65 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
         if animationFinished, !repeats || !isAnimated {
             stop(at: .current)
+        }
+    }
+    
+    public func start(afterDelay delay: TimeInterval = 0.0) {
+        precondition(delay >= 0, "Animation start delay must be greater or equal to zero.")
+        guard state != .running else { return }
+        
+        let start = {
+            AnimationController.shared.runAnimation(self)
+        }
+        
+        delayedStart?.cancel()
+        self.delay = delay
+
+        if delay == .zero {
+            start()
+        } else {
+            let task = DispatchWorkItem {
+                start()
+            }
+            delayedStart = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
+        }
+    }
+
+    public func pause() {
+        guard state == .running else { return }
+        AnimationController.shared.stopAnimation(self)
+        state = .inactive
+        delayedStart?.cancel()
+        delay = 0.0
+    }
+    
+    public func stop(at position: AnimationPosition, immediately: Bool = true) {
+        delayedStart?.cancel()
+        delay = 0.0
+        if immediately == false {
+            switch position {
+            case .start:
+                target = fromValue
+            case .current:
+                target = value
+            default: break
+            }
+        } else {
+            AnimationController.shared.stopAnimation(self)
+            state = .inactive
+            switch position {
+            case .start:
+                value = fromValue
+                valueChanged?(value)
+            case .end:
+                value = target
+                valueChanged?(value)
+            default: break
+            }
+            reset()
+            velocity = .zero
+            completion?(.finished(at: value))
         }
     }
     

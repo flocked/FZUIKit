@@ -108,7 +108,7 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
 internal extension DynamicPropertyAnimator {
     /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
     func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> Value {
-        if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
+        if AnimationController.shared.currentAnimationParameters?.needsVelocityValue == true {
             return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
         }
         return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
@@ -122,7 +122,7 @@ internal extension DynamicPropertyAnimator {
             return
         }
         
-        guard value(for: keyPath) != newValue || settings.animationType.isNonAnimated else {
+        guard value(for: keyPath) != newValue || settings.type.isNonAnimated else {
             return
         }
         
@@ -132,7 +132,7 @@ internal extension DynamicPropertyAnimator {
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
         
-        switch settings.animationType {
+        switch settings.type {
         case .spring(_,_):
             let animation = springAnimation(for: keyPath) ?? SpringAnimation<Value>(spring: .smooth, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, settings: settings, completion: completion)
@@ -153,7 +153,7 @@ internal extension DynamicPropertyAnimator {
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: WritableKeyPath<Object, Value>, settings: AnimationController.AnimationParameters, completion: (()->())? = nil) {
         var animation = animation
         animation.reset()
-        if settings.animationType.isDecayVelocity, let animation = animation as? DecayAnimation<Value> {
+        if settings.type.isVelocityDecayAnimation, let animation = animation as? DecayAnimation<Value> {
             animation.velocity = target
             animation._fromVelocity = animation._velocity
         } else {
@@ -297,7 +297,7 @@ public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value?>) -
 /*
 /// The current value of the property at the keypath. If the property is currently animated, it returns the animation target value.
 func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value?>) -> Value?  {
-    if AnimationController.shared.currentAnimationParameters?.animationType.isAnyVelocity == true {
+    if AnimationController.shared.currentAnimationParameters?.type.needsVelocityValue == true {
         return (self.animation(for: keyPath)?.velocity as? Value) ?? .zero
     }
     return (self.animation(for: keyPath)?.target as? Value) ?? object[keyPath: keyPath]
@@ -310,12 +310,12 @@ func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value
          return
      }
      
-     guard settings.animationType.isVelocityUpdate == false else {
+     guard settings.type.isVelocityUpdate == false else {
          self.animation(for: keyPath)?.setVelocity(newValue ?? .zero)
          return
      }
      
-     guard value(for: keyPath) != newValue || settings.animationType.isNonAnimated else {
+     guard value(for: keyPath) != newValue || settings.type.isNonAnimated else {
          return
      }
      
@@ -325,7 +325,7 @@ func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value
      
      AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
      
-     switch settings.animationType {
+     switch settings.type {
      case .spring(_,_):
          let animation = springAnimation(for: keyPath) ?? SpringAnimation<Value>(spring: .smooth, value: initialValue, target: targetValue)
          configurateAnimation(animation, target: targetValue, keyPath: keyPath, settings: settings, completion: completion)
