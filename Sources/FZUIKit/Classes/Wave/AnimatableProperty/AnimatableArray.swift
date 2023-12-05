@@ -226,7 +226,6 @@ extension AnimatableArray: ContiguousBytes {
 
 extension AnimatableArray: ExpressibleByArrayLiteral {}
 
-
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
     
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {

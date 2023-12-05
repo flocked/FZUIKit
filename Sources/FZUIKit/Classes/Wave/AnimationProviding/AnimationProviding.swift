@@ -125,10 +125,9 @@ extension ConfigurableAnimationProviding {
         animation.velocity = velocity
     }
     
-    func getVelocity(from animation: some ConfigurableAnimationProviding) {
+    func setVelocity(from animation: some ConfigurableAnimationProviding) {
         guard let velocity = animation._velocity as? Value.AnimatableData else { return }
         var animation = self
-        Swift.print("previous velocity", velocity)
         animation._velocity = velocity
     }
 }
