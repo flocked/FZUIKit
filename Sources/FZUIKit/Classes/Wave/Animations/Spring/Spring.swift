@@ -33,7 +33,11 @@ import SwiftUI
 public struct Spring: Sendable, Hashable {
     // MARK: - Getting spring characteristics
     
-    /// The amount of oscillation the spring will exhibit (i.e. "springiness").
+    /**
+     The amount of oscillation the spring will exhibit (i.e. "springiness").
+     
+     When dampingRatio is 1, the spring will smoothly decelerate to its final position without oscillating. Damping ratios less than 1 will oscillate more and more before coming to a complete stop.
+     */
     public let dampingRatio: Double
 
     /// The stiffness of the spring, defined as an approximate duration in seconds.
@@ -48,20 +52,29 @@ public struct Spring: Sendable, Hashable {
         1.0 - dampingRatio
     }
 
-    /// The spring stiffness coefficient. Increasing the stiffness reduces the number of oscillations and will reduce the settling duration.
+    /**
+     The spring stiffness coefficient.
+     
+     Increasing the stiffness reduces the number of oscillations and will reduce the settling duration. Decreasing the stiffness increases the the number of oscillations and will increase the settling duration.
+     */
     public let stiffness: Double
 
-    /// The mass "attached" to the spring. The default value of `1.0` rarely needs to be modified.
+    /**
+     The mass "attached" to the spring.
+     
+     The default value of `1.0` rarely needs to be modified. Increasing this value will increase the spring’s effect: the attached object will be subject to more oscillations and greater overshoot, resulting in an increased settling duration. Decreasing the mass will reduce the spring effect: there will be fewer oscillations and a reduced overshoot, resulting in a decreased settling duration.
+     */
     public let mass: Double
 
-    /// Defines how the spring’s motion should be damped due to the forces of friction.
+    /**
+     Defines how the spring’s motion should be damped due to the forces of friction.
+     
+     Reducing this value reduces the energy loss with each oscillation: the spring will overshoot its destination. Increasing the value increases the energy loss with each duration: there will be fewer and smaller oscillations.
+     */
     public let damping: Double
 
     /// The estimated duration required for the spring system to be considered at rest.
     public let settlingDuration: TimeInterval
-    
-    let w0: Double
-    let wD: Double
 
     
     // MARK: - Creating a spring
@@ -74,19 +87,7 @@ public struct Spring: Sendable, Hashable {
         - bounce: How bouncy the spring should be. A value of 0 indicates no bounces (a critically damped spring), positive values indicate increasing amounts of bounciness up to a maximum of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
      */
     public init(duration: Double = 0.5, bounce: Double = 0.0) {
-        /*
-        if #available(macOS 14.0, iOS 17, tvOS 17, *) {
-            self = .init(SwiftUI.Spring(duration: duration, bounce: bounce))
-        } else {
-            self.init(response: duration, dampingRatio: 1.0 - bounce, mass: 1.0)
-        }
-         */
         self.init(response: duration, dampingRatio: 1.0 - bounce, mass: 1.0)
-    }
-    
-    @available(macOS 14.0, iOS 17, tvOS 17, *)
-    public init(durationSwift duration: Double = 0.5, bounce: Double = 0.0) {
-        self = .init(SwiftUI.Spring(duration: duration, bounce: bounce))
     }
 
     /**
@@ -107,9 +108,6 @@ public struct Spring: Sendable, Hashable {
         self.response = Self.response(stiffness: stiffness, mass: mass)
         self.damping = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
-        
-        self.w0 = sqrt(stiffness)
-        self.wD = w0 * sqrt(1.0 - dampingRatio * dampingRatio)
     }
     
     /**
@@ -134,8 +132,6 @@ public struct Spring: Sendable, Hashable {
         self.damping = Rubberband.value(for: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
         
         self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
-        self.w0 = sqrt(stiffness)
-        self.wD = w0 * sqrt(1.0 - dampingRatio * dampingRatio)
     }
     
     /*
@@ -166,8 +162,6 @@ public struct Spring: Sendable, Hashable {
         mass = spring.mass
         damping = spring.damping
         settlingDuration = spring.settlingDuration
-        self.w0 = sqrt(stiffness)
-        self.wD = w0 * sqrt(1.0 - dampingRatio * dampingRatio)
     }
         
     /**
@@ -243,29 +237,6 @@ public struct Spring: Sendable, Hashable {
         - deltaTime: The amount of time that has passed since the spring was at the position specified by value.
      */
     public func update<V>(value: inout V, velocity: inout V, target: V, deltaTime: TimeInterval) where V : VectorArithmetic {
-        
-        /*
-        if dampingRatio < 1.0 {
-            let dampingRatio_w0 = dampingRatio * w0
-            let decayEnvelope = exp(-dampingRatio_w0 * deltaTime)
-            let sin_wD_dt = sin(wD * deltaTime)
-            let cos_wD_dt = cos(wD * deltaTime)
-            
-            let velocity_x0_dampingRatio_w0 =  velocity + value.scaled(by: dampingRatio_w0)
-            
-            let A = value
-            let B = velocity_x0_dampingRatio_w0 / wD
-            
-            let x = (A.scaled(by: cos_wD_dt) + B.scaled(by: sin_wD_dt)).scaled(by: decayEnvelope)
-            let d_x = (velocity_x0_dampingRatio_w0 * cos_wD_dt) - value.scaled(by: wD * sin_wD_dt)
-            dampingRatio_w0.scaled(by: x)
-            
-            /*
-             let d_x = velocity_x0_dampingRatio_w0 * cos_wD_dt - x0 * (wD * sin_wD_dt)
-             velocity = -(dampingRatio_w0 * x - decayEnvelope * d_x)
-             */
-        }
-        */
         
         let displacement = value - target
         let springForce = displacement * -self.stiffness
