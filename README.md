@@ -2,7 +2,7 @@
 
 Swift AppKit/UIKit extensions and useful Classes & utilities.
 
-**For a full documentation take a look at the included documentation accessible via Xcode's documentation browser.**
+**For a full documentation take a look at the included documentation located at */Documentation/*. Opening the file launches Xcode's documentation browser.
 
 ## Notable Extensions & Classes
 
