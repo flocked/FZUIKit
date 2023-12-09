@@ -65,6 +65,27 @@ public extension NSRotationGestureRecognizer {
 #elseif os(iOS) || os(tvOS)
 import UIKit
 
+public extension UISwipeGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension UIPanGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension UILongPressGestureRecognizer {
+    convenience init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
 #if os(iOS)
 public extension UIPinchGestureRecognizer {
     convenience init(action: @escaping ActionBlock) {
@@ -87,26 +108,5 @@ public extension UIHoverGestureRecognizer {
     }
 }
 #endif
-
-public extension UISwipeGestureRecognizer {
-    convenience init(action: @escaping ActionBlock) {
-        self.init()
-        actionBlock = action
-    }
-}
-
-public extension UIPanGestureRecognizer {
-    convenience init(action: @escaping ActionBlock) {
-        self.init()
-        actionBlock = action
-    }
-}
-
-public extension UILongPressGestureRecognizer {
-    convenience init(action: @escaping ActionBlock) {
-        self.init()
-        actionBlock = action
-    }
-}
 
 #endif
