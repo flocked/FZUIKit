@@ -121,7 +121,7 @@ public extension NSUIView {
             self.optionalLayer?.borderLayer?.configuration = configuration
         } else {
             let newColor = configuration._resolvedColor?.resolvedColor(for: self)
-            if self.borderColor?.isVisible == false || self.borderColor == nil {
+            if self.borderColor?.alphaComponent == 0.0 || self.borderColor == nil {
                 self.borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
             }
             self.borderColor = newColor

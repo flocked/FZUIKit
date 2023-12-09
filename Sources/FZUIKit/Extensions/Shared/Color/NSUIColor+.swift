@@ -49,6 +49,11 @@ public extension NSUIColor {
       return brightness >= 0.5
     }
     
+    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't `zero`).
+    var isVisible: Bool {
+        self.alphaComponent != 0.0
+    }
+    
     #if os(macOS) || os(iOS) || os(tvOS)
     /**
      Generates the resolved color for the specified view,.
@@ -87,9 +92,4 @@ public extension NSUIColor {
         self.init(patternImage: backgroundColorImage)
     }
     #endif
-    
-    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't zero).
-    var isVisible: Bool {
-        self.alphaComponent != 0.0
-    }
 }

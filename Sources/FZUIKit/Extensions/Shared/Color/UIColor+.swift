@@ -66,11 +66,4 @@ public extension UIColor {
         return NSUIColor(red: r, green: g, blue: b, alpha: a)
     }
 }
-
-internal extension UIColor {
-    /// The color to use for virtual shadows cast by raised objects on the screen.
-    static var shadowColor: UIColor {
-        return UIColor.black
-    }
-}
 #endif
