@@ -80,17 +80,9 @@ public class InnerShadowLayer: CALayer {
     public override var shadowOffset: CGSize {
         didSet { if !isUpdating, oldValue != shadowOffset { self.updateShadowPath() } }
     }
-
-    override public var frame: CGRect {
-        didSet {
-            Swift.print("inner frame changed")
-            if !isUpdating, oldValue != frame {
-            updateShadowPath() } }
-    }
     
     override public var bounds: CGRect {
         didSet { 
-            Swift.print("inner bounds changed")
             if !isUpdating, oldValue != bounds {
             updateShadowPath() } }
     }
@@ -117,12 +109,6 @@ public class InnerShadowLayer: CALayer {
             }
             path.append(innerPart)
             shadowPath = path.cgPath
-    }
-
-    override public func display() {
-        Swift.print("inner display")
-        super.display()
-        updateShadowPath()
     }
 }
 #endif
