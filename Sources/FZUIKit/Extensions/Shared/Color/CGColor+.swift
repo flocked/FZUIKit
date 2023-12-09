@@ -124,7 +124,7 @@ public extension CGColor {
     
     /// The clear color in the Generic gray color space.
     static var clear: CGColor {
-        return UIColor.clear.cgColor
+        CGColor(gray: 0, alpha: 0)
     }
     #endif
     

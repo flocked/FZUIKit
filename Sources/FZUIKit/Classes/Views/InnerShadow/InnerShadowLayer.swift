@@ -57,10 +57,12 @@ public class InnerShadowLayer: CALayer {
     }
     
     internal func sharedInit() {
-        self.shadowOpacity = 0
-        self.shadowColor = nil
-        self.shadowOffset = .zero
-        self.shadowRadius = 0.0
+        shadowOpacity = 0
+        shadowColor = nil
+        backgroundColor = .clear
+        masksToBounds = true
+        shadowOffset = .zero
+        shadowRadius = 0.0
     }
     
     public override var shadowRadius: CGFloat {
@@ -104,8 +106,6 @@ public class InnerShadowLayer: CALayer {
             }
             path.append(innerPart)
             shadowPath = path.cgPath
-            masksToBounds = true
-            backgroundColor = .clear
     }
 
     override public func display() {
