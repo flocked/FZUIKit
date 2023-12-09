@@ -282,6 +282,7 @@ extension CGQuaternion: AnimatableProperty, Animatable {
 }
 #endif
 
+#if os(macOS) || os(iOS) || os(tvOS)
 extension ContentConfiguration.Shadow: AnimatableProperty, Animatable {
     public static var zero: ContentConfiguration.Shadow {
         .none()
@@ -311,6 +312,7 @@ extension ContentConfiguration.InnerShadow: AnimatableProperty, Animatable {
         set { self = .init(newValue) }
     }
 }
+#endif
 
 
 // Ensures that two collections have the same amount of values for animating between them. If a collection is smaller than the other zero values are added.

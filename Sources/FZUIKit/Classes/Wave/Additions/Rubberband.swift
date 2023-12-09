@@ -5,6 +5,7 @@
 //  Original: Copyright (c) 2022 Janum Trivedi.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 import FZSwiftUtils
 import QuartzCore
@@ -89,3 +90,4 @@ public struct Rubberband {
         }
     }
 }
+#endif

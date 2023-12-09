@@ -30,8 +30,12 @@ public extension CGColor {
         case 4:
             return RGBAComponents(components[0], components[1], components[2], components[3])
         default:
+            #if os(macOS) || os(iOS) || os(tvOS)
             let ciColor = CIColor(cgColor: color)
             return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
+            #else
+            return nil
+            #endif
         }
     }
     
