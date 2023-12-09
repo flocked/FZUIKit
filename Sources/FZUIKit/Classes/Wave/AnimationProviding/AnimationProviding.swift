@@ -56,6 +56,18 @@ public protocol AnimationProviding {
     func stop(at position: AnimationPosition, immediately: Bool)
 }
 
+extension AnimationProviding {
+    /// Starts the animation from its current position.
+    public func start() {
+        self.start(afterDelay: 0.0)
+    }
+    
+    /// Starts the animation immediately at its current position.
+    public func stop() {
+        stop(at: .current, immediately: true)
+    }
+}
+
 
 /// An internal extension to `AnimationProviding` used for configurating animations.
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {

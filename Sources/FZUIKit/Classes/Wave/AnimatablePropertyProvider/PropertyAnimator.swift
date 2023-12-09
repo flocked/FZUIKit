@@ -167,7 +167,6 @@ internal extension PropertyAnimator {
         
         let animationKey = keyPath.stringValue
         animation.completion = { [weak self] event in
-            guard event.isFinished else { return }
             switch event {
             case .finished:
                 completion?()
