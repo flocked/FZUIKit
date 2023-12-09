@@ -95,7 +95,7 @@ public extension NSTextField {
     /**
      The number of lines.
      
-     - Parameters option: Option how to count the lines. The default value is `limitToMaxNumberOfLines`.
+     - Parameter option: Option how to count the lines. The default value is `limitToMaxNumberOfLines`.
      */
     func linesCount(_ option: LineCountOption = .limitToMaxNumberOfLines) -> Int {
         return rangesOfLines(option).count
@@ -104,7 +104,7 @@ public extension NSTextField {
     /**
      An array of strings of the lines.
 
-     - Parameters option: Option which lines should be returned. The default value is `limitToMaxNumberOfLines`.
+     - Parameter option: Option which lines should be returned. The default value is `limitToMaxNumberOfLines`.
      */
     func lines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [String] {
         let ranges = rangesOfLines(option)
@@ -178,7 +178,7 @@ public extension NSTextField {
     /**
      An array of string ranges of the lines.
      
-     - Parameters option: Option which line ranges should be returned. The default value is `limitToMaxNumberOfLines`.
+     - Parameter option: Option which line ranges should be returned. The default value is `limitToMaxNumberOfLines`.
      */
     func rangesOfLines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
         let stringValue = self.stringValue

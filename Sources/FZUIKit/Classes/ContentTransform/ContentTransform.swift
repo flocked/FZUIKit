@@ -30,7 +30,7 @@ public protocol ContentTransform: Hashable, Identifiable {
 public extension ContentTransform {
     /**
      Initalizes the transformer with the specified transform block.
-     - Parameters transform: The block that transform a content.
+     - Parameter transform: The block that transform a content.
      - Returns: The content transformer..
      */
     init(_ transform: @escaping ((Content) -> Content)) {
@@ -41,7 +41,7 @@ public extension ContentTransform {
      Initalizes the transformer with the specified transformers.
      
      The transformer that transforms with multiple transformers by applying them one after the other.
-     - Parameters transformers: An array of transformers.
+     - Parameter transformers: An array of transformers.
      - Returns: The content transformer..
      */
     init(_ transformers: [Self]) {
@@ -59,7 +59,7 @@ public extension ContentTransform {
      Initalizes the transformer with the specified transformers.
      
      The transformer that transforms with multiple transformers by applying them one after the other.
-     - Parameters transformers: An array of transformers.
+     - Parameter transformers: An array of transformers.
      - Returns: The content transformer..
      */
     init(_ transformers: Self...) {

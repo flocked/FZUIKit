@@ -58,7 +58,7 @@ public extension CGImage {
     /**
      Returns the main colors of the image.
      
-     - Parameters quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
+     - Parameter quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
      */
     func getColors(quality: NSUIImage.ImageColorsQuality = .high) -> NSUIImage.ImageColors? {
         return NSUIImage(cgImage: self).getColors(quality: quality)
@@ -81,7 +81,7 @@ extension NSUIImage {
     /**
      Returns the main colors of the image.
      
-     - Parameters quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
+     - Parameter quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
      */
     public func getColors(quality: ImageColorsQuality = .high) -> ImageColors? {
         var scaleDownSize: CGSize = size

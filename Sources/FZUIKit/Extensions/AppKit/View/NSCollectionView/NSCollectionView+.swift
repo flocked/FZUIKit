@@ -14,7 +14,7 @@ import FZSwiftUtils
 public extension NSCollectionView {
     /**
      The frame of the item at the specified index path.
-     - Parameters indexPath: The index path of the item.
+     - Parameter indexPath: The index path of the item.
      - Returns: The frame of the item or nil if no item exists at the specified path.
      */
     func frameForItem(at indexPath: IndexPath) -> CGRect? {
@@ -23,7 +23,7 @@ public extension NSCollectionView {
 
     /**
      The item item at the specified location.
-     - Parameters location: The location of the item.
+     - Parameter location: The location of the item.
      - Returns: The item or nil if no item exists at the specified location.
      */
     func item(at location: CGPoint) -> NSCollectionViewItem? {
@@ -35,7 +35,7 @@ public extension NSCollectionView {
 
     /**
      The item index paths for the specified section.
-     - Parameters section: The section of the items.
+     - Parameter section: The section of the items.
      - Returns: The item index paths.
      */
     func indexPaths(for section: Int) -> [IndexPath] {
@@ -116,7 +116,7 @@ public extension NSCollectionView {
     /**
      Restores the specified saved scroll position.
      
-     - Parameters scrollPosition: The scroll position to restore.
+     - Parameter scrollPosition: The scroll position to restore.
      */
     func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
         self.scrollToItems(at: .init(scrollPosition.displayingIndexPaths), scrollPosition: [])

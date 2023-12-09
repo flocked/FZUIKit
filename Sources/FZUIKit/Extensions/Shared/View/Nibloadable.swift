@@ -30,7 +30,7 @@ public extension Nibloadable {
     /**
      Initalizes the object from the specified nib.
      
-     - Parameters nib: The nib which holds the object.
+     - Parameter nib: The nib which holds the object.
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
     static func loadFromNib(_ nib: NSUINib) -> Self? {

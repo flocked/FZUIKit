@@ -41,7 +41,7 @@ public extension NSColor {
     /**
      Generates the resolved color for the specified appearance.
      
-     - Parameters appearance: The appearance of the resolved color.
+     - Parameter appearance: The appearance of the resolved color.
      - Returns: A `NSColor` for the appearance.
      */
     func resolvedColor(for appearance: NSAppearance? = nil) -> NSColor {
@@ -88,7 +88,7 @@ public extension NSColor {
      
      It uses the window's `effectiveAppearance` for resolving the color.
      
-     - Parameters window: The window for the resolved color.
+     - Parameter window: The window for the resolved color.
      - Returns: A resolved color for the window.
      */
     func resolvedColor(for window: NSWindow) -> NSColor {

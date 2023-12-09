@@ -79,7 +79,7 @@ public extension CALayer {
      
      The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` will be constraint to the specified layer. To remove the constraints use `removeConstraints()`.
      
-     - Parameters layer: The layer to constraint to.
+     - Parameter layer: The layer to constraint to.
      */
     func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
         let layerBoundsUpdate: (()->()) = { [weak self] in
@@ -104,6 +104,10 @@ public extension CALayer {
         if layerObserver?.observedObject != layer {
             layerObserver = KeyValueObserver(layer)
         }
+        
+        layerObserver?.add([\.cornerRadius], handler: { keyPath in 
+            
+        })
         
         layerObserver?[\.cornerRadius] = { old, new in
             guard old != new else { return }
@@ -169,7 +173,7 @@ public extension CALayer {
     /**
      The first superlayer that matches the specificed layer type.
      
-     - Parameters layerType: The type of layer to match.
+     - Parameter layerType: The type of layer to match.
      - Returns: The first parent layer that matches the layer type or `nil` if none match or there isn't a matching parent.
      */
     func firstSuperlayer<V: CALayer>(for layerType: V.Type) -> V? {
@@ -179,7 +183,7 @@ public extension CALayer {
     /**
      The first superlayer that matches the specificed predicate.
      
-     - Parameters predicate: The closure to match.
+     - Parameter predicate: The closure to match.
      - Returns: The first parent layer that is matching the predicate or `nil` if none match or there isn't a matching parent.
      */
     func firstSuperlayer(where predicate: (CALayer)->(Bool)) -> CALayer? {
@@ -200,7 +204,7 @@ public extension CALayer {
     /**
      An array of all sublayers upto the maximum depth.
      
-     - Parameters depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+     - Parameter depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
      */
     func sublayers(depth: Int) -> [CALayer] {
         let sublayers = self.sublayers ?? []

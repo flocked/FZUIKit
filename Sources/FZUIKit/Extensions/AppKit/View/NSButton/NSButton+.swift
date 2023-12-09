@@ -42,7 +42,7 @@ public extension NSButton {
 
     /**
      Returns the content tint color used for a state.
-     - Parameters state: The state that uses the specified color. The possible values are described in NSControl.StateValue.
+     - Parameter state: The state that uses the specified color. The possible values are described in NSControl.StateValue.
      - Returns: The color of the content tint for the specified state.
      */
     func contentTintColor(for state: NSControl.StateValue) -> NSColor? {

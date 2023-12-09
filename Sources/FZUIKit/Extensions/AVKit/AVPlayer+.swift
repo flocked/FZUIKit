@@ -98,7 +98,7 @@ public extension AVPlayer {
     /**
      Requests that the player seek to a specified percentage.
      
-     - Parameters percentage: The percentage to which to seek.
+     - Parameter percentage: The percentage to which to seek.
      */
     func seek(toPercentage percentage: Double) {
         if let currentItem = currentItem {
@@ -112,7 +112,7 @@ public extension AVPlayer {
     /**
      Requests that the player seek to a specified time expressed by seconds.
      
-     - Parameters duration: The time to which to seek.
+     - Parameter duration: The time to which to seek.
      */
     func seek(to time: TimeDuration) {
         let seekTo = CMTime(duration: time)

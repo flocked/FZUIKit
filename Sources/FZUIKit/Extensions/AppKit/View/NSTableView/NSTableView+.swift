@@ -90,7 +90,7 @@ public extension NSTableView {
     /**
      Returns the row view at the specified location.
      
-     - Parameters location: The location of the row view.
+     - Parameter location: The location of the row view.
      - Returns: The row view, or nil if there isn't any row view at the location.
      */
     func rowView(at location: CGPoint) -> NSTableRowView? {
@@ -102,7 +102,7 @@ public extension NSTableView {
     /**
      Returns the table cell view at the specified location.
      
-     - Parameters location: The location of the table cell view.
+     - Parameter location: The location of the table cell view.
      - Returns: The table cell view, or nil if there isn't any table cell view at the location.
      */
     func cellView(at location: CGPoint) -> NSTableCellView? {

@@ -38,7 +38,7 @@ public class InnerShadowLayer: CALayer {
     /**
      Initalizes an inner shadow layer with the specified configuration.
      
-     - Parameters configuration: The configuration of the inner shadow.
+     - Parameter configuration: The configuration of the inner shadow.
      - Returns: The inner shadow layer.
      */
     public init(configuration: ContentConfiguration.InnerShadow) {

@@ -54,7 +54,7 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
     /**
      The current value of the property at the specified keypath. Assigning a new value inside a ``Anima`` animation block animates to the new value.
      
-     - Parameters keyPath: The keypath to the animatable property.
+     - Parameter keyPath: The keypath to the animatable property.
      */
     public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value>) -> Value where Value: AnimatableProperty  {
         get { value(for: member) }
@@ -76,7 +76,7 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
     /**
      The current animation velocity of the property at the specified keypath, or `zero` if there isn't an animation for the property or the animation doesn't support velocity values.
 
-     - Parameters velocity: The keypath to the animatable property for the velocity.
+     - Parameter velocity: The keypath to the animatable property for the velocity.
      */
     public subscript<Value: AnimatableProperty>(velocity velocity: WritableKeyPath<Object, Value>) -> Value {
         get { ((self.animation(for: velocity)?.velocity as? Value)) ?? .zero  }
@@ -86,7 +86,7 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
     /**
      The current animation for the property at the specified keypath.
      
-     - Parameters keyPath: The keypath to an animatable property.
+     - Parameter keyPath: The keypath to an animatable property.
      */
     public func animation(for keyPath: PartialKeyPath<DynamicPropertyAnimator>) -> AnimationProviding? {
         var key = keyPath.stringValue
@@ -258,7 +258,7 @@ internal extension DynamicPropertyAnimator {
 /**
  The current value of the property at the specified keypath. Assigning a new value inside a ``Anima`` animation block animates to the new value.
  
- - Parameters keyPath: The keypath to the animatable property.
+ - Parameter keyPath: The keypath to the animatable property.
  */
 public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value?>) -> Value? where Value: AnimatableProperty  {
     get { value(for: member) }
@@ -280,7 +280,7 @@ public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value?>) -
  /**
   The current animation velocity of the property at the specified keypath, or `zero` if there isn't an animation for the property or the animation doesn't support velocity values.
 
-  - Parameters velocity: The keypath to the animatable property for the velocity.
+  - Parameter velocity: The keypath to the animatable property for the velocity.
   */
  public subscript<Value: AnimatableProperty>(velocity velocity: WritableKeyPath<Object, Value?>) -> Value {
      get { ((self.animation(for: velocity)?.velocity as? Value)) ?? .zero  }

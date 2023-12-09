@@ -70,7 +70,7 @@ public extension NSView {
      
      Don’t call this method directly. Instead, call `setNeedsUpdateContentUnavailableConfiguration() to tell the system to request an update.
      
-     - Parameters state:  The current configuration state for a content-unavailable view.
+     - Parameter state:  The current configuration state for a content-unavailable view.
      */
     func updateContentUnavailableConfiguration(using: NSContentUnavailableConfigurationState) {
 

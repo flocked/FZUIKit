@@ -14,7 +14,7 @@ import SwiftUI
 public extension NSMenuItem {
     /**
      Initializes and returns a menu item with the specified title.
-     - Parameters title: The title of the menu item.
+     - Parameter title: The title of the menu item.
      - Returns: An instance of `NSMenuItem`.
      */
     convenience init(_ title: String) {
@@ -23,7 +23,7 @@ public extension NSMenuItem {
 
     /**
      Initializes and returns a menu item with the specified title.
-     - Parameters title: The title of the menu item.
+     - Parameter title: The title of the menu item.
      - Returns: An instance of `NSMenuItem`.
      */
     convenience init(title: String) {
@@ -33,7 +33,7 @@ public extension NSMenuItem {
 
     /**
      Initializes and returns a menu item with the specified image.
-     - Parameters image: The image of the menu item.
+     - Parameter image: The image of the menu item.
      - Returns: An instance of `NSMenuItem`.
      */
     convenience init(image: NSImage) {

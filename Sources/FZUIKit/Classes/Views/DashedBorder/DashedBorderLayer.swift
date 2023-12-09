@@ -91,7 +91,7 @@ public class DashedBorderLayer: CALayer {
     /**
      Initalizes a dashed border layer with the specified configuration.
      
-     - Parameters configuration: The configuration of the border.
+     - Parameter configuration: The configuration of the border.
      - Returns: The dashed border layer.
      */
     public init(configuration: ContentConfiguration.Border) {

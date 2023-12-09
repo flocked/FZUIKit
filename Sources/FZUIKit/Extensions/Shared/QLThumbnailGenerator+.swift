@@ -17,7 +17,7 @@ public extension QLThumbnailGenerator {
     /**
      Cancels the generation of a thumbnail for tje given requests.
      
-     - Parameters requests: The thumbnail creation requests that you want to cancel.
+     - Parameter requests: The thumbnail creation requests that you want to cancel.
      */
     func cancel(_ requests: [QLThumbnailGenerator.Request]) {
         requests.forEach { self.cancel($0) }

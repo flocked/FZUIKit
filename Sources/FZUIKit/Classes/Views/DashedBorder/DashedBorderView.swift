@@ -38,7 +38,7 @@ public class DashedBorderView: NSUIView {
     /**
      Initalizes a dashed border view with the specified configuration.
      
-     - Parameters configuration: The configuration of the border.
+     - Parameter configuration: The configuration of the border.
      - Returns: The dashed border view.
      */
     public init(configuration: ContentConfiguration.Border) {

@@ -71,7 +71,7 @@ extension AnimatablePropertyProvider {
  /**
   The current animation for the property at the specified keypath.
   
-  - Parameters keyPath: The keypath to an animatable property.
+  - Parameter keyPath: The keypath to an animatable property.
   */
  public func propertyAnimation(for keyPath: PartialKeyPath<PropertyAnimator<Self>>) -> AnimationProviding? {
      var key = keyPath.stringValue
@@ -102,7 +102,7 @@ extension AnimatablePropertyProvider {
  /**
   The current animation for the property at the specified keypath.
   
-  - Parameters keyPath: The keypath to an animatable property.
+  - Parameter keyPath: The keypath to an animatable property.
   */
  public func animation(for keyPath: PartialKeyPath<PropertyAnimator<Self>>) -> AnimationProviding? {
      var key = keyPath.stringValue

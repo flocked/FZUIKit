@@ -190,7 +190,7 @@ public class Toolbar: NSObject {
      
      Any changes you make to the toolbar appear in all `Toolbar` objects with the same identifier.
      
-     - Parameters index: The index of the item to remove.
+     - Parameter index: The index of the item to remove.
      
      */
     public func removeItem(at index: Int) {

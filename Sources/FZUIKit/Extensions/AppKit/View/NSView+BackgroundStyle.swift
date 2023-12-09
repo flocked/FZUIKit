@@ -38,7 +38,7 @@ public extension NSView {
      
      The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A view may draw differently based on background characteristics. For example, a table view drawing a cell in a selected row might set the value to dark. A text cell might decide to render its text white as a result. A rating-style level indicator might draw its stars white instead of gray.
 
-     - Parameters backgroundStyle: The style to apply.
+     - Parameter backgroundStyle: The style to apply.
      */
     func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         if var self = (self as? ViewBackgroundStyleCustomizable) {
@@ -57,7 +57,7 @@ public extension NSCollectionViewItem {
      
      The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A view may draw differently based on background characteristics. For example, a table view drawing a cell in a selected row might set the value to dark. A text cell might decide to render its text white as a result. A rating-style level indicator might draw its stars white instead of gray.
 
-     - Parameters backgroundStyle: The style to apply.
+     - Parameter backgroundStyle: The style to apply.
      */
     func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         self.view.setBackgroundStyle(backgroundStyle)

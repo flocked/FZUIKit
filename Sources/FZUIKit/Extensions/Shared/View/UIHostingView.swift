@@ -15,7 +15,7 @@ public final class UIHostingView<Content: View>: UIView {
     /**
      Creates a hosting view object that wraps the specified SwiftUI view.
      
-     - Parameters rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+     - Parameter rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
      - Returns: The hosting view object.
      */
     public init(rootView: Content) {

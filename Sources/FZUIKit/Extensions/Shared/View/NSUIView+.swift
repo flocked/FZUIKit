@@ -53,7 +53,7 @@ public extension NSUIView {
     
     /**
      Returns the enclosing rect for the specified subviews.
-     - Parameters subviews: The subviews for the rect.
+     - Parameter subviews: The subviews for the rect.
      - Returns: The rect enclosing all the specified subviews.
      */
     func enclosingRect(for subviews: [NSUIView]) -> CGRect {
@@ -166,7 +166,7 @@ public extension NSUIView {
     /**
      The first superview that matches the specificed view type.
      
-     - Parameters viewType: The type of view to match.
+     - Parameter viewType: The type of view to match.
      - Returns: The first parent view that matches the view type or `nil` if none match or there isn't a matching parent.
      */
     func firstSuperview<V: NSUIView>(for viewType: V.Type) -> V? {
@@ -176,7 +176,7 @@ public extension NSUIView {
     /**
      The first superview that matches the specificed predicate.
      
-     - Parameters predicate: The closure to match.
+     - Parameter predicate: The closure to match.
      - Returns: The first parent view that is matching the predicate or `nil` if none match or there isn't a matching parent.
      */
     func firstSuperview(where predicate: (NSUIView)->(Bool)) -> NSUIView? {
@@ -192,7 +192,7 @@ public extension NSUIView {
     /**
      An array of all subviews upto the maximum depth.
      
-     - Parameters depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
+     - Parameter depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
      */
     func subviews(depth: Int) -> [NSUIView] {
         if depth > 0 {

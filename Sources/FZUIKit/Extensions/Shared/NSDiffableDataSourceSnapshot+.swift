@@ -16,7 +16,7 @@ public extension NSDiffableDataSourceSnapshot {
     /**
      Adds the sections and items with the specified identifiers to the snapshot.
      
-     - Parameters sectionItems: A dictionary of section and item identifiers to add to the snapshot.
+     - Parameter sectionItems: A dictionary of section and item identifiers to add to the snapshot.
      */
     mutating func append(_ sectionItems: [SectionIdentifierType: [ItemIdentifierType]]) {
         self.appendSections(Array(sectionItems.keys))

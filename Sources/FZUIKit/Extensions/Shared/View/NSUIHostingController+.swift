@@ -58,7 +58,7 @@ public extension NSUIHostingController {
     /**
      Disables the safe area insets of the view.
      
-     - Parameters disable: A Boolean value that indicates whether the view should ignore save area insets.
+     - Parameter disable: A Boolean value that indicates whether the view should ignore save area insets.
      */
     func disableSafeAreaInsets(_ disable: Bool) {
         setSafeAreaInsets((disable == true) ? .zero : nil)

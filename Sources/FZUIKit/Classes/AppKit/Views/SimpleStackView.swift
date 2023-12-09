@@ -79,7 +79,7 @@ public class SimpleStackView: NSUIView {
     /**
      Creates and returns a stack view with a specified array of views.
      
-     - Parameters views: The array of views for the new stack view.
+     - Parameter views: The array of views for the new stack view.
      - Returns: A stack view initialized with the specified array of views.
      */
     public init(views: [NSUIView]) {

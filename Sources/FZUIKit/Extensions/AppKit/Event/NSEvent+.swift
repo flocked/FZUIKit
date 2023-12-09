@@ -14,7 +14,7 @@ import Foundation
 public extension NSEvent {
     /**
      The location of the event inside the specified view.
-     - Parameters view: The view for the location.
+     - Parameter view: The view for the location.
      - Returns: The location of the event.
      */
     func location(in view: NSView) -> CGPoint {
@@ -92,7 +92,7 @@ public extension NSEvent.EventTypeMask {
     /**
      A Boolean value that indicates whether the specified event intersects with the event type mask.
      
-     - Parameters event: The event for checking the intersection.
+     - Parameter event: The event for checking the intersection.
      - Returns: `true` if the event interesects with the mask, or `false` if not.
      */
     func intersects(_ event: NSEvent?) -> Bool {

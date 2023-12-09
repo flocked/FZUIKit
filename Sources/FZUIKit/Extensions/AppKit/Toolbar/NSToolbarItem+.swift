@@ -14,7 +14,7 @@ public extension NSToolbarItem {
     /**
      Creates a toolbar item with the specified identifier.
 
-     - Parameters itemIdentifier: The identifier for the toolbar item. You use this value to identify the item within your app, so you don’t need to localize it. For example, your toolbar delegate uses this value to identify the specific toolbar item.
+     - Parameter itemIdentifier: The identifier for the toolbar item. You use this value to identify the item within your app, so you don’t need to localize it. For example, your toolbar delegate uses this value to identify the specific toolbar item.
      - Returns: A new toolbar item.
      */
     @objc convenience init(_ itemIdentifier: NSToolbarItem.Identifier) {

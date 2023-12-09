@@ -50,7 +50,7 @@ public class TabService<WindowController: TabbableWindowController> {
     
     /**
      Creates an tab service object for the specified window controller.
-     - Parameters initialWindowController: The window controller for managing the tabs.
+     - Parameter initialWindowController: The window controller for managing the tabs.
      - Returns: The tab service object.
      */
     public init(initialWindowController: WindowController) {
@@ -61,7 +61,7 @@ public class TabService<WindowController: TabbableWindowController> {
     /**
      Creates a new tab.
      
-     - Parameters presentTab:  A Boolean value the tab should be presented.
+     - Parameter presentTab:  A Boolean value the tab should be presented.
      */
     public func createTab(presentTab: Bool = true) {
         guard let window = self.mainWindow else { return }

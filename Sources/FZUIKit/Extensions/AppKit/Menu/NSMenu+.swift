@@ -13,7 +13,7 @@ import Foundation
 public extension NSMenu {
     /**
      Initializes and returns a menu having the specified menu items.
-     - Parameters items: The menu items for the menu.
+     - Parameter items: The menu items for the menu.
      - Returns: The initialized `NSMenu` object.
      */
     convenience init(items: [NSMenuItem]) {

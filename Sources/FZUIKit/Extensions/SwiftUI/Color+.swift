@@ -72,7 +72,7 @@ public extension Color {
     /**
      Brightens the color by the specified amount.
      
-     - Parameters amount: The amount of brightness.
+     - Parameter amount: The amount of brightness.
      - Returns: The brightened color.
      */
     func lighter(by amount: CGFloat = 0.2) -> Color {
@@ -83,7 +83,7 @@ public extension Color {
     /**
      Darkens the color by the specified amount.
      
-     - Parameters amount: The amount of darken.
+     - Parameter amount: The amount of darken.
      - Returns: The darkened color.
      */
     func darkened(by amount: CGFloat = 0.2) -> Color {

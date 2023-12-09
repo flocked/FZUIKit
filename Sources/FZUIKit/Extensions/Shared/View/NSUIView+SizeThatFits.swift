@@ -22,7 +22,7 @@ public protocol Sizable {
      
      This method does not resize the receiver.
      
-     - Parameters size:  The size for which the view should calculate its best-fitting size.
+     - Parameter size:  The size for which the view should calculate its best-fitting size.
      - Returns: A new size that fits the receiver’s subviews.
      */
     func sizeThatFits(_ size: CGSize) -> CGSize

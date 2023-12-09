@@ -121,7 +121,7 @@ public class AdvanceWebView: WKWebView {
     /**
      Starts to download the resource at the URL.
 
-     - Parameters url: The URL to download a resource from a webpage.
+     - Parameter url: The URL to download a resource from a webpage.
      */
     public func startDownload(_ url: URL, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String)->(URL), completionHandler: @escaping (WKDownload) -> Void) {
         self.startDownload(URLRequest(url: url), fileURLHandler: fileURLHandler, completionHandler: completionHandler)
@@ -130,7 +130,7 @@ public class AdvanceWebView: WKWebView {
     /**
      Starts to download the resource at the URL in the request.
 
-     - Parameters request: An object that encapsulates a URL and other parameters that you need to download a resource from a webpage.
+     - Parameter request: An object that encapsulates a URL and other parameters that you need to download a resource from a webpage.
      */
     public func startDownload(_ request: URLRequest, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String)->(URL), completionHandler: @escaping (WKDownload) -> Void) {
         downloadFileURLHandlers[request] = fileURLHandler

@@ -130,7 +130,7 @@ public extension NSBezierPath {
     /**
      Creates and returns a new Bézier path object with the contents of a Core Graphics path.
      
-     - Parameters cgPath: The Core Graphics path from which to obtain the initial path information. If this parameter is nil, the method raises an exception.
+     - Parameter cgPath: The Core Graphics path from which to obtain the initial path information. If this parameter is nil, the method raises an exception.
      - Returns: A new path object with the specified path information.
      */
     convenience init(cgPath: CGPath) {
@@ -249,7 +249,7 @@ public extension NSBezierPath {
     /**
      Returns a new Bézier path object with a squircle rectangular path.
      
-     - Parameters rect: The rectangle that defines the basic shape of the path.
+     - Parameter rect: The rectangle that defines the basic shape of the path.
      - Returns: A new path object with the squircle rectangular path.
      */
     static func squircle(rect: CGRect) -> Self {

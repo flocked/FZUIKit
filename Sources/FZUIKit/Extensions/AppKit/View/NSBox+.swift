@@ -13,7 +13,7 @@ public extension NSBox {
     /**
      Returns a horizontal line with the specified width.
      
-     - Parameters width: The width of the line.
+     - Parameter width: The width of the line.
      - Returns: A horizontal line.
      */
     static func horizontalLine(width: CGFloat) -> NSBox {
@@ -25,7 +25,7 @@ public extension NSBox {
     /**
      Returns a vertical line with the specified height.
      
-     - Parameters width: The height of the line.
+     - Parameter width: The height of the line.
      - Returns: A vertical line.
      */
     static func verticalLine(height: CGFloat) -> NSBox {

@@ -64,7 +64,7 @@ public extension NSUIColor {
     /**
      Returns a new color object with the specified luminosity value.
      
-     - Parameters luminosity: The luminosity value of the new color object, specified as a value from 0.0 to 1.0. Luminosity values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Parameter luminosity: The luminosity value of the new color object, specified as a value from 0.0 to 1.0. Luminosity values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
     func withLuminosity(_ luminosity: CGFloat) -> NSUIColor {

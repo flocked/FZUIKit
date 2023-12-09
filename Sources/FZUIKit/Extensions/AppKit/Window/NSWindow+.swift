@@ -45,7 +45,7 @@ extension NSWindow {
      The window is placed exactly in the center horizontally and somewhat above center vertically. Such a placement carries a certain visual immediacy and importance. This method doesn’t put the window onscreen, however; use makeKeyAndOrderFront(_:) to do that.
      You typically use this method to place a window—most likely an alert dialog—where the user can’t miss it. This method is invoked automatically when a panel is placed on the screen by the runModal(for:) method of the NSApplication class.
      
-     - Parameters screen: The screen for centering the window.
+     - Parameter screen: The screen for centering the window.
      */
     public func center(on screen: NSScreen) {
         var frame = self.frame
@@ -135,7 +135,7 @@ extension NSWindow {
 
     /**
      Runs the specified handler without animating the window.
-     - Parameters block: The handler to be used.
+     - Parameter block: The handler to be used.
      */
     public func withAnimationDisabled(block: () -> Void) {
         let currentBehavior = animationBehavior

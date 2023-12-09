@@ -12,7 +12,7 @@ public extension NSPasteboard {
     /**
      Writes the specifed string to the pasteboard.
      
-     - Parameters string: The string to be written.
+     - Parameter string: The string to be written.
      */
     func write(_ string: String) {
         self.clearContents()
@@ -22,7 +22,7 @@ public extension NSPasteboard {
     /**
      Writes the specified images to the pasteboard.
      
-     - Parameters images: An array of images.
+     - Parameter images: An array of images.
      */
     func write(_ images: [NSImage]) {
         self.clearContents()
@@ -32,7 +32,7 @@ public extension NSPasteboard {
     
     /**
      Writes the specified urls to the pasteboard.
-     - Parameters urls: An array of urls.
+     - Parameter urls: An array of urls.
      */
     func write(_ urls: [URL]) {
         self.clearContents()

@@ -72,7 +72,7 @@ public extension NSImage {
      
      The new image uses the same rendering mode as the original image.
      
-     - Parameters color: The tint color to apply to the image.
+     - Parameter color: The tint color to apply to the image.
      - Returns: A new version of the image that incorporates the specified tint color.
      */
     func withTintColor(_ color: NSColor) -> NSImage {
@@ -202,7 +202,7 @@ public extension NSImage {
     /**
      Returns a data object that contains the image in JPEG format.
      
-     - Parameters compressionFactor:  The quality of the resulting JPEG image, expressed as a value from 0.0 to 1.0. The value 0.0 represents the maximum compression (or lowest quality) while the value 1.0 represents the least compression (or best quality).
+     - Parameter compressionFactor:  The quality of the resulting JPEG image, expressed as a value from 0.0 to 1.0. The value 0.0 represents the maximum compression (or lowest quality) while the value 1.0 represents the least compression (or best quality).
 
      - Returns: A data object containing the JPEG data, or nil if there’s a problem generating the data. This function may return nil if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
      */

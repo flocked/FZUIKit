@@ -11,7 +11,7 @@ import QuartzCore
 public extension CAPropertyAnimation {
     /**
      Creates and returns an CAPropertyAnimation instance for the specified key path.
-     - Parameters keyPath: The key path of the property to be animated.
+     - Parameter keyPath: The key path of the property to be animated.
      - Returns: A new instance of CAPropertyAnimation with the key path set to keyPath.
      */
     convenience init<Value>(keyPath: WritableKeyPath<CALayer, Value>) {
@@ -23,7 +23,7 @@ public extension CAPropertyAnimation {
 public extension CALayer {
     /**
      Returns the animation object with the specified key path.
-     - Parameters keyPath: The key path of the property.
+     - Parameter keyPath: The key path of the property.
      - Returns: The property animation object matching the key path, or nil if no such animation exists.
      */
     func propertyAnimation<Value>(for keyPath: WritableKeyPath<CALayer, Value>) -> CAPropertyAnimation? {

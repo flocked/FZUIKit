@@ -204,7 +204,7 @@ public extension NSImage {
     /**
      Creates a symbol image with the system symbol name.
      
-     - Parameters systemSymbolName: The name of the system symbol image.
+     - Parameter systemSymbolName: The name of the system symbol image.
      - Returns: A symbol image based on the name you specify; otherwise `nil` if the method couldn’t find a suitable image.
      */
     convenience init?(systemSymbolName: String) {
@@ -247,7 +247,7 @@ public extension NSImage {
     /**
      Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
           
-     - Parameters configuration: The configuration attributes to apply on top of the existing attributes. Values in this object take precedence over the image's current configuration values.
+     - Parameter configuration: The configuration attributes to apply on top of the existing attributes. Values in this object take precedence over the image's current configuration values.
      - Returns: A new version of the image object that contains the merged configuration details.
      */
     func applyingSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration) -> NSImage? {

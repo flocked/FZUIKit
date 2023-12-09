@@ -105,7 +105,7 @@ public extension NSScrollView {
     /**
      Restores the specified saved scroll position.
      
-     - Parameters scrollPosition: The scroll position to restore.
+     - Parameter scrollPosition: The scroll position to restore.
      */
     func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
         let oldBounds = scrollPosition.bounds
