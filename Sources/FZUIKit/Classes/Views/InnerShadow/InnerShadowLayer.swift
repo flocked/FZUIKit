@@ -19,12 +19,18 @@ public class InnerShadowLayer: CALayer {
     
     /// The configuration of the inner shadow.
     public var configuration: ContentConfiguration.InnerShadow {
-        get { ContentConfiguration.InnerShadow(color: self.shadowColor?.nsUIColor, opacity: CGFloat(self.shadowOpacity), radius: self.shadowRadius, offset: CGPoint(x: self.shadowOffset.width, y: self.shadowOffset.height))  }
+        get { ContentConfiguration.InnerShadow(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)  }
         set {
-            self.shadowColor = newValue.color?.cgColor
-            self.shadowOpacity = Float(newValue.opacity)
-            self.shadowOffset = CGSize(width: newValue.offset.x, height: newValue.offset.y)
-            self.shadowRadius = newValue.radius
+            shadowColor = newValue.color?.cgColor
+            shadowOpacity = Float(newValue.opacity)
+            let needsUpdate = shadowOffset != newValue.offset.size || shadowRadius != newValue.radius
+            isUpdating = true
+            shadowOffset = newValue.offset.size
+            shadowRadius = newValue.radius
+            isUpdating = false
+            if needsUpdate {
+                updateShadowPath()
+            }
         }
     }
     
@@ -43,17 +49,17 @@ public class InnerShadowLayer: CALayer {
     
     override public init() {
         super.init()
-        self.sharedInit()
+        sharedInit()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.sharedInit()
+        sharedInit()
     }
     
     public override init(layer: Any) {
         super.init(layer: layer)
-        self.sharedInit()
+        sharedInit()
     }
     
     internal func sharedInit() {
@@ -65,31 +71,36 @@ public class InnerShadowLayer: CALayer {
         shadowRadius = 0.0
     }
     
+    internal var isUpdating: Bool = false
+
     public override var shadowRadius: CGFloat {
-        didSet { if !isUpdating, oldValue != shadowRadius { self.update() } }
+        didSet { if !isUpdating, oldValue != shadowRadius { self.updateShadowPath() } }
     }
     
     public override var shadowOffset: CGSize {
-        didSet { if !isUpdating, oldValue != shadowOffset { self.update() } }
+        didSet { if !isUpdating, oldValue != shadowOffset { self.updateShadowPath() } }
     }
 
-    internal var isUpdating: Bool = false
     override public var frame: CGRect {
-        didSet { if !isUpdating, oldValue != frame {
-            update() } }
+        didSet {
+            Swift.print("inner frame changed")
+            if !isUpdating, oldValue != frame {
+            updateShadowPath() } }
     }
     
     override public var bounds: CGRect {
-        didSet { if !isUpdating, oldValue != bounds {
-            update() } }
+        didSet { 
+            Swift.print("inner bounds changed")
+            if !isUpdating, oldValue != bounds {
+            updateShadowPath() } }
     }
     
     public override var cornerRadius: CGFloat {
         didSet { if !isUpdating, oldValue != cornerRadius {
-            update() } }
+            updateShadowPath() } }
     }
 
-    internal func update() {
+    internal func updateShadowPath() {
             var path = NSUIBezierPath(rect: bounds.insetBy(dx: -20, dy: -20))
             #if os(macOS)
             var innerPart = NSUIBezierPath(rect: bounds).reversed
@@ -109,8 +120,9 @@ public class InnerShadowLayer: CALayer {
     }
 
     override public func display() {
+        Swift.print("inner display")
         super.display()
-        update()
+        updateShadowPath()
     }
 }
 #endif
