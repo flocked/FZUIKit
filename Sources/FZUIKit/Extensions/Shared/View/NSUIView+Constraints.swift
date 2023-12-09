@@ -48,35 +48,85 @@ public extension NSUIView {
         }
     }
 
-    @discardableResult
     /**
      Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver.
      
-     - Parameters view: The view to be added. After being added, this view appears on top of any other subviews.
+     - Parameter view: The view to be added. After being added, this view appears on top of any other subviews.
      - Returns: The layout constraints in the following order: bottom, left, width and height.
      */
+    @discardableResult
     func addSubview(withConstraint view: NSUIView) -> [NSLayoutConstraint] {
         return addSubview(withConstraint: view, .full)
     }
 
+    /**
+     Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver using the specified mode.
+     
+     - Parameters:
+        - view: The view to be added. After being added, this view appears on top of any other subviews.
+        - mode: The mode for constraining the subview's frame.
+     
+     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     */
     @discardableResult
     func addSubview(withConstraint view: NSUIView, _ mode: ConstraintValueMode) -> [NSLayoutConstraint] {
         addSubview(view)
         return view.constraint(to: self, mode)
     }
 
+    /**
+     Inserts the view to the end of the receiver’s list of subviews and constraits it's frame to the receiver.
+     
+     - Parameters:
+        - view: The view to insert.
+        - index: The index of insertation.
+     
+     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     */
     @discardableResult
     func insertSubview(withConstraint view: NSUIView, at index: Int) -> [NSLayoutConstraint] {
         return insertSubview(withConstraint: view, .full, at: index)
     }
 
+    /**
+     Inserts the view to the end of the receiver’s list of subviews and constraits it's frame to the receiver using the specified mode.
+     
+     - Parameters:
+        - view: The view to insert.
+        - index: The index of insertation.
+        - mode: The mode for constraining the subview's frame.
+     
+     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     */
     @discardableResult
     func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintValueMode, at index: Int) -> [NSLayoutConstraint] {
         guard index < subviews.count else { return [] }
         insertSubview(view, at: index)
         return view.constraint(to: self, mode)
     }
+    
+    
+    /**
+     Constraits the view's frame to the superview.
+     
+     - Parameter view: The mode for constraining the subview's frame.
+     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     */
+    @discardableResult
+    func constraintToSuperview(_ mode: ConstraintValueMode = .full) -> [NSLayoutConstraint] {
+        guard let superview = self.superview else { return [] }
+        return constraint(to: superview, mode)
+    }
 
+    /**
+     Constraits the view's frame to the specified view.
+     
+     - Parameters:
+        - view: The view to be constraint to.
+        - mode: The mode for constraining the subview's frame.
+
+     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     */
     @discardableResult
     func constraint(to view: NSUIView, _ mode: ConstraintValueMode = .full) -> [NSLayoutConstraint] {
         let constants: [CGFloat]
@@ -114,7 +164,6 @@ public extension NSUIView {
                 constraints.append(self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: padding))
             }
             constraints.append(self.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -(padding*2.0)))
-            Swift.debugPrint("viewSize", self.frame.size)
             constraints.append(self.heightAnchor.constraint(equalToConstant: view.frame.size.height))
         default:
             constraints.append(contentsOf: [
@@ -130,16 +179,36 @@ public extension NSUIView {
     }
 
     #if os(macOS)
+    /**
+     Adds a view to the end of the receiver’s list of subviews and autoresizes it.
+     
+     - Parameter view: The view to be added. After being added, this view appears on top of any other subviews.
+     */
     func addSubview(withAutoresizing view: NSView) {
         addSubview(withAutoresizing: view, mode: .full)
     }
 
+    /**
+     Adds a view to the end of the receiver’s list of subviews and autoresizes it to the receiver.
+     
+     - Parameters:
+        - view: The view to be added. After being added, this view appears on top of any other subviews.
+        - mode: The mode for autoresizing the subview..
+     */
     func addSubview(withAutoresizing view: NSUIView, mode: ConstraintValueMode) {
         view.translatesAutoresizingMaskIntoConstraints = true
         addSubview(view)
         view.autoresize(to: view, using: mode)
     }
 
+    /**
+     Inserts the view to the end of the receiver’s list of subviews and autoresizes it to the receiver.
+
+     - Parameters:
+        - view: The view to insert.
+        - index: The index of insertation.
+        - mode: The mode for autoresizing the subview..
+     */
     func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintValueMode, to index: Int) {
         guard index < subviews.count else { return }
         addSubview(withAutoresizing: view, mode: mode)
