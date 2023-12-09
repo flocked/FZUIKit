@@ -93,22 +93,26 @@ public class InnerShadowLayer: CALayer {
     }
 
     internal func updateShadowPath() {
-            var path = NSUIBezierPath(rect: bounds.insetBy(dx: -20, dy: -20))
+        let path: NSUIBezierPath
+        let innerPart: NSUIBezierPath
+        if cornerRadius != 0.0 {
+            path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
             #if os(macOS)
-            var innerPart = NSUIBezierPath(rect: bounds).reversed
+            innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
             #else
-            var innerPart = NSUIBezierPath(rect: bounds).reversing()
+            innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
             #endif
-            if cornerRadius != 0.0 {
-                path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
-                #if os(macOS)
-                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
-                #else
-                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
-                #endif
-            }
-            path.append(innerPart)
-            shadowPath = path.cgPath
+        } else {
+            path = NSUIBezierPath(rect: bounds.insetBy(dx: -20, dy: -20))
+            #if os(macOS)
+            innerPart = NSUIBezierPath(rect: bounds).reversed
+            #else
+            innerPart = NSUIBezierPath(rect: bounds).reversing()
+            #endif
+        }
+        path.append(innerPart)
+        shadowPath = path.cgPath
     }
 }
+
 #endif

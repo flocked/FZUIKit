@@ -45,11 +45,6 @@ public extension CALayer {
         superlayer.insertSublayer(self, at: 0)
     }
     
-    /// Returns the first sublayer of a specific type.
-    func firstSublayer<V>(type _: V.Type) -> V? {
-        self.sublayers?.first(where: { $0 is V }) as? V
-    }
-    
     /**
      Adds the specified sublayer and constraints it to the layer.
      
@@ -140,40 +135,6 @@ public extension CALayer {
         set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
     }
     
-    /*
-     @discardableResult
-     func addSublayer(withConstraint layer: CALayer) -> [NSLayoutConstraint] {
-     addSublayer(layer)
-     layer.cornerRadius = cornerRadius
-     layer.maskedCorners = maskedCorners
-     layer.masksToBounds = true
-     return layer.constraintTo(layer: self)
-     }
-     
-     @discardableResult
-     func constraintTo(layer: CALayer) -> [NSLayoutConstraint] {
-     frame = layer.bounds
-     let constrains = [
-     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0),
-     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0),
-     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0),
-     NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0),
-     ]
-     constrains.forEach { $0.isActive = true }
-     return constrains
-     }
-     */
-    
-    func removeSublayers(type: CALayer.Type) {
-        if let sublayers = sublayers {
-            for sublayer in sublayers {
-                if sublayer.isKind(of: type) {
-                    sublayer.removeFromSuperlayer()
-                }
-            }
-        }
-    }
-    
     /// The associated view using the layer.
     var parentView: NSUIView? {
         if let view = delegate as? NSUIView {
@@ -202,6 +163,105 @@ public extension CALayer {
         #endif
     }
     
+    /**
+     The first superlayer that matches the specificed layer type.
+     
+     - Parameters layerType: The type of layer to match.
+     - Returns: The first parent layer that matches the layer type or `nil` if none match or there isn't a matching parent.
+     */
+    func firstSuperlayer<V: CALayer>(for layerType: V.Type) -> V? {
+        return self.firstSuperlayer(where: {$0 is V}) as? V
+    }
+    
+    /**
+     The first superlayer that matches the specificed predicate.
+     
+     - Parameters predicate: The closure to match.
+     - Returns: The first parent layer that is matching the predicate or `nil` if none match or there isn't a matching parent.
+     */
+    func firstSuperlayer(where predicate: (CALayer)->(Bool)) -> CALayer? {
+        if let superlayer = superlayer {
+            if predicate(superlayer) == true {
+                return superlayer
+            }
+            return superlayer.firstSuperlayer(where: predicate)
+        }
+        return nil
+    }
+    
+    /// Returns the first sublayer of a specific type.
+    func firstSublayer<V: CALayer>(type _: V.Type) -> V? {
+        self.sublayers?.first(where: { $0 is V }) as? V
+    }
+    
+    /**
+     An array of all sublayers upto the maximum depth.
+     
+     - Parameters depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+     */
+    func sublayers(depth: Int) -> [CALayer] {
+        let sublayers = self.sublayers ?? []
+        if depth > 0 {
+            return sublayers + sublayers.flatMap { $0.sublayers(depth: depth - 1) }
+        } else {
+            return sublayers
+        }
+    }
+    
+    /**
+    An array of all sublayers matching the specified layer type.
+
+     - Parameters:
+        - type: The type of sublayers.
+        - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+     */
+    func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
+        self.sublayers(depth: depth).compactMap({$0 as? V})
+    }
+    
+    /**
+    An array of all sublayers matching the specified predicte.
+
+     - Parameters:
+        - predicate: The predicate to match.
+        - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+     */
+    func sublayers(where predicate: (CALayer)->(Bool), depth: Int = 0) -> [CALayer] {
+        self.sublayers(depth: depth).filter({predicate($0) == true})
+    }
+    
+    /**
+     Removes all sublayers matching the specified layer type.
+
+     - Parameters:
+        - type: The type of sublayers to remove.
+        - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+     
+     - Returns: The removed layers.
+     */
+    @discardableResult
+    func removeSublayers<V: CALayer>(type: V.Type, depth: Int = 0) -> [V] {
+        let removed = sublayers(type: type, depth: depth)
+        removed.forEach { $0.removeFromSuperlayer() }
+        return removed
+    }
+    
+    /**
+     Removes all sublayers matching the specified predicate.
+     
+     - Parameters:
+        - predicate: The predicate to match.
+        - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+     
+     - Returns: The removed layers.
+     */
+    @discardableResult
+    func removeSublayers(where predicate: (CALayer)->(Bool), depth: Int = 0) -> [CALayer] {
+        let removed = sublayers(where: predicate, depth: depth)
+        removed.forEach { $0.removeFromSuperlayer() }
+        return removed
+    }
+    
     /*
      An optional layer whose inverse alpha channel is used to mask the layer’s content.
      
@@ -225,3 +285,28 @@ public extension CAAutoresizingMask {
     static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
 }
 #endif
+
+
+/*
+ @discardableResult
+ func addSublayer(withConstraint layer: CALayer) -> [NSLayoutConstraint] {
+ addSublayer(layer)
+ layer.cornerRadius = cornerRadius
+ layer.maskedCorners = maskedCorners
+ layer.masksToBounds = true
+ return layer.constraintTo(layer: self)
+ }
+ 
+ @discardableResult
+ func constraintTo(layer: CALayer) -> [NSLayoutConstraint] {
+ frame = layer.bounds
+ let constrains = [
+ NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0),
+ NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0),
+ NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0),
+ NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0),
+ ]
+ constrains.forEach { $0.isActive = true }
+ return constrains
+ }
+ */

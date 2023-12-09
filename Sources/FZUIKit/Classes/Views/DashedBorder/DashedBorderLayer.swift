@@ -16,6 +16,18 @@ import FZSwiftUtils
 
 /// A layer with a dashed border.
 public class DashedBorderLayer: CALayer {
+    /// THe configuration of the border.
+    public var configuration: ContentConfiguration.Border {
+        get { ContentConfiguration.Border(color: borderColor?.nsUIColor, width: borderWidth, dashPattern: borderDashPattern, insets: borderInsets) }
+        set {
+            guard newValue != configuration else { return  }
+            borderedLayer.lineWidth = newValue.width
+            borderedLayer.strokeColor = newValue._resolvedColor?.cgColor
+            borderDashPattern = newValue.dashPattern
+            borderInsets = newValue.insets
+        }
+    }
+    
     /// The insets of the border.
     public var borderInsets: NSDirectionalEdgeInsets = .init(0) {
         didSet {
@@ -44,49 +56,32 @@ public class DashedBorderLayer: CALayer {
     
     public override var cornerRadius: CGFloat {
         didSet {
-            if oldValue != self.cornerRadius {
-                self.layoutBorderedLayer()
-            }
+            guard oldValue != cornerRadius else { return }
+            layoutBorderedLayer()
         }
     }
     
     public override var cornerCurve: CALayerCornerCurve {
         didSet {
-            self.borderedLayer.cornerCurve = self.cornerCurve
+            borderedLayer.cornerCurve = cornerCurve
         }
     }
     
-    /// THe configuration of the border.
-    public var configuration: ContentConfiguration.Border {
-        get { ContentConfiguration.Border(color: self.borderColor?.nsUIColor, width: self.borderWidth, dashPattern: self.borderDashPattern, insets: self.borderInsets) }
-        set { guard newValue != self.configuration else { return  }
-            self.borderedLayer.lineWidth = newValue.width
-            self.borderedLayer.strokeColor = newValue._resolvedColor?.cgColor
-            self.borderInsets = newValue.insets
-            self.borderDashPattern = newValue.dashPattern
-         //   self.borderedLayer.backgroundColor = NSColor.red.cgColor
-            self.layoutBorderedLayer()
+    override public var bounds: CGRect {
+        didSet {
+            guard oldValue != bounds else { return }
+            layoutBorderedLayer()
         }
-    }
-    
-    public override func layoutSublayers() {
-        self.layoutBorderedLayer()
-        super.layoutSublayers()
-    }
-
-    override public func display() {
-        super.display()
-        layoutBorderedLayer()
     }
     
     internal let borderedLayer = CAShapeLayer()
     
     internal func layoutBorderedLayer() {
-        let frameSize = CGSize(width: self.frame.size.width-borderInsets.width, height: self.frame.size.height-borderInsets.height)
+        let frameSize = CGSize(width: bounds.size.width-borderInsets.width, height: bounds.size.height-borderInsets.height)
         let shapeRect = CGRect(origin: CGPoint(x: borderInsets.leading, y: borderInsets.bottom), size: frameSize)
         
-        let scale = (shapeRect.size.width-borderWidth)/self.frame.size.width
-        let cornerRadius = self.cornerRadius * scale
+        let scale = (shapeRect.size.width-borderWidth)/frame.size.width
+        let cornerRadius = cornerRadius * scale
         
         borderedLayer.bounds = CGRect(.zero, shapeRect.size)
         borderedLayer.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
@@ -106,23 +101,23 @@ public class DashedBorderLayer: CALayer {
         
     public override init() {
         super.init()
-        self.sharedInit()
+        sharedInit()
     }
     
     public override init(layer: Any) {
         super.init(layer: layer)
-        self.sharedInit()
+        sharedInit()
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.sharedInit()
+        sharedInit()
     }
     
     internal func sharedInit() {
         borderedLayer.fillColor = .clear
         borderedLayer.lineJoin = CAShapeLayerLineJoin.round
-        self.addSublayer(borderedLayer)
+        addSublayer(borderedLayer)
     }
 }
 #endif

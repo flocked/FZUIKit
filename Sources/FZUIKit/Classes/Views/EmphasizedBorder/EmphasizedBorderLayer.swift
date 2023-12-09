@@ -16,52 +16,49 @@ import UIKit
 /// A layer with a emphasized border.
 public class EmphasizedBorderLayer: CALayer {
     public override var cornerRadius: CGFloat {
-        didSet {  emphasizedBorderLayer.cornerRadius = self.cornerRadius }
+        didSet {  emphasizedBorderLayer.cornerRadius = cornerRadius }
     }
     
     public override var maskedCorners: CACornerMask {
-        didSet { emphasizedBorderLayer.maskedCorners = self.maskedCorners }
+        didSet { emphasizedBorderLayer.maskedCorners = maskedCorners }
     }
     
     public override var cornerCurve: CALayerCornerCurve {
-        didSet { emphasizedBorderLayer.cornerCurve = self.cornerCurve }
+        didSet { emphasizedBorderLayer.cornerCurve = cornerCurve }
     }
     
     public override var borderWidth: CGFloat {
-        didSet { emphasizedBorderLayer.borderWidth = self.borderWidth * 2 }
+        didSet { emphasizedBorderLayer.borderWidth = borderWidth * 2 }
     }
     
-    public override func layoutSublayers() {
-        super.layoutSublayers()
-        emphasizedBorderLayer.frame = self.bounds
-    }
-
-    override public func display() {
-        super.display()
-        emphasizedBorderLayer.frame = self.bounds
+    override public var bounds: CGRect {
+        didSet {
+            guard oldValue != bounds else { return }
+            emphasizedBorderLayer.bounds = bounds
+        }
     }
     
     internal let emphasizedBorderLayer = CALayer()
     
     public override init() {
         super.init()
-        self.sharedInit()
+        sharedInit()
     }
     
     public override init(layer: Any) {
         super.init(layer: layer)
-        self.sharedInit()
+        sharedInit()
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        self.sharedInit()
+        sharedInit()
     }
     
     internal func sharedInit() {
         emphasizedBorderLayer.borderColor = NSUIColor.white.withAlphaComponent(0.5).cgColor
-        emphasizedBorderLayer.frame = self.bounds
-        self.addSublayer(emphasizedBorderLayer)
+        emphasizedBorderLayer.bounds = bounds
+        addSublayer(emphasizedBorderLayer)
     }
 }
 #endif

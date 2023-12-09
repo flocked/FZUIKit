@@ -167,8 +167,7 @@ public extension NSUIView {
      The first superview that matches the specificed view type.
      
      - Parameters viewType: The type of view to match.
-     - Returns: The first parent view that that matches the view type or `nil` if none match or there isn't a parent.
-     
+     - Returns: The first parent view that matches the view type or `nil` if none match or there isn't a matching parent.
      */
     func firstSuperview<V: NSUIView>(for viewType: V.Type) -> V? {
         return self.firstSuperview(where: {$0 is V}) as? V
@@ -178,7 +177,7 @@ public extension NSUIView {
      The first superview that matches the specificed predicate.
      
      - Parameters predicate: The closure to match.
-     - Returns: The first parent view that that is matching the predicate or `nil` if none match or there isn't a parent.
+     - Returns: The first parent view that is matching the predicate or `nil` if none match or there isn't a matching parent.
      */
     func firstSuperview(where predicate: (NSUIView)->(Bool)) -> NSUIView? {
         if let superview = superview {
@@ -211,7 +210,7 @@ public extension NSUIView {
         - type: The type of subviews.
         - depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
      */
-    func subviews<V>(type _: V.Type, depth: Int = 0) -> [V] {
+    func subviews<V: NSUIView>(type _: V.Type, depth: Int = 0) -> [V] {
         self.subviews(depth: depth).compactMap({$0 as? V})
     }
     
@@ -232,9 +231,14 @@ public extension NSUIView {
      - Parameters:
         - type: The type of subviews to remove.
         - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
+     
+     - Returns: The removed views.
      */
-    func removeSubviews(type: NSUIView.Type, depth: Int = 0) {
-        subviews(type: type, depth: depth).forEach { $0.removeFromSuperview() }
+    @discardableResult
+    func removeSubviews<V: NSUIView>(type: V.Type, depth: Int = 0) -> [V] {
+        let removed = subviews(type: type, depth: depth)
+        removed.forEach { $0.removeFromSuperview() }
+        return removed
     }
     
     /**
@@ -243,9 +247,14 @@ public extension NSUIView {
      - Parameters:
         - predicate: The predicate to match.
         - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
+     
+     - Returns: The removed views.
      */
-    func removeSubviews(where predicate: (NSUIView)->(Bool), depth: Int = 0) {
-        subviews(where: predicate, depth: depth).forEach { $0.removeFromSuperview() }
+    @discardableResult
+    func removeSubviews(where predicate: (NSUIView)->(Bool), depth: Int = 0) -> [NSUIView] {
+        let removed = subviews(where: predicate, depth: depth)
+        removed.forEach { $0.removeFromSuperview() }
+        return removed
     }
     
     /// Animates a transition to changes made to the view after calling this.
