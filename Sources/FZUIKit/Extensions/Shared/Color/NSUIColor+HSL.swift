@@ -41,15 +41,18 @@ extension NSUIColor {
 
       self.init(hue: h, saturation: s, brightness: b, alpha: alpha)
   }
+    
+    /// Creates a color using the HSLA components.
+    convenience init(_ hslaComponents: HSLAComponents) {
+        self.init(hue: hslaComponents.hue, saturation: hslaComponents.saturation, lightness: hslaComponents.lightness, alpha: hslaComponents.alpha)
+    }
 
   // MARK: - Getting the HSL Components
 
   /**
-   Returns the HSL (hue, saturation, lightness) components.
+   Returns the HSLA (hue, saturation, lightness, alpha) components of the color.
 
-   Notes that the hue value is between 0.0 and 360.0 degree.
-
-   - returns: The HSL components as a tuple (h, s, l).
+   - Note: The hue value is between 0.0 and 360.0 degree.
    */
     public final func hslaComponents() -> HSLAComponents {
         var (h, s, b, a) = (CGFloat(), CGFloat(), CGFloat(), CGFloat())
@@ -73,45 +76,84 @@ extension NSUIColor {
 
         return HSLAComponents(h * 360.0, s, l, a)
   }
+    
+    /**
+     Returns a new color object with the specified lightness value.
+     
+     - Parameter lightness: The lightness value of the new color object, specified as a value from 0.0 to 1.0. Lightness values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Returns: The new color object.
+     */
+    public func withLightness(_ lightness: CGFloat) -> NSUIColor {
+        var hslaComponents = hslaComponents()
+        hslaComponents.lightness = lightness.clamped(max: 1.0)
+        return NSUIColor(hslaComponents)
+    }
 }
 
 /// The HSLA (hue, saturation, lightness, alpha) components of a color.
 public struct HSLAComponents {
     /// The hue component of the color.
-    public var hue: CGFloat
+    public var hue: CGFloat {
+        didSet { hue = hue.clamped(max: 1.0) }
+    }
     
     /// The saturation component of the color.
-    public var saturation: CGFloat
+    public var saturation: CGFloat {
+        didSet { saturation = saturation.clamped(max: 1.0) }
+    }
     
     /// The lightness component of the color.
-    public var lightness: CGFloat
+    public var lightness: CGFloat {
+        didSet { lightness = lightness.clamped(max: 1.0) }
+    }
     
     /// The alpha value of the color.
-    public var alpha: CGFloat
+    public var alpha: CGFloat {
+        didSet { alpha = alpha.clamped(max: 1.0) }
+    }
     
+    /// Creates HSLA components with the specified hue, saturation, lightness and alpha components.
     public init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
-        self.hue = hue
-        self.saturation = saturation
-        self.lightness = lightness
-        self.alpha = alpha
+        self.hue = hue.clamped(max: 1.0)
+        self.saturation = saturation.clamped(max: 1.0)
+        self.lightness = lightness.clamped(max: 1.0)
+        self.alpha = alpha.clamped(max: 1.0)
     }
     
     internal init(_ hue: CGFloat, _ saturation: CGFloat, _ lightness: CGFloat, _ alpha: CGFloat) {
-        self.hue = hue
-        self.saturation = saturation
-        self.lightness = lightness
-        self.alpha = alpha
+        self.hue = hue.clamped(max: 1.0)
+        self.saturation = saturation.clamped(max: 1.0)
+        self.lightness = lightness.clamped(max: 1.0)
+        self.alpha = alpha.clamped(max: 1.0)
     }
     
-    /// Returns the color.
-    public func toColor() -> NSUIColor {
-        NSUIColor(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha)
+    #if os(macOS)
+    /// Returns the `NSColor`.
+    public func nsColor() -> NSUIColor {
+        NSUIColor(self)
+    }
+    #else
+/// Returns the `UIColor`.
+    public func uiColor() -> NSUIColor {
+        NSUIColor(self)
+    }
+    #endif
+    
+    /// Returns the SwiftUI `Color`.
+    public func toColor() -> Color {
+        Color(self)
+    }
+    
+    /// Returns the `CGColor`.
+    public func toCGColor() -> CGColor {
+        NSUIColor(self).cgColor
     }
 }
 
-public extension NSUIColor {
-    convenience init(_ hslaComponents: HSLAComponents) {
-        self.init(hue: hslaComponents.hue, saturation: hslaComponents.saturation, lightness: hslaComponents.lightness, alpha: hslaComponents.alpha)
+public extension Color {
+    /// Creates a color using the HSLA components.
+    init(_ hslaComponents: HSLAComponents) {
+        self.init(NSUIColor(hslaComponents))
     }
 }
 

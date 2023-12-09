@@ -16,7 +16,7 @@ import UIKit
 public extension NSUIColor {
     /**
      Tints the color by the specified amount.
-     - Parameters amount: The amount of tint.
+     - Parameter amount: The amount of tint.
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -29,7 +29,7 @@ public extension NSUIColor {
 
     /**
      Shades the color by the specified amount.
-     - Parameters amount: The amount of shade.
+     - Parameter amount: The amount of shade.
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -42,7 +42,7 @@ public extension NSUIColor {
 
     /**
      Brightens the color by the specified amount.
-     - Parameters amount: The amount of brightness.
+     - Parameter amount: The amount of brightness.
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -53,7 +53,7 @@ public extension NSUIColor {
 
     /**
      Darkens the color by the specified amount.
-     - Parameters amount: The amount of darken.
+     - Parameter amount: The amount of darken.
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -62,7 +62,7 @@ public extension NSUIColor {
 
     /**
      Saturates the color by the specified amount.
-     - Parameters amount: The amount of saturation.
+     - Parameter amount: The amount of saturation.
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -73,7 +73,7 @@ public extension NSUIColor {
 
     /**
      Desaturates the color by the specified amount.
-     - Parameters amount: The amount of desaturation.
+     - Parameter amount: The amount of desaturation.
      - Returns: The desaturated color object.
      */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -83,7 +83,7 @@ public extension NSUIColor {
     /**
      Creates and returns a color object with the hue rotated along the color wheel by the given amount.
 
-     - parameter amount: A float representing the number of degrees as ratio (usually between -360.0 degree and 360.0 degree).
+     - Parameter amount: A float representing the number of degrees as ratio (usually between -360.0 degree and 360.0 degree).
      - returns: A DynamicColor object with the hue changed.
      */
     final func adjustedHue(amount: CGFloat) -> NSUIColor {
@@ -102,7 +102,7 @@ public extension NSUIColor {
      This is identical to adjustedHue(180).
 
      - returns: The complement DynamicColor.
-     - seealso: adjustedHueColor:
+     - seealso: ``NSUIC``
      */
     final func complemented() -> NSUIColor {
       return adjustedHue(amount: 180.0)
@@ -111,7 +111,7 @@ public extension NSUIColor {
 
     /**
      A grayscaled representation of the color.
-     - Parameters mode: The grayscale mode.
+     - Parameter mode: The grayscale mode.
      - Returns: The grayscaled color.
      */
     func grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {

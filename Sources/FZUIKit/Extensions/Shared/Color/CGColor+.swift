@@ -15,7 +15,7 @@ import UIKit
 import SwiftUI
 
 public extension CGColor {
-    /// Returns the RGBA (red, green, blue, alpha) components.
+    /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {
         var color = self
         if color.colorSpace?.model != .rgb, #available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *) {

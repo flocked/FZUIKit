@@ -13,12 +13,8 @@ import AppKit
 import SwiftUI
 
 extension NSUIColor {
-  /**
-   Returns the HSB (hue, saturation, brightness) components.
-
-   - returns: The HSB components as a tuple (h, s, b).
-   */
-    public final func hsbaComponents() -> HSBAComponents {
+  /// Returns the HSBA (hue, saturation, brightness, alpha) components of the color.
+    public func hsbaComponents() -> HSBAComponents {
     var h: CGFloat = 0.0
     var s: CGFloat = 0.0
     var b: CGFloat = 0.0
@@ -40,68 +36,109 @@ extension NSUIColor {
         return HSBAComponents(h, s, b, alphaComponent)
     #endif
   }
+    
+    /// Creates a color using the HSBA components.
+    convenience init(_ hsbaComponents: HSBAComponents) {
+        self.init(hue: hsbaComponents.hue, saturation: hsbaComponents.saturation, brightness: hsbaComponents.brightness, alpha: hsbaComponents.alpha)
+    }
 
   #if os(iOS) || os(tvOS) || os(watchOS)
-    /**
-     The hue component as CGFloat between 0.0 to 1.0.
-     */
+    /// The hue component of the color.
     public final var hueComponent: CGFloat {
       return hsbaComponents().hue
     }
 
-    /**
-     The saturation component as CGFloat between 0.0 to 1.0.
-     */
+    /// The saturation component of the color.
     public final var saturationComponent: CGFloat {
       return hsbaComponents().saturation
     }
 
-    /**
-     The brightness component as CGFloat between 0.0 to 1.0.
-     */
+    /// The brightness component of the color.
     public final var brightnessComponent: CGFloat {
       return hsbaComponents().brightness
     }
   #endif
+    
+    /**
+     Returns a new color object with the specified hue value.
+     
+     - Parameter hue: The hue value of the new color object, specified as a value from 0.0 to 1.0. Hue values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Returns: The new color object.
+     */
+    func withHue(_ hue: CGFloat) -> NSUIColor {
+        let hsba = hsbaComponents()
+        return NSUIColor(hue: hue, saturation: hsba.saturation, brightness: hsba.brightness, alpha: hsba.alpha)
+    }
+
+    /**
+     Returns a new color object with the specified saturation value.
+     
+     - Parameter saturation: The saturation value of the new color object, specified as a value from 0.0 to 1.0. Saturation values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Returns: The new color object.
+     */
+    func withSaturation(_ saturation: CGFloat) -> NSUIColor {
+        let hsba = hsbaComponents()
+        return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: saturation, alpha: hsba.alpha)
+    }
+
+    /**
+     Returns a new color object with the specified brightness value.
+     
+     - Parameter brightness: The brightness value of the new color object, specified as a value from 0.0 to 1.0. Brightness values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Returns: The new color object.
+     */
+    func withBrightness(_ brightness: CGFloat) -> NSUIColor {
+        let hsba = hsbaComponents()
+        return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: brightness, alpha: hsba.alpha)
+    }
 }
 
 /// The HSBA (hue, saturation, brightness, alpha) components of a color.
 public struct HSBAComponents {
     /// The hue component of the color.
-    public var hue: CGFloat
+    public var hue: CGFloat {
+        didSet { hue = hue.clamped(max: 1.0) }
+    }
     
     /// The saturation component of the color.
-    public var saturation: CGFloat
+    public var saturation: CGFloat {
+        didSet { saturation = saturation.clamped(max: 1.0) }
+    }
     
     /// The brightness component of the color.
-    public var brightness: CGFloat
+    public var brightness: CGFloat {
+        didSet { brightness = brightness.clamped(max: 1.0) }
+    }
     
     /// The alpha value of the color.
-    public var alpha: CGFloat
+    public var alpha: CGFloat {
+        didSet { alpha = alpha.clamped(max: 1.0) }
+    }
     
+    /// Creates HSBA components with the specified hue, saturation, brightness and alpha components.
     public init(hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) {
-        self.hue = hue
-        self.saturation = saturation
-        self.brightness = brightness
-        self.alpha = alpha
+        self.hue = hue.clamped(max: 1.0)
+        self.saturation = saturation.clamped(max: 1.0)
+        self.brightness = brightness.clamped(max: 1.0)
+        self.alpha = alpha.clamped(max: 1.0)
     }
     
     internal init(_ hue: CGFloat, _ saturation: CGFloat, _ brightness: CGFloat, _ alpha: CGFloat) {
-        self.hue = hue
-        self.saturation = saturation
-        self.brightness = brightness
-        self.alpha = alpha
+        self.hue = hue.clamped(max: 1.0)
+        self.saturation = saturation.clamped(max: 1.0)
+        self.brightness = brightness.clamped(max: 1.0)
+        self.alpha = alpha.clamped(max: 1.0)
     }
     
     #if os(macOS)
     /// Returns the `NSColor`.
     public func toNSColor() -> NSUIColor {
-        NSUIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
+        NSUIColor(self)
     }
     #else
     /// Returns the `UIColor`.
     public func toUIColor() -> NSUIColor {
-        NSUIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
+        NSUIColor(self)
     }
     #endif
     
@@ -109,15 +146,15 @@ public struct HSBAComponents {
     public func toColor() -> Color {
         Color(hue: hue, saturation: saturation, brightness: brightness, opacity: alpha)
     }
-}
-
-public extension NSUIColor {
-    convenience init(_ hsbaComponents: HSBAComponents) {
-        self.init(hue: hsbaComponents.hue, saturation: hsbaComponents.saturation, brightness: hsbaComponents.brightness, alpha: hsbaComponents.alpha)
+    
+    /// Returns the `CGColor`.
+    public func toCGColor() -> CGColor {
+        NSUIColor(self).cgColor
     }
 }
 
 public extension Color {
+    /// Creates a color using the HSBA components.
     init(_ hsbaComponents: HSBAComponents) {
         self.init(hue: hsbaComponents.hue, saturation: hsbaComponents.saturation, brightness: hsbaComponents.brightness, opacity: hsbaComponents.alpha)
     }

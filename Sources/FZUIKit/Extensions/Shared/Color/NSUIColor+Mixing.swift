@@ -21,7 +21,7 @@ public extension NSUIColor {
      - Parameters:
         - fraction: The amount of the color to blend with the receiver's color. The method converts color and a copy of the receiver to RGB, and then sets each component of the returned color to fraction of color’s value plus 1 – fraction of the receiver’s.
         - color: The color to blend with the receiver's color.
-        - mode: The color space mode used mixing the colors. By default it uses the RBG color space.
+        - mode: The color space mode used mixing the colors. The default uses the RBG color space.
      
      - Returns: The resulting color object or nil if the colors can’t be converted.
      */

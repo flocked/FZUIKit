@@ -14,102 +14,6 @@ import UIKit
 #endif
 
 public extension NSUIColor {
-    /// Returns the RGBA (red, green, blue, alpha) components.
-    final func rgbaComponents() -> RGBAComponents {
-      var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
-
-      #if os(iOS) || os(tvOS) || os(watchOS)
-        getRed(&r, green: &g, blue: &b, alpha: &a)
-
-        return RGBAComponents(r, g, b, a)
-      #elseif os(OSX)
-        guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
-          fatalError("Could not convert color to RGBA.")
-        }
-
-        rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
-
-        return RGBAComponents(r, g, b, a)
-      #endif
-    }
-
-    /**
-     Returns a new color object with the specified red component.
-     
-     - Parameters red: The red component value of the new color object, specified as a value from 0.0 to 1.0. Red values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
-     - Returns: The new color object.
-     */
-    func withRed(_ red: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
-    }
-
-    /**
-     Returns a new color object with the specified green component.
-     
-     - Parameters green: The green component value of the new color object, specified as a value from 0.0 to 1.0. Green values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
-     - Returns: The new color object.
-     */
-    func withGreen(_ green: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: rgba.red, green: green, blue: rgba.blue, alpha: rgba.alpha)
-    }
-
-    /**
-     Returns a new color object with the specified blue component.
-     
-     - Parameters blue: The blue component value of the new color object, specified as a value from 0.0 to 1.0. Blue values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
-     - Returns: The new color object.
-     */
-    func withBlue(_ blue: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: rgba.red, green: rgba.green, blue: blue, alpha: rgba.alpha)
-    }
-
-    /**
-     Returns a new color object with the specified alpha component.
-     
-     - Parameters alpha: The alpha component value of the new color object, specified as a value from 0.0 to 1.0. Alpha values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
-     - Returns: The new color object.
-     */
-    func withAlpha(_ alpha: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: alpha)
-    }
-
-    /**
-     Returns a new color object with the specified hue value.
-     
-     - Parameters hue: The hue value of the new color object, specified as a value from 0.0 to 1.0. Hue values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
-     - Returns: The new color object.
-     */
-    func withHue(_ hue: CGFloat) -> NSUIColor {
-        let hsba = hsbaComponents()
-        return NSUIColor(hue: hue, saturation: hsba.saturation, brightness: hsba.brightness, alpha: hsba.alpha)
-    }
-
-    /**
-     Returns a new color object with the specified saturation value.
-     
-     - Parameters saturation: The saturation value of the new color object, specified as a value from 0.0 to 1.0. Saturation values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
-     - Returns: The new color object.
-     */
-    func withSaturation(_ saturation: CGFloat) -> NSUIColor {
-        let hsba = hsbaComponents()
-        return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: saturation, alpha: hsba.alpha)
-    }
-
-    /**
-     Returns a new color object with the specified brightness value.
-     
-     - Parameters brightness: The brightness value of the new color object, specified as a value from 0.0 to 1.0. Brightness values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
-     - Returns: The new color object.
-     */
-    func withBrightness(_ brightness: CGFloat) -> NSUIColor {
-        let hsba = hsbaComponents()
-        return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: brightness, alpha: hsba.alpha)
-    }
-
     /// A random color.
     static func random() -> NSUIColor {
         return NSUIColor(hue: CGFloat.random(in: 0.0 ... 1.0), saturation: 0.6, lightness: 0.5)
@@ -125,7 +29,7 @@ public extension NSUIColor {
 
     /**
      Returns a new color object in the specified `CGColorSpace`.
-     - Parameters colorSpace: The color space of the color.
+     - Parameter colorSpace: The color space of the color.
      - Returns: A `CGColor` object in the `CGColorSpace`.
      */
     func usingCGColorSpace(_ colorSpace: CGColorSpace) -> NSUIColor? {
@@ -149,7 +53,7 @@ public extension NSUIColor {
     /**
      Generates the resolved color for the specified view,.
      
-     - Parameters view: The view for the resolved color.
+     - Parameter view: The view for the resolved color.
      - Returns: A resolved color for the view.
      */
     func resolvedColor(for view: NSUIView) -> NSUIColor {
