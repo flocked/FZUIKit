@@ -86,12 +86,16 @@ public protocol TargetActionProtocol: AnyObject {
     func removeTarget(_ target: Any?, action: Selector?)
 }
 
-extension UIPinchGestureRecognizer: TargetActionProtocol {}
-extension UIRotationGestureRecognizer: TargetActionProtocol {}
+
 extension UISwipeGestureRecognizer: TargetActionProtocol {}
 extension UIPanGestureRecognizer: TargetActionProtocol {}
 extension UILongPressGestureRecognizer: TargetActionProtocol {}
+
+#if os(iOS)
+extension UIPinchGestureRecognizer: TargetActionProtocol {}
+extension UIRotationGestureRecognizer: TargetActionProtocol {}
 extension UIHoverGestureRecognizer: TargetActionProtocol {}
+#endif
 
 internal class ActionTrampoline<T: TargetActionProtocol>: NSObject {
     var action: (T) -> Void

@@ -548,6 +548,7 @@ extension ViewAnimator where View: UILabel {
     }
 }
 
+#if os(iOS)
 extension ViewAnimator where View: UIColorWell {
     /// The selected color in the color picker.
     public var selectedColor: NSUIColor? {
@@ -555,6 +556,7 @@ extension ViewAnimator where View: UIColorWell {
         set { self[\.selectedColor] = newValue }
     }
 }
+#endif
 
 extension ViewAnimator where View: UIProgressView {
     /// The current progress of the progress view.
