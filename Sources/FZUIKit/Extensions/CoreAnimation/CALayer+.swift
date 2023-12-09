@@ -82,21 +82,23 @@ public extension CALayer {
      - Parameters layer: The layer to constraint to.
      */
     func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
-        let layerUpdateHandler: (()->()) = { [weak self] in
+        let layerBoundsUpdate: (()->()) = { [weak self] in
             guard let self = self else { return }
             let frameSize = layer.frame.size
             var shapeRect = CGRect(origin: .zero, size: frameSize)
             if frameSize.width > insets.width, frameSize.height > insets.height {
                 shapeRect = shapeRect.inset(by: insets)
             }
-            
             let position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
-            
+            self.bounds = shapeRect
+            self.position = position
+        }
+        
+        let layerUpdate: (()->()) = { [weak self] in
+            guard let self = self else { return }
             self.cornerRadius = layer.cornerRadius
             self.maskedCorners = layer.maskedCorners
             self.cornerCurve = layer.cornerCurve
-            self.bounds = shapeRect
-            self.position = position
         }
         
         if layerObserver?.observedObject != layer {
@@ -105,24 +107,25 @@ public extension CALayer {
         
         layerObserver?[\.cornerRadius] = { old, new in
             guard old != new else { return }
-            layerUpdateHandler()
+            layerUpdate()
         }
         
         layerObserver?[\.cornerCurve] = { old, new in
             guard old != new else { return }
-            layerUpdateHandler()
+            layerUpdate()
         }
         
         layerObserver?[\.maskedCorners] = { old, new in
             guard old != new else { return }
-            layerUpdateHandler()
+            layerUpdate()
         }
         
         layerObserver?[\.bounds] = { old, new in
             guard old != new else { return }
-            layerUpdateHandler()
+            layerBoundsUpdate()
         }
-        layerUpdateHandler()
+        layerBoundsUpdate()
+        layerUpdate()
     }
     
     /// Removes the layer constraints.
