@@ -314,6 +314,7 @@ extension ContentConfiguration.InnerShadow: AnimatableProperty, Animatable {
 }
 #endif
 
+// MARK: - AnimatableCollection
 
 // Ensures that two collections have the same amount of values for animating between them. If a collection is smaller than the other zero values are added.
 internal protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
@@ -355,16 +356,14 @@ extension AnimatableArray: AnimatableCollection {
     }
 }
 
-extension Array: Animatable where Element: Animatable {
-    
-}
+// MARK: - AnimatableColor
 
-public protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
+internal protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
     var alpha: CGFloat { get }
     func animatable(to other: any AnimatableColor) -> Self
 }
 
-public extension AnimatableColor {
+internal extension AnimatableColor {
     func animatable(to other: any AnimatableColor) -> Self {
         if self.alpha == 0.0 {
             var animatableData = other.animatableData
@@ -378,13 +377,27 @@ public extension AnimatableColor {
 extension CGColor: AnimatableColor { }
 
 extension NSUIColor: AnimatableColor {
-    public var alpha: CGFloat {
+    internal var alpha: CGFloat {
         return alphaComponent
     }
 }
 
 extension Optional: AnimatableColor where Wrapped: AnimatableColor {
-    public var alpha: CGFloat {
+    internal var alpha: CGFloat {
         self.optional?.alpha ?? 0.0
     }
 }
+
+/*
+internal extension CGColor {
+    func animatable(to other: CGColor) -> CGColor {
+        self.alpha == 0 ? other.copy(alpha: 0.0) ?? self : self
+    }
+}
+
+internal extension NSUIColor {
+    func animatable(to other: NSUIColor) -> NSUIColor {
+        self.alphaComponent == 0 ? other.withAlphaComponent(0.0) : self
+    }
+}
+ */
