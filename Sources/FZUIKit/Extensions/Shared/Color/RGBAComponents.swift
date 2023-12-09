@@ -80,7 +80,7 @@ public extension NSUIColor {
     }
 }
 
-extension AnimatableColor where Self: CGColor {
+extension AnimatableProperty where Self: CGColor {
     public init(_ rgbaComponents: RGBAComponents) {
         self.init(red: rgbaComponents.red, green: rgbaComponents.green, blue: rgbaComponents.blue, alpha: rgbaComponents.alpha)
     }

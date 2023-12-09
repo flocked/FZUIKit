@@ -29,7 +29,7 @@ public extension ContentConfiguration {
         public var colorTransformer: ColorTransformer? = nil {
             didSet { updateResolvedColor() } }
         
-        /// Generates the resolved border color for the specified border color, using the border color and color transformer.
+        /// Generates the resolved border color, using the border color and color transformer.
         public func resolvedColor() -> NSUIColor? {
             if let color = self.color {
                 return colorTransformer?(color) ?? color

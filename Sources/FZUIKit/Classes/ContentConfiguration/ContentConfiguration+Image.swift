@@ -45,7 +45,7 @@ public extension ContentConfiguration {
         public var tintColorTransform: ColorTransformer? = nil {
             didSet { updateResolvedColor() } }
         
-        /// Generates the resolved tint color for the specified tint color, using the tint color and color transformer.
+        /// Generates the resolved tint color, using the tint color and color transformer.
         public func resolvedTintColor() -> NSUIColor? {
             if let tintColor = tintColor {
                 return tintColorTransform?(tintColor) ?? tintColor

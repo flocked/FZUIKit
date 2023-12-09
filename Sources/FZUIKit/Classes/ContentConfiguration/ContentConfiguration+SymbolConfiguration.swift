@@ -126,7 +126,7 @@ public extension ContentConfiguration {
             SymbolConfiguration(imageScale: imageScale)
         }
         
-        /// Generates the resolved primary color for the specified color style, using the color style and color transformer.
+        /// Generates the resolved primary color for the specified color style, using the color style's primary color and color transformer.
         public func resolvedPrimaryColor() -> NSUIColor? {
             if let primary = self.color?.primary {
                 return self.colorTransform?(primary) ?? primary
@@ -134,7 +134,7 @@ public extension ContentConfiguration {
             return nil
         }
         
-        /// Generates the resolved secondary color for the specified color style, using the color style and color transformer.
+        /// Generates the resolved secondary color for the specified color style, using the color style's secondary color and color transformer.
         public func resolvedSecondaryColor() -> NSUIColor? {
             if let secondary = self.color?.secondary {
                 return self.colorTransform?(secondary) ?? secondary
@@ -142,7 +142,7 @@ public extension ContentConfiguration {
             return nil
         }
         
-        /// Generates the resolved tertiary color for the specified color style, using the color style and color transformer.
+        /// Generates the resolved tertiary color for the specified color style, using the color style's tertiary color and color transformer.
         public func resolvedTertiaryColor() -> NSUIColor? {
             if let tertiary = self.color?.tertiary {
                 return self.colorTransform?(tertiary) ?? tertiary
