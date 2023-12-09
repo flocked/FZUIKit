@@ -91,26 +91,40 @@ public extension Collection where Element: NSLayoutConstraint {
         return self
     }
     
+    /// Updates the width and height constraint's constant to the size and returns itself.
+    @discardableResult func constant(_ size: CGSize) -> Self {
+        self.width?.constant(size.width)
+        self.height?.constant(size.height)
+        return self
+    }
+    
     #if os(macOS)
     /// Updates the constant of the constraints and returns itself.
-    @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> Self {
+    @discardableResult func constant(_ constant: CGFloat, animated: Bool) -> Self {
         self.forEach({$0.constant(constant, animated: animated) })
         return self
     }
 
     /// Updates the constant of the constraints and returns itself.
-    @discardableResult func constant(_ insets: NSUIEdgeInsets, animated: Bool = false) -> Self {
+    @discardableResult func constant(_ insets: NSUIEdgeInsets, animated: Bool) -> Self {
         self.constant(insets.directional, animated: animated)
     }
 
     /// Updates the constant of the constraints and returns itself.
-    @discardableResult func constant(_ insets: NSDirectionalEdgeInsets, animated: Bool = false) -> Self {
+    @discardableResult func constant(_ insets: NSDirectionalEdgeInsets, animated: Bool) -> Self {
         self.leading?.constant(insets.leading, animated: animated)
         self.trailing?.constant(-insets.trailing, animated: animated)
         self.bottom?.constant(-insets.bottom, animated: animated)
         self.top?.constant(insets.top, animated: animated)
         self.width?.constant(-insets.width, animated: animated)
         self.height?.constant(-insets.height, animated: animated)
+        return self
+    }
+    
+    /// Updates the width and height constraint's constant to the size and returns itself.
+    @discardableResult func constant(_ size: CGSize, animated: Bool) -> Self {
+        self.width?.constant(size.width, animated: animated)
+        self.height?.constant(size.height, animated: animated)
         return self
     }
     #endif

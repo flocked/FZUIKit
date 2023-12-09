@@ -360,7 +360,7 @@ extension DecayAnimation: CustomStringConvertible {
     }
 }
 
-/// The mode how ``Wave`` should animate properties with a decaying animation.
+/// The mode how ``Anima`` should animate properties with a decaying animation.
 public enum DecayAnimationMode {
     /// The value of animated properties will increase or decrease (depending on the values applied) with a decelerating rate.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.
     case velocity

@@ -5,27 +5,16 @@
 //  Created by Florian Zand on 04.12.23.
 //
 
+#if os(macOS)
 import AppKit
 import QuartzCore
 import SwiftUI
 
 @available(macOS 14.0, *)
-public final class DisplayLinker {
-    
-    // Represents a frame that is about to be drawn
-    public struct Frame {
-        // The system timestamp for the frame to be drawn
-        public let timestamp: TimeInterval
-        
-        /// The time interval that represents when the next frame displays.
-        public let targetTimestamp: TimeInterval
-        
-        /// The duration between each display update
-        public let duration: TimeInterval
-    }
+public final class DisplayLinker: DisplayLinkProvider {
     
     /// The callback to call for each frame.
-    public var onFrame: ((Frame) -> Void)?
+    public var onFrame: ((DisplayLink.Frame) -> Void)?
     
     /// A Boolean value that indicates the display link is paused or not.
     public var isPaused: Bool {
@@ -95,16 +84,16 @@ public final class DisplayLinker {
     /// The target for the CADisplayLink (because CADisplayLink retains its target).
     internal final class DisplayLinkTarget {
         /// The callback to call for each frame.
-        var callback: ((Frame) -> Void)?
+        var callback: ((DisplayLink.Frame) -> Void)?
         
         /// Called for each frame from the CADisplayLink.
         @objc dynamic func frame(_ displayLink: CADisplayLink) {
-            let frame = Frame(
+            let frame = DisplayLink.Frame(
                 timestamp: displayLink.timestamp,
-                targetTimestamp: displayLink.targetTimestamp,
                 duration: displayLink.duration
             )
             callback?(frame)
         }
     }
 }
+#endif

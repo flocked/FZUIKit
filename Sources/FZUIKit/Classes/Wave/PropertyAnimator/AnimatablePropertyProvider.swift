@@ -15,11 +15,11 @@ public protocol AnimatablePropertyProvider: AnyObject {
     associatedtype Provider: AnimatablePropertyProvider = Self
     
     /**
-     Provides animatable properties. To animate a property, change it's value in a ``Wave`` animation block.
+     Provides animatable properties. To animate a property, change it's value in a ``Anima`` animation block.
                
      Example usage:
      ```swift
-     Wave.animate(withSpring: .smooth) {
+     Anima.animate(withSpring: .smooth) {
         myView.animator.center = CGPoint(x: 100, y: 100)
         myView.animator.alpha = 0.5
      }
@@ -30,7 +30,7 @@ public protocol AnimatablePropertyProvider: AnyObject {
      To get/set a property of the object that is not provided as `animator` property, use the properties keypath on `animator`. The property needs to confirm to ``AnimatableProperty``.
      
      ```swift
-     Wave.animate(withSpring: .smooth) {
+     Anima.animate(withSpring: .smooth) {
         myView.animator[\.myAnimatableProperty] = newValue
      }
      ```
@@ -44,7 +44,7 @@ public protocol AnimatablePropertyProvider: AnyObject {
         }
      }
      
-     Wave.animate(withSpring: .smooth) {
+     Anima.animate(withSpring: .smooth) {
         myView.animator.myAnimatableProperty = newValue
      }
      ```

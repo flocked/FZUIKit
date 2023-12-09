@@ -1,5 +1,5 @@
 //
-//  Wave.swift
+//  Anima.swift
 //
 //  Modified by Florian Zand
 //  Original: Copyright (c) 2022 Janum Trivedi.
@@ -29,12 +29,12 @@ import SwiftUI
  Example usage with a spring animation:
  
  ```swift
- Wave.animate(withSpring: .bouncy) {
+ Anima.animate(withSpring: .bouncy) {
     myView.animator.center = newCenterPoint
     myView.animator.backgroundColor = .systemBlue
  }
  ```
- To update values of properties that are currently animated use ``nonAnimate(changes:)`` or update the values using ``AnimatablePropertyProvider/animator-54mpy`` outside of a `Wave` animation block. It will stop their animations and sets their values immediately to the specified new values.
+ To update values of properties that are currently animated use ``nonAnimate(changes:)`` or update the values using ``AnimatablePropertyProvider/animator-54mpy`` outside of a `Anima` animation block. It will stop their animations and sets their values immediately to the specified new values.
 
  ```swift
  // outside of an animation block
@@ -44,19 +44,19 @@ import SwiftUI
 
  - Note: All animations are to run and be interfaced with on the main thread only. There is no support for threading of any kind.
  */
-public enum Wave {
+public enum Anima {
     /**
      Performs spring animations based on the specified ``Spring``.
      
      Example usage:
      ```swift
-     Wave.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
+     Anima.animate(withSpring: Spring(dampingRatio: 0.6, response: 1.2)) {
         myView.animator.center = view.center
         myView.animator.backgroundColor = .systemBlue
      }
      ```
      
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Anima``.
           
      - Parameters:
         - spring: The ``Spring`` used to determine the timing curve and duration of the animation.
@@ -90,13 +90,13 @@ public enum Wave {
      
      Example usage:
      ```swift
-     Wave.animate(withEasing: .easeInEaseOut), duration: 3.0) {
+     Anima.animate(withEasing: .easeInEaseOut), duration: 3.0) {
         myView.animator.center = view.center
         myView.animator.backgroundColor = .systemBlue
      }
      ```
      
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Anima``.
 
      - Parameters:
         - timingFunction: The ``TimingFunction`` used to determine the timing curve.
@@ -135,19 +135,19 @@ public enum Wave {
      Example usage:
      ```swift
      // Value based decay animation
-     Wave.animate(withDecay: .value, animations: {
+     Anima.animate(withDecay: .value, animations: {
         // Animates the view's origin to the point with a decelerating rate.
         view.animator.frame.origin = CGPoint(x: 50, y: 50)
      })
      
      // Velocity based decay animation
-     Wave.animate(withDecay: .velocity, animations: {
+     Anima.animate(withDecay: .velocity, animations: {
         // Increaes the view's origin by 50 points with a decelerating rate.
         view.animator.frame.origin = CGPoint(x: 50, y: 50)
      })
      ```
      
-     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For animations to work correctly, you must set values on the objects's ``AnimatablePropertyProvider/animator-54mpy``, not just the object itself. For example, to animate a view's alpha, use `myView.animator.alpha = 1.0` instead of `myView.alpha = 1.0`. For a list of all objects that provide animatable properties check ``Anima``.
 
      - Parameters:
         - mode: The mode how the animation should animate properties:
@@ -181,10 +181,10 @@ public enum Wave {
     /**
      Performs the specified changes non animated.
      
-     Use it to immediately update values of properties. For properties that are currently animated, the animations stop. You can also update values non animated by using the ``AnimatablePropertyProvider/animator-54mpy`` outside of any ``Wave`` animation block.
+     Use it to immediately update values of properties. For properties that are currently animated, the animations stop. You can also update values non animated by using the ``AnimatablePropertyProvider/animator-54mpy`` outside of any ``Anima`` animation block.
      
      ```swift
-     Wave.nonAnimate() {
+     Anima.nonAnimate() {
         myView.animator.center = newCenterPoint
      }
      
@@ -192,7 +192,7 @@ public enum Wave {
      myView.animator.center = newCenterPoint
      ```
      
-     - Note: For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For a list of all objects that provide animatable properties check ``Anima``.
      
      - Parameter changes: A block containing the changes to your objects animatable properties that get updated non animated.
      */
@@ -219,14 +219,14 @@ public enum Wave {
 
      Example usage:
      ```swift
-     Wave.updateVelocity() {
+     Anima.updateVelocity() {
         myView.animator.frame.origin = newVelocity
      }
      ```
      
      - Parameter changes: A block containing the updated velocities.
      
-     - Note: For a list of all objects that provide animatable properties check ``Wave``.
+     - Note: For a list of all objects that provide animatable properties check ``Anima``.
      */
     public static func updateVelocity(changes: () -> Void) {
         let settings = AnimationController.AnimationParameters(
@@ -235,6 +235,13 @@ public enum Wave {
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
+    }
+    
+    /// The preferred framerate of the animations. The default value is `nil` which uses the default frame rate of the display.
+    @available(macOS 14.0, iOS 15.0, tvOS 15.0, *)
+    public var preferredFrameRateRange: CAFrameRateRange? {
+        get { AnimationController.shared.preferredFrameRateRange }
+        set { AnimationController.shared.preferredFrameRateRange = newValue }
     }
 }
 #endif

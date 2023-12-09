@@ -22,12 +22,12 @@ extension NSUILayoutGuide: LayoutItem {
 }
 
 public extension NSUIView {
-    struct Alignment {
-        public enum Horizontal {
+    struct Alignment: Equatable, Sendable {
+        public enum Horizontal: Int, Sendable {
             case fill, center, leading, trailing
         }
 
-        public enum Vertical {
+        public enum Vertical: Int, Sendable {
             case fill, center, top, bottom
         }
 
@@ -58,6 +58,7 @@ public extension LayoutItem {
         guard let superview = superview else { return [] }
         return pinEdges(to: superview, insets: insets, alignment: alignment, priority: priority)
     }
+    
 
     @discardableResult
     func pinEdges(to item2: LayoutItem? = nil, insets: NSUIEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 0), alignment: NSUIView.Alignment = .fill, priority: NSLayoutConstraint.Priority? = nil) -> [NSLayoutConstraint] {

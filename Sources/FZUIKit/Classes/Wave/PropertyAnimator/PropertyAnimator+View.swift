@@ -177,7 +177,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     public func addSubview(_ view: NSUIView) {
         guard view.superview != object else { return }
         view.alpha = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             view.animator.alpha = 0.0
         }
         object.addSubview(view)
@@ -192,7 +192,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     public func insertSubview(_ view: NSUIView, at index: Int) {
         guard view.superview != object else { return }
         view.alpha = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             view.animator.alpha = 0.0
         }
         object.insertSubview(view, at: index)
@@ -207,7 +207,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     public func insertSubview(_ view: NSUIView, aboveSubview siblingSubview: NSUIView) {
         guard view.superview != object, object.subviews.contains(siblingSubview) else { return }
         view.alpha = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             view.animator.alpha = 0.0
         }
         object.insertSubview(view, aboveSubview: siblingSubview)
@@ -222,7 +222,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     public func insertSubview(_ view: NSUIView, belowSubview siblingSubview: NSUIView) {
         guard view.superview != object, object.subviews.contains(siblingSubview) else { return }
         view.alpha = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             view.animator.alpha = 0.0
         }
         object.insertSubview(view, belowSubview: siblingSubview)
@@ -637,7 +637,7 @@ public var gradient: Gradient? {
                 gradientLayer.endPoint = newGradient.endPoint.point
                 gradientLayer.colors = newGradient.stops.compactMap({$0.color.resolvedColor(for: object).withAlphaComponent(0.0).cgColor})
             }
-            Wave.nonAnimate {
+            Anima.nonAnimate {
                 self.object.backgroundColor = nil
             }
         }

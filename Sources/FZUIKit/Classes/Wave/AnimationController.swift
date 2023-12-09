@@ -15,7 +15,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-/// Manages all ``Wave`` animations.
+/// Manages all ``Anima`` animations.
 internal class AnimationController {
     public static let shared = AnimationController()
 
@@ -36,7 +36,7 @@ internal class AnimationController {
         animations: () -> Void,
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
-        precondition(Thread.isMainThread, "All Wave animations are to run and be interfaced with on the main thread only. There is no support for threading of any kind.")
+        precondition(Thread.isMainThread, "All Anima animations are to run and be interfaced with on the main thread only. There is no support for threading of any kind.")
 
         // Register the handler
         groupAnimationCompletionBlocks[settings.groupUUID] = completion
@@ -95,12 +95,34 @@ internal class AnimationController {
             stopDisplayLink()
         }
     }
+    
+    @available(macOS 14.0, iOS 15.0, tvOS 15.0, *)
+    internal var preferredFrameRateRange: CAFrameRateRange? {
+        get { _preferredFrameRateRange as? CAFrameRateRange }
+        set { _preferredFrameRateRange = newValue }
+    }
+        
+    private var _preferredFrameRateRange: Any? = nil {
+        didSet {
+            if #available(macOS 14.0, iOS 15.0, tvOS 15.0, *), preferredFrameRateRange != nil, displayLink != nil {
+                stopDisplayLink()
+                startDisplayLink()
+            }
+        }
+    }
 
     private func startDisplayLink() {
         if displayLink == nil {
-            displayLink = DisplayLink.shared.sink { [weak self] frame in
-                guard let self = self else { return }
-                self.updateAnimations(frame)
+            if #available(macOS 14.0, iOS 15.0, tvOS 15.0, *),  let preferredFrameRateRange = preferredFrameRateRange  {
+                displayLink = DisplayLink(preferredFrameRateRange: preferredFrameRateRange).sink { [weak self] frame in
+                    guard let self = self else { return }
+                    self.updateAnimations(frame)
+            }
+            } else {
+                displayLink = DisplayLink.shared.sink { [weak self] frame in
+                    guard let self = self else { return }
+                    self.updateAnimations(frame)
+                }
             }
         }
     }

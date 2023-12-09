@@ -164,7 +164,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     public func addSublayer(_ layer: CALayer) {
         guard layer.superlayer != object else { return }
         layer.opacity = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             layer.animator.opacity = 0.0
         }
         object.addSublayer(layer)
@@ -179,7 +179,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     public func insertSublayer(_ layer: CALayer, at index: UInt32) {
         guard layer.superlayer != object else { return }
         layer.opacity = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             layer.animator.opacity = 0.0
         }
         object.insertSublayer(layer, at: index)
@@ -194,7 +194,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     public func insertSublayer(_ layer: CALayer, above sibling: CALayer) {
         guard layer.superlayer != object, object.sublayers?.contains(sibling) == true else { return }
         layer.opacity = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             layer.animator.opacity = 0.0
         }
         object.insertSublayer(layer, above: sibling)
@@ -209,7 +209,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     public func insertSublayer(_ layer: CALayer, below sibling: CALayer) {
         guard layer.superlayer != object, object.sublayers?.contains(sibling) == true else { return }
         layer.opacity = 0.0
-        Wave.nonAnimate {
+        Anima.nonAnimate {
             layer.animator.opacity = 0.0
         }
         object.insertSublayer(layer, below: sibling)

@@ -27,7 +27,7 @@ import UIKit
  }
  
  let object = MyObject()
- Wave.animate(withSpring: .smooth) {
+ Anima.animate(withSpring: .smooth) {
     object.animator.floatValue = newFloat
     object.animator.color = newColor
  }
@@ -52,7 +52,7 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
     public var animations: [String: AnimationProviding] = [:]
     
     /**
-     The current value of the property at the specified keypath. Assigning a new value inside a ``Wave`` animation block animates to the new value.
+     The current value of the property at the specified keypath. Assigning a new value inside a ``Anima`` animation block animates to the new value.
      
      - Parameters keyPath: The keypath to the animatable property.
      */
@@ -62,7 +62,7 @@ public class DynamicPropertyAnimator<Object: AnyObject> {
     }
 
     /**
-     The current value of the property at the specified keypath. Assigning a new value inside a ``Wave`` animation block animates to the new value.
+     The current value of the property at the specified keypath. Assigning a new value inside a ``Anima`` animation block animates to the new value.
      
      - Parameters:
         - keyPath: The keypath to the animatable property.
@@ -256,7 +256,7 @@ internal extension DynamicPropertyAnimator {
 
 /*
 /**
- The current value of the property at the specified keypath. Assigning a new value inside a ``Wave`` animation block animates to the new value.
+ The current value of the property at the specified keypath. Assigning a new value inside a ``Anima`` animation block animates to the new value.
  
  - Parameters keyPath: The keypath to the animatable property.
  */
@@ -266,7 +266,7 @@ public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value?>) -
 }
  
  /**
-  The current value of the property at the specified keypath. Assigning a new value inside a ``Wave`` animation block animates to the new value.
+  The current value of the property at the specified keypath. Assigning a new value inside a ``Anima`` animation block animates to the new value.
   
   - Parameters:
      - keyPath: The keypath to the animatable property.
@@ -306,7 +306,7 @@ func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value
  /// Animates the value of the property at the keypath to a new value.
  func setValue<Value: AnimatableProperty>(_ newValue: Value?, for keyPath: WritableKeyPath<Object, Value?>, completion: (()->())? = nil)  {
      guard let settings = AnimationController.shared.currentAnimationParameters else {
-         Wave.nonAnimate { self.setValue(newValue, for: keyPath) }
+         Anima.nonAnimate { self.setValue(newValue, for: keyPath) }
          return
      }
      
