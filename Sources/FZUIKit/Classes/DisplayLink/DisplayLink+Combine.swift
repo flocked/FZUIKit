@@ -136,10 +136,11 @@ private extension DisplayLink {
 import QuartzCore
 import UIKit
 
+@available(iOS 15.0, tvOS 15.0, *)
 public extension DisplayLink {
     /// Creates a display link, optionally with the specified preferred frame rate range.
     convenience init(preferredFrameRateRange: CAFrameRateRange? = nil) {
-        self.init(platformDisplayLink: PlatformDisplayLinkMac(preferredFrameRateRange: preferredFrameRateRange))
+        self.init(platformDisplayLink: PlatformDisplayLink(preferredFrameRateRange: preferredFrameRateRange))
     }
 }
 
@@ -155,6 +156,7 @@ fileprivate extension DisplayLink {
         }
         
         /// The preferred framerate range.
+        @available(iOS 15.0, tvOS 15.0, *)
         var preferredFrameRateRange: CAFrameRateRange {
             get { displayLink.preferredFrameRateRange }
             set { displayLink.preferredFrameRateRange = newValue }
@@ -170,9 +172,17 @@ fileprivate extension DisplayLink {
         var framesPerSecond: CGFloat {
             1 / (displayLink.targetTimestamp - displayLink.timestamp)
         }
+        
+        @available(iOS 15.0, tvOS 15.0, *)
+        convenience init(preferredFrameRateRange: CAFrameRateRange? = nil) {
+            self.init()
+            if let preferredFrameRateRange = preferredFrameRateRange {
+                self.preferredFrameRateRange = preferredFrameRateRange
+            }
+        }
 
         /// Creates a new paused DisplayLink instance.
-        init(preferredFrameRateRange: CAFrameRateRange? = nil) {
+        init() {
             displayLink = CADisplayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
             
             if #available(iOS 15.0, tvOS 15.0, *) {
@@ -184,9 +194,6 @@ fileprivate extension DisplayLink {
             
             displayLink.isPaused = true
             displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
-            if let preferredFrameRateRange = preferredFrameRateRange {
-                self.preferredFrameRateRange = preferredFrameRateRange
-            }
             target.callback = { [unowned self] frame in
                 self.onFrame?(frame)
             }

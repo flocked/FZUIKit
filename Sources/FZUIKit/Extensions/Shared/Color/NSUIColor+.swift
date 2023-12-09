@@ -21,7 +21,7 @@ public extension NSUIColor {
       #if os(iOS) || os(tvOS) || os(watchOS)
         getRed(&r, green: &g, blue: &b, alpha: &a)
 
-        return (r, g, b, a)
+        return RGBAComponents(r, g, b, a)
       #elseif os(OSX)
         guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
           fatalError("Could not convert color to RGBA.")

@@ -14,6 +14,7 @@ import UIKit
 import FZSwiftUtils
 import SwiftUI
 
+#if os(macOS)
 public extension ContentConfiguration {
     /**
      A configuration that specifies the appearance of a view.
@@ -104,6 +105,95 @@ public extension ContentConfiguration {
         }
     }
 }
+#else
+public extension ContentConfiguration {
+    /**
+     A configuration that specifies the appearance of a view.
+     
+     `NSView/UIView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.View)`.
+     */
+    struct View: Hashable {
+        /// The background color.
+        public var backgroundColor: NSUIColor? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// The color transformer for resolving the background color.
+        public var backgroundColorTransformer: ColorTransformer? = nil {
+            didSet { updateResolvedColor() } }
+        
+        /// Generates the resolved background color,, using the background color and color transformer.
+        public func resolvedBackgroundColor() -> NSUIColor? {
+            if let backgroundColor = self.backgroundColor {
+                return backgroundColorTransformer?(backgroundColor) ?? backgroundColor
+            }
+            return nil
+        }
+        
+        /// The visual effect of the view.
+        public var visualEffect: VisualEffect? = nil
+        
+        /// The border of the view.
+        public var border: Border = .none()
+        
+        /// The shadow of the view.
+        public var shadow: Shadow = .none()
+        
+        /// The inner shadow of the view.
+        public var innerShadow: InnerShadow = .none()
+        
+        /// The alpha value of the view.
+        public var alpha: CGFloat = 1.0
+        
+        /// The corner radius of the view.
+        public var cornerRadius: CGFloat = 0.0
+        
+        /// The corner curve of the view.
+        public var cornerCurve: CALayerCornerCurve = .circular
+        
+        /// The rounded corners of the view.
+        public var roundedCorners: CACornerMask = .all
+        
+        /// The mask of the view.
+        public var mask: NSUIView? = nil
+        
+        /// The scale transform of the view.
+        public var scale: CGSize = CGSize(width: 1, height: 1)
+        
+        /// The rotation of the view.
+        public var rotation: CGQuaternion = .zero
+        
+        public init() {
+            
+        }
+        
+        internal var _backgroundColor: NSUIColor? = nil
+        internal mutating func updateResolvedColor() {
+            _backgroundColor = resolvedBackgroundColor()
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(backgroundColor)
+            hasher.combine(backgroundColorTransformer)
+            hasher.combine(_backgroundColor)
+            hasher.combine(visualEffect)
+            hasher.combine(border)
+            hasher.combine(shadow)
+            hasher.combine(innerShadow)
+            hasher.combine(alpha)
+            hasher.combine(cornerRadius)
+            hasher.combine(cornerCurve)
+            hasher.combine(roundedCorners)
+            hasher.combine(mask)
+            hasher.combine(scale)
+            hasher.combine(rotation)
+        }
+        
+        public static func == (lhs: ContentConfiguration.View, rhs: ContentConfiguration.View) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+    }
+}
+#endif
 
 public extension NSUIView {
     /**
@@ -131,6 +221,7 @@ public extension NSUIView {
         self.scale = CGPoint(configuration.scale.width, configuration.scale.height)
         self.rotation = configuration.rotation
         
+        #if os(macOS)
         if let backgrpundConfiguration = configuration.backgrpundConfiguration {
             if let backgroundView = backgroundView {
                 backgroundView.configuration = backgrpundConfiguration
@@ -141,8 +232,10 @@ public extension NSUIView {
         } else {
             backgroundView?.removeFromSuperview()
         }
+        #endif
     }
     
+    #if os(macOS)
     fileprivate var backgroundView: BackgroundView? {
         self.viewWithTag(24532453) as? BackgroundView
     }
@@ -186,6 +279,7 @@ public extension NSUIView {
             fatalError("init(coder:) has not been implemented")
         }
     }
+    #endif
 }
 
 #endif

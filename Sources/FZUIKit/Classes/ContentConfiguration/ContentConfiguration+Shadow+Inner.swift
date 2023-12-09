@@ -57,7 +57,7 @@ public extension ContentConfiguration {
         }
 
         /// Initalizes an inner shadow configuration.
-        public init(color: NSUIColor? = .shadowColor,
+        public init(color: NSUIColor? = .black,
                     opacity: CGFloat = 0.3,
                     radius: CGFloat = 2.0,
                     offset: CGPoint = CGPoint(x: 1.0, y: -1.5))

@@ -497,7 +497,7 @@ extension ViewAnimator where View: UIView {
     }
 }
 
-internal extension ViewAnimator<UIView> {
+internal extension PropertyAnimator where Object: UIView {
     var preventsUserInteractions: Bool {
         get { getAssociatedValue(key: "preventsUserInteractions", object: self, initialValue: false) }
         set { set(associatedValue: newValue, key: "preventsUserInteractions", object: self) }
