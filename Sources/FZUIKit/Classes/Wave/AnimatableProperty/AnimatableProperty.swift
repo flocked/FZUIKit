@@ -316,20 +316,10 @@ extension ContentConfiguration.InnerShadow: AnimatableProperty, Animatable {
 
 // MARK: - AnimatableCollection
 
-// Ensures that two collections have the same amount of values for animating between them. If a collection is smaller than the other zero values are added.
+// Ensures two collections have the same count for animating between them. If a collection is smaller zero values are added.
 internal protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
     var count: Int { get }
-    // Returns the collection with new zero values.
-    func withNewValues(amount: Int) -> Self
-    // Ensures the collection has the same amount of values for animating between them.
     func animatable(to collection: any AnimatableCollection) -> Self
-}
-
-extension AnimatableCollection {
-    func animatable(to collection: any AnimatableCollection) -> Self {
-        let diff = collection.count - self.count
-        return diff > 0 ? withNewValues(amount: diff) : self
-    }
 }
 
 extension Array: AnimatableProperty, AnimatableCollection where Element: AnimatableProperty {
@@ -348,24 +338,30 @@ extension Array: AnimatableProperty, AnimatableCollection where Element: Animata
     internal func withNewValues(amount: Int) -> Self {
         self + Array(repeating: .zero, count: amount)
     }
-}
-
-extension AnimatableArray: AnimatableCollection {
-    internal func withNewValues(amount: Int) -> Self {
-        self + Array(repeating: .zero, count: amount)
+    
+    internal func animatable(to collection: any AnimatableCollection) -> Self {
+        let diff = collection.count - self.count
+        return diff > 0 ? (self + Array(repeating: .zero, count: diff)) : self
     }
 }
 
-// MARK: - AnimatableShaodw
-
-// Updates shadows for better interpolation/animations.
-internal protocol AnimatableShaodw {
-    var color: NSUIColor? { get }
-    func animatable(to other: any AnimatableShaodw) -> Self
+extension AnimatableArray: AnimatableCollection {
+    internal func animatable(to collection: any AnimatableCollection) -> Self {
+        let diff = collection.count - self.count
+        return diff > 0 ? (self + Array(repeating: .zero, count: diff)) : self
+    }
 }
 
-extension ContentConfiguration.Shadow: AnimatableShaodw {
-    internal func animatable(to other: AnimatableShaodw) -> Self {
+// MARK: - AnimatableShadow
+
+// Updates shadows for better interpolation/animations.
+internal protocol AnimatableShadow {
+    var color: NSUIColor? { get }
+    func animatable(to other: any AnimatableShadow) -> Self
+}
+
+extension ContentConfiguration.Shadow: AnimatableShadow {
+    internal func animatable(to other: AnimatableShadow) -> Self {
         var shadow = self
         if self.color == nil || self.color?.alpha == 0.0, let otherColor = other.color {
             shadow.color = otherColor.withAlphaComponent(0.0)
@@ -374,8 +370,8 @@ extension ContentConfiguration.Shadow: AnimatableShaodw {
     }
 }
 
-extension ContentConfiguration.InnerShadow: AnimatableShaodw {
-    internal func animatable(to other: AnimatableShaodw) -> Self {
+extension ContentConfiguration.InnerShadow: AnimatableShadow {
+    internal func animatable(to other: AnimatableShadow) -> Self {
         var shadow = self
         if self.color == nil || self.color?.alpha == 0.0, let otherColor = other.color {
             shadow.color = otherColor.withAlphaComponent(0.0)
