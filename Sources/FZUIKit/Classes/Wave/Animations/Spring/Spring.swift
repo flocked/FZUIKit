@@ -134,6 +134,22 @@ public struct Spring: Sendable, Hashable {
         self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
     }
     
+    public init(unresponse response: Double, dampingRatio: Double, mass: Double = 1.0) {
+        precondition(dampingRatio >= 0, "The dampingRatio of the spring has to be >= 0")
+        precondition(response >= 0, "The response of the spring has to be >= 0")
+        
+        self.dampingRatio = dampingRatio
+        self.response = response
+        self.mass = mass
+        self.stiffness = Self.stiffness(response: response, mass: mass)
+        
+        let unbandedDampingCoefficient = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
+        
+        self.damping = unbandedDampingCoefficient
+        
+        self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
+    }
+    
     /*
     /**
      Creates a spring with the specified mass, stiffness, and damping.
