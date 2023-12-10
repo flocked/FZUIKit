@@ -127,10 +127,10 @@ public struct Spring: Sendable, Hashable {
         self.mass = mass
         self.stiffness = Self.stiffness(response: response, mass: mass)
         
-        let unbandedDampingCoefficient = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
+        let unbandedDamping = Self.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         
-      //  self.damping = Rubberband.value(for: unbandedDampingCoefficient, range: 0 ... 60, interval: 15)
-        self.damping = unbandedDampingCoefficient
+      //  self.damping = Rubberband.value(for: unbandedDamping, range: 0 ... 60, interval: 15)
+        self.damping = unbandedDamping
 
         self.settlingDuration = Self.settlingTime(dampingRatio: dampingRatio, damping: damping, stiffness: stiffness, mass: mass)
     }

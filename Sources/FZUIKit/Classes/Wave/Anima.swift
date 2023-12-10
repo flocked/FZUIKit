@@ -244,4 +244,6 @@ public enum Anima {
         set { AnimationController.shared.preferredFrameRateRange = newValue }
     }
 }
+
+// gestureVelocity: (any AnimatableProperty)? = nil,
 #endif

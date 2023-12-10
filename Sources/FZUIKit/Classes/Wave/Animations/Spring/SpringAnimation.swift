@@ -183,7 +183,32 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             
             (self as? SpringAnimation<CGPoint>)?.velocity = gestureVelocity
             (self as? SpringAnimation<CGPoint>)?.fromVelocity = gestureVelocity
+            
+            if let animation = self as? SpringAnimation<CGPoint> {
+              let velocity = calculateInitialVelocity(for: gestureVelocity, from: animation.value, to: animation.target)
+                Swift.print(""gestureVelocity, velocity)
+                animation.velocity = velocity
+                animation.fromVelocity = velocity
+            } else if let animation = self as? SpringAnimation<CGRect> {
+                let velocity = CGRect(calculateInitialVelocity(for: gestureVelocity, from: animation.value.origin, to: animation.target.origin), .zero)
+                animation.velocity = velocity
+                animation.fromVelocity = velocity
+                Swift.print(gestureVelocity, velocity.origin)
+            }
         }
+    }
+    
+    func calculateInitialVelocity(for gestureVelocity: CGPoint, from currentPosition: CGPoint, to finalPosition: CGPoint) -> CGPoint {
+        var animationVelocity: CGPoint = .zero
+        let xDistance = finalPosition.x - currentPosition.x
+        let yDistance = finalPosition.y - currentPosition.y
+        if xDistance != 0 {
+            animationVelocity.x = gestureVelocity.x / xDistance
+        }
+        if yDistance != 0 {
+            animationVelocity.y = gestureVelocity.y / yDistance
+        }
+        return animationVelocity
     }
         
     /**
