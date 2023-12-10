@@ -629,6 +629,7 @@ extension ViewAnimator {
     }
     
     internal func layerAnimation(for keyPath: PartialKeyPath<ViewAnimator>) -> (any ConfigurableAnimationProviding)? {
+        Swift.print(keyPath.stringValue, keyPath == \.backgroundColor)
         switch keyPath {
         case \.backgroundColor: return object.optionalLayer?.animator.animation(for: \.backgroundColor)
         case \.borderColor: return object.optionalLayer?.animator.animation(for: \.borderColor)
