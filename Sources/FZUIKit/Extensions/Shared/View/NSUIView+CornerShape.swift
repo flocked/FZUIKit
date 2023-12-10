@@ -11,14 +11,24 @@ import FZSwiftUtils
 
 public extension NSUIView {
     enum CornerShape: Hashable {
-        /// A view with rounded shape.
+        /// A rounded shape with corner radius equal to the specified value.
         case rounded(CGFloat)
-        /// A view with relative rounded shape.
+        
+        /// A rounded shape with corner radius relative to half the length of the view's smallest edge.
         case roundedRelative(CGFloat)
-        /// A view with circular shape.
+        
+        /// A circular shape with corner radius equal to half the length of the view's smallest edge.
         case circular
-        /// A view with capsule shape.
+        
+        /// A capsule shape with corner radius equal to half the length of the view's smallest edge.
         case capsule
+        
+        internal var needsViewObservation: Bool {
+            switch self {
+            case .rounded: return false
+            default: return true
+            }
+        }
         
         internal var clamped: Self {
             switch self {
@@ -34,8 +44,8 @@ public extension NSUIView {
         set {
             let newValue = newValue?.clamped
             set(associatedValue: newValue, key: "_cornerShape", object: self)
-            if newValue != nil {
-                updateCornerShape()
+            updateCornerShape()
+            if newValue?.needsViewObservation == true {
                 if cornerShapeBoundsObserver == nil {
                     cornerShapeBoundsObserver = observeChanges(for: \.frame) { [weak self] old, new in
                         guard let self = self, old.size != new.size else { return }
@@ -59,57 +69,12 @@ public extension NSUIView {
         case let .rounded(radius):
             cornerRadius = radius
         case let .roundedRelative(value):
-            if bounds.height >= bounds.width {
-                cornerRadius = (bounds.size.height / 2.0) * value
-            } else {
-                cornerRadius = (bounds.size.width / 2.0) * value
-            }
+            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0 * value
         case .capsule:
-            cornerRadius = bounds.size.height / 2.0
+            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0
         case .circular:
-            if bounds.height >= bounds.width {
-                cornerRadius = bounds.size.height / 2.0
-            } else {
-                cornerRadius = bounds.size.width / 2.0
-            }
+            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0
         }
     }
 }
 #endif
-
-/*
- /**
-  The relative corner radius of the view between `0.0` and `1.0`.
-  
-  The corner radius gets automatically updated relative to the view's size.
-  
-  A relative corner radius of 0.25 in a view of size 100x100 translates to a corner radius of 12.5.
-  
-  A relative corner radius of 1.0 will present
-  
-  */
- var relativeCornerRadius: CGFloat? {
-     get { getAssociatedValue(key: "relativeCornerRadius", object: self, initialValue: nil) }
-     set {
-         let newValue = newValue?.clamped(max: 1.0)
-         set(associatedValue: newValue, key: "_cornerShape", object: self)
-         if let relativeCornerRadius = newValue {
-             relativeCornerRadiusObserver = observeChanges(for: \.frame) { [weak self] _, bounds in
-                 guard let self = self else { return }
-                 if bounds.height >= bounds.width {
-                     cornerRadius = (bounds.size.height / 2.0) * relativeCornerRadius
-                 } else {
-                     cornerRadius = (bounds.size.width / 2.0) * relativeCornerRadius
-                 }
-             }
-         } else {
-             relativeCornerRadiusObserver = nil
-         }
-     }
- }
- 
- internal var relativeCornerRadiusObserver: NSKeyValueObservation? {
-     get { getAssociatedValue(key: "relativeCornerRadiusObserver", object: self) }
-     set { set(associatedValue: newValue, key: "relativeCornerRadiusObserver", object: self) }
- }
- */
