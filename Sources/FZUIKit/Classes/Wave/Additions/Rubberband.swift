@@ -52,18 +52,19 @@ public struct Rubberband {
 
     /**
      Rubberbands a floating point value based on the specified boundsSize and contentSize.
-
-     - Parameters:
-       - value: The floating point value to rubberband.
-        - coefficient: A multiplier to decay the value when it's being rubberbanded. Defaults to ``ScrollViewRubberBandingConstant``.
-       - boundsSize: The viewport dimension (i.e. the bounds along the axis of a scroll view)).
-       - contentSize: The size of the content over which the value won't rubberband (i.e. the contentSize along the axis of a scroll view).
-
+     
+     Example usage:
      ```swift
      bounds.origin.x = rubberband(bounds.origin.x - translation.x, boundsSize: bounds.size.width, contentSize: contentSize.width)
      ```
+
+     - Parameters:
+        - value: The floating point value to rubberband.
+        - boundsSize: The viewport dimension (i.e. the bounds along the axis of a scroll view)).
+        - contentSize: The size of the content over which the value won't rubberband (i.e. the contentSize along the axis of a scroll view).
+        - coefficient: A multiplier to decay the value when it's being rubberbanded. Defaults to ``ScrollViewRubberBandingConstant``.
      */
-    public static func value<Value: FloatingPointInitializable>(for value: Value, coefficient: Value = Value(ScrollViewRubberBandingConstant), boundsSize: Value, contentSize: Value) -> Value {
+    public static func value<Value: FloatingPointInitializable>(for value: Value, boundsSize: Value, contentSize: Value, coefficient: Value = Value(ScrollViewRubberBandingConstant)) -> Value {
         var exceededContentsPositively = false
         let x: Value
         if (value + boundsSize) > contentSize {
