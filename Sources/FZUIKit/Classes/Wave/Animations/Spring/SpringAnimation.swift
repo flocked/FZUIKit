@@ -202,6 +202,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         var animationVelocity: CGPoint = .zero
         let xDistance = finalPosition.x - currentPosition.x
         let yDistance = finalPosition.y - currentPosition.y
+        Swift.print("calc", currentPosition, finalPosition, xDistance, yDistance)
         if xDistance != 0 {
             animationVelocity.x = gestureVelocity.x / xDistance
         }
