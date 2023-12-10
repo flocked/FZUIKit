@@ -628,22 +628,22 @@ extension ViewAnimator {
         return (animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
     
-    internal func layerAnimation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> (any ConfigurableAnimationProviding)? {
+    internal func layerAnimation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> AnimationProviding? {
         let layerKeys = object.optionalLayer?.animator.animations.keys.collect() ?? []
         Swift.print(keyPath.stringValue, keyPath == \.backgroundColor, layerKeys.sorted())
   
         switch keyPath {
-        case \.backgroundColor: return object.optionalLayer?.animator.animation(for: \.backgroundColor)
-        case \.borderColor: return object.optionalLayer?.animator.animation(for: \.borderColor)
-        case \.borderWidth: return object.optionalLayer?.animator.animation(for: \.borderWidth)
-        case \.shadow: return object.optionalLayer?.animator.animation(for: \.shadow)
-        case \.innerShadow: return object.optionalLayer?.animator.animation(for: \.innerShadow)
-        case \.alpha: return object.optionalLayer?.animator.animation(for: \.opacity)
-        case \.cornerRadius: return object.optionalLayer?.animator.animation(for: \.cornerRadius)
-        case \.transform3D: return object.optionalLayer?.animator.animation(for: \.transform)
-        case \.scale: return object.optionalLayer?.animator.animation(for: \.scale)
-        case \.translation: return object.optionalLayer?.animator.animation(for: \.translation)
-        case \.rotation: return object.optionalLayer?.animator.animation(for: \.rotation)
+        case \.backgroundColor: return object.optionalLayer?.animator._animation(for: \.backgroundColor)
+        case \.borderColor: return object.optionalLayer?.animator._animation(for: \.borderColor)
+        case \.borderWidth: return object.optionalLayer?.animator._animation(for: \.borderWidth)
+        case \.shadow: return object.optionalLayer?.animator._animation(for: \.shadow)
+        case \.innerShadow: return object.optionalLayer?.animator._animation(for: \.innerShadow)
+        case \.alpha: return object.optionalLayer?.animator._animation(for: \.opacity)
+        case \.cornerRadius: return object.optionalLayer?.animator._animation(for: \.cornerRadius)
+        case \.transform3D: return object.optionalLayer?.animator._animation(for: \.transform)
+        case \.scale: return object.optionalLayer?.animator._animation(for: \.scale)
+        case \.translation: return object.optionalLayer?.animator._animation(for: \.translation)
+        case \.rotation: return object.optionalLayer?.animator._animation(for: \.rotation)
         default: return nil
         }
     }
