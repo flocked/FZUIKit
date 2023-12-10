@@ -9,15 +9,11 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSWindow: AnimatablePropertyProvider {
-    /// Provides animatable properties of the window.
-    public var animator: WindowAnimator {
-        get { getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: WindowAnimator(self)) }
-    }
-}
+extension NSWindow: AnimatablePropertyProvider { }
+public typealias WindowAnimator = PropertyAnimator<NSWindow>
 
 /// Provides animatable properties of a window.
-public class WindowAnimator: PropertyAnimator<NSWindow> {
+extension WindowAnimator {
     /// The frame of the window.
     public var frame: CGRect {
         get { self[\.frame_] }

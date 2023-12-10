@@ -72,13 +72,7 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator, Value>) -> AnimationProviding? {
-        var key = keyPath.stringValue
-        if key.contains("layer."), let viewAnimator = self as? PropertyAnimator<NSUIView> {
-            key = key.replacingOccurrences(of: "layer.", with: "")
-            return viewAnimator.object.optionalLayer?.animator.animations[key]
-        } else {
-            return self.animations[key]
-        }
+        return self.animations[keyPath.stringValue]
     }
     
     /**

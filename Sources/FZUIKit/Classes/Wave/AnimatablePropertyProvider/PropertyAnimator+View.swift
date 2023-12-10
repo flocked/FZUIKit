@@ -15,16 +15,10 @@ import FZSwiftUtils
 
 
 extension NSUIView: AnimatablePropertyProvider { }
-
-extension AnimatablePropertyProvider where Self: NSUIView {
-    /// Provides animatable properties of the view.
-    public var animator: ViewAnimator<Self> {
-        get { getAssociatedValue(key: "ViewAnimator", object: self, initialValue: ViewAnimator(self)) }
-    }
-}
+public typealias ViewAnimator = PropertyAnimator<NSUIView>
 
 /// Provides animatable properties of a view.
-public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
+extension ViewAnimator {
     /// The bounds of the view.
     public var bounds: CGRect {
         get { self[\.bounds] }
@@ -155,17 +149,17 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     }
     
     /// The property animators for the view's subviews.
-    public var subviews: [ViewAnimator<NSUIView>] {
+    public var subviews: [ViewAnimator] {
         object.subviews.compactMap({ $0.animator })
     }
     
     /// The property animator for the view's superview.
-    public var superview: ViewAnimator<NSUIView>? {
+    public var superview: ViewAnimator? {
         object.superview?.animator
     }
     
     /// The property animator for the view's mask.
-    public var mask: ViewAnimator<NSUIView>? {
+    public var mask: ViewAnimator? {
         object.mask?.animator
     }
     
@@ -247,7 +241,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     }
 }
 
-extension ViewAnimator where View: NSUITextField {
+extension PropertyAnimator where Object: NSUITextField {
     /// The text color of the text field.
     public var textColor: NSUIColor? {
         get { self[\.textColor] }
@@ -261,7 +255,7 @@ extension ViewAnimator where View: NSUITextField {
     }
 }
 
-extension ViewAnimator where View: NSUITextView {
+extension PropertyAnimator where Object: NSUITextView {
     /// The font size of the text view.
     public var fontSize: CGFloat {
         get { self[\.fontSize] }
@@ -275,7 +269,7 @@ extension ViewAnimator where View: NSUITextView {
     }
 }
 
-extension ViewAnimator where View: NSUIScrollView {
+extension PropertyAnimator where Object: NSUIScrollView {
     /// The point at which the origin of the content view is offset from the origin of the scroll view.
     public var contentOffset: CGPoint {
         get { self[\.contentOffset] }
@@ -326,7 +320,7 @@ internal extension NSUIView {
     }
 }
 
-extension ViewAnimator where View: NSUIStackView {
+extension PropertyAnimator where Object: NSUIStackView {
     /// The minimum spacing, in points, between adjacent views in the stack view.
     public var spacing: CGFloat {
         get {  self[\.spacing] }
@@ -343,7 +337,7 @@ extension ViewAnimator where View: NSUIStackView {
 }
 
 #if os(macOS)
-extension ViewAnimator where View: NSImageView {
+extension PropertyAnimator where Object: NSImageView {
     /// The tint color of the image.
     public var contentTintColor: NSUIColor? {
         get { self[\.contentTintColor] }
@@ -351,7 +345,7 @@ extension ViewAnimator where View: NSImageView {
     }
 }
 
-extension ViewAnimator where View: NSButton {
+extension PropertyAnimator where Object: NSButton {
     /// The tint color of the button.
     public var contentTintColor: NSUIColor? {
         get { self[\.contentTintColor] }
@@ -359,7 +353,7 @@ extension ViewAnimator where View: NSButton {
     }
 }
 
-extension ViewAnimator where View: ImageView {
+extension PropertyAnimator where Object: ImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor? {
         get { self[\.tintColor] }
@@ -367,7 +361,7 @@ extension ViewAnimator where View: ImageView {
     }
 }
 
-extension ViewAnimator where View: NSControl {
+extension PropertyAnimator where Object: NSControl {
     /// The double value of the control.
     public var doubleValue: Double {
         get { self[\.doubleValue] }
@@ -381,7 +375,7 @@ extension ViewAnimator where View: NSControl {
     }
 }
 
-extension ViewAnimator where View: GradientView {
+extension PropertyAnimator where Object: GradientView {
     public var colors: [NSUIColor] {
         get { self.object.gradientLayer.animator.colors.compactMap({$0.nsUIColor}) }
         set { self.object.gradientLayer.animator.colors = newValue.compactMap({$0.resolvedColor(for: object).cgColor}) }
@@ -403,7 +397,7 @@ extension ViewAnimator where View: GradientView {
     }
 }
 
-extension ViewAnimator where View: NSColorWell {
+extension PropertyAnimator where Object: NSColorWell {
     /// The selected color for the color well.
     public var color: NSColor {
         get { self[\.color] }
@@ -411,7 +405,7 @@ extension ViewAnimator where View: NSColorWell {
     }
 }
 
-extension ViewAnimator where View: NSBox {
+extension PropertyAnimator where Object: NSBox {
     /// The color of the box’s background when the box is a custom box with a simple line border.
     public var fillColor: NSColor {
         get { self[\.fillColor] }
@@ -431,7 +425,7 @@ extension ViewAnimator where View: NSBox {
     }
 }
 
-extension ViewAnimator where View: NSProgressIndicator {
+extension PropertyAnimator where Object: NSProgressIndicator {
     /// The current value of the progress indicator.
     public var doubleValue: Double {
         get {  self[\.doubleValue] }
@@ -489,7 +483,7 @@ internal extension NSBox {
 }
 
 #elseif canImport(UIKit)
-extension ViewAnimator where View: UIView {
+extension PropertyAnimator where Object: UIView {
     /// The default spacing to use when laying out content in a view,
     public var directionalLayoutMargins: NSDirectionalEdgeInsets {
         get { self[\.directionalLayoutMargins] }
@@ -518,7 +512,7 @@ internal extension PropertyAnimator where Object: UIView {
     }
 }
 
-extension ViewAnimator where View: UIImageView {
+extension PropertyAnimator where Object: UIImageView {
     /// The tint color of the image.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
@@ -526,7 +520,7 @@ extension ViewAnimator where View: UIImageView {
     }
 }
 
-extension ViewAnimator where View: UIButton {
+extension PropertyAnimator where Object: UIButton {
     /// The tint color of the button.
     public var tintColor: NSUIColor {
         get { self[\.tintColor] }
@@ -534,7 +528,7 @@ extension ViewAnimator where View: UIButton {
     }
 }
 
-extension ViewAnimator where View: UILabel {
+extension PropertyAnimator where Object: UILabel {
     /// The text color of the label.
     public var textColor: NSUIColor {
         get { self[\.textColor] }
@@ -549,7 +543,7 @@ extension ViewAnimator where View: UILabel {
 }
 
 #if os(iOS)
-extension ViewAnimator where View: UIColorWell {
+extension PropertyAnimator where Object: UIColorWell {
     /// The selected color in the color picker.
     public var selectedColor: NSUIColor? {
         get { self[\.selectedColor] }
@@ -558,7 +552,7 @@ extension ViewAnimator where View: UIColorWell {
 }
 #endif
 
-extension ViewAnimator where View: UIProgressView {
+extension PropertyAnimator where Object: UIProgressView {
     /// The current progress of the progress view.
     public var progress: Float {
         get { self[\.progress] }
@@ -605,6 +599,43 @@ internal extension UIScrollView {
     }
 }
 #endif
+
+extension ViewAnimator {
+    /**
+     The current animation for the property at the specified keypath.
+     
+     - Parameter keyPath: The keypath to an animatable property.
+     */
+    public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> AnimationProviding? {
+        layerAnimation(for: keyPath) ?? self.animations[keyPath.stringValue]
+    }
+    
+    /**
+     The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
+     
+     - Parameter keyPath: The keypath to an animatable property.
+     */
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> Value? {
+        return (animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
+    }
+    
+    internal func layerAnimation(for keyPath: PartialKeyPath<ViewAnimator>) -> (any ConfigurableAnimationProviding)? {
+        switch keyPath {
+        case \.backgroundColor: return object.optionalLayer?.animator.animation(for: \.backgroundColor)
+        case \.borderColor: return object.optionalLayer?.animator.animation(for: \.borderColor)
+        case \.borderWidth: return object.optionalLayer?.animator.animation(for: \.borderWidth)
+        case \.shadow: return object.optionalLayer?.animator.animation(for: \.shadow)
+        case \.innerShadow: return object.optionalLayer?.animator.animation(for: \.innerShadow)
+        case \.alpha: return object.optionalLayer?.animator.animation(for: \.opacity)
+        case \.cornerRadius: return object.optionalLayer?.animator.animation(for: \.cornerRadius)
+        case \.transform3D: return object.optionalLayer?.animator.animation(for: \.transform)
+        case \.scale: return object.optionalLayer?.animator.animation(for: \.scale)
+        case \.translation: return object.optionalLayer?.animator.animation(for: \.translation)
+        case \.rotation: return object.optionalLayer?.animator.animation(for: \.rotation)
+        default: return nil
+        }
+    }
+}
 #endif
 
 /*

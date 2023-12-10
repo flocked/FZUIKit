@@ -14,16 +14,11 @@ import UIKit
 import FZSwiftUtils
 
 extension CALayer: AnimatablePropertyProvider { }
+public typealias LayerAnimator = PropertyAnimator<CALayer>
 
-extension AnimatablePropertyProvider where Self: CALayer {
-    /// Provides animatable properties of the layer.
-    public var animator: LayerAnimator<Self> {
-        get { getAssociatedValue(key: "LayerAnimator", object: self, initialValue: LayerAnimator(self)) }
-    }
-}
 
 /// Provides animatable properties of a layer.
-public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
+extension LayerAnimator {
     /// The bounds of the layer.
     public var bounds: CGRect {
         get { self[\.bounds] }
@@ -142,17 +137,17 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     }
 
     /// The property animators for the layer's sublayers.
-    public var sublayers: [LayerAnimator<CALayer>] {
+    public var sublayers: [LayerAnimator] {
         object.sublayers?.compactMap({$0.animator}) ?? []
     }
     
     /// The property animator for the layer's superlayer.
-    public var superlayer: LayerAnimator<CALayer>? {
+    public var superlayer: LayerAnimator? {
         object.superlayer?.animator
     }
     
     /// The property animator for the layer's mask.
-    public var mask: LayerAnimator<CALayer>? {
+    public var mask: LayerAnimator? {
         object.mask?.animator
     }
     
@@ -241,7 +236,7 @@ extension CALayer {
     }
 }
 
-extension LayerAnimator where Layer: CATextLayer {
+extension PropertyAnimator where Object: CATextLayer {
     /// The font size of the layer.
     public var fontSize: CGFloat {
         get { self[\.fontSize] }
@@ -284,7 +279,7 @@ fileprivate extension CALayer {
      }
 }
 
-extension LayerAnimator where Layer: CAShapeLayer {
+extension PropertyAnimator where Object: CAShapeLayer {
     /// The color used to fill the shape’s path.
     public var fillColor: CGColor? {
         get { self[\.fillColor] }
@@ -334,7 +329,7 @@ extension LayerAnimator where Layer: CAShapeLayer {
     }
 }
 
-extension LayerAnimator where Layer: CAReplicatorLayer {
+extension PropertyAnimator where Object: CAReplicatorLayer {
     /// Specifies the delay, in seconds, between replicated copies.
     public var instanceDelay: CGFloat {
         get { self[\.instanceDelay] }
@@ -378,7 +373,7 @@ extension LayerAnimator where Layer: CAReplicatorLayer {
     }
 }
 
-extension LayerAnimator where Layer: CATiledLayer {
+extension PropertyAnimator where Object: CATiledLayer {
     /// The maximum size of each tile used to create the layer's content.
     public var tileSize: CGSize {
         get { self[\.tileSize] }
@@ -386,7 +381,7 @@ extension LayerAnimator where Layer: CATiledLayer {
     }
 }
 
-extension LayerAnimator where Layer: CAGradientLayer {
+extension PropertyAnimator where Object: CAGradientLayer {
     /// The fill color of the layer.
     public var colors: [CGColor] {
         get { self[\._colors]}
@@ -412,7 +407,7 @@ extension LayerAnimator where Layer: CAGradientLayer {
     }
 }
 
-extension LayerAnimator where Layer: CAEmitterLayer {
+extension PropertyAnimator where Object: CAEmitterLayer {
     /// The position of the center of the particle emitter.
     public var emitterPosition: CGPoint {
         get { self[\.emitterPosition] }
