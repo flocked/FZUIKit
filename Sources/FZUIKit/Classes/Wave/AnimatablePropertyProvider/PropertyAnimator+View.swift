@@ -612,7 +612,11 @@ extension ViewAnimator {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> AnimationProviding? {
-        layerAnimation(for: keyPath) ?? self.animations[keyPath.stringValue]
+        if let layerAnimation = layerAnimation(for: keyPath) {
+            return layerAnimation
+        }
+        _ = self[keyPath: keyPath]
+        return animations[lastAnimationKey]
     }
     
     /**

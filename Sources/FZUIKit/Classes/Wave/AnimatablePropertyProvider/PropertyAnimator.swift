@@ -83,6 +83,8 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator, Value>) -> Value? {
         return (animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
     }
+    
+    var lastAnimationKey: String = ""
 }
 
 internal extension PropertyAnimator {
@@ -199,7 +201,9 @@ internal extension PropertyAnimator {
 internal extension PropertyAnimator {
     /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
     func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> (any ConfigurableAnimationProviding)? {
-        return animations[keyPath.stringValue] as? any ConfigurableAnimationProviding
+        let key = keyPath.stringValue
+        lastAnimationKey = key
+        return animations[key] as? any ConfigurableAnimationProviding
     }
 
     /// The current spring animation for the property at the keypath or key, or `nil` if there isn't a spring animation for the keypath.

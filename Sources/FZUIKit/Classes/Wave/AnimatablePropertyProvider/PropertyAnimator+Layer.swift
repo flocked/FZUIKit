@@ -443,13 +443,11 @@ extension LayerAnimator where Layer: CAEmitterLayer {
         set { self[\.spin] = Float(newValue) }
     }
     
-    /*
     /// Defines a multiplier applied to the cell-defined particle velocity.
     public var velocity: CGFloat {
         get { CGFloat(self[\.velocity]) }
         set { self[\.velocity] = Float(newValue) }
     }
-    */
     
     /// Defines a multiplier that is applied to the cell-defined birth rate.
     public var birthRate: CGFloat {
@@ -484,6 +482,27 @@ internal extension CAGradientLayer {
            return (self.colors as? [CGColor]) ??  [] }
         set { self.colors = newValue }
         }
+}
+
+extension LayerAnimator {
+    /**
+     The current animation for the property at the specified keypath.
+     
+     - Parameter keyPath: The keypath to an animatable property.
+     */
+    public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayerAnimator, Value>) -> AnimationProviding? {
+        _ = self[keyPath: keyPath]
+        return animations[lastAnimationKey]
+    }
+    
+    /**
+     The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
+     
+     - Parameter keyPath: The keypath to an animatable property.
+     */
+    public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayerAnimator, Value>) -> Value? {
+        return (animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
+    }
 }
 
 #endif
