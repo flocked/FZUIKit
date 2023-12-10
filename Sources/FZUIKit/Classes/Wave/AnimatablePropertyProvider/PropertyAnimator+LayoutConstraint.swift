@@ -13,11 +13,15 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-extension NSLayoutConstraint: AnimatablePropertyProvider { }
-public typealias LayoutAnimator = PropertyAnimator<NSLayoutConstraint>
+extension NSLayoutConstraint: AnimatablePropertyProvider {
+    /// Provides animatable properties of the layout constraint.
+    public var animator: LayoutAnimator {
+        get { getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: LayoutAnimator(self)) }
+    }
+}
 
 /// Provides animatable properties of a layout constraint.
-extension LayoutAnimator {
+public class LayoutAnimator: PropertyAnimator<NSLayoutConstraint> {
     /// The constant of the layout constraint.
     public var constant: CGFloat {
         get { self[\.constant] }
