@@ -186,7 +186,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             
             if let animation = self as? SpringAnimation<CGPoint> {
               let velocity = calculateInitialVelocity(for: gestureVelocity, from: animation.value, to: animation.target)
-                Swift.print(""gestureVelocity, velocity)
+                Swift.print(gestureVelocity, velocity)
                 animation.velocity = velocity
                 animation.fromVelocity = velocity
             } else if let animation = self as? SpringAnimation<CGRect> {
