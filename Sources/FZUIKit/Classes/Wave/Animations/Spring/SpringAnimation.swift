@@ -178,38 +178,14 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         }
         
         if let gestureVelocity = settings.type.gestureVelocity {
-            (self as? SpringAnimation<CGRect>)?.velocity.origin = gestureVelocity
-            (self as? SpringAnimation<CGRect>)?.fromVelocity.origin = gestureVelocity
-            
-            (self as? SpringAnimation<CGPoint>)?.velocity = gestureVelocity
-            (self as? SpringAnimation<CGPoint>)?.fromVelocity = gestureVelocity
-            
             if let animation = self as? SpringAnimation<CGPoint> {
-              let velocity = calculateInitialVelocity(for: gestureVelocity, from: animation.value, to: animation.target)
-                Swift.print(gestureVelocity, velocity)
-                animation.velocity = velocity
-                animation.fromVelocity = velocity
+                animation.velocity = gestureVelocity
+                animation.fromVelocity = gestureVelocity
             } else if let animation = self as? SpringAnimation<CGRect> {
-                let velocity = CGRect(calculateInitialVelocity(for: gestureVelocity, from: animation.value.origin, to: animation.target.origin), .zero)
-                animation.velocity = velocity
-                animation.fromVelocity = velocity
-                Swift.print(gestureVelocity, velocity.origin)
+                animation.velocity.origin = gestureVelocity
+                animation.fromVelocity.origin = gestureVelocity
             }
         }
-    }
-    
-    func calculateInitialVelocity(for gestureVelocity: CGPoint, from currentPosition: CGPoint, to finalPosition: CGPoint) -> CGPoint {
-        var animationVelocity: CGPoint = .zero
-        let xDistance = finalPosition.x - currentPosition.x
-        let yDistance = finalPosition.y - currentPosition.y
-        Swift.print("calc", currentPosition, finalPosition, xDistance, yDistance)
-        if xDistance != 0 {
-            animationVelocity.x = gestureVelocity.x / xDistance
-        }
-        if yDistance != 0 {
-            animationVelocity.y = gestureVelocity.y / yDistance
-        }
-        return animationVelocity
     }
         
     /**
