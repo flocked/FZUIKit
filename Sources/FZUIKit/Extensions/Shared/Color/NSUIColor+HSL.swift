@@ -93,9 +93,7 @@ extension NSUIColor {
 /// The HSLA (hue, saturation, lightness, alpha) components of a color.
 public struct HSLAComponents {
     /// The hue component of the color.
-    public var hue: CGFloat {
-        didSet { hue = hue.clamped(max: 1.0) }
-    }
+    public var hue: CGFloat
     
     /// The saturation component of the color.
     public var saturation: CGFloat {
@@ -114,14 +112,14 @@ public struct HSLAComponents {
     
     /// Creates HSLA components with the specified hue, saturation, lightness and alpha components.
     public init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
-        self.hue = hue.clamped(max: 1.0)
+        self.hue = hue
         self.saturation = saturation.clamped(max: 1.0)
         self.lightness = lightness.clamped(max: 1.0)
         self.alpha = alpha.clamped(max: 1.0)
     }
     
     internal init(_ hue: CGFloat, _ saturation: CGFloat, _ lightness: CGFloat, _ alpha: CGFloat) {
-        self.hue = hue.clamped(max: 1.0)
+        self.hue = hue
         self.saturation = saturation.clamped(max: 1.0)
         self.lightness = lightness.clamped(max: 1.0)
         self.alpha = alpha.clamped(max: 1.0)
