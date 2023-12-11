@@ -113,7 +113,11 @@ extension LayoutAnimator {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayoutAnimator, Value>) -> Value? {
-        return (animation(for: keyPath) as? any ConfigurableAnimationProviding)?.velocity as? Value
+        var velocity: Value?
+        Anima.updateVelocity() {
+            velocity = self[keyPath: keyPath]
+        }
+        return velocity
     }
 }
 

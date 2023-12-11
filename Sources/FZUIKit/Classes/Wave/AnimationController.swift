@@ -46,23 +46,6 @@ internal class AnimationController {
         animationSettingsStack.pop()
     }
     
-    var isFetchingAnimationVelocity = false
-    func pushAnimationVelocity() {
-        guard isFetchingAnimationVelocity == false else { return }
-        isFetchingAnimationVelocity = true
-        let settings = AnimationController.AnimationParameters(
-            groupUUID: UUID(),
-            type: .velocityUpdate
-        )
-        animationSettingsStack.push(settings: settings)
-    }
-    
-    func popAnimationVelocity() {
-        guard isFetchingAnimationVelocity else { return }
-        isFetchingAnimationVelocity = false
-        animationSettingsStack.pop()
-    }
-
     public func runAnimation(_ animation: AnimationProviding) {
         if displayLinkIsRunning == false {
             startDisplayLink()
