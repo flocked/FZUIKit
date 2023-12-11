@@ -497,7 +497,7 @@ extension LayerAnimator {
     
     func _animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayerAnimator, Value>) -> AnimationProviding? {
         _ = self[keyPath: keyPath]
-        Swift.print(lastAnimationKey, animations.keys.collect().sorted(), self[keyPath: keyPath])
+        Swift.print(lastAnimationKey, animations.keys.collect().sorted(), self[keyPath: keyPath],  animations[lastAnimationKey] != nil)
         return animations[lastAnimationKey]
     }
     

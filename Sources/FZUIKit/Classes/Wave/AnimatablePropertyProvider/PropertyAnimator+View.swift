@@ -625,6 +625,11 @@ extension ViewAnimator {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> Value? {
+        AnimationController.shared.pushAnimationVelocity()
+        let velocity = self[keyPath: keyPath]
+        AnimationController.shared.popAnimationVelocity()
+        return velocity
+        
         if let animation = (animation(for: keyPath) as? any ConfigurableAnimationProviding) {
             if let velocity = animation.velocity as? Value {
                 return velocity
