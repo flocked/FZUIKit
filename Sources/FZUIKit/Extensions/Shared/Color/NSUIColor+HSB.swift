@@ -30,8 +30,12 @@ extension NSUIColor {
       else if isEqual(NSUIColor.white) {
           return HSBAComponents(0.0, 0.0, 1.0, 1.0)
       }
+        
+        guard let color = self.withSupportedColorSpace() else {
+          fatalError("Could not convert color to RGBA.")
+        }
 
-      getHue(&h, saturation: &s, brightness: &b, alpha: nil)
+        color.getHue(&h, saturation: &s, brightness: &b, alpha: nil)
 
         return HSBAComponents(h, s, b, alphaComponent)
     #endif

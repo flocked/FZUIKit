@@ -323,3 +323,28 @@ extension SpringAnimation: CustomStringConvertible {
     }
 }
 #endif
+
+/*
+ if (Math.abs(velocity) < mVelocityThreshold
+               && Math.abs(value - getFinalPosition()) < mValueThreshold) {
+ 
+ /**
+   * This threshold defines how close the animation value needs to be before the animation can
+   * finish. This default value is based on the property being animated, e.g. animations on alpha,
+   * scale, translation or rotation would have different thresholds. This value should be small
+   * enough to avoid visual glitch of "jumping to the end". But it shouldn't be so small that
+   * animations take seconds to finish.
+   *
+   * @param threshold the difference between the animation value and final spring position that
+   *                  is allowed to end the animation when velocity is very low
+   */
+  void setValueThreshold(double threshold) {
+      mValueThreshold = Math.abs(threshold);
+      mVelocityThreshold = mValueThreshold * VELOCITY_THRESHOLD_MULTIPLIER;
+  }
+ 
+ // This multiplier is used to calculate the velocity threshold given a certain value threshold.
+    // The idea is that if it takes >= 1 frame to move the value threshold amount, then the velocity
+    // is a reasonable threshold.
+    private static final double VELOCITY_THRESHOLD_MULTIPLIER = 1000.0 / 16.0;
+ */
