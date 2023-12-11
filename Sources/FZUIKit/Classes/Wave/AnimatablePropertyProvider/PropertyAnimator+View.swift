@@ -625,19 +625,11 @@ extension ViewAnimator {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> Value? {
-        AnimationController.shared.pushAnimationVelocity()
-        let velocity = self[keyPath: keyPath]
-        AnimationController.shared.popAnimationVelocity()
-        return velocity
-        
-        if let animation = (animation(for: keyPath) as? any ConfigurableAnimationProviding) {
-            if let velocity = animation.velocity as? Value {
-                return velocity
-            } else if Value.self == Optional<NSUIColor>.self, let velocity = animation.velocity as? Optional<CGColor> {
-                return velocity?.nsUIColor as? Value
-            }
+        var velocity: Value?
+        Anima.updateVelocity() {
+            velocity = self[keyPath: keyPath]
         }
-        return nil
+        return velocity
     }
     
     internal func layerAnimation(for keyPath: PartialKeyPath<ViewAnimator>) -> AnimationProviding? {
