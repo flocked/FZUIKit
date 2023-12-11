@@ -114,9 +114,10 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     /// The corner radius of the layer.
     public var cornerRadius: CGFloat {
         get { self[\.cornerRadius] }
-        set { 
+        set {
+            self[\.cornerRadius] = newValue
             object.masksToBounds = false
-            self[\.cornerRadius] = newValue }
+        }
     }
     
     /// The border color of the layer.
@@ -135,8 +136,8 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     public var shadow: ContentConfiguration.Shadow {
         get { self[\.shadow] }
         set {
-            object.masksToBounds = false
             self[\.shadow] = newValue
+            object.masksToBounds = false
         }
     }
     
