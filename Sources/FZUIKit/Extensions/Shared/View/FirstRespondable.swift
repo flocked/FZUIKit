@@ -32,17 +32,9 @@ public protocol FirstRespondable: NSUIResponder {
     @discardableResult func becomeFirstResponder() -> Bool
 }
 
-extension NSUIView: FirstRespondable {
-#if os(macOS)
+extension NSUIView: FirstRespondable { }
 
-#endif
-}
-
-extension NSUIViewController: FirstRespondable {
-#if os(macOS)
-
-#endif
-}
+extension NSUIViewController: FirstRespondable { }
 
 #if os(macOS)
 
@@ -92,12 +84,10 @@ extension NSView {
      The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
      */
    @discardableResult override open func becomeFirstResponder() -> Bool {
-       if self.acceptsFirstResponder, let window = self.window {
-           if window.firstResponder != self, isChangingFirstResponder == false {
-               isChangingFirstResponder = true
-               window.makeFirstResponder(self)
-               return super.becomeFirstResponder()
-           }
+       if self.acceptsFirstResponder, let window = self.window, window.firstResponder != self, !isChangingFirstResponder {
+           isChangingFirstResponder = true
+           window.makeFirstResponder(self)
+           return super.becomeFirstResponder()
        }
        isChangingFirstResponder = false
        return super.becomeFirstResponder()
@@ -109,12 +99,10 @@ extension NSView {
      The default implementation returns 'true', resigning first responder status. Subclasses can override this method to update state or perform some action such as unhighlighting the selection, or to return 'false', refusing to relinquish first responder status.
      */
     @discardableResult override open func resignFirstResponder() -> Bool {
-        if let window = self.window {
-            if window.firstResponder == self, isChangingFirstResponder == false {
-                isChangingFirstResponder = true
-                window.makeFirstResponder(nil)
-                return super.resignFirstResponder()
-            }
+        if let window = self.window, window.firstResponder == self, isChangingFirstResponder == false {
+            isChangingFirstResponder = true
+            window.makeFirstResponder(nil)
+            return super.resignFirstResponder()
         }
         isChangingFirstResponder = false
         return super.resignFirstResponder()
@@ -133,12 +121,10 @@ extension NSViewController {
      The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
      */
     @discardableResult override open func becomeFirstResponder() -> Bool {
-       if self.acceptsFirstResponder, let window = self.view.window {
-           if window.firstResponder != self, isChangingFirstResponder == false {
-               isChangingFirstResponder = true
-               window.makeFirstResponder(self)
-               return super.becomeFirstResponder()
-           }
+       if self.acceptsFirstResponder, let window = self.view.window, window.firstResponder != self, isChangingFirstResponder == false {
+           isChangingFirstResponder = true
+           window.makeFirstResponder(self)
+           return super.becomeFirstResponder()
        }
        isChangingFirstResponder = false
        return super.becomeFirstResponder()
@@ -150,12 +136,10 @@ extension NSViewController {
      The default implementation returns 'true', resigning first responder status. Subclasses can override this method to update state or perform some action such as unhighlighting the selection, or to return 'false', refusing to relinquish first responder status.
      */
     @discardableResult override open func resignFirstResponder() -> Bool {
-        if let window = self.view.window {
-            if window.firstResponder == self, isChangingFirstResponder == false {
-                isChangingFirstResponder = true
-                window.makeFirstResponder(nil)
-                return super.resignFirstResponder()
-            }
+        if let window = self.view.window, window.firstResponder == self, isChangingFirstResponder == false {
+            isChangingFirstResponder = true
+            window.makeFirstResponder(nil)
+            return super.resignFirstResponder()
         }
         isChangingFirstResponder = false
         return super.resignFirstResponder()

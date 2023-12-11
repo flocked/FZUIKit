@@ -82,13 +82,6 @@ internal extension NSView {
         }
     }
     
-    var unproxySelf: Self {
-        if self.isProxy() {
-            return (self.layer?.delegate as? Self) ?? self
-        }
-        return self
-    }
-    
     var _effectiveAppearanceKVO: NSKeyValueObservation? {
         get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
         set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
@@ -136,5 +129,6 @@ internal extension NSView {
         }
     }
 }
+
 #endif
 #endif
