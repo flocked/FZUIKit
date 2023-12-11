@@ -105,6 +105,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
             #endif
             var newValue = newValue
             newValue.color = newValue._resolvedColor?.resolvedColor(for: object)
+            
             object.optionalLayer?.animator.shadow = newValue }
     }
     
