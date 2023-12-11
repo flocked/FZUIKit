@@ -263,6 +263,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     public func stop(at position: AnimationPosition, immediately: Bool = true) {
         delayedStart?.cancel()
         delay = 0.0
+        Swift.print("stop", immediately)
         if immediately == false {
             switch position {
             case .start:

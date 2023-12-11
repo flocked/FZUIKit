@@ -192,8 +192,8 @@ internal extension PropertyAnimator {
             value =  V(collection.animatable(to: targetCollection) as! V.AnimatableData)
             target =  V(targetCollection.animatable(to: collection) as! V.AnimatableData)
         } else if let shadow = value as? any AnimatableShadow, let targetShaodw = target as? AnimatableShadow {
-          //  value = shadow.animatable(to: targetShaodw) as! V
-           // target = targetShaodw.animatable(to: shadow) as! V
+            value = shadow.animatable(to: targetShaodw) as! V
+            target = targetShaodw.animatable(to: shadow) as! V
         }
     }
 }
