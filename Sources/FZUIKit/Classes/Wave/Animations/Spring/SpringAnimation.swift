@@ -168,7 +168,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     /// The animation type.
     var animationType: AnimationController.AnimationParameters.AnimationType {
-        return .decay
+        return .spring
     }
 
     /// Configurates the animation with the specified settings.

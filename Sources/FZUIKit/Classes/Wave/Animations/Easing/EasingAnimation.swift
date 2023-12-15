@@ -165,7 +165,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     /// The animation type.
     var animationType: AnimationController.AnimationParameters.AnimationType {
-        return .decay
+        return .easing
     }
     
     /// Configurates the animation with the specified settings.
