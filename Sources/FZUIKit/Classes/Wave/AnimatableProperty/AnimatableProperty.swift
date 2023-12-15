@@ -312,6 +312,22 @@ extension ContentConfiguration.InnerShadow: AnimatableProperty, Animatable {
         set { self = .init(newValue) }
     }
 }
+
+extension ContentConfiguration.Border: AnimatableProperty, Animatable {
+    public static var zero: ContentConfiguration.Border {
+        .none()
+    }
+    
+    public init(_ animatableData: AnimatableArray<Double>) {
+        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), width: animatableData[4])
+       // self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), opacity: animatableData[4], radius: animatableData[5], offset: .init(animatableData[6], animatableData[7]))
+    }
+    
+    public var animatableData: AnimatableArray<Double> {
+        get { (self._resolvedColor ?? .zero).animatableData + [width] }
+        set { self = .init(newValue) }
+    }
+}
 #endif
 
 // MARK: - AnimatableCollection
@@ -356,11 +372,11 @@ extension AnimatableArray: AnimatableCollection {
 
 // Updates shadows for better interpolation/animations.
 internal protocol AnimatableShadow {
-    var color: NSUIColor? { get }
+    var color: NSUIColor? { get set }
     func animatable(to other: any AnimatableShadow) -> Self
 }
 
-extension ContentConfiguration.Shadow: AnimatableShadow {
+extension AnimatableShadow {
     internal func animatable(to other: AnimatableShadow) -> Self {
         var shadow = self
         if self.color == nil || self.color?.alpha == 0.0, let otherColor = other.color {
@@ -370,15 +386,11 @@ extension ContentConfiguration.Shadow: AnimatableShadow {
     }
 }
 
-extension ContentConfiguration.InnerShadow: AnimatableShadow {
-    internal func animatable(to other: AnimatableShadow) -> Self {
-        var shadow = self
-        if self.color == nil || self.color?.alpha == 0.0, let otherColor = other.color {
-            shadow.color = otherColor.withAlphaComponent(0.0)
-        }
-        return shadow
-    }
-}
+extension ContentConfiguration.Shadow: AnimatableShadow { }
+
+extension ContentConfiguration.InnerShadow: AnimatableShadow { }
+
+extension ContentConfiguration.Border: AnimatableShadow { }
 
 // MARK: - AnimatableColor
 

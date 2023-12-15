@@ -117,6 +117,12 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         set { self[\.cornerRadius] = newValue }
     }
     
+    /// The border of the layer.
+    public var border: ContentConfiguration.Border {
+        get { self[\.border] }
+        set { self[\.border] = newValue }
+    }
+    
     /// The border color of the layer.
     public var borderColor: CGColor? {
         get { self[\.borderColor] }
@@ -514,6 +520,16 @@ extension LayerAnimator {
             velocity = self[keyPath: keyPath]
         }
         return velocity
+    }
+}
+
+extension CALayer {
+    var border: ContentConfiguration.Border {
+        get { ContentConfiguration.Border(color: borderColor?.nsUIColor, width: borderWidth) }
+        set {
+            borderColor = newValue._resolvedColor?.cgColor
+            borderWidth = newValue.width
+        }
     }
 }
 

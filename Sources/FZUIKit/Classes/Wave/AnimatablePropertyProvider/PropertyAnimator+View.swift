@@ -80,6 +80,12 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
         set { object.optionalLayer?.animator.cornerRadius = newValue }
     }
     
+    /// The border of the view.
+    public var border: ContentConfiguration.Border {
+        get { object.optionalLayer?.animator.border ?? .none() }
+        set { object.optionalLayer?.animator.border = newValue }
+    }
+    
     /// The border color of the view.
     public var borderColor: NSUIColor? {
         get { object.optionalLayer?.animator.borderColor?.nsUIColor  }
