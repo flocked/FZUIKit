@@ -93,6 +93,11 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         set { self[\.transform] = newValue }
     }
     
+    public var transform2D: CGAffineTransform {
+        get { self[\.transform2D] }
+        set { self[\.transform2D] = newValue }
+    }
+    
     /// The scale of the layer.
     public var scale: CGPoint {
         get { CGPoint(self.transform.scale.x, self.transform.scale.y) }
@@ -244,6 +249,11 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
 }
 
 extension CALayer {
+    var transform2D: CGAffineTransform {
+        get { affineTransform() }
+        set { setAffineTransform(newValue) }
+    }
+    
     internal var _shadowColor: NSUIColor {
         get { shadowColor?.nsUIColor ?? .zero }
         set { shadowColor = newValue.cgColor }

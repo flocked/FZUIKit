@@ -130,8 +130,13 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     
     /// The three-dimensional transform of the view.
     public var transform3D: CATransform3D {
-        get { object.optionalLayer?.transform ?? CATransform3DIdentity }
-        set { object.optionalLayer?.transform = newValue }
+        get { object.optionalLayer?.animator.transform ?? CATransform3DIdentity }
+        set { object.optionalLayer?.animator.transform = newValue }
+    }
+    
+    public var transform: CGAffineTransform {
+        get { object.optionalLayer?.animator.transform2D ?? CGAffineTransformIdentity }
+        set { object.optionalLayer?.animator.transform2D = newValue }
     }
     
     /// The scale transform of the view.
@@ -620,11 +625,12 @@ extension ViewAnimator {
      */
     public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<ViewAnimator, Value>) -> AnimationProviding? {
         object.optionalLayer?.animator.lastAnimationKey = ""
+        lastAnimationKey = ""
         _ = self[keyPath: keyPath]
-        if let layerKey = object.optionalLayer?.animator.lastAnimationKey, layerKey != "" {
-            return object.optionalLayer?.animator.animations[layerKey]
+        if let layerAnimationKey = object.optionalLayer?.animator.lastAnimationKey, layerAnimationKey != "" {
+            return object.optionalLayer?.animator.animations[layerAnimationKey]
         }
-        return animations[lastAnimationKey]
+        return animations[lastAnimationKey != "" ? lastAnimationKey : keyPath.stringValue]
     }
     
     /**
