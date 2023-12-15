@@ -500,8 +500,9 @@ extension LayerAnimator {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayerAnimator, Value>) -> AnimationProviding? {
+        lastAnimationKey = ""
         _ = self[keyPath: keyPath]
-        return animations[lastAnimationKey]
+        return animations[lastAnimationKey != "" ? lastAnimationKey : keyPath.stringValue]
     }
     
     func _animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayerAnimator, Value>) -> AnimationProviding? {

@@ -71,8 +71,9 @@ extension WindowAnimator {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<WindowAnimator, Value>) -> AnimationProviding? {
+        lastAnimationKey = ""
         _ = self[keyPath: keyPath]
-        return animations[lastAnimationKey]
+        return animations[lastAnimationKey != "" ? lastAnimationKey : keyPath.stringValue]
     }
     
     /**

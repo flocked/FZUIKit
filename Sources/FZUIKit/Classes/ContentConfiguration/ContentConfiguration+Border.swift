@@ -74,6 +74,13 @@ public extension ContentConfiguration {
             Self(color: color, width: width)
         }
         
+        #if os(macOS)
+        /// A configuration for a border with controlAccent color.
+        public static func controlAccent(width: CGFloat = 2.0) -> Self {
+            Self(color: .controlAccentColor, width: width)
+        }
+        #endif
+        
         /// A configuration for a dashed border with the specified color.
         public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0) -> Self {
             return Self(color: color, width: width, dashPattern: [2])

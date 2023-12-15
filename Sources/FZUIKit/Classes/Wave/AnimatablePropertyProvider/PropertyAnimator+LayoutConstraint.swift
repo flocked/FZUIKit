@@ -103,8 +103,9 @@ extension LayoutAnimator {
      - Parameter keyPath: The keypath to an animatable property.
      */
     public func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayoutAnimator, Value>) -> AnimationProviding? {
+        lastAnimationKey = ""
         _ = self[keyPath: keyPath]
-        return animations[lastAnimationKey]
+        return animations[lastAnimationKey != "" ? lastAnimationKey : keyPath.stringValue]
     }
     
     /**
