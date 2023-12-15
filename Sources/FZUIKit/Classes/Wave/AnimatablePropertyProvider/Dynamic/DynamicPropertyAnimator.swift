@@ -122,7 +122,7 @@ internal extension DynamicPropertyAnimator {
             return
         }
         
-        guard value(for: keyPath) != newValue || settings.type.isNonAnimated else {
+        guard value(for: keyPath) != newValue || settings.configuration.isNonAnimated else {
             return
         }
         
@@ -132,7 +132,7 @@ internal extension DynamicPropertyAnimator {
         
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
         
-        switch settings.type {
+        switch settings.configuration {
         case .spring(_,_):
             let animation = springAnimation(for: keyPath) ?? SpringAnimation<Value>(spring: .smooth, value: initialValue, target: targetValue)
             configurateAnimation(animation, target: targetValue, keyPath: keyPath, settings: settings, completion: completion)
@@ -153,7 +153,7 @@ internal extension DynamicPropertyAnimator {
     func configurateAnimation<Value>(_ animation: some ConfigurableAnimationProviding<Value>, target: Value, keyPath: WritableKeyPath<Object, Value>, settings: AnimationController.AnimationParameters, completion: (()->())? = nil) {
         var animation = animation
         animation.reset()
-        if settings.type.isVelocityDecayAnimation, let animation = animation as? DecayAnimation<Value> {
+        if settings.configuration.isDecayVelocity, let animation = animation as? DecayAnimation<Value> {
             animation.velocity = target
             animation._fromVelocity = animation._velocity
         } else {

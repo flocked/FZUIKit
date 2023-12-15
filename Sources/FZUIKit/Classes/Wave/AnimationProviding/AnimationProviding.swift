@@ -84,6 +84,7 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     var _velocity: Value.AnimatableData { get set }
     func configure(withSettings settings: AnimationController.AnimationParameters)
     func reset()
+    var animationType: AnimationController.AnimationParameters.AnimationType { get }
 }
 
 extension ConfigurableAnimationProviding {

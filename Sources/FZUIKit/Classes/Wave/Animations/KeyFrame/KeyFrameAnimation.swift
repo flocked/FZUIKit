@@ -11,7 +11,6 @@ import Foundation
 import FZSwiftUtils
 
 public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimationProviding {
-        
     /// A unique identifier for the animation.
     public let id = UUID()
     
@@ -94,6 +93,10 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     
     var delayedStart: DispatchWorkItem?
     
+    var animationType: AnimationController.AnimationParameters.AnimationType {
+        .decay
+    }
+    
     func keyFrame(for time: TimeInterval) -> (Value.AnimatableData, KeyFrame)? {
         var current: TimeInterval = 0.0
         for (index, keyFrame) in keyFrames.enumerated() {
@@ -109,7 +112,7 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
-        groupUUID = settings.groupUUID
+        groupUUID = settings.groupID
         integralizeValues = settings.integralizeValues
         repeats = settings.repeats
         autoreverse = settings.autoreverse

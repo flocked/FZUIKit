@@ -75,9 +75,9 @@ public enum Anima {
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
         let settings = AnimationController.AnimationParameters(
-            groupUUID: UUID(),
+            groupID: UUID(),
             delay: delay,
-            type: .spring(spring: spring, gestureVelocity: gestureVelocity),
+            configuration: .spring(spring: spring, gestureVelocity: gestureVelocity),
             options: options,
             completion: completion
         )
@@ -115,9 +115,9 @@ public enum Anima {
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
         let settings = AnimationController.AnimationParameters(
-            groupUUID: UUID(),
+            groupID: UUID(),
             delay: delay,
-            type: .easing(timingFunction: timingFunction, duration: duration),
+            configuration: .easing(timingFunction: timingFunction, duration: duration),
             options: options,
             completion: completion
         )
@@ -168,9 +168,9 @@ public enum Anima {
         completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)? = nil
     ) {
         let settings = AnimationController.AnimationParameters(
-            groupUUID: UUID(),
+            groupID: UUID(),
             delay: delay,
-            type: .decay(mode: mode, decelerationRate: decelerationRate),
+            configuration: .decay(mode: mode, decelerationRate: decelerationRate),
             options: options,
             completion: completion
         )
@@ -198,8 +198,8 @@ public enum Anima {
      */
     public static func nonAnimate(changes: () -> Void) {
         let settings = AnimationController.AnimationParameters(
-            groupUUID: UUID(),
-            type: .nonAnimated
+            groupID: UUID(),
+            configuration: .nonAnimated
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
@@ -230,8 +230,8 @@ public enum Anima {
      */
     public static func updateVelocity(changes: () -> Void) {
         let settings = AnimationController.AnimationParameters(
-            groupUUID: UUID(),
-            type: .velocityUpdate
+            groupID: UUID(),
+            configuration: .velocityUpdate
         )
         
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)

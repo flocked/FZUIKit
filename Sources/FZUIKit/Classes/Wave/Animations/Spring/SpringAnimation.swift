@@ -165,11 +165,16 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
+    
+    /// The animation type.
+    var animationType: AnimationController.AnimationParameters.AnimationType {
+        return .decay
+    }
 
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
-        groupUUID = settings.groupUUID
-        spring = settings.type.spring ?? spring
+        groupUUID = settings.groupID
+        spring = settings.configuration.spring ?? spring
         repeats = settings.repeats
         autoreverse = settings.autoreverse
         integralizeValues = settings.integralizeValues
@@ -177,7 +182,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             _velocity = .zero
         }
         
-        if let gestureVelocity = settings.type.gestureVelocity {
+        if let gestureVelocity = settings.configuration.gestureVelocity {
             if let animation = self as? SpringAnimation<CGPoint> {
                 animation.velocity = gestureVelocity
                 animation.fromVelocity = gestureVelocity

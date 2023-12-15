@@ -215,14 +215,19 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
+    
+    /// The animation type.
+    var animationType: AnimationController.AnimationParameters.AnimationType {
+        return .decay
+    }
         
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
-        groupUUID = settings.groupUUID
+        groupUUID = settings.groupID
         repeats = settings.repeats
         integralizeValues = settings.integralizeValues
-        if decelerationRate != settings.type.decelerationRate {
-            decelerationRate = settings.type.decelerationRate ?? decelerationRate
+        if decelerationRate != settings.configuration.decelerationRate {
+            decelerationRate = settings.configuration.decelerationRate ?? decelerationRate
         }
     }
             

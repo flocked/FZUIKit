@@ -163,11 +163,16 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The item that starts the animation delayed.
     var delayedStart: DispatchWorkItem? = nil
     
+    /// The animation type.
+    var animationType: AnimationController.AnimationParameters.AnimationType {
+        return .decay
+    }
+    
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
-        groupUUID = settings.groupUUID
-        timingFunction = settings.type.timingFunction ?? timingFunction
-        duration = settings.type.duration ?? duration
+        groupUUID = settings.groupID
+        timingFunction = settings.configuration.timingFunction ?? timingFunction
+        duration = settings.configuration.duration ?? duration
         integralizeValues = settings.integralizeValues
         repeats = settings.repeats
         autoreverse = settings.autoreverse

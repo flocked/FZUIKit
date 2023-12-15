@@ -39,7 +39,7 @@ internal class AnimationController {
         precondition(Thread.isMainThread, "All Anima animations are to run and be interfaced with on the main thread only. There is no support for threading of any kind.")
 
         // Register the handler
-        groupAnimationCompletionBlocks[settings.groupUUID] = completion
+        groupAnimationCompletionBlocks[settings.groupID] = completion
 
         animationSettingsStack.push(settings: settings)
         animations()
@@ -149,16 +149,16 @@ internal class AnimationController {
 
 extension AnimationController {
     struct AnimationParameters {
-        let groupUUID: UUID
+        let groupID: UUID
         let delay: CGFloat
-        let type: AnimationType
+        let configuration: AnimationConfiguration
         let options: AnimationOptions
         let completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)?
         
-        init(groupUUID: UUID, delay: CGFloat = 0.0, type: AnimationType, options: AnimationOptions = [], completion: ( (_: Bool, _: Bool) -> Void)? = nil) {
-            self.groupUUID = groupUUID
+        init(groupID: UUID, delay: CGFloat = 0.0, configuration: AnimationConfiguration, options: AnimationOptions = [], completion: ( (_: Bool, _: Bool) -> Void)? = nil) {
+            self.groupID = groupID
             self.delay = delay
-            self.type = type
+            self.configuration = configuration
             self.options = options
             self.completion = completion
         }
@@ -175,21 +175,12 @@ extension AnimationController {
             options.contains(.autoreverse)
         }
         
+        var isAnimation: Bool {
+            !configuration.isNonAnimated
+        }
+        
         var resetSpringVelocity: Bool {
             options.contains(.resetSpringVelocity)
-        }
-        
-        var isAnimation: Bool {
-            !type.isNonAnimated
-        }
-        
-        var needsVelocityValue: Bool {
-            switch type {
-            case .velocityUpdate: return true
-            case .decay(let mode, _):
-                return mode == .velocity
-            default: return false
-            }
         }
                 
         #if os(iOS) || os(tvOS)
@@ -198,14 +189,42 @@ extension AnimationController {
         }
         #endif
         
+        var animationType: AnimationType? {
+            configuration.type
+        }
+        
         enum AnimationType {
+            case spring
+            case easing
+            case decay
+        }
+        
+        var needsVelocityValue: Bool {
+            switch configuration {
+            case .velocityUpdate: return true
+            case .decay(let mode, _):
+                return mode == .velocity
+            default: return false
+            }
+        }
+        
+        enum AnimationConfiguration {
             case spring(spring: Spring, gestureVelocity: CGPoint?)
             case easing(timingFunction: TimingFunction, duration: TimeInterval)
             case decay(mode: DecayAnimationMode, decelerationRate: Double)
             case nonAnimated
             case velocityUpdate
             
-            var isVelocityDecayAnimation: Bool {
+            var type: AnimationType? {
+                switch self {
+                case .spring: return .spring
+                case .easing: return .easing
+                case .decay: return .decay
+                default: return nil
+                }
+            }
+            
+            var isDecayVelocity: Bool {
                 switch self {
                 case .decay(let mode, _): return mode == .velocity
                 default: return false
@@ -218,7 +237,14 @@ extension AnimationController {
                 default: return false
                 }
             }
-   
+            
+            var isAnyVelocity: Bool {
+                switch self {
+                case .velocityUpdate, .decay(_, _): return true
+                default: return false
+                }
+            }
+            
             var isNonAnimated: Bool {
                 switch self {
                 case .nonAnimated: return true

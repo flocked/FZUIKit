@@ -104,8 +104,14 @@ internal extension PropertyAnimator {
             return
         }
         
-        guard value(for: keyPath) != newValue else {
-            return
+        if value(for: keyPath) == newValue {
+            if let animationType = settings.animationType {
+                guard animationType != animation(for: keyPath)?.animationType else {
+                    return
+                }
+            } else {
+                return
+            }
         }
         
         var value = object[keyPath: keyPath]
@@ -114,7 +120,7 @@ internal extension PropertyAnimator {
 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
         
-        switch settings.type {
+        switch settings.configuration {
         case .decay(_,_):
             let animation = decayAnimation(for: keyPath) ?? DecayAnimation(value: value, target: target)
             configurateAnimation(animation, target: target, keyPath: keyPath, settings: settings, completion: completion)
@@ -140,7 +146,7 @@ internal extension PropertyAnimator {
         var animation = animation
         animation.reset()
         
-        if settings.type.isVelocityDecayAnimation, let animation = animation as? DecayAnimation<Value> {
+        if settings.configuration.isDecayVelocity, let animation = animation as? DecayAnimation<Value> {
             animation.velocity = target
             animation._fromVelocity = animation._velocity
         } else {
