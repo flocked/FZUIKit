@@ -1,10 +1,11 @@
 //
-//  File.swift
+//  KeyFrameAnimation.swift
 //  
 //
-//  Created by Florian Zand on 15.12.23.
+//  Created by Florian Zand on 03.12.23.
 //
 
+/*
 #if os(macOS) || os(iOS) || os(tvOS)
 
 import Foundation
@@ -16,7 +17,7 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     
     /// A unique identifier that associates an animation with an grouped animation block.
     public internal(set) var groupUUID: UUID?
-    
+
     /// The relative priority of the animation.
     public var relativePriority: Int = 0
     
@@ -26,9 +27,15 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     /// The delay (in seconds) after which the animations begin.
     public internal(set) var delay: TimeInterval = 0.0
     
+    /// A Boolean value indicating whether the animation repeats indefinitely.
+    public var repeats: Bool = false
+    
+    /// A Boolean value indicating whether the animation is running backwards and forwards (must be combined with ``repeats`` `true`).
+    public var autoreverse: Bool = false
+        
     /// A Boolean value indicating whether the animation is running in the reverse direction.
     public var isReversed: Bool = false
-    
+        
     /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries when the animation finishes. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
@@ -36,9 +43,12 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     public var autoStarts: Bool = false
     
     /// The keyframe of the animation.
-    public var keyFrames: [KeyFrame] = []
+    public var keyFrames: [KeyFrame]
     
-    var currentKeyFrameIndex = 0
+    /// The total duration of the animation.
+    public var duration: TimeInterval {
+        self.keyFrames.compactMap({$0.totalDuration}).sum()
+    }
     
     public var value: Value {
         get { Value(_value) }
@@ -70,9 +80,13 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
         get { keyFrames.last?._target ?? _value }
     }
     
+    internal var fractionComplete: Double {
+       runningTime / duration
+    }
+    
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
-    
+
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
@@ -84,112 +98,144 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
         .decay
     }
     
+    func keyFrame(for time: TimeInterval) -> (Value.AnimatableData, KeyFrame)? {
+        var current: TimeInterval = 0.0
+        for (index, keyFrame) in keyFrames.enumerated() {
+            current += keyFrame.totalDuration
+            if current > time {
+                if let keyFrame = keyFrames[safe: index-1] {
+                    return  (keyFrames[safe: index-2]?._target ?? _fromValue, keyFrame)
+                }
+            }
+        }
+        return nil
+    }
+    
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
         groupUUID = settings.groupID
         integralizeValues = settings.integralizeValues
+        repeats = settings.repeats
+        autoreverse = settings.autoreverse
     }
     
     func reset() {
-        keyFrameAnimation?.stop()
-        keyFrameAnimation = nil
-        currentKeyFrameIndex = 0
-        didSetKeyframeDelay = false
+        
     }
     
-    var currentKeyFrame: KeyFrame? {
-        keyFrames[safe: currentKeyFrameIndex]
-    }
-    
-    func keyFrameAnimationCompleted(_ event: AnimationEvent<Value>) {
-        if event.isFinished {
-            keyFrameAnimation = nil
-            currentKeyFrameIndex += 1
-        }
-    }
-    
-    var didSetKeyframeDelay = false
-    func setupKeyframeAnimation(_ animation: some ConfigurableAnimationProviding<Value>, updateVelocity: Bool = false, delay: TimeInterval) {
-        var animation = animation
-        animation.completion = keyFrameAnimationCompleted
-        animation.valueChanged = { newValue in
-            self._velocity = animation._velocity
-            self.valueChanged?(newValue)
-        }
-        if updateVelocity {
-            animation._velocity = _velocity
-        }
-        animation.integralizeValues = integralizeValues
-        animation.start(afterDelay: delay)
-        keyFrameAnimation = animation
-    }
+    var keyFrameFractionComplete = 0.0
+    var currentKeyFrameIndex = 0
     
     /**
      Updates the progress of the animation with the specified delta time.
-     
+
      - parameter deltaTime: The delta time.
      */
     public func updateAnimation(deltaTime: TimeInterval) {
         state = .running
-                
+        
+        let isAnimated = !keyFrames.isEmpty
+        
         guard deltaTime > 0.0 else { return }
         
-        let isAnimated = !keyFrames.isEmpty && currentKeyFrameIndex < keyFrames.count
+        runningTime += deltaTime
         
-        if let keyFrame = currentKeyFrame {
-            if keyFrameAnimation == nil {
-                switch keyFrame.mode {
-                case .spring(let spring):
-                    let animation = SpringAnimation(spring: spring, value: value, target: keyFrame.target)
-                    setupKeyframeAnimation(animation, updateVelocity: true, delay: keyFrame.delay)
-                case .easing(let timingFunction, let duration):
-                    let animation = EasingAnimation(timingFunction: timingFunction, duration: duration, value: value, target: target)
-                    setupKeyframeAnimation(animation, delay: keyFrame.delay)
-                case .decay(let decelerationRate):
-                    let animation = DecayAnimation(value: value, target: keyFrame.target, decelerationRate: decelerationRate)
-                    setupKeyframeAnimation(animation, delay: keyFrame.delay)
-                case .move:
-                    let move = {
-                        self.didSetKeyframeDelay = false
-                        self.value = keyFrame.target
-                        self.currentKeyFrameIndex += 1
-                    }
-                    
-                    delayedStart?.cancel()
-
-                    if keyFrame.delay == .zero {
-                        move()
-                    } else if didSetKeyframeDelay == false {
-                        didSetKeyframeDelay = true
-                        let task = DispatchWorkItem {
-                            move()
-                        }
-                        delayedStart = task
-                        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
-                    }
+        let previousValue = _value
+        runningTime += deltaTime
+        var startValue = isReversed ? _target :  _fromValue
+        if let currentKeyFrame = keyFrames[safe: currentKeyFrameIndex], runningTime > currentKeyFrame.totalDuration {
+            currentKeyFrameIndex = isReversed ? currentKeyFrameIndex - 1 : currentKeyFrameIndex - 1
+            runningTime = currentKeyFrame.totalDuration - runningTime
+            startValue = currentKeyFrame._target
+            Swift.print("next", currentKeyFrameIndex, runningTime, startValue)
+        }
+        
+        if let currentKeyFrame = keyFrames[safe: currentKeyFrameIndex] {
+            if runningTime > currentKeyFrame.delay {
+                var fractionComplete = runningTime-currentKeyFrame.delay / currentKeyFrame.duration
+                if isReversed {
+                    fractionComplete = 1.0 - fractionComplete
                 }
-            } else {
-                if let keyFrameAnimation = keyFrameAnimation {
-                    keyFrameAnimation.updateAnimation(deltaTime: deltaTime)
-                }
+                let resolvedFractionComplete = currentKeyFrame.timingFunction.solve(at: fractionComplete, duration: currentKeyFrame.duration)
+              _value = startValue.interpolated(towards: currentKeyFrame._target, amount: resolvedFractionComplete)
             }
         }
         
+        _velocity = (_value - previousValue).scaled(by: 1.0/deltaTime)
+        
         let animationFinished = (keyFrames[safe: currentKeyFrameIndex] == nil) || !isAnimated
-
+        
         if animationFinished {
-            _value = isReversed ? _fromValue : _target
+            if repeats, isAnimated {
+                if autoreverse {
+                    isReversed = !isReversed
+                }
+                runningTime = 0.0
+                currentKeyFrameIndex = isReversed ? keyFrames.count - 1 : 0
+                _value = isReversed ? _target : _fromValue
+            } else {
+                _value = isReversed ? _fromValue : _target
+            }
         }
         
         let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
-        if animationFinished || !isAnimated {
+        if (animationFinished && !repeats) || !isAnimated {
             stop(at: .current)
         }
+
+        /*
+        let duration = self.duration
+        let remainingTime = duration - runningTime
+        
+        var startValue: Value.AnimatableData? = nil
+        var currentKeyFrame = keyFrames.first
+   
+            var time: TimeInterval = 0.0
+            for (index, keyFrame) in keyFrames.enumerated() {
+                time += keyFrame.totalDuration
+                
+                if time < runningTime {
+                    currentKeyFrame = keyFrame
+                } else {
+                    
+                }
+        }
+        
+        if isAnimated {
+            let secondsElapsed = deltaTime/duration
+            fractionComplete = isReversed ? (fractionComplete - secondsElapsed) : (fractionComplete + secondsElapsed)
+            _value = _fromValue.interpolated(towards: _target, amount: resolvedFractionComplete)
+        } else {
+            fractionComplete = isReversed ? 0.0 : 1.0
+            _value = isReversed ? _fromValue : _target
+        }
+        
+        _velocity = (_value - previousValue).scaled(by: 1.0/deltaTime)
+        
+        let animationFinished = (isReversed ? runningTime <= 0.0 : runningTime >= duration) || !isAnimated
+        
+        if animationFinished {
+            if repeats, isAnimated {
+                if autoreverse {
+                    isReversed = !isReversed
+                }
+                runningTime = isReversed ? duration : 0.0
+                _value = _fromValue.interpolated(towards: _target, amount: resolvedFractionComplete)
+            } else {
+                _value = isReversed ? _fromValue : _target
+            }
+        }
+        
+        let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
+        valueChanged?(callbackValue)
+
+        if (animationFinished && !repeats) || !isAnimated {
+            stop(at: .current)
+        }
+         */
     }
-    
-    var keyFrameAnimation: (any ConfigurableAnimationProviding)? = nil
     
     /**
      Creates a new animation with the specified initial value and keyframes.
@@ -228,27 +274,21 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
 
     public func pause() {
         guard state == .running else { return }
-        keyFrameAnimation?.pause()
         AnimationController.shared.stopAnimation(self)
         state = .inactive
         delayedStart?.cancel()
         delay = 0.0
     }
-        
+    
     public func stop(at position: AnimationPosition, immediately: Bool = true) {
         delayedStart?.cancel()
-        keyFrameAnimation?.stop()
         delay = 0.0
         if immediately == false {
             switch position {
             case .start:
-                (keyFrameAnimation as? DecayAnimation<Value>)?.target = fromValue
-                (keyFrameAnimation as? EasingAnimation<Value>)?.target = fromValue
-                (keyFrameAnimation as? SpringAnimation<Value>)?.target = fromValue
+                target = fromValue
             case .current:
-                (keyFrameAnimation as? DecayAnimation<Value>)?.target = value
-                (keyFrameAnimation as? EasingAnimation<Value>)?.target = value
-                (keyFrameAnimation as? SpringAnimation<Value>)?.target = value
+                target = value
             default: break
             }
         } else {
@@ -270,82 +310,34 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     }
 }
 
-public extension KeyFrameAnimation {
+public extension KeyFrameAnimation {    
     struct KeyFrame {
-        enum Mode {
-            case spring(Spring)
-            case easing(TimingFunction, TimeInterval)
-            case decay(Double)
-            case move
-            
-            var decelerationRate: Double? {
-                switch self {
-                case .decay(let decelerationRate): return decelerationRate
-                default: return nil
-                }
-            }
-            
-            var spring: Spring? {
-                switch self {
-                case .spring(let spring): return spring
-                default: return nil
-                }
-            }
-            
-            var timingFunction: TimingFunction? {
-                switch self {
-                case .easing(let timingFunction, _): return timingFunction
-                default: return nil
-                }
-            }
-            
-            var duration: TimeInterval? {
-                switch self {
-                case .easing(_, let duration): return duration
-                default: return nil
-                }
-            }
-        }
-        
-        /// A spring animated keyframe.
-        public init(withSpring spring: Spring, target: Value, delay: TimeInterval = 0.0) {
-            _target = target.animatableData
-            mode = .spring(spring)
-            self.delay = delay
-        }
-        
-        /// An easing animated keyframe.
-        public init(withEasing timingFunction: TimingFunction, duration: TimeInterval, target: Value, delay: TimeInterval = 0.0) {
-            _target = target.animatableData
-            mode = .easing(timingFunction, duration)
-            self.delay = delay
-        }
-        
-        /// A decay animated keyframe.
-        public init(withDecay target: Value, decelerationRate: Double = DecayFunction.ScrollViewDecelerationRate, delay: TimeInterval = 0.0) {
-            _target = target.animatableData
-            self.mode = .decay(decelerationRate)
-            self.delay = delay
-        }
-        
-        /// A  keyframe that moves immediately to the target.
-        public init(target: Value, delay: TimeInterval = 0.0) {
-            _target = target.animatableData
-            self.mode = .move
-            self.delay = delay
-        }
-        
-        /// The delay (in seconds) after which the keyframe begin.
-        public let delay: TimeInterval
-        
         /// The target value of the keyframe.
         public var target: Value {
             get { Value(_target) }
         }
         
         let _target: Value.AnimatableData
-
-        let mode: Mode
+        
+        /// The total duration (in seconds) of the keyframe.
+        public let duration: TimeInterval
+        
+        /// The timing function of the keyframe.
+        public let timingFunction: TimingFunction
+        
+        /// The delay (in seconds) after which the keyframe begin.
+        public let delay: TimeInterval
+        
+        internal var totalDuration: TimeInterval {
+            duration + delay
+        }
+        
+        public init(target: Value, duration: TimeInterval, timingFunction: TimingFunction, delay: TimeInterval = 0.0) {
+            self._target = target.animatableData
+            self.duration = duration
+            self.timingFunction = timingFunction
+            self.delay = delay
+        }
     }
 }
 
@@ -363,6 +355,19 @@ extension KeyFrameAnimation {
     }
 }
 
+extension KeyFrameAnimation.KeyFrame: CustomStringConvertible {
+    public var description: String {
+        """
+        KeyFrame(
+            target: \(target)
+            duration: \(duration)
+            timingFunction: \(timingFunction.name)
+            delay: \(delay)
+        )
+        """
+    }
+}
+
 extension KeyFrameAnimation: CustomStringConvertible {
     public var description: String {
         """
@@ -377,8 +382,12 @@ extension KeyFrameAnimation: CustomStringConvertible {
             keyFrames: \(keyFrames)
         
             fromValue: \(fromValue)
+            fractionComplete: \(fractionComplete)
 
+            duration: \(duration)
             isReversed: \(isReversed)
+            repeats: \(repeats)
+            autoreverse: \(autoreverse)
             integralizeValues: \(integralizeValues)
             autoStarts: \(autoStarts)
 
@@ -390,3 +399,5 @@ extension KeyFrameAnimation: CustomStringConvertible {
 }
 
 #endif
+
+*/

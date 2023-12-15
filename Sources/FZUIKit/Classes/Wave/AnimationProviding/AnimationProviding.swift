@@ -82,6 +82,7 @@ internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
     var delayedStart: DispatchWorkItem? { get set }
     var velocity: Value { get set }
     var _velocity: Value.AnimatableData { get set }
+    var integralizeValues: Bool { get set }
     func configure(withSettings settings: AnimationController.AnimationParameters)
     func reset()
     var animationType: AnimationController.AnimationParameters.AnimationType { get }

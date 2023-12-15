@@ -152,10 +152,10 @@ extension AnimationController {
         let groupID: UUID
         let delay: CGFloat
         let configuration: AnimationConfiguration
-        let options: AnimationOptions
+        let options: Anima.AnimationOptions
         let completion: ((_ finished: Bool, _ retargeted: Bool) -> Void)?
         
-        init(groupID: UUID, delay: CGFloat = 0.0, configuration: AnimationConfiguration, options: AnimationOptions = [], completion: ( (_: Bool, _: Bool) -> Void)? = nil) {
+        init(groupID: UUID, delay: CGFloat = 0.0, configuration: AnimationConfiguration, options: Anima.AnimationOptions = [], completion: ( (_: Bool, _: Bool) -> Void)? = nil) {
             self.groupID = groupID
             self.delay = delay
             self.configuration = configuration
@@ -211,7 +211,7 @@ extension AnimationController {
         enum AnimationConfiguration {
             case spring(spring: Spring, gestureVelocity: CGPoint?)
             case easing(timingFunction: TimingFunction, duration: TimeInterval)
-            case decay(mode: DecayAnimationMode, decelerationRate: Double)
+            case decay(mode: Anima.DecayAnimationMode, decelerationRate: Double)
             case nonAnimated
             case velocityUpdate
             
