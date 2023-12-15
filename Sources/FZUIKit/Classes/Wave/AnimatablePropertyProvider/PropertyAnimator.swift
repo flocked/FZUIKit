@@ -114,6 +114,7 @@ internal extension PropertyAnimator {
                 return
             }
         }
+        Swift.print("set value", settings.animationType?.rawValue ?? "nil", animation(for: keyPath)?.animationType.rawValue ?? "nil")
         
         var value = object[keyPath: keyPath]
         var target = newValue
