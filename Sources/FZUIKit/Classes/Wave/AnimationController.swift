@@ -193,7 +193,7 @@ extension AnimationController {
             configuration.type
         }
         
-        enum AnimationType {
+        enum AnimationType: Int, Hashable {
             case spring
             case easing
             case decay

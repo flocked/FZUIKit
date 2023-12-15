@@ -105,6 +105,7 @@ internal extension PropertyAnimator {
         }
         
         if value(for: keyPath) == newValue {
+            Swift.print("same value", settings.animationType?.rawValue ?? "nil", animation(for: keyPath)?.animationType.rawValue ?? "nil")
             if let animationType = settings.animationType {
                 guard animationType != animation(for: keyPath)?.animationType else {
                     return
