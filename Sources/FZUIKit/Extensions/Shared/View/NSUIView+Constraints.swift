@@ -13,7 +13,8 @@ import UIKit
 #endif
 
 public extension NSUIView {
-    enum ConstraintValueMode {
+    /// Constants how a view is constraint.
+    enum ConstraintMode {
         public enum Position: Int {
             case top
             case topLeft
@@ -24,12 +25,14 @@ public extension NSUIView {
             case bottom
             case bottomLeft
             case bottomRight
-
         }
         
         case relative
+        /// The view's frame is constraint to the edges of the other view.
         case absolute
+        /// The view's frame is constraint to the edges of the other view.
         case full
+        /// The view's frame is constraint to the edges of the other view with the specified insets.
         case insets(NSUIEdgeInsets)
         case positioned(Position, padding: CGFloat = 0)
         internal var padding: CGFloat? {
@@ -37,14 +40,6 @@ public extension NSUIView {
             case .positioned(_, let padding): return padding
             default: return nil
             }
-        }
-
-        public static func insets(_ directionalEdgeInsets: NSDirectionalEdgeInsets) -> ConstraintValueMode {
-            #if os(macOS)
-            return .insets(directionalEdgeInsets.nsEdgeInsets)
-            #elseif canImport(UIKit)
-            return .insets(directionalEdgeInsets.uiEdgeInsets)
-            #endif
         }
     }
 
@@ -69,7 +64,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: bottom, left, width and height.
      */
     @discardableResult
-    func addSubview(withConstraint view: NSUIView, _ mode: ConstraintValueMode) -> [NSLayoutConstraint] {
+    func addSubview(withConstraint view: NSUIView, _ mode: ConstraintMode) -> [NSLayoutConstraint] {
         addSubview(view)
         return view.constraint(to: self, mode)
     }
@@ -84,6 +79,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: bottom, left, width and height.
      */
     @discardableResult
+    
     func insertSubview(withConstraint view: NSUIView, at index: Int) -> [NSLayoutConstraint] {
         return insertSubview(withConstraint: view, .full, at: index)
     }
@@ -99,7 +95,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: bottom, left, width and height.
      */
     @discardableResult
-    func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintValueMode, at index: Int) -> [NSLayoutConstraint] {
+    func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintMode, at index: Int) -> [NSLayoutConstraint] {
         guard index < subviews.count else { return [] }
         insertSubview(view, at: index)
         return view.constraint(to: self, mode)
@@ -113,7 +109,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: bottom, left, width and height.
      */
     @discardableResult
-    func constraintToSuperview(_ mode: ConstraintValueMode = .full) -> [NSLayoutConstraint] {
+    func constraintToSuperview(_ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         guard let superview = self.superview else { return [] }
         return constraint(to: superview, mode)
     }
@@ -128,7 +124,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: bottom, left, width and height.
      */
     @discardableResult
-    func constraint(to view: NSUIView, _ mode: ConstraintValueMode = .full) -> [NSLayoutConstraint] {
+    func constraint(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         let constants: [CGFloat]
         
         switch mode {
@@ -195,7 +191,7 @@ public extension NSUIView {
         - view: The view to be added. After being added, this view appears on top of any other subviews.
         - mode: The mode for autoresizing the subview..
      */
-    func addSubview(withAutoresizing view: NSUIView, mode: ConstraintValueMode) {
+    func addSubview(withAutoresizing view: NSUIView, mode: ConstraintMode) {
         view.translatesAutoresizingMaskIntoConstraints = true
         addSubview(view)
         view.autoresize(to: view, using: mode)
@@ -209,13 +205,13 @@ public extension NSUIView {
         - index: The index of insertation.
         - mode: The mode for autoresizing the subview..
      */
-    func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintValueMode, to index: Int) {
+    func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintMode, to index: Int) {
         guard index < subviews.count else { return }
         addSubview(withAutoresizing: view, mode: mode)
         moveSubview(view, to: index)
     }
 
-    internal func autoresize(to view: NSView, using mode: ConstraintValueMode) {
+    internal func autoresize(to view: NSView, using mode: ConstraintMode) {
         translatesAutoresizingMaskIntoConstraints = true
         switch mode {
         case .full:
@@ -252,4 +248,5 @@ public extension NSUIView {
         return [x, y, width, height]
     }
 }
+
 #endif

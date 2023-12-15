@@ -13,6 +13,58 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+public extension NSLayoutAnchor where AnchorType == NSLayoutXAxisAnchor {
+    /**
+     Returns a constraint that defines one item’s attribute as equal to another item’s attribute plus a constant offset.
+     
+     - Parameters:
+        - anchor: A layout anchor from a `UIView`, `NSView`, or `UILayoutGuide` object. You must use a subclass of NSLayoutAnchor that matches the current anchor. For example, if you call this method on an NSLayoutXAxisAnchor object, this parameter must be another NSLayoutXAxisAnchor.
+        - multiplier: The multiplier of the constraint. The default value is `1.0`.
+        - constant: The constant offset for the constraint.
+        - priority: The priority of the constraint. The default value is `required`.
+     
+     - Returns: An `NSLayoutConstraint` object that defines an equal relationship between the attributes represented by the two layout anchors plus a constant offset.
+     */
+    func constraint(equalTo anchor: NSLayoutAnchor<AnchorType>, multiplier: CGFloat = 1.0, constant: CGFloat = 0.0, priority: NSUILayoutPriority = .required) -> NSLayoutConstraint {
+        let constraint = self.constraint(equalTo: anchor)
+        return NSLayoutConstraint(
+            item: constraint.firstItem!,
+            attribute: constraint.firstAttribute,
+            relatedBy: constraint.relation,
+            toItem: constraint.secondItem,
+            attribute: constraint.secondAttribute,
+            multiplier: multiplier,
+            constant: constant
+        ).priority(priority)
+    }
+}
+
+extension NSLayoutAnchor where AnchorType == NSLayoutYAxisAnchor {
+    /**
+     Returns a constraint that defines one item’s attribute as equal to another item’s attribute plus a constant offset.
+     
+     - Parameters:
+        - anchor: A layout anchor from a `UIView`, `NSView`, or `UILayoutGuide` object. You must use a subclass of NSLayoutAnchor that matches the current anchor. For example, if you call this method on an NSLayoutXAxisAnchor object, this parameter must be another NSLayoutXAxisAnchor.
+        - multiplier: The multiplier of the constraint. The default value is `1.0`.
+        - constant: The constant offset for the constraint.
+        - priority: The priority of the constraint. The default value is `required`.
+
+     - Returns: An `NSLayoutConstraint` object that defines an equal relationship between the attributes represented by the two layout anchors plus a constant offset.
+     */
+    func constraint(equalTo anchor: NSLayoutAnchor<AnchorType>, multiplier: CGFloat = 1.0, constant: CGFloat = 0.0, priority: NSUILayoutPriority = .required) -> NSLayoutConstraint {
+        let constraint = self.constraint(equalTo: anchor)
+        return NSLayoutConstraint(
+            item: constraint.firstItem!,
+            attribute: constraint.firstAttribute,
+            relatedBy: constraint.relation,
+            toItem: constraint.secondItem,
+            attribute: constraint.secondAttribute,
+            multiplier: multiplier,
+            constant: constant
+        ).priority(priority)
+    }
+}
+
 public extension NSLayoutConstraint {
     /// Activates the constraint and returns itself.
     @discardableResult func activate() -> NSLayoutConstraint {
