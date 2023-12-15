@@ -102,9 +102,10 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     }
     
     func keyFrameAnimationCompleted(_ event: AnimationEvent<Value>) {
+        Swift.print("keyFrameAnimationCompleted", currentKeyFrameIndex, event.isFinished, event.isRetargeted, keyFrameAnimation ?? "nil", keyFrameAnimation?.id ?? "nil")
         if event.isFinished {
-            keyFrameAnimation = nil
             currentKeyFrameIndex += 1
+            keyFrameAnimation = nil
         }
     }
     
