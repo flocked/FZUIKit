@@ -134,10 +134,12 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
         set { object.optionalLayer?.animator.transform = newValue }
     }
     
+    /*
     public var transform: CGAffineTransform {
         get { object.optionalLayer?.animator.transform2D ?? CGAffineTransformIdentity }
         set { object.optionalLayer?.animator.transform2D = newValue }
     }
+    */
     
     /// The scale transform of the view.
     public var scale: CGPoint {
@@ -149,6 +151,12 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     public var rotation: CGQuaternion {
         get { object.optionalLayer?.animator.rotation ?? .zero }
         set { object.optionalLayer?.animator.rotation = newValue }
+    }
+    
+    /// The rotation of the view's transform (expressed as euler angles, in radians).
+    public var eulerAngles: CGVector3 {
+        get { object.optionalLayer?.animator.eulerAngles ?? .zero }
+        set { object.optionalLayer?.animator.eulerAngles = newValue }
     }
     
     /// The translation transform of the view.

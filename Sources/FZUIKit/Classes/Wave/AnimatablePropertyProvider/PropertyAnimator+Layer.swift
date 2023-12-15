@@ -93,10 +93,12 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         set { self[\.transform] = newValue }
     }
     
+    /*
     public var transform2D: CGAffineTransform {
         get { self[\.transform2D] }
         set { self[\.transform2D] = newValue }
     }
+    */
     
     /// The scale of the layer.
     public var scale: CGPoint {
@@ -108,6 +110,12 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     public var rotation: CGQuaternion {
         get { self[\.rotation] }
         set { self[\.rotation] = newValue }
+    }
+    
+    /// The rotation of the layer's transform (expressed as euler angles, in radians).
+    public var eulerAngles: CGVector3 {
+        get { self[\.eulerAngles] }
+        set { self[\.eulerAngles] = newValue }
     }
     
     /// The translation transform of the layer.
@@ -249,11 +257,6 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
 }
 
 extension CALayer {
-    var transform2D: CGAffineTransform {
-        get { affineTransform() }
-        set { setAffineTransform(newValue) }
-    }
-    
     internal var _shadowColor: NSUIColor {
         get { shadowColor?.nsUIColor ?? .zero }
         set { shadowColor = newValue.cgColor }

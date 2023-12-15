@@ -280,6 +280,21 @@ extension CGQuaternion: AnimatableProperty, Animatable {
         CGQuaternion.init(degree: 0, axis: .init(0, 0, 0))
     }
 }
+
+extension CGVector3: AnimatableProperty, Animatable {
+    public init(_ animatableData: AnimatableArray<Double>) {
+        self.storage = .init(x: animatableData[0], y: animatableData[1], z: animatableData[2])
+    }
+    
+    public var animatableData: AnimatableArray<Double> {
+        get { [x, y, z,] }
+        set { self = .init(newValue) }
+    }
+    
+    public static var zero: CGVector3 {
+        CGVector3(0, 0, 0)
+    }
+}
 #endif
 
 #if os(macOS) || os(iOS) || os(tvOS)
