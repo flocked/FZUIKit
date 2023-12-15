@@ -113,6 +113,7 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
         var animation = animation
         animation.completion = keyFrameAnimationCompleted
         animation.valueChanged = { newValue in
+            self.value = newValue
             self._velocity = animation._velocity
             self.valueChanged?(newValue)
         }
@@ -170,7 +171,7 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
                 }
             } else {
                 if let keyFrameAnimation = keyFrameAnimation {
-                    keyFrameAnimation.updateAnimation(deltaTime: deltaTime)
+                 //   keyFrameAnimation.updateAnimation(deltaTime: deltaTime)
                 }
             }
         }
@@ -179,10 +180,13 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
 
         if animationFinished {
             _value = isReversed ? _fromValue : _target
+            
+            let callbackValue = integralizeValues ? value.scaledIntegral : value
+            valueChanged?(callbackValue)
         }
         
-        let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
-        valueChanged?(callbackValue)
+   //     let callbackValue = (integralizeValues && animationFinished) ? value.scaledIntegral : value
+   //     valueChanged?(callbackValue)
 
         if animationFinished || !isAnimated {
             stop(at: .current)
