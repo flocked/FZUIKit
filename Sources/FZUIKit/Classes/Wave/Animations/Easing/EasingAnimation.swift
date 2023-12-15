@@ -164,9 +164,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     var delayedStart: DispatchWorkItem? = nil
     
     /// The animation type.
-    var animationType: AnimationController.AnimationParameters.AnimationType {
-        return .easing
-    }
+    let animationType: AnimationController.AnimationParameters.AnimationType = .easing
     
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {

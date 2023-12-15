@@ -167,9 +167,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     var delayedStart: DispatchWorkItem? = nil
     
     /// The animation type.
-    var animationType: AnimationController.AnimationParameters.AnimationType {
-        return .spring
-    }
+    let animationType: AnimationController.AnimationParameters.AnimationType = .spring
 
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {

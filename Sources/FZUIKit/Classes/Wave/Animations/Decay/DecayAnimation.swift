@@ -217,9 +217,7 @@ public class DecayAnimation<Value: AnimatableProperty>: ConfigurableAnimationPro
     var delayedStart: DispatchWorkItem? = nil
     
     /// The animation type.
-    var animationType: AnimationController.AnimationParameters.AnimationType {
-        return .decay
-    }
+    let animationType: AnimationController.AnimationParameters.AnimationType = .decay
         
     /// Configurates the animation with the specified settings.
     func configure(withSettings settings: AnimationController.AnimationParameters) {
