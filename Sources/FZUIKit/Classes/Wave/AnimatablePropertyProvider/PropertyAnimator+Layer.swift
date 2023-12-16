@@ -87,18 +87,24 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         set { self[\.opacity] = Float(newValue) }
     }
     
-    /// The three-dimensional transform of the layer.
-    public var transform: CATransform3D {
-        get { self[\.transform] }
-        set { self[\.transform] = newValue }
-    }
-    
     /*
     public var transform2D: CGAffineTransform {
         get { self[\.transform2D] }
         set { self[\.transform2D] = newValue }
     }
     */
+    
+    /// The three-dimensional transform of the layer.
+    public var transform: CATransform3D {
+        get { self[\._transform] }
+        set { self[\._transform] = newValue }
+    }
+    
+    /// The translation transform of the layer.
+    public var translation: CGPoint {
+        get { CGPoint(transform.translation.x, transform.translation.y) }
+        set { transform.translation = Translation(newValue.x, newValue.y, transform.translation.z) }
+    }
     
     /// The scale of the layer.
     public var scale: CGPoint {
@@ -108,32 +114,32 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     
     /// The rotation of the layer.
     public var rotation: CGQuaternion {
-        get { self[\.rotation] }
-        set { self[\.rotation] = newValue }
+        get { transform.rotation }
+        set { transform.rotation = newValue }
     }
     
     /// The rotation of the layer's transform (expressed as euler angles, in radians).
     public var eulerAngles: CGVector3 {
-        get { self[\.eulerAngles] }
-        set { self[\.eulerAngles] = newValue }
+        get { transform.eulerAngles }
+        set { transform.eulerAngles = newValue }
+    }
+    
+    /// The rotation of the layer's transform (expressed as euler angles, in degrees).
+    public var eulerAnglesDegrees: CGVector3 {
+        get { transform.eulerAnglesDegrees }
+        set { transform.eulerAnglesDegrees = newValue }
     }
     
     /// The perspective of the layer's transform (e.g. .m34).
     public var perspective: Perspective {
-        get { self[\.perspective] }
-        set { self[\.perspective] = newValue }
+        get { transform.perspective }
+        set { transform.perspective = newValue }
     }
     
     /// The shearing of the layer's transform.
     public var skew: Skew {
-        get { self[\.skew] }
-        set { self[\.skew] = newValue }
-    }
-    
-    /// The translation transform of the layer.
-    public var translation: CGPoint {
-        get { CGPoint(self.transform.translation.x, self.transform.translation.y) }
-        set { self.transform.translation = Translation(newValue.x, newValue.y, self.transform.translation.z) }
+        get { transform.skew }
+        set { transform.skew = newValue }
     }
     
     /// The corner radius of the layer.
@@ -269,6 +275,15 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
 }
 
 extension CALayer {
+    var _transform: CATransform3D {
+        get { transform }
+        set {
+            DisableActions {
+                transform = newValue
+            }
+        }
+    }
+    
     internal var _shadowColor: NSUIColor {
         get { shadowColor?.nsUIColor ?? .zero }
         set { shadowColor = newValue.cgColor }

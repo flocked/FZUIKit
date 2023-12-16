@@ -159,6 +159,12 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
         set { object.optionalLayer?.animator.eulerAngles = newValue }
     }
     
+    /// The rotation of the view's transform (expressed as euler angles, in degrees).
+    public var eulerAnglesDegrees: CGVector3 {
+        get { object.optionalLayer?.animator.eulerAnglesDegrees ?? .zero }
+        set { object.optionalLayer?.animator.eulerAnglesDegrees = newValue }
+    }
+    
     /// The perspective of the view's transform (e.g. .m34).
     public var perspective: Perspective {
         get { object.optionalLayer?.animator.perspective ?? .zero }
