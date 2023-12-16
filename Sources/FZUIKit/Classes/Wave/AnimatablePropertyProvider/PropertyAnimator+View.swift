@@ -147,22 +147,22 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
         set { object.optionalLayer?.animator.scale = newValue  }
     }
     
-    /// The rotation transform of the view.
-    public var rotation: CGQuaternion {
+    /// The translation transform of the view.
+    public var translation: CGPoint {
+        get { object.optionalLayer?.animator.translation ?? .zero }
+        set { object.optionalLayer?.animator.translation = newValue }
+    }
+    
+    /// The rotation of the view as euler angles in degrees.
+    public var rotation: CGVector3 {
         get { object.optionalLayer?.animator.rotation ?? .zero }
         set { object.optionalLayer?.animator.rotation = newValue }
     }
     
-    /// The rotation of the view's transform (expressed as euler angles, in radians).
-    public var eulerAngles: CGVector3 {
-        get { object.optionalLayer?.animator.eulerAngles ?? .zero }
-        set { object.optionalLayer?.animator.eulerAngles = newValue }
-    }
-    
-    /// The rotation of the view's transform (expressed as euler angles, in degrees).
-    public var eulerAnglesDegrees: CGVector3 {
-        get { object.optionalLayer?.animator.eulerAnglesDegrees ?? .zero }
-        set { object.optionalLayer?.animator.eulerAnglesDegrees = newValue }
+    /// The rotation of the view as euler angles in radians.
+    public var rotationInRadians: CGVector3 {
+        get { object.optionalLayer?.animator.rotationInRadians ?? .zero }
+        set { object.optionalLayer?.animator.rotationInRadians = newValue }
     }
     
     /// The perspective of the view's transform (e.g. .m34).
@@ -175,12 +175,6 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     public var skew: Skew {
         get { object.optionalLayer?.animator.skew ?? .zero }
         set { object.optionalLayer?.animator.skew = newValue }
-    }
-    
-    /// The translation transform of the view.
-    public var translation: CGPoint {
-        get { object.optionalLayer?.animator.translation ?? .zero }
-        set { object.optionalLayer?.animator.translation = newValue }
     }
     
     /// The view's layer animator.

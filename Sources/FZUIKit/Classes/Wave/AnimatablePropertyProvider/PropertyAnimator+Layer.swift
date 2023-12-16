@@ -112,22 +112,16 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         set { self.transform.scale = Scale(newValue.x, newValue.y, transform.scale.z) }
     }
     
-    /// The rotation of the layer.
-    public var rotation: CGQuaternion {
-        get { transform.rotation }
-        set { transform.rotation = newValue }
-    }
-    
-    /// The rotation of the layer's transform (expressed as euler angles, in radians).
-    public var eulerAngles: CGVector3 {
-        get { transform.eulerAngles }
-        set { transform.eulerAngles = newValue }
-    }
-    
-    /// The rotation of the layer's transform (expressed as euler angles, in degrees).
-    public var eulerAnglesDegrees: CGVector3 {
+    /// The rotation of the layer's transform as euler angles in degrees.
+    public var rotation: CGVector3 {
         get { transform.eulerAnglesDegrees }
         set { transform.eulerAnglesDegrees = newValue }
+    }
+    
+    /// The rotation of the layer's transform as euler angles in radians.
+    public var rotationInRadians: CGVector3 {
+        get { transform.eulerAngles }
+        set { transform.eulerAngles = newValue }
     }
     
     /// The perspective of the layer's transform (e.g. .m34).
