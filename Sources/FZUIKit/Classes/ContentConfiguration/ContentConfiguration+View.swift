@@ -69,7 +69,7 @@ public extension ContentConfiguration {
         public var scale: CGSize = CGSize(width: 1, height: 1)
         
         /// The rotation of the view.
-        public var rotation: CGQuaternion = .zero
+        public var rotation: CGVector3 = .zero
         
         /// The background configuration of the view.
         public var backgrpundConfiguration: NSContentConfiguration? = nil
@@ -160,7 +160,7 @@ public extension ContentConfiguration {
         public var scale: CGSize = CGSize(width: 1, height: 1)
         
         /// The rotation of the view.
-        public var rotation: CGQuaternion = .zero
+        public var rotation: CGVector3 = .zero
         
         public init() {
             

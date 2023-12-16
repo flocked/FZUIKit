@@ -281,7 +281,13 @@ extension CGQuaternion: AnimatableProperty, Animatable {
     }
 }
 
-extension CGVector3: AnimatableProperty, Animatable {
+extension CGVector3: AnimatableProperty, Animatable, Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(x)
+        hasher.combine(y)
+        hasher.combine(z)
+    }
+    
     public init(_ animatableData: AnimatableArray<Double>) {
         self.storage = .init(x: animatableData[0], y: animatableData[1], z: animatableData[2])
     }
