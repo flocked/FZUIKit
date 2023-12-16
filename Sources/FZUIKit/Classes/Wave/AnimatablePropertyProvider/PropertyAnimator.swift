@@ -118,7 +118,15 @@ internal extension PropertyAnimator {
         
         var value = object[keyPath: keyPath]
         var target = newValue
+        Swift.print("--------------")
+        Swift.print("set value 0")
+        Swift.print(value.animatableData)
+        Swift.print(target.animatableData)
         updateValue(&value, target: &target)
+        Swift.print("set value 1")
+        Swift.print(value.animatableData)
+        Swift.print(target.animatableData)
+        Swift.print("--------------")
 
         AnimationController.shared.executeHandler(uuid: animation(for: keyPath)?.groupUUID, finished: false, retargeted: true)
         
@@ -160,6 +168,10 @@ internal extension PropertyAnimator {
         animation.valueChanged = { [weak self] value in
             self?.object[keyPath: keyPath] = value
         }
+        
+        Swift.print("configurate animation")
+        Swift.print(animation.value.animatableData)
+        Swift.print(animation.target.animatableData)
         
         #if os(iOS) || os(tvOS)
         if settings.preventUserInteraction {
