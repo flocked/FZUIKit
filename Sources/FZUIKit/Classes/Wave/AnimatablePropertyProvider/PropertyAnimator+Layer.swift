@@ -65,8 +65,37 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     
     /// Defines the anchor point of the layer's bounds rectangle.
     public var anchorPoint: CGPoint {
+        get { _anchorPoint }
+        set { setAnchorPoint(newValue) }
+    }
+
+    var _anchorPoint: CGPoint {
         get { self[\.anchorPoint] }
         set { self[\.anchorPoint] = newValue }
+    }
+    
+    var position: CGPoint {
+        get { self[\.position] }
+        set { self[\.position] = newValue }
+    }
+    
+    func setAnchorPoint(_ anchorPoint: CGPoint) {
+        var newPoint = CGPoint(object.bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
+        var oldPoint = CGPoint(object.bounds.size.width * object.anchorPoint.x, bounds.size.height * object.anchorPoint.y)
+
+        newPoint = newPoint.applying(object.affineTransform())
+        oldPoint = oldPoint.applying(object.affineTransform())
+
+        var position = object.position
+
+        position.x -= oldPoint.x
+        position.x += newPoint.x
+
+        position.y -= oldPoint.y
+        position.y += newPoint.y
+
+        self.position = position
+        self._anchorPoint = anchorPoint
     }
     
     /// The background color of the layer.
