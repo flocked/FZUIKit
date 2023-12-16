@@ -295,6 +295,21 @@ extension CGVector3: AnimatableProperty, Animatable {
         CGVector3(0, 0, 0)
     }
 }
+
+extension CGVector4: AnimatableProperty, Animatable {
+    public init(_ animatableData: AnimatableArray<Double>) {
+        self.storage = .init(x: animatableData[0], y: animatableData[1], z: animatableData[2], w: animatableData[3])
+    }
+
+    public var animatableData: AnimatableArray<Double> {
+        get { [x, y, z, w] }
+        set { self = .init(newValue) }
+    }
+        
+    public static var zero: CGVector4 {
+        CGVector4(0, 0, 0, 0)
+    }
+}
 #endif
 
 #if os(macOS) || os(iOS) || os(tvOS)

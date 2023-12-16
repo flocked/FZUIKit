@@ -159,6 +159,18 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
         set { object.optionalLayer?.animator.eulerAngles = newValue }
     }
     
+    /// The perspective of the view's transform (e.g. .m34).
+    public var perspective: Perspective {
+        get { object.optionalLayer?.animator.perspective ?? .zero }
+        set { object.optionalLayer?.animator.perspective = newValue }
+    }
+    
+    /// The shearing of the view's transform.
+    public var skew: Skew {
+        get { object.optionalLayer?.animator.skew ?? .zero }
+        set { object.optionalLayer?.animator.skew = newValue }
+    }
+    
     /// The translation transform of the view.
     public var translation: CGPoint {
         get { object.optionalLayer?.animator.translation ?? .zero }

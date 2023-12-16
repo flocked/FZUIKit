@@ -118,6 +118,18 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         set { self[\.eulerAngles] = newValue }
     }
     
+    /// The perspective of the layer's transform (e.g. .m34).
+    public var perspective: Perspective {
+        get { self[\.perspective] }
+        set { self[\.perspective] = newValue }
+    }
+    
+    /// The shearing of the layer's transform.
+    public var skew: Skew {
+        get { self[\.skew] }
+        set { self[\.skew] = newValue }
+    }
+    
     /// The translation transform of the layer.
     public var translation: CGPoint {
         get { CGPoint(self.transform.translation.x, self.transform.translation.y) }
