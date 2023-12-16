@@ -494,7 +494,7 @@ public extension Spring {
     }
         
     /// The estimated duration required for the spring system to be considered at rest.
-    func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double = 0.001) -> Double {
+    func settlingDuration<V: VectorArithmetic>(target: V, initialVelocity: V = .zero, epsilon: Double = 0.0001) -> Double {
         swiftUI.settlingDuration(target: target, initialVelocity: initialVelocity, epsilon: epsilon)
     }
     
