@@ -115,7 +115,10 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     }
     
     public func pageController(_ pageController: NSPageController, viewControllerForIdentifier identifier: NSPageController.ObjectIdentifier) -> NSViewController {
-        pageVCIndex = pageVCIndex.advanced(by: .nextLooping, in: 0...pageVCs.count-1)
+        pageVCIndex = pageVCIndex + 1
+        if pageVCIndex >= pageVCs.count {
+            pageVCIndex = 0
+        }
         return pageVCs[pageVCIndex]
     }
     

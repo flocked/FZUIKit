@@ -137,13 +137,25 @@ private func setAnimatedImage(_ image: NSImage) {
             case .random:
                 currentImageIndex = Int.random(in: 0 ... images.count - 1)
             case .next:
-                currentImageIndex = currentImageIndex.advanced(by: .next, in: 0 ... images.count - 1)
+                currentImageIndex += 1
+                if currentImageIndex >= images.count {
+                    currentImageIndex = images.count - 1
+                }
             case .nextLooped:
-                currentImageIndex = currentImageIndex.advanced(by: .nextLooping, in: 0 ... images.count - 1)
+                currentImageIndex += 1
+                if currentImageIndex >= images.count {
+                    currentImageIndex = 0
+                }
             case .previous:
-                currentImageIndex = currentImageIndex.advanced(by: .previous, in: 0 ... images.count - 1)
+                currentImageIndex -= 1
+                if currentImageIndex < 0 {
+                    currentImageIndex = 0
+                }
             case .previousLooped:
-                currentImageIndex = currentImageIndex.advanced(by: .previousLooping, in: 0 ... images.count - 1)
+                currentImageIndex -= 1
+                if currentImageIndex < 0 {
+                    currentImageIndex = images.count - 1
+                }
             }
         } else {
             currentImageIndex = -1

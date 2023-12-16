@@ -43,7 +43,35 @@ public extension NSPageController {
      */
     func advancePage(to type: AdvanceOption, animationDuration: CGFloat = 0.0) {
         if arrangedObjects.isEmpty == false {
-            let newIndex = selectedIndex.advanced(by: type, in: 0 ... arrangedObjects.count - 1)
+            var newIndex = selectedIndex
+            switch type {
+            case .next:
+                newIndex += 1
+                if newIndex >= arrangedObjects.count {
+                    newIndex = arrangedObjects.count - 1
+                }
+            case .previous:
+                newIndex -= 1
+                if newIndex < 0 {
+                    newIndex = 0
+                }
+            case .nextLooping:
+                newIndex += 1
+                if newIndex >= arrangedObjects.count {
+                    newIndex = 0
+                }
+            case .previousLooping:
+                newIndex -= 1
+                if newIndex < 0 {
+                    newIndex = arrangedObjects.count - 1
+                }
+            case .first:
+                newIndex = 0
+            case .last:
+                newIndex = arrangedObjects.count - 1
+            case .random:
+                newIndex = (0..<arrangedObjects.count).randomElement() ?? newIndex
+            }
             selectPage(at: newIndex, animationDuration: animationDuration)
         }
     }
