@@ -337,7 +337,8 @@ extension NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     @objc open dynamic var transform3D: CATransform3D {
-        get { wantsLayer = true
+        get { 
+            wantsLayer = true
             return layer?.transform ?? CATransform3DIdentity
         }
         set {
@@ -347,6 +348,7 @@ extension NSView {
         }
     }
     
+    /*
     /**
      Specifies the rotation applied to the view.
 
@@ -361,6 +363,25 @@ extension NSView {
             Self.swizzleAnimationForKey()
             self.transform3D.rotation = newValue
         }
+    }
+    */
+    
+    /// The rotation of the view as euler angles in degrees.
+    public dynamic var rotation: CGVector3 {
+        get { self.transform3D.eulerAnglesDegrees }
+        set { 
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            self.transform3D.eulerAnglesDegrees = newValue }
+    }
+    
+    /// The rotation of the view as euler angles in radians.
+    public dynamic var rotationInRadians: CGVector3 {
+        get { self.transform3D.eulerAngles }
+        set { 
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            self.transform3D.eulerAngles = newValue }
     }
     
     /**
