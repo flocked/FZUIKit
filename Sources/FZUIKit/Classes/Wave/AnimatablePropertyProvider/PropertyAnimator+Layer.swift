@@ -94,7 +94,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         position.y -= oldPoint.y
         position.y += newPoint.y
 
-        self.position = position
+        object.position = position
         self._anchorPoint = anchorPoint
     }
     
