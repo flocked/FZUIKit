@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 08.11.23.
 //
 
-/*
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
@@ -15,59 +14,82 @@ import UIKit
 import FZSwiftUtils
 import SwiftUI
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension ContentConfiguration {
     /**
-     A configuration that specifies a shape..
+     A configuration that specifies the shape of a view or layer.
      
-     On AppKit `NSView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Shape)`.
-     
-     On UIKit `UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Shape)`.
+    `NSView`, `UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Shape)`.
      */
     public struct Shape: Hashable {
+        /// The shape.
         public var shape: (any SwiftUI.Shape)? = nil
-        public var margins: NSDirectionalEdgeInsets = .zero {
-            didSet { id = UUID() }
-        }
-                
+        
+        /// The margins for the shape.
+        public var margins: NSDirectionalEdgeInsets = .zero
+        
+        var name: String? = nil
+        
         public init(shape: (any SwiftUI.Shape)?, margins: NSDirectionalEdgeInsets = .zero) {
             self.shape = shape
             self.margins = margins
         }
-        
-        public static func Circle(margins: NSDirectionalEdgeInsets = .zero) -> Self {
-            return Self(shape: SwiftUI.Circle(), margins: margins)
+                
+        init(shape: (any SwiftUI.Shape)?, margins: NSDirectionalEdgeInsets = .zero, name: String? = nil) {
+            self.shape = shape
+            self.margins = margins
+            self.name = name
         }
         
-        public static func RoundedRectangle(cornerRadius: CGFloat, margins: NSDirectionalEdgeInsets = .zero) -> Self {
-            return Self(shape: SwiftUI.RoundedRectangle(cornerRadius: cornerRadius), margins: margins)
+        /// A circle shape.
+        public static func circle(margins: NSDirectionalEdgeInsets = .zero) -> Self {
+            return Self(shape: SwiftUI.Circle(), margins: margins, name: "Circle")
         }
         
-        public static func RoundedRectangle(cornerSize: CGSize, margins: NSDirectionalEdgeInsets = .zero) -> Self {
-            return Self(shape: SwiftUI.RoundedRectangle(cornerSize: cornerSize), margins: margins)
+        /// A capsule shape.
+        public static func capsule(margins: NSDirectionalEdgeInsets = .zero) -> Self {
+            return Self(shape: SwiftUI.Capsule(), margins: margins, name: "Capsule")
         }
         
-        public static var none: Self = Self(shape: nil)
+        /// A capsule shape.
+        public static func ellipse(margins: NSDirectionalEdgeInsets = .zero) -> Self {
+            return Self(shape: SwiftUI.Ellipse(), margins: margins, name: "Ellipse")
+        }
+                
+        /// A rounded rectangle shape with the corner radius.
+        public static func roundedRectangle(cornerRadius: CGFloat, margins: NSDirectionalEdgeInsets = .zero) -> Self {
+            return Self(shape: SwiftUI.RoundedRectangle(cornerRadius: cornerRadius), margins: margins, name: "RoundedRectangleCornerRadius")
+        }
         
-        private var id = UUID()
+        /// A rounded rectangle shape with the specified corner size.
+        public static func roundedRectangle(cornerSize: CGSize, margins: NSDirectionalEdgeInsets = .zero) -> Self {
+            return Self(shape: SwiftUI.RoundedRectangle(cornerSize: cornerSize), margins: margins, name: "RoundedRectangleCornerSize")
+        }
+        
+        /// No shape.
+        public static var none: Self = Self(shape: nil, name: "None")
+        
         public static func == (lhs: FZUIKit.ContentConfiguration.Shape, rhs: FZUIKit.ContentConfiguration.Shape) -> Bool {
-            lhs.hashValue == rhs.hashValue
+            if lhs.name != nil, rhs.name != nil, lhs.name == rhs.name, lhs.margins == rhs.margins {
+                return true
+            }
+            return false
         }
         
         public func hash(into hasher: inout Hasher) {
             hasher.combine(margins)
-            hasher.combine(id)
+            hasher.combine(name)
         }
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)
-public extension NSUIView {    
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+public extension NSUIView {
     /**
      Configurates shape of the view.
      
-     - Parameters:
-     - configuration:The shape configuration.
+     - parameter configuration:The shape configuration.
      */
     func configurate(using configuration: ContentConfiguration.Shape) {
         if configuration.shape != nil {
@@ -88,8 +110,8 @@ public extension NSUIView {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)
-internal class ShapeView: NSUIView {
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+class ShapeView: NSUIView {
     static let tag: Int = 3467355
     
     #if os(macOS)
@@ -99,7 +121,7 @@ internal class ShapeView: NSUIView {
     #endif
     
     var shape: ContentConfiguration.Shape = .none {
-        didSet { 
+        didSet {
             guard oldValue != shape else { return }
             updateShape()
         }
@@ -125,12 +147,12 @@ internal class ShapeView: NSUIView {
         }
     }
     
-    internal func updateShape() {
+    func updateShape() {
         hostingController.rootView = ShapeContentView(configuration: shape)
         setNeedsLayout()
     }
     
-    internal func layoutShape() {
+    func layoutShape() {
         var newSize = self.bounds.size
 
         newSize.width -= shape.margins.width
@@ -166,7 +188,7 @@ internal class ShapeView: NSUIView {
     
     let imageLayer = CALayer()
     
-    internal func sharedInit() {
+    func sharedInit() {
         #if canImport(UIKit)
         self.tag = 3467355
         #endif
@@ -175,8 +197,8 @@ internal class ShapeView: NSUIView {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)
-internal struct ShapeContentView: View {
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+struct ShapeContentView: View {
     let configuration: ContentConfiguration.Shape
     var shape: AnyShape {
         configuration.shape?.asAnyShape() ?? Rectangle().asAnyShape()
@@ -186,13 +208,12 @@ internal struct ShapeContentView: View {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 public extension CALayer {
     /**
-     Configurates shape of the view.
+     Configurates shape of the layer.
      
-     - Parameters:
-     - configuration:The shape configuration.
+     - parameter configuration:The shape configuration.
      */
     func configurate(using configuration: ContentConfiguration.Shape) {
         if configuration.shape != nil {
@@ -213,8 +234,8 @@ public extension CALayer {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, *)
-internal class ShapeLayer: CALayer {
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+class ShapeLayer: CALayer {
     var shape: ContentConfiguration.Shape = .none {
         didSet {
             guard oldValue != shape else { return }
@@ -242,12 +263,12 @@ internal class ShapeLayer: CALayer {
         }
     }
     
-    internal func updateShape() {
+    func updateShape() {
         hostingController.rootView = ShapeContentView(configuration: shape)
         setNeedsLayout()
     }
     
-    internal func layoutShape() {
+    func layoutShape() {
         var newSize = self.bounds.size
 
         newSize.width -= shape.margins.width
@@ -264,7 +285,6 @@ internal class ShapeLayer: CALayer {
             imageLayer.frame.center = superviewFrame.center
         }
         imageLayer.contents = hostingController.view.renderedImage
-        Swift.debugPrint("imageLayer", imageLayer.frame)
     }
     
     override init() {
@@ -279,7 +299,7 @@ internal class ShapeLayer: CALayer {
     
     let imageLayer = CALayer()
     
-    internal func sharedInit() {
+    func sharedInit() {
         #if canImport(UIKit)
         self.tag = 3467355
         #endif
@@ -289,4 +309,3 @@ internal class ShapeLayer: CALayer {
 }
 
 #endif
-*/
