@@ -13,8 +13,9 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-public extension NSUIView {
-    enum CornerShape: Hashable {
+extension NSUIView {
+    /// The corner shape of a view.
+    public enum CornerShape: Hashable {
         /// A rounded shape with corner radius equal to the specified value.
         case rounded(CGFloat)
         
@@ -43,7 +44,7 @@ public extension NSUIView {
     }
     
     /// The corner shape of the view.
-    var cornerShape: CornerShape? {
+    public var cornerShape: CornerShape? {
         get { getAssociatedValue(key: "_cornerShape", object: self, initialValue: nil) }
         set {
             let newValue = newValue?.clamped
@@ -62,12 +63,12 @@ public extension NSUIView {
         }
     }
 
-    internal var cornerShapeBoundsObserver: NSKeyValueObservation? {
+    var cornerShapeBoundsObserver: NSKeyValueObservation? {
         get { getAssociatedValue(key: "_cornerShapeBoundsObserver", object: self) }
         set { set(associatedValue: newValue, key: "_cornerShapeBoundsObserver", object: self) }
     }
     
-    internal func updateCornerShape() {
+    func updateCornerShape() {
         guard let cornerShape = self.cornerShape else { return }
         switch cornerShape {
         case let .rounded(radius):
