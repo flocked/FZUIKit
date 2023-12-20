@@ -31,7 +31,7 @@ extension ContentConfiguration {
         /// A Boolean value that indicates whether the shape is inverted.
         public var inverse: Bool = false
         
-        var name: String? = nil
+        var name: String = UUID().uuidString
         
         /**
          A shape configuration with the specified shape and margins.
@@ -45,13 +45,14 @@ extension ContentConfiguration {
             self.shape = shape
             self.inverse = inverted
             self.margins = margins
+            self.name = UUID().uuidString
         }
                 
         init(shape: (any SwiftUI.Shape)?, inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero, name: String? = nil) {
             self.shape = shape
             self.inverse = inverted
             self.margins = margins
-            self.name = name
+            self.name = name ?? UUID().uuidString
         }
         
         /**
@@ -129,7 +130,7 @@ extension ContentConfiguration {
         public static var none: Self = Self(shape: nil, name: "None")
         
         public static func == (lhs: FZUIKit.ContentConfiguration.Shape, rhs: FZUIKit.ContentConfiguration.Shape) -> Bool {
-            if lhs.name != nil, lhs.name == rhs.name, lhs.margins == rhs.margins {
+            if lhs.name == rhs.name, lhs.margins == rhs.margins {
                 return true
             }
             return false
@@ -166,21 +167,16 @@ public extension CALayer {
     func configurate(using configuration: ContentConfiguration.Shape) {
         if configuration.shape != nil {
             if let shapeLayer = configuration.inverse ? self.inverseMask as? ShapeLayer : self.mask as? ShapeLayer {
-                shapeLayer.shape = configuration
+                shapeLayer.configuration = configuration
             } else {
                 let shapeLayer = ShapeLayer()
-                shapeLayer.shape = configuration
+                shapeLayer.configuration = configuration
                 shapeLayer.setupObserver(for: self)
-                if configuration.inverse {
-                    self.inverseMask = shapeLayer
-                } else {
-                    self.mask = shapeLayer
-                }
             }
         } else {
             if let shapeLayer = configuration.inverse ? self.inverseMask as? ShapeLayer : self.mask as? ShapeLayer {
                 shapeLayer.removeFromSuperlayer()
-                shapeLayer.superviewObserver = nil
+                self.frameObserver = nil
                 if configuration.inverse {
                     self.inverseMask = nil
                 } else {
@@ -188,6 +184,11 @@ public extension CALayer {
                 }
             }
         }
+    }
+    
+    fileprivate var frameObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "frameObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "frameObserver", object: self) }
     }
 }
 
@@ -204,23 +205,25 @@ struct ShapeContentView: View {
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 class ShapeLayer: CALayer {
-    var shape: ContentConfiguration.Shape = .none {
+    var configuration: ContentConfiguration.Shape = .none {
         didSet {
-            guard oldValue != shape else { return }
+            guard oldValue != configuration else { return }
             updateShape()
         }
     }
-    
-    var superviewObserver: NSKeyValueObservation? = nil
-    
-    lazy var hostingController = NSUIHostingController(rootView: ShapeContentView(configuration: shape))
-    
+        
+    lazy var hostingController = NSUIHostingController(rootView: ShapeContentView(configuration: configuration))
+        
     func setupObserver(for layer: CALayer) {
-        superviewObserver = layer.observeChanges(for: \.frame, handler: { [weak self] old, new in
+        layer.frameObserver = layer.observeChanges(for: \.frame, handler: { [weak self] old, new in
             guard let self = self, old.size != new.size else { return }
             self.frame.size = new.size
         })
-        layer.mask = self
+        if configuration.inverse {
+            layer.inverseMask = self
+        } else {
+            layer.mask = self
+        }
         frame.size = layer.frame.size
     }
     
@@ -232,18 +235,18 @@ class ShapeLayer: CALayer {
     }
     
     func updateShape() {
-        hostingController.rootView = ShapeContentView(configuration: shape)
+        hostingController.rootView = ShapeContentView(configuration: configuration)
         setNeedsLayout()
     }
     
     func layoutShape() {
         var newSize = self.bounds.size
 
-        newSize.width -= shape.margins.width
+        newSize.width -= configuration.margins.width
         if newSize.width < 0 {
             newSize.width = 0
         }
-        newSize.height -= shape.margins.height
+        newSize.height -= configuration.margins.height
         if newSize.height < 0 {
             newSize.height = 0
         }
