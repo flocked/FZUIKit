@@ -70,7 +70,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     public var view: NSView? = nil
     
     /// Properties for configuring the border.
-    public var border: ContentConfiguration.Border = .none() {
+    public var border: BorderConfiguration = .none() {
         didSet {
             if self.border != oldValue {
                 self.updateResolvedColors()
@@ -79,7 +79,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     }
     
     /// Properties for configuring the shadow.
-    public var shadow: ContentConfiguration.Shadow = .none() {
+    public var shadow: ShadowConfiguration = .none() {
         didSet {
             if self.shadow != oldValue {
                 self.updateResolvedColors()
@@ -88,7 +88,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     }
     
     /// Properties for configuring the inner shadow.
-    public var innerShadow: ContentConfiguration.InnerShadow = .none() {
+    public var innerShadow: ShadowConfiguration = .none() {
         didSet {
             if self.innerShadow != oldValue {
                 self.updateResolvedColors()
@@ -97,7 +97,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     }
     
     /// Properties for configuring the background visual effect.
-    public var visualEffect: ContentConfiguration.VisualEffect? = nil
+    public var visualEffect: VisualEffectConfiguration? = nil
     
     /// The corner radius.
     public var cornerRadius: CGFloat = 0.0
@@ -122,10 +122,10 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
                 image: NSImage? = nil,
                 imageScaling: CALayerContentsGravity = .center,
                 view: NSView? = nil,
-                border: ContentConfiguration.Border = .init(),
-                shadow: ContentConfiguration.Shadow = .none(),
-                innerShadow: ContentConfiguration.InnerShadow = .none(),
-                visualEffect: ContentConfiguration.VisualEffect? = nil,
+                border: BorderConfiguration = .init(),
+                shadow: ShadowConfiguration = .none(),
+                innerShadow: ShadowConfiguration = .none(),
+                visualEffect: VisualEffectConfiguration? = nil,
                 cornerRadius: CGFloat = 0.0,
                 insets: NSDirectionalEdgeInsets = .init()
     ) {

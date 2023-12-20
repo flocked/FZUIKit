@@ -92,7 +92,7 @@ public extension NSButton {
         public var imagePosition: NSControl.ImagePosition = .imageLeft
         
         /// The symbol configuration for the image.
-        public var imageSymbolConfiguration: ContentConfiguration.SymbolConfiguration? = nil
+        public var imageSymbolConfiguration: ImageSymbolContentConfiguration? = nil
         
         ////  The sound that plays when the user clicks the button.
         public var sound: NSSound? = nil

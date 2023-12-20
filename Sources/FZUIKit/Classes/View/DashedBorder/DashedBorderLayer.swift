@@ -17,8 +17,8 @@ import FZSwiftUtils
 /// A layer with a dashed border.
 public class DashedBorderLayer: CALayer {
     /// THe configuration of the border.
-    public var configuration: ContentConfiguration.Border {
-        get { ContentConfiguration.Border(color: borderColor?.nsUIColor, width: borderWidth, dashPattern: borderDashPattern, insets: borderInsets) }
+    public var configuration: BorderConfiguration {
+        get { BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth, dashPattern: borderDashPattern, insets: borderInsets) }
         set {
             guard newValue != configuration else { return  }
             borderedLayer.lineWidth = newValue.width
@@ -94,7 +94,7 @@ public class DashedBorderLayer: CALayer {
      - Parameter configuration: The configuration of the border.
      - Returns: The dashed border layer.
      */
-    public init(configuration: ContentConfiguration.Border) {
+    public init(configuration: BorderConfiguration) {
         super.init()
         self.configuration = configuration
     }

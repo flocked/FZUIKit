@@ -143,7 +143,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     }
     
     /// The border of the layer.
-    public var border: ContentConfiguration.Border {
+    public var border: BorderConfiguration {
         get { self[\.border] }
         set { self[\.border] = newValue }
     }
@@ -161,7 +161,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     }
     
     /// The shadow of the layer.
-    public var shadow: ContentConfiguration.Shadow {
+    public var shadow: ShadowConfiguration {
         get { self[\.shadow] }
         set {
             object.masksToBounds = false
@@ -170,7 +170,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     }
     
     /// The inner shadow of the layer.
-    public var innerShadow: ContentConfiguration.InnerShadow {
+    public var innerShadow: ShadowConfiguration {
         get { self[\.innerShadow] }
         set { self[\.innerShadow] = newValue }
     }
@@ -559,8 +559,8 @@ extension LayerAnimator {
 }
 
 extension CALayer {
-    var border: ContentConfiguration.Border {
-        get { ContentConfiguration.Border(color: borderColor?.nsUIColor, width: borderWidth) }
+    var border: BorderConfiguration {
+        get { BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
         set {
             borderColor = newValue._resolvedColor?.cgColor
             borderWidth = newValue.width

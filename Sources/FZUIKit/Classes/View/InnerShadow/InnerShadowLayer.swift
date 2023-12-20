@@ -18,10 +18,10 @@ import FZSwiftUtils
 public class InnerShadowLayer: CALayer {
     
     /// The configuration of the inner shadow.
-    public var configuration: ContentConfiguration.InnerShadow {
-        get { ContentConfiguration.InnerShadow(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)  }
+    public var configuration: ShadowConfiguration {
+        get { ShadowConfiguration(color: __shadowColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)  }
         set {
-            shadowColor = newValue.color?.cgColor
+            __shadowColor = newValue.color
             shadowOpacity = Float(newValue.opacity)
             let needsUpdate = shadowOffset != newValue.offset.size || shadowRadius != newValue.radius
             isUpdating = true
@@ -34,6 +34,11 @@ public class InnerShadowLayer: CALayer {
         }
     }
     
+    var __shadowColor: NSUIColor? = nil {
+        didSet {
+            shadowColor = __shadowColor?.cgColor
+        }
+    }
     
     /**
      Initalizes an inner shadow layer with the specified configuration.
@@ -41,7 +46,7 @@ public class InnerShadowLayer: CALayer {
      - Parameter configuration: The configuration of the inner shadow.
      - Returns: The inner shadow layer.
      */
-    public init(configuration: ContentConfiguration.InnerShadow) {
+    public init(configuration: ShadowConfiguration) {
         super.init()
         self.configuration = configuration
     }

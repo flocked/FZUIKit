@@ -18,7 +18,7 @@ public extension NSUIView {
      
      The property adds a visual effect view as background to the view. The default value is nil.
      */
-    dynamic var visualEffect: ContentConfiguration.VisualEffect? {
+    dynamic var visualEffect: VisualEffectConfiguration? {
         get {
             return visualEffectBackgroundView?.contentProperties
         }
@@ -65,9 +65,9 @@ internal extension NSView {
             return Self.Tag
         }
         
-        public var contentProperties: ContentConfiguration.VisualEffect {
+        public var contentProperties: VisualEffectConfiguration {
             get {
-                return ContentConfiguration.VisualEffect(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage)
+                return VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage)
             }
             set {
                 material = newValue.material
@@ -84,7 +84,7 @@ internal extension NSView {
 #elseif canImport(UIKit)
 internal extension UIView {
     class TaggedVisualEffectView: UIVisualEffectView {
-        public var contentProperties: ContentConfiguration.VisualEffect = .init(style: nil) {
+        public var contentProperties: VisualEffectConfiguration = .init(style: nil) {
             didSet { updateEffect() }
         }
         

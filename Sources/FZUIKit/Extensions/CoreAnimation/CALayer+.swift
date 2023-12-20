@@ -17,7 +17,7 @@ import FZSwiftUtils
 #if os(macOS) || os(iOS) || os(tvOS)
 public extension CALayer {
     /// The shadow of the layer.
-    dynamic var shadow: ContentConfiguration.Shadow {
+    dynamic var shadow: ShadowConfiguration {
         get { .init(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
         set {
             shadowColor = newValue._resolvedColor?.cgColor
@@ -28,9 +28,9 @@ public extension CALayer {
     }
     
     /// The inner shadow of the layer.
-    dynamic var innerShadow: ContentConfiguration.InnerShadow {
+    dynamic var innerShadow: ShadowConfiguration {
         get { self.innerShadowLayer?.configuration ?? .none() }
-        set { self.configurate(using: newValue) }
+        set { self.configurate(using: newValue, type: .inner) }
     }
     
     /// Sends the layer to the front of it's superlayer.

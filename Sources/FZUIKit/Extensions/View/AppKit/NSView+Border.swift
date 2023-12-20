@@ -16,7 +16,7 @@ extension NSView {
      
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    dynamic public var border: ContentConfiguration.Border {
+    dynamic public var border: BorderConfiguration {
         get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
         set {
             self.wantsLayer = true

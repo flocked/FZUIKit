@@ -14,7 +14,7 @@ public protocol NSButtonConfiguration {
     var title: String? { get }
     var attributedTitle: NSAttributedString? { get }
     var image: NSImage? { get }
-    var imageSymbolConfiguration: ContentConfiguration.SymbolConfiguration? { get }
+    var imageSymbolConfiguration: ImageSymbolContentConfiguration? { get }
     var size: NSControl.ControlSize { get }
 }
 

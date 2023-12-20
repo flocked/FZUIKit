@@ -319,8 +319,8 @@ extension CGVector4: AnimatableProperty, Animatable {
 #endif
 
 #if os(macOS) || os(iOS) || os(tvOS)
-extension ContentConfiguration.Shadow: AnimatableProperty, Animatable {
-    public static var zero: ContentConfiguration.Shadow {
+extension ShadowConfiguration: AnimatableProperty, Animatable {
+    public static var zero: ShadowConfiguration {
         .none()
     }
     
@@ -334,23 +334,8 @@ extension ContentConfiguration.Shadow: AnimatableProperty, Animatable {
     }
 }
 
-extension ContentConfiguration.InnerShadow: AnimatableProperty, Animatable {
-    public static var zero: ContentConfiguration.InnerShadow {
-        .none()
-    }
-    
-    public init(_ animatableData: AnimatableArray<Double>) {
-        self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), opacity: animatableData[4], radius: animatableData[5], offset: .init(animatableData[6], animatableData[7]))
-    }
-    
-    public var animatableData: AnimatableArray<Double> {
-        get { (self._resolvedColor ?? .zero).animatableData + [opacity, radius, offset.x, offset.y] }
-        set { self = .init(newValue) }
-    }
-}
-
-extension ContentConfiguration.Border: AnimatableProperty, Animatable {
-    public static var zero: ContentConfiguration.Border {
+extension BorderConfiguration: AnimatableProperty, Animatable {
+    public static var zero: BorderConfiguration {
         .none()
     }
     
@@ -422,11 +407,9 @@ extension AnimatableShadow {
     }
 }
 
-extension ContentConfiguration.Shadow: AnimatableShadow { }
+extension ShadowConfiguration: AnimatableShadow { }
 
-extension ContentConfiguration.InnerShadow: AnimatableShadow { }
-
-extension ContentConfiguration.Border: AnimatableShadow { }
+extension BorderConfiguration: AnimatableShadow { }
 
 // MARK: - AnimatableColor
 

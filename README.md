@@ -102,26 +102,26 @@ view.visualEffect = .vibrantLight(material: .sidebar)
 ```
 - Shadow/InnerShadow:
 ```
-let shadow = ContentConfiguration.Shadow(color: .controlAccentColor, opacity: 0.5, radius: 2.0)
-view.configurate(using: shadow)
-let innerShadow: ContentConfiguration.InnerShadow = .black()
-view.configurate(using: innerShadow)
+let shadow = ShadowConfiguration(color: .controlAccentColor, opacity: 0.5, radius: 2.0)
+view.configurate(using: shadow, type: .outer)
+// inner shadow
+view.configurate(using: shadow, type: .inner)
 ```
 - Border
 ```
-let border = ContentConfiguration.Border(color: .black, width: 1.0)
+let border = BorderConfiguration(color: .black, width: 1.0)
 view.configurate(using: border)
-let dashedBorder: ContentConfiguration.Border = .dashed(color: .red)
+let dashedBorder: BorderConfiguration = .dashed(color: .red)
 view.configurate(using: dashedBorder)
 ```
 - SymbolConfiguration: A simplified version of UIImage/NSImage.SymbolConfiguration.
 ```
-let symbolConfiguration: ContentConfiguration.SymbolConfiguration = .hierarchical(.red).font(.body).imageScale(.large)
+let symbolConfiguration: ImageSymbolConfiguration = .hierarchical(.red).font(.body).imageScale(.large)
 imageView.configurate(using: symbolConfiguration)
 ```
 - Text
 ```
-var text = ContentConfiguration.Text(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
+var text = TextConfiguration(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
 text.adjustsFontSizeToFitWidth = true
 textField.configurate(using: text)
 ```

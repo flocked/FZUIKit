@@ -156,7 +156,7 @@ extension NSWindow {
      
      The property adds a NSVisualEffectView as background to the window’s `contentView`. The default value is `nil.
       */
-    public var visualEffect: ContentConfiguration.VisualEffect? {
+    public var visualEffect: VisualEffectConfiguration? {
         get { return contentView?.visualEffect }
         set {
             var newValue = newValue

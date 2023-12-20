@@ -24,7 +24,7 @@ public extension NSContentUnavailableConfiguration {
         /// The symbol configuration of the image.
         public var symbolConfiguration: SymbolConfiguration? = .font(.largeTitle)
         
-        public typealias SymbolConfiguration = ContentConfiguration.SymbolConfiguration
+        public typealias SymbolConfiguration = ImageSymbolContentConfiguration
         
         /// The image scaling.
         public var scaling: NSImageScaling = .scaleNone

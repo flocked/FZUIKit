@@ -30,7 +30,7 @@ public class DashedBorderView: NSUIView {
     }
 
     /// THe configuration of the border.
-    public var configuration: ContentConfiguration.Border {
+    public var configuration: BorderConfiguration {
         get { borderedLayer.configuration }
         set { borderedLayer.configuration = newValue }
     }
@@ -41,7 +41,7 @@ public class DashedBorderView: NSUIView {
      - Parameter configuration: The configuration of the border.
      - Returns: The dashed border view.
      */
-    public init(configuration: ContentConfiguration.Border) {
+    public init(configuration: BorderConfiguration) {
         super.init(frame: .zero)
         self.configuration = configuration
     }

@@ -83,8 +83,8 @@ public class NSBackgroundView: NSView, NSContentView {
         contentView.visualEffect = appliedConfiguration.visualEffect
         contentView.cornerRadius = appliedConfiguration.cornerRadius
         
-        contentView.configurate(using: appliedConfiguration.shadow)
-        contentView.configurate(using: appliedConfiguration.innerShadow)
+        contentView.configurate(using: appliedConfiguration.shadow, type: .outer)
+        contentView.configurate(using: appliedConfiguration.innerShadow, type: .inner)
         contentView.configurate(using: appliedConfiguration.border)
 
         contentViewConstraints.constant(appliedConfiguration.insets)

@@ -175,7 +175,7 @@ public extension UIView {
     }
     
     /// The border of the view.
-    var border: ContentConfiguration.Border {
+    var border: BorderConfiguration {
         get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
         set { self.configurate(using: newValue) }
     }
@@ -241,7 +241,7 @@ public extension UIView {
     }
     
     /// The inner shadow of the view.
-    dynamic var innerShadow: ContentConfiguration.InnerShadow {
+    dynamic var innerShadow: ShadowConfiguration {
         get { self.layer.innerShadowLayer?.configuration ?? .none() }
         set {
             if self.innerShadowLayer == nil {
@@ -284,8 +284,8 @@ public extension UIView {
     }
 
     /// The shadow of the view.
-    dynamic var shadow: ContentConfiguration.Shadow {
-        get { ContentConfiguration.Shadow(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+    dynamic var shadow: ShadowConfiguration {
+        get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
         set {
             shadowColor = newValue._resolvedColor?.resolvedColor(for: self)
             shadowOpacity = newValue.opacity

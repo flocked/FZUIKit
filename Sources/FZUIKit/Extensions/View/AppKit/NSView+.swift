@@ -474,7 +474,7 @@ extension NSView {
      
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    dynamic public var border: ContentConfiguration.Border {
+    dynamic public var border: BorderConfiguration {
         get { 
             if self.isProxy(), let proxyBorder = self.proxyBorder {
                 return proxyBorder
@@ -502,7 +502,7 @@ extension NSView {
         }
     }
     
-    internal var proxyBorder: ContentConfiguration.Border? {
+    internal var proxyBorder: BorderConfiguration? {
         get { getAssociatedValue(key: "proxyBorder", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "proxyBorder", object: self) }
     }
@@ -556,12 +556,12 @@ extension NSView {
      
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    public dynamic var shadow1: ContentConfiguration.Shadow {
+    public dynamic var shadow1: ShadowConfiguration {
         get { 
             if self.isProxy(), let proxyShadow = self.proxyShadow {
                 return proxyShadow
             }
-            return ContentConfiguration.Shadow(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+            return ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
         set {
             self.proxyShadow = newValue
             self.shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
@@ -571,7 +571,7 @@ extension NSView {
         }
     }
     
-    internal var proxyShadow: ContentConfiguration.Shadow? {
+    internal var proxyShadow: ShadowConfiguration? {
         get { getAssociatedValue(key: "proxyShadow", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "proxyShadow", object: self) }
     }
@@ -678,12 +678,12 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    dynamic public var innerShadow: ContentConfiguration.InnerShadow {
+    dynamic public var innerShadow: ShadowConfiguration {
         get {
             if self.isProxy(), let proxyInnerShadow = self.proxyInnerShadow {
                 return proxyInnerShadow
             }
-            return ContentConfiguration.InnerShadow(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: CGPoint(innerShadowOffset.width, innerShadowOffset.height)) }
+            return ShadowConfiguration(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: CGPoint(innerShadowOffset.width, innerShadowOffset.height)) }
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
@@ -712,7 +712,7 @@ extension NSView {
         }
     }
     
-    internal var proxyInnerShadow: ContentConfiguration.InnerShadow? {
+    internal var proxyInnerShadow: ShadowConfiguration? {
         get { getAssociatedValue(key: "proxyInnerShadow", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "proxyInnerShadow", object: self) }
     }

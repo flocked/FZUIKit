@@ -91,7 +91,7 @@ public extension NSButton {
         public var imagePlacement: NSDirectionalRectEdge = .leading
         
         /// The symbol configuration for the image.
-        public var imageSymbolConfiguration: ContentConfiguration.SymbolConfiguration? = nil
+        public var imageSymbolConfiguration: ImageSymbolContentConfiguration? = nil
         
         ////  The sound that plays when the user clicks the button.
         public var sound: NSSound? = nil
@@ -193,7 +193,7 @@ public extension NSButton {
                     image: NSImage? = nil,
                     imagePadding: CGFloat = 4.0,
                     imagePlacement: NSDirectionalRectEdge = .leading,
-                    imageSymbolConfiguration: ContentConfiguration.SymbolConfiguration? = nil,
+                    imageSymbolConfiguration: ImageSymbolContentConfiguration? = nil,
                     sound: NSSound? = nil,
                     borderWidth: CGFloat = 0.0,
                     borderOutset: CGFloat = 0.0,

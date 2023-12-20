@@ -81,7 +81,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     }
     
     /// The border of the view.
-    public var border: ContentConfiguration.Border {
+    public var border: BorderConfiguration {
         get { object.optionalLayer?.animator.border ?? .none() }
         set { object.optionalLayer?.animator.border = newValue }
     }
@@ -103,7 +103,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     }
     
     /// The shadow of the view.
-    public var shadow: ContentConfiguration.Shadow {
+    public var shadow: ShadowConfiguration {
         get { object.optionalLayer?.animator.shadow ?? .none() }
         set {
             #if os(macOS)
@@ -116,7 +116,7 @@ public class ViewAnimator<View: NSUIView>: PropertyAnimator<View> {
     }
     
     /// The inner shadow of the view.
-    public var innerShadow: ContentConfiguration.InnerShadow {
+    public var innerShadow: ShadowConfiguration {
         get { object.optionalLayer?.animator.innerShadow ?? .none() }
         set {
             #if os(macOS)
