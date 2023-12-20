@@ -12,7 +12,7 @@ public struct Star: Shape {
     /// The number of points of the star.
     public var points = 5
     
-    /// A Boolean value that indicates if the star is a cutout.
+    /// A Boolean value that indicates whether the star is a cutout.
     public var cutout = false
     
     /// A Boolean value that indicates whether star is rounded.
