@@ -16,7 +16,7 @@ public struct Star: Shape {
     public var cutout = false
     
     /// A Boolean value that indicates whether star is rounded.
-    var rounded = false
+    public var rounded = false
     
     func Cartesian(length:Double, angle:Double) -> CGPoint {
         return CGPoint(x: length * cos(angle),

@@ -102,12 +102,13 @@ extension ContentConfiguration {
          
          - Parameters:
             - points: The number of points of the star. The default value is `5`.
+            - cutout: A Boolean value that indicates if the star is a cutout. The default value is `false`.
             - rounded: A Boolean value that indicates whether star is rounded. The default value is `false`.
             - margins: The margins of the shape.
          */
-        public static func star(points: Int = 5, rounded: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
+        public static func star(points: Int = 5, cutout: Bool = false, rounded: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
             let name = rounded ? "StarRounded\(points)" : "Star\(points)"
-            return Self(shape: Star(points: points, rounded: rounded), margins: margins, name: name)
+            return Self(shape: Star(points: points, cutout: cutout, rounded: rounded), margins: margins, name: name)
         }
         
         /// No shape.
