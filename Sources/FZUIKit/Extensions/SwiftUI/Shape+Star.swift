@@ -53,7 +53,6 @@ public struct Star: Shape {
             if cutout {
                 if rounded {
                     path.addPath(Circle().path(in: rect))
-                    
                 } else {
                     path.addPath(Rectangle().path(in: rect))
                 }
