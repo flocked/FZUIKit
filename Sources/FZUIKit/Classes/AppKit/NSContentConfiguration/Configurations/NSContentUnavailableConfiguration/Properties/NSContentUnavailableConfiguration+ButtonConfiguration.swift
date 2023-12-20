@@ -31,7 +31,7 @@ public extension NSContentUnavailableConfiguration {
         public var style: Style = .bordered
         public var symbolConfiguration: SymbolConfiguration? = nil
         
-        public typealias SymbolConfiguration = ImageSymbolContentConfiguration
+        public typealias SymbolConfiguration = ImageSymbolConfiguration
         
         internal var hasContent: Bool {
             (self.title != nil || self.atributedTitle != nil || self.image != nil)

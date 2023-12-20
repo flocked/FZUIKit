@@ -53,7 +53,7 @@ public struct ImageConfiguration: Hashable {
     }
     
     /// The symbol configuration of the image.
-    public var symbolConfiguration: ImageSymbolContentConfiguration? = nil
+    public var symbolConfiguration: ImageSymbolConfiguration? = nil
     
 #if os(macOS)
     /// Initalizes a image configuration.
@@ -62,7 +62,7 @@ public struct ImageConfiguration: Hashable {
          maxWidth: CGFloat? = nil,
          maxHeight: CGFloat? = nil,
          tintColor: NSUIColor? = nil,
-         symbolConfiguration: ImageSymbolContentConfiguration? = nil) {
+         symbolConfiguration: ImageSymbolConfiguration? = nil) {
         self.scaling = scaling
         self.alignment = alignment
         self.maxWidth = maxWidth
@@ -77,7 +77,7 @@ public struct ImageConfiguration: Hashable {
          maxWidth: CGFloat? = nil,
          maxHeight: CGFloat? = nil,
          tintColor: NSUIColor? = nil,
-         symbolConfiguration: ImageSymbolContentConfiguration? = nil) {
+         symbolConfiguration: ImageSymbolConfiguration? = nil) {
         self.scaling = scaling
         self.maxWidth = maxWidth
         self.maxHeight = maxHeight

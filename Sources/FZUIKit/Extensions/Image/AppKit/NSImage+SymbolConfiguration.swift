@@ -13,7 +13,7 @@ import UIKit
 #endif
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0,  *)
-public extension NSUIImage.SymbolConfiguration {
+extension NSUIImage.SymbolConfiguration {
     /// Returns the symbol configuration with the specified text style.
     func font(_ textStyle: NSUIFont.TextStyle?) -> NSUIImage.SymbolConfiguration {
         if let textStyle = textStyle {
@@ -160,7 +160,7 @@ public extension NSUIImage.SymbolConfiguration {
 }
 
 @available(macOS 12.0, iOS 13.0, *)
-internal extension NSUIImage.SymbolConfiguration {
+extension NSUIImage.SymbolConfiguration {
     var weight: NSUIFont.Weight? {
         get { guard let rawValue = value(forKey: "weight", type: CGFloat.self), rawValue != CGFloat.greatestFiniteMagnitude else { return nil }
             return NSUIFont.Weight(rawValue: rawValue)

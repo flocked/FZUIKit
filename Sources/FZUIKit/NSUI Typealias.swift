@@ -33,8 +33,6 @@ public typealias NSUIHostingController = NSHostingController
 public typealias NSUIStackView = NSStackView
 public typealias NSUIRectCorner = NSRectCorner
 @available(macOS 11.0, *)
-public typealias NSUIImageSymbolConfiguration = NSImage.SymbolConfiguration
-@available(macOS 11.0, *)
 public typealias NSUIImageSymbolScale = NSImage.SymbolScale
 @available(macOS 11.0, *)
 public typealias NSUIImageSymbolWeight = NSImage.SymbolWeight
@@ -61,7 +59,6 @@ public typealias NSUIFontDescriptor = UIFontDescriptor
 public typealias NSUIFontTextStyle = UIFont.TextStyle
 public typealias NSUIImage = UIImage
 public typealias NSUIRectCorner = UIRectCorner
-public typealias NSUIImageSymbolConfiguration = UIImage.SymbolConfiguration
 public typealias NSUIImageSymbolScale = UIImage.SymbolScale
 public typealias NSUIImageSymbolWeight = UIImage.SymbolWeight
 #endif

@@ -22,7 +22,7 @@ import FZSwiftUtils
  `NSImage` can be configurated using `withSymbolConfiguration(_)` and `UIImage` can be configurated using `applyingSymbolConfiguration(_)`.
  */
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
-public struct ImageSymbolContentConfiguration: Hashable {
+public struct ImageSymbolConfiguration: Hashable {
     /// The font of the symbol configuration.
     public var font: FontConfiguration? = nil
     
@@ -301,7 +301,7 @@ public struct ImageSymbolContentConfiguration: Hashable {
 }
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
-public extension ImageSymbolContentConfiguration {
+public extension ImageSymbolConfiguration {
     #if os(macOS)
     /// Returns a `NSImage.SymbolConfiguration` representation.
     func nsSymbolConfiguration() -> NSUIImage.SymbolConfiguration {
@@ -360,7 +360,7 @@ public extension View {
         - tintColor: The tint color of the symbol images.
      - configuration: The configuration for the symbol images.
      */
-    @ViewBuilder func symbolConfiguration(tintColor: Color?, configuration: ImageSymbolContentConfiguration?) -> some View {
+    @ViewBuilder func symbolConfiguration(tintColor: Color?, configuration: ImageSymbolConfiguration?) -> some View {
         if let configuration = configuration {
             self
                 .imageScale(configuration.imageScale?.swiftui)
@@ -378,7 +378,7 @@ public extension View {
      - Parameters:
         - configuration: The configuration for the symbol images.
      */
-    @ViewBuilder func symbolConfiguration(_ configuration: ImageSymbolContentConfiguration?) -> some View {
+    @ViewBuilder func symbolConfiguration(_ configuration: ImageSymbolConfiguration?) -> some View {
         if let configuration = configuration {
             self
                 .imageScale(configuration.imageScale?.swiftui)
@@ -395,7 +395,7 @@ public extension View {
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
 public extension NSUIImageView {
     /// Configurates the image view with the specified symbol configuration.
-    func configurate(using configuration: ImageSymbolContentConfiguration) {
+    func configurate(using configuration: ImageSymbolConfiguration) {
         #if os(macOS)
         symbolConfiguration = configuration.nsUI()
         contentTintColor = configuration._resolvedPrimaryColor ?? contentTintColor
@@ -411,20 +411,26 @@ public extension NSUIImageView {
 @available(macOS 12.0, *)
 public extension NSImage {
     /// Creates a new symbol image with the specified configuration.
-    func withSymbolConfiguration(_ configuration: ImageSymbolContentConfiguration) -> NSImage? {
+    func withSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSImage? {
         withSymbolConfiguration(configuration.nsUI())
     }
+    
+    /// Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
+    func applyingSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
+        applyingSymbolConfiguration(configuration.nsUI())
+    }
+    
 }
 #elseif canImport(UIKit)
 @available(iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 public extension UIImage {
     /// Returns a new version of the current image, replacing the current configuration attributes with the specified attributes.
-    func withConfiguration(_ configuration: ImageSymbolContentConfiguration) -> NSUIImage? {
+    func withConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
         withConfiguration(configuration.nsUI())
     }
     
     /// Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
-    func applyingSymbolConfiguration(_ configuration: ImageSymbolContentConfiguration) -> NSUIImage? {
+    func applyingSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
         applyingSymbolConfiguration(configuration.nsUI())
     }
 }
