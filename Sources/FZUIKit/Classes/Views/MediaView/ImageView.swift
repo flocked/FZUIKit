@@ -169,16 +169,16 @@ open class ImageView: NSView {
         self.updateTrackingAreas()
     }
     
-    internal var trackingArea: NSTrackingArea? = nil
+    internal var _trackingArea: TrackingArea? = nil
     open override func updateTrackingAreas() {
-        if let trackingArea = self.trackingArea {
-            self.removeTrackingArea(trackingArea)
-            self.trackingArea = nil
-        }
         if self.animationPlaybackOption == .mouseHover {
-            self.trackingArea = NSTrackingArea(rect: self.bounds, options: [.mouseEnteredAndExited, .activeAlways ], owner: nil)
-            self.addTrackingArea(trackingArea!)
+            if self._trackingArea == nil {
+                self._trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways ])
+            }
+        } else {
+            _trackingArea = nil
         }
+        _trackingArea?.update()
     }
     
     open override func mouseEntered(with event: NSEvent) {

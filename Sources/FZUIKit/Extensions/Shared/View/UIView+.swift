@@ -152,16 +152,20 @@ public extension UIView {
         set { frame.bottomRight = newValue }
     }
     
-    /**
-     Specifies the rotation applied to the view.
-     */
-    dynamic var rotation: CGQuaternion {
-        get { return layer.rotation }
-        set { self.transform3D.rotation = newValue }
+    /// The rotation of the view as euler angles in degrees.
+    dynamic var rotation: CGVector3 {
+        get { self.transform3D.eulerAnglesDegrees }
+        set { self.transform3D.eulerAnglesDegrees = newValue }
+    }
+    
+    /// The rotation of the view as euler angles in radians.
+    dynamic var rotationInRadians: CGVector3 {
+        get { self.transform3D.eulerAngles }
+        set { self.transform3D.eulerAngles = newValue }
     }
     
     /**
-     The scale transform of the view..
+     The scale transform of the view.
 
      The default value of this property is `CGPoint(x: 1.0, y: 1.0)`.
      */

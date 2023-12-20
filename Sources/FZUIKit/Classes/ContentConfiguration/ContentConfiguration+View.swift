@@ -68,7 +68,7 @@ public extension ContentConfiguration {
         /// The scale transform of the view.
         public var scale: CGSize = CGSize(width: 1, height: 1)
         
-        /// The rotation of the view.
+        /// The rotation of the view as euler angles in degrees.
         public var rotation: CGVector3 = .zero
         
         /// The background configuration of the view.

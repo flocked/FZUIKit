@@ -171,9 +171,11 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
                     }
                 }
             } else {
+                /*
                 if let keyFrameAnimation = keyFrameAnimation {
                  //   keyFrameAnimation.updateAnimation(deltaTime: deltaTime)
                 }
+                 */
             }
         }
         

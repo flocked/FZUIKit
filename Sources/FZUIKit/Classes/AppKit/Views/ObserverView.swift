@@ -26,7 +26,7 @@ public class ObservingView: NSView {
     }
 
     public var mouseHandlers = MouseHandlers() {
-        didSet { self.trackingArea.options = mouseHandlers.trackingAreaOptions }
+        didSet { self._trackingArea.options = mouseHandlers.trackingAreaOptions }
     }
     
     public var dragAndDropHandlers = DragAndDropHandlers() {
@@ -69,7 +69,7 @@ public class ObservingView: NSView {
     }
     
     internal func initalSetup() {
-        self.trackingArea.update()
+        self._trackingArea.update()
         _ = self._superviewObserver
     }
     
@@ -87,7 +87,7 @@ public class ObservingView: NSView {
     
     public override func updateTrackingAreas() {
         super.updateTrackingAreas()
-        trackingArea.update()
+        _trackingArea.update()
     }
     
     public override func mouseEntered(with event: NSEvent) {
@@ -235,7 +235,7 @@ public class ObservingView: NSView {
         }
     }
     
-    internal lazy var trackingArea: TrackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
+    internal lazy var _trackingArea: TrackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
     
     internal func removeWindowKeyObserver() {
         windowDidBecomeKeyObserver = nil

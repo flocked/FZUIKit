@@ -35,7 +35,7 @@ class NSMenuItemHighlightableView: NSVisualEffectView {
     // Enable or disable the view
     var isEnabled: Bool = true
 
-    private lazy var trackingArea: TrackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInActiveApp])
+    private lazy var _trackingArea: TrackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInActiveApp])
 
     override init(frame: NSRect) {
         super.init(frame: frame)
@@ -51,13 +51,13 @@ class NSMenuItemHighlightableView: NSVisualEffectView {
         state = .active
         material = .menu
         blendingMode = .behindWindow
-        self.trackingArea.update()
+        self._trackingArea.update()
         if #available(macOS 10.12, *) { isEmphasized = true }
     }
 
     override open func updateTrackingAreas() {
         super.updateTrackingAreas()
-        self.trackingArea.update()
+        self._trackingArea.update()
     }
 
     override public func mouseEntered(with event: NSEvent) {

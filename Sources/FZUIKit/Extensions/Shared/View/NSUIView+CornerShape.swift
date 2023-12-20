@@ -6,7 +6,11 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 import FZSwiftUtils
 
 public extension NSUIView {

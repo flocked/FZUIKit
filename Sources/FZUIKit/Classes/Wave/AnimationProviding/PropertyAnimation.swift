@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 15.12.23.
 //
 
-import AppKit
+import Foundation
 
 /**
  An animation that animates any type conforming to ``AnimatableProperty``.

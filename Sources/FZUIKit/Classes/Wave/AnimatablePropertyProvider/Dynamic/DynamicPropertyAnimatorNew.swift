@@ -16,11 +16,6 @@ import AppKit
 import UIKit
 #endif
 
-func test() {
-    let view = NSView()
-    let animator = DynamicPropertyAnimator.init(view)
-}
-
 
 @dynamicMemberLookup
 public class DynamicPropertyAnimator<Object: AnimatablePropertyProvider>: PropertyAnimator<Object> {
