@@ -923,7 +923,7 @@ internal extension NSView {
             #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
         }
         } catch {
-            Swift.print(error)
+            Swift.debugPrint(error)
         }
     }
     
@@ -970,7 +970,7 @@ private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_
              }
              }
      } catch {
-         Swift.print(error)
+         Swift.debugPrint(error)
      }
      /*
      guard let viewClass = object_getClass(self) else { return }

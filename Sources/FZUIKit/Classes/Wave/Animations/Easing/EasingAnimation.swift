@@ -350,7 +350,7 @@ extension EasingAnimation: CustomStringConvertible {
 
 /*
  if duration != 0.0, #available(macOS 13.0.0, *) {
-   //  Swift.print("VectorElements type", type(of: value.animatableData), (fromValue.animatableData as? any VectorElements) != nil, (fromValue.animatableData as? any VectorElements<CGFloat>) != nil, (fromValue.animatableData as? any VectorElements<Double>) != nil)
+   //  Swift.debugPrint("VectorElements type", type(of: value.animatableData), (fromValue.animatableData as? any VectorElements) != nil, (fromValue.animatableData as? any VectorElements<CGFloat>) != nil, (fromValue.animatableData as? any VectorElements<Double>) != nil)
      /*
      if let duration = self.newDuration(oldTarget: oldValue, newTarget: self.target) {
          self.duration = duration
@@ -362,7 +362,7 @@ extension EasingAnimation: CustomStringConvertible {
 @available(macOS 13.0.0, iOS 16.0.0, tvOS 16.0.0, *)
 func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
     if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<CGFloat>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<CGFloat>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<CGFloat>) {
-        Swift.print("newDuration CGFloat", fromValue, oldTarget, newTarget)
+        Swift.debugPrint("newDuration CGFloat", fromValue, oldTarget, newTarget)
 
         let range: ClosedRange<[CGFloat]>
         if fromValueAnimatable.elements < targetAnimatable.elements {
@@ -384,10 +384,10 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
          */
         let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
         let newDuration = duration * fractionTime
-        Swift.print("newDuration CGFloat end", newDuration, fractionComplete)
+        Swift.debugPrint("newDuration CGFloat end", newDuration, fractionComplete)
         return newDuration
     } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Double>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Double>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<Double>) {
-        Swift.print("newDuration Double", fromValue, oldTarget, newTarget)
+        Swift.debugPrint("newDuration Double", fromValue, oldTarget, newTarget)
 
         let range: ClosedRange<[Double]>
         if fromValueAnimatable.elements < targetAnimatable.elements {
@@ -410,10 +410,10 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
         let fractionTime = timingFunction.solve(at: fractionComplete.doubleValue, duration: self.duration)
 
         let newDuration = duration * fractionTime
-        Swift.print("newDuration Double end", newDuration, fractionComplete)
+        Swift.debugPrint("newDuration Double end", newDuration, fractionComplete)
         return newDuration
     } else if let fromValueAnimatable = fromValue.animatableData as? (any VectorElements<Float>), let targetAnimatable = oldTarget.animatableData as? (any VectorElements<Float>), let newTargetAnimated = newTarget.animatableData as? (any VectorElements<Float>) {
-        Swift.print("newDuration Float", fromValue, oldTarget, newTarget)
+        Swift.debugPrint("newDuration Float", fromValue, oldTarget, newTarget)
 
         let range: ClosedRange<[Float]>
         if fromValueAnimatable.elements < targetAnimatable.elements {
@@ -436,10 +436,10 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
         }
          */
         let newDuration = duration * fractionTime
-        Swift.print("newDuration Float end", newDuration, fractionComplete)
+        Swift.debugPrint("newDuration Float end", newDuration, fractionComplete)
         return newDuration
     }
-    Swift.print("newDuration nil", type(of: fromValue))
+    Swift.debugPrint("newDuration nil", type(of: fromValue))
     return nil
 }
  */
@@ -459,9 +459,9 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
      //    foundValue = targetMagnitude.isApproximatelyEqual(to: value.magnitudeSquared, epsilon: 0.1)
      }
      if foundValue {
-         Swift.print("retargetFraction: ", fractionComplete)
+         Swift.debugPrint("retargetFraction: ", fractionComplete)
      } else {
-         Swift.print("retargetFraction: nil")
+         Swift.debugPrint("retargetFraction: nil")
      }
  }
  
@@ -471,12 +471,12 @@ func newDuration(oldTarget: Value, newTarget: Value) -> TimeInterval? {
              if interolatePosition >= 0 && interolatePosition <= 1.0 {
                  (1.0 - interolatePosition) * duration
              }
-             Swift.print("retarget", interolatePosition, fractionComplete)
+             Swift.debugPrint("retarget", interolatePosition, fractionComplete)
          } else {
-             Swift.print("retarget no position")
+             Swift.debugPrint("retarget no position")
          }
      } else {
-         Swift.print("retarget: nil")
+         Swift.debugPrint("retarget: nil")
      }
  }
  */

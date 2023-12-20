@@ -264,7 +264,7 @@ internal class ShapeLayer: CALayer {
             imageLayer.frame.center = superviewFrame.center
         }
         imageLayer.contents = hostingController.view.renderedImage
-        Swift.print("imageLayer", imageLayer.frame)
+        Swift.debugPrint("imageLayer", imageLayer.frame)
     }
     
     override init() {

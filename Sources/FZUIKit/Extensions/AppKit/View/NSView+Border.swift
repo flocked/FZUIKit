@@ -45,9 +45,9 @@ extension NSView {
                 self.dashedBorderInsetsTrailing = newValue.insets.trailing
                 
                 self.setupDashedPatternArray()
-                Swift.print("count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
+                Swift.debugPrint("count", self.dashedBorderLayer?.borderDashPattern.count ?? "nil")
                 let newDashPattern = self.convertedDashPattern(for: newValue.dashPattern)
-                Swift.print("converted", newDashPattern)
+                Swift.debugPrint("converted", newDashPattern)
                 self.dashedBorderDashPattern0 = newDashPattern[0]
                 self.dashedBorderDashPattern1 = newDashPattern[1]
                 self.dashedBorderDashPattern2 = newDashPattern[2]

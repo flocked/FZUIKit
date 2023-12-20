@@ -58,9 +58,9 @@ extension Gradient: AnimatableProperty {
         self.startPoint = .init(x: animatableData[1], y: animatableData[2])
         self.endPoint = .init(x: animatableData[3], y: animatableData[4])
 
-        Swift.print("init gradient 2", animatableData["end"]!.count)
+        Swift.debugPrint("init gradient 2", animatableData["end"]!.count)
         self.endPoint = .init(x: animatableData["end"]![0], y: animatableData["end"]![1])
-        Swift.print("init gradient 3", animatableData["stops"]!.count)
+        Swift.debugPrint("init gradient 3", animatableData["stops"]!.count)
         if animatableData["stops"]!.isEmpty == false {
            let chunks = animatableData["stops"]!.chunked(size: 5)
             self.stops = chunks.compactMap({ Stop(AnimatableArray<Double>($0)) })

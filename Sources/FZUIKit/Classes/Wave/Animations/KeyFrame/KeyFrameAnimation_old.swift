@@ -147,7 +147,7 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
             currentKeyFrameIndex = isReversed ? currentKeyFrameIndex - 1 : currentKeyFrameIndex - 1
             runningTime = currentKeyFrame.totalDuration - runningTime
             startValue = currentKeyFrame._target
-            Swift.print("next", currentKeyFrameIndex, runningTime, startValue)
+            Swift.debugPrint("next", currentKeyFrameIndex, runningTime, startValue)
         }
         
         if let currentKeyFrame = keyFrames[safe: currentKeyFrameIndex] {

@@ -79,7 +79,7 @@ public extension NSCursor {
                 }
                 }
         } catch {
-            Swift.print(error)
+            Swift.debugPrint(error)
         }
     }
     

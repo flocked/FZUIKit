@@ -1,5 +1,5 @@
 //
-//  TabService.swift
+//  NSWindowController+TabbableWindow.swift
 //
 //
 //  Created by Florian Zand on 17.06.23.
@@ -21,7 +21,6 @@ public protocol TabbableWindow: NSWindowController {
 }
 
 extension TabbableWindow {
-    
     static public func createNew() -> Self {
         let windowController = Self.loadFromNib() ?? Self.loadFromStoryboard()
         if let windowController = windowController {
@@ -46,8 +45,6 @@ extension TabbableWindow {
 
 /// TabService manages the tabs of an window controller.
 class TabService {
-    static let shared = TabService()
-    
     struct ManagedWindow {
         /// Keep the controller around to store a strong reference to it
         public let windowController: NSWindowController
@@ -58,6 +55,8 @@ class TabService {
         /// React to window closing, auto-unsubscribing on dealloc
         public let closingSubscription: NotificationToken
     }
+    
+    static let shared = TabService()
     
     fileprivate(set) var managedWindows: [ManagedWindow] = []
     
@@ -75,7 +74,6 @@ class TabService {
         return (mainManagedWindow ?? managedWindows.first)
             .map { $0.window }
     }
-    
     
     /// Creates an tab service object.
     init() {

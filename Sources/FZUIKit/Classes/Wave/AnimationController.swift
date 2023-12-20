@@ -318,7 +318,7 @@ extension AnimationController {
  
  private func setupMouseDownMonitor() {
      if mouseDownDisabledViews.isEmpty == false {
-         Swift.print("setupMouseDownMonitor", mouseDownDisabledViews.flatMap({$0.value}).uniqued().count)
+         Swift.debugPrint("setupMouseDownMonitor", mouseDownDisabledViews.flatMap({$0.value}).uniqued().count)
          if mouseDownMonitor == nil {
              mouseDownMonitor = .local(for: [.leftMouseDown]) { [weak self] event in
                  guard let self = self else { return event }
@@ -328,18 +328,18 @@ extension AnimationController {
                          let allMouseDownDisabledViews = mouseDownDisabledViews.flatMap({$0.value}).uniqued()
                          for view in allMouseDownDisabledViews {
                              if hitView == view || hitView.isDescendant(of: view) {
-                                 Swift.print("mouseDownMonitor nil")
+                                 Swift.debugPrint("mouseDownMonitor nil")
                                  return nil
                              }
                          }
                      }
                  }
-                 Swift.print("mouseDownMonitor event")
+                 Swift.debugPrint("mouseDownMonitor event")
                  return event
              }
          }
      } else {
-         Swift.print("setupMouseDownMonitor disable")
+         Swift.debugPrint("setupMouseDownMonitor disable")
          mouseDownMonitor = nil
      }
  }

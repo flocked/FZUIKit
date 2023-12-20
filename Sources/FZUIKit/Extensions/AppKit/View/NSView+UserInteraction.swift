@@ -39,7 +39,7 @@ public extension NSView {
      func swizzleUserInteraction() {
         guard didSwizzleUserInteraction == false else { return }
         didSwizzleUserInteraction = true
-         Swift.print("swizzleUserInteraction")
+         Swift.debugPrint("swizzleUserInteraction")
 
          do {
              try self.replaceMethod(
@@ -169,7 +169,7 @@ public extension NSView {
                  }
                  }
          } catch {
-             Swift.print(error)
+             Swift.debugPrint(error)
          }
     }
     
@@ -200,7 +200,7 @@ internal class UserInteractionMonitor {
     var eventMonitor: NSEvent.Monitor? = nil
         
     func setupMonitor() {
-        Swift.print("setupMonitor")
+        Swift.debugPrint("setupMonitor")
         if allViews.isEmpty == false {
             if eventMonitor == nil {
                 eventMonitor = NSEvent.Monitor.local(for: .allUserInteractions) { event in

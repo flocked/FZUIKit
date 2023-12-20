@@ -216,7 +216,7 @@ extension NSPopover {
                 }
                 }
         } catch {
-            Swift.print()
+            Swift.debugPrint()
         }
     }
     
