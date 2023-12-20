@@ -1,6 +1,6 @@
 //
-//  TrackingArea.swift
-//  
+//  NSView+TrackingArea.swift
+//
 //
 //  Adopted from:
 //  Copyright © 2023 Darren Ford. All rights reserved.
