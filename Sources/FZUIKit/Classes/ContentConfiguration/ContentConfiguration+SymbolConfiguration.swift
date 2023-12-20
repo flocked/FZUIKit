@@ -19,11 +19,9 @@ public extension ContentConfiguration {
     /**
      An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
      
-     `NSImageView/UIImageView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.SymbolConfiguration)`.
+     `NSImageView` and `UIImageView` can be configurated by applying the configuration to `configurate(using:_)`.
      
-     `NSImage` can be configurated via `withSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
-`
-     `UIImage` can be configurated via `applyingSymbolConfiguration(_ configuration: ContentConfiguration.SymbolConfiguration)`.
+     `NSImage` can be configurated using `withSymbolConfiguration(_)` and `UIImage` can be configurated using `applyingSymbolConfiguration(_)`.
      */
     struct SymbolConfiguration: Hashable {
         /// The font of the symbol configuration.

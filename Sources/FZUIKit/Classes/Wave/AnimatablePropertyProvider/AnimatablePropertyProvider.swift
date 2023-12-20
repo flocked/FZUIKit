@@ -50,11 +50,27 @@ public protocol AnimatablePropertyProvider: AnyObject {
      ```
      */
     var animator: PropertyAnimator<Provider> { get }
+    
+    /**
+     A Boolean value that indicates whether the animator should dynamically provide all animatable properties of the object.
+     
+     If `true` the properties are accessible by their names.
+     */
+    static var dynamicAnimatablePropertyLookup: Bool { get }
 }
 
 extension AnimatablePropertyProvider {
     public var animator: PropertyAnimator<Self> {
-        get { getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: PropertyAnimator(self)) }
+        get {
+            if Self.dynamicAnimatablePropertyLookup {
+                return getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: DynamicPropertyAnimator(self))
+            }
+            return getAssociatedValue(key: "PropertyAnimator", object: self, initialValue: PropertyAnimator(self))
+        }
+    }
+
+    public static var dynamicAnimatablePropertyLookup: Bool {
+        return false
     }
 }
 

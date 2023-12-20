@@ -19,7 +19,7 @@ public extension ContentConfiguration {
     /**
      A configuration that specifies the appearance of a view.
      
-     `NSView/UIView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.View)`.     
+     `NSView`and `UIView` can be configurated by applying the configuration to the receiver's `configurate(using:_)`.
      */
     struct View: Hashable {
         /// The background color.

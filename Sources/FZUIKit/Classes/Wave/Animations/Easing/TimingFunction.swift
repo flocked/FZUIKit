@@ -76,7 +76,6 @@ public enum TimingFunction {
 import SwiftUI
 public extension TimingFunction {
     func update<V>(value: inout V, fromValue: V, target: V, fractionComplete: inout Double, duration: TimeInterval, deltaTime: TimeInterval) where V : VectorArithmetic {
-        Swift.print("TimingFunction update", (fractionComplete + (deltaTime / duration)))
         fractionComplete = (fractionComplete + (deltaTime / duration)).clamped(max: 1.0)
         let resolvedFractionComplete = solve(at: fractionComplete, duration: duration)
         value = fromValue.interpolated(towards: target, amount: resolvedFractionComplete)

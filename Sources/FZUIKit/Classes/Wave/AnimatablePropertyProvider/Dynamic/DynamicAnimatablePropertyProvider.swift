@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 27.10.23.
 //
 
+/*
 #if os(macOS) || os(iOS) || os(tvOS)
 
 import Foundation
@@ -59,3 +60,4 @@ extension DynamicAnimatablePropertyProvider {
 }
 
 #endif
+*/

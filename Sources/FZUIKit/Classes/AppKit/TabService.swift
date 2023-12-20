@@ -10,19 +10,47 @@
 import AppKit
 import FZSwiftUtils
 
-/// A window controller that can create tabs.
-public protocol TabbableWindowController: NSWindowController {
-    /// The object that manages the tabs.
-    var tabService: TabService<Self>? { get set }
+/**
+ A window controller that can create window tabs.
+ 
+ The default implementation of ``createNew()-swift.type.method`` tries to create a new window controller from either the main storyboard or a nib named as the window controller and fails if it couldn't be created.
+ */
+public protocol TabbableWindow: NSWindowController {
     /// Creates a new window controller.
     static func createNew() -> Self
 }
 
+extension TabbableWindow {
+    
+    static public func createNew() -> Self {
+        let windowController = Self.loadFromNib() ?? Self.loadFromStoryboard()
+        if let windowController = windowController {
+            return windowController
+        } else {
+            assertionFailure("The window controller couldn't be created from the main storyboard or a nib named as the window controller. Provide your own createNew() implementation.")
+            return windowController!
+        }
+    }
+    
+    /**
+     Creates a new tab if the `window` is the main window.
+     
+     - Parameter presentTab:  A Boolean value the tab should be presented.
+     */
+    public func createTab(presentTab: Bool) {
+        TabService.shared.createTab(for: self, presentTab: presentTab)
+    }
+}
+
+
+
 /// TabService manages the tabs of an window controller.
-public class TabService<WindowController: TabbableWindowController> {
-    public struct ManagedWindow {
+class TabService {
+    static let shared = TabService()
+    
+    struct ManagedWindow {
         /// Keep the controller around to store a strong reference to it
-        public let windowController: WindowController
+        public let windowController: NSWindowController
         
         /// Keep the window around to identify instances of this type
         public let window: NSWindow
@@ -31,7 +59,7 @@ public class TabService<WindowController: TabbableWindowController> {
         public let closingSubscription: NotificationToken
     }
     
-    public fileprivate(set) var managedWindows: [ManagedWindow] = []
+    fileprivate(set) var managedWindows: [ManagedWindow] = []
     
     /// Returns the main window of the managed window stack.
     /// Falls back the first element if no window is main. Note that this would
@@ -48,14 +76,10 @@ public class TabService<WindowController: TabbableWindowController> {
             .map { $0.window }
     }
     
-    /**
-     Creates an tab service object for the specified window controller.
-     - Parameter initialWindowController: The window controller for managing the tabs.
-     - Returns: The tab service object.
-     */
-    public init(initialWindowController: WindowController) {
-        precondition(addManagedWindow(windowController: initialWindowController) != nil)
-        initialWindowController.tabService = self
+    
+    /// Creates an tab service object.
+    public init() {
+       
     }
     
     /**
@@ -63,17 +87,19 @@ public class TabService<WindowController: TabbableWindowController> {
      
      - Parameter presentTab:  A Boolean value the tab should be presented.
      */
-    public func createTab(presentTab: Bool = true) {
-        guard let window = self.mainWindow else { return }
-        let newWindowController = WindowController.createNew()
+    func createTab<WC: TabbableWindow>(for windowController: WC, presentTab: Bool = true) {
+        let mainWindow = self.mainWindow
+        let newWindowController = WC.createNew()
          guard let newWindow = addManagedWindow(windowController: newWindowController)?.window else { preconditionFailure() }
-        window.addTabbedWindow(newWindow, ordered: .above)
+        if let mainWindow = mainWindow {
+            mainWindow.addTabbedWindow(newWindow, ordered: .above)
+        }
         if presentTab {
             newWindow.makeKeyAndOrderFront(nil)
         }
     }
 
-    private func addManagedWindow(windowController: WindowController) -> ManagedWindow? {
+    private func addManagedWindow(windowController: NSWindowController) -> ManagedWindow? {
 
         guard let window = windowController.window else { return nil }
         
@@ -87,8 +113,6 @@ public class TabService<WindowController: TabbableWindowController> {
             window: window,
             closingSubscription: subscription)
         managedWindows.append(management)
-
-        windowController.tabService = self
 
         return management
     }

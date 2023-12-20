@@ -18,11 +18,9 @@ import FZSwiftUtils
 @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public extension ContentConfiguration {
     /**
-     A configuration that specifies the text.
+     A configuration that specifies the layout and appearance of text.
      
-     On AppKit `NSTextField` and `NSTextView` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Text)`.
-     
-     On UIKit `UILabel` and `UITextField` can be configurated by passing the configuration to `configurate(using configuration: ContentConfiguration.Text)`.
+     `NSTextField`, `NSTextView`, `UILabel` and `UITextField` can be configurated by applying the configuration to the receiver's `configurate(using:_)`.
      */
     struct Text {
         /// The font of the text.

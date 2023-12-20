@@ -28,15 +28,12 @@ public struct UnitBezier: Hashable, Sendable {
     
     /// Creates a new `UnitBezier` instance with the specified points.
     public init(first: CGPoint, second: CGPoint) {
-        Swift.print("unitbezier first", first, second)
         self.first = CGPoint(first.x.clamped(max: 1.0), first.y.clamped(max: 1.0))
         self.second = CGPoint(second.x.clamped(max: 1.0), second.y.clamped(max: 1.0))
     }
     
     /// Creates a new `UnitBezier` instance with the specified points.
     public init(x1: Double, y1: Double, x2: Double, y2: Double) {
-        Swift.print("unitbezier x1", x1, y1, x2, y2)
-
         self.init(first: CGPoint(x1, y1), second: CGPoint(x2, y2))
     }
 
@@ -49,7 +46,6 @@ public struct UnitBezier: Hashable, Sendable {
      - Returns: The solved `y` value.
      */
     public func solve(x: Double, epsilon: Double) -> Double {
-        Swift.print("unitbezier solve", x)
         return UnitBezierSolver(p1x: first.x, p1y: first.y, p2x: second.x, p2y: second.y).solve(x: x, eps: epsilon)
     }
 

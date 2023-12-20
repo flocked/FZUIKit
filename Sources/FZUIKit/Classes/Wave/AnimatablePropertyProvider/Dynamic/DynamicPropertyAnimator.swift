@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 07.11.23.
 //
 
+/*
 #if os(macOS) || os(iOS) || os(tvOS)
 
 import Foundation
@@ -344,3 +345,4 @@ func value<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value
      }
  }
  */
+*/

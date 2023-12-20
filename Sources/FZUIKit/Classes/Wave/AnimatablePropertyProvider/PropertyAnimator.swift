@@ -16,6 +16,35 @@ import AppKit
 import UIKit
 #endif
 
+
+protocol Searcher<Object>: AnyObject {
+    associatedtype Object: AnimatablePropertyProvider
+    var animations: [String: AnimationProviding] { get }
+    var lastAnimationKey: String { get set }
+}
+
+extension Searcher {
+    public func animationTest<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Self, Value>) -> AnimationProviding?  {
+        lastAnimationKey = ""
+        _ = self[keyPath: keyPath]
+        return animations[lastAnimationKey != "" ? lastAnimationKey : keyPath.stringValue]
+    }
+
+    public func animationVelocityTest<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Self, Value>) -> Value? {
+        var velocity: Value?
+        Anima.updateVelocity() {
+            velocity = self[keyPath: keyPath]
+        }
+        return velocity
+    }
+}
+
+extension PropertyAnimator {
+    public func animatioTestAlt<Value: AnimatableProperty>(for keyPath: WritableKeyPath<PropertyAnimator, Value>) -> AnimationProviding?  {
+        return self.animations[keyPath.stringValue]
+    }
+}
+
 /**
  Provides animatable properties of an object conforming to `AnimatablePropertyProvider`.
  
@@ -37,7 +66,7 @@ import UIKit
  }
  ```
  */
-public class PropertyAnimator<Object: AnimatablePropertyProvider> {
+public class PropertyAnimator<Object: AnimatablePropertyProvider>: Searcher {
     internal var object: Object
     
     internal init(_ object: Object) {
@@ -65,6 +94,7 @@ public class PropertyAnimator<Object: AnimatablePropertyProvider> {
         get { animation(for: velocity)?.velocity as? Value ?? .zero  }
         set { animation(for: velocity)?.setVelocity(newValue) }
     }
+    
 
     /**
      The current animation for the property at the specified keypath.
