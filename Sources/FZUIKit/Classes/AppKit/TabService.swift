@@ -78,7 +78,7 @@ class TabService {
     
     
     /// Creates an tab service object.
-    public init() {
+    init() {
        
     }
     
@@ -105,7 +105,6 @@ class TabService {
         
         let subscription = NotificationCenter.default.observe(name: NSWindow.willCloseNotification, object: window) { [unowned self] notification in
             guard let window = notification.object as? NSWindow else { return }
-            guard window != self.mainWindow else { return }
             self.removeManagedWindow(forWindow: window)
         }
         let management = ManagedWindow(
