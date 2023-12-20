@@ -30,6 +30,13 @@ extension ContentConfiguration {
         
         var name: String? = nil
         
+        /**
+         A shape configuration with the specified shape and margins.
+         
+         - Parameters:
+            - shape: The shape of the configuration.
+            - margins: The margins of the shape.
+         */
         public init(shape: (any SwiftUI.Shape)?, margins: NSDirectionalEdgeInsets = .zero) {
             self.shape = shape
             self.margins = margins
@@ -41,29 +48,66 @@ extension ContentConfiguration {
             self.name = name
         }
         
-        /// A circle shape.
+        /**
+         A circle shape.
+         
+         - parameter margins: The margins of the shape.
+         */
         public static func circle(margins: NSDirectionalEdgeInsets = .zero) -> Self {
             return Self(shape: SwiftUI.Circle(), margins: margins, name: "Circle")
         }
         
-        /// A capsule shape.
+        /**
+         A capsule shape.
+         
+         - parameter margins: The margins of the shape.
+         */
         public static func capsule(margins: NSDirectionalEdgeInsets = .zero) -> Self {
             return Self(shape: SwiftUI.Capsule(), margins: margins, name: "Capsule")
         }
         
-        /// A capsule shape.
+        /**
+         A ellipse shape.
+         
+         - parameter margins: The margins of the shape.
+         */
         public static func ellipse(margins: NSDirectionalEdgeInsets = .zero) -> Self {
             return Self(shape: SwiftUI.Ellipse(), margins: margins, name: "Ellipse")
         }
                 
-        /// A rounded rectangle shape with the corner radius.
+        /**
+         A rounded rectangle shape with the specified corner radius.
+         
+         - Parameters:
+            - cornerRadius: The corner radius of the rectangle.
+            - margins: The margins of the shape.
+         */
         public static func roundedRectangle(cornerRadius: CGFloat, margins: NSDirectionalEdgeInsets = .zero) -> Self {
             return Self(shape: SwiftUI.RoundedRectangle(cornerRadius: cornerRadius), margins: margins, name: "RoundedRectangleCornerRadius")
         }
         
-        /// A rounded rectangle shape with the specified corner size.
+        /**
+         A rounded rectangle shape with the specified corner size.
+         
+         - Parameters:
+            - cornerSize: The corner size of the rectangle.
+            - margins: The margins of the shape.
+         */
         public static func roundedRectangle(cornerSize: CGSize, margins: NSDirectionalEdgeInsets = .zero) -> Self {
             return Self(shape: SwiftUI.RoundedRectangle(cornerSize: cornerSize), margins: margins, name: "RoundedRectangleCornerSize")
+        }
+        
+        /**
+         A star rectangle shape.
+         
+         - Parameters:
+            - points: The number of points of the star. The default value is `5`.
+            - cutout: A Boolean value that indicates if the star is a cutout. The default value is `false`.
+            - rounded: A Boolean value that indicates whether star is rounded. The default value is `false`.
+            - margins: The margins of the shape.
+         */
+        public static func star(points: Int = 5, cutout: Bool = false, rounded: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
+            return Self(shape: Star(points: points, cutout: cutout, rounded: rounded), margins: margins, name: "Star.\(points).\(cutout).\(rounded)")
         }
         
         /// No shape.
