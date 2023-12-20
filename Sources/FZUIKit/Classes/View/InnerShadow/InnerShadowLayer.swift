@@ -21,7 +21,12 @@ public class InnerShadowLayer: CALayer {
     public var configuration: ShadowConfiguration {
         get { ShadowConfiguration(color: __shadowColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)  }
         set {
-            __shadowColor = newValue.color
+            if let parentView = parentView {
+                __shadowColor = newValue._resolvedColor?.resolvedColor(for: parentView)
+                #if os(macOS)
+                parentView.dynamicColors.innerShadow = newValue._resolvedColor
+                #endif
+            }
             shadowOpacity = Float(newValue.opacity)
             let needsUpdate = shadowOffset != newValue.offset.size || shadowRadius != newValue.radius
             isUpdating = true

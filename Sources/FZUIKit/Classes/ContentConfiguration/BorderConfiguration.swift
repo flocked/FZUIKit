@@ -109,7 +109,6 @@ public extension NSUIView {
      */
     func configurate(using configuration: BorderConfiguration) {
         #if os(macOS)
-        wantsLayer = true
         self.dynamicColors.border = configuration._resolvedColor
         #endif
         if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
@@ -168,12 +167,6 @@ public extension CALayer {
     
     internal var borderLayer: DashedBorderLayer? {
         self.firstSublayer(type: DashedBorderLayer.self)
-    }
-}
-
-internal extension NSUIView {
-    var optionalLayer: CALayer? {
-        get { self.layer }
     }
 }
 #endif

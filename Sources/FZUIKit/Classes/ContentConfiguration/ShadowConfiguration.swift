@@ -180,7 +180,7 @@ public extension NSUIView {
             #endif
         } else {
             #if os(macOS)
-            wantsLayer = true
+            self.dynamicColors.innerShadow = configuration._resolvedColor
             #endif
             optionalLayer?.configurate(using: configuration, type: type)
         }

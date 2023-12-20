@@ -22,7 +22,15 @@ public struct ColorTransformer: ContentTransform {
 
     /// Creates a color transformer with the specified identifier and closure.
     public init(_ identifier: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
-        self.transform = transform
+        self.transform = {
+            #if os(macOS) || os(iOS)
+            let dynamicColors = $0.dynamicColors
+            if dynamicColors.light != dynamicColors.dark {
+                return NSUIColor(light: transform(dynamicColors.light), dark: transform(dynamicColors.dark))
+            }
+            #endif
+            return transform($0)
+        }
         self.id = identifier
     }
 

@@ -13,6 +13,15 @@ import UIKit
 #endif
 
 public extension NSUIView {
+    internal var optionalLayer: CALayer? {
+        get {
+            #if os(macOS)
+            self.wantsLayer = true
+            #endif
+            return self.layer
+        }
+    }
+    
     func removeAllConstraints() {
         var _superview = superview
         while let superview = _superview {
