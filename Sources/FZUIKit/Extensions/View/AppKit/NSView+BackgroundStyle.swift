@@ -18,7 +18,8 @@ public protocol ViewBackgroundStyleCustomizable: NSView {
     var backgroundStyle: NSView.BackgroundStyle { get set }
 }
 
-extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
+// extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
+/*
 extension NSControl: ViewBackgroundStyleCustomizable {
     /**
      The background style of the view.
@@ -30,8 +31,16 @@ extension NSControl: ViewBackgroundStyleCustomizable {
         set { self.cell?.backgroundStyle = newValue }
     }
 }
+ */
+
 
 extension NSView {
+    @objc open dynamic var backgroundStyle: NSView.BackgroundStyle {
+         get { getAssociatedValue(key: "backgroundStyleSS", object: self, initialValue: .normal) }
+         set { set(associatedValue: newValue, key: "backgroundStyleSS", object: self) }
+     }
+    
+    /*
     /**
      Updates the background style of all nested subviews to the specified style.
      
@@ -48,8 +57,10 @@ extension NSView {
             subview.setBackgroundStyle(backgroundStyle)
         }
     }
+    */
 }
 
+/*
 extension NSCollectionViewItem {
     /**
      Updates the background style of all nested subviews to the specified style.
@@ -66,4 +77,5 @@ extension NSCollectionViewItem {
         self.view.setBackgroundStyle(backgroundStyle)
     }
 }
+ */
 #endif
