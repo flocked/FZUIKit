@@ -29,7 +29,7 @@ extension AVPlayer {
         if isLooping {
             actionAtItemEnd = .none
             guard loopNotificationToken == nil else { return }
-            loopNotificationToken = NotificationCenter.default.observe(name: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil, using: { [weak self] notification in
+            loopNotificationToken = NotificationCenter.default.observe(.AVPlayerItemDidPlayToEndTime, object: nil, queue: nil, using: { [weak self] notification in
                 guard let self = self else { return }
                 if let playerItem = notification.object as? AVPlayerItem {
                     if self.isLooping {

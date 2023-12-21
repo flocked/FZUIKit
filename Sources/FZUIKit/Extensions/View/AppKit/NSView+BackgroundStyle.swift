@@ -18,7 +18,7 @@ public protocol ViewBackgroundStyleCustomizable {
     var backgroundStyle: NSView.BackgroundStyle { get set }
 }
 
-extension NSTableCellView: ViewBackgroundStyleCustomizable { }
+extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
 extension NSCell: ViewBackgroundStyleCustomizable { }
 extension NSControl: ViewBackgroundStyleCustomizable {
     /**

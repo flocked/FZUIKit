@@ -249,21 +249,21 @@ public class ObservingView: NSView {
     
     internal func observeWindowState(for window: NSWindow) {
         if windowDidBecomeKeyObserver == nil, windowHandlers.isKey != nil {
-            windowDidBecomeKeyObserver = NotificationCenter.default.observe(name: NSWindow.didBecomeKeyNotification, object: window) { notification in
+            windowDidBecomeKeyObserver = NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: window) { notification in
                 self.windowIsKey = true
             }
             
-            windowDidResignKeyObserver = NotificationCenter.default.observe(name: NSWindow.didResignKeyNotification, object: window) { notification in
+            windowDidResignKeyObserver = NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: window) { notification in
                 self.windowIsKey = false
             }
         }
         
         if windowDidBecomeMainObserver == nil, windowHandlers.isMain != nil {
-            windowDidBecomeMainObserver = NotificationCenter.default.observe(name: NSWindow.didBecomeMainNotification, object: window) { notification in
+            windowDidBecomeMainObserver = NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: window) { notification in
                 self.windowIsMain = true
             }
             
-            windowDidResignMainObserver = NotificationCenter.default.observe(name: NSWindow.didResignMainNotification, object: window) { notification in
+            windowDidResignMainObserver = NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: window) { notification in
                 self.windowIsMain = false
             }
         }

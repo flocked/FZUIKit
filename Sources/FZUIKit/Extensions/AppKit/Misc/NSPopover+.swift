@@ -135,7 +135,7 @@ extension NSPopover {
             positioningView.superview?.addSubview(noArrowView, positioned: .below,relativeTo: positioningView)
             self.show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
             noArrowView.frame =  NSMakeRect(0, -200, 10, 10)
-            willCloseObserver = NotificationCenter.default.observe(name: NSPopover.willCloseNotification, object: self, using: { notification in
+            willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
                 (notification.object as? NSPopover)?.dismissNoArrow()
             })
         }
