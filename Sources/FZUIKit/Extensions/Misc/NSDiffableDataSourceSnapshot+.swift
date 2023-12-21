@@ -33,7 +33,7 @@ public extension NSDiffableDataSourceSnapshot {
         - toIdentifier:  The identifier of the item after which to move the specified item.
      */
     mutating func moveItems(_ identifiers: [ItemIdentifierType], afterItem toIdentifier: ItemIdentifierType) {
-        identifiers.reversed().forEach({ moveItem($0, afterItem: toIdentifier) })
+        identifiers.forEach({ moveItem($0, afterItem: toIdentifier) })
     }
     
     /**
@@ -44,7 +44,7 @@ public extension NSDiffableDataSourceSnapshot {
         - toIdentifier:  The identifier of the item before which to move the specified item.
      */
     mutating func moveItems(_ identifiers: [ItemIdentifierType], beforeItem toIdentifier: ItemIdentifierType) {
-        identifiers.reversed().forEach({ moveItem($0, beforeItem: toIdentifier) })
+        identifiers.forEach({ moveItem($0, beforeItem: toIdentifier) })
     }
 }
 #endif
