@@ -10,16 +10,15 @@ import AppKit
 import FZSwiftUtils
 
 /**
- A protocol for views and cells with background style.
+ A protocol for views with customizable background style.
  
  The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A view may draw differently based on background characteristics. For example, a table view drawing a cell in a selected row might set the value to dark. A text cell might decide to render its text white as a result. A rating-style level indicator might draw its stars white instead of gray.
  */
-public protocol ViewBackgroundStyleCustomizable {
+public protocol ViewBackgroundStyleCustomizable: NSView {
     var backgroundStyle: NSView.BackgroundStyle { get set }
 }
 
 extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
-extension NSCell: ViewBackgroundStyleCustomizable { }
 extension NSControl: ViewBackgroundStyleCustomizable {
     /**
      The background style of the view.
@@ -41,7 +40,7 @@ extension NSView {
      - Parameter backgroundStyle: The style to apply.
      */
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
-        if var self = (self as? ViewBackgroundStyleCustomizable) {
+        if let self = (self as? ViewBackgroundStyleCustomizable) {
             self.backgroundStyle = backgroundStyle
         }
         
@@ -60,6 +59,10 @@ extension NSCollectionViewItem {
      - Parameter backgroundStyle: The style to apply.
      */
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+        if let view = (self.view as? ViewBackgroundStyleCustomizable) {
+            view.backgroundStyle = backgroundStyle
+        }
+        
         self.view.setBackgroundStyle(backgroundStyle)
     }
 }

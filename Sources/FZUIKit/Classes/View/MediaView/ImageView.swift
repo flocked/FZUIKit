@@ -64,8 +64,24 @@ open class ImageView: NSView {
         get { self._tintColor }
         set {
             self._tintColor = newValue
+            updateTintColor()
+        }
+    }
+    
+    func updateTintColor() {
+        if backgroundStyle == .emphasized {
+            self.imageLayer.tintColor = .alternateSelectedControlTextColor
+        } else {
             self.imageLayer.tintColor = _tintColor?.resolvedColor(for: self)
         }
+    }
+    
+    var backgroundStyle: NSView.BackgroundStyle = .normal
+    
+    open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+        guard backgroundStyle != self.backgroundStyle else { return }
+        self.backgroundStyle = backgroundStyle
+        self.updateTintColor()
     }
     
     private var _tintColor: NSColor? = nil
@@ -259,7 +275,7 @@ open class ImageView: NSView {
     
     public override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
-        imageLayer.tintColor = _tintColor?.resolvedColor(for: self)
+        updateTintColor()
         if #available(macOS 12.0, iOS 13.0, *) {
             let resolved = resolvedSymbolConfiguration
             if resolved?.colors != symbolConfiguration?.colors {
