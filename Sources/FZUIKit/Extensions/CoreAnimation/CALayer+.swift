@@ -18,12 +18,23 @@ import FZSwiftUtils
 public extension CALayer {
     /// The shadow of the layer.
     dynamic var shadow: ShadowConfiguration {
-        get { .init(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
+        get { .init(color: shadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)}
         set {
-            shadowColor = newValue._resolvedColor?.cgColor
+            shadowColorDynamic = newValue._resolvedColor
             shadowOpacity = Float(newValue.opacity)
             shadowRadius = newValue.radius
             shadowOffset = newValue.offset.size
+        }
+    }
+    
+    var shadowColorDynamic: NSUIColor? {
+        get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: shadowColor?.nsUIColor) }
+        set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self)
+            if let parentView = parentView {
+                shadowColor = newValue?.resolvedColor(for: parentView).cgColor
+            } else {
+                shadowColor = newValue?.cgColor
+            }
         }
     }
     

@@ -20,7 +20,7 @@ import SwiftUI
  `NSView/UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: ShadowConfiguration)`.
  */
 public struct ShadowConfiguration: Hashable {
-    /// The type of a shadow
+    /// The type of a shadow.
     public enum ShadowType {
         /// Inner shadow.
         case inner
@@ -170,13 +170,10 @@ public extension NSUIView {
     func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) {
         if type == .outer {
             self.shadowColor = configuration._resolvedColor
-            self.shadowOffset = CGSize(configuration.offset.x, configuration.offset.y)
+            self.shadowOffset = configuration.offset.size
             self.shadowOpacity = configuration.opacity
             self.shadowRadius = configuration.radius
         } else {
-            #if os(macOS)
-            self.dynamicColors.innerShadow = configuration._resolvedColor
-            #endif
             optionalLayer?.configurate(using: configuration, type: type)
         }
     }
@@ -200,10 +197,7 @@ public extension CALayer {
      */
     func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) {
         if type == .outer {
-            shadowColor = configuration._resolvedColor?.cgColor
-            shadowOffset = CGSize(width: configuration.offset.x, height: configuration.offset.y)
-            shadowRadius = configuration.radius
-            shadowOpacity = Float(configuration.opacity)
+            self.shadow = configuration
         } else {
             if configuration.isInvisible {
                 self.innerShadowLayer?.removeFromSuperlayer()

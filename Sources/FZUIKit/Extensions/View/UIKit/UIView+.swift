@@ -78,10 +78,22 @@ public extension UIView {
         set { layer.cornerCurve = newValue }
     }
     
+    /// The shadow of the view.
+    dynamic var shadow: ShadowConfiguration {
+        get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+        set { self.configurate(using: newValue, type: .outer) }
+    }
+    
+    /// The inner shadow of the view.
+    dynamic var innerShadow: ShadowConfiguration {
+        get { self.layer.innerShadowLayer?.configuration ?? .none() }
+        set { self.configurate(using: newValue, type: .inner) }
+    }
+    
     /// The shadow color of the view.
     @objc internal dynamic var shadowColor: NSUIColor? {
         get { layer.shadowColor?.uiColor }
-        set { layer.shadowColor = newValue?.cgColor }
+        set { layer.shadowColor = newValue?.resolvedColor(for: self).cgColor }
     }
     
     /// The shadow offset of the view.
@@ -103,41 +115,9 @@ public extension UIView {
     }
     
     /// The shadow path of the view.
-    @objc internal dynamic var shadowPath: CGPath? {
+    @objc dynamic var shadowPath: CGPath? {
         get { layer.shadowPath }
         set { layer.shadowPath = newValue }
-    }
-    
-    /// The inner shadow of the view.
-    dynamic var innerShadow: ShadowConfiguration {
-        get { self.layer.innerShadowLayer?.configuration ?? .none() }
-        set { self.configurate(using: newValue, type: .inner) }
-    }
-    
-    @objc internal dynamic var innerShadowColor: NSUIColor? {
-        get { self.layer.innerShadowLayer?.shadowColor?.nsUIColor }
-        set { self.layer.innerShadowLayer?.shadowColor = newValue?.cgColor }
-    }
-    
-    @objc internal dynamic var innerShadowOpacity: CGFloat {
-        get { CGFloat(self.layer.innerShadowLayer?.shadowOpacity ?? 0) }
-        set { self.layer.innerShadowLayer?.shadowOpacity = Float(newValue) }
-    }
-    
-    @objc internal dynamic var innerShadowRadius: CGFloat {
-        get { self.layer.innerShadowLayer?.shadowRadius ?? 0 }
-        set { self.layer.innerShadowLayer?.shadowRadius = newValue }
-    }
-    
-    @objc internal dynamic var innerShadowOffset: CGSize {
-        get { self.layer.innerShadowLayer?.shadowOffset ?? .zero }
-        set { self.layer.innerShadowLayer?.shadowOffset = newValue }
-    }
-
-    /// The shadow of the view.
-    dynamic var shadow: ShadowConfiguration {
-        get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
-        set { self.configurate(using: newValue, type: .outer) }
     }
 }
 

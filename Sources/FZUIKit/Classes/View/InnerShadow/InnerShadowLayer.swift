@@ -19,9 +19,9 @@ public class InnerShadowLayer: CALayer {
     
     /// The configuration of the inner shadow.
     public var configuration: ShadowConfiguration {
-        get { ShadowConfiguration(color: shadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
+        get { ShadowConfiguration(color: innerShadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
         set {
-            shadowColorDynamic = newValue._resolvedColor
+            innerShadowColorDynamic = newValue._resolvedColor
             if let parentView = parentView {
                 shadowColor = newValue._resolvedColor?.resolvedColor(for: parentView).cgColor
                 #if os(macOS)
@@ -42,7 +42,7 @@ public class InnerShadowLayer: CALayer {
         }
     }
     
-    var shadowColorDynamic: NSUIColor? = nil
+    var innerShadowColorDynamic: NSUIColor? = nil
     
     var isUpdating: Bool = false
     
