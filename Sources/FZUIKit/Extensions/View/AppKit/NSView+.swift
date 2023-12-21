@@ -713,28 +713,7 @@ extension NSView {
             scrollToVisible(rect)
         }
     }
-    
-    /// Sets the anchor point of the view’s bounds rectangle while retaining the position.
-    internal func setAnchorPoint(_ anchorPoint: CGPoint) {
-        guard let layer = layer else { return }
-        var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
-        var oldPoint = CGPoint(bounds.size.width * layer.anchorPoint.x, bounds.size.height * layer.anchorPoint.y)
-
-        newPoint = newPoint.applying(layer.affineTransform())
-        oldPoint = oldPoint.applying(layer.affineTransform())
-
-        var position = layer.position
-
-        position.x -= oldPoint.x
-        position.x += newPoint.x
-
-        position.y -= oldPoint.y
-        position.y += newPoint.y
-
-        layer.position = position
-        layer.anchorPoint = anchorPoint
-    }
-    
+        
     internal var alpha: CGFloat {
         get { guard let cgValue = layer?.opacity else { return 1.0 }
             return CGFloat(cgValue)

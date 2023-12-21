@@ -40,7 +40,7 @@ public extension NSView {
 
      - Parameter backgroundStyle: The style to apply.
      */
-    func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+    @objc dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         if var self = (self as? ViewBackgroundStyleCustomizable) {
             self.backgroundStyle = backgroundStyle
         }

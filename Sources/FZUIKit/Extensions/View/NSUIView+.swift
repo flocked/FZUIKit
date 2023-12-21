@@ -22,6 +22,28 @@ public extension NSUIView {
         }
     }
     
+    /// Updates the anchor point of the view’s bounds rectangle while retaining the position.
+    func setAnchorPoint(_ anchorPoint: CGPoint) {
+        guard let layer = optionalLayer else { return }
+        guard layer.anchorPoint != anchorPoint else { return }
+        var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
+        var oldPoint = CGPoint(bounds.size.width * layer.anchorPoint.x, bounds.size.height * layer.anchorPoint.y)
+
+        newPoint = newPoint.applying(layer.affineTransform())
+        oldPoint = oldPoint.applying(layer.affineTransform())
+
+        var position = layer.position
+
+        position.x -= oldPoint.x
+        position.x += newPoint.x
+
+        position.y -= oldPoint.y
+        position.y += newPoint.y
+
+        layer.position = position
+        layer.anchorPoint = anchorPoint
+    }
+    
     func removeAllConstraints() {
         var _superview = superview
         while let superview = _superview {
