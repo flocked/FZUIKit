@@ -32,7 +32,7 @@ extension NSControl: ViewBackgroundStyleCustomizable {
     }
 }
 
-public extension NSView {
+extension NSView {
     /**
      Updates the background style of all nested subviews to the specified style.
      
@@ -40,7 +40,7 @@ public extension NSView {
 
      - Parameter backgroundStyle: The style to apply.
      */
-    @objc dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+    @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         if var self = (self as? ViewBackgroundStyleCustomizable) {
             self.backgroundStyle = backgroundStyle
         }
@@ -51,7 +51,7 @@ public extension NSView {
     }
 }
 
-public extension NSCollectionViewItem {
+extension NSCollectionViewItem {
     /**
      Updates the background style of all nested subviews to the specified style.
      
@@ -59,7 +59,7 @@ public extension NSCollectionViewItem {
 
      - Parameter backgroundStyle: The style to apply.
      */
-    func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+    @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         self.view.setBackgroundStyle(backgroundStyle)
     }
 }
