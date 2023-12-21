@@ -70,7 +70,6 @@ open class ImageView: NSView {
     
     func updateTintColor() {
         if backgroundStyle == .emphasized {
-            Swift.print("style is emphasized")
             self.imageLayer.tintColor = .alternateSelectedControlTextColor
         } else {
             self.imageLayer.tintColor = _tintColor?.resolvedColor(for: self)
@@ -80,7 +79,6 @@ open class ImageView: NSView {
     var backgroundStyle: NSView.BackgroundStyle = .normal
     
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
-        Swift.print("setBackgroundStyle", backgroundStyle.rawValue, backgroundStyle != self.backgroundStyle)
         guard backgroundStyle != self.backgroundStyle else { return }
         self.backgroundStyle = backgroundStyle
         self.updateTintColor()
