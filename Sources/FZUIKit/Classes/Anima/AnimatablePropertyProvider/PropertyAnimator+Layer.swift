@@ -305,28 +305,6 @@ fileprivate extension CATextLayer {
     }
 }
 
-fileprivate extension CALayer {        
-   @objc var innerShadowOpacity: CGFloat {
-        get { innerShadow.opacity }
-        set { innerShadow.opacity = newValue }
-    }
-    
-    @objc var innerShadowRadius: CGFloat {
-         get { innerShadow.radius }
-         set { innerShadow.radius = newValue }
-     }
-    
-    @objc var innerShadowColor: NSUIColor? {
-         get { innerShadow.color }
-         set { innerShadow.color = newValue }
-     }
-    
-    @objc var innerShadowOffset: CGPoint {
-         get { innerShadow.offset }
-         set { innerShadow.offset = newValue }
-     }
-}
-
 extension LayerAnimator where Layer: CAShapeLayer {
     /// The color used to fill the shape’s path.
     public var fillColor: CGColor? {

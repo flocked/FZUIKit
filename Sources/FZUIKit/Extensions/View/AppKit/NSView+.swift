@@ -493,7 +493,7 @@ extension NSView {
             if self.isProxy(), let proxyInnerShadow = self.proxyInnerShadow {
                 return proxyInnerShadow
             }
-            return ShadowConfiguration(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: CGPoint(innerShadowOffset.width, innerShadowOffset.height)) }
+            return ShadowConfiguration(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: innerShadowOffset) }
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
@@ -516,7 +516,7 @@ extension NSView {
                 layer?.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
             self.innerShadowColor = newColor
-            self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
+            self.innerShadowOffset = newValue.offset
             self.innerShadowRadius = newValue.radius
             self.innerShadowOpacity = newValue.opacity
         }
@@ -538,13 +538,13 @@ extension NSView {
     }
     
     @objc internal dynamic var innerShadowRadius: CGFloat {
-        get { self.layer?.innerShadowLayer?.shadowRadius ?? 0 }
-        set { self.layer?.innerShadowLayer?.shadowRadius = newValue }
+        get { self.layer?.innerShadowLayer?.configuration.radius ?? 0 }
+        set { self.layer?.innerShadowLayer?.configuration.radius = newValue }
     }
     
-    @objc internal dynamic var innerShadowOffset: CGSize {
-        get { self.layer?.innerShadowLayer?.shadowOffset ?? .zero }
-        set { self.layer?.innerShadowLayer?.shadowOffset = newValue }
+    @objc internal dynamic var innerShadowOffset: CGPoint {
+        get { self.layer?.innerShadowLayer?.configuration.offset ?? .zero }
+        set { self.layer?.innerShadowLayer?.configuration.offset = newValue }
     }
 
     /**
