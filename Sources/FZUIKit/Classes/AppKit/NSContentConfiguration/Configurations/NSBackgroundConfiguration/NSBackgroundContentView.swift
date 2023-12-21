@@ -30,8 +30,8 @@ public class NSBackgroundView: NSView, NSContentView {
     public init(configuration: NSBackgroundConfiguration) {
         self.appliedConfiguration = configuration
         super.init(frame: .zero)
-        self.maskToBounds = false
-        self.contentView.maskToBounds = false
+        self.clipsToBounds = false
+        self.contentView.clipsToBounds = false
         self.contentViewConstraints = self.addSubview(withConstraint: contentView)
         self.updateConfiguration()
     }

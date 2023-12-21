@@ -68,7 +68,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.backgroundColor = .clear
         hostingView.translatesAutoresizingMaskIntoConstraints = false
-        hostingView.maskToBounds = false
+        hostingView.clipsToBounds = false
         return hostingView
     }()
  

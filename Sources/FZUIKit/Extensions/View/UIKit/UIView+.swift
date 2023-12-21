@@ -46,8 +46,32 @@ public extension UIView {
      Changes to this property can be animated. The default value is is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
      */
     dynamic var scale: CGPoint {
-        get { layer.scale }
+        get { self.transform3D.scale }
         set { self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z) }
+    }
+    
+    /**
+     The perspective of the view's transform
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().perspective`.
+     
+     The default value is `zero`, which results in a view with no transformed perspective.
+     */
+    dynamic var perspective: Perspective {
+        get { self.transform3D.perspective }
+        set { self.transform3D.perspective = newValue }
+    }
+    
+    /**
+     The shearing of the view's transform.
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().skew`.
+     
+     The default value is `zero`, which results in a view with no transformed shearing.
+     */
+    dynamic var skew: Skew {
+        get { self.transform3D.skew }
+        set { self.transform3D.skew = newValue }
     }
     
     /**

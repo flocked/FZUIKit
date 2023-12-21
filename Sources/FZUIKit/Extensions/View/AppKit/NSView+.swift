@@ -44,23 +44,6 @@ extension NSView {
     }
 
     /**
-     A Boolean value that determines whether subviews are confined to the bounds of the view.
-
-     Setting this value to `true` causes subviews to be clipped to the bounds of the view. If set to `false`, subviews whose frames extend beyond the visible bounds of the view aren’t clipped.
-
-     Changes to this property turns the view into a layer-backed view.
-     
-     The default value is `false.
-     */
-    @objc open dynamic var maskToBounds: Bool {
-        get { layer?.masksToBounds ?? false }
-        set {
-            wantsLayer = true
-            layer?.masksToBounds = newValue
-        }
-    }
-
-    /**
      The view whose alpha channel is used to mask a view’s content.
 
      The view’s alpha channel determines how much of the view’s content and background shows through. Fully or partially opaque pixels allow the underlying content to show through but fully transparent pixels block that content.
@@ -109,9 +92,11 @@ extension NSView {
 
      This property provides a hint to the drawing system as to how it should treat the view. If set to `true`, the drawing system treats the view as fully opaque, which allows the drawing system to optimize some drawing operations and improve performance. If set to `false`, the drawing system composites the view normally with other content. The default value of this property is true.
 
-     An opaque view is expected to fill its bounds with entirely opaque content—that is, the content should have an alpha value of `1.0. If the view is opaque and either does not fill its bounds or contains wholly or partially transparent content, the results are unpredictable. You should always set the value of this property to false if the view is fully or partially transparent.
+     An opaque view is expected to fill its bounds with entirely opaque content—that is, the content should have an alpha value of `1.0`. If the view is opaque and either does not fill its bounds or contains wholly or partially transparent content, the results are unpredictable. You should always set the value of this property to false if the view is fully or partially transparent.
+     
+     You only need to set a value for the opaque property in subclasses of `NSView` that draw their own content using the `draw(_:)` method. The opaque property has no effect in system-provided classes such as `NSButton`, `NSTextField`, `NSTableRowView`, and so on.
 
-     Using this property turns the view into a layer-backed view.
+     Changes to this property turns the view into a layer-backed view. The default value is `false`.
      */
     public var isOpaque: Bool {
         get { layer?.isOpaque ?? false }
@@ -127,7 +112,7 @@ extension NSView {
      
      Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform.
      
-     The property can be animated by changing it via `animator().center`.
+     Changes to this property can be animated via `animator().center`.
      */
     @objc open dynamic var center: CGPoint {
         get { frame.center }
@@ -220,6 +205,38 @@ extension NSView {
             self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
         }
     }
+    
+    /**
+     The perspective of the view's transform
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().perspective`.
+     
+     The default value is `zero`, which results in a view with no transformed perspective.
+     */
+    public dynamic var perspective: Perspective {
+        get { self.transform3D.perspective }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            self.transform3D.perspective = newValue
+        }
+    }
+    
+    /**
+     The shearing of the view's transform.
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().skew`.
+     
+     The default value is `zero`, which results in a view with no transformed shearing.
+     */
+    public dynamic var skew: Skew {
+        get { self.transform3D.skew }
+        set {
+            wantsLayer = true
+            Self.swizzleAnimationForKey()
+            self.transform3D.skew = newValue
+        }
+    }
 
     /**
      The anchor point of the view’s bounds rectangle.
@@ -257,12 +274,12 @@ extension NSView {
     @objc internal dynamic var _cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
-            let maskToBounds = self.maskToBounds
+            let clipsToBounds = self.clipsToBounds
             wantsLayer = true
             Self.swizzleAnimationForKey()
             layer?.cornerRadius = newValue
             // fix for macOS 14.0 bug
-            self.maskToBounds = maskToBounds
+            layer?.masksToBounds = clipsToBounds
         }
     }
     

@@ -181,7 +181,7 @@ internal extension NSButton.AdvanceConfiguration {
             let hostingController = NSHostingController(rootView: contentView)
             hostingController.view.backgroundColor = .clear
             hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-            hostingController.view.maskToBounds = false
+            hostingController.view.clipsToBounds = false
             return hostingController
         }()
         
