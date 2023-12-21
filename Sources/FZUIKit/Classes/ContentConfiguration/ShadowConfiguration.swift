@@ -169,15 +169,10 @@ public extension NSUIView {
      */
     func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) {
         if type == .outer {
-            #if os(macOS)
-            wantsLayer = true
             self.shadowColor = configuration._resolvedColor
             self.shadowOffset = CGSize(configuration.offset.x, configuration.offset.y)
             self.shadowOpacity = configuration.opacity
             self.shadowRadius = configuration.radius
-            #elseif canImport(UIKit)
-            layer.configurate(using: configuration, type: type)
-            #endif
         } else {
             #if os(macOS)
             self.dynamicColors.innerShadow = configuration._resolvedColor

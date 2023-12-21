@@ -20,138 +20,6 @@ public extension UIView {
         }
     }
     
-    /**
-     The left edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var left: CGFloat {
-        get { frame.left }
-        set { frame.left = newValue }
-    }
-    
-    /**
-     The right edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var right: CGFloat {
-        get { frame.right }
-        set { frame.right = newValue }
-    }
-    
-    /**
-     The top edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-          */
-    @objc dynamic var top: CGFloat {
-        get { frame.top }
-        set { frame.top = newValue }
-    }
-    
-    /**
-     The bottom edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var bottom: CGFloat {
-        get { frame.bottom }
-        set { frame.bottom = newValue }
-    }
-    
-    /**
-     The top-left point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var topLeft: CGPoint {
-        get { frame.topLeft }
-        set { frame.topLeft = newValue }
-    }
-    
-    /**
-     The top-center point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var topCenter: CGPoint {
-        get { frame.topCenter }
-        set { frame.topCenter = newValue }
-    }
-    
-    /**
-     The top-right point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var topRight: CGPoint {
-        get { frame.topRight }
-        set { frame.topRight = newValue }
-    }
-    
-    /**
-     The center-left point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var centerLeft: CGPoint {
-        get { frame.centerLeft }
-        set { frame.centerLeft = newValue }
-    }
-    
-    /**
-     The center-right point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var centerRight: CGPoint {
-        get { frame.centerRight }
-        set { frame.centerRight = newValue }
-    }
-    
-    /**
-     The bottom-left point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var bottomLeft: CGPoint {
-        get { frame.bottomLeft }
-        set { frame.bottomLeft = newValue }
-    }
-    
-    /**
-     The bottom-center point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var bottomCenter: CGPoint {
-        get { frame.bottomCenter }
-        set { frame.bottomCenter = newValue }
-    }
-    
-    /**
-     The bottom-right point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     */
-    @objc dynamic var bottomRight: CGPoint {
-        get { frame.bottomRight }
-        set { frame.bottomRight = newValue }
-    }
-    
     /// The rotation of the view as euler angles in degrees.
     dynamic var rotation: CGVector3 {
         get { self.transform3D.eulerAnglesDegrees }
@@ -243,24 +111,7 @@ public extension UIView {
     /// The inner shadow of the view.
     dynamic var innerShadow: ShadowConfiguration {
         get { self.layer.innerShadowLayer?.configuration ?? .none() }
-        set {
-            if self.innerShadowLayer == nil {
-                let innerShadowLayer = InnerShadowLayer()
-                self.layer.addSublayer(withConstraint: innerShadowLayer)
-                innerShadowLayer.sendToBack()
-                innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
-                innerShadowLayer.shadowOpacity = 0.0
-                innerShadowLayer.shadowRadius = 0.0
-            }
-            let newColor = newValue._resolvedColor?.resolvedColor(for: self)
-            if self.innerShadowColor?.isVisible == false || self.innerShadowColor == nil {
-                self.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
-            }
-            self.innerShadowColor = newColor
-            self.innerShadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
-            self.innerShadowRadius = newValue.radius
-            self.innerShadowOpacity = newValue.opacity
-        }
+        set { self.configurate(using: newValue, type: .inner) }
     }
     
     @objc internal dynamic var innerShadowColor: NSUIColor? {
@@ -286,13 +137,7 @@ public extension UIView {
     /// The shadow of the view.
     dynamic var shadow: ShadowConfiguration {
         get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
-        set {
-            shadowColor = newValue._resolvedColor?.resolvedColor(for: self)
-            shadowOpacity = newValue.opacity
-            shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
-            shadowRadius = newValue.radius
-            
-        }
+        set { self.configurate(using: newValue, type: .outer) }
     }
 }
 

@@ -113,126 +113,6 @@ extension NSView {
             layer?.isOpaque = newValue
         }
     }
-        
-    /**
-     The left edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var left: CGFloat {
-        get { frame.left }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.left = newValue }
-    }
-    
-    /**
-     The right edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var right: CGFloat {
-        get { frame.right }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.right = newValue }
-    }
-    
-    /**
-     The top edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var top: CGFloat {
-        get { frame.top }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.top = newValue }
-    }
-    
-    /**
-     The bottom edge of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var bottom: CGFloat {
-        get { frame.bottom }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.bottom = newValue }
-    }
-    
-    /**
-     The top-left point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var topLeft: CGPoint {
-        get { frame.topLeft }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.topLeft = newValue }
-    }
-    
-    /**
-     The top-center point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var topCenter: CGPoint {
-        get { frame.topCenter }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.topCenter = newValue }
-    }
-    
-    /**
-     The top-right point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var topRight: CGPoint {
-        get { frame.topRight }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.topRight = newValue }
-    }
-    
-    /**
-     The center-left point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var centerLeft: CGPoint {
-        get { frame.centerLeft }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.centerLeft = newValue }
-    }
     
     /**
      The center point of the view's frame rectangle.
@@ -247,66 +127,6 @@ extension NSView {
         set {
             Self.swizzleAnimationForKey()
             frame.center = newValue }
-    }
-    
-    /**
-     The center-right point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var centerRight: CGPoint {
-        get { frame.centerRight }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.centerRight = newValue }
-    }
-    
-    /**
-     The bottom-left point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var bottomLeft: CGPoint {
-        get { frame.bottomLeft }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.bottomLeft = newValue }
-    }
-    
-    /**
-     The bottom-center point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var bottomCenter: CGPoint {
-        get { frame.bottomCenter }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.bottomCenter = newValue }
-    }
-    
-    /**
-     The bottom-right point of the view's frame rectangle.
-     
-     Setting this property updates the origin of the rectangle in the frame property appropriately.
-     Use this property, instead of the frame property, when you want to change the position of a view.
-     
-     The value can be animated via `animator()`.
-     */
-    @objc open dynamic var bottomRight: CGPoint {
-        get { frame.bottomRight }
-        set {
-            Self.swizzleAnimationForKey()
-            frame.bottomRight = newValue }
     }
     
     /**
@@ -347,26 +167,12 @@ extension NSView {
             layer?.transform = newValue
         }
     }
-    
-    /*
+        
     /**
-     Specifies the rotation applied to the view.
-
+     The rotation of the view as euler angles in degrees.
+     
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    public dynamic var rotation: CGQuaternion {
-        get { wantsLayer = true
-            return layer?.rotation ?? .init(.zero)
-        }
-        set {
-            wantsLayer = true
-            Self.swizzleAnimationForKey()
-            self.transform3D.rotation = newValue
-        }
-    }
-    */
-    
-    /// The rotation of the view as euler angles in degrees.
     public dynamic var rotation: CGVector3 {
         get { self.transform3D.eulerAnglesDegrees }
         set { 
@@ -375,7 +181,11 @@ extension NSView {
             self.transform3D.eulerAnglesDegrees = newValue }
     }
     
-    /// The rotation of the view as euler angles in radians.
+    /**
+     The rotation of the view as euler angles in radians.
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
     public dynamic var rotationInRadians: CGVector3 {
         get { self.transform3D.eulerAngles }
         set { 

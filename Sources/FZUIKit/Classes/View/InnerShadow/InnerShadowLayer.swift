@@ -19,13 +19,16 @@ public class InnerShadowLayer: CALayer {
     
     /// The configuration of the inner shadow.
     public var configuration: ShadowConfiguration {
-        get { ShadowConfiguration(color: __shadowColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)  }
+        get { ShadowConfiguration(color: shadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
         set {
+            shadowColorDynamic = newValue._resolvedColor
             if let parentView = parentView {
-                __shadowColor = newValue._resolvedColor?.resolvedColor(for: parentView)
+                shadowColor = newValue._resolvedColor?.resolvedColor(for: parentView).cgColor
                 #if os(macOS)
                 parentView.dynamicColors.innerShadow = newValue._resolvedColor
                 #endif
+            } else {
+                shadowColor = newValue._resolvedColor?.cgColor
             }
             shadowOpacity = Float(newValue.opacity)
             let needsUpdate = shadowOffset != newValue.offset.size || shadowRadius != newValue.radius
@@ -39,11 +42,9 @@ public class InnerShadowLayer: CALayer {
         }
     }
     
-    var __shadowColor: NSUIColor? = nil {
-        didSet {
-            shadowColor = __shadowColor?.cgColor
-        }
-    }
+    var shadowColorDynamic: NSUIColor? = nil
+    
+    var isUpdating: Bool = false
     
     /**
      Initalizes an inner shadow layer with the specified configuration.
@@ -72,7 +73,7 @@ public class InnerShadowLayer: CALayer {
         sharedInit()
     }
     
-    internal func sharedInit() {
+    func sharedInit() {
         shadowOpacity = 0
         shadowColor = nil
         backgroundColor = .clear
@@ -81,8 +82,6 @@ public class InnerShadowLayer: CALayer {
         shadowRadius = 0.0
     }
     
-    internal var isUpdating: Bool = false
-
     public override var shadowRadius: CGFloat {
         didSet { if !isUpdating, oldValue != shadowRadius { self.updateShadowPath() } }
     }
@@ -102,7 +101,7 @@ public class InnerShadowLayer: CALayer {
             updateShadowPath() } }
     }
 
-    internal func updateShadowPath() {
+    func updateShadowPath() {
         let path: NSUIBezierPath
         let innerPart: NSUIBezierPath
         if cornerRadius != 0.0 {
