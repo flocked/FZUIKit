@@ -20,13 +20,21 @@ public extension UIView {
         }
     }
     
-    /// The rotation of the view as euler angles in degrees.
+    /**
+     The rotation of the view as euler angles in degrees.
+
+     Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
+     */
     dynamic var rotation: CGVector3 {
         get { self.transform3D.eulerAnglesDegrees }
         set { self.transform3D.eulerAnglesDegrees = newValue }
     }
     
-    /// The rotation of the view as euler angles in radians.
+    /**
+     The rotation of the view as euler angles in radians.
+
+     Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
+     */
     dynamic var rotationInRadians: CGVector3 {
         get { self.transform3D.eulerAngles }
         set { self.transform3D.eulerAngles = newValue }
@@ -35,14 +43,18 @@ public extension UIView {
     /**
      The scale transform of the view.
 
-     The default value of this property is `CGPoint(x: 1.0, y: 1.0)`.
+     Changes to this property can be animated. The default value is is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
      */
     dynamic var scale: CGPoint {
         get { layer.scale }
         set { self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z) }
     }
     
-    /// The border of the view.
+    /**
+     The border of the view.
+     
+     Changes to this property can be animated. The default value is `none()`, which results in a view with no border.
+     */
     var border: BorderConfiguration {
         get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
         set { self.configurate(using: newValue) }
@@ -60,13 +72,21 @@ public extension UIView {
         set { layer.borderWidth = newValue }
     }
 
-    /// The rounded corners of the view.
+    /**
+     The rounded corners of the view.
+     
+     The default value is `[]`, which results in a view with all corners rounded.
+     */
     @objc dynamic var roundedCorners: CACornerMask {
         get { layer.maskedCorners }
         set { layer.maskedCorners = newValue }
     }
 
-    /// The corner radius of the view.
+    /**
+     The corner radius of the view.
+     
+     Changes to this property can be animated. The default value is `0.0`, which results in a view with no rounded corners.
+     */
     @objc dynamic var cornerRadius: CGFloat {
         get { layer.cornerRadius }
         set { layer.cornerRadius = newValue }
@@ -78,13 +98,39 @@ public extension UIView {
         set { layer.cornerCurve = newValue }
     }
     
-    /// The shadow of the view.
+    /**
+     The view whose inverse alpha channel is used to mask a view’s content.
+     
+     In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
+
+     Changes to this property can be animated. The default value is `nil`, which results in a view with no inverse mask.
+     */
+    @objc dynamic var inverseMask: NSUIView? {
+        get { (layer.mask as? InverseMaskLayer)?.maskLayer?.parentView }
+        set {
+            if let newMaskLayer = newValue?.layer {
+                layer.mask = InverseMaskLayer(maskLayer: newMaskLayer)
+            } else {
+                layer.mask = nil
+            }
+        }
+    }
+    
+    /**
+     The shadow of the view.
+     
+     Changes to this property can be animated. The default value is `none()`, which results in a view with no shadow.
+     */
     dynamic var shadow: ShadowConfiguration {
-        get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+        get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
         set { self.configurate(using: newValue, type: .outer) }
     }
     
-    /// The inner shadow of the view.
+    /**
+     The inner shadow of the view.
+     
+     Changes to this property can be animated. The default value is `none()`, which results in a view with no inner shadow.
+     */
     dynamic var innerShadow: ShadowConfiguration {
         get { self.layer.innerShadowLayer?.configuration ?? .none() }
         set { self.configurate(using: newValue, type: .inner) }
@@ -97,9 +143,9 @@ public extension UIView {
     }
     
     /// The shadow offset of the view.
-    @objc internal dynamic var shadowOffset: CGSize {
-        get { layer.shadowOffset }
-        set { layer.shadowOffset = newValue }
+    @objc internal dynamic var shadowOffset: CGPoint {
+        get { layer.shadowOffset.point }
+        set { layer.shadowOffset = newValue.size }
     }
     
     /// The shadow radius of the view.
@@ -114,7 +160,11 @@ public extension UIView {
         set { layer.shadowOpacity = Float(newValue) }
     }
     
-    /// The shadow path of the view.
+    /**
+     The inner shadow of the view.
+     
+     Changes to this property can be animated. The default value is `nil`, which results in a view with no shadow path.
+     */
     @objc dynamic var shadowPath: CGPath? {
         get { layer.shadowPath }
         set { layer.shadowPath = newValue }

@@ -46,9 +46,11 @@ extension NSView {
     /**
      A Boolean value that determines whether subviews are confined to the bounds of the view.
 
-     Setting this value to true causes subviews to be clipped to the bounds of the view. If set to false, subviews whose frames extend beyond the visible bounds of the view aren’t clipped.
+     Setting this value to `true` causes subviews to be clipped to the bounds of the view. If set to `false`, subviews whose frames extend beyond the visible bounds of the view aren’t clipped.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view.
+     
+     The default value is `false.
      */
     @objc open dynamic var maskToBounds: Bool {
         get { layer?.masksToBounds ?? false }
@@ -62,8 +64,10 @@ extension NSView {
      The view whose alpha channel is used to mask a view’s content.
 
      The view’s alpha channel determines how much of the view’s content and background shows through. Fully or partially opaque pixels allow the underlying content to show through but fully transparent pixels block that content.
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().mask`.
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     The default value is `nil`, which results in a view with no mask.
      */
     @objc open dynamic var mask: NSView? {
         get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView  }
@@ -78,10 +82,12 @@ extension NSView {
     
     /**
      The view whose inverse alpha channel is used to mask a view’s content.
-
-     In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().inverseMask`.
+     
+     The default value is `nil`, which results in a view with no inverse mask.
      */
     @objc open dynamic var inverseMask: NSView? {
         get { mask }
@@ -118,9 +124,10 @@ extension NSView {
      The center point of the view's frame rectangle.
 
      Setting this property updates the origin of the rectangle in the frame property appropriately.
+     
      Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform.
      
-     The value can be animated via `animator()`.
+     The property can be animated by changing it via `animator().center`.
      */
     @objc open dynamic var center: CGPoint {
         get { frame.center }
@@ -130,13 +137,13 @@ extension NSView {
     }
     
     /**
-     Specifies the transform applied to the view, relative to the center of its bounds.
+     The transform to apply to the view, relative to the center of its bounds.
+     
+     Use this property to scale or rotate the view's frame rectangle within its superview's coordinate system. (To change the position of the view, modify the center property instead.). Transformations occur relative to the view's ``anchorPoint``.
 
-     Use this property to scale or rotate the view's frame rectangle within its superview's coordinate system. (To change the position of the view, modify the center property instead.) The default value of this property is CGAffineTransformIdentity.
-     Transformations occur relative to the view's anchor point. By default, the anchor point is equal to the center point of the frame rectangle. To change the anchor point, modify the anchorPoint property of the view's underlying CALayer object.
-     Changes to this property can be animated.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().transform`.
+     
+     The default value is `CGAffineTransformIdentity`, which results in a view with no transformation.
      */
     @objc open dynamic var transform: CGAffineTransform {
         get { wantsLayer = true
@@ -152,9 +159,9 @@ extension NSView {
     /**
      The three-dimensional transform to apply to the view.
 
-     The default value of this property is CATransform3DIdentity.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().transform3D`.
+     
+     The default value is `CATransform3DIdentity`, which results in a view with no transformation.
      */
     @objc open dynamic var transform3D: CATransform3D {
         get { 
@@ -170,8 +177,10 @@ extension NSView {
         
     /**
      The rotation of the view as euler angles in degrees.
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().rotation`.
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     The default value is `0.0`, which results in a view with no rotation.
      */
     public dynamic var rotation: CGVector3 {
         get { self.transform3D.eulerAnglesDegrees }
@@ -183,8 +192,10 @@ extension NSView {
     
     /**
      The rotation of the view as euler angles in radians.
+
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().rotationInRadians`.
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     The default value is `0.0`, which results in a view with no rotation.
      */
     public dynamic var rotationInRadians: CGVector3 {
         get { self.transform3D.eulerAngles }
@@ -197,9 +208,9 @@ extension NSView {
     /**
      The scale transform of the view..
 
-     The default value of this property is `CGPoint(x: 1.0, y: 1.0)`.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().scale`.
+     
+     The default value is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
      */
     public dynamic var scale: CGPoint {
         get { layer?.scale ?? CGPoint(x: 1, y: 1) }
@@ -217,7 +228,9 @@ extension NSView {
 
      All geometric manipulations to the view occur about the specified point. For example, applying a rotation transform to a view with the default anchor point causes the view to rotate around its center. Changing the anchor point to a different location causes the view to rotate around that new point.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().anchorPoint`.
+     
+     The default value is `CGPoint(x: 0, y:0)`.
      */
     @objc open dynamic var anchorPoint: CGPoint {
         get { layer?.anchorPoint ?? .zero }
@@ -231,7 +244,9 @@ extension NSView {
     /**
      The corner radius of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().cornerRadius`.
+     
+     The default value is `0.0`, which results in a view with no rounded corners.
      */
     public dynamic var cornerRadius: CGFloat {
         get { self._cornerRadius }
@@ -343,38 +358,40 @@ extension NSView {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             self.dynamicColors.border = borderColor
-            var newColor = newValue?.resolvedColor(for: self)
-            if newColor == nil, self.isProxy() {
-                newColor = .clear
+            var animatableColor = newValue?.resolvedColor(for: self)
+            if animatableColor == nil, self.isProxy() {
+                animatableColor = .clear
             }
             if self.layer?.borderColor?.isVisible == false || self.layer?.borderColor == nil {
-                layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                layer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
 
-            self._borderColor = newValue
+            self.borderColorAnimatable = animatableColor
         }
     }
     
-    @objc internal dynamic var _borderColor: NSColor? {
+    @objc internal dynamic var borderColorAnimatable: NSColor? {
         get { layer?.borderColor?.nsColor }
         set { layer?.borderColor = newValue?.cgColor }
     }
     
     
-    /** 
+    /**
      The shadow of the view (an alternative way of configurating the shadow).
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadow1`.
+     
+     The default value is `none()`, which results in a view with no shadow.
      */
     public dynamic var shadow1: ShadowConfiguration {
         get { 
             if self.isProxy(), let proxyShadow = self.proxyShadow {
                 return proxyShadow
             }
-            return ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: CGPoint(shadowOffset.width, shadowOffset.height)) }
+            return ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
         set {
             self.proxyShadow = newValue
-            self.shadowOffset = CGSize(newValue.offset.x, newValue.offset.y)
+            self.shadowOffset = newValue.offset
             self.shadowOpacity = newValue.opacity
             self.shadowRadius = newValue.radius
             self.shadowColor = newValue._resolvedColor
@@ -388,27 +405,35 @@ extension NSView {
         
     /**
      The shadow color of the view.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowColor`.
+     
+     The default value is `nil`, which results in a view with no shadow.
      */
     public dynamic var shadowColor: NSColor? {
-        get { layer?.shadowColor?.nsColor }
+        get { self.shadowColorDynamic }
         set {
             wantsLayer = true
+            self.shadowColorDynamic = newValue
             Self.swizzleAnimationForKey()
             self.dynamicColors.shadow = newValue
-            var newColor = newValue?.resolvedColor(for: self)
-            if newColor == nil, self.isProxy() {
-                newColor = .clear
+            var animatableColor = newValue?.resolvedColor(for: self)
+            if animatableColor == nil, self.isProxy() {
+                animatableColor = .clear
             }
             if self.layer?.shadowColor?.isVisible == false || self.layer?.shadowColor == nil {
-                layer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
-            self._shadowColor = newColor
+            self.shadowColorAnimatable = animatableColor
         }
     }
     
-    @objc internal dynamic var _shadowColor: NSColor? {
+    internal dynamic var shadowColorDynamic: NSColor? {
+        get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self) }
+    }
+    
+    @objc internal dynamic var shadowColorAnimatable: NSColor? {
         get { layer?.shadowColor?.nsColor }
         set { layer?.shadowColor = newValue?.cgColor }
     }
@@ -416,21 +441,25 @@ extension NSView {
     /**
      The shadow offset of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowOffset`.
+     
+     The default value is `zero`, which results in a view with no shadow offset.
      */
-    @objc public dynamic var shadowOffset: CGSize {
-        get { layer?.shadowOffset ?? .zero }
+    @objc public dynamic var shadowOffset: CGPoint {
+        get { (layer?.shadowOffset ?? .zero).point }
         set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
-            layer?.shadowOffset = newValue
+            layer?.shadowOffset = newValue.size
         }
     }
     
     /**
      The shadow radius of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowRadius`.
+     
+     The default value is `0.0`, which results in a view with no shadow radius.
      */
     @objc public dynamic var shadowRadius: CGFloat {
         get { layer?.shadowRadius ?? .zero }
@@ -444,7 +473,9 @@ extension NSView {
     /**
      The shadow opacity of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowOpacity`.
+     
+     The default value is `0.0`, which results in a view with no shadow.
      */
     @objc public dynamic var shadowOpacity: CGFloat {
         get { CGFloat(layer?.shadowOpacity ?? .zero) }
@@ -458,11 +489,13 @@ extension NSView {
     /**
      The shadow path of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowPath`.
+     
+     The default value is `nil`, which results in a view with no shadow path.
      */
     public dynamic var shadowPath: NSBezierPath? {
         get {
-            if let cgPath = layer?.shadowPath {
+            if let cgPath = shadowPathAnimatable {
                 return NSBezierPath(cgPath: cgPath)
             }
             return nil
@@ -471,22 +504,24 @@ extension NSView {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             if newValue == nil, self.isProxy() {
-                self._shadowPath = NSBezierPath(roundedRect: self.layer?.bounds ?? .zero, cornerRadius: self.cornerRadius).cgPath
+                self.shadowPathAnimatable = NSBezierPath(roundedRect: self.layer?.bounds ?? .zero, cornerRadius: self.cornerRadius).cgPath
             } else {
-                self._shadowPath = newValue?.cgPath
+                self.shadowPathAnimatable = newValue?.cgPath
             }
         }
     }
     
-    @objc dynamic internal var _shadowPath: CGPath? {
+    @objc dynamic internal var shadowPathAnimatable: CGPath? {
         get { layer?.shadowPath }
         set { layer?.shadowPath = newValue }
     }
     
     /**
      The inner shadow of the view.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     
+     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().innerShadow`.
+     
+     The default value is `none()`, which results in a view with no inner shadow.
      */
     dynamic public var innerShadow: ShadowConfiguration {
         get {
@@ -523,7 +558,7 @@ extension NSView {
     }
     
     internal var proxyInnerShadow: ShadowConfiguration? {
-        get { getAssociatedValue(key: "proxyInnerShadow", object: self, initialValue: .none()) }
+        get { getAssociatedValue(key: "proxyInnerShadow", object: self, initialValue: layer?.innerShadowLayer?.configuration) }
         set { set(associatedValue: newValue, key: "proxyInnerShadow", object: self) }
     }
     
@@ -758,7 +793,7 @@ internal extension NSView {
 }
 
 /// The additional `NSView` keys of properties that can be animated.
-private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "_borderColor", "mask", "inverseMask", "_backgroundColor", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "_shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "_shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize"]
+private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize"]
 
 #endif
 

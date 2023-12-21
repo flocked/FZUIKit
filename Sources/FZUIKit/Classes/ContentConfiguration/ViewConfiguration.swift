@@ -64,6 +64,9 @@ public struct ViewConfiguration: Hashable {
     /// The mask of the view.
     public var mask: NSUIView? = nil
     
+    /// A Boolean value indicating whether the mask is inverted.
+    public var maskIsInverted: Bool = false
+    
     /// The scale transform of the view.
     public var scale: CGSize = CGSize(width: 1, height: 1)
     
@@ -95,6 +98,7 @@ public struct ViewConfiguration: Hashable {
         hasher.combine(cornerCurve)
         hasher.combine(roundedCorners)
         hasher.combine(mask)
+        hasher.combine(maskIsInverted)
         hasher.combine(scale)
         hasher.combine(rotation)
     }
@@ -153,6 +157,9 @@ public struct ViewConfiguration: Hashable {
     /// The mask of the view.
     public var mask: NSUIView? = nil
     
+    /// A Boolean value indicating whether the mask is inverted.
+    public var maskIsInverted: Bool = false
+
     /// The scale transform of the view.
     public var scale: CGSize = CGSize(width: 1, height: 1)
     
@@ -181,6 +188,7 @@ public struct ViewConfiguration: Hashable {
         hasher.combine(cornerCurve)
         hasher.combine(roundedCorners)
         hasher.combine(mask)
+        hasher.combine(maskIsInverted)
         hasher.combine(scale)
         hasher.combine(rotation)
     }
@@ -209,7 +217,11 @@ public extension NSUIView {
         self.cornerRadius = configuration.cornerRadius
         self.cornerCurve = configuration.cornerCurve
         self.roundedCorners = configuration.roundedCorners
-        self.mask = configuration.mask
+        if configuration.maskIsInverted {
+            self.inverseMask = configuration.mask
+        } else {
+            self.mask = configuration.mask
+        }
         self.configurate(using: configuration.border)
         self.configurate(using: configuration.shadow, type: .outer)
         self.configurate(using: configuration.innerShadow, type: .inner)

@@ -170,7 +170,7 @@ public extension NSUIView {
     func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) {
         if type == .outer {
             self.shadowColor = configuration._resolvedColor
-            self.shadowOffset = configuration.offset.size
+            self.shadowOffset = configuration.offset
             self.shadowOpacity = configuration.opacity
             self.shadowRadius = configuration.radius
         } else {

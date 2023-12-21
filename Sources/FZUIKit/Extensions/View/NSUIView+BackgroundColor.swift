@@ -26,27 +26,27 @@ extension NSUIView: BackgroundColorSettable { }
 public extension BackgroundColorSettable where Self: NSView {
     /// The background color of the view.
     dynamic var backgroundColor: NSColor? {
-        get { self._backgroundColor }
+        get { self.backgroundColorAnimatable }
         set {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
             self.dynamicColors.background = newValue
             
-            var newValue = newValue?.resolvedColor(for: effectiveAppearance)
-            if newValue == nil, self.isProxy() {
-                newValue = .clear
+            var animatableColor = newValue?.resolvedColor(for: self)
+            if animatableColor == nil, self.isProxy() {
+                animatableColor = .clear
             }
             
             if self.layer?.backgroundColor?.isVisible == false || self.layer?.backgroundColor == nil {
-                self.layer?.backgroundColor = newValue?.withAlphaComponent(0.0).cgColor ?? .clear
+                self.layer?.backgroundColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
-            self._backgroundColor = newValue
+            self.backgroundColorAnimatable = animatableColor
         }
     }
 }
 
 internal extension NSView {
-    @objc dynamic var _backgroundColor: NSColor? {
+    @objc dynamic var backgroundColorAnimatable: NSColor? {
         get { layer?.backgroundColor?.nsColor }
         set {
             layer?.backgroundColor = newValue?.cgColor

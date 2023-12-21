@@ -19,6 +19,10 @@ public class InverseMaskLayer: CALayer {
     public init(maskLayer: CALayer) {
         self.maskLayer = maskLayer
         super.init()
+    }
+    
+    override init() {
+        super.init()
         self.backgroundColor = NSUIColor.black.cgColor
         self.frame = CGRect(.zero, CGSize(100000))
         self.setupMaskLayer()
@@ -44,6 +48,26 @@ public class InverseMaskLayer: CALayer {
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
+}
+
+class InverseMaskView: NSUIView {
+    internal var _innerShadowLayer: InnerShadowLayer {
+#if os(macOS)
+        self.wantsLayer = true
+#endif
+        return self.layer as! InnerShadowLayer
+    }
+    
+    #if os(macOS)
+    override public func makeBackingLayer() -> CALayer {
+        let innerShadowLayer = InnerShadowLayer()
+        return innerShadowLayer
+    }
+    #else
+    override public class var layerClass: AnyClass {
+        return InnerShadowLayer.self
+    }
+    #endif
 }
 
 #endif
