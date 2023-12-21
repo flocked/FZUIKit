@@ -9,7 +9,7 @@
 import AppKit
 import Foundation
 
-open class ImageView: NSControl {
+open class ImageView: NSView {
     /// The image displayed in the image view.
     open var image: NSImage? {
         get {
@@ -211,11 +211,11 @@ open class ImageView: NSControl {
         return imageLayer.fittingSize
     }
 
-    open override func sizeToFit() {
+    open func sizeToFit() {
         frame.size = fittingSize
     }
 
-    open override func sizeThatFits(_ size: CGSize) -> CGSize {
+    open func sizeThatFits(_ size: CGSize) -> CGSize {
         return imageLayer.sizeThatFits(size)
     }
 
@@ -298,26 +298,7 @@ open class ImageView: NSControl {
         wantsLayer = true
         self.layer?.addSublayer(imageLayer)
         imageScaling = .resizeAspect
-        self.imageCell.backgroundStyleHandler = {
-            Swift.print("New background style", self.imageCell.backgroundStyle.rawValue)
-        }
         //     self.layerContentsRedrawPolicy = .onSetNeedsDisplay
-    }
-    
-    class ImageCell: NSImageCell {
-        var backgroundStyleHandler: (()->())? = nil
-        override var backgroundStyle: NSView.BackgroundStyle {
-            didSet {
-                guard oldValue != backgroundStyle else { return }
-                backgroundStyleHandler?()
-            }
-        }
-    }
-    
-    let imageCell = ImageCell()
-    open override var cell: NSCell? {
-        get { imageCell }
-        set { }
     }
 }
 #endif
