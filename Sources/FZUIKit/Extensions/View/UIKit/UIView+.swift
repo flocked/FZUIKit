@@ -46,8 +46,8 @@ public extension UIView {
      Changes to this property can be animated. The default value is is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
      */
     dynamic var scale: CGPoint {
-        get { self.transform3D.scale }
-        set { self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z) }
+        get { self.layer.scale }
+        set { self.layer.scale = newValue }
     }
     
     /**

@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 15.12.23.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 
 /**
@@ -202,3 +203,4 @@ open class PropertyAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     }
     
 }
+#endif

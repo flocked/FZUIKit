@@ -84,13 +84,13 @@ internal extension NSView {
 #elseif canImport(UIKit)
 internal extension UIView {
     class TaggedVisualEffectView: UIVisualEffectView {
-        public var contentProperties: VisualEffectConfiguration = .init(style: nil) {
+        public var contentProperties: VisualEffectConfiguration = .init() {
             didSet { updateEffect() }
         }
         
         internal func updateEffect() {
+            #if os(iOS)
             if let newStyle = contentProperties.style {
-                #if os(iOS)
                 switch newStyle {
                 case let .vibrancy(vibrancy, blur: blurStyle):
                     let blurEffect = UIBlurEffect(style: blurStyle)
@@ -98,12 +98,16 @@ internal extension UIView {
                 case let .blur(blurStyle):
                     effect = UIBlurEffect(style: blurStyle)
                 }
-                #elseif os(tvOS)
-                effect = UIBlurEffect(style: newStyle)
-                #endif
             } else {
                 effect = nil
             }
+            #elseif os(tvOS)
+            if let blur = contentProperties.blur {
+                effect = UIBlurEffect(style: blur)
+            } else {
+                effect = nil
+            }
+            #endif
         }
         
         public static var Tag: Int {

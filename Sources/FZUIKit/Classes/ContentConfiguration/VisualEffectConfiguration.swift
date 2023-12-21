@@ -170,7 +170,6 @@ import UIKit
  `UIVisualEffectView` can be configurated by passing the configuration to `configurate(using configuration: VisualEffectConfiguration)`.
  
  `UIView` can be configurated via it's ``UIKIT/UIView/visualEffect`` property.  It adds a visual effect view as background to the view.
-
  */
 public struct VisualEffectConfiguration: Hashable {
     /// The visual effect style.
@@ -182,6 +181,8 @@ public struct VisualEffectConfiguration: Hashable {
     }
 
     public var style: Self.Style? = nil
+    
+    /// Creates a visual effect configuration.
     public init(style: Self.Style? = nil) {
         self.style = style
     }
@@ -204,8 +205,10 @@ public extension UIView {
         if let visualView = self as? UIVisualEffectView {
             if let style = configuration.style {
                 switch style {
+                #if os(iOS)
                 case let .vibrancy(vibrancy, blur: blur):
                     visualView.effect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)
+                #endif
                 case let .blur(blurStyle):
                     visualView.effect = UIBlurEffect(style: blurStyle)
                 }
@@ -220,12 +223,21 @@ public extension UIView {
 
 #elseif os(tvOS)
 import UIKit
-public extension ContentConfiguration {
-    struct VisualEffect: Hashable {
-        public var style: UIBlurEffect.Style? = nil
-        public init(style: UIBlurEffect.Style? = nil) {
-            self.style = style
-        }
+
+/**
+ A configuration that specifies the appearance of a visual effect view.
+
+ `UIVisualEffectView` can be configurated by passing the configuration to `configurate(using configuration: VisualEffectConfiguration)`.
+ 
+ `UIView` can be configurated via it's ``UIKIT/UIView/visualEffect`` property.  It adds a visual effect view as background to the view.
+ */
+public struct VisualEffectConfiguration: Hashable {
+    /// The blur style.
+    public var blur: UIBlurEffect.Style? = nil
+    
+    /// Creates a visual effect configuration.
+    public init(blur: UIBlurEffect.Style? = nil) {
+        self.blur = blur
     }
 }
 
@@ -238,8 +250,8 @@ public extension UIView {
      */
     func configurate(using configuration: VisualEffectConfiguration) {
         if let visualView = self as? UIVisualEffectView {
-            if let style = configuration.style {
-                visualView.effect = UIBlurEffect(style: style)
+            if let blur = configuration.blur {
+                visualView.effect = UIBlurEffect(style: blur)
             } else {
                 visualView.effect = nil
             }

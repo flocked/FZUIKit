@@ -407,9 +407,11 @@ extension AnimatableShadow {
     }
 }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 extension ShadowConfiguration: AnimatableShadow { }
-
 extension BorderConfiguration: AnimatableShadow { }
+#endif
+
 
 // MARK: - AnimatableColor
 
