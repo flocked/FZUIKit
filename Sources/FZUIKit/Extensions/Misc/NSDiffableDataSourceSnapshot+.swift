@@ -24,5 +24,27 @@ public extension NSDiffableDataSourceSnapshot {
             self.appendItems(value.value, toSection: value.key)
         }
     }
+    
+    /**
+     Moves the items from their current positions in the snapshot to the position immediately after the specified item.
+     
+     - Parameters:
+        - identifiers: The identifiers of the items to move in the snapshot.
+        - toIdentifier:  The identifier of the item after which to move the specified item.
+     */
+    mutating func moveItems(_ identifiers: [ItemIdentifierType], afterItem toIdentifier: ItemIdentifierType) {
+        identifiers.reversed().forEach({ moveItem($0, afterItem: toIdentifier) })
+    }
+    
+    /**
+     Moves the items from their current positions in the snapshot to the position immediately after the specified item.
+     
+     - Parameters:
+        - identifiers: The identifiers of the items to move in the snapshot.
+        - toIdentifier:  The identifier of the item before which to move the specified item.
+     */
+    mutating func moveItems(_ identifiers: [ItemIdentifierType], beforeItem toIdentifier: ItemIdentifierType) {
+        identifiers.reversed().forEach({ moveItem($0, beforeItem: toIdentifier) })
+    }
 }
 #endif
