@@ -91,8 +91,7 @@ public extension ToolbarItem {
             return segmentedControl
         }
 
-        public convenience init(
-            _ identifier: NSToolbarItem.Identifier,
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
             type: Style = .automatic,
             switching: SwitchingMode = .selectOne,
             segmentWidths: CGFloat? = nil,
@@ -102,11 +101,11 @@ public extension ToolbarItem {
             self.init(identifier, segmentedControl: segmentedControl)
         }
 
-        public init(_ identifier: NSToolbarItem.Identifier,
+        public init(_ identifier: NSToolbarItem.Identifier? = nil,
                     segmentedControl: NSSegmentedControl)
         {
             self.segmentedControl = segmentedControl
-            super.init(identifier)
+            super.init(identifier ?? .random)
             self.segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             self.segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
             self.item.view = self.segmentedControl

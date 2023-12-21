@@ -70,9 +70,7 @@ public extension ToolbarItem {
             return self
         }
 
-        override public init(
-            _ identifier: NSToolbarItem.Identifier)
-        {
+        override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
             super.init(identifier)
             delegateObject = DelegateObject(self)
         }

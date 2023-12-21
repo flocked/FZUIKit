@@ -27,6 +27,9 @@ extension NSToolbarItem.Identifier: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self.init(value)
     }
+    
+    /// A random toolbar identifier.
+    static var random: Self { Self(rawValue: UUID().uuidString)  }
 }
 
 #endif

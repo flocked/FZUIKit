@@ -34,8 +34,7 @@ public extension ToolbarItem {
             return self
         }
 
-        public init(
-            _ identifier: NSToolbarItem.Identifier,
+        public init(_ identifier: NSToolbarItem.Identifier? = nil,
             splitView: NSSplitView,
             dividerIndex: Int
         ) {

@@ -52,18 +52,12 @@ public extension ToolbarItem {
             return self
         }
 
-        public init(
-            _ identifier: NSToolbarItem.Identifier,
-            menu: NSMenu
-        ) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, menu: NSMenu) {
             super.init(identifier)
             menuItem.menu = menu
         }
 
-        public convenience init(
-            _ identifier: NSToolbarItem.Identifier,
-            @MenuBuilder _ items: () -> [NSMenuItem]
-        ) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
             self.init(identifier, menu: NSMenu(items: items()))
         }
     }

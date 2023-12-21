@@ -125,13 +125,13 @@ public extension ToolbarItem {
             return button
         }
 
-        public convenience init(_ identifier: NSToolbarItem.Identifier, @MenuBuilder _ items: () -> [NSMenuItem]) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
             let button = Self.button()
             button.menu = NSMenu(title: "", items: items())
             self.init(identifier, popUpButton: button)
         }
 
-        public init(_ identifier: NSToolbarItem.Identifier, popUpButton: NSPopUpButton) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, popUpButton: NSPopUpButton) {
             self.button = popUpButton
             super.init(identifier)
             self.button.translatesAutoresizingMaskIntoConstraints = false

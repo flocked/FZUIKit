@@ -15,18 +15,18 @@ public class Toolbar: NSObject {
      Creates a newly toolbar with the specified identifier.
      
      - Parameters:
-        - identifier: A string used by the class to identify the kind of the toolbar.
+        - identifier: A string used by the class to identify the kind of the toolbar. The default value is `nil`, which provides a unique identifier.
         - allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
         - items: An array of toolbar items.
      
      - Returns: The initialized `Toolbar` object.
      */
     public init(
-        _ identifier: NSToolbar.Identifier,
+        _ identifier: NSToolbar.Identifier? = nil,
         allowsUserCustomization: Bool = true,
         items: [ToolbarItem]
     ) {
-        self.identifier = identifier
+        self.identifier = identifier ?? UUID().uuidString
         self._items = items
         super.init()
      //   self.delegate = DelegateProxy(toolbar: self)
@@ -42,14 +42,14 @@ public class Toolbar: NSObject {
      Creates a newly toolbar with the specified identifier.
      
      - Parameters:
-        - identifier: A string used by the class to identify the kind of the toolbar.
+        - identifier: A string used by the class to identify the kind of the toolbar. The default value is `nil`, which provides a unique identifier.
         - allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
         - items: The toolbar items.
      
      - Returns: The initialized `Toolbar` object.
      */
     public convenience init(
-        _ identifier: NSToolbar.Identifier,
+        _ identifier: NSToolbar.Identifier? = nil,
         allowsUserCustomization: Bool = true,
         @Builder items: () -> [ToolbarItem]
     ) {

@@ -157,13 +157,13 @@ public extension ToolbarItem {
             return button
         }
         
-        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, type: NSButton.BezelStyle = .texturedRounded) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)
             button.title = title
             self.init(identifier, button: button)
         }
         
-        public convenience init(_ identifier: NSToolbarItem.Identifier, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)
             button.title = ""
             button.image = image
@@ -171,7 +171,7 @@ public extension ToolbarItem {
         }
         
         @available(macOS 11.0, *)
-        public convenience init?(_ identifier: NSToolbarItem.Identifier, symbolName: String, type: NSButton.BezelStyle = .texturedRounded) {
+        public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, type: NSButton.BezelStyle = .texturedRounded) {
             guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
             let button = Self.button(for: type)
             button.title = ""
@@ -179,14 +179,14 @@ public extension ToolbarItem {
             self.init(identifier, button: button)
         }
 
-        public convenience init(_ identifier: NSToolbarItem.Identifier, title: String, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)
             button.title = title
             button.image = image
             self.init(identifier, button: button)
         }
 
-        public init(_ identifier: NSToolbarItem.Identifier, button: NSButton) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton) {
             self.button = button
             super.init(identifier)
             self.button.invalidateIntrinsicContentSize()

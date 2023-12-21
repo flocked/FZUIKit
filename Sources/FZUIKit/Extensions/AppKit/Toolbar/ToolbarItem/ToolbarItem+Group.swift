@@ -95,7 +95,7 @@ public extension ToolbarItem {
         }
 
         public init(
-            _ identifier: NSToolbarItem.Identifier,
+            _ identifier: NSToolbarItem.Identifier? = nil,
             selectionMode: SelectionMode = .momentary,
             children: [NSToolbarItem]
         ) {
@@ -105,7 +105,7 @@ public extension ToolbarItem {
         }
 
         public convenience init(
-            _ identifier: NSToolbarItem.Identifier,
+            _ identifier: NSToolbarItem.Identifier? = nil,
             selectionMode: SelectionMode = .momentary,
             _ items: NSToolbarItem...
         ) {
@@ -113,7 +113,7 @@ public extension ToolbarItem {
         }
 
         public convenience init(
-            _ identifier: NSToolbarItem.Identifier,
+            _ identifier: NSToolbarItem.Identifier? = nil,
             selectionMode: SelectionMode = .momentary,
             @NSToolbar.Builder builder: () -> [NSToolbarItem]
         ) {

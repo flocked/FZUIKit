@@ -94,7 +94,7 @@ public extension ToolbarItem {
             return self
         }
         
-        public init(_ identifier: NSToolbarItem.Identifier, maxWidth: CGFloat) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
             super.init(identifier)
             self.searchField.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
@@ -113,14 +113,14 @@ public extension ToolbarItem {
             self.searchField.delegate = self
         }
 
-        public init(_ identifier: NSToolbarItem.Identifier, searchField: NSSearchField) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, searchField: NSSearchField) {
             super.init(identifier)
             searchField.translatesAutoresizingMaskIntoConstraints = false
             self.searchField = searchField
             self.setupSearchField()
         }
 
-        override public init(_ identifier: NSToolbarItem.Identifier) {
+        override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
             super.init(identifier)
             self.setupSearchField()
         }

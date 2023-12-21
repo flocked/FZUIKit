@@ -181,12 +181,12 @@ public extension ToolbarItem {
             return button
         }
 
-        public convenience init(_ identifier: NSToolbarItem.Identifier, popoverContentController: NSViewController) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, popoverContentController: NSViewController) {
             let button = Self.button(for: .momentaryChange)
             self.init(identifier, button: button, popoverContentController: popoverContentController)
         }
 
-        public init(_ identifier: NSToolbarItem.Identifier, button: NSButton, popoverContentController: NSViewController) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, popoverContentController: NSViewController) {
             self.button = button
             popoverViewController = popoverContentController
             super.init(identifier)

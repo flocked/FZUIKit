@@ -27,8 +27,8 @@ public class ToolbarItem: NSObject {
         return rootItem
     }
 
-    public init(_ identifier: NSToolbarItem.Identifier) {
-        self.identifier = identifier
+    public init(_ identifier: NSToolbarItem.Identifier? = nil) {
+        self.identifier = identifier ?? .random
     }
 }
 
