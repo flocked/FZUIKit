@@ -15,16 +15,16 @@ import FZSwiftUtils
  The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A view may draw differently based on background characteristics. For example, a table view drawing a cell in a selected row might set the value to dark. A text cell might decide to render its text white as a result. A rating-style level indicator might draw its stars white instead of gray.
  */
 public protocol ViewBackgroundStyleCustomizable: NSView {
-    var backgroundStyle: NSView.BackgroundStyle { get set }
-}
-
-extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
-extension NSControl: ViewBackgroundStyleCustomizable {
     /**
      The background style of the view.
      
      The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A view may draw differently based on background characteristics. For example, a table view drawing a cell in a selected row might set the value to dark. A text cell might decide to render its text white as a result. A rating-style level indicator might draw its stars white instead of gray.
      */
+    var backgroundStyle: NSView.BackgroundStyle { get set }
+}
+
+extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
+extension NSControl: ViewBackgroundStyleCustomizable {
     public var backgroundStyle: NSView.BackgroundStyle {
         get { self.cell?.backgroundStyle ?? .normal }
         set { self.cell?.backgroundStyle = newValue }
@@ -51,15 +51,9 @@ extension NSView {
      */
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         let text = (self as? NSTextField)?.stringValue ?? ""
-        if let superview = self.superview {
-            Swift.print(depthOfView, "setBackgroundStyle:", backgroundStyle.rawValue, text, type(of: self), type(of: superview))
-        } else {
-            Swift.print(depthOfView, "setBackgroundStyle:", backgroundStyle.rawValue, text, type(of: self))
-        }
-                
-        if let self = (self as? ViewBackgroundStyleCustomizable) {
-            self.backgroundStyle = backgroundStyle
-        }
+        Swift.debugPrint("setBackgroundStyle \(backgroundStyle.rawValue), \(depthOfView) \(type(of: self)), ", self.superview != nil ? "\(type(of: superview!)), " : "", text)
+        
+        (self as? ViewBackgroundStyleCustomizable)?.backgroundStyle = backgroundStyle
         
         for subview in subviews {
             subview.setBackgroundStyle(backgroundStyle)
