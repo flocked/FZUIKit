@@ -313,8 +313,26 @@ open class ImageView: NSView {
     private func sharedInit() {
         wantsLayer = true
         self.layer?.addSublayer(imageLayer)
+        self.addSubview(backgroundStyleObserverView)
+        backgroundStyleObserverView.backgroundStyleHandler = { [weak self] backgroundStyle in
+            guard let self = self else { return }
+            if backgroundStyle == .emphasized {
+                self.imageLayer.tintColor = .alternateSelectedControlTextColor
+            } else {
+                self.imageLayer.tintColor = self.tintColor?.resolvedColor(for: self)
+            }
+        }
         imageScaling = .resizeAspect
         //     self.layerContentsRedrawPolicy = .onSetNeedsDisplay
+    }
+    
+    let backgroundStyleObserverView = BackgroundStyleObserverView()
+
+    class BackgroundStyleObserverView: NSImageView {
+        var backgroundStyleHandler: ((NSView.BackgroundStyle)->())? = nil
+        override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+            backgroundStyleHandler?(backgroundStyle)
+        }
     }
 }
 #endif
