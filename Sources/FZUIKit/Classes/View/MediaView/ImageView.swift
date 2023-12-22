@@ -76,7 +76,6 @@ open class ImageView: NSView {
         }
     }
     
-    /*
     var backgroundStyle: NSView.BackgroundStyle = .normal
     
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
@@ -84,7 +83,6 @@ open class ImageView: NSView {
         self.backgroundStyle = backgroundStyle
         self.updateTintColor()
     }
-    */
     
     private var _tintColor: NSColor? = nil
     
