@@ -82,6 +82,7 @@ open class ImageView: NSControl {
         guard backgroundStyle != self._backgroundStyle else { return }
         self._backgroundStyle = backgroundStyle
         self.updateTintColor()
+        super.setBackgroundStyle(backgroundStyle)
     }
     
     private var _tintColor: NSColor? = nil
