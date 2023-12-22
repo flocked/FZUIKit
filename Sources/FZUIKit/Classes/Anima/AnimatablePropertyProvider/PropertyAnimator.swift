@@ -184,7 +184,9 @@ internal extension PropertyAnimator {
         }
 
         animation.fromValue = animation.value
+
         animation.configure(withSettings: settings)
+        // if settings.integralizeValues, Value is
         animation.valueChanged = { [weak self] value in
             self?.object[keyPath: keyPath] = value
         }

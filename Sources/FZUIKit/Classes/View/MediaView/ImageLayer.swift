@@ -84,8 +84,7 @@ private func setAnimatedImage(_ image: NSImage) {
     
     /// The scaling of the image.
     public var imageScaling: CALayerContentsGravity {
-        get {
-            return contentsGravity
+        get { return contentsGravity
         }
         set {
             contentsGravity = newValue
@@ -111,21 +110,30 @@ private func setAnimatedImage(_ image: NSImage) {
         }
     }
     
-    public enum FrameOption {
+    /// The frame position.
+    public enum FramePosition: Hashable {
+        /// The first frame.
         case first
+        /// The last frame.
         case last
+        /// A random frame.
         case random
+        /// The next frame.
         case next
+        /// The next frame looped.
         case nextLooped
+        /// The previous frame.
         case previous
+        /// The previous frame looped.
         case previousLooped
+        /// The frame at the index.
         case index(Int)
     }
 
-    /// Sets the displaying image to the specified option.
-    public func setFrame(to option: FrameOption) {
+    /// Sets the displaying image to the specified position.
+    public func setFrame(to position: FramePosition) {
         if images.isEmpty == false {
-            switch option {
+            switch position {
             case .index(let index):
                 if index >= 0, index < images.count {
                     currentImageIndex = index
@@ -205,6 +213,11 @@ private func setAnimatedImage(_ image: NSImage) {
         displayLink = nil
         setFrame(to: .first)
     }
+    
+    /// Returns a Boolean value indicating whether the animation is running.
+    public var isAnimating: Bool {
+        return (displayLink != nil)
+    }
 
     /// Toggles the animation.
     public func toggleAnimating() {
@@ -230,11 +243,6 @@ private func setAnimatedImage(_ image: NSImage) {
      The default value is 0, which specifies to repeat the animation indefinitely.
      */
     public var animationRepeatCount: Int = 0
-
-    /// Returns a Boolean value indicating whether the animation is running.
-    public var isAnimating: Bool {
-        return (displayLink != nil)
-    }
     
     /// A Boolean value indicating whether animatable images should automatically start animating.
     public var autoAnimates: Bool = true {
@@ -263,7 +271,7 @@ private func setAnimatedImage(_ image: NSImage) {
     internal func updateDisplayingImage() {
         if var image = self.displayingImage {
             displayingSymbolImage = nil
-            if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage == true {
+            if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage {
                 var configuration: NSUIImage.SymbolConfiguration? = nil
                 if let tintColor = tintColor {
                     configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
@@ -276,13 +284,17 @@ private func setAnimatedImage(_ image: NSImage) {
                     displayingSymbolImage = image
                 }
             }
-#if os(macOS)
+            CATransaction.performNonAnimated {
+                #if os(macOS)
                 self.contents = image.scaledLayerContents
-#else
+                #else
                 self.contents = image
-#endif
+                #endif
+            }
         } else {
-            self.contents = nil
+            CATransaction.performNonAnimated {
+                self.contents = nil
+            }
         }
     }
 
@@ -416,7 +428,7 @@ private func setAnimatedImage(_ image: NSImage) {
     }
 }
 
-extension ImageLayer.FrameOption: ExpressibleByIntegerLiteral {
+extension ImageLayer.FramePosition: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
         self = .index(value)
     }

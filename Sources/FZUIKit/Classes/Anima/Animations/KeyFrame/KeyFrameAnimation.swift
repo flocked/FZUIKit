@@ -73,6 +73,8 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
     
+    var integralizeValueHandler: ((_ value: CGRect) -> CGRect)? = nil
+    
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     

@@ -12,9 +12,7 @@ import Foundation
 open class ImageView: NSControl {
     /// The image displayed in the image view.
     open var image: NSImage? {
-        get {
-            imageLayer.image
-        }
+        get { imageLayer.image }
         set {
             imageLayer.image = newValue
             self.invalidateIntrinsicContentSize()
@@ -27,9 +25,7 @@ open class ImageView: NSControl {
      Setting this property to an array with multiple images will remove the image represented by the image property.
      */
     open var images: [NSImage] {
-        get {
-            imageLayer.images
-        }
+        get { imageLayer.images }
         set {
             imageLayer.images = newValue
             self.invalidateIntrinsicContentSize()
@@ -68,6 +64,7 @@ open class ImageView: NSControl {
         }
     }
     
+
     func updateTintColor() {
         if _backgroundStyle == .emphasized {
             self.imageLayer.tintColor = .alternateSelectedControlTextColor
@@ -108,7 +105,7 @@ open class ImageView: NSControl {
     }
     
     /// Sets the displaying image to the specified option.
-    open func setFrame(to option: ImageLayer.FrameOption) {
+    open func setFrame(to option: ImageLayer.FramePosition) {
         imageLayer.setFrame(to: option)
         self.invalidateIntrinsicContentSize()
     }
