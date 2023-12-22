@@ -50,7 +50,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         spring.settlingDuration
     }
     
-    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries when the animation finishes. This helps prevent drawing frames between pixels, causing aliasing issues. 
+    /// A Boolean value that indicates whether the value returned in ``valueChanged`` should be integralized to the screen's pixel boundaries. This helps prevent drawing frames between pixels, causing aliasing issues.
     public var integralizeValues: Bool = false
     
     /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes.
@@ -134,8 +134,6 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?
     
-    var integralizeValueHandler: ((_ value: CGRect) -> CGRect)? = nil
-
     /// The completion block to call when the animation either finishes, or "re-targets" to a new target value.
     public var completion: ((_ event: AnimationEvent<Value>) -> Void)?
     
@@ -227,7 +225,7 @@ public class SpringAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
             runningTime = 0.0
         }
 
-        let callbackValue = (integralizeValues ) ? value.scaledIntegral : value
+        let callbackValue = integralizeValues ? value.scaledIntegral : value
         valueChanged?(callbackValue)
 
         if animationFinished, !repeats || !isAnimated {
