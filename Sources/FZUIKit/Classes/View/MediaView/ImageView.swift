@@ -78,7 +78,7 @@ open class ImageView: NSView {
     
     var backgroundStyle: NSView.BackgroundStyle = .normal
     
-    @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+    open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         guard backgroundStyle != self.backgroundStyle else { return }
         self.backgroundStyle = backgroundStyle
         self.updateTintColor()
