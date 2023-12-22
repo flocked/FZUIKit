@@ -265,15 +265,9 @@ private func setAnimatedImage(_ image: NSImage) {
             displayingSymbolImage = nil
             if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage == true {
                 var configuration: NSUIImage.SymbolConfiguration? = nil
-                #if os(macOS)
                 if let tintColor = tintColor {
                     configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
                 }
-                #else
-                if let tintColor = tintColor {
-                    configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
-                }
-                #endif
                 if let symbolConfiguration = self.symbolConfiguration {
                     configuration = configuration?.applying(symbolConfiguration) ?? symbolConfiguration
                 }
