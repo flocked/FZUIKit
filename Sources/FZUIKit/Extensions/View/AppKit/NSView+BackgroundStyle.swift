@@ -51,7 +51,8 @@ extension NSView {
      */
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         if let superview = self.superview {
-            Swift.print("set background", depthOfView, type(of: self), "superview:", type(of: superview))
+            let text = (self as? NSTextField)?.stringValue ?? ""
+            Swift.print("set background", depthOfView, text, type(of: self), "superview:", type(of: superview))
         } else {
             Swift.print("set background", depthOfView, type(of: self))
         }
