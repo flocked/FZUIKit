@@ -32,6 +32,16 @@ extension NSControl: ViewBackgroundStyleCustomizable {
 }
 
 extension NSView {
+    var depthOfView: Int {
+        var depth = 0
+        var aSuperview = self.superview
+        while aSuperview != nil {
+            depth += 1
+            aSuperview = aSuperview?.superview
+        }
+        return depth
+    }
+    
     /**
      Updates the background style of all nested subviews to the specified style.
      
@@ -40,7 +50,9 @@ extension NSView {
      - Parameter backgroundStyle: The style to apply.
      */
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
-        Swift.print("set background", type(of: self), String(describing: self))
+        Swift.print("set background", depthOfView, type(of: self))
+        
+        
         
         if let self = (self as? ViewBackgroundStyleCustomizable) {
             self.backgroundStyle = backgroundStyle
