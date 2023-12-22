@@ -41,7 +41,7 @@ extension NSView {
         }
         return depth
     }
-    
+    /*
     /**
      Updates the background style of all nested subviews to the specified style.
      
@@ -62,8 +62,10 @@ extension NSView {
             subview.setBackgroundStyle(backgroundStyle)
         }
     }
+    */
 }
 
+/*
 extension NSCollectionViewItem {
     /**
      Updates the background style of all nested subviews to the specified style.
@@ -80,4 +82,5 @@ extension NSCollectionViewItem {
         self.view.setBackgroundStyle(backgroundStyle)
     }
 }
+ */
 #endif
