@@ -22,6 +22,17 @@ public extension NSUIView {
         }
     }
     
+    /// The level of the view from the most outer `superview`. A value of `0` indicates that there isn't a superview.
+    var viewLevel: Int {
+        var depth = 0
+        var aSuperview = self.superview
+        while aSuperview != nil {
+            depth += 1
+            aSuperview = aSuperview?.superview
+        }
+        return depth
+    }
+    
     /// Updates the anchor point of the view’s bounds rectangle while retaining the position.
     func setAnchorPoint(_ anchorPoint: CGPoint) {
         guard let layer = optionalLayer else { return }
