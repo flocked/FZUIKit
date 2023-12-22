@@ -19,6 +19,7 @@ public protocol ViewBackgroundStyleCustomizable: NSView {
 }
 
 extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
+/*
 extension NSControl: ViewBackgroundStyleCustomizable {
     /**
      The background style of the view.
@@ -30,6 +31,7 @@ extension NSControl: ViewBackgroundStyleCustomizable {
         set { self.cell?.backgroundStyle = newValue }
     }
 }
+*/
 
 extension NSView {
     var depthOfView: Int {
