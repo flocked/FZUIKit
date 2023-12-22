@@ -50,11 +50,11 @@ extension NSView {
      - Parameter backgroundStyle: The style to apply.
      */
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+        let text = (self as? NSTextField)?.stringValue ?? ""
         if let superview = self.superview {
-            let text = (self as? NSTextField)?.stringValue ?? ""
-            Swift.print("set background", depthOfView, text, type(of: self), "superview:", type(of: superview))
+            Swift.print("setBackgroundStyle", backgroundStyle.rawValue, depthOfView, text, type(of: self), "superview:", type(of: superview))
         } else {
-            Swift.print("set background", depthOfView, type(of: self))
+            Swift.print("setBackgroundStyle", backgroundStyle.rawValue, depthOfView, text, type(of: self))
         }
                 
         if let self = (self as? ViewBackgroundStyleCustomizable) {
