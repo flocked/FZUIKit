@@ -19,7 +19,6 @@ public protocol ViewBackgroundStyleCustomizable: NSView {
 }
 
 extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
-/*
 extension NSControl: ViewBackgroundStyleCustomizable {
     /**
      The background style of the view.
@@ -31,7 +30,6 @@ extension NSControl: ViewBackgroundStyleCustomizable {
         set { self.cell?.backgroundStyle = newValue }
     }
 }
-*/
 
 extension NSView {
     var depthOfView: Int {
@@ -54,9 +52,9 @@ extension NSView {
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         let text = (self as? NSTextField)?.stringValue ?? ""
         if let superview = self.superview {
-            Swift.print("setBackgroundStyle", backgroundStyle.rawValue, depthOfView, text, type(of: self), "superview:", type(of: superview))
+            Swift.print(depthOfView, "setBackgroundStyle:", backgroundStyle.rawValue, text, type(of: self), type(of: superview))
         } else {
-            Swift.print("setBackgroundStyle", backgroundStyle.rawValue, depthOfView, text, type(of: self))
+            Swift.print(depthOfView, "setBackgroundStyle:", backgroundStyle.rawValue, text, type(of: self))
         }
                 
         if let self = (self as? ViewBackgroundStyleCustomizable) {
