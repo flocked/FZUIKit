@@ -316,10 +316,12 @@ open class ImageView: NSView {
         self.addSubview(backgroundStyleObserverView)
         backgroundStyleObserverView.backgroundStyleHandler = { [weak self] backgroundStyle in
             guard let self = self else { return }
-            if backgroundStyle == .emphasized {
-                self.imageLayer.tintColor = .alternateSelectedControlTextColor
-            } else {
-                self.imageLayer.tintColor = self.tintColor?.resolvedColor(for: self)
+            CATransaction.performNonAnimated {
+                if backgroundStyle == .emphasized {
+                    self.imageLayer.tintColor = .alternateSelectedControlTextColor
+                } else {
+                    self.imageLayer.tintColor = self.tintColor?.resolvedColor(for: self)
+                }
             }
         }
         imageScaling = .resizeAspect
