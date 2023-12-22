@@ -9,7 +9,7 @@
 import AppKit
 import Foundation
 
-open class ImageView: NSView {
+open class ImageView: NSControl {
     /// The image displayed in the image view.
     open var image: NSImage? {
         get {
@@ -69,18 +69,18 @@ open class ImageView: NSView {
     }
     
     func updateTintColor() {
-        if backgroundStyle == .emphasized {
+        if _backgroundStyle == .emphasized {
             self.imageLayer.tintColor = .alternateSelectedControlTextColor
         } else {
             self.imageLayer.tintColor = _tintColor?.resolvedColor(for: self)
         }
     }
     
-    var backgroundStyle: NSView.BackgroundStyle = .normal
+    var _backgroundStyle: NSView.BackgroundStyle = .normal
     
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
-        guard backgroundStyle != self.backgroundStyle else { return }
-        self.backgroundStyle = backgroundStyle
+        guard backgroundStyle != self._backgroundStyle else { return }
+        self._backgroundStyle = backgroundStyle
         self.updateTintColor()
     }
     
@@ -227,11 +227,11 @@ open class ImageView: NSView {
         return imageLayer.fittingSize
     }
 
-    open func sizeToFit() {
+    open override func sizeToFit() {
         frame.size = fittingSize
     }
 
-    open func sizeThatFits(_ size: CGSize) -> CGSize {
+    open override func sizeThatFits(_ size: CGSize) -> CGSize {
         return imageLayer.sizeThatFits(size)
     }
 
