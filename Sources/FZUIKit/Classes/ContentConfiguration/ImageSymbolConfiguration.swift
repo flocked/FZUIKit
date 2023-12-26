@@ -88,9 +88,14 @@ public struct ImageSymbolConfiguration: Hashable {
         self.updateResolvedColors()
     }
     
-    /// Creates a configuration with a monochrome color configuration.
+    /// Creates a configuration with a monochrome color configuration using the tint color.
     public static var monochrome: Self {
         Self(color: .monochrome)
+    }
+    
+    /// Creates a configuration with a monochrome color configuration using the specified color.
+    public static func monochrome(_ color: NSUIColor) -> Self {
+        Self.palette(color, color)
     }
     
     /// Creates a configuration with a hierarchical color configuration with the specified color.
@@ -122,6 +127,31 @@ public struct ImageSymbolConfiguration: Hashable {
     public static func imageScale(_ imageScale: ImageScale) -> Self {
         Self(imageScale: imageScale)
     }
+    
+    /// Creates a configuration  with a body font configuration.
+    public static let body = Self.font(.body)
+    /// Creates a configuration with a callout font configuration.
+    public static let callout = Self.font(.callout)
+    /// Creates a configuration with a caption font configuration.
+    public static let caption1 = Self.font(.caption1)
+    /// Creates a configuration with a alternate caption font configuration.
+    public static let caption2 = Self.font(.caption2)
+    /// Creates a configuration with a footnote font configuration.
+    public static let footnote = Self.font(.footnote)
+    /// Creates a configuration with a headline font configuration.
+    public static let headline = Self.font(.headline)
+    /// Creates a configuration with a subheadline font configuration.
+    public static let subheadline = Self.font(.subheadline)
+    #if os(macOS) || os(iOS)
+    /// Creates a configuration with a large title font configuration.
+    public static let largeTitle = Self.font(.largeTitle)
+    #endif
+    /// Creates a configuration with a first-level title font configuration.
+    public static let title1 = Self.font(.title1)
+    /// Creates a configuration with a second-level title font configuration.
+    public static let title2 = Self.font(.title2)
+    /// Creates a configuration with a third-level title font configuration.
+    public static let title3 = Self.font(.title3)
     
     /// Generates the resolved primary color for the specified color style, using the color style's primary color and color transformer.
     public func resolvedPrimaryColor() -> NSUIColor? {
@@ -187,29 +217,29 @@ public struct ImageSymbolConfiguration: Hashable {
         }
         
         /// The font you use for body text.
-        public static var body: Self { Self.textStyle(.body) }
+        public static let body = Self.textStyle(.body)
         /// The font you use for callouts.
-        public static var callout: Self { Self.textStyle(.callout) }
+        public static let callout = Self.textStyle(.callout)
         /// The font you use for standard captions.
-        public static var caption1: Self { Self.textStyle(.caption1) }
+        public static let caption1 = Self.textStyle(.caption1)
         /// The font you use for alternate captions.
-        public static var caption2: Self { Self.textStyle(.caption2) }
+        public static let caption2 = Self.textStyle(.caption2)
         /// The font you use in footnotes.
-        public static var footnote: Self { Self.textStyle(.footnote) }
+        public static let footnote = Self.textStyle(.footnote)
         /// The font you use for headings.
-        public static var headline: Self { Self.textStyle(.headline) }
+        public static let headline = Self.textStyle(.headline)
         /// The font you use for subheadings.
-        public static var subheadline: Self { Self.textStyle(.subheadline) }
+        public static let subheadline = Self.textStyle(.subheadline)
         #if os(macOS) || os(iOS)
         /// The font you use for large titles.
-        public static var largeTitle: Self { Self.textStyle(.largeTitle) }
+        public static let largeTitle = Self.textStyle(.largeTitle)
         #endif
         /// The font you use for first-level hierarchical headings.
-        public static var title1: Self { Self.textStyle(.title1) }
+        public static let title1 = Self.textStyle(.title1)
         /// The font you use for second-level hierarchical headings.
-        public static var title2: Self { Self.textStyle(.title2) }
+        public static let title2 = Self.textStyle(.title2)
         /// The font you use for third-level hierarchical headings.
-        public static var title3: Self { Self.textStyle(.title3) }
+        public static let title3 = Self.textStyle(.title3)
         
         /// The font configuration as SwiftUI `Font`.
         public var swiftui: Font {
@@ -243,15 +273,28 @@ public struct ImageSymbolConfiguration: Hashable {
         /// A scale that produces large images.
         case large
         
-        internal var nsSymbolScale: NSUIImage.SymbolScale {
+        #if os(macOS)
+        /// The image scale as `NSImage.SymbolScale`.
+        public var nsSymbolScale: NSUIImage.SymbolScale {
             switch self {
             case .small: return .small
             case .medium: return .medium
             case .large: return .large
             }
         }
+        #else
+        /// The image scale as `UIImage.SymbolScale`.
+        public var uiSymbolScale: NSUIImage.SymbolScale {
+            switch self {
+            case .small: return .small
+            case .medium: return .medium
+            case .large: return .large
+            }
+        }
+        #endif
         
-        internal var swiftui: SwiftUI.Image.Scale {
+        /// The image scale as `SwiftUI.Image.Scale`.
+        public var swiftui: SwiftUI.Image.Scale {
             switch self {
             case .small: return .small
             case .medium: return .medium
@@ -270,6 +313,11 @@ public struct ImageSymbolConfiguration: Hashable {
         case multicolor(NSUIColor)
         ///  A hierarchical color configuration using the color you specify.
         case hierarchical(NSUIColor)
+        
+        ///  A monochrome color configuration using the specified color.
+        public static func monochrome(_ color: NSUIColor) -> Self {
+            Self.palette(color, color)
+        }
         
         internal var renderingMode: SwiftUI.SymbolRenderingMode {
             switch self {
@@ -356,9 +404,15 @@ public extension ImageSymbolConfiguration {
                 break
         }
         
+        #if os(macOS)
         if let symbolScale = self.imageScale?.nsSymbolScale {
             configuration = configuration.scale(symbolScale)
         }
+        #else
+        if let symbolScale = self.imageScale?.uiSymbolScale {
+            configuration = configuration.scale(symbolScale)
+        }
+        #endif
         
         return configuration
     }
