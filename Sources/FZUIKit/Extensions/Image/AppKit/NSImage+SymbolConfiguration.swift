@@ -49,7 +49,7 @@ extension NSUIImage.SymbolConfiguration {
     /// Returns the symbol configuration with the specified symbol weight.
     func weight(_ weight: NSUIImage.SymbolWeight?) -> NSUIImage.SymbolConfiguration {
         let conf = self
-        conf.weight = weight?.fontWeight()
+        conf.weight = weight?.nsWeight
         return conf
     }
 
@@ -105,9 +105,9 @@ extension NSUIImage.SymbolConfiguration {
     static func systemFont(_ pointSize: CGFloat, weight: NSUIImage.SymbolWeight = .regular, scale: NSUIImage.SymbolScale? = nil) -> NSUIImage.SymbolConfiguration {
         #if os(macOS)
         if let scale = scale {
-            return NSUIImage.SymbolConfiguration(pointSize: pointSize, weight: weight.fontWeight(), scale: scale)
+            return NSUIImage.SymbolConfiguration(pointSize: pointSize, weight: weight.nsWeight, scale: scale)
         }
-        return NSUIImage.SymbolConfiguration(pointSize: pointSize, weight: weight.fontWeight())
+        return NSUIImage.SymbolConfiguration(pointSize: pointSize, weight: weight.nsWeight)
         #else
         if let scale = scale {
             return NSUIImage.SymbolConfiguration(pointSize: pointSize, weight: weight, scale: scale)
@@ -154,7 +154,7 @@ extension NSUIImage.SymbolConfiguration {
     /// A symbol configuration with the specified symbol weight.
     static func weight(_ weight: NSUIImage.SymbolWeight) -> NSUIImage.SymbolConfiguration {
         let conf = NSUIImage.SymbolConfiguration.monochrome()
-        conf.weight = weight.fontWeight()
+        conf.weight = weight.nsWeight
         return conf
     }
 }
@@ -299,8 +299,8 @@ public extension NSImage {
         case heavy
         /// A black weight.
         case black
-        /// The font weight for the specified symbol weight.
-        func fontWeight() -> NSFont.Weight {
+        /// The weight as `NSFont.Weight`.
+        var nsWeight: NSFont.Weight {
             switch self {
             case .unspecified: return .init(rawValue: CGFloat.greatestFiniteMagnitude)
             case .ultraLight: return .ultraLight

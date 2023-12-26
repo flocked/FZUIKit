@@ -211,7 +211,8 @@ public struct ImageSymbolConfiguration: Hashable {
         /// The font you use for third-level hierarchical headings.
         public static var title3: Self { Self.textStyle(.title3) }
         
-        internal var swiftui: Font {
+        /// The font configuration as SwiftUI `Font`.
+        public var swiftui: Font {
             switch self {
             case .textStyle(let style, weight: let weight, design: let design):
                 return Font.system(style.swiftUI, design: design.swiftUI).weight(weight?.swiftUI ?? .regular)
@@ -219,6 +220,18 @@ public struct ImageSymbolConfiguration: Hashable {
                 return Font.system(size: size, design: design.swiftUI).weight(weight?.swiftUI ?? .regular)
             }
         }
+        
+        #if os(macOS)
+        /// The font configuration as `NSFont`.
+        public var nsFont: NSFont {
+            switch self {
+            case .systemFont(let size, let weight, let design):
+                return .systemFont(ofSize: size, weight: weight?.nsWeight ?? .regular, design: design)
+            case .textStyle(let textStyle, let weight, let design):
+                return .systemFont(textStyle, design: design).weight(weight?.nsWeight ?? .regular)
+            }
+        }
+        #endif
     }
     
     /// Constants that specify which symbol image scale.
