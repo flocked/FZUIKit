@@ -340,7 +340,8 @@ public struct ImageSymbolConfiguration: Hashable {
             }
         }
         
-        internal var primary: NSUIColor? {
+        /// The primary color, or `nil` if there isn't a primary color.
+        public var primary: NSUIColor? {
             switch self {
             case .palette(let primary, _, _):
                 return primary
@@ -353,7 +354,8 @@ public struct ImageSymbolConfiguration: Hashable {
             }
         }
         
-        internal var secondary: NSUIColor? {
+        /// The secondary color, or `nil` if there isn't a secondary color.
+        public var secondary: NSUIColor? {
             switch self {
             case .palette(_, let secondary, _):
                 return secondary
@@ -362,7 +364,8 @@ public struct ImageSymbolConfiguration: Hashable {
             }
         }
         
-        internal var tertiary: NSUIColor? {
+        /// The tertiary color, or `nil` if there isn't a tertiary color.
+        public var tertiary: NSUIColor? {
             switch self {
             case .palette(_, _, let tertiary):
                 return tertiary
