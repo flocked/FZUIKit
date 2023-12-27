@@ -35,6 +35,11 @@ public struct TextConfiguration {
     /// The technique for wrapping and truncating the text.
     public var lineBreakMode: NSLineBreakMode = .byWordWrapping
     
+    #if os(macOS)
+    /// The number formatter of the text.
+    public var numberFormatter: NumberFormatter? = nil
+    #endif
+    
     /// A Boolean value that determines whether the label reduces the text’s font size to fit the title string into the label’s bounding rectangle.
     public var adjustsFontSizeToFitWidth: Bool = false
 
@@ -315,6 +320,7 @@ public extension NSTextField {
         self.lineBreakMode = configuration.lineBreakMode
         self.isEditable = configuration.isEditable
         self.isSelectable = configuration.isSelectable
+        self.formatter = configuration.numberFormatter
         self.adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
         self.minimumScaleFactor = configuration.minimumScaleFactor
         self.allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
@@ -381,7 +387,6 @@ public extension UITextField {
         
         self.adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
         self.adjustsFontForContentSizeCategory = configuration.adjustsFontForContentSizeCategory
-
         // self.numberOfLines = configuration.numberOfLines
         // self.lineBreakMode = configuration.lineBreakMode
       //  self.minimumScaleFactor = configuration.minimumScaleFactor

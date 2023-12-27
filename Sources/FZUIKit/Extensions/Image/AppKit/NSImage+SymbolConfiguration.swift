@@ -49,7 +49,7 @@ extension NSUIImage.SymbolConfiguration {
     /// Returns the symbol configuration with the specified symbol weight.
     func weight(_ weight: NSUIImage.SymbolWeight?) -> NSUIImage.SymbolConfiguration {
         let conf = self
-        conf.weight = weight?.nsWeight
+        conf.weight = weight?.fontWeight
         return conf
     }
 
@@ -154,7 +154,7 @@ extension NSUIImage.SymbolConfiguration {
     /// A symbol configuration with the specified symbol weight.
     static func weight(_ weight: NSUIImage.SymbolWeight) -> NSUIImage.SymbolConfiguration {
         let conf = NSUIImage.SymbolConfiguration.monochrome()
-        conf.weight = weight.nsWeight
+        conf.weight = weight.fontWeight
         return conf
     }
 }
