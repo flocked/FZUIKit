@@ -33,9 +33,52 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     
     /// Generates a configuration for the specified state by applying the configuration’s default values for that state to any properties that you don’t customize.
     public func updated(for state: NSConfigurationState) -> NSBackgroundConfiguration {
-        
-        return self
+        var configuration = self
+        if let isItemState = state["isItemState"] as? Bool, isItemState, let isSelected = state["isSelected"] as? Bool, let isEmphasized = state["isEmphasized"] as? Bool  {
+            if configuration.state.didConfigurate == false {
+                configuration.state.borderWidth = configuration.border.width
+                configuration.state.borderColor = configuration.border.color
+                configuration.state.color = configuration.color
+                configuration.state.shadowColor = configuration.shadow.color
+                configuration.state.didConfigurate = true
+            }
+            
+            if isSelected {
+                configuration.border.width = configuration.state.borderWidth != 0.0 ? configuration.state.borderWidth : 2.0
+                if isEmphasized {
+                    configuration.color = .controlAccentColor.withAlphaComponent(0.5)
+                    configuration.border.color = .controlAccentColor
+                    configuration.shadow.color = configuration.shadow.isInvisible ? nil : .controlAccentColor
+                } else {
+                    configuration.border.color = .controlAccentColor.withAlphaComponent(0.5)
+                    configuration.color = .controlAccentColor.withAlphaComponent(0.2)
+                    configuration.shadow.color = configuration.shadow.isInvisible ? nil : .controlAccentColor.withAlphaComponent(0.5)
+                }
+            } else {
+                if configuration.state.didConfigurate {
+                    configuration.border.width = configuration.state.borderWidth
+                    configuration.border.color = configuration.state.borderColor
+                    configuration.shadow.color = configuration.state.shadowColor
+                    configuration.color = configuration.state.color
+                    configuration.state.didConfigurate = false
+                }
+            }
+        }
+        return configuration
     }
+    
+    /// The saved state when `updated(for:)` is applied.
+    struct State: Hashable {
+        var didConfigurate: Bool = false
+        var color: NSColor? = nil
+        var shadowColor: NSColor? = nil
+        var borderColor: NSColor? = nil
+        var borderWidth: CGFloat = 0.0
+    }
+    
+    /// The saved state when `updated(for:)` is applied.
+    var state: State = State()
+
     
     /// The background color
     public var color: NSColor? = nil {
