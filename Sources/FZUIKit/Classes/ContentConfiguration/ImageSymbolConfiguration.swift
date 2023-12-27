@@ -324,7 +324,7 @@ public struct ImageSymbolConfiguration: Hashable {
         public static var accentColor: Self {
             .monochrome(.controlAccentColor)
         }
-        #else
+        #elseif os(iOS) || os(tvOS)
         /// A color configuration with monochrome tint color.
         public static var tintColor: Self {
             .monochrome(.tintColor)
