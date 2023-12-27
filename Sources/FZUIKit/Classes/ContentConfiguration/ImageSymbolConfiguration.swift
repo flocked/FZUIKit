@@ -319,6 +319,18 @@ public struct ImageSymbolConfiguration: Hashable {
             Self.palette(color, color)
         }
         
+        #if os(macOS)
+        /// A color configuration with monochrome accent color.
+        public static var accentColor: Self {
+            .monochrome(.controlAccentColor)
+        }
+        #endif
+        
+        /// A color configuration with monochrome black color.
+        public static var black: Self {
+            .monochrome(.black)
+        }
+        
         internal var renderingMode: SwiftUI.SymbolRenderingMode {
             switch self {
             case .palette(_, _, _): return .palette

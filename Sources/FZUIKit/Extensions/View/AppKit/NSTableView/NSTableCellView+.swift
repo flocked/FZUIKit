@@ -25,11 +25,9 @@ public extension NSTableCellView {
         firstSuperview(for: NSTableView.self)
     }
 
-    /**
-     The index of the column that displays the cell.
-     */
-    var columnIndex: Int? { rowView?.cellViews.firstIndex(of: self) }
-
+    /// The index of the column that displays the cell.
+    var columnIndex: Int? { tableView?.column(for: self) }
+    
     /**
      A Boolean value that indicates whether the column displaying the cell is selected.
      */
