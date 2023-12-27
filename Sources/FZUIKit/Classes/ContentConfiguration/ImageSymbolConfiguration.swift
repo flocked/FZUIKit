@@ -324,6 +324,11 @@ public struct ImageSymbolConfiguration: Hashable {
         public static var accentColor: Self {
             .monochrome(.controlAccentColor)
         }
+        #else
+        /// A color configuration with monochrome tint color.
+        public static var tintColor: Self {
+            .monochrome(.tintColor)
+        }
         #endif
         
         /// A color configuration with monochrome black color.
