@@ -9,26 +9,45 @@
 import AppKit
 import FZSwiftUtils
 
+extension NSView {
+    public func observe() -> ObserverView {
+        if let observingView = self.subviews(type: ObserverView.self).first {
+            return observingView
+        }
+        let observingView = ObserverView(frame: .zero)
+        self.addSubview(withAutoresizing: observingView)
+        observingView.sendToBack()
+        return observingView
+    }
+}
+
 /**
  A view that provides various handlers for mouse, key, view, window and drag & drop events.
+ 
+ You can insert this
  */
-public class ObservingView: NSView {
+public class ObserverView: NSView {
+    /// The handlers for the window state.
     public var windowHandlers = WindowHandlers() {
         didSet { self.updateWindowObserver() }
     }
     
+    /// The handlers for the view state.
     public var viewHandlers = ViewHandlers() {
         didSet {  }
     }
     
+    /// The handlers for keyboard events.
     public var keyHandlers = KeyHandlers() {
         didSet { self.updateWindowObserver() }
     }
 
+    /// The handlers for mouse events.
     public var mouseHandlers = MouseHandlers() {
         didSet { self._trackingArea.options = mouseHandlers.trackingAreaOptions }
     }
     
+    ///The handlers for file drag and drop.
     public var dragAndDropHandlers = DragAndDropHandlers() {
         didSet {
             if dragAndDropHandlers.isSetup {
@@ -138,6 +157,7 @@ public class ObservingView: NSView {
         }
     }
     
+    /*
     public override func keyDown(with event: NSEvent) {
         if (self.keyHandlers.keyDown?(event) ?? true) {
             super.keyDown(with: event)
@@ -156,11 +176,57 @@ public class ObservingView: NSView {
             super.flagsChanged(with: event)
         }
     }
+    */
+    
+    var keyDownMonitor: NSEvent.Monitor? = nil
+    var keyUpMonitor: NSEvent.Monitor? = nil
+    var flagsChangedMonitor: NSEvent.Monitor? = nil
+
+    func setupKeyObserver() {
+        if let keyDown = keyHandlers.keyDown {
+            if keyDownMonitor == nil {
+                keyDownMonitor = .local(for: .keyDown, handler: { event in
+                    if keyDown(event) {
+                        return nil
+                    }
+                    return event
+                })
+            }
+        } else {
+            keyDownMonitor = nil
+        }
+        
+        if let keyUp = keyHandlers.keyUp {
+            if keyUpMonitor == nil {
+                keyUpMonitor = .local(for: .keyUp, handler: { event in
+                    if keyUp(event) {
+                        return nil
+                    }
+                    return event
+                })
+            }
+        } else {
+            keyUpMonitor = nil
+        }
+        
+        if let flagsChanged = keyHandlers.flagsChanged {
+            if flagsChangedMonitor == nil {
+                flagsChangedMonitor = .local(for: .flagsChanged, handler: { event in
+                    if flagsChanged(event) {
+                        return nil
+                    }
+                    return event
+                })
+            }
+        } else {
+            flagsChangedMonitor = nil
+        }
+    }
     
     public override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return false }
         
-        let items = sender.pasteboardWritings()
+        let items = sender.pasteboardReadWritings()
         guard items.count > 0 else { return false }
         return (canDrop(items).count > 0)
     }
@@ -186,7 +252,7 @@ public class ObservingView: NSView {
 
     public override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return [] }
-        let items = sender.pasteboardWritings()
+        let items = sender.pasteboardReadWritings()
         guard items.count > 0 else { return [] }
         guard (canDrop(items).count > 0) else { return [] }
         
@@ -195,7 +261,7 @@ public class ObservingView: NSView {
 
 
     public override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        var items = sender.pasteboardWritings()
+        var items = sender.pasteboardReadWritings()
         items = dragAndDropHandlers.canDrop?(items) ?? items
         guard items.count > 0 else { return false }
         dragAndDropHandlers.didDrop?(items)
@@ -235,7 +301,7 @@ public class ObservingView: NSView {
         }
     }
     
-    internal lazy var _trackingArea: TrackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
+    internal lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
     
     internal func removeWindowKeyObserver() {
         windowDidBecomeKeyObserver = nil
@@ -302,37 +368,55 @@ public class ObservingView: NSView {
     }
 }
 
-public extension ObservingView {
-    struct WindowHandlers {
+extension ObserverView {
+    ///The handlers for the window state.
+    public struct WindowHandlers {
+        /// The view will move to a window.
         public var willMoveToWindow: ((NSWindow?)->())? = nil
+        /// The view did move to a window.
         public var didMoveToWindow: ((NSWindow)->())? = nil
+        /// The window is key.
         public var isKey: ((Bool)->())? = nil
+        /// The window is main.
         public var isMain: ((Bool)->())? = nil
     }
     
-    struct DragAndDropHandlers {
-        public var canDrop: (([PasteboardWriting]) -> ([PasteboardWriting]))? = nil
-        public var didDrop: (([PasteboardWriting]) -> ())? = nil
-        public var dropOutside: (() -> ([PasteboardWriting]))? = nil
+    ///The handlers for file drag and drop.
+    public struct DragAndDropHandlers {
+        public var canDrop: (([PasteboardReadWriting]) -> ([PasteboardReadWriting]))? = nil
+        public var didDrop: (([PasteboardReadWriting]) -> ())? = nil
+        public var dropOutside: (() -> ([PasteboardReadWriting]))? = nil
         
         internal var isSetup: Bool {
             self.canDrop != nil && self.didDrop != nil
         }
     }
-        
-    struct ViewHandlers {
+    
+    /// The handlers for the view.
+    public struct ViewHandlers {
+        /// The view will move to a superview.
         public var willMoveToSuperview: ((NSView?)->())? = nil
+        /// The view did move to a superview.
         public var didMoveToSuperview: ((NSView?)->())? = nil
     }
     
-    struct KeyHandlers {
+    /// The handlers for keyboard events.
+    public struct KeyHandlers {
+        /// The keyDown event.
         public var keyDown: ((NSEvent)->(Bool))? = nil
+        /// The keyUp event.
         public var keyUp: ((NSEvent)->(Bool))? = nil
+        /// The flagsChanged event.
         public var flagsChanged: ((NSEvent)->(Bool))? = nil
+        
+        var shouldObserve: Bool {
+            keyDown != nil || keyUp != nil || flagsChanged != nil
+        }
     }
     
-    struct MouseHandlers {
-        public enum Event {
+    /// The handlers for mouse events.
+    public struct MouseHandlers {
+        enum Event {
             case moved
             case dragged
             case entered
@@ -343,16 +427,24 @@ public extension ObservingView {
             case rightUp
         }
         
+        /// The mouse moved.
         public var moved: ((NSEvent)->(Bool))? = nil
+        /// The mouse dragged.
         public var dragged: ((NSEvent)->(Bool))? = nil
+        /// The mouse entered.
         public var entered: ((NSEvent)->(Bool))? = nil
+        /// The mouse entered.
         public var exited: ((NSEvent)->(Bool))? = nil
+        /// The mouse did left click.
         public var down: ((NSEvent)->(Bool))? = nil
+        /// The mouse did right click.
         public var rightDown: ((NSEvent)->(Bool))? = nil
+        /// The mouse did left click up.
         public var up: ((NSEvent)->(Bool))? = nil
+        /// The mouse did right click up.
         public var rightUp: ((NSEvent)->(Bool))? = nil
         
-        public mutating func setup(_ events: [Event], handler: @escaping ((NSEvent)->(Bool))) {
+        mutating func setup(_ events: [Event], handler: @escaping ((NSEvent)->(Bool))) {
             if events.contains(.moved) {
                 self.moved = handler
             }
@@ -379,7 +471,7 @@ public extension ObservingView {
             }
         }
         
-        internal var trackingAreaOptions: NSTrackingArea.Options {
+        var trackingAreaOptions: NSTrackingArea.Options {
             var options: NSTrackingArea.Options = [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited]
             if (dragged != nil) {
                 options.insert(.enabledDuringMouseDrag)
@@ -391,46 +483,4 @@ public extension ObservingView {
         }
     }
 }
-
-
-public protocol PasteboardWriting { }
-extension String: PasteboardWriting { }
-extension NSImage: PasteboardWriting { }
-extension URL: PasteboardWriting { }
-extension NSColor: PasteboardWriting { }
-
-internal extension PasteboardWriting {
-    var nsPasteboardWriting: NSPasteboardWriting? {
-        return (self as? NSPasteboardWriting) ?? (self as? NSURL)
-    }
-}
-
-internal extension NSPasteboard {
-    func pasteboardWritings() -> [PasteboardWriting] {
-        var items = [PasteboardWriting]()
-        if let fileURLs = self.fileURLs {
-            items.append(contentsOf: fileURLs)
-        }
-        
-        if let color = self.color {
-            items.append(color)
-        }
-        
-        if let string = self.string {
-            items.append(string)
-        }
-        
-        if let images = self.images {
-            items.append(contentsOf: images)
-        }
-        return items
-    }
-}
-
-internal extension NSDraggingInfo {
-    func pasteboardWritings() -> [PasteboardWriting] {
-        return self.draggingPasteboard.pasteboardWritings()
-    }
-}
-
 #endif

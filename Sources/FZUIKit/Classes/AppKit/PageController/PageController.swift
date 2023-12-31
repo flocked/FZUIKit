@@ -137,7 +137,7 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        (view as? ObservingView)?.keyHandlers.keyDown = { event in
+        (view as? ObserverView)?.keyHandlers.keyDown = { event in
             return self.performKeyEquivalent(with: event)
         }
         delegate = self
@@ -152,7 +152,7 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     }
     
     public override func loadView() {
-        self.view = ObservingView()
+        self.view = ObserverView()
     }
     
     internal required init?(coder: NSCoder) {

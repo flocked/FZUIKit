@@ -97,7 +97,7 @@ extension NSButton {
             }
             
             if observerView == nil {
-                let observerView = ObservingView(frame: .zero)
+                let observerView = ObserverView(frame: .zero)
                 observerView.mouseHandlers.exited = { [weak self] event in
                     guard let self = self else { return true }
                     self.isHovered = false
@@ -224,7 +224,7 @@ extension NSButton {
         }
     }
     
-    internal var observerView: ObservingView? {
+    internal var observerView: ObserverView? {
         get { getAssociatedValue(key: "NSButton_observerView", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "NSButton_observerView", object: self)

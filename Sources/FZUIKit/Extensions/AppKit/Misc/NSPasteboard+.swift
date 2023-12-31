@@ -8,13 +8,13 @@
 #if os(macOS)
 import AppKit
 
-public extension NSPasteboard {
+extension NSPasteboard {
     /**
      Writes the specifed string to the pasteboard.
      
      - Parameter string: The string to be written.
      */
-    func write(_ string: String) {
+    public func write(_ string: String) {
         self.clearContents()
         self.setString(string, forType: .string)
     }
@@ -24,7 +24,8 @@ public extension NSPasteboard {
      
      - Parameter images: An array of images.
      */
-    func write(_ images: [NSImage]) {
+    public func write(_ images: [NSImage]) {
+        guard images.isEmpty != false else { return }
         self.clearContents()
         let writings = images.compactMap({$0 as NSPasteboardWriting})
         self.writeObjects(writings)
@@ -32,29 +33,36 @@ public extension NSPasteboard {
     
     /**
      Writes the specified urls to the pasteboard.
+     
      - Parameter urls: An array of urls.
      */
-    func write(_ urls: [URL]) {
+    public func write(_ urls: [URL]) {
+        guard urls.isEmpty != false else { return }
         self.clearContents()
         let writings = urls.compactMap({$0 as NSPasteboardWriting})
         self.writeObjects(writings)
     }
     
     /// Returns images for the pasteboard or `nil` if no images are available.
-    var images: [NSImage]? {
+    public var images: [NSImage]? {
         guard let images = readObjects(for: NSImage.self), images.isEmpty == false else {
             return nil
         }
         return images
     }
     
+    /// Returns a sound for the pasteboard or `nil` if no sound is available.
+    public var sound: NSSound? {
+        NSSound(pasteboard: self)
+    }
+    
     /// Returns a string for the pasteboard or `nil` if no string is available.
-    var string: String? {
+    public var string: String? {
         return self.pasteboardItems?.compactMap({$0.string(forType: .string)}).first
     }
     
     /// Returns file urls for the pasteboard or `nil` if no urls are available.
-    var fileURLs: [URL]? {
+    public var fileURLs: [URL]? {
         guard let urls = readObjects(for: NSURL.self), urls.isEmpty == false else {
             return nil
         }
@@ -62,34 +70,39 @@ public extension NSPasteboard {
     }
     
     /// Returns a color for the pasteboard or `nil` if no color is available.
-    var color: NSColor? {
+    public var color: NSColor? {
         NSColor(from: self)
     }
     
     /// Reads from the receiver objects that match the specified type.
-    internal func readObjects<V: NSPasteboardReading>(for: V.Type, options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> [V]?  {
+    func readObjects<V: NSPasteboardReading>(for: V.Type, options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> [V]?  {
         readObjects(forClasses: [V.self], options: nil) as? [V]
     }
 }
 
-public extension NSDraggingInfo {
+extension NSDraggingInfo {
     /// Returns images for the dragging info or `nil` if no images are available.
-    var images: [NSImage]? {
+    public var images: [NSImage]? {
         self.draggingPasteboard.images
     }
     
+    /// Returns a sound for the dragging info or `nil` if no sound is available.
+    public var sound: NSSound? {
+        self.draggingPasteboard.sound
+    }
+    
     /// Returns a string for the dragging info or `nil` if no string is available.
-    var string: String? {
+    public var string: String? {
         self.draggingPasteboard.string
     }
     
     /// Returns file urls for the dragging info or `nil` if no urls are available.
-    var fileURLs: [URL]? {
+    public var fileURLs: [URL]? {
         self.draggingPasteboard.fileURLs
     }
     
     /// Returns a color for the dragging info or `nil` if no color is available.
-    var color: NSColor? {
+    public var color: NSColor? {
         self.draggingPasteboard.color
     }
 }
