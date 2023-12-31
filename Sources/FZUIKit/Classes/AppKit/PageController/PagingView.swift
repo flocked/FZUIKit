@@ -161,7 +161,7 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
     }
 
     @available(*, unavailable)
-    internal required init?(coder _: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
@@ -169,7 +169,7 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
     private let pageController: PageController<ViewController, Element>
 }
 
-internal class TypedViewController<View: NSView>: NSViewController {
+class TypedViewController<View: NSView>: NSViewController {
     override func loadView() {
         view = View()
     }

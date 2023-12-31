@@ -169,7 +169,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         sharedInit()
     }
     
-    internal func sharedInit() {
+    func sharedInit() {
         self.drawsBackground = false
         self.isBordered = false
         self.textLayout = .wraps
@@ -195,11 +195,11 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         return canBecome
     }
     
-    internal func trimString(_ string: String) -> String {
+    func trimString(_ string: String) -> String {
         self.allowedCharacters.trimString(string)
     }
 
-    internal func isConforming(_ string: String) -> Bool {
+    func isConforming(_ string: String) -> Bool {
        if let minimumChars = minAmountChars, string.count < minimumChars {
             return false
         } else if let maxAmountChars = maxAmountChars, string.count > maxAmountChars {
@@ -246,17 +246,17 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         set { super.cellClass = newValue }
     }
 
-    internal var textCell: VerticallyCenteredTextFieldCell? {
+    var textCell: VerticallyCenteredTextFieldCell? {
         cell as? VerticallyCenteredTextFieldCell
     }
 
-    internal var placeholderSize: NSSize? { didSet {
+    var placeholderSize: NSSize? { didSet {
         if let placeholderSize_ = placeholderSize {
             placeholderSize = NSSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
         }
     }}
     
-    internal var lastContentSize = NSSize() { didSet {
+    var lastContentSize = NSSize() { didSet {
         lastContentSize = NSSize(width: ceil(self.lastContentSize.width), height: ceil(self.lastContentSize.height))
     }}
     
@@ -288,12 +288,12 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         }
     }
     
-    internal func stringValueSize() -> CGSize {
+    func stringValueSize() -> CGSize {
         let stringSize = self.attributedStringValue.size()
         return CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
     }
     
-    internal func placeholderStringSize() -> CGSize? {
+    func placeholderStringSize() -> CGSize? {
         let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         var attributedString: NSAttributedString? = nil
         if let placeholderAttributedString = self.placeholderAttributedString {
@@ -307,9 +307,9 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         return placeholderStringSize
     }
 
-    internal var previousStringValue: String = ""
-    internal var previousCharStringValue: String = ""
-    internal var previousSelectedRange: NSRange? = nil
+    var previousStringValue: String = ""
+    var previousCharStringValue: String = ""
+    var previousSelectedRange: NSRange? = nil
 
     public override func textDidBeginEditing(_ notification: Notification) {
         super.textDidBeginEditing(notification)

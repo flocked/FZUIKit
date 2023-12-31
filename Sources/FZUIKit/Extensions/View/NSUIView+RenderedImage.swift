@@ -14,7 +14,7 @@ import UIKit
 
 #if os(macOS)
 public extension NSView {
-    internal static var currentContext: CGContext? {
+    inteal static var currentContext: CGContext? {
         return NSGraphicsContext.current?.cgContext
     }
     

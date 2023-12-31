@@ -187,12 +187,12 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     }
      */
     
-    internal var _resolvedColor: NSColor? = nil
-    internal var _resolvedBorderColor: NSColor? = nil
-    internal var _resolvedShadowColor: NSColor? = nil
-    internal var _resolvedInnerShadowColor: NSColor? = nil
+    var _resolvedColor: NSColor? = nil
+    var _resolvedBorderColor: NSColor? = nil
+    var _resolvedShadowColor: NSColor? = nil
+    var _resolvedInnerShadowColor: NSColor? = nil
 
-    internal mutating func updateResolvedColors() {
+    mutating func updateResolvedColors() {
         self._resolvedColor = self.resolvedColor()
         self._resolvedBorderColor = self.border.resolvedColor()
         self._resolvedShadowColor = self.shadow.resolvedColor(withOpacity: false)

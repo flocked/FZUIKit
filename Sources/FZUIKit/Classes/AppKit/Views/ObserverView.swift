@@ -70,7 +70,7 @@ public class ObserverView: NSView {
         false
     }
     
-    internal func setupDragAndDrop(needsSetup: Bool) {
+    func setupDragAndDrop(needsSetup: Bool) {
         if needsSetup {
             self.registerForDraggedTypes([.fileURL, .png, .string, .tiff])
         } else {
@@ -88,7 +88,7 @@ public class ObserverView: NSView {
         self.initalSetup()
     }
     
-    internal func initalSetup() {
+    func initalSetup() {
         trackingArea
         _trackingArea.options = mouseHandlers.trackingAreaOptions
         _trackingArea.update()

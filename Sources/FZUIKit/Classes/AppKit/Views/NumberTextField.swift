@@ -11,8 +11,8 @@ import FZSwiftUtils
 
 @IBDesignable
 public class NumberTextField: NSControl {
-    internal let stepper = NSStepper()
-    internal let textField = NSTextField()
+    let stepper = NSStepper()
+    let textField = NSTextField()
     
     @IBInspectable var showsStepper: Bool = false {
         didSet { guard oldValue != self.showsStepper else { return }
@@ -181,7 +181,7 @@ public class NumberTextField: NSControl {
         self.sharedInit()
     }
     
-    internal let spacing: CGFloat = 2.0
+    let spacing: CGFloat = 2.0
     public override var intrinsicContentSize: NSSize {
         var intrinsicContentSize = textField.intrinsicContentSize
         if (self.showsStepper) {
@@ -195,7 +195,7 @@ public class NumberTextField: NSControl {
         self.sharedInit()
     }
     
-    internal func sharedInit() {
+    func sharedInit() {
         stepper.actionBlock = { _ in
             self.stringValue = String(self.stepper.intValue)
         }
@@ -213,8 +213,8 @@ public class NumberTextField: NSControl {
         self.needsLayout = true
     }
     
-    internal var _preferredMaxLayoutWidth: CGFloat = 0
-    internal func updatePreferredMaxLayoutWidth() {
+    var _preferredMaxLayoutWidth: CGFloat = 0
+    func updatePreferredMaxLayoutWidth() {
         if self.showsStepper {
             self.textField.preferredMaxLayoutWidth = _preferredMaxLayoutWidth - spacing - stepper.intrinsicContentSize.width
         } else {
@@ -222,7 +222,7 @@ public class NumberTextField: NSControl {
         }
     }
     
-    internal func updateTextFormatter() {
+    func updateTextFormatter() {
         if self.numericStyle == .none, minValue == nil, maxValue == nil {
             self.textField.formatter = nil
         } else {

@@ -39,7 +39,7 @@ public extension NSUIView {
         }
     }
     
-    internal var visualEffectBackgroundView: TaggedVisualEffectView? {
+    var visualEffectBackgroundView: TaggedVisualEffectView? {
         get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView
         }
         set {
@@ -55,7 +55,7 @@ public extension NSUIView {
 }
 
 #if os(macOS)
-internal extension NSView {
+extension NSView {
     class TaggedVisualEffectView: NSVisualEffectView {
         public static var Tag: Int {
             return 3_443_024

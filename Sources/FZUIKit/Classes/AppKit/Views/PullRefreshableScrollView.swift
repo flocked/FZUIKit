@@ -21,7 +21,7 @@ public class PullRefreshableScrollView: NSScrollView {
         case bottom
     }
 
-    internal func viewFor(edge: ViewEdge) -> NSView? {
+    func viewFor(edge: ViewEdge) -> NSView? {
         switch edge {
         case .top:
             return accessoryViewHandlers.top?()
@@ -30,7 +30,7 @@ public class PullRefreshableScrollView: NSScrollView {
         }
     }
 
-    internal func notify(onEdge edge: ViewEdge, ifNeeded: Bool = true, ofState new: EdgeParameters.P2RState, was oldValue: EdgeParameters.P2RState) {
+    func notify(onEdge edge: ViewEdge, ifNeeded: Bool = true, ofState new: EdgeParameters.P2RState, was oldValue: EdgeParameters.P2RState) {
         if ifNeeded {
             guard new != oldValue else { return }
         }
@@ -52,9 +52,9 @@ public class PullRefreshableScrollView: NSScrollView {
         }
     }
 
-    internal typealias AnyEdgeParameters = EdgeParameters & EdgeScrollBehavior
+    typealias AnyEdgeParameters = EdgeParameters & EdgeScrollBehavior
 
-    internal class TopEdgeParameters: EdgeParameters, EdgeScrollBehavior {
+    class TopEdgeParameters: EdgeParameters, EdgeScrollBehavior {
         var scrollBaseValue: CGFloat {
             return 0
         }
@@ -84,7 +84,7 @@ public class PullRefreshableScrollView: NSScrollView {
         }
     }
 
-    internal class BottomEdgeParameters: EdgeParameters, EdgeScrollBehavior {
+    class BottomEdgeParameters: EdgeParameters, EdgeScrollBehavior {
         var scrollBaseValue: CGFloat {
             return (scrollView!.documentView?.frame.height ?? 0)
         }
@@ -114,9 +114,9 @@ public class PullRefreshableScrollView: NSScrollView {
         }
     }
 
-    internal lazy var topEdge = TopEdgeParameters(self, edge: .top)
-    internal lazy var bottomEdge = BottomEdgeParameters(self, edge: .bottom)
-    internal lazy var params: [ViewEdge: EdgeParameters & EdgeScrollBehavior] = [.top: topEdge, .bottom: bottomEdge]
+    lazy var topEdge = TopEdgeParameters(self, edge: .top)
+    lazy var bottomEdge = BottomEdgeParameters(self, edge: .bottom)
+    lazy var params: [ViewEdge: EdgeParameters & EdgeScrollBehavior] = [.top: topEdge, .bottom: bottomEdge]
 
     override public func viewDidMoveToWindow() {
         verticalScrollElasticity = .allowed
@@ -132,12 +132,12 @@ public class PullRefreshableScrollView: NSScrollView {
         accessoryViewsUpdated()
     }
 
-    internal func accessoryViewsUpdated() {
+    func accessoryViewsUpdated() {
         placeAccessoryView(topEdge.accessoryView, onEdge: .top)
         placeAccessoryView(bottomEdge.accessoryView, onEdge: .bottom)
     }
 
-    @objc internal func scrollViewFrameChanged(_: NSNotification) {
+    @objc func scrollViewFrameChanged(_: NSNotification) {
         guard let documentView = documentView else { return }
         let contentRect = documentView.frame
 
@@ -150,7 +150,7 @@ public class PullRefreshableScrollView: NSScrollView {
         }
     }
 
-    @objc internal func clipViewBoundsChanged(_: NSNotification) {
+    @objc func clipViewBoundsChanged(_: NSNotification) {
         if topEdge.viewState != .stuck, topEdge.enabled {
             let top = self.topEdge.isOverThreshold
             if top {
@@ -305,18 +305,18 @@ public extension PullRefreshableScrollView {
     }
 }
 
-internal protocol EdgeScrollBehavior {
+protocol EdgeScrollBehavior {
     var scrollBaseValue: CGFloat { get }
     var minimumScroll: CGFloat { get }
     var isOverThreshold: Bool { get }
     func resetScroll() // sends a scroll event to make the disappearance of the accessory view less brutal
 }
 
-internal class EdgeParameters {
+class EdgeParameters {
     weak var scrollView: PullRefreshableScrollView?
     var edge: PullRefreshableScrollView.ViewEdge
 
-    internal enum P2RState {
+    enum P2RState {
         case none
         case elastic
         case overpulled
@@ -333,15 +333,15 @@ internal class EdgeParameters {
         edge = myEdge
     }
 
-    internal var accessoryView: NSView? {
+    var accessoryView: NSView? {
         return scrollView!.viewFor(edge: edge) ?? nil
     }
 
-    internal var enabled: Bool {
+    var enabled: Bool {
         return accessoryView != nil
     }
 
-    internal var viewState: P2RState = .none {
+    var viewState: P2RState = .none {
         didSet {
             scrollView!.notify(onEdge: edge, ofState: viewState, was: oldValue)
         }

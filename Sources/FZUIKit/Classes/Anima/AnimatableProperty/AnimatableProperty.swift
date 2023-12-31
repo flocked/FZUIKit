@@ -420,7 +420,7 @@ protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableA
     func animatable(to other: any AnimatableColor) -> Self
 }
 
-internal extension AnimatableColor {
+extension AnimatableColor {
     func animatable(to other: any AnimatableColor) -> Self {
         if self.alpha == 0.0 {
             var animatableData = other.animatableData
@@ -434,13 +434,13 @@ internal extension AnimatableColor {
 extension CGColor: AnimatableColor { }
 
 extension NSUIColor: AnimatableColor {
-    internal var alpha: CGFloat {
+    var alpha: CGFloat {
         return alphaComponent
     }
 }
 
 extension Optional: AnimatableColor where Wrapped: AnimatableColor {
-    internal var alpha: CGFloat {
+    var alpha: CGFloat {
         self.optional?.alpha ?? 0.0
     }
 }

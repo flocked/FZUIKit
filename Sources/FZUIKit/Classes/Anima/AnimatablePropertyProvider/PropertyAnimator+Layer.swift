@@ -278,7 +278,7 @@ extension CALayer {
         }
     }
     
-    internal var _shadowColor: NSUIColor {
+    var _shadowColor: NSUIColor {
         get { shadowColor?.nsUIColor ?? .zero }
         set { shadowColor = newValue.cgColor }
     }
@@ -483,21 +483,21 @@ extension LayerAnimator where Layer: CAEmitterLayer {
     }
 }
 
-internal extension CAGradientLayer {
+extension CAGradientLayer {
     var _locations: [CGFloat] {
         get { locations?.compactMap({$0.doubleValue}) ?? []  }
         set { locations = newValue as [NSNumber] }
     }
 }
 
-internal extension CAShapeLayer {
+extension CAShapeLayer {
     var _lineDashPattern: [Double] {
         get {lineDashPattern?.compactMap({$0.doubleValue}) ?? [] }
         set { lineDashPattern = newValue as [NSNumber] }
     }
 }
 
-internal extension CAGradientLayer {
+extension CAGradientLayer {
     var _colors: [CGColor] {
         get {
            return (self.colors as? [CGColor]) ??  [] }

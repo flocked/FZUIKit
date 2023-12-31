@@ -33,7 +33,7 @@ public extension NSContentUnavailableConfiguration {
         
         public typealias SymbolConfiguration = ImageSymbolConfiguration
         
-        internal var hasContent: Bool {
+        var hasContent: Bool {
             (self.title != nil || self.atributedTitle != nil || self.image != nil)
         }
         
@@ -64,7 +64,7 @@ extension NSContentUnavailableConfiguration.ButtonConfiguration: Hashable {
 }
 
 @available(macOS 12.0, *)
-internal extension View {
+extension View {
     @ViewBuilder
     func buttonStyling(_ style: NSContentUnavailableConfiguration.ButtonConfiguration.Style) -> some View {
         switch style {

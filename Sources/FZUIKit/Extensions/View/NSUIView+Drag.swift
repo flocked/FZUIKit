@@ -27,7 +27,7 @@ public extension NSUIView {
         /// The view is movable and bounds to the superview.
         public static var boundsToSuperview = BackgroundDragOption.boundsToSuperview(.zero)
         
-        internal var margins: NSDirectionalEdgeInsets? {
+        var margins: NSDirectionalEdgeInsets? {
             switch self {
                 case .boundsToSuperview(let margins): return margins
                 default: return nil
@@ -51,7 +51,7 @@ public extension NSUIView {
         set { set(associatedValue: newValue, key: "movableViewVelocity", object: self) }
     }
     
-    internal func setupDragResizeGesture() {
+    func setupDragResizeGesture() {
         if isMovableByViewBackground != .off {
             if panGesture == nil {
                 panGesture = NSUIPanGestureRecognizer() { [weak self] gesture in

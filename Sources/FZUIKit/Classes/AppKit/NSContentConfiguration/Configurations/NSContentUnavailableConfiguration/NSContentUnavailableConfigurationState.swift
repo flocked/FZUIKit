@@ -18,7 +18,7 @@ public struct NSContentUnavailableConfigurationState: NSConfigurationState, Hash
         set { customStates[key] = newValue }
     }
     
-    internal var customStates = [NSConfigurationStateCustomKey:AnyHashable]()
+    var customStates = [NSConfigurationStateCustomKey:AnyHashable]()
     
 }
 #endif

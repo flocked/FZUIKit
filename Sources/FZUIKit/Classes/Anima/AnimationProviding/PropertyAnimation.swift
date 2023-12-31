@@ -57,7 +57,7 @@ open class PropertyAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         set {  _target = newValue.animatableData }
     }
     
-    internal var _target: Value.AnimatableData {
+    var _target: Value.AnimatableData {
         didSet {
             guard oldValue != _target else { return }
             if state == .running {
