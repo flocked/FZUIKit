@@ -354,7 +354,7 @@ extension BorderConfiguration: AnimatableProperty, Animatable {
 // MARK: - AnimatableCollection
 
 // Ensures two collections have the same count for animating between them. If a collection is smaller zero values are added.
-internal protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
+protocol AnimatableCollection: RangeReplaceableCollection, BidirectionalCollection {
     var count: Int { get }
     func animatable(to collection: any AnimatableCollection) -> Self
 }
@@ -372,18 +372,18 @@ extension Array: AnimatableProperty, AnimatableCollection where Element: Animata
         Self.init()
     }
     
-    internal func withNewValues(amount: Int) -> Self {
+    func withNewValues(amount: Int) -> Self {
         self + Array(repeating: .zero, count: amount)
     }
     
-    internal func animatable(to collection: any AnimatableCollection) -> Self {
+    func animatable(to collection: any AnimatableCollection) -> Self {
         let diff = collection.count - self.count
         return diff > 0 ? (self + Array(repeating: .zero, count: diff)) : self
     }
 }
 
 extension AnimatableArray: AnimatableCollection {
-    internal func animatable(to collection: any AnimatableCollection) -> Self {
+    func animatable(to collection: any AnimatableCollection) -> Self {
         let diff = collection.count - self.count
         return diff > 0 ? (self + Array(repeating: .zero, count: diff)) : self
     }
@@ -392,13 +392,13 @@ extension AnimatableArray: AnimatableCollection {
 // MARK: - AnimatableShadow
 
 // Updates shadows for better interpolation/animations.
-internal protocol AnimatableShadow {
+protocol AnimatableShadow {
     var color: NSUIColor? { get set }
     func animatable(to other: any AnimatableShadow) -> Self
 }
 
 extension AnimatableShadow {
-    internal func animatable(to other: AnimatableShadow) -> Self {
+    func animatable(to other: AnimatableShadow) -> Self {
         var shadow = self
         if self.color == nil || self.color?.alpha == 0.0, let otherColor = other.color {
             shadow.color = otherColor.withAlphaComponent(0.0)
@@ -415,7 +415,7 @@ extension BorderConfiguration: AnimatableShadow { }
 
 // MARK: - AnimatableColor
 
-internal protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
+protocol AnimatableColor: AnimatableProperty where AnimatableData == AnimatableArray<Double> {
     var alpha: CGFloat { get }
     func animatable(to other: any AnimatableColor) -> Self
 }

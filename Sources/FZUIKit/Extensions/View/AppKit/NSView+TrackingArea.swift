@@ -33,8 +33,9 @@ extension NSView {
         Creates a tracking area.
          
         - Parameters:
-            - view: The view to add tracking to.
-            - rect: The area inside the view to track. Defaults to the whole view (`view.bounds`).
+         - view: The view to add tracking to.
+         - rect: The area inside the view to track. The default value is `nil` which uses the view's bounds.
+         - options: The options for tracking. The default value is `[]` which doesn't track anything.
         */
         public init(for view: NSView, rect: CGRect? = nil, options: NSTrackingArea.Options = []) {
             self.view = view
