@@ -11,10 +11,10 @@ import AppKit
 public class VelocityMagnificationGestureRecognizer: NSMagnificationGestureRecognizer {
     /// Interprets the velocity of the magnification gesture in the coordinate system of the specified view.
     public var velocity: CGFloat = 1.0
-    var prevDate: Date = .init()
-    var prevMagnification = 1.0
+    internal var prevDate: Date = .init()
+    internal var prevMagnification = 1.0
 
-    func calculateVelocity() -> CGFloat {
+    internal func calculateVelocity() -> CGFloat {
         let timeInterval = Date().timeIntervalSince(prevDate)
         let velocityDiff = magnification - prevMagnification
         let velocity = (velocityDiff / timeInterval)

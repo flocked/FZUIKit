@@ -10,7 +10,7 @@ import AppKit
 import SwiftUI
 import FZSwiftUtils
 
-class NSHostingContentView<Content, Background>: NSView, NSContentView where Content: View, Background: View {
+internal class NSHostingContentView<Content, Background>: NSView, NSContentView where Content: View, Background: View {
     
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
@@ -43,17 +43,17 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
         self.updateConfiguration()
     }
     
-    var appliedConfiguration: NSHostingConfiguration<Content, Background> {
+    internal var appliedConfiguration: NSHostingConfiguration<Content, Background> {
         didSet { updateConfiguration() }
     }
     
-    func updateConfiguration() {
+    internal func updateConfiguration() {
         hostingController.rootView = HostingView(configuration: appliedConfiguration)
         
         self.margins = appliedConfiguration.margins
     }
     
-    var margins: NSDirectionalEdgeInsets {
+    internal var margins: NSDirectionalEdgeInsets {
         get {
             var edgeInsets = NSDirectionalEdgeInsets(top: hostingViewConstraints[0].constant, leading: hostingViewConstraints[1].constant, bottom: 0, trailing: 0)
             edgeInsets.width = -hostingViewConstraints[2].constant
@@ -68,7 +68,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
         }
     }
     
-    lazy var hostingController: NSUIHostingController<HostingView<Content, Background>> = {
+    internal lazy var hostingController: NSUIHostingController<HostingView<Content, Background>> = {
         let contentView = HostingView(configuration: appliedConfiguration)
         let hostingController = NSUIHostingController(rootView: contentView)
         hostingController.view.backgroundColor = .clear
@@ -81,7 +81,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
         super.invalidateIntrinsicContentSize()
     }
     
-    var hostingViewConstraints: [NSLayoutConstraint] = []
+    internal var hostingViewConstraints: [NSLayoutConstraint] = []
     
     override var intrinsicContentSize: CGSize {
         var intrinsicContentSize = super.intrinsicContentSize
@@ -104,7 +104,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
 }
 
 extension NSHostingContentView {
-    struct HostingView<V: View, B: View>: View {
+    internal struct HostingView<V: View, B: View>: View {
         let configuration: NSHostingConfiguration<V, B>
         
         init(configuration: NSHostingConfiguration<V, B>) {

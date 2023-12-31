@@ -350,7 +350,7 @@ extension ViewAnimator where View: NSUIScrollView {
     #endif
 }
 
-extension NSUIView {
+internal extension NSUIView {
     var _gradient: Gradient {
         get { self.gradient ?? .init(stops: []) }
         set { self.gradient = newValue }
@@ -482,7 +482,7 @@ extension ViewAnimator where View: NSProgressIndicator {
     }
 }
 
-extension NSView {
+internal extension NSView {
     func insertSubview(_ view: NSUIView, aboveSubview siblingSubview: NSUIView) {
         guard subviews.contains(siblingSubview) else { return }
         addSubview(view, positioned: .above, relativeTo: siblingSubview)
@@ -494,7 +494,7 @@ extension NSView {
     }
 }
 
-extension NSUIScrollView {
+internal extension NSUIScrollView {
     var magnificationCentered: CGFloat {
         get { magnification }
         set {
@@ -512,7 +512,7 @@ extension NSUIScrollView {
     }
 }
 
-extension NSBox {
+internal extension NSBox {
     var titleFontSize: CGFloat {
         get { titleFont.pointSize }
         set { titleFont = titleFont.withSize(newValue) }
@@ -528,7 +528,7 @@ extension ViewAnimator where View: UIView {
     }
 }
 
-extension PropertyAnimator<UIView> {
+internal extension PropertyAnimator<UIView> {
     var preventsUserInteractions: Bool {
         get { getAssociatedValue(key: "preventsUserInteractions", object: self, initialValue: false) }
         set { set(associatedValue: newValue, key: "preventsUserInteractions", object: self) }
@@ -597,7 +597,7 @@ extension ViewAnimator where View: UIProgressView {
     }
 }
 
-extension UIScrollView {
+internal extension UIScrollView {
     var zoomScaleCentered: CGFloat {
         get { zoomScale }
         set {
@@ -666,7 +666,7 @@ extension ViewAnimator {
         return velocity
     }
     
-    func layerAnimation(for keyPath: PartialKeyPath<ViewAnimator>) -> AnimationProviding? {
+    internal func layerAnimation(for keyPath: PartialKeyPath<ViewAnimator>) -> AnimationProviding? {
         switch keyPath {
         case \.backgroundColor: return object.optionalLayer?.animator._animation(for: \.backgroundColor)
         case \.borderColor: return object.optionalLayer?.animator._animation(for: \.borderColor)

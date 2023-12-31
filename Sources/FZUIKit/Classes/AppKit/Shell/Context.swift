@@ -141,7 +141,7 @@ public final class MainContext: ShellContext, CommandRunning {
 
 public let mainContext = MainContext()
 
-func + (leftpath: URL, rightpath: String) -> URL {
+internal func + (leftpath: URL, rightpath: String) -> URL {
     leftpath.appendingPathComponent(rightpath)
 }
 #endif

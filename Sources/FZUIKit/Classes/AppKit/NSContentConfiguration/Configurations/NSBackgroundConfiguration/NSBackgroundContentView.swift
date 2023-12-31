@@ -36,10 +36,10 @@ public class NSBackgroundView: NSView, NSContentView {
         self.updateConfiguration()
     }
     
-    let contentView = NSView()
-    var contentViewConstraints: [NSLayoutConstraint] = []
+    internal let contentView = NSView()
+    internal var contentViewConstraints: [NSLayoutConstraint] = []
     
-    var view: NSView? = nil {
+    internal var view: NSView? = nil {
         didSet {
             if oldValue != self.view {
                 oldValue?.removeFromSuperview()
@@ -49,8 +49,8 @@ public class NSBackgroundView: NSView, NSContentView {
             }
         }
     }
-    var imageView: ImageView? = nil
-    var image: NSImage? {
+    internal var imageView: ImageView? = nil
+    internal var image: NSImage? {
         get { imageView?.image }
         set {
             guard newValue != imageView?.image else { return }
@@ -69,11 +69,11 @@ public class NSBackgroundView: NSView, NSContentView {
         }
     }
     
-    var appliedConfiguration: NSBackgroundConfiguration {
+    internal var appliedConfiguration: NSBackgroundConfiguration {
         didSet { if oldValue != appliedConfiguration {
             self.updateConfiguration() } } }
     
-    func updateConfiguration() {
+    internal func updateConfiguration() {
         self.view = appliedConfiguration.view
         self.image = appliedConfiguration.image
         

@@ -35,12 +35,12 @@ public class NSContentUnavailableView: NSView, NSContentView {
         self.updateConfiguration()
     }
     
-    var backgroundConstraints: [NSLayoutConstraint] = []
-    var hostingConstraints: [NSLayoutConstraint] = []
+    internal var backgroundConstraints: [NSLayoutConstraint] = []
+    internal var hostingConstraints: [NSLayoutConstraint] = []
     
-    lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
+    internal lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
     
-    var appliedConfiguration: NSContentUnavailableConfiguration {
+    internal var appliedConfiguration: NSContentUnavailableConfiguration {
         didSet {
             if oldValue != appliedConfiguration {
                 updateConfiguration()
@@ -48,7 +48,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
         }
     }
     
-    func updateConfiguration() {
+    internal func updateConfiguration() {
         backgroundView.configuration = appliedConfiguration.background
         hostingView.rootView =  ContentView(configuration: self.appliedConfiguration)
         
@@ -63,7 +63,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
         hostingConstraints[3].constant = -appliedConfiguration.directionalLayoutMargins.height
     }
     
-    lazy var hostingView: NSHostingView<ContentView> = {
+    internal lazy var hostingView: NSHostingView<ContentView> = {
         let contentView = ContentView(configuration: self.appliedConfiguration)
         let hostingView = NSHostingView(rootView: contentView)
         hostingView.backgroundColor = .clear
@@ -79,7 +79,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
 }
 
 @available(macOS 12.0, *)
-extension NSContentUnavailableView {
+internal extension NSContentUnavailableView {
     struct ContentView: View {
         let configuration: NSContentUnavailableConfiguration
         

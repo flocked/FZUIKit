@@ -70,7 +70,7 @@ public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashabl
      */
     public var buttonOrientation: NSUIUserInterfaceLayoutOrientation = .vertical
     
-    var displayLoadingIndicator: Bool = false
+    internal var displayLoadingIndicator: Bool = false
     
     public func makeContentView() -> NSView & NSContentView {
         NSContentUnavailableView(configuration: self)
@@ -80,11 +80,11 @@ public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashabl
         return self
     }
     
-    var hasText: Bool {
+    internal var hasText: Bool {
         self.text != nil || self.attributedText != nil
     }
     
-    var hasSecondaryText: Bool {
+    internal var hasSecondaryText: Bool {
         self.secondaryText != nil || self.secondaryAttributedText != nil
     }
 }

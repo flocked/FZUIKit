@@ -70,7 +70,7 @@ public extension Shell {
     }
 }
 
-extension String {
+internal extension String {
     var escapingSpaces: String {
         return replacingOccurrences(of: " ", with: "\\ ")
     }

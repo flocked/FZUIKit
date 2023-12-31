@@ -36,10 +36,10 @@ public extension NSContentUnavailableConfiguration {
          */
         public var maximumSize: CGSize = .zero
         
-        var maximumWidth: CGFloat? {
+        internal var maximumWidth: CGFloat? {
             maximumSize.width != 0 ? maximumSize.width : nil
         }
-        var maximumHeight: CGFloat? {
+        internal var maximumHeight: CGFloat? {
             maximumSize.height != 0 ? maximumSize.height : nil
         }
     

@@ -88,7 +88,7 @@ public extension NSPageController {
         /// The displayed page can be changed via keyboard.
         public static var enabled: Self { return .enabled(transitionDuration: 0.0, looping: false) }
         
-        var transitionDuration: TimeInterval {
+        internal var transitionDuration: TimeInterval {
             switch self {
             case let .enabled(value, _):
                 return value
@@ -97,14 +97,14 @@ public extension NSPageController {
             }
         }
         
-        var isLooping: Bool {
+        internal var isLooping: Bool {
             switch self {
             case .enabled(_, let looping): return looping
             default: return false
             }
         }
 
-        var isEnabled: Bool {
+        internal var isEnabled: Bool {
             switch self {
             case .disabled:
                 return false

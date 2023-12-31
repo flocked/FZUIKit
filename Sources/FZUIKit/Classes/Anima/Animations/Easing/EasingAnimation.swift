@@ -103,7 +103,7 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
         set {  _target = newValue.animatableData }
     }
     
-    var _target: Value.AnimatableData {
+    internal var _target: Value.AnimatableData {
         didSet {
             guard oldValue != _target else { return }
             if state == .running {
@@ -117,19 +117,19 @@ public class EasingAnimation<Value: AnimatableProperty>: ConfigurableAnimationPr
 
             
     /// The start value of the animation.
-    var fromValue: Value {
+    internal var fromValue: Value {
         get { Value(_fromValue) }
         set { _fromValue = newValue.animatableData }
     }
     
-    var _fromValue: Value.AnimatableData
+    internal var _fromValue: Value.AnimatableData
     
-    var velocity: Value {
+    internal var velocity: Value {
         get { Value(_velocity) }
         set { _velocity = newValue.animatableData }
     }
     
-    var _velocity: Value.AnimatableData = .zero
+    internal var _velocity: Value.AnimatableData = .zero
         
     /// The callback block to call when the animation's ``value`` changes as it executes. Use the `currentValue` to drive your application's animations.
     public var valueChanged: ((_ currentValue: Value) -> Void)?

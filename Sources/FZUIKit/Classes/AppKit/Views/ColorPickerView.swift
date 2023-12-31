@@ -50,9 +50,9 @@ public class ColorPickerView: NSView {
 
     @IBOutlet public var nameTextField: NSTextField? = nil
 
-    var mouseLocation = CGPoint.zero
-    var hooveringColorIbdex = -1
-    var mouseMoved = false
+    internal var mouseLocation = CGPoint.zero
+    internal var hooveringColorIbdex = -1
+    internal var mouseMoved = false
 
     // MARK: -
 
@@ -68,7 +68,7 @@ public class ColorPickerView: NSView {
 
     // MARK: - Input
 
-    func beginMouseTracking() {
+    internal func beginMouseTracking() {
         let trackingArea1 = NSTrackingArea(rect: bounds, options: [.mouseMoved, .activeAlways], owner: self)
         addTrackingArea(trackingArea1)
 
@@ -99,7 +99,7 @@ public class ColorPickerView: NSView {
         setNeedsDisplay(bounds)
     }
 
-    func updateColorNameTextField() {
+    internal func updateColorNameTextField() {
         if mouseMoved, hooveringColorIbdex != -1 {
             nameTextField?.stringValue = colors[hooveringColorIbdex].name
             nameTextField?.textColor = .secondaryLabelColor
@@ -179,7 +179,7 @@ public class ColorPickerView: NSView {
 
     // MARK: -
 
-    func didSelectItem() {
+    internal func didSelectItem() {
         guard selectedColorIndexes.isEmpty == false else { return }
 
         let colors = selectedColors

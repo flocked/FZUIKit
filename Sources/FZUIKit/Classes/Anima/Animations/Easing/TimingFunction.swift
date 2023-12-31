@@ -292,15 +292,15 @@ extension TimingFunction {
 extension TimingFunction.Easing {
     //MARK: Quadratic
     
-    static func easeInQuad(_ t: Double) -> Double {
+    internal static func easeInQuad(_ t: Double) -> Double {
         return t * t
     }
     
-    static func easeOutQuad(_ t: Double) -> Double {
+    internal static func easeOutQuad(_ t: Double) -> Double {
         return -t * (t - 2)
     }
     
-    static func easeInOutQuad(_ t: Double) -> Double {
+    internal static func easeInOutQuad(_ t: Double) -> Double {
         var _t = t / 0.5
         if _t < 1.0 {
             return 0.5 * _t * _t
@@ -311,16 +311,16 @@ extension TimingFunction.Easing {
     
     //MARK: Cubic
     
-    static func easeInCubic(_ t: Double) -> Double {
+    internal static func easeInCubic(_ t: Double) -> Double {
         return t * t * t
     }
     
-    static func easeOutCubic(_ t: Double) -> Double {
+    internal static func easeOutCubic(_ t: Double) -> Double {
         let _t = t - 1.0
         return _t * _t * _t + 1
     }
     
-    static func easeInOutCubic(_ t: Double) -> Double {
+    internal static func easeInOutCubic(_ t: Double) -> Double {
         var _t = t / 0.5
         if _t < 1.0 {
             return 0.5 * _t * _t * _t
@@ -331,16 +331,16 @@ extension TimingFunction.Easing {
     
     //MARK: Quartic
     
-    static func easeInQuart(_ t: Double) -> Double {
+    internal static func easeInQuart(_ t: Double) -> Double {
         return t * t * t * t
     }
     
-    static func easeOutQuart(_ t: Double) -> Double {
+    internal static func easeOutQuart(_ t: Double) -> Double {
         let _t = t - 1.0
         return -(_t * _t * _t * _t + 1)
     }
     
-    static func easeInOutQuart(_ t: Double) -> Double {
+    internal static func easeInOutQuart(_ t: Double) -> Double {
         var _t = t / 0.5
         if _t < 1.0 {
             return 0.5 * _t * _t * _t * _t
@@ -351,16 +351,16 @@ extension TimingFunction.Easing {
     
     //MARK: Quintic
     
-    static func easeInQuint(_ t: Double) -> Double {
+    internal static func easeInQuint(_ t: Double) -> Double {
         return t * t * t * t * t
     }
     
-    static func easeOutQuint(_ t: Double) -> Double {
+    internal static func easeOutQuint(_ t: Double) -> Double {
         let _t = t - 1.0
         return _t * _t * _t * _t * _t + 1
     }
     
-    static func easeInOutQuint(_ t: Double) -> Double {
+    internal static func easeInOutQuint(_ t: Double) -> Double {
         var _t = t / 0.5
         if _t < 1.0 {
             return 0.5 * _t * _t * _t * _t * _t
@@ -371,29 +371,29 @@ extension TimingFunction.Easing {
     
     //MARK: Sinusoidal
     
-    static func easeInSine(_ t: Double) -> Double {
+    internal static func easeInSine(_ t: Double) -> Double {
         return -cos(t * (Double.pi/2.0)) + 1.0
     }
     
-    static func easeOutSine(_ t: Double) -> Double {
+    internal static func easeOutSine(_ t: Double) -> Double {
         return sin(t * (Double.pi/2.0))
     }
     
-    static func easeInOutSine(_ t: Double) -> Double {
+    internal static func easeInOutSine(_ t: Double) -> Double {
         return -0.5 * (cos(Double.pi * t) - 1.0)
     }
     
     //MARK: Exponential
     
-    static func easeInExpo(_ t: Double) -> Double {
+    internal static func easeInExpo(_ t: Double) -> Double {
         return pow(2.0, 10.0 * (t - 1.0))
     }
     
-    static func easeOutExpo(_ t: Double) -> Double {
+    internal static func easeOutExpo(_ t: Double) -> Double {
         return (-pow(2.0, -10.0 * t) + 1.0)
     }
     
-    static func easeInOutExpo(_ t: Double) -> Double {
+    internal static func easeInOutExpo(_ t: Double) -> Double {
         var _t = t / 0.5
         if _t < 1.0 {
             return 0.5 * pow(2.0, 10.0 * (_t - 1.0))
@@ -404,16 +404,16 @@ extension TimingFunction.Easing {
     
     //MARK: Circular
     
-    static func easeInCirc(_ t: Double) -> Double {
+    internal static func easeInCirc(_ t: Double) -> Double {
         return -(sqrt(1.0 - t * t) - 1.0)
     }
     
-    static func easeOutCirc(_ t: Double) -> Double {
+    internal static func easeOutCirc(_ t: Double) -> Double {
         let _t = t - 1.0
         return sqrt(1.0 - _t * _t)
     }
     
-    static func easeInOutCirc(_ t: Double) -> Double {
+    internal static func easeInOutCirc(_ t: Double) -> Double {
         var _t = t / 0.5
         if _t < 1.0 {
             return -0.5 * (sqrt(1.0 - _t * _t) - 1.0)
@@ -424,11 +424,11 @@ extension TimingFunction.Easing {
     
     //MARK: Bounce
     
-    static func easeInBounce(_ x: Double) -> Double {
+    internal static func easeInBounce(_ x: Double) -> Double {
         return 1 - easeOutBounce(1 - x)
     }
     
-    static func easeOutBounce(_ x: Double) -> Double {
+    internal static func easeOutBounce(_ x: Double) -> Double {
         if (x < 1 / 2.75) {
             return 7.5625 * x * x
         } else if (x < 2 / 2.75) {
@@ -440,7 +440,7 @@ extension TimingFunction.Easing {
         }
     }
     
-    static func easeInOutBounce(_ x: Double) -> Double {
+    internal static func easeInOutBounce(_ x: Double) -> Double {
         if (x < 0.5) {
             return (1 - easeOutBounce(1 - 2 * x)) / 2
         } else {
@@ -450,7 +450,7 @@ extension TimingFunction.Easing {
     
     //MARK: Elastic
     
-    static func easeInElastic(_ x: Double) -> Double {
+    internal static func easeInElastic(_ x: Double) -> Double {
         if (x == 0) {
             return 0
         } else if (x == 1) {
@@ -460,7 +460,7 @@ extension TimingFunction.Easing {
         }
     }
 
-    static func easeOutElastic(_ x: Double) -> Double {
+    internal static func easeOutElastic(_ x: Double) -> Double {
         if (x == 0) {
             return 0
         } else if (x == 1) {
@@ -470,7 +470,7 @@ extension TimingFunction.Easing {
         }
     }
 
-    static func easeInOutElastic(_ x: Double) -> Double {
+    internal static func easeInOutElastic(_ x: Double) -> Double {
         if (x == 0) {
             return 0
         } else if (x == 1) {
@@ -484,15 +484,15 @@ extension TimingFunction.Easing {
     
     //MARK: Back
     
-    static func easeInBack(_ x: Double) -> Double {
+    internal static func easeInBack(_ x: Double) -> Double {
         return 2.70158 * x * x * x - 1.70158 * x * x
     }
 
-    static func easeOutBack(_ x: Double) -> Double {
+    internal static func easeOutBack(_ x: Double) -> Double {
         return 1 + 2.70158 * pow(x - 1, 3) + 1.70158 * pow(x - 1, 2)
     }
 
-    static func easeInOutBack(_ x: Double) -> Double {
+    internal static func easeInOutBack(_ x: Double) -> Double {
         if (x < 0.5) {
             return (pow(2 * x, 2) * (7.189819 * x - 2.5949095)) / 2
         } else {

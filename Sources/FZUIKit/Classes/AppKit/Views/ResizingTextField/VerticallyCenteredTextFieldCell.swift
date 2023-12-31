@@ -47,7 +47,7 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
     public var trailingPadding: CGFloat = 0
     
     
-    var isEditingOrSelecting = false
+    internal var isEditingOrSelecting = false
     //  internal var isEditingHandler: ((Bool)->())? = nil
     
     override public func titleRect(forBounds rect: NSRect) -> NSRect {
@@ -65,7 +65,7 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         }
     }
     
-    func titleRectWithPadding(for rect: NSRect) -> NSRect {
+    internal func titleRectWithPadding(for rect: NSRect) -> NSRect {
         let isLTR = self.userInterfaceLayoutDirection == .leftToRight
         let newRect = NSRect(x: rect.origin.x + (isLTR ? self.leadingPadding : self.trailingPadding),
                                    y: rect.origin.y,

@@ -67,9 +67,9 @@ extension PropertyAnimator {
  ```
  */
 public class PropertyAnimator<Object: AnimatablePropertyProvider>: Searcher {
-    var object: Object
+    internal var object: Object
     
-    init(_ object: Object) {
+    internal init(_ object: Object) {
         self.object = object
     }
     /// A dictionary containing the current animated property keys and associated animations.
@@ -235,8 +235,8 @@ internal extension PropertyAnimator {
         }
     }
 }
- 
-extension PropertyAnimator {
+
+internal extension PropertyAnimator {
     /// The current animation for the property at the keypath or key, or `nil` if there isn't an animation for the keypath.
     func animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<Object, Value>) -> (any ConfigurableAnimationProviding)? {
         let key = keyPath.stringValue
