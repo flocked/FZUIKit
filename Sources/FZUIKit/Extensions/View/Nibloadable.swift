@@ -14,6 +14,7 @@ import AppKit
 import UIKit
 #endif
 
+/// A type that can be loaded from a nib or storyboard.
 public protocol Nibloadable {
     static func loadFromNib(_ nib: NSUINib) -> Self?
 }
