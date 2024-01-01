@@ -29,7 +29,7 @@ public protocol CAKeyframeAnimationEmittable  {
      - Returns: A fully configured `CAKeyframeAnimation` which represents the animation from the current animation's state to its resolved state.
      - Note: You will be required to change the `keyPath` of the `CAKeyFrameAnimation` in order for it to be useful.
 
-     ```
+     ```swift
      let animation = SpringAnimation(spring: .bouncy, value: 0.0, target: 100.0)
 
      let keyframeAnimation = animation.keyframeAnimation()
