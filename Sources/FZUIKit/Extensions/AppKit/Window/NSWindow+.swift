@@ -180,7 +180,6 @@ extension NSWindow {
             updateCornerRadius()
         }
     }
-    */
 
     /**
      The window’s corner curve.
@@ -229,8 +228,7 @@ extension NSWindow {
         }
     }
 
-    /*
-    internal func updateCornerRadius() {
+     internal func updateCornerRadius() {
         if cornerRadius >= 0 {
             backgroundColor = .clear
             isOpaque = false
