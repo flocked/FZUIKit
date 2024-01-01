@@ -26,7 +26,7 @@ public extension NSScrollView {
     }
     
     /**
-     The size of the document view, or `nil` if there isn't a document view.
+     The size of the document view, or `zero` if there isn't a document view.
      
      The value can be animated via `animator()`.
      */
