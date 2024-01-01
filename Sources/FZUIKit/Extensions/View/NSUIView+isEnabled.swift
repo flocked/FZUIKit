@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-/// A protocol for views that can be enabled.
+/// A type that can be enabled.
 public protocol Enablable: NSUIView {
     /// A Boolean value that indicates whether the view is enabled.
     var isEnabled: Bool { get set }

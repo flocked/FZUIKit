@@ -8,6 +8,12 @@
 #if os(macOS)
 import AppKit
 
+/// An object that can be shaked.
+public protocol Shakable: NSAnimatablePropertyContainer {
+    var frame: CGRect { get }
+    func setFrameOrigin(_ newOrigin: CGPoint)
+}
+
 public extension Shakable {
     func shake() {
         let numberOfShakes = 4
@@ -32,11 +38,6 @@ public extension Shakable {
         animations = ["frameOrigin": shakeAnimation]
         animator().setFrameOrigin(frame.origin)
     }
-}
-
-public protocol Shakable: NSAnimatablePropertyContainer {
-    var frame: CGRect { get }
-    func setFrameOrigin(_ newOrigin: CGPoint)
 }
 
 extension NSWindow: Shakable {}

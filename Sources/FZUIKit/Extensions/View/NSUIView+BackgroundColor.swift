@@ -14,7 +14,7 @@ import UIKit
 
 import FZSwiftUtils
 
-/// A protocol for objects with background color.
+/// A type that provides a background color.
 public protocol BackgroundColorSettable {
     /// The background color of the object.
     var backgroundColor: NSUIColor? { get set }
