@@ -89,7 +89,6 @@ public class ObserverView: NSView {
     }
     
     internal func initalSetup() {
-        trackingArea
         _trackingArea.options = mouseHandlers.trackingAreaOptions
         _trackingArea.update()
     }

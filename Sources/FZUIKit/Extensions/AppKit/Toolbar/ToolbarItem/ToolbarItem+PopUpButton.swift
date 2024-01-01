@@ -129,12 +129,26 @@ public extension ToolbarItem {
             return button
         }
 
+        /**
+         Creates a popup button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - items: The menu items of the popup button.
+         */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
             let button = Self.button()
             button.menu = NSMenu(title: "", items: items())
             self.init(identifier, popUpButton: button)
         }
 
+        /**
+         Creates a popup button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - popUpButton: The popup button of the item.
+         */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, popUpButton: NSPopUpButton) {
             self.button = popUpButton
             super.init(identifier)

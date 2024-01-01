@@ -91,6 +91,16 @@ public extension ToolbarItem {
             return segmentedControl
         }
 
+        /**
+         Creates a segmented control toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - type: The segmented control type. The default value is `automatic`.
+            - switching: The segmented control switching mode. The default value is `selectOne`.
+            - segmentWidths: The segmented control width. The default value is `nil`, which idicates no specific width.
+            - segments: The segments of the segmented control.
+         */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
             type: Style = .automatic,
             switching: SwitchingMode = .selectOne,
@@ -101,6 +111,13 @@ public extension ToolbarItem {
             self.init(identifier, segmentedControl: segmentedControl)
         }
 
+        /**
+         Creates a segmented control toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - segmentedControl: The segmented control of the item.
+         */
         public init(_ identifier: NSToolbarItem.Identifier? = nil,
                     segmentedControl: NSSegmentedControl)
         {

@@ -181,11 +181,26 @@ public extension ToolbarItem {
             return button
         }
 
+        /**
+         Creates a popover button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - popoverContentController: The view controller of the popover button.
+         */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, popoverContentController: NSViewController) {
             let button = Self.button(for: .momentaryChange)
             self.init(identifier, button: button, popoverContentController: popoverContentController)
         }
 
+        /**
+         Creates a popover button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - popoverContentController: The popover button.
+            - popoverContentController: The view controller of the popover button.
+         */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, popoverContentController: NSViewController) {
             self.button = button
             popoverViewController = popoverContentController

@@ -95,30 +95,54 @@ public extension ToolbarItem {
             return self
         }
 
+        /**
+         Creates a group toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - selectionMode: The selection mode of the item. The default value is `momentary`.
+            - items: The subitems.
+         */
         public init(
             _ identifier: NSToolbarItem.Identifier? = nil,
             selectionMode: SelectionMode = .momentary,
-            children: [NSToolbarItem]
+            items: [NSToolbarItem]
         ) {
             super.init(identifier)
-            groupItem.subitems = children
+            groupItem.subitems = items
             groupItem.selectionMode = selectionMode
         }
 
+        /**
+         Creates a group toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - selectionMode: The selection mode of the item. The default value is `momentary`.
+            - items: The subitems.
+         */
         public convenience init(
             _ identifier: NSToolbarItem.Identifier? = nil,
             selectionMode: SelectionMode = .momentary,
             _ items: NSToolbarItem...
         ) {
-            self.init(identifier, selectionMode: selectionMode, children: items)
+            self.init(identifier, selectionMode: selectionMode, items: items)
         }
 
+        /**
+         Creates a group toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - selectionMode: The selection mode of the item. The default value is `momentary`.
+            - items: The subitems.
+         */
         public convenience init(
             _ identifier: NSToolbarItem.Identifier? = nil,
             selectionMode: SelectionMode = .momentary,
-            @NSToolbar.Builder builder: () -> [NSToolbarItem]
+            @NSToolbar.Builder items: () -> [NSToolbarItem]
         ) {
-            self.init(identifier, selectionMode: selectionMode, children: builder())
+            self.init(identifier, selectionMode: selectionMode, items: items())
         }
     }
 }

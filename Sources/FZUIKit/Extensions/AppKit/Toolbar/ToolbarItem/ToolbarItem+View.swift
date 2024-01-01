@@ -22,6 +22,13 @@ public extension ToolbarItem {
             set { item.view = newValue }
         }
 
+        /**
+         Creates a view toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - view: The view of the item.
+         */
         public init(
             _ identifier: NSToolbarItem.Identifier,
             view: NSView
@@ -30,6 +37,13 @@ public extension ToolbarItem {
             self.view = view
         }
 
+        /**
+         Creates a view toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - view: The `SwiftUI` view of the item.
+         */
         public convenience init(
             _ identifier: NSToolbarItem.Identifier,
             view: some SwiftUI.View

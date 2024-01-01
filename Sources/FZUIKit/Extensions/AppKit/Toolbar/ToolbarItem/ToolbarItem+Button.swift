@@ -168,12 +168,28 @@ public extension ToolbarItem {
             return button
         }
         
+        /**
+         Creates a button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - title: The title of the button.
+            - type: The button type.
+         */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)
             button.title = title
             self.init(identifier, button: button)
         }
         
+        /**
+         Creates a button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - image: The image of the button.
+            - type: The button type.
+         */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)
             button.title = ""
@@ -181,6 +197,14 @@ public extension ToolbarItem {
             self.init(identifier, button: button)
         }
         
+        /**
+         Creates a button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - symbolName: The symbol image name of the button.
+            - type: The button type.
+         */
         @available(macOS 11.0, *)
         public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, type: NSButton.BezelStyle = .texturedRounded) {
             guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
@@ -190,6 +214,15 @@ public extension ToolbarItem {
             self.init(identifier, button: button)
         }
 
+        /**
+         Creates a button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - title: The title of the button.
+            - image: The image of the button.
+            - type: The button type.
+         */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
             let button = Self.button(for: type)
             button.title = title
@@ -197,6 +230,13 @@ public extension ToolbarItem {
             self.init(identifier, button: button)
         }
 
+        /**
+         Creates a button toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - button: The button.
+         */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton) {
             self.button = button
             super.init(identifier)
