@@ -148,14 +148,14 @@ public struct TextConfiguration {
         return properties
     }
     
-    /// A default text configuration for a primary text.
+    /// A text configuration for a primary text.
     public static var primary: Self {
         var text = Self()
         text.numberOfLines = 1
         return text
     }
     
-    /// A default text configuration for a secondary text.
+    /// A text configuration for a secondary text.
     public static var secondary: Self {
         var text = Self()
         text.font = .callout
@@ -168,7 +168,7 @@ public struct TextConfiguration {
         return text
     }
     
-    /// A default text configuration for a tertiary text.
+    /// A text configuration for a tertiary text.
     public static var tertiary: Self {
         var text = Self()
         text.font = .callout
@@ -181,70 +181,70 @@ public struct TextConfiguration {
         return text
     }
     
-    /// Text configuration with a font for bodies.
+    /// A text configurationn with a font for bodies.
     public static var body: Self {
         var text = Self.system(.body)
         text.swiftUIFont = .body
         return text
     }
     
-    /// Text configuration with a font for callouts.
+    /// A text configurationn with a font for callouts.
     public static var callout: Self {
         var text = Self.system(.callout)
         text.swiftUIFont = .callout
         return text
     }
-    /// Text configuration with a font for captions.
+    /// A text configurationn with a font for captions.
     public static var caption1: Self {
         var text = Self.system(.caption1)
         text.swiftUIFont = .caption
         return text
     }
-    /// Text configuration with a font for alternate captions.
+    /// A text configurationn with a font for alternate captions.
     public static var caption2: Self {
         var text = Self.system(.caption2)
         text.swiftUIFont = .caption2
         return text
     }
-    /// Text configuration with a font for footnotes.
+    /// A text configurationn with a font for footnotes.
     public static var footnote: Self {
         var text = Self.system(.footnote)
         text.swiftUIFont = .footnote
         return text
     }
-    /// Text configuration with a font for headlines.
+    /// A text configurationn with a font for headlines.
     public static var headline: Self {
         var text = Self.system(.headline)
         text.swiftUIFont = .headline
         return text
     }
-    /// Text configuration with a font for subheadlines.
+    /// A text configurationn with a font for subheadlines.
     public static var subheadline: Self {
         var text = Self.system(.subheadline)
         text.swiftUIFont = .subheadline
         return text
     }
     #if os(macOS) || os(iOS)
-    /// Text configuration with a font for large titles.
+    /// A text configurationn with a font for large titles.
     public static var largeTitle: Self {
         var text = Self.system(.largeTitle)
         text.swiftUIFont = .largeTitle
         return text
     }
     #endif
-    /// Text configuration with a font for titles.
+    /// A text configurationn with a font for titles.
     public static var title1: Self {
         var text = Self.system(.title1)
         text.swiftUIFont = .title
         return text
     }
-    /// Text configuration with a font for alternate titles.
+    /// A text configurationn with a font for alternate titles.
     public static var title2: Self {
         var text = Self.system(.title2)
         text.swiftUIFont = .title2
         return text
     }
-    /// Text configuration with a font for alternate titles.
+    /// A text configurationn with a font for alternate titles.
     public static var title3: Self {
         var text = Self.system(.title3)
         text.swiftUIFont = .title3
