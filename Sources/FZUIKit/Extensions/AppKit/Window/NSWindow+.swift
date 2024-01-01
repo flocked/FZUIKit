@@ -283,5 +283,5 @@ internal extension NSWindow {
 }
 
 /// The additional `NSWindow` keys of properties that can be animated.
-private let NSWindowAnimationKeys = ["cornerRadius", "roundedCorners", "borderWidth", "borderColor", "centerPoint"]
+private let NSWindowAnimationKeys = ["centerPoint"]
 #endif
