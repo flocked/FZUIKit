@@ -1,6 +1,6 @@
 //
 //  KeyFrameAnimation.swift
-//  
+//
 //
 //  Created by Florian Zand on 15.12.23.
 //
@@ -35,7 +35,7 @@ public class KeyFrameAnimation<Value: AnimatableProperty>: ConfigurableAnimation
     /// A Boolean value that indicates whether the animation automatically starts when the ``target`` value changes.
     public var autoStarts: Bool = false
     
-    /// The keyframe of the animation.
+    /// The keyframes of the animation.
     public var keyFrames: [KeyFrame] = []
     
     var currentKeyFrameIndex = 0
