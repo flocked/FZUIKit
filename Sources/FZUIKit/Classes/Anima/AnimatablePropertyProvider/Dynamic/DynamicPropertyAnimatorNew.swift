@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DynamicPropertyAnimator.swift
 //  
 //
 //  Created by Florian Zand on 16.12.23.

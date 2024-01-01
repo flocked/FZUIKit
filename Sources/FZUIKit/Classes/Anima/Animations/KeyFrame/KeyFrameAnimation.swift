@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  KeyFrameAnimation.swift
 //  
 //
 //  Created by Florian Zand on 15.12.23.
