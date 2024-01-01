@@ -18,7 +18,7 @@ public protocol Enablable: NSUIView {
     var isEnabled: Bool { get set }
 }
 
-extension NSUIView: Enablable {}
+extension NSUIView: Enablable { }
 
 public extension Enablable where Self: NSUIView {
     /// A Boolean value that indicates whether the view is enabled.

@@ -8,43 +8,60 @@
 #if os(macOS)
 import AppKit
 
-/// An object that can be shaked.
-public protocol Shakable: NSAnimatablePropertyContainer {
-    var frame: CGRect { get }
-    func setFrameOrigin(_ newOrigin: CGPoint)
-}
-
-public extension Shakable {
-    func shake() {
-        let numberOfShakes = 4
-        let durationOfShake: Float = 0.5
-        let vigourOfShake: CGFloat = 0.02
-
-        let shakeAnimation = CAKeyframeAnimation()
-
-        let shakePath = CGMutablePath()
-        shakePath.move(to: CGPoint(x: frame.minX, y: frame.minY))
-
-        for _ in 1 ... numberOfShakes {
-            shakePath.addLine(to: CGPoint(x: frame.minX - frame.size.width * vigourOfShake,
-                                          y: frame.minY))
-            shakePath.addLine(to: CGPoint(x: frame.minX + frame.size.width * vigourOfShake,
-                                          y: frame.minY))
-        }
-
-        shakePath.closeSubpath()
-        shakeAnimation.path = shakePath
-        shakeAnimation.duration = CFTimeInterval(durationOfShake)
+extension NSView {
+    /**
+     Shakes the view.
+     
+     - Parameters:
+        - numberOfShakes: The number of shakes. The default value is `4`.
+        - durationOfShake: The duration of each shake. The default value is `0.5`.
+        - vigourOfShake: The vigour of each shake. The default value is `0.02`.
+     */
+    func shake(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02) {
+        let shakeAnimation = shakeAnimation(numberOfShakes: numberOfShakes, durationOfShake: durationOfShake, vigourOfShake: vigourOfShake, frame: frame)
         animations = ["frameOrigin": shakeAnimation]
         animator().setFrameOrigin(frame.origin)
     }
 }
 
-extension NSWindow: Shakable {}
-extension NSView: Shakable {}
+extension NSWindow {
+    /**
+     Shakes the window.
+     
+     - Parameters:
+        - numberOfShakes: The number of shakes. The default value is `4`.
+        - durationOfShake: The duration of each shake. The default value is `0.5`.
+        - vigourOfShake: The vigour of each shake. The default value is `0.02`.
+     */
+    func shake(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02) {
+        let shakeAnimation = shakeAnimation(numberOfShakes: numberOfShakes, durationOfShake: durationOfShake, vigourOfShake: vigourOfShake, frame: frame)
+        animations = ["frameOrigin": shakeAnimation]
+        animator().setFrameOrigin(frame.origin)
+    }
+}
+
+fileprivate func shakeAnimation(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02, frame: CGRect) -> CAKeyframeAnimation {
+    let shakeAnimation = CAKeyframeAnimation()
+
+    let shakePath = CGMutablePath()
+    shakePath.move(to: CGPoint(x: frame.minX, y: frame.minY))
+
+    for _ in 1 ... numberOfShakes {
+        shakePath.addLine(to: CGPoint(x: frame.minX - frame.size.width * vigourOfShake,
+                                      y: frame.minY))
+        shakePath.addLine(to: CGPoint(x: frame.minX + frame.size.width * vigourOfShake,
+                                      y: frame.minY))
+    }
+
+    shakePath.closeSubpath()
+    shakeAnimation.path = shakePath
+    shakeAnimation.duration = CFTimeInterval(durationOfShake)
+    return shakeAnimation
+}
 
 #elseif os(iOS) || os(tvOS)
 import UIKit
+
 public extension UIView {
     /// Shakes the view.
     func shake() {
