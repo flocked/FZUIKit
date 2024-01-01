@@ -13,7 +13,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that contains a segmented control.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class Segmented: ToolbarItem {
         /// Switching mode of the segmented control.

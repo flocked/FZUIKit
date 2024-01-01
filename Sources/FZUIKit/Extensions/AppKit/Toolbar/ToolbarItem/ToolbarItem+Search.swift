@@ -13,7 +13,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that contains a search field optimized for performing text-based searches.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
         typealias SearchHandler = (NSSearchField, String, SearchState) -> Void

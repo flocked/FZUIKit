@@ -13,7 +13,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that displays the macOS share sheet.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class SharingServicePicker: ToolbarItem {
         internal lazy var servicePickerItem = NSSharingServicePickerToolbarItem(identifier)

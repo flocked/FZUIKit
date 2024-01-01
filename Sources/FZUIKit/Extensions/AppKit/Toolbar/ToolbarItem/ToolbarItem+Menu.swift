@@ -13,7 +13,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that presents a menu.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class Menu: ToolbarItem {
         internal lazy var menuItem: NSMenuToolbarItem = .init(identifier)

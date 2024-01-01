@@ -13,7 +13,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that displays a view.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class View: ToolbarItem {
         /// The view of the toolbar item.

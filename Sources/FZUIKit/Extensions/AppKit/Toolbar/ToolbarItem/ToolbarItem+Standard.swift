@@ -13,27 +13,27 @@ public extension ToolbarItem {
     /**
      A toolbar item that displays an empty space with a flexible width.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func FlexibleSpace() -> Item {
+    static func flexibleSpace() -> Item {
         return Item(.flexibleSpace)
     }
 
     /**
      A toolbar item that displays an empty space with a standard fixed size.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func Space() -> Item {
+    static func space() -> Item {
         return Item(.space)
     }
 
     /**
      A toolbar item that displays a sidebar.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func ToggleSidebar() -> Item {
+    static func toggleSidebar() -> Item {
         return Item(.toggleSidebar)
     }
 
@@ -41,45 +41,45 @@ public extension ToolbarItem {
     /**
      A toolbar item that displays a tracking separator aligned with the sidebar divider in a split view.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func SidebarTrackingSeparator() -> Item {
+    static func sidebarTrackingSeparator() -> Item {
         return Item(.sidebarTrackingSeparator)
     }
 
     /**
      A toolbar item that tells your app to print the current document.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func Print() -> Item {
+    static func print() -> Item {
         return Item(.print)
     }
 
     /**
      A toolbar item that shows the standard color panel.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func ShowColors() -> Item {
+    static func showColors() -> Item {
         return Item(.showColors)
     }
 
     /**
      A toolbar item that shows the standard font panel.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func ShowFonts() -> Item {
+    static func showFonts() -> Item {
         return Item(.showFonts)
     }
 
     /**
      A toolbar item that tells your app to display the iCloud sharing interface.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
-    static func CloudSharing() -> Item {
+    static func cloudSharing() -> Item {
         return Item(.cloudSharing)
     }
 }

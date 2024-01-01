@@ -14,7 +14,7 @@ public extension ToolbarItem {
     /**
      A toolbar separator that aligns with the vertical split view in the same window.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class TrackingSeparator: ToolbarItem {
         internal lazy var separatorItem = NSTrackingSeparatorToolbarItem(identifier)

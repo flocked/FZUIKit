@@ -12,7 +12,7 @@ public extension ToolbarItem {
     /**
      A toolbar item.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class Item: ToolbarItem {
         /// The title of the item.

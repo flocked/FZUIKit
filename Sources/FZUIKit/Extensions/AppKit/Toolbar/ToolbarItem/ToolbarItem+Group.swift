@@ -12,7 +12,7 @@ public extension ToolbarItem {
     /**
      A group of subitems in a toolbar item.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class Group: ToolbarItem {
         /// The selection mode of a grouped toolbar item.

@@ -12,7 +12,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that contains a popover button.
      
-     It can be used as an item of a ``Toolbar``.
+     The item can be used with ``Toolbar``.
      */
     class PopoverButton: ToolbarItem, NSPopoverDelegate {
         /// The button of the toolbar item that opens the popover.
