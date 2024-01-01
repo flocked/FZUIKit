@@ -17,20 +17,19 @@ public extension NSUIColor {
     /// A random color.
     static func random() -> NSUIColor {
         return NSUIColor(hue: CGFloat.random(in: 0.0 ... 1.0), saturation: 0.6, lightness: 0.5)
-        /*
-         return NSUIColor(red: CGFloat.random(in: 0.0...1.0), green: CGFloat.random(in: 0.0...1.0), blue: CGFloat.random(in: 0.0...1.0), alpha: 1.0)
-          */
     }
 
     /// A random pastel color.
     static func randomPastel() -> NSUIColor {
-        return NSUIColor(hue: CGFloat.random(in: 0.0 ... 1.0), saturation: 0.8, lightness: 0.8)
+        return NSUIColor(hue: .random(in: 0...1), saturation: 1.0, brightness: .random(in: 0.75...0.9), alpha: 1.0)
     }
 
     /**
      Returns a new color object in the specified `CGColorSpace`.
+     
      - Parameter colorSpace: The color space of the color.
-     - Returns: A `CGColor` object in the `CGColorSpace`.
+     
+     - Returns: A `NSColor` object in the color space.
      */
     func usingCGColorSpace(_ colorSpace: CGColorSpace) -> NSUIColor? {
         guard let cgColor = cgColor.converted(to: colorSpace, intent: .defaultIntent, options: nil) else { return nil }
@@ -54,20 +53,33 @@ public extension NSUIColor {
         self.alphaComponent != 0.0
     }
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS)
     /**
      Generates the resolved color for the specified view,.
+     
+     It uses the view's `effectiveAppearance` for resolving the color.
      
      - Parameter view: The view for the resolved color.
      - Returns: A resolved color for the view.
      */
     func resolvedColor(for view: NSUIView) -> NSUIColor {
-        #if os(macOS)
         self.resolvedColor(for: view.effectiveAppearance)
-        #elseif canImport(UIKit)
-        self.resolvedColor(with: view.traitCollection)
-        #endif
     }
+    #elseif os(iOS) || os(tvOS)
+    /**
+     Generates the resolved color for the specified view,.
+     
+     It uses the view's `traitCollection` for resolving the color.
+     
+     - Parameter view: The view for the resolved color.
+     - Returns: A resolved color for the view.
+     */
+    func resolvedColor(for view: NSUIView) -> NSUIColor {
+        self.resolvedColor(with: view.traitCollection)
+    }
+    #endif
+    
+    #if os(macOS) ||  os(iOS) || os(tvOS)
     
     /// A Boolean value that indicates whether the color contains a different light and dark color variant.
     var isDynamic: Bool {

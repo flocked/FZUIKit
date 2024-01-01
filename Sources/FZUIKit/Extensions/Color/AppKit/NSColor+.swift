@@ -42,7 +42,6 @@ public extension NSColor {
      Generates the resolved color for the specified appearance.
      
      - Parameter appearance: The appearance of the resolved color.
-     - Returns: A `NSColor` for the appearance.
      */
     func resolvedColor(for appearance: NSAppearance? = nil) -> NSColor {
         resolvedColor(for: appearance, colorSpace: nil) ?? self
