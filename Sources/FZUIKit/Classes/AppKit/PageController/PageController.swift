@@ -137,9 +137,6 @@ public class PageController<ViewController: NSViewController, Element>: NSPageCo
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        (view as? ObserverView)?.keyHandlers.keyDown = { event in
-            return self.performKeyEquivalent(with: event)
-        }
         delegate = self
         transitionStyle = .horizontalStrip
     }

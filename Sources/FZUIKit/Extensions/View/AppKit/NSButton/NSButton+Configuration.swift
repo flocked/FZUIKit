@@ -104,10 +104,24 @@ extension NSButton {
                     return true
                 }
                 
-                observerView.mouseHandlers.setup([.moved, .dragged, .entered]) { [weak self] event in
+                observerView.mouseHandlers.moved = { [weak self] event in
                     guard let self = self else { return true }
                     self.isHovered = true
-                    return true }
+                    return true
+                }
+                
+                observerView.mouseHandlers.dragged = { [weak self] event in
+                    guard let self = self else { return true }
+                    self.isHovered = true
+                    return true
+                }
+                
+                observerView.mouseHandlers.entered = { [weak self] event in
+                    guard let self = self else { return true }
+                    self.isHovered = true
+                    return true
+                }
+                
                 self.observerView = observerView
                 self.addSubview(withConstraint: observerView)
                 observerView.sendToBack()
