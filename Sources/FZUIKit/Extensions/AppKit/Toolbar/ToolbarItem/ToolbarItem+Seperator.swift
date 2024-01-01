@@ -34,6 +34,14 @@ public extension ToolbarItem {
             return self
         }
 
+        /**
+         Creates a tracking sseperator toolbar item.
+         
+         - Parameters:
+            - identifier: An optional identifier of the item.
+            - splitView: The tracked split view.
+            - splitView: The index of the divider.
+         */
         public init(_ identifier: NSToolbarItem.Identifier? = nil,
             splitView: NSSplitView,
             dividerIndex: Int
