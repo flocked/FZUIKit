@@ -25,35 +25,21 @@ extension NSView {
     /**
      Updates the background style of all nested subviews to the specified style.
      
-     It updates all subviews that implement ``setBackgroundStyle(_:)``: or are an `NSControl`, which have `NSCell` classes that respond to `backgroundStyle`.
+     It updates all subviews that implement ``setBackgroundStyle(_:)``: or are a `NSControl` or `NSTableCellView`.
           
      - Parameter backgroundStyle: The background style to apply.
      */
     @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
-        if let self = self as? ViewBackgroundStyleCustomizable, self.backgroundStyle != backgroundStyle {
+        if let self = self as? NSControl, self.backgroundStyle != backgroundStyle {
+            self.backgroundStyle = backgroundStyle
+        } else if let self = self as? NSTableCellView, self.backgroundStyle != backgroundStyle {
             self.backgroundStyle = backgroundStyle
         }
         
         for subview in subviews {
             subview.setBackgroundStyle(backgroundStyle)
         }
-        
-        /*         
-         let text = (self as? NSTextField)?.stringValue ?? ""
-         if let superview = self.superview {
-             Swift.print(viewLevel, "setBackgroundStyle:", backgroundStyle.rawValue, type(of: self), text, type(of: superview))
-         } else {
-             Swift.debugPrint(viewLevel, "setBackgroundStyle:", backgroundStyle.rawValue, type(of: self), text)
-         }
-         */
     }
 }
-
-protocol ViewBackgroundStyleCustomizable: NSView {
-   var backgroundStyle: NSView.BackgroundStyle { get set }
-}
-
-extension NSTableCellView: ViewBackgroundStyleCustomizable {  }
-extension NSControl: ViewBackgroundStyleCustomizable { }
 
 #endif

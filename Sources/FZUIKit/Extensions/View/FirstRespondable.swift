@@ -84,6 +84,7 @@ extension NSView {
      The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
      */
    @discardableResult override open func becomeFirstResponder() -> Bool {
+       Swift.print("nsview becomeFirstResponder")
        if self.acceptsFirstResponder, let window = self.window, window.firstResponder != self, !isChangingFirstResponder {
            isChangingFirstResponder = true
            window.makeFirstResponder(self)
@@ -109,8 +110,8 @@ extension NSView {
    }
    
    internal var isChangingFirstResponder: Bool {
-       get { getAssociatedValue(key: "NSView_isChangingFirstResponder", object: self, initialValue: false) }
-       set { set(associatedValue: newValue, key: "NSView_isChangingFirstResponder", object: self) }
+       get { getAssociatedValue(key: "isChangingFirstResponder", object: self, initialValue: false) }
+       set { set(associatedValue: newValue, key: "isChangingFirstResponder", object: self) }
    }
 }
 
@@ -146,8 +147,8 @@ extension NSViewController {
    }
    
    internal var isChangingFirstResponder: Bool {
-       get { getAssociatedValue(key: "NSViewController_isChangingFirstResponder", object: self, initialValue: false) }
-       set { set(associatedValue: newValue, key: "NSViewController_isChangingFirstResponder", object: self) }
+       get { getAssociatedValue(key: "isChangingFirstResponder", object: self, initialValue: false) }
+       set { set(associatedValue: newValue, key: "isChangingFirstResponder", object: self) }
    }
 }
 #endif
