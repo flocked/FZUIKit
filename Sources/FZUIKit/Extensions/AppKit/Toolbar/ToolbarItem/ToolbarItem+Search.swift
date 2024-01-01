@@ -16,20 +16,24 @@ public extension ToolbarItem {
      It can be used as an item of a ``Toolbar``.
      */
     class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
-        internal typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
+        typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
 
-        internal lazy var searchItem = NSSearchToolbarItem(identifier)
+        lazy var searchItem = NSSearchToolbarItem(identifier)
         override internal var item: NSToolbarItem {
             return searchItem
         }
 
+        /// State of the searching.
         public enum SearchState {
+            /// Searching did start.
             case didStart
+            /// Searching did update.
             case didUpdate
+            /// Searching did emd.
             case didEnd
         }
 
-        internal var searchHandler: SearchHandler? = nil
+        var searchHandler: SearchHandler? = nil
 
         /// The action handler getting called when the search string value changes.
         @discardableResult

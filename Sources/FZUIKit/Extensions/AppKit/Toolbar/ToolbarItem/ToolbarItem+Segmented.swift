@@ -16,7 +16,9 @@ public extension ToolbarItem {
      It can be used as an item of a ``Toolbar``.
      */
     class Segmented: ToolbarItem {
+        /// Switching mode of the segmented control.
         public typealias SwitchingMode = NSSegmentedControl.SwitchTracking
+        /// Style of the segmented control.
         public typealias Style = NSSegmentedControl.Style
 
         /// The segmented control of the toolbar item.
@@ -30,7 +32,7 @@ public extension ToolbarItem {
 
         /// The type of tracking behavior the segmented control exhibits.
         @discardableResult
-        public func switchingMode(_ mode: SwitchingMode) -> Self {
+        public func switchingMode(_ mode: NSSegmentedControl.SwitchTracking) -> Self {
             segmentedControl.trackingMode = mode
             return self
         }
@@ -83,7 +85,7 @@ public extension ToolbarItem {
             return self
         }
 
-        static func segmentedControl(switching: SwitchingMode, type: Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
+        static func segmentedControl(switching: NSSegmentedControl.SwitchTracking, type: Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
             let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
             segmentedControl.segmentDistribution = .fit
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
@@ -103,7 +105,7 @@ public extension ToolbarItem {
          */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
             type: Style = .automatic,
-            switching: SwitchingMode = .selectOne,
+            switching: NSSegmentedControl.SwitchTracking = .selectOne,
             segmentWidths: CGFloat? = nil,
             @NSSegmentedControl.Builder segments: () -> [NSSegment]
         ) {

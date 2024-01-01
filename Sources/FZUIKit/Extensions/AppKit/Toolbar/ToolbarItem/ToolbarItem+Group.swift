@@ -15,7 +15,9 @@ public extension ToolbarItem {
      It can be used as an item of a ``Toolbar``.
      */
     class Group: ToolbarItem {
+        /// The selection mode of a grouped toolbar item.
         public typealias SelectionMode = NSToolbarItemGroup.SelectionMode
+        /// Display style of a grouped toolbar item.
         public typealias ControlRepresentation = NSToolbarItemGroup.ControlRepresentation
 
         lazy var groupItem = NSToolbarItemGroup(identifier)
