@@ -13,23 +13,39 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-/// A protocol that indicating whether the conforming object is the first responder.
+/// A type that accepts first responder status of a window.
 public protocol FirstRespondable: NSUIResponder {
+    #if os(macOS)
     /**
      Returns a Boolean value indicating whether this object is the first responder.
 
-     AppKit and UIKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
+     `AppKit` dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
 
-     - Returns: `true if the responder is the first responder; otherwise, `false`.
+     - Returns: `true` if the responder is the first responder; otherwise, `false`.
      */
     var isFirstResponder: Bool { get }
-    #if os(macOS)
+    
+    /// A Boolean value that indicates whether the responder accepts first responder status.
     var acceptsFirstResponder: Bool { get }
     #elseif canImport(UIKit)
+    /**
+     Returns a Boolean value indicating whether this object is the first responder.
+
+     `UIKit` dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
+
+     - Returns: `true` if the responder is the first responder; otherwise, `false`.
+     */
+    var isFirstResponder: Bool { get }
+    
+    /// Returns a Boolean value indicating whether this object can become the first responder.
     var canBecomeFirstResponder: Bool { get }
     #endif
-    @discardableResult func resignFirstResponder() -> Bool
+    
+    /// Attempts to make a given responder the first responder for the window.
     @discardableResult func becomeFirstResponder() -> Bool
+    
+    /// Attempts to resign a given responder the first responder for the window.
+    @discardableResult func resignFirstResponder() -> Bool
 }
 
 extension NSUIView: FirstRespondable { }
@@ -84,7 +100,6 @@ extension NSView {
      The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
      */
    @discardableResult override open func becomeFirstResponder() -> Bool {
-       Swift.print("nsview becomeFirstResponder")
        if self.acceptsFirstResponder, let window = self.window, window.firstResponder != self, !isChangingFirstResponder {
            isChangingFirstResponder = true
            window.makeFirstResponder(self)
