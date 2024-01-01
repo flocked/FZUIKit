@@ -21,8 +21,8 @@ public extension ToolbarItem {
             return menuItem
         }
 
-        @discardableResult
         /// A Boolean value that determines whether the toolbar item displays an indicator of additional functionality.
+        @discardableResult
         public func showsIndicator(_ showsIndicator: Bool) -> Self {
             menuItem.showsIndicator = showsIndicator
             return self
@@ -34,8 +34,8 @@ public extension ToolbarItem {
             set { menuItem.showsIndicator = newValue }
         }
 
-        @discardableResult
         /// The menu presented from the toolbar item.
+        @discardableResult
         public func menu(_ menu: NSMenu) -> Self {
             menuItem.menu = menu
             return self

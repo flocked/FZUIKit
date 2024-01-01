@@ -15,20 +15,20 @@ public extension ToolbarItem {
      It can be used as an item of a ``Toolbar``.
      */
     class Item: ToolbarItem {
-        @discardableResult
         /// The title of the item.
+        @discardableResult
         public func title(_ title: String) -> Self {
             set(\.item.title, to: title)
         }
 
-        @discardableResult
         /// The image of the item, or `nil` if none.
+        @discardableResult
         public func image(_ image: NSImage?) -> Self {
             set(\.item.image, to: image)
         }
 
-        @discardableResult
         /// A Boolean value that indicates whether the toolbar item has a bordered style.
+        @discardableResult
         public func bordered(_ isBordered: Bool) -> Self {
             set(\.item.isBordered, to: isBordered)
         }
@@ -41,15 +41,15 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
         /// The action block of the item.
+        @discardableResult
         public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
             item.actionBlock = action
             return self
         }
 
-        @discardableResult
         /// The action block of the item.
+        @discardableResult
         public func onAction(_ handler: @escaping () -> Void) -> Self {
             item.actionBlock = { _ in
                 handler()

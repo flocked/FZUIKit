@@ -21,45 +21,45 @@ public extension ToolbarItem {
         /// The view controller of the popover.
         public weak var popoverViewController: NSViewController?
         
-        internal weak var popover: NSPopover?
+        weak var popover: NSPopover?
 
-        @discardableResult
         /// The title of the button.
+        @discardableResult
         public func title(_ title: String) -> Self {
             button.title = title
             return self
         }
 
-        @discardableResult
         /// The alternate title of the button.
+        @discardableResult
         public func alternateTitle(_ title: String) -> Self {
             button.alternateTitle = title
             return self
         }
 
-        @discardableResult
         /// The attributed title of the button.
+        @discardableResult
         public func attributedTitle(_ title: NSAttributedString) -> Self {
             button.attributedTitle = title
             return self
         }
 
-        @discardableResult
         /// The attributed alternate title of the button.
+        @discardableResult
         public func attributedAlternateTitle(_ title: NSAttributedString) -> Self {
             button.attributedAlternateTitle = title
             return self
         }
 
-        @discardableResult
         /// The button type.
+        @discardableResult
         public func type(_ type: NSButton.ButtonType) -> Self {
             button.setButtonType(type)
             return self
         }
 
-        @discardableResult
         /// The state of the button.
+        @discardableResult
         public func state(_ state: NSControl.StateValue) -> Self {
             button.state = state
             return self
@@ -71,72 +71,72 @@ public extension ToolbarItem {
             set { button.state = newValue }
         }
 
-        @discardableResult
         /// A Boolean value that determines whether the button has a border.
+        @discardableResult
         public func bordered(_ isBordered: Bool) -> Self {
             button.isBordered = isBordered
             return self
         }
 
-        @discardableResult
         /// A Boolean value that determines whether the button is transparent..
+        @discardableResult
         public func transparent(_ isTransparent: Bool) -> Self {
             button.isTransparent = isTransparent
             return self
         }
 
-        @discardableResult
         /// The image of the button, or `nil` if none.
+        @discardableResult
         public func image(_ image: NSImage?) -> Self {
             button.image = image
             return self
         }
 
-        @discardableResult
         /// The alternate image of the button, or `nil` if none.
+        @discardableResult
         public func alternateImage(_ image: NSImage?) -> Self {
             button.alternateImage = image
             return self
         }
 
-        @discardableResult
         /// The image position of the button.
+        @discardableResult
         public func imagePosition(_ position: NSControl.ImagePosition) -> Self {
             button.imagePosition = position
             return self
         }
 
-        @discardableResult
         /// The image scaling of the button.
+        @discardableResult
         public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
             button.imageScaling = imageScaling
             return self
         }
 
-        @discardableResult
         /// The bezel style of the button.
+        @discardableResult
         public func bezelStyle(_ style: NSButton.BezelStyle) -> Self {
             button.bezelStyle = style
             return self
         }
 
-        @discardableResult
         /// The bezel color of the button, or `nil` if none.
+        @discardableResult
         public func bezelColor(_ color: NSColor?) -> Self {
             button.bezelColor = color
             return self
         }
 
-        @discardableResult
         /// The key-equivalent character and modifier keys of the button.
+        @discardableResult
         public func shortcut(_ shortcut: String, holding modifiers: NSEvent.ModifierFlags = .command) -> Self {
             button.keyEquivalent = shortcut
             button.keyEquivalentModifierMask = modifiers
             return self
         }
 
-        @discardableResult
         /// The action block of the button.
+        @discardableResult
         public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
             self.button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
@@ -145,8 +145,8 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
         /// The action block of the button.
+        @discardableResult
         public func onAction(_ handler: @escaping () -> Void) -> Self {
             self.button.actionBlock = { _ in
                 handler()
@@ -154,7 +154,7 @@ public extension ToolbarItem {
             return self
         }
 
-        internal func showPopover() {
+        func showPopover() {
             if let p = popover {
                 p.close()
                 self.popover = nil
@@ -168,12 +168,12 @@ public extension ToolbarItem {
             self.popover = popover
         }
 
-        internal func closePopover() {
+        func closePopover() {
             popover?.close()
             popover = nil
         }
 
-        internal static func button(for type: NSButton.ButtonType) -> NSButton {
+        static func button(for type: NSButton.ButtonType) -> NSButton {
             let button = NSButton(frame: .zero)
             button.translatesAutoresizingMaskIntoConstraints = false
             button.bezelStyle = .texturedRounded

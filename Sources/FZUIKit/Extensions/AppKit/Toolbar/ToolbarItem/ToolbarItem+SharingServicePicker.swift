@@ -42,29 +42,29 @@ public extension ToolbarItem {
         /// The handlers for the sharing service picker.
         public var handlers: Handlers = Handlers()
 
-        @discardableResult
         /// Asks the items to share.
+        @discardableResult
         public func items(_ items: (() -> ([Any]))?) -> Self {
             handlers.items = items
             return self
         }
         
-        @discardableResult
         /// Returns the selected sharing service for the current item, or `nil` if none is selected.
+        @discardableResult
         public func didChoose(_ didChoose: ((_ service: NSSharingService?) -> ())?) -> Self {
             handlers.didChoose = didChoose
             return self
         }
         
-        @discardableResult
         /// Asks to specify which services to make available from the sharing service picker.
+        @discardableResult
         public func sharingServices(_ sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?) -> Self {
             handlers.sharingServices = sharingServices
             return self
         }
         
-        @discardableResult
         /// Asks to provide an object that the selected sharing service can use as its delegate.
+        @discardableResult
         public func delegate(_ delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?) -> Self {
             handlers.delegate = delegate
             return self

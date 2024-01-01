@@ -15,31 +15,32 @@ public extension ToolbarItem {
      It can be used as an item of a ``Toolbar``.
      */
     class Button: ToolbarItem {
+        /// The button of the item.
         public let button: NSButton
         
-        @discardableResult
         /// The title of the button.
+        @discardableResult
         public func title(_ title: String) -> Self {
             button.title = title
             return self
         }
         
-        @discardableResult
         /// The alternate title of the button.
+        @discardableResult
         public func alternateTitle(_ title: String) -> Self {
             button.alternateTitle = title
             return self
         }
 
-        @discardableResult
         /// The attributed title of the button.
+        @discardableResult
         public func attributedTitle(_ title: NSAttributedString) -> Self {
             button.attributedTitle = title
             return self
         }
 
-        @discardableResult
         /// The attributed alternate title of the button.
+        @discardableResult
         public func attributedAlternateTitle(_ title: NSAttributedString) -> Self {
             button.attributedAlternateTitle = title
             return self
@@ -74,24 +75,33 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
         /// The image of the button, or `nil` if none.
+        @discardableResult
         public func image(_ image: NSImage?) -> Self {
             button.image = image
             return self
         }
 
         @available(macOS 11.0, *)
+        /// The symbol image of the button.
         @discardableResult
         public func image(symbolName: String) -> Self {
             button.image = NSImage(systemSymbolName: symbolName) ?? button.image
             return self
         }
 
-        @discardableResult
         /// The alternate image of the button, or `nil` if none.
+        @discardableResult
         public func alternateImage(_ image: NSImage?) -> Self {
             button.alternateImage = image
+            return self
+        }
+        
+        @available(macOS 11.0, *)
+        /// The alternate symbol image of the button.
+        @discardableResult
+        public func alternateImage(symbolName: String) -> Self {
+            button.alternateImage = NSImage(systemSymbolName: symbolName) ?? button.image
             return self
         }
 
@@ -102,8 +112,8 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
         /// The image scaling of the button.
+        @discardableResult
         public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
             button.imageScaling = imageScaling
             return self
@@ -131,8 +141,9 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
+        
         /// The action block of the button.
+        @discardableResult
         public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
             self.button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
@@ -141,8 +152,8 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
         /// The action block of the button.
+        @discardableResult
         public func onAction(_ handler: @escaping () -> Void) -> Self {
             self.button.actionBlock = { _ in
                 handler()
@@ -150,7 +161,7 @@ public extension ToolbarItem {
             return self
         }
 
-        internal static func button(for type: NSButton.BezelStyle) -> NSButton {
+        static func button(for type: NSButton.BezelStyle) -> NSButton {
             let button = NSButton(frame: .zero)
             button.translatesAutoresizingMaskIntoConstraints = false
             button.bezelStyle = type

@@ -105,7 +105,7 @@ public extension ToolbarItem {
             self.searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
         }
         
-        internal func setupSearchField() {
+        func setupSearchField() {
             self.searchField.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 self.item.actionBlock?(self.item)

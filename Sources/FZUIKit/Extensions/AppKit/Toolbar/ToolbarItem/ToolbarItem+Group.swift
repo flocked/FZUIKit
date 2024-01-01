@@ -18,13 +18,13 @@ public extension ToolbarItem {
         public typealias SelectionMode = NSToolbarItemGroup.SelectionMode
         public typealias ControlRepresentation = NSToolbarItemGroup.ControlRepresentation
 
-        internal lazy var groupItem = NSToolbarItemGroup(identifier)
+        lazy var groupItem = NSToolbarItemGroup(identifier)
         override internal var item: NSToolbarItem {
             return groupItem
         }
 
-        @discardableResult
         /// The selection mode of the grouped toolbar item.
+        @discardableResult
         public func selectionMode(_ mode: SelectionMode) -> Self {
             groupItem.selectionMode = mode
             return self
@@ -36,8 +36,8 @@ public extension ToolbarItem {
             set { groupItem.selectionMode = newValue}
         }
 
-        @discardableResult
         /// A value that represents how a toolbar displays the grouped toolbar item.
+        @discardableResult
         public func controlRepresentation(_ representation: ControlRepresentation) -> Self {
             groupItem.controlRepresentation = representation
             return self
@@ -49,8 +49,8 @@ public extension ToolbarItem {
             set { groupItem.controlRepresentation = newValue}
         }
 
-        @discardableResult
         /// The subitems of the grouped toolbar item.
+        @discardableResult
         public func subitems(_ items: [NSToolbarItem]) -> Self {
             groupItem.subitems = items
             return self
@@ -62,8 +62,8 @@ public extension ToolbarItem {
             set { groupItem.subitems = newValue}
         }
         
-        @discardableResult
         /// The index value for the most recently selected subitem of the grouped toolbar item.
+        @discardableResult
         public func selectedIndex(_ selectedIndex: Int) -> Self {
             self.selectedIndex = selectedIndex
             return self
@@ -75,8 +75,8 @@ public extension ToolbarItem {
             set { groupItem.selectedIndex = newValue}
         }
         
-        @discardableResult
         /// The index values of the selected items in the group.
+        @discardableResult
         public func selectedIndexes(_ selectedIndexes: [Int]) -> Self {
             self.selectedIndexes = selectedIndexes
             return self
@@ -88,6 +88,7 @@ public extension ToolbarItem {
             set { groupItem.selectedIndexes = newValue}
         }
 
+        /// The subitems of the item.
         @discardableResult
         public func subitems(@NSToolbar.Builder builder: () -> [NSToolbarItem]) -> Self {
             groupItem.subitems = builder()

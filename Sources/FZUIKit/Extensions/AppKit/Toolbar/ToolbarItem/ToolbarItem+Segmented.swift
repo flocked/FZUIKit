@@ -28,36 +28,36 @@ public extension ToolbarItem {
             set { segmentedControl.segments = newValue }
         }
 
-        @discardableResult
         /// The type of tracking behavior the segmented control exhibits.
+        @discardableResult
         public func switchingMode(_ mode: SwitchingMode) -> Self {
             segmentedControl.trackingMode = mode
             return self
         }
 
-        @discardableResult
         /// The visual style used to display the segmented control.
+        @discardableResult
         public func type(_ type: Style) -> Self {
             segmentedControl.segmentStyle = type
             return self
         }
 
-        @discardableResult
         /// The color of the selected segment's bezel, in appearances that support it.
+        @discardableResult
         public func selectedSegmentBezelColor(_ color: NSColor?) -> Self {
             segmentedControl.selectedSegmentBezelColor = color
             return self
         }
 
-        @discardableResult
         /// The segments of the segmented control.
+        @discardableResult
         public func segments(_ segments: [NSSegment]) -> Self {
             segmentedControl.segments = segments
             return self
         }
 
-        @discardableResult
         /// The action block that is called when the selection of the segmented control changes.
+        @discardableResult
         public func onSelection(_ handler: @escaping ([NSSegment]) -> Void) -> Self {
             self.segmentedControl.actionBlock = { [weak self] segment in
                 guard let self = self else { return }
@@ -83,7 +83,7 @@ public extension ToolbarItem {
             return self
         }
 
-        internal static func segmentedControl(switching: SwitchingMode, type: Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
+        static func segmentedControl(switching: SwitchingMode, type: Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
             let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
             segmentedControl.segmentDistribution = .fit
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false

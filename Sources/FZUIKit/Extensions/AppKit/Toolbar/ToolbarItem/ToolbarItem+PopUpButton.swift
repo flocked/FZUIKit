@@ -18,8 +18,8 @@ public extension ToolbarItem {
         /// The popup button.
         public let button: NSPopUpButton
 
-        @discardableResult
         /// The action block of the button when the selection changes.
+        @discardableResult
         public func onSelect(_ action: ToolbarItem.ActionBlock?) -> Self {
             self.button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
@@ -28,8 +28,8 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
         /// The action block of the button when the selection changes.
+        @discardableResult
         public func onSelect(_ handler: @escaping () -> Void) -> Self {
             self.button.actionBlock = { _ in
                 handler()
@@ -37,8 +37,8 @@ public extension ToolbarItem {
             return self
         }
 
-        @discardableResult
         /// The menu of the popup button.
+        @discardableResult
         public func menu(_ menu: NSMenu) -> Self {
             button.menu = menu
             return self
@@ -50,22 +50,22 @@ public extension ToolbarItem {
             set { button.menu = newValue }
         }
 
-        @discardableResult
         /// The menu items of the popup button.
+        @discardableResult
         public func items(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
             button.menu = NSMenu(title: "", items: items())
             return self
         }
 
-        @discardableResult
         /// The string that is displayed on the popup button when the user isn’t pressing the mouse button.
+        @discardableResult
         public func title(_ title: String) -> Self {
             button.setTitle(title)
             return self
         }
 
-        @discardableResult
         /// A Boolean value indicating whether the button displays a pull-down or pop-up menu.
+        @discardableResult
         public func pullsDown(pullsDown: Bool) -> Self {
             button.pullsDown = pullsDown
             return self
@@ -92,30 +92,34 @@ public extension ToolbarItem {
         }
 
         /// Selects the item of the popup button at the specified index.
+        @discardableResult
         public func selectItem(at index: Int) -> Self {
             button.selectItem(at: index)
             return self
         }
 
         /// Selects the item of the popup button with the specified title.
+        @discardableResult
         public func selectItem(withTitle title: String) -> Self {
             button.selectItem(withTitle: title)
             return self
         }
 
         /// Selects the item of the popup button with the specified tag.
+        @discardableResult
         public func selectItem(withTag tag: Int) -> Self {
             button.selectItem(withTag: tag)
             return self
         }
 
         /// Selects the specified menu item of the popup button.
+        @discardableResult
         public func select(_ item: NSMenuItem) -> Self {
             button.select(item)
             return self
         }
 
-        internal static func button() -> NSPopUpButton {
+        static func button() -> NSPopUpButton {
             let button = NSPopUpButton(frame: .zero, pullsDown: true)
             button.translatesAutoresizingMaskIntoConstraints = true
             button.bezelStyle = .texturedRounded
