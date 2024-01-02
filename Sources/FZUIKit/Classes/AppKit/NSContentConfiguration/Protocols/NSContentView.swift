@@ -13,7 +13,7 @@ import AppKit
 
  This protocol provides a blueprint for a content view object that renders the content and styling that you define with its configuration. The content view’s configuration encapsulates all of the supported properties and behaviors for content view customization. Setting the content view’s configuration property applies the new configuration to the view, causing the view to render any updates to its appearance.
  */
-public protocol NSContentView {
+public protocol NSContentView: NSObjectProtocol {
     /**
      The current configuration of the view.
 
