@@ -80,7 +80,7 @@ public struct ShadowConfiguration: Hashable {
     public static func none() -> Self { return Self(color: nil, opacity: 0.0) }
     
     /// A configuration for a black shadow.
-    public static func black(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { return Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
+    public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { return Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
     
     #if os(macOS)
     /// A configuration for a accent color shadow.

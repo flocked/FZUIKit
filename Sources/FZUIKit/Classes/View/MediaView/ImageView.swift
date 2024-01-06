@@ -18,7 +18,7 @@ open class ImageView: NSControl {
             self.invalidateIntrinsicContentSize()
         }
     }
-
+    
     /**
      The images displayed in the image view.
      
@@ -42,6 +42,7 @@ open class ImageView: NSControl {
         get { imageLayer.imageScaling }
         set { imageLayer.imageScaling = newValue
               layerContentsPlacement = newValue.viewLayerContentsPlacement
+            resizeOverlayView()
         }
     }
     
@@ -51,6 +52,7 @@ open class ImageView: NSControl {
                 context in
                 context.duration = 0.0
                 imageLayer.frame.size = self.bounds.size
+                resizeOverlayView()
             }
         }
     }
@@ -302,6 +304,32 @@ open class ImageView: NSControl {
         super.init(frame: frameRect)
         sharedInit()
     }
+    
+    /**
+     A view for hosting layered content on top of the image view.
+     
+     Use this view to host content that you want layered on top of the image view. This view is managed by the image view itself and is automatically sized to fill the image view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
+     
+     The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `initclipsToBounds` property.
+     */
+    public let overlayContentView = NSView()
+    
+    func resizeOverlayView() {
+        if let imageSize = displayingImage?.size {
+            switch imageScaling {
+            case .resizeAspect:
+                if imageSize.width >= imageSize.height {
+                    overlayContentView.frame.size = imageSize.scaled(toWidth: bounds.width)
+                } else {
+                    overlayContentView.frame.size = imageSize.scaled(toHeight: bounds.height)
+                }
+            case .resize, .resizeAspectFill:
+                overlayContentView.frame.size = bounds.size
+            default:
+                overlayContentView.frame.size = imageSize
+            }
+        }
+    }
 
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -310,8 +338,10 @@ open class ImageView: NSControl {
 
     private func sharedInit() {
         wantsLayer = true
+        clipsToBounds = true
         self.layer?.addSublayer(imageLayer)
         imageScaling = .resizeAspect
+        self.addSubview(overlayContentView)
         //     self.layerContentsRedrawPolicy = .onSetNeedsDisplay
     }
 }

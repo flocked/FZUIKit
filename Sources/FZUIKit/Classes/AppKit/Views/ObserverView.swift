@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension NSView {
     /**
-     Observes the view by adding a hidden ``ObserverView`` as subview to the receiver and returning it.
+var     Observes the view by adding a hidden ``ObserverView`` as subview to the receiver and returning it.
      
      You can observe the window state, keyboard and mouse events and drag and drop of files for the view by using the correspoinding handlers of the `ObserverView`.
      
@@ -411,4 +411,142 @@ extension ObserverView {
         }
     }
 }
+
+extension NSView {
+    public var windowHandlersNew: WindowHandlers {
+        get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
+        set { set(associatedValue: newValue, key: "windowHandlers", object: self) }
+    }
+        
+    public var mouseHandlersNew: MouseHandlers {
+        get { getAssociatedValue(key: "mouseHandlers", object: self, initialValue: MouseHandlers()) }
+        set { set(associatedValue: newValue, key: "mouseHandlers", object: self) }
+    }
+    
+    ///The handlers for the window state.
+    public struct WindowHandlers {
+        /// The view will move to a window.
+        public var willMoveToWindow: ((NSWindow?)->())? = nil
+        
+        /// The view did move to a window.
+        public var didMoveToWindow: ((NSWindow)->())? = nil
+        
+        /// The window is key.
+        public var isKey: ((Bool)->())? = nil
+        
+        /// The window is main.
+        public var isMain: ((Bool)->())? = nil
+    }
+    
+    
+    /// The handlers for mouse events.
+    public struct MouseHandlers {
+        /// Options when the mouse handlers are active.
+        public enum ActiveOption: Int, Hashable {
+            /// The mouse handlers are always active.
+            case always
+            
+            /// The mouse handlers is active when the window is key.
+            case inKeyWindow
+            
+            /// The mouse handlers is active when the application is active.
+            case inActiveApp
+            
+            var option: NSTrackingArea.Options {
+                switch self {
+                case .always: return [.activeAlways]
+                case .inKeyWindow: return [.activeInKeyWindow]
+                case .inActiveApp: return [.activeInActiveApp]
+                }
+            }
+        }
+    
+    /// The mouse moved.
+    public var moved: ((NSEvent)->(Bool))? = nil
+    
+    /// The mouse dragged.
+    public var dragged: ((NSEvent)->(Bool))? = nil
+    
+    /// The mouse entered.
+    public var entered: ((NSEvent)->(Bool))? = nil
+    
+    /// The mouse entered.
+    public var exited: ((NSEvent)->(Bool))? = nil
+    
+    /// The mouse did left click.
+    public var down: ((NSEvent)->(Bool))? = nil
+    
+    /// The mouse did right click.
+    public var rightDown: ((NSEvent)->(Bool))? = nil
+    
+    /// The mouse did left click up.
+    public var up: ((NSEvent)->(Bool))? = nil
+    
+    /// The mouse did right click up.
+    public var rightUp: ((NSEvent)->(Bool))? = nil
+    
+    /// Option when the mouse handlers are active. The default value is `inKeyWindow`.
+    public var active: ActiveOption = .inKeyWindow
+    
+    var trackingAreaOptions: NSTrackingArea.Options {
+        var options: NSTrackingArea.Options = [.inVisibleRect, .mouseEnteredAndExited]
+        options.insert(active.option)
+        if (dragged != nil) {
+            options.insert(.enabledDuringMouseDrag)
+        }
+        if (moved != nil) {
+            options.insert(NSTrackingArea.Options.mouseMoved)
+        }
+        return options
+    }
+        
+        /*
+        func removeWindowKeyObserver() {
+            windowDidBecomeKeyObserver = nil
+            windowDidResignKeyObserver = nil
+        }
+        */
+}
+    
+    /*
+    func updateWindowObserver() {
+        if windowHandlers.isKey == nil {
+            self.removeWindowKeyObserver()
+        }
+        
+        if windowHandlers.isMain == nil {
+            self.removeWindowMainObserver()
+        }
+        
+        if let window = self.window {
+            self.observeWindowState(for: window)
+        }
+    }
+     */
+    
+    /*
+    var windowDidBecomeKeyObserver: NotificationToken? {
+        get { getAssociatedValue(key: "didBecomeKey", object: self) }
+    }
+    var windowDidResignKeyObserver: NotificationToken? {
+        get { getAssociatedValue(key: "didResignKey", object: self) }
+    }
+    
+    var windowDidBecomeMainObserver: NotificationToken? {
+        get { getAssociatedValue(key: "DidBecomeMain", object: self) }
+    }
+    var windowDidResignMainObserver: NotificationToken? {
+        get { getAssociatedValue(key: "DidResignMain", object: self) }
+        set { set(associatedValue: self, key: "DidResignMain", object: self) }
+    }
+    
+
+    func removeWindowMainObserverAlt() {
+        windowDidBecomeMainObserver = nil
+        windowDidResignMainObserver = nil
+    }
+    */
+    
+}
+
 #endif
