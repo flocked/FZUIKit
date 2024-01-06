@@ -43,7 +43,7 @@ extension NSTextView {
         }
     }
 }
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS)
 extension UITextView {
     /**
      A Boolean value that indicates whether the text view is enabled.
