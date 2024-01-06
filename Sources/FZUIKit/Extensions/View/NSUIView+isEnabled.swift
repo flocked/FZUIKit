@@ -43,5 +43,22 @@ extension NSTextView {
         }
     }
 }
+#elseif os(iOS) || os(tvOS)
+extension UITextView {
+    /**
+     A Boolean value that indicates whether the text view is enabled.
+     
+     If `true`, the text view's `isEditable`will be `true` and it's text color will be `label`, else `isEditable`will be `true` and it's text color will be `secondaryLabel`.
+     */
+    public var isEnabled: Bool {
+        get { self.isEditable }
+        set {
+            isEditable = newValue
+            textColor = newValue ? .label : .secondaryLabel
+        }
+    }
+}
 #endif
+
 #endif
+
