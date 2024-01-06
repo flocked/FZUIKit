@@ -116,10 +116,6 @@ public extension CALayer {
             layerObserver = KeyValueObserver(layer)
         }
         
-        layerObserver?.add([\.cornerRadius], handler: { keyPath in 
-            
-        })
-        
         layerObserver?.add(\.cornerRadius) { old, new in
             guard old != new else { return }
             layerUpdate()
