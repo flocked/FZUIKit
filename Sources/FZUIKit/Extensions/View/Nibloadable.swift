@@ -58,8 +58,9 @@ public extension Nibloadable {
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
     static func loadFromNib() -> Self? {
+        let nibName = String(describing: self)
         #if os(macOS)
-        guard let nib = NSUINib(nibNamed: Self.className()) else { return nil }
+        guard let nib = NSUINib(nibNamed: nibName) else { return nil }
         #elseif canImport(UIKit)
         let nib = NSUINib(nibName: nibName)
         #endif
@@ -94,7 +95,7 @@ public extension Nibloadable {
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
     static func loadFromStoryboard(name: String = "Main", identifier: String? = nil) -> Self? {
-        let identifier = identifier ?? Self.className()
+        let identifier = identifier ?? String(describing: self)
         let storyboard = NSUIStoryboard(name: name, bundle: nil)
         return loadFromStoryboard(storyboard, identifier: identifier)
     }
@@ -109,7 +110,7 @@ public extension Nibloadable {
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
     static func loadFromStoryboard(_ storyboard: NSUIStoryboard, identifier: String? = nil) -> Self? {
-        let identifier = identifier ?? Self.className()
+        let identifier = identifier ?? String(describing: self)
         #if os(macOS)
         return storyboard.instantiateController(withIdentifier: identifier) as? Self
         #elseif canImport(UIKit)
