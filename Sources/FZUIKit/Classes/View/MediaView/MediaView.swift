@@ -452,6 +452,7 @@ open class MediaView: NSView {
         }
     }
     
+    /*
     public override var cornerRadius: CGFloat {
         get { imageView.cornerRadius }
         set {
@@ -459,6 +460,7 @@ open class MediaView: NSView {
             videoView.cornerRadius = newValue
         }
     }
+     */
     
     public override var borderWidth: CGFloat {
         get { imageView.borderWidth }
@@ -468,6 +470,7 @@ open class MediaView: NSView {
         }
     }
     
+    /*
     public override var borderColor: NSColor? {
         get { imageView.borderColor }
         set {
@@ -475,6 +478,7 @@ open class MediaView: NSView {
             videoView.borderColor = newValue
         }
     }
+*/
     
     open override func keyDown(with event: NSEvent) {
         if (handlers.keyDown?(event) ?? false) == false {
