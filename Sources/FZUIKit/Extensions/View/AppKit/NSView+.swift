@@ -15,7 +15,7 @@ extension NSView {
 
      This rectangle defines the size and position of the view in its window’s coordinate system. If the view isn't installed in a window, it will return zero.
      */
-    @objc open var frameInWindow: CGRect {
+    public var frameInWindow: CGRect {
         convert(bounds, to: nil)
     }
 
@@ -36,7 +36,7 @@ extension NSView {
      The scroll view can be accessed via the view's `enclosingScrollView` property.
      */
     @discardableResult
-    @objc open func addEnclosingScrollView() -> NSScrollView {
+    public func addEnclosingScrollView() -> NSScrollView {
         guard self.enclosingScrollView == nil else { return self.enclosingScrollView! }
         let scrollView = NSScrollView()
         scrollView.documentView = self
@@ -98,7 +98,7 @@ extension NSView {
 
      Changes to this property turns the view into a layer-backed view. The default value is `false`.
      */
-    @objc open var isOpaque: Bool {
+    public var isOpaque: Bool {
         get { layer?.isOpaque ?? false }
         set { wantsLayer = true
             layer?.isOpaque = newValue
@@ -265,7 +265,7 @@ extension NSView {
      
      The default value is `0.0`, which results in a view with no rounded corners.
      */
-    @objc open dynamic var cornerRadius: CGFloat {
+    public dynamic var cornerRadius: CGFloat {
         get { self._cornerRadius }
         set { self._cornerRadius = newValue }
     }
@@ -355,7 +355,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var borderWidth: CGFloat {
+    @objc public dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
         set {
             wantsLayer = true
@@ -369,7 +369,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc open dynamic var borderColor: NSColor? {
+    public dynamic var borderColor: NSColor? {
         get { layer?.borderColor?.nsColor }
         set {
             wantsLayer = true
@@ -427,7 +427,7 @@ extension NSView {
      
      The default value is `nil`, which results in a view with no shadow.
      */
-    @objc open dynamic var shadowColor: NSColor? {
+    public dynamic var shadowColor: NSColor? {
         get { self.shadowColorDynamic }
         set {
             wantsLayer = true
@@ -462,7 +462,7 @@ extension NSView {
      
      The default value is `zero`, which results in a view with no shadow offset.
      */
-    @objc open dynamic var shadowOffset: CGPoint {
+    @objc public dynamic var shadowOffset: CGPoint {
         get { (layer?.shadowOffset ?? .zero).point }
         set {
             wantsLayer = true
@@ -478,7 +478,7 @@ extension NSView {
      
      The default value is `0.0`, which results in a view with no shadow radius.
      */
-    @objc open dynamic var shadowRadius: CGFloat {
+    @objc public dynamic var shadowRadius: CGFloat {
         get { layer?.shadowRadius ?? .zero }
         set {
             wantsLayer = true
@@ -494,7 +494,7 @@ extension NSView {
      
      The default value is `0.0`, which results in a view with no shadow.
      */
-    @objc open dynamic var shadowOpacity: CGFloat {
+    @objc public dynamic var shadowOpacity: CGFloat {
         get { CGFloat(layer?.shadowOpacity ?? .zero) }
         set {
             wantsLayer = true
@@ -510,7 +510,7 @@ extension NSView {
      
      The default value is `nil`, which results in a view with no shadow path.
      */
-    @objc open dynamic var shadowPath: NSBezierPath? {
+    public dynamic var shadowPath: NSBezierPath? {
         get {
             if let cgPath = shadowPathAnimatable {
                 return NSBezierPath(cgPath: cgPath)
@@ -619,7 +619,7 @@ extension NSView {
     }
 
     /// Removes all tracking areas.
-    @objc open func removeAllTrackingAreas() {
+    public func removeAllTrackingAreas() {
         for trackingArea in trackingAreas {
             removeTrackingArea(trackingArea)
         }
@@ -630,7 +630,7 @@ extension NSView {
      
      A convinient way of `needsDisplay = true`.
      */
-    @objc open func setNeedsDisplay() {
+    public func setNeedsDisplay() {
         needsDisplay = true
     }
 
@@ -639,7 +639,7 @@ extension NSView {
 
      A convinient way of `needsLayout = true`.
      */
-    @objc open func setNeedsLayout() {
+    public func setNeedsLayout() {
         needsLayout = true
     }
 
@@ -648,19 +648,19 @@ extension NSView {
 
      A convinient way of `needsUpdateConstraints = true`.
      */
-    @objc open func setNeedsUpdateConstraints() {
+    public func setNeedsUpdateConstraints() {
         needsUpdateConstraints = true
     }
     
     /// A convinient way of `wantsLayer = true`.
     @discardableResult
-    @objc open func setWantsLayer() -> Self {
+    public func setWantsLayer() -> Self {
         wantsLayer = true
         return self
     }
 
     /// The parent view controller managing the view.
-    @objc open var parentController: NSViewController? {
+    public var parentController: NSViewController? {
         if let responder = nextResponder as? NSViewController {
             return responder
         }
@@ -668,7 +668,7 @@ extension NSView {
     }
 
     /// A Boolean value that indicates whether the view is visible.
-    @objc open var isVisible: Bool {
+    public var isVisible: Bool {
         window != nil && alphaValue != 0.0 && visibleRect != .zero && isHidden == false
     }
     
@@ -679,7 +679,7 @@ extension NSView {
         - point: The point in the view to scroll to.
         - animationDuration: The animation duration of the scolling.
      */
-    @objc open func scroll(_ point: CGPoint, animationDuration: CGFloat) {
+    func scroll(_ point: CGPoint, animationDuration: CGFloat) {
         if animationDuration > 0.0 {
             NSAnimationContext.runAnimationGroup {
                 context in
@@ -734,7 +734,7 @@ public extension NSView.AutoresizingMask {
     static let all: NSView.AutoresizingMask = [.height, .width, .minYMargin, .minXMargin, .maxXMargin, .maxYMargin]
 }
 
-extension CALayerContentsGravity {
+internal extension CALayerContentsGravity {
     var viewLayerContentsPlacement: NSView.LayerContentsPlacement {
         switch self {
         case .topLeft: return .topLeft
@@ -754,7 +754,7 @@ extension CALayerContentsGravity {
     }
 }
 
-extension NSView {
+internal extension NSView {
     /// Swizzles views to support additional properties for animating.
     static func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }
