@@ -13,6 +13,7 @@ public extension NSAnimationContext {
     class func runNonAnimated(_ changes: () -> Void) {
         self.runAnimationGroup({ context in
             context.duration = 0.0
+            context.allowsImplicitAnimation = true
             changes()
         })
     }
