@@ -34,25 +34,25 @@ public extension CATransaction {
         self.perform(duration: 0.0, animations: changes)
     }
     
-    /// The timing function of the transactions.
+    /// The timing function of the current transaction group.
     static var timingFunction: CAMediaTimingFunction? {
         get { value(forKey: kCATransactionAnimationTimingFunction) as? CAMediaTimingFunction }
         set { setValue(newValue, forKey: kCATransactionAnimationTimingFunction) }
     }
     
-    /// A Boolean value that indicates whether changes made within the transaction group are suppressed.
+    /// A Boolean value that indicates whether changes made within the current transaction group are suppressed.
     static var disableActions: Bool {
         get { (value(forKey: kCATransactionDisableActions) as? Bool) ?? false }
         set { setValue(newValue, forKey: kCATransactionDisableActions) }
     }
     
-    /// The animation duration of the transactions.
+    /// The animation duration of the current transaction group.
     static var animationDuration: TimeInterval {
         get { (value(forKey: kCATransactionAnimationDuration) as? TimeInterval) ?? 0.0 }
         set { setValue(newValue, forKey: kCATransactionAnimationDuration) }
     }
     
-    /// The completion block object that is called (on the main thread) as soon as all animations subsequently have completed.
+    /// The completion block object that is called (on the main thread) as soon as all animations of the current transaction group have completed.
     static var completionBlock: (()->())? {
         get {
             if let block = value(forKey: kCATransactionCompletionBlock) {
