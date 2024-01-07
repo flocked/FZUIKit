@@ -271,7 +271,7 @@ extension NSView {
     }
     
     // fix for macOS 14.0 bug
-    @objc internal dynamic var _cornerRadius: CGFloat {
+    @objc dynamic var _cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
             let clipsToBounds = self.clipsToBounds
@@ -310,45 +310,24 @@ extension NSView {
         }
     }
     
-    /*
+    
     /**
      The border of the view.
      
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     dynamic public var border: BorderConfiguration {
-        get { 
-            if self.isProxy(), let proxyBorder = self.proxyBorder {
-                return proxyBorder
-            }
+        get {
             return dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
         set {
-            self.wantsLayer = true
-            Self.swizzleAnimationForKey()
-            self.proxyBorder = newValue
-            self.saveDynamicColor(newValue._resolvedColor, for: \.border)
             if newValue.needsDashedBordlerLayer {
-                self.configurate(using: newValue)
+                configurate(using: newValue)
             } else {
-                self.dashedBorderLayer?.removeFromSuperlayer()
-                var newColor = newValue._resolvedColor?.resolvedColor(for: self)
-                if newColor == nil, self.isProxy() {
-                    newColor = .clear
-                }
-                if self.borderColor?.isVisible == false || self.borderColor == nil {
-                    self.layer?.borderColor = newColor?.withAlphaComponent(0.0).cgColor
-                }
-                self.borderColor = newColor
+                self.borderColor = newValue._resolvedColor
                 self.borderWidth = newValue.width
             }
         }
     }
-    
-    internal var proxyBorder: BorderConfiguration? {
-        get { getAssociatedValue(key: "proxyBorder", object: self, initialValue: .none()) }
-        set { set(associatedValue: newValue, key: "proxyBorder", object: self) }
-    }
-     */
         
     /**
      The border width of the view.
@@ -387,7 +366,7 @@ extension NSView {
         }
     }
     
-    @objc internal dynamic var borderColorAnimatable: NSColor? {
+    @objc dynamic var borderColorAnimatable: NSColor? {
         get { layer?.borderColor?.nsColor }
         set { layer?.borderColor = newValue?.cgColor }
     }
@@ -415,7 +394,7 @@ extension NSView {
         }
     }
     
-    internal var proxyShadow: ShadowConfiguration? {
+    var proxyShadow: ShadowConfiguration? {
         get { getAssociatedValue(key: "proxyShadow", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "proxyShadow", object: self) }
     }
@@ -445,12 +424,12 @@ extension NSView {
         }
     }
     
-    internal dynamic var shadowColorDynamic: NSColor? {
+    dynamic var shadowColorDynamic: NSColor? {
         get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self) }
     }
     
-    @objc internal dynamic var shadowColorAnimatable: NSColor? {
+    @objc dynamic var shadowColorAnimatable: NSColor? {
         get { layer?.shadowColor?.nsColor }
         set { layer?.shadowColor = newValue?.cgColor }
     }
@@ -528,7 +507,7 @@ extension NSView {
         }
     }
     
-    @objc dynamic internal var shadowPathAnimatable: CGPath? {
+    @objc dynamic var shadowPathAnimatable: CGPath? {
         get { layer?.shadowPath }
         set { layer?.shadowPath = newValue }
     }
@@ -574,27 +553,27 @@ extension NSView {
         }
     }
     
-    internal var proxyInnerShadow: ShadowConfiguration? {
+    var proxyInnerShadow: ShadowConfiguration? {
         get { getAssociatedValue(key: "proxyInnerShadow", object: self, initialValue: layer?.innerShadowLayer?.configuration) }
         set { set(associatedValue: newValue, key: "proxyInnerShadow", object: self) }
     }
     
-    @objc internal dynamic var innerShadowColor: NSColor? {
+    @objc dynamic var innerShadowColor: NSColor? {
         get { self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
         set { self.layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
     }
     
-    @objc internal dynamic var innerShadowOpacity: CGFloat {
+    @objc dynamic var innerShadowOpacity: CGFloat {
         get { CGFloat(self.layer?.innerShadowLayer?.shadowOpacity ?? 0) }
         set { self.layer?.innerShadowLayer?.shadowOpacity = Float(newValue) }
     }
     
-    @objc internal dynamic var innerShadowRadius: CGFloat {
+    @objc dynamic var innerShadowRadius: CGFloat {
         get { self.layer?.innerShadowLayer?.configuration.radius ?? 0 }
         set { self.layer?.innerShadowLayer?.configuration.radius = newValue }
     }
     
-    @objc internal dynamic var innerShadowOffset: CGPoint {
+    @objc dynamic var innerShadowOffset: CGPoint {
         get { self.layer?.innerShadowLayer?.configuration.offset ?? .zero }
         set { self.layer?.innerShadowLayer?.configuration.offset = newValue }
     }
@@ -628,31 +607,41 @@ extension NSView {
     /**
      Marks the receiver’s entire bounds rectangle as needing to be redrawn.
      
-     A convinient way of `needsDisplay = true`.
+     A convinient way of setting `needsDisplay` to `true`.
      */
-    public func setNeedsDisplay() {
+    @discardableResult
+    public func setNeedsDisplay() -> Self {
         needsDisplay = true
+        return self
     }
 
     /**
      Invalidates the current layout of the receiver and triggers a layout update during the next update cycle.
 
-     A convinient way of `needsLayout = true`.
+     A convinient way of setting `needsLayout` to `true`.
      */
-    public func setNeedsLayout() {
+    @discardableResult
+    public func setNeedsLayout() -> Self {
         needsLayout = true
+        return self
     }
 
     /**
      Controls whether the view’s constraints need updating.
 
-     A convinient way of `needsUpdateConstraints = true`.
+     A convinient way of setting `needsUpdateConstraints` to `true`.
      */
-    public func setNeedsUpdateConstraints() {
+    @discardableResult
+    public func setNeedsUpdateConstraints() -> Self {
         needsUpdateConstraints = true
+        return self
     }
     
-    /// A convinient way of `wantsLayer = true`.
+    /**
+     Turns the view into a layer-backed view
+     
+     A convinient way of setting `wantsLayer` to `true`.
+     */
     @discardableResult
     public func setWantsLayer() -> Self {
         wantsLayer = true
@@ -667,9 +656,52 @@ extension NSView {
         return (nextResponder as? NSView)?.parentController
     }
 
-    /// A Boolean value that indicates whether the view is visible.
+    /**
+     A Boolean value that indicates whether the view is visible
+     
+     Returns `true` if the `window` isn't `nil`, the view isn't hidden, `alphaValue` isn't `0.0` and `visibleRect` isn't `zero`.
+     */
     public var isVisible: Bool {
         window != nil && alphaValue != 0.0 && visibleRect != .zero && isHidden == false
+    }
+    
+    /**
+     Resizes and repositions the view to it's superview using the specified scale.
+     
+     - Parameters option: The option for resizing and repositioning the view.
+     */
+    @objc open func resizeAndRepositionInSuperview(using option: CALayerContentsGravity) {
+        guard let superview = self.superview else { return }
+        switch option {
+        case .resize:
+            frame.size = superview.bounds.size
+        case .resizeAspect:
+            frame.size = frame.size.scaled(toFit: superview.bounds.size)
+        case .resizeAspectFill:
+            frame.size = frame.size.scaled(toFill: superview.bounds.size)
+        default:
+            break
+        }
+        switch option {
+        case .bottom:
+            frame.bottom = superview.bounds.bottom
+        case .bottomLeft:
+            frame.origin = .zero
+        case .bottomRight:
+            frame.bottomRight = superview.bounds.bottomRight
+        case .left:
+            frame.left = superview.bounds.left
+        case .right:
+            frame.right = superview.bounds.right
+        case .topLeft:
+            frame.topLeft = superview.bounds.topLeft
+        case .top:
+            frame.top = superview.bounds.top
+        case .topRight:
+            frame.topRight = superview.bounds.topRight
+        default:
+            center = superview.bounds.center
+        }
     }
     
     /**
@@ -714,7 +746,7 @@ extension NSView {
         }
     }
         
-    internal var alpha: CGFloat {
+    var alpha: CGFloat {
         get { guard let cgValue = layer?.opacity else { return 1.0 }
             return CGFloat(cgValue)
         }
@@ -734,7 +766,7 @@ public extension NSView.AutoresizingMask {
     static let all: NSView.AutoresizingMask = [.height, .width, .minYMargin, .minXMargin, .maxXMargin, .maxYMargin]
 }
 
-internal extension CALayerContentsGravity {
+extension CALayerContentsGravity {
     var viewLayerContentsPlacement: NSView.LayerContentsPlacement {
         switch self {
         case .topLeft: return .topLeft
@@ -754,7 +786,7 @@ internal extension CALayerContentsGravity {
     }
 }
 
-internal extension NSView {
+extension NSView {
     /// Swizzles views to support additional properties for animating.
     static func swizzleAnimationForKey() {
         guard didSwizzleAnimationForKey == false else { return }

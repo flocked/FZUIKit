@@ -40,8 +40,10 @@ open class ImageView: NSControl {
     /// The scaling of the image.
     open var imageScaling: CALayerContentsGravity {
         get { imageLayer.imageScaling }
-        set { imageLayer.imageScaling = newValue
-              layerContentsPlacement = newValue.viewLayerContentsPlacement
+        set { 
+            guard newValue != imageScaling else { return }
+            imageLayer.imageScaling = newValue
+            layerContentsPlacement = newValue.viewLayerContentsPlacement
             resizeOverlayView()
         }
     }
@@ -328,6 +330,29 @@ open class ImageView: NSControl {
             default:
                 overlayContentView.frame.size = imageSize
             }
+            switch imageScaling {
+            case .bottom:
+                overlayContentView.frame.bottom = bounds.bottom
+            case .bottomLeft:
+                overlayContentView.frame.origin = .zero
+            case .bottomRight:
+                overlayContentView.frame.bottomRight = bounds.bottomRight
+            case .left:
+                overlayContentView.frame.left = bounds.left
+            case .right:
+                overlayContentView.frame.right = bounds.right
+            case .topLeft:
+                overlayContentView.frame.topLeft = bounds.topLeft
+            case .top:
+                overlayContentView.frame.top = bounds.top
+            case .topRight:
+                overlayContentView.frame.topRight = bounds.topRight
+            default:
+                overlayContentView.center = bounds.center
+            }
+        } else {
+            overlayContentView.frame.size = bounds.size
+            overlayContentView.frame.origin = .zero
         }
     }
 

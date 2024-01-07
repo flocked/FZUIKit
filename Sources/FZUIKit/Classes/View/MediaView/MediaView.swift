@@ -67,6 +67,7 @@ open class MediaView: NSView {
         didSet { updateVideoViewConfiguration() }
     }
 
+    /// The scaling of the media.
     public var contentScaling: CALayerContentsGravity = .resizeAspect {
         didSet {
             imageView.imageScaling = contentScaling
@@ -384,11 +385,13 @@ open class MediaView: NSView {
 
     private func sharedInit() {
         wantsLayer = true
+        clipsToBounds = true
         contentScaling = .resizeAspectFill
         addSubview(withConstraint: imageView)
         addSubview(withConstraint: videoView)
     }
     
+    /*
     /// The scaling of the media.
     open var scaling: CALayerContentsGravity = .resizeAspect {
         didSet {
@@ -451,34 +454,39 @@ open class MediaView: NSView {
             videoView.frame.bottom = .zero
         }
     }
-    
-    /*
-    public override var cornerRadius: CGFloat {
-        get { imageView.cornerRadius }
-        set {
-            imageView.cornerRadius = newValue
-            videoView.cornerRadius = newValue
-        }
-    }
      */
     
-    public override var borderWidth: CGFloat {
-        get { imageView.borderWidth }
-        set {
-            imageView.borderWidth = newValue
-            videoView.borderWidth = newValue
-        }
+    /// The appearance of the media.
+    public struct MediaAppearance: Hashable {
+        /// The background color of the media.
+        public var backgroundColor: NSColor? = nil
+        /// The corner radius of the media.
+        public var cornerRadius: CGFloat = 0.0
+        /// The border of the media.
+        public var border: BorderConfiguration = .none()
+        /// The shadow of the media.
+        public var shadow: ShadowConfiguration = .none()
+        /// The inner shadow of the media.
+        public var innerShadow: ShadowConfiguration = .none()
     }
     
-    /*
-    public override var borderColor: NSColor? {
-        get { imageView.borderColor }
-        set {
-            imageView.borderColor = newValue
-            videoView.borderColor = newValue
+    /// The appearance of the media.
+    open var mediaAppearance = MediaAppearance() {
+        didSet {
+            guard oldValue != mediaAppearance else { return }
+            imageView.cornerRadius = mediaAppearance.cornerRadius
+            videoView.cornerRadius = mediaAppearance.cornerRadius
+            imageView.backgroundColor = mediaAppearance.backgroundColor
+            videoView.backgroundColor = mediaAppearance.backgroundColor
+            imageView.configurate(using: mediaAppearance.border)
+            videoView.configurate(using: mediaAppearance.border)
+            imageView.configurate(using: mediaAppearance.shadow, type: .outer)
+            videoView.configurate(using: mediaAppearance.shadow, type: .outer)
+            imageView.innerShadow = mediaAppearance.innerShadow
+            videoView.innerShadow = mediaAppearance.innerShadow
         }
     }
-*/
+
     
     open override func keyDown(with event: NSEvent) {
         if (handlers.keyDown?(event) ?? false) == false {
@@ -519,6 +527,59 @@ open class MediaView: NSView {
 }
 
 public class NoKeyDownPlayerView: AVPlayerView {
+    public init() {
+        super.init(frame: .zero)
+        addSubview(overlayContentView)
+    }
+    
+    public override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        addSubview(overlayContentView)
+    }
+    
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        addSubview(overlayContentView)
+    }
+    
+    /**
+     A view for hosting layered content on top of the image view.
+     
+     Use this view to host content that you want layered on top of the image view. This view is managed by the image view itself and is automatically sized to fill the image view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
+     
+     The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `initclipsToBounds` property.
+     */
+    public let overlayContentView = NSView()
+    
+    public override var videoGravity: AVLayerVideoGravity {
+        didSet {
+            guard oldValue != videoGravity else { return }
+            resizeOverlayView()
+        }
+    }
+    
+    public override func layout() {
+        super.layout()
+        resizeOverlayView()
+    }
+    
+    func resizeOverlayView() {
+        if let videoSize = player?.currentItem?.asset.videoNaturalSize {
+            switch videoGravity {
+            case .resizeAspect:
+                if videoSize.width >= videoSize.height {
+                    overlayContentView.frame.size = videoSize.scaled(toWidth: bounds.width)
+                } else {
+                    overlayContentView.frame.size = videoSize.scaled(toHeight: bounds.height)
+                }
+            case .resize, .resizeAspectFill:
+                overlayContentView.frame.size = bounds.size
+            default:
+                overlayContentView.frame.size = videoSize
+            }
+        }
+        overlayContentView.center = bounds.center
+    }
     
     /// A Boolean value that indicates whether to ignore `keyDown` events.
     public var ignoreKeyDown = true
