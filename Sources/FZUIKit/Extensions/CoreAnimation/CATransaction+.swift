@@ -13,18 +13,16 @@ public extension CATransaction {
      Animate changes to one or more layers using the specified duration, delay, options, and completion handler.
      
      - Parameters:
-        - duration: The total duration of the animations, measured in seconds.  If you specify a value of 0, the changes are made without animating them.
-        - timingFunction:  The timing function used for all animations within this transaction group.
+        - duration: The total duration of the animations, measured in seconds.  If you specify a value of 0, the changes are made without animating them. The default value is `0.25`.
+        - timingFunction:  An optional timing function used for all animations within this transaction group. The default value is `nil`.
         - animations: A block object containing the changes to commit to the layers. This is where you programmatically change any animatable properties of the layers in your view hierarchy.
-        - completion: A block object to be executed when the animation sequence ends.
+        - completion: An optional completion block object to be executed when the animation sequence ends. The default value is `nil`.
      
      */
-    static func perform(duration: CGFloat? = nil, timingFunction: CAMediaTimingFunction? = nil, animations: () -> Void, completion: (() -> Void)? = nil) {
+    static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, animations: () -> Void, completion: (() -> Void)? = nil) {
         CATransaction.begin()
         CATransaction.setCompletionBlock(completion)
-        if let duration = duration {
-            CATransaction.setAnimationDuration(duration)
-        }
+        CATransaction.setAnimationDuration(duration)
         CATransaction.setAnimationTimingFunction(timingFunction)
         CATransaction.setDisableActions(duration == 0.0)
         animations()
@@ -65,21 +63,13 @@ public extension CATransaction {
         }
         set { 
             if let newValue = newValue {
-                let val = newValue as CompletionBlock
-                let newVal : AnyObject = unsafeBitCast(val, to: AnyObject.self)
-
-                setValue(newVal, forKey: kCATransactionCompletionBlock)
+                let newValue = newValue as CompletionBlock
+                let value = unsafeBitCast(newValue, to: AnyObject.self)
+                setValue(value, forKey: kCATransactionCompletionBlock)
             } else {
                 setValue(nil, forKey: kCATransactionCompletionBlock)
             }
-            /*
-            (reinterpretCast(newValue) as (@objc_block () -> Void))()
-            Unmanaged<CompletionBlock>.passUnretained(newValue)
-            UnsafePointer(Unmanaged<AnyObject>.passUnretained(newValue).toOpaque())
-            let newValue : AnyObject = unsafeBitCast(newValue, to: AnyObject.self)
-            setValue(newValue, forKey: kCATransactionCompletionBlock) 
-             */
-            }
+        }
     }
     internal typealias CompletionBlock = @convention(block) () -> Void
 }
