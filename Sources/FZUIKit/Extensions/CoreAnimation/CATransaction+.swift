@@ -9,6 +9,12 @@
 import QuartzCore
 
 public extension CATransaction {
+    
+    /// Runs the changes of the specified block non-animated.
+    static func performNonAnimated(changes: ()->Void) {
+        self.perform(duration: 0.0, disableActions: true, animations: changes)
+    }
+    
     /**
      Animate changes to one or more layers using the specified duration, timing function, and completion handler.
      
@@ -28,11 +34,6 @@ public extension CATransaction {
         CATransaction.setDisableActions(disableActions)
         animations()
         CATransaction.commit()
-    }
-    
-    /// Runs the changes of the specified block non-animated.
-    static func performNonAnimated(changes: ()->Void) {
-        self.perform(duration: 0.0, disableActions: true, animations: changes)
     }
     
     /// The timing function of the current transaction group.
@@ -72,6 +73,7 @@ public extension CATransaction {
             }
         }
     }
+    
     internal typealias CompletionBlock = @convention(block) () -> Void
 }
 #endif
