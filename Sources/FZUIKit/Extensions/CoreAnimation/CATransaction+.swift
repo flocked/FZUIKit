@@ -14,24 +14,25 @@ public extension CATransaction {
      
      - Parameters:
         - duration: The duration of the animations, measured in seconds.  If you specify a value of `0, the changes are made without animating them. The default value is `0.25`.
-        - timingFunction:  An optional timing function for the animations. The default value is `nil`.
+        - timingFunction: An optional timing function for the animations. The default value is `nil`.
+        - disableActions: A Boolean value that indicates whether actions triggered as a result of property changes are suppressed. The default value is `false`.
         - animations: A block containing the changes to commit animated to the layers.
         - completionHandler: An optional completion block that is called when the animations have completed. The default value is `nil`.
      
      */
-    static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, animations: () -> Void, completionHandler: (() -> Void)? = nil) {
+    static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, disableActions: Bool = false, animations: () -> Void, completionHandler: (() -> Void)? = nil) {
         CATransaction.begin()
         CATransaction.setCompletionBlock(completionHandler)
         CATransaction.setAnimationDuration(duration)
         CATransaction.setAnimationTimingFunction(timingFunction)
-        CATransaction.setDisableActions(duration == 0.0)
+        CATransaction.setDisableActions(disableActions)
         animations()
         CATransaction.commit()
     }
     
     /// Runs the changes of the specified block non-animated.
     static func performNonAnimated(changes: ()->Void) {
-        self.perform(duration: 0.0, animations: changes)
+        self.perform(duration: 0.0, disableActions: true, animations: changes)
     }
     
     /// The timing function of the current transaction group.

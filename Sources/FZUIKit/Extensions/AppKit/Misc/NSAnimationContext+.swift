@@ -22,7 +22,7 @@ public extension NSAnimationContext {
      Runs the animation group.
      
      - Parameters:
-        - duration: The duration of the animations, measured in seconds. If you specify a value of `0`, the changes are made without animating them. The default value is `0.25`.
+        - duration: The duration of the animations, measured in seconds. If you specify a value of `0, the changes are made without animating them. The default value is `0.25`.
         - timingFunction: An optional timing function for the animations. The default value is `nil`.
         - allowsImplicitAnimation: A Boolean value that indicates whether the animator should dynamically provide all animatable properties of the object.animations are enabled or not for animations that occur as a result of another property change. The default value is `false`.
         - animations: A block containing the changes to animate.
