@@ -310,7 +310,6 @@ extension NSView {
         }
     }
     
-    
     /**
      The border of the view.
      
@@ -334,7 +333,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    @objc public dynamic var borderWidth: CGFloat {
+    @objc dynamic var borderWidth: CGFloat {
         get { layer?.borderWidth ?? 0.0 }
         set {
             wantsLayer = true
@@ -348,7 +347,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    public dynamic var borderColor: NSColor? {
+    dynamic var borderColor: NSColor? {
         get { layer?.borderColor?.nsColor }
         set {
             wantsLayer = true
