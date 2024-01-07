@@ -78,7 +78,7 @@ open class MediaView: NSView {
         if imageView.displayingImage != nil {
             return imageView.intrinsicContentSize
         }
-        if mediaType == .video, let videoSize = asset?.videoNaturalSize {
+        if let videoSize = asset?.videoNaturalSize {
             return videoSize
         }
         return .zero
@@ -120,7 +120,7 @@ open class MediaView: NSView {
                 showVideoView()
                 self.pause()
                 mediaType = .video
-                videoSize = asset.videoNaturalSize
+                mediaSize = asset.videoNaturalSize
                 if videoView.player == nil {
                     videoView.player = AVPlayer()
                 }
@@ -315,7 +315,7 @@ open class MediaView: NSView {
     }
 
     private var previousVideoPlaybackState: AVPlayer.State = .isStopped
-    private var videoSize: CGSize? = nil
+    private var mediaSize: CGSize? = nil
 
     private func updateVideoViewConfiguration() {
         videoView.player?.volume = volume
@@ -387,6 +387,93 @@ open class MediaView: NSView {
         contentScaling = .resizeAspectFill
         addSubview(withConstraint: imageView)
         addSubview(withConstraint: videoView)
+    }
+    
+    /// The scaling of the media.
+    open var scaling: CALayerContentsGravity = .resizeAspect {
+        didSet {
+            if let videoSize = asset?.videoNaturalSize {
+                
+            } else if let image = imageView.displayingImage {
+                
+            }
+        }
+    }
+    
+    func updateScaling() {
+        var mediaSize = intrinsicContentSize
+        if mediaSize != .zero {
+            switch scaling {
+            case .resizeAspect:
+                mediaSize = mediaSize.scaled(toFit: bounds.size)
+            case .resizeAspectFill:
+                mediaSize = mediaSize.scaled(toFill: bounds.size)
+            case .resize:
+                mediaSize = bounds.size
+            default:
+                break
+            }
+            imageView.frame.size = mediaSize
+            videoView.frame.size = mediaSize
+            switch scaling {
+            case .bottom:
+                imageView.frame.bottom = bounds.bottom
+                videoView.frame.bottom = bounds.bottom
+            case .bottomLeft:
+                imageView.frame.bottom = .zero
+                videoView.frame.bottom = .zero
+            case .bottomRight:
+                imageView.frame.bottomRight = bounds.bottomRight
+                videoView.frame.bottomRight = bounds.bottomRight
+            case .left:
+                imageView.frame.left = bounds.left
+                videoView.frame.left = bounds.left
+            case .right:
+                imageView.frame.right = bounds.right
+                videoView.frame.right = bounds.right
+            case .topLeft:
+                imageView.frame.topLeft = bounds.topLeft
+                videoView.frame.topLeft = bounds.topLeft
+            case .top:
+                imageView.frame.top = bounds.top
+                videoView.frame.top = bounds.top
+            case .topRight:
+                imageView.frame.topRight = bounds.topRight
+                videoView.frame.topRight = bounds.topRight
+            default:
+                imageView.center = bounds.center
+                videoView.center = bounds.center
+            }
+        } else {
+            imageView.frame.size = bounds.size
+            videoView.frame.size = bounds.size
+            imageView.frame.bottom = .zero
+            videoView.frame.bottom = .zero
+        }
+    }
+    
+    public override var cornerRadius: CGFloat {
+        get { imageView.cornerRadius }
+        set {
+            imageView.cornerRadius = newValue
+            videoView.cornerRadius = newValue
+        }
+    }
+    
+    public override var borderWidth: CGFloat {
+        get { imageView.borderWidth }
+        set {
+            imageView.borderWidth = newValue
+            videoView.borderWidth = newValue
+        }
+    }
+    
+    public override var borderColor: NSColor? {
+        get { imageView.borderColor }
+        set {
+            imageView.borderColor = newValue
+            videoView.borderColor = newValue
+        }
     }
     
     open override func keyDown(with event: NSEvent) {

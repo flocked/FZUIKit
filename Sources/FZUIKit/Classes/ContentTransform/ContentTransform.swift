@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A  protocol for a transformer that generates a modified output from an input.
+/// A transformer that takes an input and produces a modified output.
 public protocol ContentTransform: Hashable, Identifiable {
     /// The content type.
     associatedtype Content
@@ -30,6 +30,7 @@ public protocol ContentTransform: Hashable, Identifiable {
 public extension ContentTransform {
     /**
      Initalizes the transformer with the specified transform block.
+     
      - Parameter transform: The block that transform a content.
      - Returns: The content transformer..
      */
@@ -73,18 +74,13 @@ public extension ContentTransform {
 
     /// Performs the transformation on a sequence of inputs.
     func callAsFunction<S>(_ inputs: S) -> [Content] where S: Sequence<Content> {
-        var results: [Content] = []
-        for input in inputs {
-            let result = self(input)
-            results.append(result)
-        }
-        return results
+        return inputs.compactMap({self($0)})
     }
 
     /// Performs the transformation asynchronous on a single input and returns it output to the completion handler.
     func callAsFunction(_ input: Content, completionHandler: @escaping ((Content) -> Void)) {
         DispatchQueue.global(qos: .userInitiated).async {
-            let result = self.transform(input)
+            let result = transform(input)
             DispatchQueue.main.async {
                 completionHandler(result)
             }
@@ -94,11 +90,7 @@ public extension ContentTransform {
     /// Performs the transformation asynchronous on a sequence of inputs and returns it output to the completion handler.
     func callAsFunction<S>(_ inputs: S, completionHandler: @escaping (([Content]) -> Void)) where S: Sequence<Content> {
         DispatchQueue.global(qos: .userInitiated).async {
-            for input in inputs {
-                self(input) { _ in
-                }
-            }
-            let results = self(inputs)
+            let results = inputs.compactMap({self($0)})
             DispatchQueue.main.async {
                 completionHandler(results)
             }
