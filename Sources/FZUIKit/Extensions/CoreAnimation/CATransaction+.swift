@@ -56,8 +56,15 @@ public extension CATransaction {
     
     /// The completion block object that is called (on the main thread) as soon as all animations subsequently have completed.
     static var completionBlock: (()->())? {
-        get { value(forKey: kCATransactionCompletionBlock) as? (()->()) }
+        get {
+            if let block = value(forKey: kCATransactionCompletionBlock) {
+                let blockPtr = UnsafeRawPointer(Unmanaged<AnyObject>.passUnretained(block as AnyObject).toOpaque())
+                return unsafeBitCast(blockPtr, to: CompletionBlock.self)
+            }
+            return nil
+        }
         set { setValue(newValue, forKey: kCATransactionCompletionBlock) }
     }
+    internal typealias CompletionBlock = @convention(block) () -> Void
 }
 #endif
