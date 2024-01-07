@@ -63,7 +63,9 @@ public extension CATransaction {
             }
             return nil
         }
-        set { setValue(newValue, forKey: kCATransactionCompletionBlock) }
+        set { 
+            let newValue : AnyObject = unsafeBitCast(newValue, to: AnyObject.self)
+            setValue(newValue, forKey: kCATransactionCompletionBlock) }
     }
     internal typealias CompletionBlock = @convention(block) () -> Void
 }
