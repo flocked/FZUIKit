@@ -66,7 +66,9 @@ public extension CATransaction {
         set { 
             if let newValue = newValue {
                 let val = newValue as CompletionBlock
-                setValue(val, forKey: kCATransactionCompletionBlock)
+                let newVal : AnyObject = unsafeBitCast(val, to: AnyObject.self)
+
+                setValue(newVal, forKey: kCATransactionCompletionBlock)
             } else {
                 setValue(nil, forKey: kCATransactionCompletionBlock)
             }
