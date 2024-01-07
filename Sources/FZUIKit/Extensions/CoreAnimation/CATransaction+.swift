@@ -19,10 +19,12 @@ public extension CATransaction {
         - completion: A block object to be executed when the animation sequence ends.
      
      */
-    static func perform(duration: CGFloat = 0.4, timingFunction: CAMediaTimingFunction? = nil, animations: () -> Void, completion: (() -> Void)? = nil) {
+    static func perform(duration: CGFloat? = nil, timingFunction: CAMediaTimingFunction? = nil, animations: () -> Void, completion: (() -> Void)? = nil) {
         CATransaction.begin()
         CATransaction.setCompletionBlock(completion)
-        CATransaction.setAnimationDuration(duration)
+        if let duration = duration {
+            CATransaction.setAnimationDuration(duration)
+        }
         CATransaction.setAnimationTimingFunction(timingFunction)
         CATransaction.setDisableActions(duration == 0.0)
         animations()
@@ -32,6 +34,30 @@ public extension CATransaction {
     /// Runs the changes of the specified changes block non animated.
     static func performNonAnimated(changes: ()->Void) {
         self.perform(duration: 0.0, animations: changes)
+    }
+    
+    /// The timing function of the transactions.
+    static var timingFunction: CAMediaTimingFunction? {
+        get { value(forKey: kCATransactionAnimationTimingFunction) as? CAMediaTimingFunction }
+        set { setValue(newValue, forKey: kCATransactionAnimationTimingFunction) }
+    }
+    
+    /// A Boolean value that indicates whether changes made within the transaction group are suppressed.
+    static var disableActions: Bool {
+        get { (value(forKey: kCATransactionDisableActions) as? Bool) ?? false }
+        set { setValue(newValue, forKey: kCATransactionDisableActions) }
+    }
+    
+    /// The animation duration of the transactions.
+    static var animationDuration: TimeInterval {
+        get { (value(forKey: kCATransactionAnimationDuration) as? TimeInterval) ?? 0.0 }
+        set { setValue(newValue, forKey: kCATransactionAnimationDuration) }
+    }
+    
+    /// The completion block object that is called (on the main thread) as soon as all animations subsequently have completed.
+    static var completionBlock: (()->())? {
+        get { value(forKey: kCATransactionCompletionBlock) as? (()->()) }
+        set { setValue(newValue, forKey: kCATransactionCompletionBlock) }
     }
 }
 #endif
