@@ -219,44 +219,5 @@ public extension UIView {
         }
     }
 }
-
-#elseif os(tvOS)
-
-/**
- A configuration that specifies the appearance of a visual effect view.
-
- `UIVisualEffectView` can be configurated by passing the configuration to `configurate(using configuration: VisualEffectConfiguration)`.
- 
- `UIView` can be configurated via it's ``UIKIT/UIView/visualEffect`` property.  It adds a visual effect view as background to the view.
- */
-public struct VisualEffectConfiguration: Hashable {
-    /// The blur style.
-    public var blur: UIBlurEffect.Style?
-
-    /// Creates a visual effect configuration.
-    public init(blur: UIBlurEffect.Style? = nil) {
-        self.blur = blur
-    }
-}
-
-public extension UIView {
-    /**
-     Configurates the visual effect of the view.
-
-     - Parameters:
-        - configuration:The visual effect configuration.
-     */
-    func configurate(using configuration: VisualEffectConfiguration) {
-        if let visualView = self as? UIVisualEffectView {
-            if let blur = configuration.blur {
-                visualView.effect = UIBlurEffect(style: blur)
-            } else {
-                visualView.effect = nil
-            }
-        } else {
-            self.visualEffect = configuration
-        }
-    }
-}
 #endif
 #endif
