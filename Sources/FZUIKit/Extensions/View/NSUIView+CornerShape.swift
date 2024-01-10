@@ -6,80 +6,80 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-#if os(macOS)
-import AppKit
-#elseif canImport(UIKit)
-import UIKit
-#endif
-import FZSwiftUtils
+    #if os(macOS)
+        import AppKit
+    #elseif canImport(UIKit)
+        import UIKit
+    #endif
+    import FZSwiftUtils
 
-extension NSUIView {
-    /// The corner shape of a view.
-    public enum CornerShape: Hashable {
-        /// A rounded shape with corner radius equal to the specified value.
-        case rounded(CGFloat)
+    extension NSUIView {
+        /// The corner shape of a view.
+        public enum CornerShape: Hashable {
+            /// A rounded shape with corner radius equal to the specified value.
+            case rounded(CGFloat)
 
-        /// A rounded shape with corner radius relative to half the length of the view's smallest edge.
-        case roundedRelative(CGFloat)
+            /// A rounded shape with corner radius relative to half the length of the view's smallest edge.
+            case roundedRelative(CGFloat)
 
-        /// A circular shape with corner radius equal to half the length of the view's smallest edge.
-        case circular
+            /// A circular shape with corner radius equal to half the length of the view's smallest edge.
+            case circular
 
-        /// A capsule shape with corner radius equal to half the length of the view's smallest edge.
-        case capsule
+            /// A capsule shape with corner radius equal to half the length of the view's smallest edge.
+            case capsule
 
-        internal var needsViewObservation: Bool {
-            switch self {
-            case .rounded: return false
-            default: return true
-            }
-        }
-
-        internal var clamped: Self {
-            switch self {
-            case .roundedRelative(let value): return .roundedRelative(value.clamped(max: 1.0))
-            default: return self
-            }
-        }
-    }
-
-    /// The corner shape of the view.
-    public var cornerShape: CornerShape? {
-        get { getAssociatedValue(key: "_cornerShape", object: self, initialValue: nil) }
-        set {
-            let newValue = newValue?.clamped
-            set(associatedValue: newValue, key: "_cornerShape", object: self)
-            updateCornerShape()
-            if newValue?.needsViewObservation == true {
-                if cornerShapeBoundsObserver == nil {
-                    cornerShapeBoundsObserver = observeChanges(for: \.frame) { [weak self] old, new in
-                        guard let self = self, old.size != new.size else { return }
-                        self.updateCornerShape()
-                    }
+            var needsViewObservation: Bool {
+                switch self {
+                case .rounded: return false
+                default: return true
                 }
-            } else {
-                cornerShapeBoundsObserver = nil
+            }
+
+            var clamped: Self {
+                switch self {
+                case let .roundedRelative(value): return .roundedRelative(value.clamped(max: 1.0))
+                default: return self
+                }
+            }
+        }
+
+        /// The corner shape of the view.
+        public var cornerShape: CornerShape? {
+            get { getAssociatedValue(key: "_cornerShape", object: self, initialValue: nil) }
+            set {
+                let newValue = newValue?.clamped
+                set(associatedValue: newValue, key: "_cornerShape", object: self)
+                updateCornerShape()
+                if newValue?.needsViewObservation == true {
+                    if cornerShapeBoundsObserver == nil {
+                        cornerShapeBoundsObserver = observeChanges(for: \.frame) { [weak self] old, new in
+                            guard let self = self, old.size != new.size else { return }
+                            self.updateCornerShape()
+                        }
+                    }
+                } else {
+                    cornerShapeBoundsObserver = nil
+                }
+            }
+        }
+
+        var cornerShapeBoundsObserver: NSKeyValueObservation? {
+            get { getAssociatedValue(key: "_cornerShapeBoundsObserver", object: self) }
+            set { set(associatedValue: newValue, key: "_cornerShapeBoundsObserver", object: self) }
+        }
+
+        func updateCornerShape() {
+            guard let cornerShape = cornerShape else { return }
+            switch cornerShape {
+            case let .rounded(radius):
+                cornerRadius = radius
+            case let .roundedRelative(value):
+                cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0 * value
+            case .capsule:
+                cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0
+            case .circular:
+                cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0
             }
         }
     }
-
-    var cornerShapeBoundsObserver: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "_cornerShapeBoundsObserver", object: self) }
-        set { set(associatedValue: newValue, key: "_cornerShapeBoundsObserver", object: self) }
-    }
-
-    func updateCornerShape() {
-        guard let cornerShape = self.cornerShape else { return }
-        switch cornerShape {
-        case let .rounded(radius):
-            cornerRadius = radius
-        case let .roundedRelative(value):
-            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0 * value
-        case .capsule:
-            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0
-        case .circular:
-            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0
-        }
-    }
-}
 #endif

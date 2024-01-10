@@ -1,12 +1,12 @@
 //
 //  AnimatablePair+.swift
-//  
+//
 //
 //  Created by Florian Zand on 17.11.23.
 //
 
-import SwiftUI
 import FZSwiftUtils
+import SwiftUI
 
 extension AnimatablePair: Comparable where First: Comparable, Second: Comparable {
     public static func < (lhs: AnimatablePair<First, Second>, rhs: AnimatablePair<First, Second>) -> Bool {
@@ -24,4 +24,4 @@ extension AnimatablePair: MultiplicativeArithmetic where First: MultiplicativeAr
     }
 }
 
-extension Array: Animatable where Element: Animatable { }
+extension Array: Animatable where Element: Animatable {}

@@ -6,17 +6,17 @@
 //
 
 #if os(macOS)
-import AppKit
+    import AppKit
 
-public extension NSRunningApplication {
-    /// Returns the frontmost app, which is the app that receives key events.
-    class var frontmostApplication: NSRunningApplication! {
-        return NSWorkspace.shared.frontmostApplication
-    }
+    public extension NSRunningApplication {
+        /// Returns the frontmost app, which is the app that receives key events.
+        class var frontmostApplication: NSRunningApplication! {
+            NSWorkspace.shared.frontmostApplication
+        }
 
-    /// Returns an array of running apps.
-    class var runningApplications: [NSRunningApplication] {
-        return NSWorkspace.shared.runningApplications
+        /// Returns an array of running apps.
+        class var runningApplications: [NSRunningApplication] {
+            NSWorkspace.shared.runningApplications
+        }
     }
-}
 #endif

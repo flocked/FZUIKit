@@ -9,9 +9,9 @@ import SwiftUI
 
 /**
  A convenience protocol wrapping a `@ShapeBuilder`
- 
+
  Shares similarities with SwiftUI's `View` protocol. Defines a get-only `shape` computed property which is marked with `@ShapeBuilder`.
- 
+
  Example:
  ```swift
  struct MyFancyMask: BuiltShape {
@@ -42,7 +42,7 @@ public extension BuiltShape {
  A convenience protocol wrapping a `@InsettableShapeBuilder`
 
  Shares similarities with SwiftUI's `View` protocol. Defines a get-only `shape` computed property which is marked with `@InsettableShapeBuilder`.
- 
+
  Example:
  ```swift
  struct MyFancyMask: BuiltInsettableShape {

@@ -15,13 +15,13 @@ public struct RoundedCornerRectangle: Shape {
 
     /**
      Creates a new rounded corner rectangle shape.
-     
+
      - Parameters:
         - cornerRadius: The radius of the rounded corners.
         - corners: The corners that are rounded.
      */
     public init(cornerRadius: CGFloat, corners: NSUIRectCorner) {
-        self.radius = cornerRadius
+        radius = cornerRadius
         self.corners = corners
     }
 

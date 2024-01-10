@@ -11,9 +11,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 public extension NSUIImage {
@@ -46,16 +46,16 @@ public extension NSUIImage {
 public extension CGImage {
     /**
      Returns the main colors of the image.
-     
+
      - Parameter quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
      */
     func getColors(quality: NSUIImage.ImageColorsQuality = .high) -> NSUIImage.ImageColors? {
-        return NSUIImage(cgImage: self).getColors(quality: quality)
+        NSUIImage(cgImage: self).getColors(quality: quality)
     }
 
     /**
      Analysis the main colors of the image asynchronously on a background thread.
-     
+
      - Parameters:
         - quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
         - completion: The completion handler to call when the analysation is ready. The completion handler takes the following parameters:
@@ -69,7 +69,7 @@ public extension CGImage {
 extension NSUIImage {
     /**
      Returns the main colors of the image.
-     
+
      - Parameter quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
      */
     public func getColors(quality: ImageColorsQuality = .high) -> ImageColors? {
@@ -87,9 +87,9 @@ extension NSUIImage {
         guard let resizedImage = resizeForImageColors(newSize: scaleDownSize) else { return nil }
 
         #if os(OSX)
-        guard let cgImage = resizedImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+            guard let cgImage = resizedImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
         #else
-        guard let cgImage = resizedImage.cgImage else { return nil }
+            guard let cgImage = resizedImage.cgImage else { return nil }
         #endif
 
         let width: Int = cgImage.width
@@ -207,7 +207,7 @@ extension NSUIImage {
 
     /**
      Analysis the main colors of the image asynchronously on a background thread.
-     
+
      - Parameters:
         - quality: The quality at which the colors should be analysed. A higher value takes longer to analyse.
         - completion: The completion handler to call when the analysation is ready. The completion handler takes the following parameters:
@@ -223,30 +223,30 @@ extension NSUIImage {
     }
 
     #if os(OSX)
-    internal func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
-        let frame = CGRect(origin: .zero, size: newSize)
-        guard let representation = bestRepresentation(for: frame, context: nil, hints: nil) else {
-            return nil
-        }
-        let result = NSImage(size: newSize, flipped: false, drawingHandler: { _ -> Bool in
-            representation.draw(in: frame)
-        })
+        func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
+            let frame = CGRect(origin: .zero, size: newSize)
+            guard let representation = bestRepresentation(for: frame, context: nil, hints: nil) else {
+                return nil
+            }
+            let result = NSImage(size: newSize, flipped: false, drawingHandler: { _ -> Bool in
+                representation.draw(in: frame)
+            })
 
-        return result
-    }
+            return result
+        }
     #else
-    internal func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 0)
-        defer {
-            UIGraphicsEndImageContext()
-        }
-        draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-        guard let result = UIGraphicsGetImageFromCurrentImageContext() else {
-            fatalError("UIImageColors.resizeForUIImageColors failed: UIGraphicsGetImageFromCurrentImageContext returned nil.")
-        }
+        func resizeForImageColors(newSize: CGSize) -> NSUIImage? {
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 0)
+            defer {
+                UIGraphicsEndImageContext()
+            }
+            draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+            guard let result = UIGraphicsGetImageFromCurrentImageContext() else {
+                fatalError("UIImageColors.resizeForUIImageColors failed: UIGraphicsGetImageFromCurrentImageContext returned nil.")
+            }
 
-        return result
-    }
+            return result
+        }
     #endif
 }
 
@@ -257,23 +257,23 @@ extension NSUIImage {
  */
 private extension Double {
     private var r: Double {
-        return fmod(floor(self / 1_000_000), 1_000_000)
+        fmod(floor(self / 1_000_000), 1_000_000)
     }
 
     private var g: Double {
-        return fmod(floor(self / 1000), 1000)
+        fmod(floor(self / 1000), 1000)
     }
 
     private var b: Double {
-        return fmod(self, 1000)
+        fmod(self, 1000)
     }
 
     var isDarkColor: Bool {
-        return (r * 0.2126) + (g * 0.7152) + (b * 0.0722) < 127.5
+        (r * 0.2126) + (g * 0.7152) + (b * 0.0722) < 127.5
     }
 
     var isBlackOrWhite: Bool {
-        return (r > 232 && g > 232 && b > 232) || (r < 23 && g < 23 && b < 23)
+        (r > 232 && g > 232 && b > 232) || (r < 23 && g < 23 && b < 23)
     }
 
     func isDistinct(_ other: Double) -> Bool {
@@ -374,10 +374,10 @@ private extension Double {
     }
 
     var uicolor: NSUIColor {
-        return NSUIColor(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: 1)
+        NSUIColor(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: 1)
     }
 
     var pretty: String {
-        return "\(Int(r)), \(Int(g)), \(Int(b))"
+        "\(Int(r)), \(Int(g)), \(Int(b))"
     }
 }

@@ -1,6 +1,6 @@
 //
 //  EditableText.swift
-//  
+//
 //
 //  Created by Florian Zand on 07.06.23.
 //
@@ -42,13 +42,13 @@ public struct EditableText: View {
             TextField("", text: $newValue,
                       onEditingChanged: { _ in },
                       onCommit: { text = newValue; editProcessGoing = false; onEditEnd(text) })
-            .textFieldStyle(.plain)
-            .multilineTextAlignment(multilineTextAlignment)
-            .opacity(editProcessGoing ? 1 : 0)
+                .textFieldStyle(.plain)
+                .multilineTextAlignment(multilineTextAlignment)
+                .opacity(editProcessGoing ? 1 : 0)
         }
         .onTapGesture(count: 2, perform: { editProcessGoing = true })
-#if os(macOS)
-        .onExitCommand(perform: { editProcessGoing = false; newValue = text })
-#endif
+        #if os(macOS)
+            .onExitCommand(perform: { editProcessGoing = false; newValue = text })
+        #endif
     }
 }

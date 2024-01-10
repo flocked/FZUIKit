@@ -12,7 +12,7 @@ import SwiftUI
 public struct IrregularGradient<Background: View>: View {
     /**
      Creates a irregular gradient view with the specified colors, background and animation speed.
-     
+
      - Parameters:
         - colors: The colors of the blobs in the gradient.
         - background:  The background view of the gradient.
@@ -20,14 +20,15 @@ public struct IrregularGradient<Background: View>: View {
      */
     public init(colors: [Color],
                 background: @autoclosure @escaping () -> Background,
-                speed: Double = 0) {
+                speed: Double = 0)
+    {
         let blobs = colors.map { ColorBlob(color: $0) }
         self.init(colorBlobs: blobs, background: background(), speed: speed)
     }
 
     /**
      Creates a irregular gradient view with the specified color blobs, background and animation speed.
-     
+
      - Parameters:
         - colorBlobs: The color blobs in the gradient.
         - background:  The background view of the gradient.
@@ -35,7 +36,8 @@ public struct IrregularGradient<Background: View>: View {
      */
     public init(colorBlobs: [ColorBlob],
                 background: @autoclosure @escaping () -> Background,
-                speed: Double = 0) {
+                speed: Double = 0)
+    {
         _colorBlobs = State(initialValue: colorBlobs)
         self.background = background()
         self.speed = speed
@@ -76,7 +78,7 @@ public struct IrregularGradient<Background: View>: View {
             .animation(animation, value: colorBlobs)
     }
 
-    internal func update() {
+    func update() {
         for index in colorBlobs.indices {
             colorBlobs[index].position = ColorBlob.randomPosition()
             colorBlobs[index].scale = ColorBlob.randomScale()
@@ -88,7 +90,7 @@ public struct IrregularGradient<Background: View>: View {
 public extension IrregularGradient where Background == Color {
     /**
      Creates a irregular gradient view with the specified colors, background color and animation speed.
-     
+
      - Parameters:
         - colors: The colors of the blobs in the gradient.
         - backgroundColor:  The background color of the gradient.
@@ -96,14 +98,15 @@ public extension IrregularGradient where Background == Color {
      */
     init(colors: [Color],
          backgroundColor: Color = .clear,
-         speed: Double = 0) {
+         speed: Double = 0)
+    {
         self.init(colors: colors,
                   background: backgroundColor,
                   speed: speed)
     }
 }
 
-internal struct IrregularGradient_Previews: PreviewProvider {
+struct IrregularGradient_Previews: PreviewProvider {
     static var previews: some View {
         PreviewWrapper()
     }
@@ -122,8 +125,8 @@ internal struct IrregularGradient_Previews: PreviewProvider {
                     Toggle("Animate", isOn: $animate)
                         .padding()
                     #if os(macOS) || os(iOS)
-                     Slider(value: $speed, in: 0.0 ... 1.0)
-                        .padding()
+                        Slider(value: $speed, in: 0.0 ... 1.0)
+                            .padding()
                     #endif
                 }
             }

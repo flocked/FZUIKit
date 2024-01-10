@@ -1,5 +1,5 @@
 //
-//  NSUIColor+Brightness.swift
+//  NSUIColor+Editing.swift
 //
 //
 //  Created by Florian Zand on 06.10.22.
@@ -8,9 +8,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 public extension NSUIColor {
@@ -21,9 +21,9 @@ public extension NSUIColor {
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS)
-        return blended(withFraction: amount, of: .white) ?? self
+            return blended(withFraction: amount, of: .white) ?? self
         #else
-        return blended(withFraction: amount, of: .white)
+            return blended(withFraction: amount, of: .white)
         #endif
     }
 
@@ -34,9 +34,9 @@ public extension NSUIColor {
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS)
-        return blended(withFraction: amount, of: .black) ?? self
+            return blended(withFraction: amount, of: .black) ?? self
         #else
-        return blended(withFraction: amount, of: .black)
+            return blended(withFraction: amount, of: .black)
         #endif
     }
 
@@ -46,7 +46,7 @@ public extension NSUIColor {
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
-        var hsla = self.hslaComponents()
+        var hsla = hslaComponents()
         hsla.lightness = (hsla.lightness + amount).clamped(max: 1.0)
         return NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha)
     }
@@ -57,7 +57,7 @@ public extension NSUIColor {
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
-        return lighter(by: amount * -1.0)
+        lighter(by: amount * -1.0)
     }
 
     /**
@@ -66,7 +66,7 @@ public extension NSUIColor {
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        var hsla = self.hslaComponents()
+        var hsla = hslaComponents()
         hsla.saturation = (hsla.saturation + amount).clamped(max: 1.0)
         return NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha)
     }
@@ -77,7 +77,7 @@ public extension NSUIColor {
      - Returns: The desaturated color object.
      */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        return saturated(by: amount * -1.0)
+        saturated(by: amount * -1.0)
     }
 
     /**
@@ -88,7 +88,7 @@ public extension NSUIColor {
      */
     final func adjustedHue(amount: CGFloat) -> NSUIColor {
         // (h * 360.0) + amount,
-        var hsla = self.hslaComponents()
+        var hsla = hslaComponents()
         hsla.hue = hsla.hue + amount.clamped(max: 360)
         if hsla.hue > 360 {
             hsla.hue = hsla.hue - 360
@@ -105,7 +105,7 @@ public extension NSUIColor {
      - seealso: ``NSUIC``
      */
     final func complemented() -> NSUIColor {
-      return adjustedHue(amount: 180.0)
+        adjustedHue(amount: 180.0)
     }
 
     /**
@@ -148,12 +148,12 @@ public extension NSUIColor {
      - returns: An inverse (negative) of the original color.
      */
     final func inverted() -> NSUIColor {
-      let rgba = rgbaComponents()
+        let rgba = rgbaComponents()
 
-      let invertedRed   = 1.0 - rgba.red
-      let invertedGreen = 1.0 - rgba.green
-      let invertedBlue  = 1.0 - rgba.blue
+        let invertedRed = 1.0 - rgba.red
+        let invertedGreen = 1.0 - rgba.green
+        let invertedBlue = 1.0 - rgba.blue
 
-      return NSUIColor(red: invertedRed, green: invertedGreen, blue: invertedBlue, alpha: rgba.alpha)
+        return NSUIColor(red: invertedRed, green: invertedGreen, blue: invertedBlue, alpha: rgba.alpha)
     }
 }

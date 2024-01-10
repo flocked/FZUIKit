@@ -7,249 +7,249 @@
 
 #if os(macOS)
 
-import AppKit
-import FZSwiftUtils
+    import AppKit
+    import FZSwiftUtils
 
-public extension NSTextField {
-    /// The y-coordinate of the baseline for the topmost line of the text.
-    var firstBaselineY: CGFloat? {
-        guard let font = self.font else { return nil }
-        let defaultLineHeight = lineHeight
-        let cellFrame = self.cellFrame ?? self.frame
-        guard cellFrame.height >= defaultLineHeight else { return nil }
-        let height = font.spc ?? defaultLineHeight-font.ascenderReal
-        return cellFrame.origin.y + cellFrame.height - defaultLineHeight + height
-    }
-
-    /// The y-coordinate of the baseline for the last visible line of the text.
-    var lastBaselineY: CGFloat? {
-        guard let font = self.font else { return nil }
-        guard let lastLineFrame = self.lineFrames().last else { return nil }
-        let defaultLineHeight = lineHeight
-        let height = font.spc ?? defaultLineHeight-font.ascenderReal
-        return lastLineFrame.origin.y + height
-    }
-
-    /// Returns the number of visible lines.
-    var numberOfVisibleLines: Int {
-        guard let font = self.font else { return -1 }
-        let charSize = font.lineHeight
-
-        let framesetter = CTFramesetterCreateWithAttributedString(self.attributedStringValue)
-        let textSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRange(), nil, CGSize(self.bounds.width, CGFloat.greatestFiniteMagnitude), nil)
-
-        var numberOfVisibleLines = Int((textSize.height/charSize).rounded(.down))
-        if maximumNumberOfLines != 0, numberOfVisibleLines > maximumNumberOfLines {
-            numberOfVisibleLines = maximumNumberOfLines
+    public extension NSTextField {
+        /// The y-coordinate of the baseline for the topmost line of the text.
+        var firstBaselineY: CGFloat? {
+            guard let font = font else { return nil }
+            let defaultLineHeight = lineHeight
+            let cellFrame = cellFrame ?? frame
+            guard cellFrame.height >= defaultLineHeight else { return nil }
+            let height = font.spc ?? defaultLineHeight - font.ascenderReal
+            return cellFrame.origin.y + cellFrame.height - defaultLineHeight + height
         }
-        return numberOfVisibleLines
-    }
 
-    /// A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
-    var truncatesLastVisibleLine: Bool {
-        get { self.cell?.truncatesLastVisibleLine ?? false }
-        set { self.cell?.truncatesLastVisibleLine = newValue }
-    }
+        /// The y-coordinate of the baseline for the last visible line of the text.
+        var lastBaselineY: CGFloat? {
+            guard let font = font else { return nil }
+            guard let lastLineFrame = lineFrames().last else { return nil }
+            let defaultLineHeight = lineHeight
+            let height = font.spc ?? defaultLineHeight - font.ascenderReal
+            return lastLineFrame.origin.y + height
+        }
 
-    /// A Boolean value indicating whether the text field has keyboard focus.
-    var hasKeyboardFocus: Bool {
-        return currentEditor() == window?.firstResponder
-    }
+        /// Returns the number of visible lines.
+        var numberOfVisibleLines: Int {
+            guard let font = font else { return -1 }
+            let charSize = font.lineHeight
 
-    /**
-     Returns the size of the current string value for the specified size and maximum number of lines.
-     - Parameters:
-        - size: The size.
-        - maximumNumberOfLines: The maximum number of lines of `nil` to use the current specified maximum number.
-     
-     - Returns: Returns the size of the current string value.
-     */
-    func textSize(forSize size: CGSize, maximumNumberOfLines: Int? = nil) -> CGSize {
-        let _maximumNumberOfLines = self.maximumNumberOfLines
-        let bounds = CGRect(origin: .zero, size: size)
-        self.maximumNumberOfLines = maximumNumberOfLines ?? self.maximumNumberOfLines
-        if let cell = cell {
-            let rect = cell.drawingRect(forBounds: bounds)
-            let cellSize = cell.cellSize(forBounds: rect)
+            let framesetter = CTFramesetterCreateWithAttributedString(attributedStringValue)
+            let textSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRange(), nil, CGSize(bounds.width, CGFloat.greatestFiniteMagnitude), nil)
+
+            var numberOfVisibleLines = Int((textSize.height / charSize).rounded(.down))
+            if maximumNumberOfLines != 0, numberOfVisibleLines > maximumNumberOfLines {
+                numberOfVisibleLines = maximumNumberOfLines
+            }
+            return numberOfVisibleLines
+        }
+
+        /// A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
+        var truncatesLastVisibleLine: Bool {
+            get { cell?.truncatesLastVisibleLine ?? false }
+            set { cell?.truncatesLastVisibleLine = newValue }
+        }
+
+        /// A Boolean value indicating whether the text field has keyboard focus.
+        var hasKeyboardFocus: Bool {
+            currentEditor() == window?.firstResponder
+        }
+
+        /**
+         Returns the size of the current string value for the specified size and maximum number of lines.
+         - Parameters:
+            - size: The size.
+            - maximumNumberOfLines: The maximum number of lines of `nil` to use the current specified maximum number.
+
+         - Returns: Returns the size of the current string value.
+         */
+        func textSize(forSize size: CGSize, maximumNumberOfLines: Int? = nil) -> CGSize {
+            let _maximumNumberOfLines = self.maximumNumberOfLines
+            let bounds = CGRect(origin: .zero, size: size)
+            self.maximumNumberOfLines = maximumNumberOfLines ?? self.maximumNumberOfLines
+            if let cell = cell {
+                let rect = cell.drawingRect(forBounds: bounds)
+                let cellSize = cell.cellSize(forBounds: rect)
+                self.maximumNumberOfLines = _maximumNumberOfLines
+                return cellSize
+            }
             self.maximumNumberOfLines = _maximumNumberOfLines
-            return cellSize
+            return .zero
         }
-        self.maximumNumberOfLines = _maximumNumberOfLines
-        return .zero
-    }
 
-    /// A Boolean value indicating whether the text field is truncating the text.
-    var isTruncatingText: Bool {
-        guard let cell = cell else { return false }
-        return cell.expansionFrame(withFrame: self.frame, in: self) != .zero
-    }
-
-    /// Option how to count the lines of a text field.
-    enum LineCountOption {
-        /// Returns all lines
-        case all
-        /// Returns lines upto the maximum number of lines.
-        case limitToMaxNumberOfLines
-    }
-
-    /**
-     The number of lines.
-     
-     - Parameter option: Option how to count the lines. The default value is `limitToMaxNumberOfLines`.
-     */
-    func linesCount(_ option: LineCountOption = .limitToMaxNumberOfLines) -> Int {
-        return rangesOfLines(option).count
-    }
-
-    /**
-     An array of strings of the lines.
-
-     - Parameter option: Option which lines should be returned. The default value is `limitToMaxNumberOfLines`.
-     */
-    func lines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [String] {
-        let ranges = rangesOfLines(option)
-        return ranges.compactMap { String(self.stringValue[$0]) }
-    }
-
-    /// An array of frames for all visible lines.
-    func lineFrames() -> [CGRect] {
-        var lineFrames: [CGRect] = []
-        guard self.font != nil else { return [] }
-        let defaultLineHeight = lineHeight
-        let frame = self.cellFrame ?? self.frame
-        for index in 0..<self.numberOfVisibleLines-1 {
-            var lineFrame = frame
-            lineFrame.size.height = defaultLineHeight
-            lineFrame.topLeft = frame.topLeft
-            lineFrame.origin.y =  lineFrame.origin.y - (CGFloat(index)*defaultLineHeight)
-            lineFrames.append(lineFrame)
+        /// A Boolean value indicating whether the text field is truncating the text.
+        var isTruncatingText: Bool {
+            guard let cell = cell else { return false }
+            return cell.expansionFrame(withFrame: frame, in: self) != .zero
         }
-        return lineFrames
-    }
 
-    /// The height of a singe line.
-    internal var lineHeight: CGFloat {
-        guard font != nil else { return 0 }
-        if stringValue == "" {
-            stringValue = " "
-            let height = self.attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
-            stringValue = ""
-            return height
+        /// Option how to count the lines of a text field.
+        enum LineCountOption {
+            /// Returns all lines
+            case all
+            /// Returns lines upto the maximum number of lines.
+            case limitToMaxNumberOfLines
         }
-        return self.attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
-    }
 
-    /// The frame of the text cell.
-    internal var cellFrame: CGRect? {
-        let frame = self.isBezeled == false ? frame : frame.insetBy(dx: 0, dy: 1)
-        return self.cell?.drawingRect(forBounds: frame)
-    }
+        /**
+         The number of lines.
 
-    var numberOfVisibleLinesAlt: Int {
-     let maxSize = CGSize(width: self.bounds.width, height: CGFloat.infinity)
-     var numberOfVisibleLines = 0
-     let attributedStringValue = self.attributedStringValue
-     var height: CGFloat = 0
-     var string = ""
-     for character in attributedStringValue.string {
-         string += String(character)
-         let range = attributedStringValue.range(of: string)
-         self.attributedStringValue = attributedStringValue[range]
-         let boundingRect = self.attributedStringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
-         if boundingRect.height != height {
-             if boundingRect.height < self.frame.size.height {
-                 height = boundingRect.height
-                 numberOfVisibleLines = numberOfVisibleLines + 1
-                 if numberOfVisibleLines == self.maximumNumberOfLines {
-                     self.attributedStringValue = attributedStringValue
-                     return numberOfVisibleLines
-                 }
-             } else {
-                 self.attributedStringValue = attributedStringValue
-                 return numberOfVisibleLines
-             }
-         }
-     }
-     self.attributedStringValue = attributedStringValue
-     return numberOfVisibleLines
-    }
-
-    /**
-     An array of string ranges of the lines.
-     
-     - Parameter option: Option which line ranges should be returned. The default value is `limitToMaxNumberOfLines`.
-     */
-    func rangesOfLines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
-        let stringValue = self.stringValue
-        let attributedStringValue = self.attributedStringValue
-        let linebreakMode = lineBreakMode
-        if linebreakMode != .byCharWrapping || linebreakMode != .byWordWrapping, maximumNumberOfLines != 1 {
-            lineBreakMode = .byCharWrapping
+         - Parameter option: Option how to count the lines. The default value is `limitToMaxNumberOfLines`.
+         */
+        func linesCount(_ option: LineCountOption = .limitToMaxNumberOfLines) -> Int {
+            rangesOfLines(option).count
         }
-        var partialString = ""
-        var startIndex = stringValue.startIndex
-        var previousHeight: CGFloat = 0.0
-        var didStart = false
-        var nextIndex = stringValue.startIndex
-        var lineRanges: [Range<String.Index>] = []
-        var boundsSize = bounds.size
-        boundsSize.height = .infinity
-        attributedStringValue.attributedSubstring(from: NSRange(location: 0, length: 1))
-        for index in 0..<attributedStringValue.string.count {
-            let partialString = attributedStringValue[0...index]
-            self.attributedStringValue = partialString
-            let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
-            if didStart == false {
-                previousHeight = height
-                didStart = true
-            } else {
-                nextIndex = stringValue.index(after: nextIndex)
-                if height > previousHeight {
-                    let endIndex = nextIndex
-                    let range = startIndex ..< endIndex
-                    startIndex = endIndex
-                    lineRanges.append(range)
-                    previousHeight = height
-                } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
-                    if self.maximumNumberOfLines == 0 || option == .all || lineRanges.count < self.maximumNumberOfLines {
-                        let endIndex = stringValue.endIndex
-                        let range = startIndex ..< endIndex
-                        lineRanges.append(range)
+
+        /**
+         An array of strings of the lines.
+
+         - Parameter option: Option which lines should be returned. The default value is `limitToMaxNumberOfLines`.
+         */
+        func lines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [String] {
+            let ranges = rangesOfLines(option)
+            return ranges.compactMap { String(self.stringValue[$0]) }
+        }
+
+        /// An array of frames for all visible lines.
+        func lineFrames() -> [CGRect] {
+            var lineFrames: [CGRect] = []
+            guard font != nil else { return [] }
+            let defaultLineHeight = lineHeight
+            let frame = cellFrame ?? frame
+            for index in 0 ..< numberOfVisibleLines - 1 {
+                var lineFrame = frame
+                lineFrame.size.height = defaultLineHeight
+                lineFrame.topLeft = frame.topLeft
+                lineFrame.origin.y = lineFrame.origin.y - (CGFloat(index) * defaultLineHeight)
+                lineFrames.append(lineFrame)
+            }
+            return lineFrames
+        }
+
+        /// The height of a singe line.
+        internal var lineHeight: CGFloat {
+            guard font != nil else { return 0 }
+            if stringValue == "" {
+                stringValue = " "
+                let height = attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
+                stringValue = ""
+                return height
+            }
+            return attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
+        }
+
+        /// The frame of the text cell.
+        internal var cellFrame: CGRect? {
+            let frame = isBezeled == false ? frame : frame.insetBy(dx: 0, dy: 1)
+            return cell?.drawingRect(forBounds: frame)
+        }
+
+        var numberOfVisibleLinesAlt: Int {
+            let maxSize = CGSize(width: bounds.width, height: CGFloat.infinity)
+            var numberOfVisibleLines = 0
+            let attributedStringValue = attributedStringValue
+            var height: CGFloat = 0
+            var string = ""
+            for character in attributedStringValue.string {
+                string += String(character)
+                let range = attributedStringValue.range(of: string)
+                self.attributedStringValue = attributedStringValue[range]
+                let boundingRect = self.attributedStringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
+                if boundingRect.height != height {
+                    if boundingRect.height < frame.size.height {
+                        height = boundingRect.height
+                        numberOfVisibleLines = numberOfVisibleLines + 1
+                        if numberOfVisibleLines == maximumNumberOfLines {
+                            self.attributedStringValue = attributedStringValue
+                            return numberOfVisibleLines
+                        }
+                    } else {
+                        self.attributedStringValue = attributedStringValue
+                        return numberOfVisibleLines
                     }
                 }
             }
+            self.attributedStringValue = attributedStringValue
+            return numberOfVisibleLines
         }
 
-        stringValue.forEach { char in
-            partialString = partialString + String(char)
+        /**
+         An array of string ranges of the lines.
 
-            self.stringValue = partialString
-            let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
-            if didStart == false {
-                previousHeight = height
-                didStart = true
-            } else {
-                nextIndex = stringValue.index(after: nextIndex)
-                if height > previousHeight {
-                    let endIndex = nextIndex
-                    let range = startIndex ..< endIndex
-                    startIndex = endIndex
-                    lineRanges.append(range)
+         - Parameter option: Option which line ranges should be returned. The default value is `limitToMaxNumberOfLines`.
+         */
+        func rangesOfLines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
+            let stringValue = stringValue
+            let attributedStringValue = attributedStringValue
+            let linebreakMode = lineBreakMode
+            if linebreakMode != .byCharWrapping || linebreakMode != .byWordWrapping, maximumNumberOfLines != 1 {
+                lineBreakMode = .byCharWrapping
+            }
+            var partialString = ""
+            var startIndex = stringValue.startIndex
+            var previousHeight: CGFloat = 0.0
+            var didStart = false
+            var nextIndex = stringValue.startIndex
+            var lineRanges: [Range<String.Index>] = []
+            var boundsSize = bounds.size
+            boundsSize.height = .infinity
+            attributedStringValue.attributedSubstring(from: NSRange(location: 0, length: 1))
+            for index in 0 ..< attributedStringValue.string.count {
+                let partialString = attributedStringValue[0 ... index]
+                self.attributedStringValue = partialString
+                let height = textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : maximumNumberOfLines + 1).height
+                if didStart == false {
                     previousHeight = height
-                } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
-                    if self.maximumNumberOfLines == 0 || option == .all || lineRanges.count < self.maximumNumberOfLines {
-                        let endIndex = stringValue.endIndex
+                    didStart = true
+                } else {
+                    nextIndex = stringValue.index(after: nextIndex)
+                    if height > previousHeight {
+                        let endIndex = nextIndex
                         let range = startIndex ..< endIndex
+                        startIndex = endIndex
                         lineRanges.append(range)
+                        previousHeight = height
+                    } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
+                        if maximumNumberOfLines == 0 || option == .all || lineRanges.count < maximumNumberOfLines {
+                            let endIndex = stringValue.endIndex
+                            let range = startIndex ..< endIndex
+                            lineRanges.append(range)
+                        }
                     }
                 }
             }
+
+            stringValue.forEach { char in
+                partialString = partialString + String(char)
+
+                self.stringValue = partialString
+                let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
+                if didStart == false {
+                    previousHeight = height
+                    didStart = true
+                } else {
+                    nextIndex = stringValue.index(after: nextIndex)
+                    if height > previousHeight {
+                        let endIndex = nextIndex
+                        let range = startIndex ..< endIndex
+                        startIndex = endIndex
+                        lineRanges.append(range)
+                        previousHeight = height
+                    } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
+                        if self.maximumNumberOfLines == 0 || option == .all || lineRanges.count < self.maximumNumberOfLines {
+                            let endIndex = stringValue.endIndex
+                            let range = startIndex ..< endIndex
+                            lineRanges.append(range)
+                        }
+                    }
+                }
+            }
+            self.stringValue = stringValue
+            lineBreakMode = linebreakMode
+            return lineRanges
         }
-        self.stringValue = stringValue
-        lineBreakMode = linebreakMode
-        return lineRanges
     }
-}
 
 #endif
 
@@ -340,57 +340,57 @@ public extension NSTextField {
  */
 
 /*
-/**
- Returns the number of visible lines.
- 
- ``AppKit/NSTextField/numberOfVisibleLines`` sometimes returns the wrong number of visible lines. This property always returns the correct number, but takes longer to calculate.
+ /**
+  Returns the number of visible lines.
+
+  ``AppKit/NSTextField/numberOfVisibleLines`` sometimes returns the wrong number of visible lines. This property always returns the correct number, but takes longer to calculate.
+  */
+ var numberOfVisibleLinesAlt: Int {
+  let maxSize = CGSize(width: self.bounds.width, height: CGFloat.infinity)
+  var numberOfVisibleLines = 0
+  let attributedStringValue = self.attributedStringValue
+  var height: CGFloat = 0
+  var string = ""
+  for character in attributedStringValue.string {
+      string += String(character)
+      let range = attributedStringValue.range(of: string)
+      self.attributedStringValue = attributedStringValue[range]
+      let boundingRect = self.attributedStringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
+      if boundingRect.height != height {
+          if boundingRect.height < self.frame.size.height {
+              height = boundingRect.height
+              numberOfVisibleLines = numberOfVisibleLines + 1
+              if numberOfVisibleLines == self.maximumNumberOfLines {
+                  self.attributedStringValue = attributedStringValue
+                  return numberOfVisibleLines
+              }
+          } else {
+              self.attributedStringValue = attributedStringValue
+              return numberOfVisibleLines
+          }
+      }
+  }
+  self.attributedStringValue = attributedStringValue
+  return numberOfVisibleLines
+ }
+
+  func rangesOfLinesAA() {
+      let maxSize = self.bounds.size
+      var lineCount = 0
+      let attributedStringValue = self.attributedStringValue
+      var height: CGFloat = 0
+      var string = ""
+      var partialString = ""
+      var lineRanges: [Range<String.Index>] = []
+      for character in attributedStringValue.string {
+          string += String(character)
+          partialString += String(character)
+          let range = attributedStringValue.range(of: string)
+          let partialAttributedString = attributedStringValue[range]
+          let boundingRect = partialAttributedString.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
+          if boundingRect.height != height {
+              attributedStringValue.string.range(of: string)
+          }
+      }
+  }
  */
-var numberOfVisibleLinesAlt: Int {
- let maxSize = CGSize(width: self.bounds.width, height: CGFloat.infinity)
- var numberOfVisibleLines = 0
- let attributedStringValue = self.attributedStringValue
- var height: CGFloat = 0
- var string = ""
- for character in attributedStringValue.string {
-     string += String(character)
-     let range = attributedStringValue.range(of: string)
-     self.attributedStringValue = attributedStringValue[range]
-     let boundingRect = self.attributedStringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
-     if boundingRect.height != height {
-         if boundingRect.height < self.frame.size.height {
-             height = boundingRect.height
-             numberOfVisibleLines = numberOfVisibleLines + 1
-             if numberOfVisibleLines == self.maximumNumberOfLines {
-                 self.attributedStringValue = attributedStringValue
-                 return numberOfVisibleLines
-             }
-         } else {
-             self.attributedStringValue = attributedStringValue
-             return numberOfVisibleLines
-         }
-     }
- }
- self.attributedStringValue = attributedStringValue
- return numberOfVisibleLines
-}
- 
- func rangesOfLinesAA() {
-     let maxSize = self.bounds.size
-     var lineCount = 0
-     let attributedStringValue = self.attributedStringValue
-     var height: CGFloat = 0
-     var string = ""
-     var partialString = ""
-     var lineRanges: [Range<String.Index>] = []
-     for character in attributedStringValue.string {
-         string += String(character)
-         partialString += String(character)
-         let range = attributedStringValue.range(of: string)
-         let partialAttributedString = attributedStringValue[range]
-         let boundingRect = partialAttributedString.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
-         if boundingRect.height != height {
-             attributedStringValue.string.range(of: string)
-         }
-     }
- }
-*/

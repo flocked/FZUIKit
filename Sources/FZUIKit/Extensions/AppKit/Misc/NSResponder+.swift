@@ -6,18 +6,18 @@
 //
 
 #if os(macOS)
-import AppKit
+    import AppKit
 
-public extension NSResponder {
-    /// Returns the respnder chain including itself.
-    func responderChain() -> [NSResponder] {
-        var current = self
-        var chain: [NSResponder] = [self]
-        while let nextResponder = current.nextResponder {
-            chain.append(nextResponder)
-            current = nextResponder
+    public extension NSResponder {
+        /// Returns the respnder chain including itself.
+        func responderChain() -> [NSResponder] {
+            var current = self
+            var chain: [NSResponder] = [self]
+            while let nextResponder = current.nextResponder {
+                chain.append(nextResponder)
+                current = nextResponder
+            }
+            return chain
         }
-        return chain
     }
-}
 #endif

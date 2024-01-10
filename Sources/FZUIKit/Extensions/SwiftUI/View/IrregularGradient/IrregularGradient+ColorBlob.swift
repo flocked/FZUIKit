@@ -12,14 +12,14 @@ extension IrregularGradient {
     public struct ColorBlob: Identifiable, Equatable {
         public let id = UUID()
 
-        internal let color: Color
-        internal var position: UnitPoint
-        internal var scale: CGSize
-        internal var opacity: CGFloat
+        let color: Color
+        var position: UnitPoint
+        var scale: CGSize
+        var opacity: CGFloat
 
         /**
          Creates a color blob with the specified color, position, scale and opacity.
-         
+
          - Parameters:
             - color: The color of the blob.
             - position:  The position of the blob. If `nil` a random position will be generated.
@@ -33,22 +33,22 @@ extension IrregularGradient {
             self.opacity = opacity ?? Self.randomOpacity()
         }
 
-        internal static func randomPosition() -> UnitPoint {
-            return UnitPoint(x: CGFloat.random(in: 0 ... 1),
-                             y: CGFloat.random(in: 0 ... 1))
+        static func randomPosition() -> UnitPoint {
+            UnitPoint(x: CGFloat.random(in: 0 ... 1),
+                      y: CGFloat.random(in: 0 ... 1))
         }
 
-        internal static func randomScale() -> CGSize {
-            return CGSize(width: CGFloat.random(in: 0.25 ... 1),
-                          height: CGFloat.random(in: 0.25 ... 1))
+        static func randomScale() -> CGSize {
+            CGSize(width: CGFloat.random(in: 0.25 ... 1),
+                   height: CGFloat.random(in: 0.25 ... 1))
         }
 
-        internal static func randomOpacity() -> CGFloat {
-            return CGFloat.random(in: 0.75 ... 1)
+        static func randomOpacity() -> CGFloat {
+            CGFloat.random(in: 0.75 ... 1)
         }
     }
 
-    internal struct ColorBlobView: View {
+    struct ColorBlobView: View {
         var blob: ColorBlob
         var geometry: GeometryProxy
 
@@ -68,7 +68,7 @@ extension IrregularGradient {
     }
 }
 
-internal extension UnitPoint {
+extension UnitPoint {
     func applying(_ t: CGAffineTransform) -> CGPoint {
         let cgPoint = CGPoint(x: x, y: y)
         return cgPoint.applying(t)

@@ -17,6 +17,6 @@ public struct TextTransformer: ContentTransform {
     /// Creates a text transformer with the specified identifier and closure.
     public init(_ identifier: String, _ transform: @escaping (String) -> String) {
         self.transform = transform
-        self.id = identifier
+        id = identifier
     }
 }

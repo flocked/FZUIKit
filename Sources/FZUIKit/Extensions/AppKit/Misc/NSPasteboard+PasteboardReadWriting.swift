@@ -6,90 +6,90 @@
 //
 
 #if os(macOS)
-import AppKit
+    import AppKit
 
-/// A type that can be read from and written to a pasteboard (`String`, `URL`, `NSColor`, `NSImage` or `NSSound`).
-public protocol PasteboardReadWriting { }
+    /// A type that can be read from and written to a pasteboard (`String`, `URL`, `NSColor`, `NSImage` or `NSSound`).
+    public protocol PasteboardReadWriting {}
 
-extension String: PasteboardReadWriting { }
-extension URL: PasteboardReadWriting { }
-extension NSColor: PasteboardReadWriting { }
-extension NSImage: PasteboardReadWriting { }
-extension NSSound: PasteboardReadWriting { }
+    extension String: PasteboardReadWriting {}
+    extension URL: PasteboardReadWriting {}
+    extension NSColor: PasteboardReadWriting {}
+    extension NSImage: PasteboardReadWriting {}
+    extension NSSound: PasteboardReadWriting {}
 
-extension PasteboardReadWriting {
-    /// Writes the object to the the general pasteboard.
-    public func writeToPasteboard() {
-        NSPasteboard.general.write([self])
-    }
-}
-
-extension Collection where Element == (any PasteboardReadWriting) {
-    /// Writes the objects to the the general pasteboard.
-    public func writeToPasteboard() {
-        NSPasteboard.general.write(self)
-    }
-}
-
-extension Collection where Element: PasteboardReadWriting {
-    /// Writes the objects to the the general pasteboard.
-    public func writeToPasteboard() {
-        NSPasteboard.general.write(Array(self))
-    }
-}
-
-extension PasteboardReadWriting {
-    var nsPasteboardWriting: NSPasteboardWriting? {
-        return (self as? NSPasteboardWriting) ?? (self as? NSURL)
-    }
-}
-
-extension NSPasteboard {
-    /**
-     Writes the specified `PasteboardReadWriting` objects to the pasteboard.
-     
-     - Parameter objects: An array of `PasteboardReadWriting` objects.
-     */
-    public func write<O: Collection<PasteboardReadWriting>>(_ objects: O) {
-        guard objects.isEmpty != false else { return }
-        self.clearContents()
-        let writings = objects.compactMap({$0.nsPasteboardWriting})
-        self.writeObjects(writings)
+    public extension PasteboardReadWriting {
+        /// Writes the object to the the general pasteboard.
+        func writeToPasteboard() {
+            NSPasteboard.general.write([self])
+        }
     }
 
-    /// The current `PasteboardReadWriting` objects of the pasteboard.
-    public func pasteboardReadWritings() -> [PasteboardReadWriting] {
-        var items: [PasteboardReadWriting] = []
+    public extension Collection where Element == (any PasteboardReadWriting) {
+        /// Writes the objects to the the general pasteboard.
+        func writeToPasteboard() {
+            NSPasteboard.general.write(self)
+        }
+    }
 
-        if let fileURLs = self.fileURLs {
-            items.append(contentsOf: fileURLs)
+    public extension Collection where Element: PasteboardReadWriting {
+        /// Writes the objects to the the general pasteboard.
+        func writeToPasteboard() {
+            NSPasteboard.general.write(Array(self))
+        }
+    }
+
+    extension PasteboardReadWriting {
+        var nsPasteboardWriting: NSPasteboardWriting? {
+            (self as? NSPasteboardWriting) ?? (self as? NSURL)
+        }
+    }
+
+    public extension NSPasteboard {
+        /**
+         Writes the specified `PasteboardReadWriting` objects to the pasteboard.
+
+         - Parameter objects: An array of `PasteboardReadWriting` objects.
+         */
+        func write<O: Collection<PasteboardReadWriting>>(_ objects: O) {
+            guard objects.isEmpty != false else { return }
+            clearContents()
+            let writings = objects.compactMap(\.nsPasteboardWriting)
+            writeObjects(writings)
         }
 
-        if let color = self.color {
-            items.append(color)
-        }
+        /// The current `PasteboardReadWriting` objects of the pasteboard.
+        func pasteboardReadWritings() -> [PasteboardReadWriting] {
+            var items: [PasteboardReadWriting] = []
 
-        if let string = self.string {
-            items.append(string)
-        }
+            if let fileURLs = fileURLs {
+                items.append(contentsOf: fileURLs)
+            }
 
-        if let sound = self.sound {
-            items.append(sound)
-        }
+            if let color = color {
+                items.append(color)
+            }
 
-        if let images = self.images {
-            items.append(contentsOf: images)
-        }
+            if let string = string {
+                items.append(string)
+            }
 
-        return items
+            if let sound = sound {
+                items.append(sound)
+            }
+
+            if let images = images {
+                items.append(contentsOf: images)
+            }
+
+            return items
+        }
     }
-}
 
-extension NSDraggingInfo {
-    /// The current `PasteboardReadWriting` objects of the dragging info.
-    public func pasteboardReadWritings() -> [PasteboardReadWriting] {
-        return self.draggingPasteboard.pasteboardReadWritings()
+    public extension NSDraggingInfo {
+        /// The current `PasteboardReadWriting` objects of the dragging info.
+        func pasteboardReadWritings() -> [PasteboardReadWriting] {
+            draggingPasteboard.pasteboardReadWritings()
+        }
     }
-}
 
 #endif

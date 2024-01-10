@@ -8,9 +8,9 @@
 import SwiftUI
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 public extension Font {
@@ -24,18 +24,18 @@ public extension NSUIFont {
     /// A SwiftUI representation of the font.
     var swiftUI: Font {
         /*
-        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-            if let textStyle = fontDescriptor.textStyle {
-                var font = Font.system(textStyle.swiftUI, design: fontDescriptor.design?.swiftUI, weight: fontDescriptor.weight?.swiftUI)
-            }
-        }
-         */
-        return Font(self)
+         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+             if let textStyle = fontDescriptor.textStyle {
+                 var font = Font.system(textStyle.swiftUI, design: fontDescriptor.design?.swiftUI, weight: fontDescriptor.weight?.swiftUI)
+             }
+         }
+          */
+        Font(self)
     }
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-internal extension Font {
+extension Font {
     func width(_ width: Font.Width?) -> Font {
         if let width = width {
             return self.width(width)
@@ -49,9 +49,9 @@ public extension NSUIFont.TextStyle {
     /// A SwiftUI representation of the text style.
     var swiftUI: Font.TextStyle {
         switch self {
-            #if os(macOS) || os(iOS)
-        case .largeTitle: return .largeTitle
-            #endif
+        #if os(macOS) || os(iOS)
+            case .largeTitle: return .largeTitle
+        #endif
         case .title1: return .title
         case .title2: return .title2
         case .title3: return .title3

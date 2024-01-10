@@ -1,62 +1,62 @@
 //
-//  NSView+RenderedImage.swift
+//  NSUIView+RenderedImage.swift
 //
 //
 //  Created by Florian Zand on 22.08.22.
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-#if os(macOS)
-import AppKit
-#elseif canImport(UIKit)
-import UIKit
-#endif
+    #if os(macOS)
+        import AppKit
+    #elseif canImport(UIKit)
+        import UIKit
+    #endif
 
-#if os(macOS)
-public extension NSView {
-    internal static var currentContext: CGContext? {
-        return NSGraphicsContext.current?.cgContext
-    }
+    #if os(macOS)
+        public extension NSView {
+            internal static var currentContext: CGContext? {
+                NSGraphicsContext.current?.cgContext
+            }
 
-    /// A rendered image of the view.
-    var renderedImage: NSImage {
-        let rep = self.bitmapImageRepForCachingDisplay(in: self.bounds)!
-        self.cacheDisplay(in: self.bounds, to: rep)
+            /// A rendered image of the view.
+            var renderedImage: NSImage {
+                let rep = bitmapImageRepForCachingDisplay(in: bounds)!
+                cacheDisplay(in: bounds, to: rep)
 
-        let image = NSImage(size: self.bounds.size)
-        image.addRepresentation(rep)
+                let image = NSImage(size: bounds.size)
+                image.addRepresentation(rep)
 
-        return image
-    }
+                return image
+            }
 
-    /// Renders a compound image from multiple views.
-    static func renderedImage(from views: [NSView]) -> NSImage {
-        var frame = CGRect.zero
-        for view in views {
-            frame = frame.union(view.frame)
+            /// Renders a compound image from multiple views.
+            static func renderedImage(from views: [NSView]) -> NSImage {
+                var frame = CGRect.zero
+                for view in views {
+                    frame = frame.union(view.frame)
+                }
+
+                let image = NSImage(size: frame.size)
+                image.lockFocus()
+
+                for view in views {
+                    let rect = view.frame
+                    view.renderedImage.draw(in: rect)
+                }
+                image.unlockFocus()
+                return image
+            }
         }
 
-        let image = NSImage(size: frame.size)
-        image.lockFocus()
-
-        for view in views {
-            let rect = view.frame
-            view.renderedImage.draw(in: rect)
+    #elseif os(iOS) || os(tvOS)
+        public extension UIView {
+            /// Renders an image of this view.
+            var renderedImage: UIImage {
+                let renderer = UIGraphicsImageRenderer(size: bounds.size)
+                return renderer.image { _ in
+                    self.drawHierarchy(in: self.bounds, afterScreenUpdates: true)
+                }
+            }
         }
-        image.unlockFocus()
-        return image
-    }
-}
-
-#elseif os(iOS) || os(tvOS)
-public extension UIView {
-    /// Renders an image of this view.
-    var renderedImage: UIImage {
-        let renderer = UIGraphicsImageRenderer(size: bounds.size)
-        return renderer.image { _ in
-            self.drawHierarchy(in: self.bounds, afterScreenUpdates: true)
-        }
-    }
-}
-#endif
+    #endif
 #endif

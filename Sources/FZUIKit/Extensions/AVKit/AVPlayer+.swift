@@ -1,18 +1,18 @@
 //
 //  AVPlayer+.swift
-//  
+//
 //
 //  Created by Florian Zand on 07.08.22.
 //
 
+import AVFoundation
 import Foundation
 import FZSwiftUtils
-import AVFoundation
 
 extension AVPlayer {
     /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
     public var isLooping: Bool {
-        get { return getAssociatedValue(key: "isLooping", object: self, initialValue: false) }
+        get { getAssociatedValue(key: "isLooping", object: self, initialValue: false) }
         set {
             guard newValue != isLooping else { return }
             set(associatedValue: newValue, key: "isLooping", object: self)
@@ -20,12 +20,12 @@ extension AVPlayer {
         }
     }
 
-    internal var loopNotificationToken: NotificationToken? {
-        get { return getAssociatedValue(key: "loopNotificationToken", object: self, initialValue: nil) }
+    var loopNotificationToken: NotificationToken? {
+        get { getAssociatedValue(key: "loopNotificationToken", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "loopNotificationToken", object: self) }
     }
 
-    internal func setupLooping() {
+    func setupLooping() {
         if isLooping {
             actionAtItemEnd = .none
             guard loopNotificationToken == nil else { return }
@@ -79,7 +79,7 @@ public extension AVPlayer {
         if let error = error {
             return .error(error)
         } else {
-            if (rate == 0) && currentTime() != .zero {
+            if rate == 0, currentTime() != .zero {
                 return .isPaused
             } else if rate != 0 {
                 return .isPlaying
@@ -97,7 +97,7 @@ public extension AVPlayer {
 
     /**
      Requests that the player seek to a specified percentage.
-     
+
      - Parameter percentage: The percentage to which to seek.
      */
     func seek(toPercentage percentage: Double) {
@@ -111,7 +111,7 @@ public extension AVPlayer {
 
     /**
      Requests that the player seek to a specified time expressed by seconds.
-     
+
      - Parameter duration: The time to which to seek.
      */
     func seek(to time: TimeDuration) {
@@ -147,19 +147,19 @@ public extension AVPlayer {
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
-public extension AVLayerVideoGravity {
-    init?(caLayerContentsGravity: CALayerContentsGravity) {
-        switch caLayerContentsGravity {
-        case .resizeAspectFill:
-            self = .resizeAspectFill
-        case .resizeAspect:
-            self = .resizeAspect
-        case .resize:
-            self = .resize
-        default:
-            return nil
+    public extension AVLayerVideoGravity {
+        init?(caLayerContentsGravity: CALayerContentsGravity) {
+            switch caLayerContentsGravity {
+            case .resizeAspectFill:
+                self = .resizeAspectFill
+            case .resizeAspect:
+                self = .resizeAspect
+            case .resize:
+                self = .resize
+            default:
+                return nil
+            }
         }
     }
-}
 
 #endif

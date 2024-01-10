@@ -21,22 +21,22 @@ public struct AttributedStringTransformer: ContentTransform {
     /// Creates a text transformer with the specified identifier and closure.
     public init(_ identifier: String, _ transform: @escaping (AttributedString) -> AttributedString) {
         self.transform = transform
-        self.id = identifier
+        id = identifier
     }
 
     /// Creates a color transformer that generates a capitalized version of the attributed string.
     public static func capitalized() -> Self {
-        return Self("capitalized") { $0.capitalized() }
+        Self("capitalized") { $0.capitalized() }
     }
 
     /// Creates a color transformer that generates a lowercased version of the attributed string.
     public static func lowercased() -> Self {
-        return Self("lowercased") { $0.lowercased() }
+        Self("lowercased") { $0.lowercased() }
     }
 
     /// Creates a color transformer that generates a uppercased version of the attributed string.
     public static func uppercased() -> Self {
-        return Self("uppercased") { $0.uppercased() }
+        Self("uppercased") { $0.uppercased() }
     }
 }
 
@@ -57,16 +57,16 @@ public struct NSAttributedStringTransformer: ContentTransform {
 
     /// Creates a color transformer that generates a capitalized version of the attributed string.
     public static func capitalized() -> Self {
-        return Self("capitalized") { $0.capitalized() }
+        Self("capitalized") { $0.capitalized() }
     }
 
     /// Creates a color transformer that generates a lowercased version of the attributed string.
     public static func lowercased() -> Self {
-        return Self("lowercased") { $0.lowercased() }
+        Self("lowercased") { $0.lowercased() }
     }
 
     /// Creates a color transformer that generates a uppercased version of the attributed string.
     public static func uppercased() -> Self {
-        return Self("uppercased") { $0.uppercased() }
+        Self("uppercased") { $0.uppercased() }
     }
 }

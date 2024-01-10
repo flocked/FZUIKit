@@ -47,4 +47,4 @@ extension CMTime: Codable {
     }
 }
 
-extension CMTimeFlags: Codable { }
+extension CMTimeFlags: Codable {}

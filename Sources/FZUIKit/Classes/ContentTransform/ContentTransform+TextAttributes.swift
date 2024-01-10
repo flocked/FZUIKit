@@ -1,6 +1,6 @@
 //
 //  ContentTransform+TextAttributes.swift
-//  
+//
 //
 //  Created by Florian Zand on 26.05.23.
 //
@@ -18,6 +18,6 @@ public struct TextAttributesTransformer: ContentTransform {
     /// Creates a new text attributes transformer with the specified identifier and closure.
     public init(_ identifier: String, _ transform: @escaping (AttributeContainer) -> AttributeContainer) {
         self.transform = transform
-        self.id = identifier
+        id = identifier
     }
 }

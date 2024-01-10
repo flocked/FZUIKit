@@ -20,9 +20,9 @@ public extension Image {
 }
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 
 public extension Image {
@@ -35,21 +35,21 @@ public extension Image {
 public extension NSUIImage {
     /// A SwiftUI representation of the image.
     var swiftui: Image {
-        if #available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *), let symbolName = self.symbolName {
-               return Image(systemName: symbolName)
+        if #available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *), let symbolName = symbolName {
+            return Image(systemName: symbolName)
         }
         #if os(macOS)
-        if self.isTemplate {
-            return Image(nsImage: self).renderingMode(.template)
-        } else {
-            return Image(nsImage: self)
-        }
+            if isTemplate {
+                return Image(nsImage: self).renderingMode(.template)
+            } else {
+                return Image(nsImage: self)
+            }
         #elseif canImport(UIKit)
-        if self.renderingMode == .alwaysTemplate || self.isSymbolImage {
-            return Image(uiImage: self).renderingMode(.template)
-        } else {
-            return Image(uiImage: self)
-        }
+            if renderingMode == .alwaysTemplate || isSymbolImage {
+                return Image(uiImage: self).renderingMode(.template)
+            } else {
+                return Image(uiImage: self)
+            }
         #endif
     }
 }

@@ -8,9 +8,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 import SwiftUI
 
@@ -31,29 +31,29 @@ public extension CGColor {
             return RGBAComponents(components[0], components[1], components[2], components[3])
         default:
             #if os(macOS) || os(iOS) || os(tvOS)
-            let ciColor = CIColor(cgColor: color)
-            return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
+                let ciColor = CIColor(cgColor: color)
+                return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
             #else
-            return nil
+                return nil
             #endif
         }
     }
 
     /**
      Creates a new color object whose component values are a weighted sum of the current color object and the specified color object's.
-     
+
      - Parameters:
         - fraction: The amount of the color to blend with the receiver's color. The method converts color and a copy of the receiver to RGB, and then sets each component of the returned color to fraction of color’s value plus 1 – fraction of the receiver’s.
         - color: The color to blend with the receiver's color.
-     
+
      - Returns: The resulting color object or `nil` if the color couldn't be created.
      */
     func blended(withFraction fraction: CGFloat, of color: CGColor) -> CGColor? {
         guard let c1 = rgbaComponents(), let c2 = color.rgbaComponents() else { return nil }
 
-        let red   = c1.red + (fraction * (c2.red - c1.red))
+        let red = c1.red + (fraction * (c2.red - c1.red))
         let green = c1.green + (fraction * (c2.green - c1.green))
-        let blue  = c1.blue + (fraction * (c2.blue - c1.blue))
+        let blue = c1.blue + (fraction * (c2.blue - c1.blue))
         let alpha = c1.alpha + (fraction * (c2.alpha - c1.alpha))
 
         return CGColor(red: red, green: green, blue: blue, alpha: alpha)
@@ -71,7 +71,7 @@ public extension CGColor {
      - Returns: The new `CGColor` object.
      */
     func withAlpha(_ alpha: CGFloat) -> CGColor {
-        return copy(alpha: alpha) ?? self
+        copy(alpha: alpha) ?? self
     }
 
     /// Returns a color from a pattern image.
@@ -99,42 +99,43 @@ public extension CGColor {
     }
 
     #if os(macOS)
-    /// Returns a `NSColor` representation of the color.
-    var nsColor: NSColor? {
-        return NSColor(cgColor: self)
-    }
-
-    /// Returns a `Color` representation of the color.
-    var swiftUI: Color? {
-        if let color = self.nsColor {
-            return Color(color)
+        /// Returns a `NSColor` representation of the color.
+        var nsColor: NSColor? {
+            NSColor(cgColor: self)
         }
-        return nil
-    }
+
+        /// Returns a `Color` representation of the color.
+        var swiftUI: Color? {
+            if let color = self.nsColor {
+                return Color(color)
+            }
+            return nil
+        }
+
     #elseif canImport(UIKit)
-    /// Returns a `UIColor` representation of the color.
-    var uiColor: UIColor {
-        return UIColor(cgColor: self)
-    }
+        /// Returns a `UIColor` representation of the color.
+        var uiColor: UIColor {
+            UIColor(cgColor: self)
+        }
 
-    /// Returns a `Color` representation of the color.
-    var swiftUI: Color {
-        Color(self.uiColor)
-    }
+        /// Returns a `Color` representation of the color.
+        var swiftUI: Color {
+            Color(uiColor)
+        }
 
-    /// The clear color in the Generic gray color space.
-    static var clear: CGColor {
-        CGColor(gray: 0, alpha: 0)
-    }
+        /// The clear color in the Generic gray color space.
+        static var clear: CGColor {
+            CGColor(gray: 0, alpha: 0)
+        }
     #endif
 
     internal var nsUIColor: NSUIColor? {
-        return NSUIColor(cgColor: self)
+        NSUIColor(cgColor: self)
     }
 }
 
 extension CGColor: CustomStringConvertible {
     public var description: String {
-        return CFCopyDescription(self) as String
+        CFCopyDescription(self) as String
     }
 }

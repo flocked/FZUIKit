@@ -11,7 +11,7 @@ public extension View {
     @ViewBuilder
     /**
      Sets the alignment of a text view.
-     
+
      - Parameters:
         - textAlignment: The alignment of the text.
         - autoWidth: A Boolean value that indicates whether the text should fit its width automatically.
@@ -21,7 +21,7 @@ public extension View {
     }
 }
 
-internal struct TextAlignmentModifier: ViewModifier {
+struct TextAlignmentModifier: ViewModifier {
     let textAlignment: TextAlignment
     let autoWidth: Bool
 
@@ -31,14 +31,14 @@ internal struct TextAlignmentModifier: ViewModifier {
     }
 
     @ViewBuilder
-    internal func body(content: Content) -> some View {
+    func body(content: Content) -> some View {
         content
             .multilineTextAlignment(textAlignment)
             .frame(maxWidth: autoWidth ? CGFloat.infinity : nil, alignment: textAlignment.alignment)
     }
 }
 
-internal extension TextAlignment {
+extension TextAlignment {
     var alignment: Alignment {
         switch self {
         case .leading: return .leading

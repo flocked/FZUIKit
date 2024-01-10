@@ -8,9 +8,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 import SwiftUI
 
@@ -18,11 +18,11 @@ extension NSDirectionalRectEdge: Hashable {}
 
 public extension CGRect {
     func inset(by edgeInsets: EdgeInsets) -> CGRect {
-        return inset(by: NSUIEdgeInsets(edgeInsets))
+        inset(by: NSUIEdgeInsets(edgeInsets))
     }
 
     func inset(by edgeInsets: NSUIEdgeInsets) -> CGRect {
-        return inset(by: edgeInsets.directional)
+        inset(by: edgeInsets.directional)
     }
 
     func inset(by edgeInsets: NSDirectionalEdgeInsets) -> CGRect {
@@ -50,8 +50,8 @@ extension NSUIEdgeInsets: Hashable {
 
 public extension NSUIEdgeInsets {
     #if os(macOS)
-    /// An edge insets struct whose top, left, bottom, and right fields are all set to 0.
-    static var zero = NSEdgeInsets(0)
+        /// An edge insets struct whose top, left, bottom, and right fields are all set to 0.
+        static var zero = NSEdgeInsets(0)
     #endif
 
     /// Creates an edge insets structure with the specified value for top, bottom, left and right.
@@ -73,7 +73,7 @@ public extension NSUIEdgeInsets {
 
     /// The width (left + right) of the insets.
     var width: CGFloat {
-        get { return left + right }
+        get { left + right }
         set {
             let value = newValue / 2.0
             left = value
@@ -83,7 +83,7 @@ public extension NSUIEdgeInsets {
 
     /// The height (top + bottom) of the insets.
     var height: CGFloat {
-        get { return top + bottom }
+        get { top + bottom }
         set {
             let value = newValue / 2.0
             top = value
@@ -93,19 +93,19 @@ public extension NSUIEdgeInsets {
 
     /// The insets as `NSDirectionalEdgeInsets`.
     var directional: NSDirectionalEdgeInsets {
-        return .init(top: top, leading: left, bottom: bottom, trailing: right)
+        .init(top: top, leading: left, bottom: bottom, trailing: right)
     }
 
     /// The insets as `EdgeInsets`.
     var edgeInsets: EdgeInsets {
-        return EdgeInsets(top: top, leading: left, bottom: bottom, trailing: right)
+        EdgeInsets(top: top, leading: left, bottom: bottom, trailing: right)
     }
 }
 
 public extension NSDirectionalEdgeInsets {
     #if os(macOS)
-    /// A directional edge insets structure whose top, leading, bottom, and trailing fields all have a value of 0.
-    static var zero = NSDirectionalEdgeInsets(0)
+        /// A directional edge insets structure whose top, leading, bottom, and trailing fields all have a value of 0.
+        static var zero = NSDirectionalEdgeInsets(0)
     #endif
 
     /// Creates an edge insets structure with the specified value for top, bottom, leading and trailing.
@@ -122,7 +122,7 @@ public extension NSDirectionalEdgeInsets {
 
     /// The width (leading + trailing) of the insets.
     var width: CGFloat {
-        get { return leading + trailing }
+        get { leading + trailing }
         set {
             let value = newValue / 2.0
             leading = value
@@ -132,7 +132,7 @@ public extension NSDirectionalEdgeInsets {
 
     /// The height (top + bottom) of the insets.
     var height: CGFloat {
-        get { return top + bottom }
+        get { top + bottom }
         set {
             let value = newValue / 2.0
             top = value
@@ -142,20 +142,20 @@ public extension NSDirectionalEdgeInsets {
 
     /// The insets as `EdgeInsets`.
     var edgeInsets: EdgeInsets {
-        return EdgeInsets(top: top, leading: leading, bottom: bottom, trailing: trailing)
+        EdgeInsets(top: top, leading: leading, bottom: bottom, trailing: trailing)
     }
 
     #if os(macOS)
-    /// The insets as `NSEdgeInsets`.
-    var nsEdgeInsets: NSEdgeInsets {
-        return .init(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
-    }
+        /// The insets as `NSEdgeInsets`.
+        var nsEdgeInsets: NSEdgeInsets {
+            .init(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
+        }
 
     #elseif canImport(UIKit)
-    /// The insets as `UIEdgeInsets`.
-    var uiEdgeInsets: UIEdgeInsets {
-        return .init(top: top, left: leading, bottom: bottom, right: trailing)
-    }
+        /// The insets as `UIEdgeInsets`.
+        var uiEdgeInsets: UIEdgeInsets {
+            .init(top: top, left: leading, bottom: bottom, right: trailing)
+        }
     #endif
 }
 
@@ -172,13 +172,13 @@ extension NSDirectionalEdgeInsets: Hashable {
     }
 }
 
-internal extension Edge.Set {
+extension Edge.Set {
     static var width: Self {
-        return [.trailing, .trailing]
+        [.trailing, .trailing]
     }
 
     static var height: Self {
-        return [.top, .bottom]
+        [.top, .bottom]
     }
 }
 
@@ -205,7 +205,7 @@ extension EdgeInsets: Hashable {
 
     /// The width (leading + trailing) of the insets.
     public var width: CGFloat {
-        get { return leading + trailing }
+        get { leading + trailing }
         set {
             let value = newValue / 2.0
             leading = value
@@ -215,7 +215,7 @@ extension EdgeInsets: Hashable {
 
     /// The height (top + bottom) of the insets.
     public var height: CGFloat {
-        get { return top + bottom }
+        get { top + bottom }
         set {
             let value = newValue / 2.0
             top = value

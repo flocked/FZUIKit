@@ -6,38 +6,38 @@
 //
 
 #if os(macOS)
-import AppKit
-
-/**
- The requirements for a content view that you create using a configuration.
-
- This protocol provides a blueprint for a content view object that renders the content and styling that you define with its configuration. The content view’s configuration encapsulates all of the supported properties and behaviors for content view customization. Setting the content view’s configuration property applies the new configuration to the view, causing the view to render any updates to its appearance.
- */
-public protocol NSContentView: NSObjectProtocol {
-    /**
-     The current configuration of the view.
-
-     Setting this property applies the new configuration to the view.
-     */
-    var configuration: NSContentConfiguration { get set }
+    import AppKit
 
     /**
-     Determines whether the view is compatible with the provided configuration.
+     The requirements for a content view that you create using a configuration.
 
-     The default implementation assumes the view is compatible with configuration types that match the type of the view’s existing configuration.
-     
-     - Parameters:
-        - configuration: The new configuration to test for compatibility.
-     
-     - Returns: `true if the view supports this configuration being set to its configuration property and is capable of updating itself for the configuration; otherwise, `false`.
+     This protocol provides a blueprint for a content view object that renders the content and styling that you define with its configuration. The content view’s configuration encapsulates all of the supported properties and behaviors for content view customization. Setting the content view’s configuration property applies the new configuration to the view, causing the view to render any updates to its appearance.
      */
-    func supports(_ configuration: NSContentConfiguration) -> Bool
-}
+    public protocol NSContentView: NSObjectProtocol {
+        /**
+         The current configuration of the view.
 
-public extension NSContentView {
-    /// Determines whether the view is compatible with the provided configuration.
-    func supports(_ configuration: NSContentConfiguration) -> Bool {
-       return type(of: configuration) == type(of: self.configuration)
+         Setting this property applies the new configuration to the view.
+         */
+        var configuration: NSContentConfiguration { get set }
+
+        /**
+         Determines whether the view is compatible with the provided configuration.
+
+         The default implementation assumes the view is compatible with configuration types that match the type of the view’s existing configuration.
+
+         - Parameters:
+            - configuration: The new configuration to test for compatibility.
+
+         - Returns: `true if the view supports this configuration being set to its configuration property and is capable of updating itself for the configuration; otherwise, `false`.
+         */
+        func supports(_ configuration: NSContentConfiguration) -> Bool
     }
-}
+
+    public extension NSContentView {
+        /// Determines whether the view is compatible with the provided configuration.
+        func supports(_ configuration: NSContentConfiguration) -> Bool {
+            type(of: configuration) == type(of: self.configuration)
+        }
+    }
 #endif

@@ -6,155 +6,155 @@
 //
 
 #if os(macOS)
-import AppKit
+    import AppKit
 
-@available(macOS 11.0, *)
-public extension ToolbarItem {
-    /**
-     A toolbar item that contains a search field optimized for performing text-based searches.
-     
-     The item can be used with ``Toolbar``.
-     */
-    class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
-        typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
-
-        lazy var searchItem = NSSearchToolbarItem(identifier)
-        override internal var item: NSToolbarItem {
-            return searchItem
-        }
-
-        /// State of the searching.
-        public enum SearchState {
-            /// Searching did start.
-            case didStart
-            /// Searching did update.
-            case didUpdate
-            /// Searching did emd.
-            case didEnd
-        }
-
-        var searchHandler: SearchHandler?
-
-        /// The action handler getting called when the search string value changes.
-        @discardableResult
-        public func onSearch(_ action: @escaping ((_ searchfield: NSSearchField, _ stringValue: String, _ state: SearchState) -> Void)) -> Self {
-            searchHandler = action
-            return self
-        }
-
-        /// The search field of the toolbar item.
-        public var searchField: NSSearchField {
-            get { searchItem.searchField }
-            set {
-                guard newValue != searchField else { return }
-                searchItem.searchField = newValue
-                self.setupSearchField()
-            }
-        }
-
-        /// The string value of the search field.
-        public var stringValue: String {
-            get { searchField.stringValue }
-            set { searchField.stringValue = newValue }
-        }
-
-        /// The placeholder string of the search field.
-        public var placeholderString: String? {
-            get { searchField.placeholderString }
-            set { searchField.placeholderString = newValue }
-        }
-
-        /// The placeholder attributed string of the search field.
-        public var placeholderAttributedString: NSAttributedString? {
-            get { searchField.placeholderAttributedString }
-            set { searchField.placeholderAttributedString = newValue }
-        }
-
-        /// /// The placeholder string of the search field.
-        @discardableResult
-        public func placeholderString(_ placeholder: String?) -> Self {
-            self.placeholderString = placeholder
-            return self
-        }
-
-        ///  /// The placeholder attributed string of the search field.
-        @discardableResult
-        public func placeholderAttributedString(_ placeholder: NSAttributedString?) -> Self {
-            self.placeholderAttributedString = placeholder
-            return self
-        }
-
-        /// The action to perform when the user pressed the enter key.
-        @discardableResult
-        public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
-            searchItem.searchField.actionOnEnterKeyDown = enterAction
-            return self
-        }
-
-        /// /// The action to perform when the user pressed the escape key.
-        @discardableResult
-        public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
-            searchItem.searchField.actionOnEscapeKeyDown = escapeAction
-            return self
-        }
-
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
-            super.init(identifier)
-            self.searchField.actionBlock = { [weak self] _ in
-                guard let self = self else { return }
-                self.item.actionBlock?(self.item)
-            }
-            self.searchField.delegate = self
-            self.searchField.translatesAutoresizingMaskIntoConstraints = false
-            self.searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
-        }
-
-        func setupSearchField() {
-            self.searchField.actionBlock = { [weak self] _ in
-                guard let self = self else { return }
-                self.item.actionBlock?(self.item)
-            }
-            self.searchField.delegate = self
-        }
-
+    @available(macOS 11.0, *)
+    public extension ToolbarItem {
         /**
-         Creates a search toolbar item.
-         
-         - Parameters:
-            - identifier: An optional identifier of the item.
-            - searchField: The search field of the item.
+         A toolbar item that contains a search field optimized for performing text-based searches.
+
+         The item can be used with ``Toolbar``.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, searchField: NSSearchField) {
-            super.init(identifier)
-            searchField.translatesAutoresizingMaskIntoConstraints = false
-            self.searchField = searchField
-            self.setupSearchField()
-        }
+        class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
+            typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
 
-        /**
-         Creates a search toolbar item.
-         
-         - Parameters:
-            - identifier: An optional identifier of the item.
-         */
-        override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
-            super.init(identifier)
-            self.setupSearchField()
-        }
+            lazy var searchItem = NSSearchToolbarItem(identifier)
+            override var item: NSToolbarItem {
+                searchItem
+            }
 
-        public func searchFieldDidStartSearching(_: NSSearchField) {
-            //    searchState = .isStarted
-            searchHandler?(searchField, stringValue, .didStart)
-        }
+            /// State of the searching.
+            public enum SearchState {
+                /// Searching did start.
+                case didStart
+                /// Searching did update.
+                case didUpdate
+                /// Searching did emd.
+                case didEnd
+            }
 
-        public func searchFieldDidEndSearching(_: NSSearchField) {
-            searchHandler?(searchField, stringValue, .didEnd)
-        }
+            var searchHandler: SearchHandler?
 
-        public func controlTextDidChange(_: Notification) {
-            searchHandler?(searchField, stringValue, .didUpdate)
+            /// The action handler getting called when the search string value changes.
+            @discardableResult
+            public func onSearch(_ action: @escaping ((_ searchfield: NSSearchField, _ stringValue: String, _ state: SearchState) -> Void)) -> Self {
+                searchHandler = action
+                return self
+            }
+
+            /// The search field of the toolbar item.
+            public var searchField: NSSearchField {
+                get { searchItem.searchField }
+                set {
+                    guard newValue != searchField else { return }
+                    searchItem.searchField = newValue
+                    setupSearchField()
+                }
+            }
+
+            /// The string value of the search field.
+            public var stringValue: String {
+                get { searchField.stringValue }
+                set { searchField.stringValue = newValue }
+            }
+
+            /// The placeholder string of the search field.
+            public var placeholderString: String? {
+                get { searchField.placeholderString }
+                set { searchField.placeholderString = newValue }
+            }
+
+            /// The placeholder attributed string of the search field.
+            public var placeholderAttributedString: NSAttributedString? {
+                get { searchField.placeholderAttributedString }
+                set { searchField.placeholderAttributedString = newValue }
+            }
+
+            /// /// The placeholder string of the search field.
+            @discardableResult
+            public func placeholderString(_ placeholder: String?) -> Self {
+                placeholderString = placeholder
+                return self
+            }
+
+            ///  /// The placeholder attributed string of the search field.
+            @discardableResult
+            public func placeholderAttributedString(_ placeholder: NSAttributedString?) -> Self {
+                placeholderAttributedString = placeholder
+                return self
+            }
+
+            /// The action to perform when the user pressed the enter key.
+            @discardableResult
+            public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
+                searchItem.searchField.actionOnEnterKeyDown = enterAction
+                return self
+            }
+
+            /// /// The action to perform when the user pressed the escape key.
+            @discardableResult
+            public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
+                searchItem.searchField.actionOnEscapeKeyDown = escapeAction
+                return self
+            }
+
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
+                super.init(identifier)
+                searchField.actionBlock = { [weak self] _ in
+                    guard let self = self else { return }
+                    self.item.actionBlock?(self.item)
+                }
+                searchField.delegate = self
+                searchField.translatesAutoresizingMaskIntoConstraints = false
+                searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
+            }
+
+            func setupSearchField() {
+                searchField.actionBlock = { [weak self] _ in
+                    guard let self = self else { return }
+                    self.item.actionBlock?(self.item)
+                }
+                searchField.delegate = self
+            }
+
+            /**
+             Creates a search toolbar item.
+
+             - Parameters:
+                - identifier: An optional identifier of the item.
+                - searchField: The search field of the item.
+             */
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, searchField: NSSearchField) {
+                super.init(identifier)
+                searchField.translatesAutoresizingMaskIntoConstraints = false
+                self.searchField = searchField
+                setupSearchField()
+            }
+
+            /**
+             Creates a search toolbar item.
+
+             - Parameters:
+                - identifier: An optional identifier of the item.
+             */
+            override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
+                super.init(identifier)
+                setupSearchField()
+            }
+
+            public func searchFieldDidStartSearching(_: NSSearchField) {
+                //    searchState = .isStarted
+                searchHandler?(searchField, stringValue, .didStart)
+            }
+
+            public func searchFieldDidEndSearching(_: NSSearchField) {
+                searchHandler?(searchField, stringValue, .didEnd)
+            }
+
+            public func controlTextDidChange(_: Notification) {
+                searchHandler?(searchField, stringValue, .didUpdate)
+            }
         }
     }
-}
 
 #endif

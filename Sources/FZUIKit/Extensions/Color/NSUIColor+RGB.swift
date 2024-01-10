@@ -1,62 +1,62 @@
 //
-//  RGBAComponents.swift
+//  NSUIColor+RGB.swift
 //
 //
 //  Created by Florian Zand on 04.12.23.
 //
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 import SwiftUI
 
 public extension NSUIColor {
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents {
-      var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
 
-      #if os(iOS) || os(tvOS) || os(watchOS)
-        getRed(&r, green: &g, blue: &b, alpha: &a)
+        #if os(iOS) || os(tvOS) || os(watchOS)
+            getRed(&r, green: &g, blue: &b, alpha: &a)
 
-        return RGBAComponents(r, g, b, a)
-      #elseif os(OSX)
-        guard let rgbaColor = self.usingColorSpace(.deviceRGB) else {
-          fatalError("Could not convert color to RGBA.")
-        }
+            return RGBAComponents(r, g, b, a)
+        #elseif os(OSX)
+            guard let rgbaColor = usingColorSpace(.deviceRGB) else {
+                fatalError("Could not convert color to RGBA.")
+            }
 
-        rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+            rgbaColor.getRed(&r, green: &g, blue: &b, alpha: &a)
 
-        return RGBAComponents(r, g, b, a)
-      #endif
+            return RGBAComponents(r, g, b, a)
+        #endif
     }
 
     #if os(iOS) || os(tvOS) || os(watchOS)
-    /// The red component of the color.
-    var redComponent: CGFloat {
-      return rgbaComponents().red
-    }
+        /// The red component of the color.
+        var redComponent: CGFloat {
+            rgbaComponents().red
+        }
 
-    /// The green component of the color.
-    var greenComponent: CGFloat {
-      return rgbaComponents().green
-    }
+        /// The green component of the color.
+        var greenComponent: CGFloat {
+            rgbaComponents().green
+        }
 
-    /// The blue component of the color.
-    var blueComponent: CGFloat {
-      return rgbaComponents().blue
-    }
+        /// The blue component of the color.
+        var blueComponent: CGFloat {
+            rgbaComponents().blue
+        }
 
-    /// The alpha component of the color.
-    var alphaComponent: CGFloat {
-      return rgbaComponents().alpha
-    }
+        /// The alpha component of the color.
+        var alphaComponent: CGFloat {
+            rgbaComponents().alpha
+        }
     #endif
 
     /**
      Returns a new color object with the specified red component.
-     
+
      - Parameter red: The red component value of the new color object, specified as a value from 0.0 to 1.0. Red values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
@@ -67,7 +67,7 @@ public extension NSUIColor {
 
     /**
      Returns a new color object with the specified green component.
-     
+
      - Parameter green: The green component value of the new color object, specified as a value from 0.0 to 1.0. Green values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
@@ -78,7 +78,7 @@ public extension NSUIColor {
 
     /**
      Returns a new color object with the specified blue component.
-     
+
      - Parameter blue: The blue component value of the new color object, specified as a value from 0.0 to 1.0. Blue values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
@@ -89,7 +89,7 @@ public extension NSUIColor {
 
     /**
      Returns a new color object with the specified alpha component.
-     
+
      - Parameter alpha: The alpha component value of the new color object, specified as a value from 0.0 to 1.0. Alpha values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
@@ -101,7 +101,6 @@ public extension NSUIColor {
 
 /// The RGBA (red, green, blue, alpha) components of a color.
 public struct RGBAComponents: Codable, Hashable {
-
     /// The red component of the color.
     public var red: CGFloat {
         didSet { red = red.clamped(max: 1.0) }
@@ -123,15 +122,15 @@ public struct RGBAComponents: Codable, Hashable {
     }
 
     #if os(macOS)
-    /// Returns the `NSColor`.
-    public func nsColor() -> NSUIColor {
-        NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
-    }
+        /// Returns the `NSColor`.
+        public func nsColor() -> NSUIColor {
+            NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
+        }
     #else
-    /// Returns the `UIColor`.
-    public func uiColor() -> NSUIColor {
-        NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
-    }
+        /// Returns the `UIColor`.
+        public func uiColor() -> NSUIColor {
+            NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
+        }
     #endif
 
     /// Returns the `CGColor`.
@@ -144,7 +143,7 @@ public struct RGBAComponents: Codable, Hashable {
         Color(red: red, green: green, blue: blue, opacity: alpha)
     }
 
-    internal static let zero = RGBAComponents(0.0, 0.0, 0.0, 0.0)
+    static let zero = RGBAComponents(0.0, 0.0, 0.0, 0.0)
 
     /// Creates RGBA components with the specified red, green, blue and alpha components.
     public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
@@ -154,7 +153,7 @@ public struct RGBAComponents: Codable, Hashable {
         self.alpha = alpha.clamped(max: 1.0)
     }
 
-    internal init(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat) {
+    init(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat) {
         self.red = red.clamped(max: 1.0)
         self.green = green.clamped(max: 1.0)
         self.blue = blue.clamped(max: 1.0)
@@ -169,9 +168,9 @@ public extension NSUIColor {
     }
 }
 
-extension AnimatableProperty where Self: CGColor {
+public extension AnimatableProperty where Self: CGColor {
     /// Creates a color using the RGBA components.
-    public init(_ rgbaComponents: RGBAComponents) {
+    init(_ rgbaComponents: RGBAComponents) {
         self.init(red: rgbaComponents.red, green: rgbaComponents.green, blue: rgbaComponents.blue, alpha: rgbaComponents.alpha)
     }
 }

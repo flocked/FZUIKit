@@ -17,7 +17,8 @@ public extension View {
     ///   - animate: Whether or not the blobs should move.
     func irregularGradient<Background: View>(colors: [Color],
                                              background: @autoclosure @escaping () -> Background,
-                                             speed: Double = 0) -> some View {
+                                             speed: Double = 0) -> some View
+    {
         overlay(IrregularGradient(colors: colors,
                                   background: background(),
                                   speed: speed))
@@ -35,7 +36,8 @@ public extension Shape {
     ///   - animate: Whether or not the blobs should move.
     func irregularGradient<Background: View>(colors: [Color],
                                              background: @autoclosure @escaping () -> Background,
-                                             speed: Double = 0) -> some View {
+                                             speed: Double = 0) -> some View
+    {
         overlay(IrregularGradient(colors: colors,
                                   background: background(),
                                   speed: speed))

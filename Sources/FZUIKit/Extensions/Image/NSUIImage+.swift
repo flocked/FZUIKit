@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 import FZSwiftUtils
 
@@ -26,14 +26,14 @@ public extension NSUIImage {
 
     internal var _symbolName: String? {
         #if os(macOS)
-        let description = String(describing: self)
-        return description.matches(between: "symbol = ", and: ">").first?.string
+            let description = String(describing: self)
+            return description.matches(between: "symbol = ", and: ">").first?.string
         #else
-        guard isSymbolImage, let strSeq = "\(String(describing: self))".split(separator: ")").first else { return nil }
-        let str = String(strSeq)
-        guard let name = str.split(separator: ":").last else { return nil }
-        return String(name).trimmingCharacters(in: .whitespacesAndNewlines)
-    #endif
+            guard isSymbolImage, let strSeq = "\(String(describing: self))".split(separator: ")").first else { return nil }
+            let str = String(strSeq)
+            guard let name = str.split(separator: ":").last else { return nil }
+            return String(name).trimmingCharacters(in: .whitespacesAndNewlines)
+        #endif
     }
 
     /// The color at the specified pixel location.
@@ -53,41 +53,42 @@ public extension NSUIImage {
         return NSUIColor(red: r, green: g, blue: b, alpha: a)
     }
 
-#if os(macOS)
-    /**
-     Creates an image object with the specified color and size.
+    #if os(macOS)
+        /**
+         Creates an image object with the specified color and size.
 
-     - Parameters:
-        - color: The color of the image.
-        - size: The size of the image.
-     
-     - Returns: The image object with the specified color.
-     */
-    convenience init(color: NSUIColor, size: CGSize) {
-        self.init(size: size, flipped: false) { rect in
-            color.setFill()
-            rect.fill()
-            return true
+         - Parameters:
+            - color: The color of the image.
+            - size: The size of the image.
+
+         - Returns: The image object with the specified color.
+         */
+        convenience init(color: NSUIColor, size: CGSize) {
+            self.init(size: size, flipped: false) { rect in
+                color.setFill()
+                rect.fill()
+                return true
+            }
+            resizingMode = .stretch
+            capInsets = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         }
-        resizingMode = .stretch
-        capInsets = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    }
-#elseif os(iOS) || os(tvOS)
-    /**
-     Creates an image object with the specified color and size.
 
-     - Parameters:
-        - color: The color of the image.
-        - size: The size of the image.
-     
-     - Returns: The image object with the specified color.
-     */
-    convenience init(color: NSUIColor, size: CGSize) {
-        let image = UIGraphicsImageRenderer(size: size).image { context in
-            color.setFill()
-            context.fill(context.format.bounds)
-        }.resizableImage(withCapInsets: .zero)
-        self.init(cgImage: image.cgImage!)
-    }
-#endif
+    #elseif os(iOS) || os(tvOS)
+        /**
+         Creates an image object with the specified color and size.
+
+         - Parameters:
+            - color: The color of the image.
+            - size: The size of the image.
+
+         - Returns: The image object with the specified color.
+         */
+        convenience init(color: NSUIColor, size: CGSize) {
+            let image = UIGraphicsImageRenderer(size: size).image { context in
+                color.setFill()
+                context.fill(context.format.bounds)
+            }.resizableImage(withCapInsets: .zero)
+            self.init(cgImage: image.cgImage!)
+        }
+    #endif
 }

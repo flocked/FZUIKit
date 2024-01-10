@@ -6,46 +6,45 @@
 //
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #elseif canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 import SwiftUI
 
 public extension CGImage {
     #if os(macOS)
-    /// A `NSImage` representation of the image.
-    var nsImage: NSImage {
-        return NSImage(cgImage: self)
-    }
+        /// A `NSImage` representation of the image.
+        var nsImage: NSImage {
+            NSImage(cgImage: self)
+        }
 
     #elseif canImport(UIKit)
-    /// A `UIImage` representation of the image.
-    var uiImage: UIImage {
-        return UIImage(cgImage: self)
-    }
+        /// A `UIImage` representation of the image.
+        var uiImage: UIImage {
+            UIImage(cgImage: self)
+        }
     #endif
 
     /// A `Image` representation of the image.
     var swiftUI: Image {
-    #if os(macOS)
-        return Image(nsImage)
-    #elseif canImport(UIKit)
-        return Image(uiImage: uiImage)
-    #endif
+        #if os(macOS)
+            return Image(nsImage)
+        #elseif canImport(UIKit)
+            return Image(uiImage: uiImage)
+        #endif
     }
 
     /// The size of the image.
     var size: CGSize {
-        return CGSize(width: width, height: height)
+        CGSize(width: width, height: height)
     }
 
     internal var nsUIImage: NSUIImage {
-        return NSUIImage(cgImage: self)
+        NSUIImage(cgImage: self)
     }
 
-    static func create(size: CGSize, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil
-    ) throws -> CGImage {
+    static func create(size: CGSize, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
         // Make the context. For the moment, always work in RGBA (CGColorSpace.sRGB)
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
         guard

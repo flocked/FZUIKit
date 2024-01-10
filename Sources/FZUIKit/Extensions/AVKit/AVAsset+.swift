@@ -30,22 +30,22 @@ public extension AVAsset {
 
     /// The codec of a video asset.
     var videoCodec: AVAssetTrack.VideoCodec? {
-        self.tracks.compactMap({$0.videoCodec}).first
+        tracks.compactMap(\.videoCodec).first
     }
 
     /// The codec string of a video asset.
     var videoCodecString: String? {
-        self.tracks.compactMap({$0.videoCodecString}).first
+        tracks.compactMap(\.videoCodecString).first
     }
 
     /// The sample rate of a asset with audio track.
     var audioSampleRate: Float64? {
-        return tracks.compactMap { $0.audioSampleRate }.first
+        tracks.compactMap(\.audioSampleRate).first
     }
 
     /// The number of audio channels.
     var audioChannels: Int? {
-        return tracks.compactMap { $0.audioChannels }.max()
+        tracks.compactMap(\.audioChannels).max()
     }
 
     /// The video orientation.
@@ -86,7 +86,7 @@ public extension AVAssetTrack {
 
     /// The codec of a video track.
     var videoCodecString: String? {
-        let formatDescriptions = self.formatDescriptions
+        let formatDescriptions = formatDescriptions
         let mediaSubtypes = formatDescriptions
             .filter { CMFormatDescriptionGetMediaType($0 as! CMFormatDescription) == kCMMediaType_Video }
             .map { CMFormatDescriptionGetMediaSubType($0 as! CMFormatDescription).string }

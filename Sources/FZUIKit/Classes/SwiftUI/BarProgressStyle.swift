@@ -1,12 +1,12 @@
 //
 //  BarProgressStyle.swift
-//  
+//
 //
 //  Created by Florian Zand on 18.07.23.
 //
 
-import SwiftUI
 import FZSwiftUtils
+import SwiftUI
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct BarProgressStyle: ProgressViewStyle {
@@ -23,7 +23,7 @@ public struct BarProgressStyle: ProgressViewStyle {
     public func makeBody(configuration: Configuration) -> some View {
         let progress = configuration.fractionCompleted ?? 0.0
         GeometryReader { geometry in
-            RoundedRectangle(cornerRadius: self.cornerRadius)
+            RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(backgroundColor)
                 .frame(height: geometry.size.height)
                 .frame(width: geometry.size.width)
@@ -47,7 +47,7 @@ public struct BarProgressLabelStyle: ProgressViewStyle {
     let cornerRadius: CGFloat
     let padding: CGFloat
 
-    public init(color: Color = .accentColor, backgroundColor: Color = .gray, font: Font = .headline, textColor: Color = .white, alignment: Alignment = .leading, unit: String = "%", range: ClosedRange<Double> = 0...100, padding: CGFloat = 6.0, cornerRadius: CGFloat = 6.0) {
+    public init(color: Color = .accentColor, backgroundColor: Color = .gray, font: Font = .headline, textColor: Color = .white, alignment: Alignment = .leading, unit: String = "%", range: ClosedRange<Double> = 0 ... 100, padding: CGFloat = 6.0, cornerRadius: CGFloat = 6.0) {
         self.color = color
         self.backgroundColor = backgroundColor
         self.font = font
@@ -59,7 +59,7 @@ public struct BarProgressLabelStyle: ProgressViewStyle {
         self.cornerRadius = cornerRadius
     }
 
-    internal var numberFormatter: NumberFormatter {
+    var numberFormatter: NumberFormatter {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         numberFormatter.maximumFractionDigits = 2
@@ -68,8 +68,8 @@ public struct BarProgressLabelStyle: ProgressViewStyle {
 
     public func makeBody(configuration: Configuration) -> some View {
         let progress = configuration.fractionCompleted ?? 0.0
-        let progressValue = self.range.lowerBound + ((self.range.upperBound - self.range.lowerBound) * progress).rounded(.toPlaces(2))
-        let progressString = self.numberFormatter.string(from: progressValue) ?? String(format: "%.2f", progressValue)
+        let progressValue = range.lowerBound + ((range.upperBound - range.lowerBound) * progress).rounded(.toPlaces(2))
+        let progressString = numberFormatter.string(from: progressValue) ?? String(format: "%.2f", progressValue)
         GeometryReader { geometry in
             RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(backgroundColor)

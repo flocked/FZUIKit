@@ -10,7 +10,7 @@ import SwiftUI
 public extension NSUIBezierPath {
     /// A SwiftUI representation of the path.
     var swiftUI: SwiftUI.Path {
-        return SwiftUI.Path(self)
+        SwiftUI.Path(self)
     }
 }
 

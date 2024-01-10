@@ -6,100 +6,100 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-import Foundation
-///  A type that provides an animation.
-public protocol AnimationProviding {
-    /// A unique identifier for the animation.
-    var id: UUID { get }
+    import Foundation
+    ///  A type that provides an animation.
+    public protocol AnimationProviding {
+        /// A unique identifier for the animation.
+        var id: UUID { get }
 
-    /// A unique identifier that associates an animation with an grouped animation block.
-    var groupUUID: UUID? { get }
+        /// A unique identifier that associates an animation with an grouped animation block.
+        var groupUUID: UUID? { get }
 
-    /// The relative priority of the animation.
-    var relativePriority: Int { get set }
+        /// The relative priority of the animation.
+        var relativePriority: Int { get set }
 
-    /// The current state of the animation.
-    var state: AnimationState { get }
+        /// The current state of the animation.
+        var state: AnimationState { get }
 
-    /**
-     The delay (in seconds) after which the animations begin.
-     
-     The default value of this property is `0`. When the value is greater than `0`, the start of any animations is delayed by the specified amount of time.
-     To set a value for this property, use the ``start(afterDelay:)`` method when starting your animations.
-     */
-    var delay: TimeInterval { get }
+        /**
+         The delay (in seconds) after which the animations begin.
 
-    /**
-     Updates the progress of the animation with the specified delta time.
+         The default value of this property is `0`. When the value is greater than `0`, the start of any animations is delayed by the specified amount of time.
+         To set a value for this property, use the ``start(afterDelay:)`` method when starting your animations.
+         */
+        var delay: TimeInterval { get }
 
-     - parameter deltaTime: The delta time.
-     */
-    func updateAnimation(deltaTime: TimeInterval)
+        /**
+         Updates the progress of the animation with the specified delta time.
 
-    /**
-     Starts the animation from its current position with an optional delay.
-     
-     - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
-     */
-    func start(afterDelay delay: TimeInterval)
+         - parameter deltaTime: The delta time.
+         */
+        func updateAnimation(deltaTime: TimeInterval)
 
-    /// Pauses the animation at the current position.
-    func pause()
+        /**
+         Starts the animation from its current position with an optional delay.
 
-    /**
-     Stops the animation at the specified position.
-     
-     - Parameters:
-        - position: The position at which position the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``). The default value is `current`.
-        - immediately: A Boolean value that indicates whether the animation should stop immediately at the specified position. The default value is `true`.
-     */
-    func stop(at position: AnimationPosition, immediately: Bool)
-}
+         - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
+         */
+        func start(afterDelay delay: TimeInterval)
 
-extension AnimationProviding {
-    /// Starts the animation from its current position.
-    public func start() {
-        self.start(afterDelay: 0.0)
+        /// Pauses the animation at the current position.
+        func pause()
+
+        /**
+         Stops the animation at the specified position.
+
+         - Parameters:
+            - position: The position at which position the animation should stop (``AnimationPosition/current``, ``AnimationPosition/start`` or ``AnimationPosition/end``). The default value is `current`.
+            - immediately: A Boolean value that indicates whether the animation should stop immediately at the specified position. The default value is `true`.
+         */
+        func stop(at position: AnimationPosition, immediately: Bool)
     }
 
-    /// Starts the animation immediately at its current position.
-    public func stop() {
-        stop(at: .current, immediately: true)
-    }
-}
+    public extension AnimationProviding {
+        /// Starts the animation from its current position.
+        func start() {
+            start(afterDelay: 0.0)
+        }
 
-/// An internal extension to `AnimationProviding` used for configurating animations.
-internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
-    associatedtype Value: AnimatableProperty
-    var state: AnimationState { get set }
-    var delay: TimeInterval { get set }
-    var value: Value { get set }
-    var target: Value { get set }
-    var fromValue: Value { get set }
-    var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
-    var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
-    var delayedStart: DispatchWorkItem? { get set }
-    var velocity: Value { get set }
-    var _velocity: Value.AnimatableData { get set }
-    var integralizeValues: Bool { get set }
-    func configure(withSettings settings: AnimationController.AnimationParameters)
-    func reset()
-    var animationType: AnimationController.AnimationParameters.AnimationType { get }
-}
-
-extension ConfigurableAnimationProviding {
-    func setAnimatableVelocity(_ velocity: Any) {
-        guard let velocity = velocity as? Value.AnimatableData, velocity != _velocity else { return }
-        var animation = self
-        animation._velocity = velocity
+        /// Starts the animation immediately at its current position.
+        func stop() {
+            stop(at: .current, immediately: true)
+        }
     }
 
-    func setVelocity(_ velocity: Any) {
-        guard let velocity = velocity as? Value, velocity != self.velocity else { return }
-        var animation = self
-        animation.velocity = velocity
+    /// An internal extension to `AnimationProviding` used for configurating animations.
+    protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
+        associatedtype Value: AnimatableProperty
+        var state: AnimationState { get set }
+        var delay: TimeInterval { get set }
+        var value: Value { get set }
+        var target: Value { get set }
+        var fromValue: Value { get set }
+        var completion: ((_ event: AnimationEvent<Value>) -> Void)? { get set }
+        var valueChanged: ((_ currentValue: Value) -> Void)? { get set }
+        var delayedStart: DispatchWorkItem? { get set }
+        var velocity: Value { get set }
+        var _velocity: Value.AnimatableData { get set }
+        var integralizeValues: Bool { get set }
+        func configure(withSettings settings: AnimationController.AnimationParameters)
+        func reset()
+        var animationType: AnimationController.AnimationParameters.AnimationType { get }
     }
-}
+
+    extension ConfigurableAnimationProviding {
+        func setAnimatableVelocity(_ velocity: Any) {
+            guard let velocity = velocity as? Value.AnimatableData, velocity != _velocity else { return }
+            var animation = self
+            animation._velocity = velocity
+        }
+
+        func setVelocity(_ velocity: Any) {
+            guard let velocity = velocity as? Value, velocity != self.velocity else { return }
+            var animation = self
+            animation.velocity = velocity
+        }
+    }
 #endif
 
 /*
@@ -111,7 +111,7 @@ extension ConfigurableAnimationProviding {
      }
      return value != target
  }
- 
+
  public protocol PropertyAnimationProviding<Value>: AnimationProviding {
      associatedtype Value: AnimatableProperty
      /// The current state of the animation.

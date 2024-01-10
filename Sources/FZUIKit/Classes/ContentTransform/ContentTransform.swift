@@ -17,11 +17,11 @@ public protocol ContentTransform: Hashable, Identifiable {
     var id: String { get }
     /**
      Initalizes the transformer with the specified identifier and transform block.
-     
+
      - Parameters:
      - id: The identifier of the transformer.
      - transform: The block that transform a content.
-     
+
      - Returns: The content transformer..
      */
     init(_ id: String, _ transform: @escaping ((Content) -> Content))
@@ -30,7 +30,7 @@ public protocol ContentTransform: Hashable, Identifiable {
 public extension ContentTransform {
     /**
      Initalizes the transformer with the specified transform block.
-     
+
      - Parameter transform: The block that transform a content.
      - Returns: The content transformer..
      */
@@ -40,13 +40,13 @@ public extension ContentTransform {
 
     /**
      Initalizes the transformer with the specified transformers.
-     
+
      The transformer that transforms with multiple transformers by applying them one after the other.
      - Parameter transformers: An array of transformers.
      - Returns: The content transformer..
      */
     init(_ transformers: [Self]) {
-        let id = transformers.compactMap({$0.id}).joined(separator: ", ")
+        let id = transformers.compactMap(\.id).joined(separator: ", ")
         self.init(id) { content in
             var content = content
             for transformer in transformers {
@@ -58,7 +58,7 @@ public extension ContentTransform {
 
     /**
      Initalizes the transformer with the specified transformers.
-     
+
      The transformer that transforms with multiple transformers by applying them one after the other.
      - Parameter transformers: An array of transformers.
      - Returns: The content transformer..
@@ -69,12 +69,12 @@ public extension ContentTransform {
 
     /// Performs the transformation on a single input.
     func callAsFunction(_ input: Content) -> Content {
-        return transform(input)
+        transform(input)
     }
 
     /// Performs the transformation on a sequence of inputs.
     func callAsFunction<S>(_ inputs: S) -> [Content] where S: Sequence<Content> {
-        return inputs.compactMap({self($0)})
+        inputs.compactMap { self($0) }
     }
 
     /// Performs the transformation asynchronous on a single input and returns it output to the completion handler.
@@ -90,7 +90,7 @@ public extension ContentTransform {
     /// Performs the transformation asynchronous on a sequence of inputs and returns it output to the completion handler.
     func callAsFunction<S>(_ inputs: S, completionHandler: @escaping (([Content]) -> Void)) where S: Sequence<Content> {
         DispatchQueue.global(qos: .userInitiated).async {
-            let results = inputs.compactMap({self($0)})
+            let results = inputs.compactMap { self($0) }
             DispatchQueue.main.async {
                 completionHandler(results)
             }
@@ -99,7 +99,7 @@ public extension ContentTransform {
 
     /// Performs the transformation asynchronous on a single input.
     func callAsFunction(_ input: Content) async -> Content {
-        return await withCheckedContinuation { continuation in
+        await withCheckedContinuation { continuation in
             self(input) { result in
                 continuation.resume(returning: result)
             }
@@ -121,7 +121,7 @@ public extension ContentTransform {
     }
 
     static func + (lhs: Self, rhs: Self) -> Self {
-        return Self { input in
+        Self { input in
             var result = lhs(input)
             result = rhs(result)
             return result
@@ -130,5 +130,5 @@ public extension ContentTransform {
 }
 
 public extension ContentTransform where Self: AnyObject {
-    var id: String { return ObjectIdentifier(self).debugDescription }
+    var id: String { ObjectIdentifier(self).debugDescription }
 }
