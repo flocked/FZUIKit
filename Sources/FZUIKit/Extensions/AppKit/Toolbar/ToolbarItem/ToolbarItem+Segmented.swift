@@ -87,7 +87,7 @@
 
             static func segmentedControl(switching: NSSegmentedControl.SwitchTracking, type: Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
                 let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
-                segmentedControl.segmentDistribution = .fit
+                segmentedControl.segmentDistribution = .fillEqually
                 segmentedControl.translatesAutoresizingMaskIntoConstraints = false
                 segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
                 return segmentedControl
@@ -127,6 +127,7 @@
                 super.init(identifier ?? .random)
                 self.segmentedControl.translatesAutoresizingMaskIntoConstraints = false
                 self.segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+                self.segmentedControl.segmentDistribution = .fillEqually
                 item.view = self.segmentedControl
                 self.segmentedControl.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
