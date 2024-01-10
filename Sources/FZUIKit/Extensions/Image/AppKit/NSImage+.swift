@@ -22,7 +22,7 @@ public extension NSImage {
         return (self.value(forKey: "_isSymbolImage") as? Bool) ??
         (symbolName != nil)
     }
-    
+
     convenience init(cgImage: CGImage) {
         self.init(cgImage: cgImage, size: .zero)
     }
@@ -46,7 +46,7 @@ public extension NSImage {
         guard let sourceData = CGImageSourceCreateWithData(imageData as CFData, nil) else { return nil }
         return CGImageSourceCreateImageAtIndex(sourceData, 0, nil)
     }
-    
+
     var ciImage: CIImage? {
             self.tiffRepresentation(using: .none, factor: 0).flatMap(CIImage.init)
     }
@@ -81,25 +81,25 @@ public extension NSImage {
              return self.withSymbolConfiguration(.init(paletteColors: [color])) ?? self
             }
         }
-        
+
         if let cgImage = self.cgImage {
             let rect = CGRect(.zero, cgImage.size)
-            if let tintedImage = try? CGImage.create(size: rect.size, { ctx, size in
-                
+            if let tintedImage = try? CGImage.create(size: rect.size, { ctx, _ in
+
                 // draw black background to preserve color of transparent pixels
                 ctx.setBlendMode(.normal)
                 ctx.setFillColor(CGColor.black)
                 ctx.fill([rect])
-                
+
                 // Draw the image
                 ctx.setBlendMode(.normal)
                 ctx.draw(cgImage, in: rect)
-                
+
                 // tint image (losing alpha) - the luminosity of the original image is preserved
                 ctx.setBlendMode(.color)
                 ctx.setFillColor(color.cgColor)
                 ctx.fill([rect])
-                
+
                 //   if keepingAlpha {
                 // mask by alpha values of original image
                 ctx.setBlendMode(.destinationIn)
@@ -108,11 +108,11 @@ public extension NSImage {
             }).nsImage {
                return tintedImage
            }
-            
+
         }
         return self
     }
-    
+
     /// Returns an object scaled to the curren screen that may be used as the contents of a layer.
     var scaledLayerContents: Any {
         let scale = self.recommendedLayerContentsScale(0.0)
@@ -134,32 +134,32 @@ public extension NSImage {
 public extension NSBitmapImageRep {
     /// A data object that contains the representation in JPEG format.
     var pngData: Data? { representation(using: .png, properties: [:]) }
-    
+
     /// A data object that contains the representation in JPEG format.
     var tiffData: Data? { representation(using: .tiff, properties: [:]) }
-    
+
     /// A data object that contains the representation in JPEG format.
     var jpegData: Data? { representation(using: .jpeg, properties: [:]) }
-    
+
     /// A data object that contains the representation in JPEG format with the specified compressio factor.
     func jpegData(compressionFactor factor: Double) -> Data? { representation(using: .tiff, properties: [:]) }
-    
+
     /// The number of frames in an animated GIF image, or `1` if the image isn't a GIF.
     var frameCount: Int {
         (self.value(forProperty: .frameCount) as? Int) ?? 1
     }
-    
+
     /// The the current frame for an animated GIF image, or `0` if the image isn't a GIF.
     var currentFrame: Int {
         get { (self.value(forProperty: .currentFrame) as? Int) ?? 0 }
         set { self.setProperty(.currentFrame, withValue: newValue) }
     }
-    
+
     /// The duration (in seconds) of the current frame for an animated GIF image, or `0` if the image isn't a GIF.
     var currentFrameDuration: TimeInterval {
         get { (self.value(forProperty: .currentFrameDuration) as? TimeInterval) ?? 0.0 }
     }
-    
+
     /// The number of loops to make when animating a GIF image, or `0` if the image isn't a GIF.
     var loopCount: Int {
         (self.value(forProperty: .loopCount) as? Int) ?? 0
@@ -167,7 +167,7 @@ public extension NSBitmapImageRep {
 }
 
 public extension NSImage {
-    
+
     /// The bitmap representation of the image
     var bitmapImageRep: NSBitmapImageRep? {
         if let cgImage = cgImage {
@@ -184,14 +184,14 @@ public extension NSImage {
      - Returns: A data object containing the TIFF data, or nil if there was a problem generating the data. This function may return nil if the image has no data or if the underlying CGImageRef contains data in an unsupported bitmap format.
      */
     func tiffData() -> Data? { tiffRepresentation }
-    
+
     /**
      Returns a data object that contains the specified image in PNG format.
      
      - Returns: A data object containing the PNG data, or nil if there was a problem generating the data. This function may return nil if the image has no data or if the underlying CGImageRef contains data in an unsupported bitmap format.
      */
     func pngData() -> Data? { bitmapImageRep?.pngData }
-    
+
     /**
      Returns a data object that contains the image in JPEG format.
      

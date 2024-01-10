@@ -26,7 +26,7 @@ public extension NSUIView {
             case bottomLeft
             case bottomRight
         }
-        
+
         case relative
         /// The view's frame is constraint to the edges of the other view.
         case absolute
@@ -79,7 +79,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: bottom, left, width and height.
      */
     @discardableResult
-    
+
     func insertSubview(withConstraint view: NSUIView, at index: Int) -> [NSLayoutConstraint] {
         return insertSubview(withConstraint: view, .full, at: index)
     }
@@ -100,8 +100,7 @@ public extension NSUIView {
         insertSubview(view, at: index)
         return view.constraint(to: self, mode)
     }
-    
-    
+
     /**
      Constraits the view's frame to the superview.
      
@@ -126,7 +125,7 @@ public extension NSUIView {
     @discardableResult
     func constraint(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         let constants: [CGFloat]
-        
+
         switch mode {
         case .absolute:
             constants = calculateConstants(view)
@@ -147,7 +146,7 @@ public extension NSUIView {
         }
 
         translatesAutoresizingMaskIntoConstraints = false
-        
+
         var constraints: [NSLayoutConstraint] = []
         switch mode {
         case .positioned(let position, let padding):
@@ -169,7 +168,7 @@ public extension NSUIView {
                 .init(item: self, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: multipliers[3], constant: constants[3])
             ])
         }
-        
+
         NSLayoutConstraint.activate(constraints)
         return constraints
     }

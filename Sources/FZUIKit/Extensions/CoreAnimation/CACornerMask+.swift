@@ -27,13 +27,13 @@ public extension CACornerMask {
     /// Bottom corners.
     static let bottomCorners: CACornerMask = [
         .layerMaxXMinYCorner,
-        .layerMinXMinYCorner,
+        .layerMinXMinYCorner
     ]
 
     /// Top corners.
     static let topCorners: CACornerMask = [
         .layerMinXMaxYCorner,
-        .layerMaxXMaxYCorner,
+        .layerMaxXMaxYCorner
     ]
     #elseif canImport(UIKit)
     /// The bottom left corner.
@@ -48,26 +48,26 @@ public extension CACornerMask {
     /// Bottom corners.
     static let bottomCorners: CACornerMask = [
         .layerMaxXMaxYCorner,
-        .layerMinXMaxYCorner,
+        .layerMinXMaxYCorner
     ]
 
     /// Top corners.
     static let topCorners: CACornerMask = [
         .layerMinXMinYCorner,
-        .layerMaxXMinYCorner,
+        .layerMaxXMinYCorner
     ]
     #endif
 
     /// Left corners.
     static let leftCorners: CACornerMask = [
         .layerMinXMinYCorner,
-        .layerMinXMaxYCorner,
+        .layerMinXMaxYCorner
     ]
 
     /// Right corners.
     static let rightCorners: CACornerMask = [
         .layerMaxXMinYCorner,
-        .layerMaxXMaxYCorner,
+        .layerMaxXMaxYCorner
     ]
 }
 

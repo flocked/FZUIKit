@@ -17,7 +17,7 @@ public extension UICollectionViewDiffableDataSource {
         - cellRegistration: A cell registration that creates, configurate and returns each of the cells for the collection view from the data the diffable data source provides.
      */
     convenience init<Cell: UICollectionViewCell>(collectionView: UICollectionView, cellRegistration: UICollectionView.CellRegistration<Cell, ItemIdentifierType>) {
-        self.init(collectionView: collectionView, cellProvider: { collectionView,indexPath,itemIdentifier in
+        self.init(collectionView: collectionView, cellProvider: { collectionView, indexPath, itemIdentifier in
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemIdentifier)
         })
     }

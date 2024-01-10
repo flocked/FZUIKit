@@ -25,7 +25,7 @@ public extension CGImage {
         return UIImage(cgImage: self)
     }
     #endif
-    
+
     /// A `Image` representation of the image.
     var swiftUI: Image {
     #if os(macOS)
@@ -39,11 +39,11 @@ public extension CGImage {
     var size: CGSize {
         return CGSize(width: width, height: height)
     }
-    
+
     internal var nsUIImage: NSUIImage {
         return NSUIImage(cgImage: self)
     }
-    
+
     static func create(size: CGSize, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil
     ) throws -> CGImage {
         // Make the context. For the moment, always work in RGBA (CGColorSpace.sRGB)
@@ -88,7 +88,7 @@ public extension CGImage {
         }
         return result
     }
-    
+
     enum ImageError: Error {
         case unableToCreateImageFromContext
         case invalidContext

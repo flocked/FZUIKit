@@ -70,13 +70,13 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
             }
              }
     }
-    
+
     /// The arranged elements.
     public var elements: [Element] {
         get { return pageController.elements }
         set { pageController.elements = newValue }
     }
-    
+
     /**
      Returns a paging view with the specified frame, elements and page handler.
      
@@ -86,7 +86,7 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
         - pageHandler: The handler that configurates the view for each element.
      */
     public init(frame: CGRect, elements: [Element] = [], pageHandler: @escaping PageHandler) {
-        pageController = PageController<ViewController, Element>(elements: elements,  pageHandler: {
+        pageController = PageController<ViewController, Element>(elements: elements, pageHandler: {
             viewController, element in
             pageHandler(viewController.typedView, element)
         })
@@ -104,14 +104,14 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
     public convenience init(elements: [Element] = [], pageHandler: @escaping PageHandler) {
         self.init(frame: .zero, elements: elements, pageHandler: pageHandler)
     }
-    
+
     public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         self.selectedIndexAnimation = nil
         self.needsIndexAnimator = false
     }
-    
+
     private var needsIndexAnimator = false
-    private var selectedIndexAnimation: CAAnimation? = nil
+    private var selectedIndexAnimation: CAAnimation?
     public override func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
         needsIndexAnimator = key == "selectedIndex"
         if key == "selectedIndex" {
@@ -122,18 +122,18 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
         }
         return  super.animation(forKey: key)
     }
-    
+
     public override func layout() {
         super.layout()
         pageController.view.frame = self.bounds
     }
-    
+
     public override func keyDown(with event: NSEvent) {
         guard keyControllable.isEnabled else {
             keyDown(with: event)
             return
         }
-        var type: AdvanceOption? = nil
+        var type: AdvanceOption?
         switch event.keyCode {
         case 123:
             if event.modifierFlags.contains(.command) {
@@ -150,12 +150,12 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
         default:
             super.keyDown(with: event)
         }
-        
+
         if let type = type {
             self.advancePage(to: type, animationDuration: keyControllable.transitionDuration)
         }
     }
-    
+
     public override var acceptsFirstResponder: Bool {
         return true
     }
@@ -164,7 +164,7 @@ public class PagingView<View: NSView, Element>: NSView, CAAnimationDelegate {
     internal required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private typealias ViewController = TypedViewController<View>
     private let pageController: PageController<ViewController, Element>
 }
@@ -177,11 +177,11 @@ internal class TypedViewController<View: NSView>: NSViewController {
     var typedView: View {
         return view as! View
     }
-    
+
     init() {
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

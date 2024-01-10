@@ -24,7 +24,7 @@ public extension NSScrollView {
             documentView?.scroll(newValue)
         }
     }
-    
+
     /**
      The size of the document view, or `zero` if there isn't a document view.
      

@@ -24,8 +24,7 @@ public extension NSUIColor {
 public extension Color {
     @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
     init(light lightModeColor: @escaping @autoclosure () -> Color,
-         dark darkModeColor: @escaping @autoclosure () -> Color)
-    {
+         dark darkModeColor: @escaping @autoclosure () -> Color) {
         self.init(NSUIColor(
             light: NSUIColor(lightModeColor()),
             dark: NSUIColor(darkModeColor())
@@ -44,7 +43,7 @@ public extension Color {
     static func random() -> Color {
         return Color(NSUIColor.random())
     }
-    
+
     /// A random pastel color.
     static func randomPastel() -> Color {
         return Color(NSUIColor.randomPastel())
@@ -68,7 +67,7 @@ public extension Color {
         return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)))
         #endif
     }
-    
+
     /**
      Brightens the color by the specified amount.
      

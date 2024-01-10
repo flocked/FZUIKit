@@ -13,15 +13,15 @@ public extension NSTextField {
     /// Handlers for editing the text of a text field.
     struct EditingHandler {
         /// Handler that gets called whenever editing the text did begin.
-        public var didBegin: (()->())? = nil
+        public var didBegin: (() -> Void)?
         /// Handler that determines whether the text should change. If provided ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` and ``AppKit/NSTextField/allowedCharacters-swift.property`` will be ignored.
-        public var shouldEdit: ((String)->(Bool))? = nil
+        public var shouldEdit: ((String) -> (Bool))?
         /// Handler that gets called whenever the text did change.
-        public var didEdit: (()->())? = nil
+        public var didEdit: (() -> Void)?
         /// Handler that gets called whenever editing the text did end.
-        public var didEnd: (()->())? = nil
+        public var didEnd: (() -> Void)?
         /// Handler that determines whether a command should be performed (e.g. cancel, enter).
-        public var doCommand: ((Selector)->(Bool))? = nil
+        public var doCommand: ((Selector) -> (Bool))?
         internal var needsSwizzle: Bool {
             didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil || doCommand != nil
         }
@@ -32,9 +32,9 @@ public extension NSTextField {
         /// No action.
         case none
         /// Ends editing the text and optionally calls the specified handler.
-        case endEditing(handler:(()->())? = nil)
+        case endEditing(handler: (() -> Void)? = nil)
         /// Ends editing the text, resets it to the the state before editing and optionally calls the specified handler.
-        case endEditingAndReset(handler:(()->())? = nil)
+        case endEditingAndReset(handler: (() -> Void)? = nil)
     }
 
     /// The action to perform when the user pressed the enter key.
@@ -42,9 +42,9 @@ public extension NSTextField {
         /// No action.
         case none
         /// Ends editing the text and optionally calls the specified handler.
-        case endEditing(handler:(()->())? = nil)
+        case endEditing(handler: (() -> Void)? = nil)
     }
-    
+
     /// The allowed characters the user can enter when editing.
     struct AllowedCharacters: OptionSet {
         public let rawValue: UInt
@@ -68,7 +68,7 @@ public extension NSTextField {
         public static let newLines = AllowedCharacters(rawValue: 1 << 6)
         /// Allows all characters.
         public static let all: AllowedCharacters = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines]
-        
+
         internal func trimString<S: StringProtocol>(_ string: S) -> String {
             var string = String(string)
             if self.contains(.lowercaseLetters) == false { string = string.trimmingCharacters(in: .lowercaseLetters) }
@@ -85,7 +85,7 @@ public extension NSTextField {
             self.rawValue = rawValue
         }
     }
-    
+
     /// The allowed characters the user can enter when editing.
     var allowedCharacters: AllowedCharacters {
         get { getAssociatedValue(key: "allowedCharacters", object: self, initialValue: .all) }
@@ -95,7 +95,7 @@ public extension NSTextField {
             }
         }
     }
-    
+
     /// The handlers for editing the text.
     var editingHandlers: EditingHandler {
         get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: EditingHandler()) }
@@ -110,10 +110,10 @@ public extension NSTextField {
     var actionOnEnterKeyDown: EnterKeyAction {
         get { getAssociatedValue(key: "NSTextField_actionOnEnterKeyDown", object: self, initialValue: .none) }
         set {
-            
+
             set(associatedValue: newValue, key: "NSTextField_actionOnEnterKeyDown", object: self)
             switch newValue {
-            case .endEditing(handler: _):
+            case .endEditing:
                 swizzleTextField()
             case .none: break
             }
@@ -131,7 +131,7 @@ public extension NSTextField {
             }
         }
     }
-    
+
     /// The minimum numbers of characters needed when the user edits the string value.
     var minimumNumberOfCharacters: Int? {
         get { getAssociatedValue(key: "minimumNumberOfCharacters", object: self, initialValue: nil) }
@@ -165,21 +165,21 @@ public extension NSTextField {
             swizzleTextField()
         }
     }
-    
+
     /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
-    var endEditingOnOutsideMouseDown: Bool  {
+    var endEditingOnOutsideMouseDown: Bool {
         get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
         set {
             set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
             setupMouseMonitor()
         }
     }
-    
-    var mouseDownMonitor: NSEvent.Monitor?  {
+
+    var mouseDownMonitor: NSEvent.Monitor? {
         get { getAssociatedValue(key: "mouseDownMonitor", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
     }
-    
+
     func setupMouseMonitor() {
         if endEditingOnOutsideMouseDown {
             if mouseDownMonitor == nil {

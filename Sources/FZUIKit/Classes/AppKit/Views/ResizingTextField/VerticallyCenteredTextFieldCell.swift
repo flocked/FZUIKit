@@ -23,7 +23,7 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         /// The default focus ring.
         case `default`
     }
-    
+
     /// The vertical alignment of the text.
     public enum VerticalAlignment: Equatable {
         /// The text is vertically centered.
@@ -31,25 +31,24 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         /// The default vertical text alignment.
         case `default`
     }
-    
+
     /// The focus ring type.
     public var focusType: FocusType = .default {
         didSet { guard oldValue != focusType else { return }
-            
+
         }
     }
     /// The vertical alignment of the text.
     public var verticalAlignment: VerticalAlignment = .center
-    
+
     /// The leading padding of the cell.
     public var leadingPadding: CGFloat = 0
     /// The trailing padding of the cell.
     public var trailingPadding: CGFloat = 0
-    
-    
+
     internal var isEditingOrSelecting = false
     //  internal var isEditingHandler: ((Bool)->())? = nil
-    
+
     override public func titleRect(forBounds rect: NSRect) -> NSRect {
         switch verticalAlignment {
         case .center:
@@ -64,7 +63,7 @@ public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
             return super.titleRect(forBounds: paddedRect)
         }
     }
-    
+
     internal func titleRectWithPadding(for rect: NSRect) -> NSRect {
         let isLTR = self.userInterfaceLayoutDirection == .leftToRight
         let newRect = NSRect(x: rect.origin.x + (isLTR ? self.leadingPadding : self.trailingPadding),

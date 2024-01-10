@@ -15,36 +15,36 @@ import FZSwiftUtils
 public extension NSButton {
     /// A configuration that specifies the appearance and behavior of a button and its contents.
     struct Configuration: NSButtonConfiguration, Hashable {
-        
+
         /// The style of the button.
         public enum Style: Hashable {
             /// A standard push style button.
             case push
-            
+
             /// A push button with a flexible height to accommodate longer text labels or an image.
             case flexiblePush
-            
+
             /// A button style that’s appropriate for a toolbar item.
             case toolbar
-            
+
             /// A button style that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
             case accessoryBar
-            
+
             /// A button style that you use for extra actions in an accessory toolbar.
             case accessoryBarAction
-            
+
             /// A button style suitable for displaying additional information.
             case badge
-            
+
             /// A round button that can contain either a single character or an icon.
             case circular
-            
+
             /// A simple square bezel style that can scale to any size.
             case smallSquare
-            
+
             //     case checkBox
             //      case radio
-            
+
             internal var buttonStyle: NSButton.ButtonType {
                 switch self {
                     /*
@@ -59,7 +59,7 @@ public extension NSButton {
                     return .momentaryPushIn
                 }
             }
-            
+
             internal var bezelStyle: NSButton.BezelStyle {
                 switch self {
                 case .push: return .rounded
@@ -73,42 +73,42 @@ public extension NSButton {
                 }
             }
         }
-        
+
         public var style: Style = .push { didSet {
             if oldValue != self.style {
                 updateResolvedValues()
             } } }
-        
+
         /// The text of the title label the button displays.
-        public var title: String? = nil
-        
+        public var title: String?
+
         /// The text and style attributes for the button’s title label.
-        public var attributedTitle: NSAttributedString? = nil
-        
+        public var attributedTitle: NSAttributedString?
+
         /// The image the button displays.
-        public var image: NSImage? = nil
-        
+        public var image: NSImage?
+
         /// The position of the image.
         public var imagePosition: NSControl.ImagePosition = .imageLeft
-        
+
         /// The symbol configuration for the image.
-        public var imageSymbolConfiguration: ImageSymbolConfiguration? = nil
-        
+        public var imageSymbolConfiguration: ImageSymbolConfiguration?
+
         ////  The sound that plays when the user clicks the button.
-        public var sound: NSSound? = nil
-        
+        public var sound: NSSound?
+
         /// The border color of the button.
-        public var borderColor: NSColor? = nil { didSet {
+        public var borderColor: NSColor? { didSet {
             if oldValue != self.borderColor {
                 updateResolvedValues()
             } } }
-        
+
         /// The color transformer for resolving the border color.
-        var borderColorTransformer: ColorTransformer? = nil  { didSet {
+        var borderColorTransformer: ColorTransformer? { didSet {
             if oldValue != self.borderColorTransformer {
                 updateResolvedValues()
             } } }
-        
+
         /// Generates the resolved border color, using the border color and color transformer.
         func resolvedBorderColor() -> NSColor? {
             if let borderColor = borderColor {
@@ -116,19 +116,19 @@ public extension NSButton {
             }
             return nil
         }
-        
+
         /// A tint color to use for the template image and text content.
-        var contentTintColor: NSColor? = nil { didSet {
+        var contentTintColor: NSColor? { didSet {
             if oldValue != self.contentTintColor {
                 updateResolvedValues()
             } } }
-        
+
         /// The color transformer for resolving the tint color.
-        var contentTintColorTransformer: ColorTransformer? = nil  { didSet {
+        var contentTintColorTransformer: ColorTransformer? { didSet {
             if oldValue != self.contentTintColorTransformer {
                 updateResolvedValues()
             } } }
-        
+
         /// Generates the resolved tint color, using the tint color and color transformer.
         func resolvedContentTintColorColor() -> NSColor? {
             if let contentTintColor = contentTintColor {
@@ -136,59 +136,59 @@ public extension NSButton {
             }
             return nil
         }
-        
+
         /// The size of the button.
         public var size: NSControl.ControlSize = .regular
-        
-        internal var _resolvedContentTintColor: NSColor? = nil
-        internal var _resolvedBorderColor: NSColor? = nil
-        
+
+        internal var _resolvedContentTintColor: NSColor?
+        internal var _resolvedBorderColor: NSColor?
+
         internal mutating func updateResolvedValues() {
             //    imageSymbolConfiguration?.updateResolvedColors()
             _resolvedContentTintColor = imageSymbolConfiguration?.resolvedPrimaryColor() ?? resolvedContentTintColorColor()
             _resolvedBorderColor = resolvedBorderColor()
         }
-        
+
         /// A standard push style button.
         public static func push() -> NSButton.Configuration {
             return NSButton.Configuration(style: .push)
         }
-        
+
         /// A push button with a flexible height to accommodate longer text labels or an image.
         public static func flexiblePush() -> NSButton.Configuration {
             return NSButton.Configuration(style: .flexiblePush)
         }
-        
+
         /// A button style that’s appropriate for a toolbar item.
         public static func toolbar() -> NSButton.Configuration {
             return NSButton.Configuration(style: .toolbar)
         }
-        
+
         /// A button style that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
         public static func accessoryBar() -> NSButton.Configuration {
             return NSButton.Configuration(style: .accessoryBar)
         }
-        
+
         /// A button style that you use for extra actions in an accessory toolbar.
         public static func accessoryBarAction() -> NSButton.Configuration {
             return NSButton.Configuration(style: .accessoryBarAction)
         }
-        
+
         /// A button style suitable for displaying additional information.
         public static func badge() -> NSButton.Configuration {
             return NSButton.Configuration(style: .badge)
         }
-        
+
         /// A round button that can contain either a single character or an icon.
         public static func circular() -> NSButton.Configuration {
             return NSButton.Configuration(style: .circular)
         }
-        
+
         /// A simple square bezel style that can scale to any size.
         public static func smallSquare() -> NSButton.Configuration {
             return NSButton.Configuration(style: .smallSquare)
         }
-        
+
         /*
          public static func checkBox() -> NSButton.Configuration {
          return NSButton.Configuration(style: .checkBox)

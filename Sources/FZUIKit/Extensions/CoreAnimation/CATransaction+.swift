@@ -9,12 +9,12 @@
 import QuartzCore
 
 public extension CATransaction {
-    
+
     /// Runs the changes of the specified block non-animated.
-    static func performNonAnimated(changes: ()->Void) {
+    static func performNonAnimated(changes: () -> Void) {
         self.perform(duration: 0.0, disableActions: true, animations: changes)
     }
-    
+
     /**
      Animate changes to one or more layers using the specified duration, timing function, and completion handler.
      
@@ -35,27 +35,27 @@ public extension CATransaction {
         animations()
         CATransaction.commit()
     }
-    
+
     /// The timing function of the current transaction group.
     static var timingFunction: CAMediaTimingFunction? {
         get { value(forKey: kCATransactionAnimationTimingFunction) as? CAMediaTimingFunction }
         set { setValue(newValue, forKey: kCATransactionAnimationTimingFunction) }
     }
-    
+
     /// A Boolean value that indicates whether changes made within the current transaction group are suppressed.
     static var disableActions: Bool {
         get { (value(forKey: kCATransactionDisableActions) as? Bool) ?? false }
         set { setValue(newValue, forKey: kCATransactionDisableActions) }
     }
-    
+
     /// The animation duration of the current transaction group.
     static var animationDuration: TimeInterval {
         get { (value(forKey: kCATransactionAnimationDuration) as? TimeInterval) ?? 0.0 }
         set { setValue(newValue, forKey: kCATransactionAnimationDuration) }
     }
-    
+
     /// The completion block of the current transaction group that is called as soon as all animations have completed.
-    static var completionHandler: (()->())? {
+    static var completionHandler: (() -> Void)? {
         get {
             if let block = value(forKey: kCATransactionCompletionBlock) {
                 let blockPtr = UnsafeRawPointer(Unmanaged<AnyObject>.passUnretained(block as AnyObject).toOpaque())
@@ -63,7 +63,7 @@ public extension CATransaction {
             }
             return nil
         }
-        set { 
+        set {
             if let newValue = newValue {
                 let newValue = newValue as CompletionBlock
                 let value = unsafeBitCast(newValue, to: AnyObject.self)
@@ -73,7 +73,7 @@ public extension CATransaction {
             }
         }
     }
-    
+
     internal typealias CompletionBlock = @convention(block) () -> Void
 }
 #endif

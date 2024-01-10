@@ -22,7 +22,7 @@ public class EmphasizedBorderView: NSUIView {
         #endif
         return self.layer as! EmphasizedBorderLayer
     }
-    
+
     #if os(macOS)
     override public func makeBackingLayer() -> CALayer {
         let borderedLayer = EmphasizedBorderLayer()
@@ -37,7 +37,7 @@ public class EmphasizedBorderView: NSUIView {
         return EmphasizedBorderLayer.self
     }
     #endif
-        
+
     override public init(frame: CGRect) {
         super.init(frame: frame)
         self.sharedInit()
@@ -47,7 +47,7 @@ public class EmphasizedBorderView: NSUIView {
         super.init(coder: coder)
         self.sharedInit()
     }
-    
+
     internal func sharedInit() {
         #if canImport(UIKit)
         tag = Self.Tag

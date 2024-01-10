@@ -16,7 +16,6 @@ import AppKit
 import UIKit
 #endif
 
-
 @dynamicMemberLookup
 public class DynamicPropertyAnimator<Object: AnimatablePropertyProvider>: PropertyAnimator<Object> {
     /**
@@ -24,12 +23,10 @@ public class DynamicPropertyAnimator<Object: AnimatablePropertyProvider>: Proper
      
      - Parameter keyPath: The keypath to the animatable property.
      */
-    public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value>) -> Value where Value: AnimatableProperty  {
+    public subscript<Value>(dynamicMember member: WritableKeyPath<Object, Value>) -> Value where Value: AnimatableProperty {
         get { value(for: member) }
         set { setValue(newValue, for: member) }
     }
 }
-
-
 
 #endif

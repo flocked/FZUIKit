@@ -42,7 +42,7 @@ internal class ActionTrampoline<T: TargetActionProtocol>: NSObject {
     }
 }
 
-fileprivate let ActionBlockAssociatedObjectKey = "ActionBlock".address
+private let ActionBlockAssociatedObjectKey = "ActionBlock".address
 
 fileprivate extension String {
     var address: UnsafeRawPointer {
@@ -86,7 +86,6 @@ public protocol TargetActionProtocol: AnyObject {
     func removeTarget(_ target: Any?, action: Selector?)
 }
 
-
 extension UISwipeGestureRecognizer: TargetActionProtocol {}
 extension UIPanGestureRecognizer: TargetActionProtocol {}
 extension UILongPressGestureRecognizer: TargetActionProtocol {}
@@ -111,7 +110,7 @@ internal class ActionTrampoline<T: TargetActionProtocol>: NSObject {
     }
 }
 
-fileprivate let ActionBlockAssociatedObjectKey = "ActionBlock".address
+private let ActionBlockAssociatedObjectKey = "ActionBlock".address
 
 fileprivate extension String {
     var address: UnsafeRawPointer {
@@ -125,7 +124,7 @@ public extension TargetActionProtocol {
             guard let action = newValue else {
                 if let trampoline: ActionTrampoline =
                     objc_getAssociatedObject(self, ActionBlockAssociatedObjectKey) as? ActionTrampoline<Self> {
-                    self.removeTarget(trampoline, action:  #selector(trampoline.performAction(sender:)))
+                    self.removeTarget(trampoline, action: #selector(trampoline.performAction(sender:)))
                 }
                 objc_setAssociatedObject(self, ActionBlockAssociatedObjectKey, nil,
                                          .OBJC_ASSOCIATION_RETAIN)

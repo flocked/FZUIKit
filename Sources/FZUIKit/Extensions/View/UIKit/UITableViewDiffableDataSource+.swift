@@ -17,7 +17,7 @@ public extension UITableViewDiffableDataSource {
         - cellRegistration: A cell registration that creates, configurate and returns each of the cells for the table view from the data the diffable data source provides.
      */
     convenience init<Cell: UITableViewCell>(tableView: UITableView, cellRegistration: UITableView.CellRegistration<Cell, ItemIdentifierType>) {
-        self.init(tableView: tableView, cellProvider: { tableView,indexPath,itemIdentifier in
+        self.init(tableView: tableView, cellProvider: { tableView, indexPath, itemIdentifier in
             return tableView.dequeueReusableCell(using: cellRegistration, for: indexPath, item: itemIdentifier)
         })
     }

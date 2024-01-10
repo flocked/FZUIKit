@@ -24,7 +24,7 @@ public extension NSDiffableDataSourceSnapshot {
             self.appendItems(value.value, toSection: value.key)
         }
     }
-    
+
     /**
      Moves the items from their current positions in the snapshot to the position immediately after the specified item.
      
@@ -35,7 +35,7 @@ public extension NSDiffableDataSourceSnapshot {
     mutating func moveItems(_ identifiers: [ItemIdentifierType], afterItem toIdentifier: ItemIdentifierType) {
         identifiers.reversed().forEach({ moveItem($0, afterItem: toIdentifier) })
     }
-    
+
     /**
      Moves the items from their current positions in the snapshot to the position immediately after the specified item.
      

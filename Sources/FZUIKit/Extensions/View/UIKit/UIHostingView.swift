@@ -23,12 +23,12 @@ public final class UIHostingView<Content: View>: UIView {
         super.init(frame: .zero)
         setup()
     }
-    
+
     @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init?(coder:) unavailable")
     }
-    
+
     // MARK: - Getting the root view
 
     /// The root view of the SwiftUI view hierarchy managed by this view controller.
@@ -66,7 +66,7 @@ public final class UIHostingView<Content: View>: UIView {
             hostingView.topAnchor.constraint(equalTo: topAnchor),
             hostingView.rightAnchor.constraint(equalTo: rightAnchor),
             hostingView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            hostingView.leftAnchor.constraint(equalTo: leftAnchor),
+            hostingView.leftAnchor.constraint(equalTo: leftAnchor)
         ])
     }
 }

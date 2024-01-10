@@ -37,7 +37,7 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
     }
 
     static func itemBackground() -> NSCollectionLayoutBoundarySupplementaryItem {
-        return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)),  elementKind: NSUICollectionView.ElementKind.itemBackground, containerAnchor: .init(edges: .all))
+        return NSCollectionLayoutBoundarySupplementaryItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)), elementKind: NSUICollectionView.ElementKind.itemBackground, containerAnchor: .init(edges: .all))
     }
 }
 
@@ -45,11 +45,11 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
     static var bottomSeperatorLine: NSCollectionLayoutBoundarySupplementaryItem {
         return seperatorLine(kind: .topLine)
     }
-    
+
     static var topSeperatorLine: NSCollectionLayoutBoundarySupplementaryItem {
         return seperatorLine(kind: .topLine)
     }
-    
+
     internal static func seperatorLine(kind: SupplementaryKind) -> NSCollectionLayoutBoundarySupplementaryItem {
         let lineItemHeight: CGFloat = 1.0
         let lineItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.92), heightDimension: .absolute(lineItemHeight))
@@ -58,7 +58,7 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
         item.contentInsets = supplementaryItemContentInsets
         return item
     }
-    
+
     internal enum SupplementaryKind: String {
         case topLine
         case bottomLine
@@ -70,7 +70,7 @@ public extension NSCollectionLayoutBoundarySupplementaryItem {
             }
         }
     }
-    
+
     enum ItemType {
         case normal(height: CGFloat)
         case pinToTop(height: CGFloat)

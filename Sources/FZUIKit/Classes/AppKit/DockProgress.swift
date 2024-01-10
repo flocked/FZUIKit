@@ -9,7 +9,6 @@
 import AppKit
 import simd
 
-
 /**
 Fixes the vertical alignment issue of the `CATextLayer` class.
 */
@@ -33,7 +32,6 @@ final class VerticallyCenteredTextLayer: CATextLayer {
     }
 }
 
-
 final class ProgressCircleShapeLayer: CAShapeLayer {
     convenience init(radius: Double, center: CGPoint) {
         self.init()
@@ -55,7 +53,6 @@ final class ProgressCircleShapeLayer: CAShapeLayer {
         }
     }
 }
-
 
 final class ProgressSquircleShapeLayer: CAShapeLayer {
     convenience init(rect: CGRect) {
@@ -83,7 +80,6 @@ final class ProgressSquircleShapeLayer: CAShapeLayer {
         }
     }
 }
-
 
 internal extension NSBezierPath {
     static func progressCircle(radius: Double, center: CGPoint) -> Self {

@@ -22,7 +22,7 @@ public class DateTextField: NSTextField {
     public var date: Date? {
         didSet { configurateDateString() }
     }
-    
+
     /// The mode a date gets displayed.
     public var dateDisplayMode: DateDisplayMode = .relative {
         didSet { updateDateString() }
@@ -31,8 +31,7 @@ public class DateTextField: NSTextField {
     /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public var refreshDateInterval: TimeInterval? = 5 {
         didSet { configurateDateString()  } }
-    
-    
+
     /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public func refreshDate() {
         configurateDateString()
@@ -53,7 +52,7 @@ public class DateTextField: NSTextField {
             updateDateString()
         }
     }
-    
+
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
         self.textLayout = .wraps
@@ -65,7 +64,7 @@ public class DateTextField: NSTextField {
         self.configurateDateString()
         self.sizeToFit()
     }
-    
+
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
         self.textLayout = .wraps
@@ -77,14 +76,13 @@ public class DateTextField: NSTextField {
         self.configurateDateString()
         self.sizeToFit()
     }
-    
+
     internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
     internal static let relativeDateFormatter = RelativeDateTimeFormatter()
     internal static let slowRefreshInterval: TimeInterval = 30 // How quickly the timer should repeat after it's been a while.
     internal static let buffer: TimeInterval = 2
-    internal var liveUpdateTimer: Timer? = nil
+    internal var liveUpdateTimer: Timer?
 
-    
     public override var intrinsicContentSize: NSSize {
         var intrinsicContentSize = super.intrinsicContentSize
         if intrinsicContentSize.width == NSView.noIntrinsicMetric, let cell = self.cell {
@@ -92,7 +90,7 @@ public class DateTextField: NSTextField {
         }
         return intrinsicContentSize
     }
-    
+
     internal func configurateDateString() {
         if dateDisplayMode == .absolute {
             liveUpdateTimer?.invalidate()
@@ -105,7 +103,7 @@ public class DateTextField: NSTextField {
             if let refreshInterval = self.refreshDateInterval {
                 let delta = Date().timeIntervalSince(date)
                 let liveUpdateInterval: TimeInterval = (delta < DateTextField.slowRefreshInterval) ? refreshInterval : (DateTextField.slowRefreshInterval - DateTextField.buffer)
-                
+
                 liveUpdateTimer = Timer.scheduledTimer(withTimeInterval: liveUpdateInterval, repeats: true, block: { _ in
                     let delta = Date().timeIntervalSince(date)
                     if delta > (DateTextField.slowRefreshInterval + DateTextField.buffer) {
@@ -135,7 +133,7 @@ public class DateTextField: NSTextField {
         }
     }
 
-    internal var dateString: String? = nil
+    internal var dateString: String?
     internal func updateDateString() {
         if let date = date {
             if dateDisplayMode == .relative {
@@ -159,7 +157,7 @@ public class DateTextField: NSTextField {
 import UIKit
 /// A `UILabel` that displays a date either absolute or relative.
 public class DateLabel: UILabel {
-    
+
     /// The mode a date gets displayed.
     public enum DateDisplayMode {
         /// The textfield displays a relative date or time (e.g. "2 mins ago").
@@ -172,7 +170,7 @@ public class DateLabel: UILabel {
     public var date: Date? {
         didSet { configurateDateString() }
     }
-    
+
     /// The mode a date gets displayed.
     public var dateDisplayMode: DateDisplayMode = .relative {
         didSet { updateDateString() }
@@ -181,12 +179,11 @@ public class DateLabel: UILabel {
     /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public var refreshDateInterval: TimeInterval? = 5 {
         didSet { configurateDateString()  } }
-    
+
     /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public func refreshDate() {
         configurateDateString()
     }
-
 
     /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var dateStyle: DateFormatter.Style = .medium {
@@ -203,26 +200,26 @@ public class DateLabel: UILabel {
             updateDateString()
         }
     }
-    
+
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
         self.date = date
         self.configurateDateString()
         self.sizeToFit()
     }
-    
+
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
         self.date = date
         self.configurateDateString()
         self.sizeToFit()
     }
-    
+
     internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
     internal static let relativeDateFormatter = RelativeDateTimeFormatter()
     internal static let slowRefreshInterval: TimeInterval = 30 // How quickly the timer should repeat after it's been a while.
     internal static let buffer: TimeInterval = 2
-    internal var liveUpdateTimer: Timer? = nil
+    internal var liveUpdateTimer: Timer?
 
     internal func configurateDateString() {
         if dateDisplayMode == .absolute {
@@ -236,7 +233,7 @@ public class DateLabel: UILabel {
             if let refreshInterval = self.refreshDateInterval {
                 let delta = Date().timeIntervalSince(date)
                 let liveUpdateInterval: TimeInterval = (delta < Self.slowRefreshInterval) ? refreshInterval : (Self.slowRefreshInterval - Self.buffer)
-                
+
                 liveUpdateTimer = Timer.scheduledTimer(withTimeInterval: liveUpdateInterval, repeats: true, block: { _ in
                     let delta = Date().timeIntervalSince(date)
                     if delta > (Self.slowRefreshInterval + Self.buffer) {
@@ -265,7 +262,7 @@ public class DateLabel: UILabel {
         }
     }
 
-    internal var dateString: String? = nil
+    internal var dateString: String?
     internal func updateDateString() {
         if let date = date {
             if dateDisplayMode == .relative {
@@ -284,7 +281,7 @@ public class DateLabel: UILabel {
 
 /// A `UITextField` that displays a date either absolute or relative.
 public class DateTextField: UITextField {
-    
+
     /// The mode a date gets displayed.
     public enum DateDisplayMode {
         /// The textfield displays a relative date or time (e.g. "2 mins ago").
@@ -297,7 +294,7 @@ public class DateTextField: UITextField {
     public var date: Date? {
         didSet { configurateDateString() }
     }
-    
+
     /// The mode a date gets displayed.
     public var dateDisplayMode: DateDisplayMode = .relative {
         didSet { updateDateString() }
@@ -306,12 +303,11 @@ public class DateTextField: UITextField {
     /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public var refreshDateInterval: TimeInterval? = 5 {
         didSet { configurateDateString()  } }
-    
+
     /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
     public func refreshDate() {
         configurateDateString()
     }
-
 
     /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
     public var dateStyle: DateFormatter.Style = .medium {
@@ -328,7 +324,7 @@ public class DateTextField: UITextField {
             updateDateString()
         }
     }
-    
+
     public convenience init(date: Date, displayMode: DateDisplayMode) {
         self.init(frame: .zero)
         self.date = date
@@ -337,7 +333,7 @@ public class DateTextField: UITextField {
         self.backgroundColor = nil
         self.sizeToFit()
     }
-    
+
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
         self.date = date
@@ -346,12 +342,12 @@ public class DateTextField: UITextField {
         self.backgroundColor = nil
         self.sizeToFit()
     }
-    
+
     internal let dateFormatter: DateFormatter = { let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium; return formatter }()
     internal static let relativeDateFormatter = RelativeDateTimeFormatter()
     internal static let slowRefreshInterval: TimeInterval = 30 // How quickly the timer should repeat after it's been a while.
     internal static let buffer: TimeInterval = 2
-    internal var liveUpdateTimer: Timer? = nil
+    internal var liveUpdateTimer: Timer?
 
     internal func configurateDateString() {
         if dateDisplayMode == .absolute {
@@ -365,7 +361,7 @@ public class DateTextField: UITextField {
             if let refreshInterval = self.refreshDateInterval {
                 let delta = Date().timeIntervalSince(date)
                 let liveUpdateInterval: TimeInterval = (delta < Self.slowRefreshInterval) ? refreshInterval : (Self.slowRefreshInterval - Self.buffer)
-                
+
                 liveUpdateTimer = Timer.scheduledTimer(withTimeInterval: liveUpdateInterval, repeats: true, block: { _ in
                     let delta = Date().timeIntervalSince(date)
                     if delta > (Self.slowRefreshInterval + Self.buffer) {
@@ -394,7 +390,7 @@ public class DateTextField: UITextField {
         }
     }
 
-    internal var dateString: String? = nil
+    internal var dateString: String?
     internal func updateDateString() {
         if let date = date {
             if dateDisplayMode == .relative {

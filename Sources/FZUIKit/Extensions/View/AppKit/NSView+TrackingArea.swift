@@ -21,7 +21,7 @@ extension NSView {
                 self.update()
             }
         }
-        
+
         /// A rectangle that defines a region of the tracked view for tracking events related to mouse tracking and cursor updating. The specified rectangle should not exceed the view’s bounds rectangle.
         public var trackingRect: CGRect? {
             didSet {
@@ -52,7 +52,7 @@ extension NSView {
             if let trackingArea = self.trackingArea {
                 self.view?.removeTrackingArea(trackingArea)
             }
-            
+
             if let view = self.view {
                 let newTrackingArea = NSTrackingArea(
                     rect: self.trackingRect ?? view.bounds,
@@ -60,12 +60,12 @@ extension NSView {
                     owner: self.view,
                     userInfo: nil
                 )
-                
+
                 view.addTrackingArea(newTrackingArea)
                 self.trackingArea = newTrackingArea
             }
         }
-        
+
         private weak var view: NSView?
         private var trackingArea: NSTrackingArea?
     }
@@ -82,25 +82,25 @@ extension NSView {
             updateTrackingArea()
         }
     }
-    
+
     var trackingArea: TrackingArea {
         get { getAssociatedValue(key: "trackingArea", object: self, initialValue: TrackingArea(for: self, options: trackingAreaOptions ?? []) ) }
     }
-    
+
     var didReplaceUpdateTrackingAreas: Bool {
         get { getAssociatedValue(key: "didReplaceUpdateTrackingAreas", object: self, initialValue: false ) }
         set { set(associatedValue: newValue, key: "didReplaceUpdateTrackingAreas", object: self) }
     }
-    
+
     func updateTrackingArea() {
-        if let trackingAreaOptions = trackingAreaOptions{
+        if let trackingAreaOptions = trackingAreaOptions {
             trackingArea.options = trackingAreaOptions
             if didReplaceUpdateTrackingAreas == false {
                 do {
                     try self.replaceMethod(
                         #selector(updateTrackingAreas),
                         methodSignature: (@convention(c)  (AnyObject, Selector) -> Void).self,
-                        hookSignature: (@convention(block)  (AnyObject) -> Void).self) { store in { object in
+                        hookSignature: (@convention(block)  (AnyObject) -> Void).self) { _ in { object in
                             (object as? NSView)?.trackingArea.update()
                         }
                         }
@@ -114,17 +114,17 @@ extension NSView {
             self.resetMethod(#selector(updateTrackingAreas))
         }
     }
-    
+
     func trackingArea(_ options: NSTrackingArea.Options) -> TrackingArea {
         let trackingArea = getAssociatedValue(key: "TrackingArea", object: self, initialValue: TrackingArea(for: self, options: options))
         trackingArea.options = options
         trackingArea.update()
-        
+
         do {
             try self.replaceMethod(
                 #selector(updateTrackingAreas),
                 methodSignature: (@convention(c)  (AnyObject, Selector) -> Void).self,
-                hookSignature: (@convention(block)  (AnyObject) -> Void).self) { store in { object in
+                hookSignature: (@convention(block)  (AnyObject) -> Void).self) { _ in { object in
                     guard let view = (object as? NSView) else { return }
                     let trackingArea = getAssociatedValue(key: "TrackingArea", object: view, initialValue: TrackingArea(for: view, options: options))
                     trackingArea.update()
@@ -133,7 +133,7 @@ extension NSView {
         } catch {
             Swift.debugPrint(error)
         }
-        
+
         return trackingArea
     }
 }

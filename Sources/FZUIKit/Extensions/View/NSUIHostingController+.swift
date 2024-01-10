@@ -31,7 +31,7 @@ public extension NSUIHostingController {
             disableSafeAreaInsets(true)
         }
     }
-    
+
     /**
      Creates a hosting controller object that wraps the specified SwiftUI view.
      
@@ -48,7 +48,7 @@ public extension NSUIHostingController {
         if ignoreSafeArea {
             disableSafeAreaInsets(true)
         }
-        
+
         if isTransparent {
             self.view.isOpaque = false
             self.view.backgroundColor = .clear

@@ -36,7 +36,7 @@ open class ImageLayer: CALayer {
             }
         }
     }
-    
+
     /**
      The images displayed in the image layer.
      
@@ -53,13 +53,13 @@ open class ImageLayer: CALayer {
             }
         }
     }
-    
+
     /// The currently displaying image.
     open var displayingImage: NSUIImage? {
         guard currentImageIndex >= 0, currentImageIndex < images.count else { return nil }
         return images[currentImageIndex]
     }
-    
+
 #if os(macOS)
 /// Displays the specified animated image.
 private func setAnimatedImage(_ image: NSImage) {
@@ -81,7 +81,7 @@ private func setAnimatedImage(_ image: NSImage) {
     }
 }
 #endif
-    
+
     /// The scaling of the image.
     public var imageScaling: CALayerContentsGravity {
         get { return contentsGravity
@@ -90,15 +90,15 @@ private func setAnimatedImage(_ image: NSImage) {
             contentsGravity = newValue
         }
     }
-    
+
     /// A color used to tint template images.
-    open var tintColor: NSUIColor? = nil {
+    open var tintColor: NSUIColor? {
         didSet {
             guard oldValue != tintColor else { return }
             updateDisplayingImage()
         }
     }
-    
+
     /// The symbol configuration to use when rendering the image.
     @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
     public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
@@ -109,7 +109,7 @@ private func setAnimatedImage(_ image: NSImage) {
             updateDisplayingImage()
         }
     }
-    
+
     /// The frame position.
     public enum FramePosition: Hashable {
         /// The first frame.
@@ -213,7 +213,7 @@ private func setAnimatedImage(_ image: NSImage) {
         displayLink = nil
         setFrame(to: .first)
     }
-    
+
     /// Returns a Boolean value indicating whether the animation is running.
     public var isAnimating: Bool {
         return (displayLink != nil)
@@ -229,21 +229,21 @@ private func setAnimatedImage(_ image: NSImage) {
             }
         }
     }
-    
+
     /**
      The amount of time it takes to go through one cycle of the images.
      
      The time duration is measured in seconds. The default value of this property is 0.0, which causes the image layer to use a duration equal to the number of images multiplied by 1/30th of a second. Thus, if you had 30 images, the duration would be 1 second.
      */
     public var animationDuration: TimeInterval = 0.0
-    
+
     /**
      Specifies the number of times to repeat the animation.
      
      The default value is 0, which specifies to repeat the animation indefinitely.
      */
     public var animationRepeatCount: Int = 0
-    
+
     /// A Boolean value indicating whether animatable images should automatically start animating.
     public var autoAnimates: Bool = true {
         didSet {
@@ -258,21 +258,21 @@ private func setAnimatedImage(_ image: NSImage) {
             updateDisplayingImage()
         }
     }
-    
-    internal var maskLayer: CALayer? = nil
 
-    private var _symbolConfiguration: Any? = nil
+    internal var maskLayer: CALayer?
+
+    private var _symbolConfiguration: Any?
 
     private var timerPreviousTimestamp: TimeInterval = 0.0
     private var timerCurrentInterval: TimeInterval = 0.0
     private var timerCurrentLoopCount: Int = 0
-    
-    internal var displayingSymbolImage: NSUIImage? = nil
+
+    internal var displayingSymbolImage: NSUIImage?
     internal func updateDisplayingImage() {
         if var image = self.displayingImage {
             displayingSymbolImage = nil
             if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage {
-                var configuration: NSUIImage.SymbolConfiguration? = nil
+                var configuration: NSUIImage.SymbolConfiguration?
                 if let tintColor = tintColor {
                     configuration = NSUIImage.SymbolConfiguration.palette(tintColor)
                 }
@@ -298,7 +298,7 @@ private func setAnimatedImage(_ image: NSImage) {
         }
     }
 
-    private var displayLink: AnyCancellable? = nil
+    private var displayLink: AnyCancellable?
     private var timeStamp: TimeInterval = 0
 
     private var timerInterval: TimeInterval {

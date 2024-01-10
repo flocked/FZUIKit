@@ -120,12 +120,12 @@ public extension NSScreen {
         _screenSleepIsDisabled = !(IOPMAssertionRelease(noSleepAssertionID) == kIOReturnSuccess)
         return _screenSleepIsDisabled == false
     }
-    
+
     private static var _screenSleepIsDisabled: Bool {
         get { getAssociatedValue(key: "screenSleepIsDisabled", object: self, initialValue: false) }
         set { set(associatedValue: newValue, key: "screenSleepIsDisabled", object: self) }
     }
-    
+
     private static var noSleepAssertionID: IOPMAssertionID {
         get { getAssociatedValue(key: "noSleepAssertionID", object: self, initialValue: 0) }
         set { set(associatedValue: newValue, key: "noSleepAssertionID", object: self) }

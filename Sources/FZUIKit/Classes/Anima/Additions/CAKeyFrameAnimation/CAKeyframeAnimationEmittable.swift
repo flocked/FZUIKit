@@ -20,7 +20,7 @@ import SwiftUI
 // MARK: - CAKeyframeAnimationEmittable
 
 /// A type that defines the ability to generate a `CAKeyframeAnimation` from an animation.
-public protocol CAKeyframeAnimationEmittable  {
+public protocol CAKeyframeAnimationEmittable {
     /**
      Generates and returns a `CAKeyframeAnimation` based on the animation's current value targeting the animation's target value.
 
@@ -76,7 +76,7 @@ extension CAKeyframeAnimationEmittable {
         keyframeAnimation.duration = duration
         return keyframeAnimation
     }
-    
+
     /**
      Generates and returns a `CAKeyframeAnimation` based on the animation's current value targeting the animation's target value.
 
@@ -126,7 +126,7 @@ extension EasingAnimation: CAKeyframeAnimationEmittable where Value: CAKeyframeA
             keyTimes.append(runningTime as NSNumber)
             runningTime += deltaTime
         }
-        
+
         values.append(isReversed ? fromValue.toKeyframeValue() : target.toKeyframeValue())
         keyTimes.append(duration as NSNumber)
         return runningTime
@@ -157,7 +157,7 @@ fileprivate extension NSScreen {
         guard fps > 0 else { return 60 }
         return fps
     }
-    
+
     static var current: NSScreen? {
         NSScreen.main
     }
@@ -167,7 +167,7 @@ fileprivate extension UIScreen {
     static var current: UIScreen? {
         UIWindow.current?.screen
     }
-    
+
     var preferredFramesPerSecond: Int {
         let fps = maximumFramesPerSecond
         guard fps > 0 else { return 60 }

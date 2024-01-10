@@ -16,7 +16,7 @@ import FZSwiftUtils
 
 /// A layer with an inner shadow.
 public class InnerShadowLayer: CALayer {
-    
+
     /// The configuration of the inner shadow.
     public var configuration: ShadowConfiguration {
         get { ShadowConfiguration(color: innerShadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
@@ -41,11 +41,11 @@ public class InnerShadowLayer: CALayer {
             }
         }
     }
-    
-    var innerShadowColorDynamic: NSUIColor? = nil
-    
+
+    var innerShadowColorDynamic: NSUIColor?
+
     var isUpdating: Bool = false
-    
+
     /**
      Initalizes an inner shadow layer with the specified configuration.
      
@@ -56,23 +56,22 @@ public class InnerShadowLayer: CALayer {
         super.init()
         self.configuration = configuration
     }
-    
-    
+
     override public init() {
         super.init()
         sharedInit()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }
-    
+
     public override init(layer: Any) {
         super.init(layer: layer)
         sharedInit()
     }
-    
+
     func sharedInit() {
         shadowOpacity = 0
         shadowColor = nil
@@ -81,21 +80,21 @@ public class InnerShadowLayer: CALayer {
         shadowOffset = .zero
         shadowRadius = 0.0
     }
-    
+
     public override var shadowRadius: CGFloat {
         didSet { if !isUpdating, oldValue != shadowRadius { self.updateShadowPath() } }
     }
-    
+
     public override var shadowOffset: CGSize {
         didSet { if !isUpdating, oldValue != shadowOffset { self.updateShadowPath() } }
     }
-    
+
     override public var bounds: CGRect {
-        didSet { 
+        didSet {
             if !isUpdating, oldValue != bounds {
             updateShadowPath() } }
     }
-    
+
     public override var cornerRadius: CGFloat {
         didSet { if !isUpdating, oldValue != cornerRadius {
             updateShadowPath() } }

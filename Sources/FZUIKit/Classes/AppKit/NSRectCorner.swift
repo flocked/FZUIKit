@@ -16,16 +16,16 @@ import Foundation
 public struct NSRectCorner: OptionSet, Sendable {
     /// The bottom-left corner of the rectangle.
     public static let bottomLeft = NSRectCorner(rawValue: 1 << 0)
-    
+
     /// The bottom-right corner of the rectangle.
     public static let bottomRight = NSRectCorner(rawValue: 1 << 1)
-    
+
     /// The top-left corner of the rectangle.
     public static let topLeft = NSRectCorner(rawValue: 1 << 2)
-    
+
     /// The top-right corner of the rectangle.
     public static let topRight = NSRectCorner(rawValue: 1 << 3)
-    
+
     /// All corners of the rectangle.
     public static var allCorners: NSRectCorner {
         return [.topLeft, .topRight, .bottomLeft, .bottomRight]
@@ -35,7 +35,7 @@ public struct NSRectCorner: OptionSet, Sendable {
     public init(rawValue: UInt) {
         self.rawValue = rawValue
     }
-    
+
     public let rawValue: UInt
 
 }

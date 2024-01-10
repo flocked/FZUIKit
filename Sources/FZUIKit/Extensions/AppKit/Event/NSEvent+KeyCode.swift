@@ -77,7 +77,7 @@ public extension NSEvent.ModifierFlags {
             (.shift, "⇧"),
             (.control, "⌃"),
             (.option, "⌥"),
-            (.command, "⌘"),
+            (.command, "⌘")
         ] as [(NSEvent.ModifierFlags, String)])
             .map { self.contains($0.0) ? $0.1 : "" }
             .joined()
@@ -92,7 +92,7 @@ public extension NSEvent.ModifierFlags {
             (.command, "⌘"),
             (.numericPad, "numeric pad"),
             (.help, "help"),
-            (.function, "fn"),
+            (.function, "fn")
         ] as [(NSEvent.ModifierFlags, String)])
             .map { self.contains($0.0) ? $0.1 : "" }
             .joined(separator: ", ")
@@ -150,7 +150,7 @@ public extension NSEvent {
         kVK_ANSI_KeypadDivide: "/",
         kVK_ANSI_KeypadEnter: "↩︎",
         kVK_ANSI_KeypadMinus: "-",
-        kVK_ANSI_KeypadEquals: "=",
+        kVK_ANSI_KeypadEquals: "="
     ]
 
     fileprivate static let KeyCodeMapping: [UInt16: (String, String?)] = [
@@ -267,7 +267,7 @@ public extension NSEvent {
         0x7C: ("RIGHT", nil),
         0x7D: ("DOWN", nil),
         0x7E: ("UP", nil),
-        0x7F: ("POWER", nil), // This should be KeyCode::PC_POWER.
+        0x7F: ("POWER", nil) // This should be KeyCode::PC_POWER.
     ]
 }
 

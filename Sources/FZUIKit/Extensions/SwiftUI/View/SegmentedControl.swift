@@ -75,7 +75,7 @@ struct SegmentedControl_Preview: PreviewProvider {
         SegmentedControl()
             .trackingMode(.selectOne)
             .style(.texturedRounded)
-            .segments() {
+            .segments {
                 NSSegment("Segment 1")
                     .isSelected(true)
                 NSSegment("Segment 2")

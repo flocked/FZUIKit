@@ -9,13 +9,12 @@ import Foundation
 import FZSwiftUtils
 import AVFoundation
 
-
 public extension AVPlayerItem {
     /// Returns the current playback time as percentage.
     var playbackPercentage: Double {
         self.currentTime().seconds / self.duration.seconds
     }
-    
+
     /**
      Sets the current playback time to the specified percentage.
      

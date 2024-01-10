@@ -42,7 +42,7 @@ public struct LayoutConstraintsAnimator<Object: Collection> where Object.Element
     internal init(_ collection: Object) {
         self.collection = collection
     }
-    
+
     /// Updates the constant of the constraints and returns itself.
     public func constant(_ constant: CGFloat) {
         collection.forEach({ $0.animator.constant = constant })
@@ -59,38 +59,38 @@ public struct LayoutConstraintsAnimator<Object: Collection> where Object.Element
     }
 
     /// Updates the constant of the constraints and returns itself.
-    public func constant(_ insets: NSUIEdgeInsets)  {
+    public func constant(_ insets: NSUIEdgeInsets) {
         self.constant(insets.directional)
     }
-    
+
     public var leading: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.leading?.animator }
     }
-    
+
     public var trailing: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.trailing?.animator }
     }
-    
+
     public var bottom: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.bottom?.animator }
     }
-    
+
     public var top: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.top?.animator }
     }
-    
+
     public var centerX: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.centerX?.animator }
     }
-    
+
     public var centerY: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.centerY?.animator }
     }
-    
+
     public var lastBaseline: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.lastBaseline?.animator }
     }
-    
+
     public var firstBaseline: PropertyAnimator<NSLayoutConstraint>? {
         get { collection.firstBaseline?.animator }
     }
@@ -107,7 +107,7 @@ extension LayoutAnimator {
         _ = self[keyPath: keyPath]
         return animations[lastAnimationKey != "" ? lastAnimationKey : keyPath.stringValue]
     }
-    
+
     /**
      The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
      
@@ -115,7 +115,7 @@ extension LayoutAnimator {
      */
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayoutAnimator, Value>) -> Value? {
         var velocity: Value?
-        Anima.updateVelocity() {
+        Anima.updateVelocity {
             velocity = self[keyPath: keyPath]
         }
         return velocity

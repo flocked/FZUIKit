@@ -15,16 +15,16 @@ extension NSImageView {
         get { transitionImageView.alphaValue }
         set { transitionImageView.alphaValue = newValue }
     }
-    
+
     var transitionImage: NSImage? {
         get { transitionImageView.image }
         set { transitionImageView.image = newValue }
     }
-    
+
     var transitionImageView: NSImageView {
         get { getAssociatedValue(key: "transitionImageView", object: self, initialValue: transitionView()) }
     }
-    
+
     func transitionView() -> NSImageView {
         let imageView = NSImageView(frame: bounds)
         imageView.imageScaling = imageScaling

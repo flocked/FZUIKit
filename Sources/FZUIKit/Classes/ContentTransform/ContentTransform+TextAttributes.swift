@@ -14,11 +14,10 @@ public struct TextAttributesTransformer: ContentTransform {
     public let transform: (AttributeContainer) -> AttributeContainer
     /// The identifier of the transformer.
     public let id: String
-    
+
     /// Creates a new text attributes transformer with the specified identifier and closure.
     public init(_ identifier: String, _ transform: @escaping (AttributeContainer) -> AttributeContainer) {
         self.transform = transform
         self.id = identifier
     }
 }
-

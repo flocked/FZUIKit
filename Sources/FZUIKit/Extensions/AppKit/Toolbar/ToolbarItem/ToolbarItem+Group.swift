@@ -31,7 +31,7 @@ public extension ToolbarItem {
             groupItem.selectionMode = mode
             return self
         }
-        
+
         /// The selection mode of the grouped toolbar item.
         public var selectionMode: SelectionMode {
             get { groupItem.selectionMode }
@@ -44,7 +44,7 @@ public extension ToolbarItem {
             groupItem.controlRepresentation = representation
             return self
         }
-        
+
         /// A value that represents how a toolbar displays the grouped toolbar item.
         public var controlRepresentation: ControlRepresentation {
             get { groupItem.controlRepresentation }
@@ -57,33 +57,33 @@ public extension ToolbarItem {
             groupItem.subitems = items
             return self
         }
-        
+
         /// The subitems of the grouped toolbar item.
         public var subitems: [NSToolbarItem] {
             get { groupItem.subitems }
             set { groupItem.subitems = newValue}
         }
-        
+
         /// The index value for the most recently selected subitem of the grouped toolbar item.
         @discardableResult
         public func selectedIndex(_ selectedIndex: Int) -> Self {
             self.selectedIndex = selectedIndex
             return self
         }
-        
+
         /// The index value for the most recently selected subitem of the grouped toolbar item.
         public var selectedIndex: Int {
             get { groupItem.selectedIndex }
             set { groupItem.selectedIndex = newValue}
         }
-        
+
         /// The index values of the selected items in the group.
         @discardableResult
         public func selectedIndexes(_ selectedIndexes: [Int]) -> Self {
             self.selectedIndexes = selectedIndexes
             return self
         }
-        
+
         /// The index values of the selected items in the group.
         public var selectedIndexes: [Int] {
             get { groupItem.selectedIndexes }

@@ -21,7 +21,7 @@ public extension NSButton {
         }
         set { setButtonType(newValue) }
     }
-    
+
     /**
      Sets the content tint color to use for the specified state.
      
@@ -76,15 +76,15 @@ public extension NSButton {
     func symbolConfiguration(for state: NSControl.StateValue) -> NSImage.SymbolConfiguration? {
         stateSymbolConfiguration[state]
     }
-    
-    internal var stateContentTintColor:  [NSControl.StateValue : NSColor] {
-        get { return getAssociatedValue(key: "_NSButton_stateContentTintColor", object: self, initialValue:  [NSControl.StateValue : NSColor].init()) }
+
+    internal var stateContentTintColor: [NSControl.StateValue: NSColor] {
+        get { return getAssociatedValue(key: "_NSButton_stateContentTintColor", object: self, initialValue: [NSControl.StateValue: NSColor].init()) }
         set { set(associatedValue: newValue, key: "_NSButton_stateContentTintColor", object: self) }
     }
-    
+
     @available(macOS 11.0, *)
-    internal var stateSymbolConfiguration:  [NSControl.StateValue : NSImage.SymbolConfiguration] {
-        get { return getAssociatedValue(key: "_NSButton_stateSymbolConfiguration", object: self, initialValue:  [NSControl.StateValue : NSImage.SymbolConfiguration].init()) }
+    internal var stateSymbolConfiguration: [NSControl.StateValue: NSImage.SymbolConfiguration] {
+        get { return getAssociatedValue(key: "_NSButton_stateSymbolConfiguration", object: self, initialValue: [NSControl.StateValue: NSImage.SymbolConfiguration].init()) }
         set { set(associatedValue: newValue, key: "_NSButton_stateSymbolConfiguration", object: self) }
     }
 

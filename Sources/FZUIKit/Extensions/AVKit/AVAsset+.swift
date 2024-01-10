@@ -69,7 +69,7 @@ public extension AVAssetTrack {
         /// mp4v codec.
         case mp4v
     }
-    
+
     /// The codec of a video track.
     var videoCodec: VideoCodec? {
         switch videoCodecString {
@@ -83,7 +83,7 @@ public extension AVAssetTrack {
             return nil
         }
     }
-    
+
     /// The codec of a video track.
     var videoCodecString: String? {
         let formatDescriptions = self.formatDescriptions
@@ -92,7 +92,7 @@ public extension AVAssetTrack {
             .map { CMFormatDescriptionGetMediaSubType($0 as! CMFormatDescription).string }
         return mediaSubtypes.first
     }
-    
+
     /// The sample rate of an audio track.
     var audioSampleRate: Float64? {
         for item in (formatDescriptions as? [CMAudioFormatDescription]) ?? [] {

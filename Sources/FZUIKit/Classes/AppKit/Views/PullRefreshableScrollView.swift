@@ -142,11 +142,11 @@ public class PullRefreshableScrollView: NSScrollView {
         let contentRect = documentView.frame
 
         if let view = topEdge.accessoryView {
-            view.frame = NSMakeRect(0, contentRect.minY - view.frame.height, contentRect.size.width, view.frame.height)
+            view.frame = NSRect(x: 0, y: contentRect.minY - view.frame.height, width: contentRect.size.width, height: view.frame.height)
         }
 
         if let view = bottomEdge.accessoryView {
-            view.frame = NSMakeRect(0, contentRect.height, contentRect.size.width, view.frame.height)
+            view.frame = NSRect(x: 0, y: contentRect.height, width: contentRect.size.width, height: view.frame.height)
         }
     }
 
@@ -175,15 +175,15 @@ public class PullRefreshableScrollView: NSScrollView {
 
         switch edge {
         case .top:
-            view.frame = NSMakeRect(0, contentRect.minY - view.frame.height, contentRect.size.width, view.frame.height)
+            view.frame = NSRect(x: 0, y: contentRect.minY - view.frame.height, width: contentRect.size.width, height: view.frame.height)
         case .bottom:
-            view.frame = NSMakeRect(0, contentRect.height, contentRect.size.width, view.frame.height)
+            view.frame = NSRect(x: 0, y: contentRect.height, width: contentRect.size.width, height: view.frame.height)
         }
 
         contentView.addSubview(view)
 
         // Scroll to top
-        contentView.scroll(to: NSMakePoint(contentRect.origin.x, 0))
+        contentView.scroll(to: NSPoint(x: contentRect.origin.x, y: 0))
         reflectScrolledClipView(contentView)
     }
 
@@ -291,17 +291,17 @@ public extension PullRefreshableScrollView {
     typealias EndHandler = (PullRefreshableScrollView.ViewEdge, NSView?, Bool) -> Void
 
     struct UpdateHandlers {
-        public var didReset: Handler? = nil
-        public var didStart: Handler? = nil
-        public var didEnterValidationArea: Handler? = nil
-        public var didUpdate: PercentageHandler? = nil
-        public var didSucceed: Handler? = nil
+        public var didReset: Handler?
+        public var didStart: Handler?
+        public var didEnterValidationArea: Handler?
+        public var didUpdate: PercentageHandler?
+        public var didSucceed: Handler?
     }
 
     struct AccessoryViewHandlers {
-        public var top: AccessoryViewHandler? = nil
-        public var bottom: AccessoryViewHandler? = nil
-        public var shouldReset: HideAccessoryViewHandler? = nil
+        public var top: AccessoryViewHandler?
+        public var bottom: AccessoryViewHandler?
+        public var shouldReset: HideAccessoryViewHandler?
     }
 }
 

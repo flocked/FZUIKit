@@ -23,7 +23,7 @@ public extension NSUIImage {
         set(associatedValue: symbolName, key: "imageSymbolName", object: self)
         return symbolName
     }
-    
+
     internal var _symbolName: String? {
         #if os(macOS)
         let description = String(describing: self)
@@ -35,7 +35,7 @@ public extension NSUIImage {
         return String(name).trimmingCharacters(in: .whitespacesAndNewlines)
     #endif
     }
-    
+
     /// The color at the specified pixel location.
     func color(at location: CGPoint) -> NSUIColor? {
         guard location.x >= 0, location.x < size.width, location.y >= 0, location.y < size.height, let cgImage = cgImage, let provider = cgImage.dataProvider, let providerData = provider.data, let data = CFDataGetBytePtr(providerData) else {
@@ -52,7 +52,7 @@ public extension NSUIImage {
 
         return NSUIColor(red: r, green: g, blue: b, alpha: a)
     }
-    
+
 #if os(macOS)
     /**
      Creates an image object with the specified color and size.

@@ -20,7 +20,7 @@ public extension NSTextField {
         let height = font.spc ?? defaultLineHeight-font.ascenderReal
         return cellFrame.origin.y + cellFrame.height - defaultLineHeight + height
     }
-    
+
     /// The y-coordinate of the baseline for the last visible line of the text.
     var lastBaselineY: CGFloat? {
         guard let font = self.font else { return nil }
@@ -29,28 +29,28 @@ public extension NSTextField {
         let height = font.spc ?? defaultLineHeight-font.ascenderReal
         return lastLineFrame.origin.y + height
     }
-    
+
     /// Returns the number of visible lines.
     var numberOfVisibleLines: Int {
         guard let font = self.font else { return -1 }
         let charSize = font.lineHeight
-        
+
         let framesetter = CTFramesetterCreateWithAttributedString(self.attributedStringValue)
         let textSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRange(), nil, CGSize(self.bounds.width, CGFloat.greatestFiniteMagnitude), nil)
-        
+
         var numberOfVisibleLines = Int((textSize.height/charSize).rounded(.down))
         if maximumNumberOfLines != 0, numberOfVisibleLines > maximumNumberOfLines {
             numberOfVisibleLines = maximumNumberOfLines
         }
         return numberOfVisibleLines
     }
-        
+
     /// A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
     var truncatesLastVisibleLine: Bool {
         get { self.cell?.truncatesLastVisibleLine ?? false }
         set { self.cell?.truncatesLastVisibleLine = newValue }
     }
-    
+
     /// A Boolean value indicating whether the text field has keyboard focus.
     var hasKeyboardFocus: Bool {
         return currentEditor() == window?.firstResponder
@@ -110,7 +110,7 @@ public extension NSTextField {
         let ranges = rangesOfLines(option)
         return ranges.compactMap { String(self.stringValue[$0]) }
     }
-    
+
     /// An array of frames for all visible lines.
     func lineFrames() -> [CGRect] {
         var lineFrames: [CGRect] = []
@@ -126,7 +126,7 @@ public extension NSTextField {
         }
         return lineFrames
     }
-        
+
     /// The height of a singe line.
     internal var lineHeight: CGFloat {
         guard font != nil else { return 0 }
@@ -138,13 +138,13 @@ public extension NSTextField {
         }
         return self.attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
     }
-    
+
     /// The frame of the text cell.
     internal var cellFrame: CGRect? {
         let frame = self.isBezeled == false ? frame : frame.insetBy(dx: 0, dy: 1)
         return self.cell?.drawingRect(forBounds: frame)
     }
-    
+
     var numberOfVisibleLinesAlt: Int {
      let maxSize = CGSize(width: self.bounds.width, height: CGFloat.infinity)
      var numberOfVisibleLines = 0
@@ -173,7 +173,6 @@ public extension NSTextField {
      self.attributedStringValue = attributedStringValue
      return numberOfVisibleLines
     }
-    
 
     /**
      An array of string ranges of the lines.
@@ -220,10 +219,10 @@ public extension NSTextField {
                 }
             }
         }
-        
+
         stringValue.forEach { char in
             partialString = partialString + String(char)
-            
+
             self.stringValue = partialString
             let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
             if didStart == false {
@@ -339,7 +338,6 @@ public extension NSTextField {
  #endif
 
  */
-
 
 /*
 /**

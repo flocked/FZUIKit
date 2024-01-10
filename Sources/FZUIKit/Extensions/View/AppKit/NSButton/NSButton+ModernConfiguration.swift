@@ -37,7 +37,7 @@ public extension NSButton {
                 }
             }
         }
-        
+
         /**
          Settings that determine the appearance of the background corner radius.
          
@@ -56,7 +56,7 @@ public extension NSButton {
             case medium
             /// A style that ignores the background corner radius and uses a small system-defined corner radius.
             case small
-            
+
             internal var shape: some Shape {
                 switch self {
                 case .dynamic: return Rectangle().asAnyShape()
@@ -68,52 +68,52 @@ public extension NSButton {
                 }
             }
         }
-        
+
         /// The text of the title label the button displays.
-        public var title: String? = nil
-        
+        public var title: String?
+
         /// The text and style attributes for the button’s title label.
-        public var attributedTitle: NSAttributedString? = nil
-        
+        public var attributedTitle: NSAttributedString?
+
         /// The text the subtitle label of the button displays.
-        public var subtitle: String? = nil
-        
+        public var subtitle: String?
+
         /// The text and style attributes for the button’s subtitle label.
-        public var attributedSubtitle: NSAttributedString? = nil
-        
+        public var attributedSubtitle: NSAttributedString?
+
         /// The image the button displays.
-        public var image: NSImage? = nil
-        
+        public var image: NSImage?
+
         /// The distance between the button’s image and text.
         public var imagePadding: CGFloat = 4.0
-        
+
         /// The edge against which the button places the image.
         public var imagePlacement: NSDirectionalRectEdge = .leading
-        
+
         /// The symbol configuration for the image.
-        public var imageSymbolConfiguration: ImageSymbolConfiguration? = nil
-        
+        public var imageSymbolConfiguration: ImageSymbolConfiguration?
+
         ////  The sound that plays when the user clicks the button.
-        public var sound: NSSound? = nil
-        
+        public var sound: NSSound?
+
         /// The width of the stroke.
         public var borderWidth: CGFloat = 0.0
-        
+
         /// The outset (or inset, if negative) for the stroke.
         public var borderOutset: CGFloat = 0.0
-        
+
         /// The color of the border.
-        public var borderColor: NSColor? = nil { didSet {
+        public var borderColor: NSColor? { didSet {
             if oldValue != self.borderColor {
                 updateResolvedValues()
             } } }
-        
+
         /// The color transformer for resolving the border color.
-        var borderColorTransformer: ColorTransformer? = nil  { didSet {
+        var borderColorTransformer: ColorTransformer? { didSet {
             if oldValue != self.borderColorTransformer {
                 updateResolvedValues()
             } } }
-        
+
         /// Generates the resolved border color, using the border color and color transformer.
         func resolvedBorderColor() -> NSColor? {
             if let borderColor = borderColor {
@@ -121,19 +121,19 @@ public extension NSButton {
             }
             return nil
         }
-        
+
         /// The untransformed color for foreground views.
-        public var foregroundColor: NSColor? = nil { didSet {
+        public var foregroundColor: NSColor? { didSet {
             if oldValue != self.foregroundColor {
                 updateResolvedValues()
             } } }
-        
+
         /// The color transformer for resolving the foreground color.
-        public var foregroundColorTransformer: ColorTransformer? = nil  { didSet {
+        public var foregroundColorTransformer: ColorTransformer? { didSet {
             if oldValue != self.foregroundColorTransformer {
                 updateResolvedValues()
             } } }
-        
+
         /// Generates the resolved foreground color, using the foreground color and color transformer.
         public func resolvedForegroundColor() -> NSColor? {
             if let foregroundColor = foregroundColor {
@@ -141,19 +141,19 @@ public extension NSButton {
             }
             return nil
         }
-        
+
         /// The untransformed color for background views.
-        public var backgroundColor: NSColor? = nil { didSet {
+        public var backgroundColor: NSColor? { didSet {
             if oldValue != self.backgroundColor {
                 updateResolvedValues()
             } } }
-        
+
         /// The color transformer for resolving the background color.
-        public var backgroundColorTransformer: ColorTransformer? = nil  { didSet {
+        public var backgroundColorTransformer: ColorTransformer? { didSet {
             if oldValue != self.backgroundColorTransformer {
                 updateResolvedValues()
             } } }
-        
+
         /// Generates the resolved background color, using the background color and color transformer.
         public func resolvedBackgroundColor() -> NSColor? {
             if let backgroundColor = backgroundColor {
@@ -161,30 +161,30 @@ public extension NSButton {
             }
             return nil
         }
-        
+
         /// The distance between the title and subtitle labels.
         public var titlePadding: CGFloat = 2.0
-        
+
         /// The text alignment the button uses to lay out the title and subtitle.
         public var titleAlignment: TitleAlignment = .automatic {
             didSet { if oldValue != self.titleAlignment {
                 updateResolvedValues() } } }
-        
+
         /// The distance from the button’s content area to its bounds.
         public var contentInsets: NSDirectionalEdgeInsets = .init(top: 6.0, leading: 10.0, bottom: 6.0, trailing: 10.0)
-        
+
         /// The button style that controls the display behavior of the background corner radius.
         public var cornerStyle: CornerStyle = .medium
-        
+
         /// The opacity of the button.
         public var opacity: CGFloat = 1.0
-        
+
         /// The scale transform of the button.
         public var scaleTransform: CGFloat = 1.0
-        
+
         /// The size of the button.
         public var size: NSControl.ControlSize = .regular
-        
+
         ///  Creates a button configuration.
         public init(title: String? = nil,
                     attributedTitle: NSAttributedString? = nil,
@@ -234,14 +234,14 @@ public extension NSButton {
             self.size = size
             self.updateResolvedValues()
         }
-        
+
         ///  Creates a configuration for a button with a transparent background.
         public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
             var configuration = NSButton.AdvanceConfiguration()
             configuration.foregroundColor = color
             return configuration
         }
-        
+
         /// Creates a configuration for a button with a gray background.
         public static func gray() -> NSButton.AdvanceConfiguration {
             var configuration = NSButton.AdvanceConfiguration()
@@ -249,7 +249,7 @@ public extension NSButton {
             configuration.foregroundColor = .controlAccentColor
             return configuration
         }
-        
+
         /// Creates a configuration for a button with a tinted background color.
         public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
             var configuration = NSButton.AdvanceConfiguration()
@@ -257,7 +257,7 @@ public extension NSButton {
             configuration.foregroundColor = color
             return configuration
         }
-        
+
         /// Creates a configuration for a button with a background filled with the button’s tint color.
         public static func filled(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
             var configuration = NSButton.AdvanceConfiguration()
@@ -265,7 +265,7 @@ public extension NSButton {
             configuration.backgroundColor = color
             return configuration
         }
-        
+
         /// Creates a configuration for a button that has a bordered style.
         public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
             var configuration = NSButton.AdvanceConfiguration()
@@ -273,18 +273,18 @@ public extension NSButton {
             configuration.borderWidth = 1.0
             return configuration
         }
-        
+
         internal var _resolvedTitleAlignment: TitleAlignment = .automatic
-        internal var _resolvedBorderColor: NSColor? = nil
-        internal var _resolvedForegroundColor: NSColor? = nil
-        internal var _resolvedBackgroundColor: NSColor? = nil
-        
+        internal var _resolvedBorderColor: NSColor?
+        internal var _resolvedForegroundColor: NSColor?
+        internal var _resolvedBackgroundColor: NSColor?
+
         internal mutating func updateResolvedValues() {
             _resolvedTitleAlignment = resolvedTitleAlignment()
             _resolvedBorderColor = resolvedBorderColor()
             _resolvedForegroundColor = resolvedForegroundColor()
             _resolvedBackgroundColor = resolvedBackgroundColor()
-            
+
             if let colorConfiguration = self.imageSymbolConfiguration?.color {
                 switch colorConfiguration {
                 case .palette(let primary, let secondary, let ter):
@@ -297,7 +297,7 @@ public extension NSButton {
                 }
             }
         }
-        
+
         /**
          Returns a copy of the configuration, updated for the given state.
          
@@ -330,13 +330,13 @@ public extension NSButton {
             }
             return configuration
         }
-        
+
         internal func resolvedTitleAlignment() -> TitleAlignment {
-            if (self.titleAlignment == .automatic) {
+            if self.titleAlignment == .automatic {
                 if image != nil {
-                    if (self.imagePlacement == .leading) {
+                    if self.imagePlacement == .leading {
                         return .leading
-                    } else if (self.imagePlacement == .trailing) {
+                    } else if self.imagePlacement == .trailing {
                         return .trailing
                     } else {
                         return .center

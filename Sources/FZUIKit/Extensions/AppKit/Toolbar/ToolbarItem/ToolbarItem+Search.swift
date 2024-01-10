@@ -33,7 +33,7 @@ public extension ToolbarItem {
             case didEnd
         }
 
-        var searchHandler: SearchHandler? = nil
+        var searchHandler: SearchHandler?
 
         /// The action handler getting called when the search string value changes.
         @discardableResult
@@ -45,7 +45,7 @@ public extension ToolbarItem {
         /// The search field of the toolbar item.
         public var searchField: NSSearchField {
             get { searchItem.searchField }
-            set { 
+            set {
                 guard newValue != searchField else { return }
                 searchItem.searchField = newValue
                 self.setupSearchField()
@@ -63,7 +63,7 @@ public extension ToolbarItem {
             get { searchField.placeholderString }
             set { searchField.placeholderString = newValue }
         }
-        
+
         /// The placeholder attributed string of the search field.
         public var placeholderAttributedString: NSAttributedString? {
             get { searchField.placeholderAttributedString }
@@ -83,21 +83,21 @@ public extension ToolbarItem {
             self.placeholderAttributedString = placeholder
             return self
         }
-        
+
         /// The action to perform when the user pressed the enter key.
         @discardableResult
         public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
             searchItem.searchField.actionOnEnterKeyDown = enterAction
             return self
         }
-        
+
         /// /// The action to perform when the user pressed the escape key.
         @discardableResult
         public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
             searchItem.searchField.actionOnEscapeKeyDown = escapeAction
             return self
         }
-        
+
         public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
             super.init(identifier)
             self.searchField.actionBlock = { [weak self] _ in
@@ -108,7 +108,7 @@ public extension ToolbarItem {
             self.searchField.translatesAutoresizingMaskIntoConstraints = false
             self.searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
         }
-        
+
         func setupSearchField() {
             self.searchField.actionBlock = { [weak self] _ in
                 guard let self = self else { return }

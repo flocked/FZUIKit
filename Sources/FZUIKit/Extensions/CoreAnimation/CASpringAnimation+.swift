@@ -31,7 +31,7 @@ extension CASpringAnimation {
         self.damping = Spring.damping(dampingRatio: dampingRatio, response: response, mass: mass)
         self.duration = response
     }
-    
+
     /**
      Creates a spring animation with the given damping ratio and frequency response.
 
@@ -54,10 +54,10 @@ extension CASpringAnimation {
         self.damping = Rubberband.value(for: unbandedDamping, range: 0 ... 60, interval: 15)
         self.duration = response
     }
-    
+
     /// A spring animation with a predefined duration and higher amount of bounce.
     public static let bouncy = CASpringAnimation(dampingRatio: 0.7, response: 0.5, mass: 1.0)
-    
+
     /**
      A spring animation with a predefined duration and higher amount of bounce that can be tuned.
      
@@ -68,10 +68,10 @@ extension CASpringAnimation {
     public static func bouncy(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> CASpringAnimation {
         CASpringAnimation(dampingRatio: 0.7-extraBounce, response: duration, mass: 1.0)
     }
-    
+
     /// A smooth spring animation with a predefined duration and no bounce.
     public static let smooth = CASpringAnimation(dampingRatio: 1.0, response: 0.5, mass: 1.0)
-    
+
     /**
      A smooth spring animation with a predefined duration and no bounce that can be tuned.
      
@@ -82,10 +82,10 @@ extension CASpringAnimation {
     public static func smooth(duration: CGFloat = 0.5, extraBounce: CGFloat = 0.0) -> CASpringAnimation {
         CASpringAnimation(dampingRatio: 1.0-extraBounce, response: duration, mass: 1.0)
     }
-    
+
     /// A spring animation with a predefined duration and small amount of bounce that feels more snappy.
     public static let snappy = CASpringAnimation(dampingRatio: 0.85, response: 0.5, mass: 1.0)
-    
+
     /**
      A spring animation with a predefined duration and small amount of bounce that feels more snappy and can be tuned.
      

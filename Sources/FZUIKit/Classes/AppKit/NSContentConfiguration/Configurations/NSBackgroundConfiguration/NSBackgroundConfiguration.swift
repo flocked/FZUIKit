@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 08.04.23.
 //
 
-
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
@@ -30,11 +29,11 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
     public func makeContentView() -> NSView & NSContentView {
         NSBackgroundView(configuration: self)
     }
-    
+
     /// Generates a configuration for the specified state by applying the configuration’s default values for that state to any properties that you don’t customize.
     public func updated(for state: NSConfigurationState) -> NSBackgroundConfiguration {
         var configuration = self
-        if let isItemState = state["isItemState"] as? Bool, isItemState, let isSelected = state["isSelected"] as? Bool, let isEmphasized = state["isEmphasized"] as? Bool  {
+        if let isItemState = state["isItemState"] as? Bool, isItemState, let isSelected = state["isSelected"] as? Bool, let isEmphasized = state["isEmphasized"] as? Bool {
             if configuration.state.didConfigurate == false {
                 configuration.state.borderWidth = configuration.border.width
                 configuration.state.borderColor = configuration.border.color
@@ -42,7 +41,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
                 configuration.state.shadowColor = configuration.shadow.color
                 configuration.state.didConfigurate = true
             }
-            
+
             if isSelected {
                 configuration.border.width = configuration.state.borderWidth != 0.0 ? configuration.state.borderWidth : 2.0
                 if isEmphasized {
@@ -66,22 +65,21 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         }
         return configuration
     }
-    
+
     /// The saved state when `updated(for:)` is applied.
     struct State: Hashable {
         var didConfigurate: Bool = false
-        var color: NSColor? = nil
-        var shadowColor: NSColor? = nil
-        var borderColor: NSColor? = nil
+        var color: NSColor?
+        var shadowColor: NSColor?
+        var borderColor: NSColor?
         var borderWidth: CGFloat = 0.0
     }
-    
+
     /// The saved state when `updated(for:)` is applied.
     var state: State = State()
 
-    
     /// The background color
-    public var color: NSColor? = nil {
+    public var color: NSColor? {
         didSet {
             if self.color != oldValue {
                 self.updateResolvedColors()
@@ -89,7 +87,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         }
     }
     /// The color transformer of the background color.
-    public var colorTransformer: ColorTransformer? = nil {
+    public var colorTransformer: ColorTransformer? {
         didSet {
             if self.colorTransformer != oldValue {
                 self.updateResolvedColors()
@@ -103,15 +101,15 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         }
         return nil
     }
-    
+
     /// The background image.
-    public var image: NSImage? = nil
+    public var image: NSImage?
     /// The scaling of the background image.
     public var imageScaling: CALayerContentsGravity = .center
-    
+
     /// The background view.
-    public var view: NSView? = nil
-    
+    public var view: NSView?
+
     /// Properties for configuring the border.
     public var border: BorderConfiguration = .none() {
         didSet {
@@ -120,7 +118,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
             }
         }
     }
-    
+
     /// Properties for configuring the shadow.
     public var shadow: ShadowConfiguration = .none() {
         didSet {
@@ -129,7 +127,7 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
             }
         }
     }
-    
+
     /// Properties for configuring the inner shadow.
     public var innerShadow: ShadowConfiguration = .none() {
         didSet {
@@ -138,26 +136,26 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
             }
         }
     }
-    
+
     /// Properties for configuring the background visual effect.
-    public var visualEffect: VisualEffectConfiguration? = nil
-    
+    public var visualEffect: VisualEffectConfiguration?
+
     /// The corner radius.
     public var cornerRadius: CGFloat = 0.0
-    
+
     /// The rounded corners.
     public var roundedCorners: CACornerMask = .all
     /// The insets (or outsets, if negative) for the background and border, relative to the edges of the containing view.
     public var insets: NSDirectionalEdgeInsets = .zero
-    
+
     /// Creates an empty background configuration with a transparent background and no default styling.
     public static func clear() -> NSBackgroundConfiguration { NSBackgroundConfiguration() }
-    
+
     /// Creates a background configuration.
     public init() {
-        
+
     }
-    
+
     /*
     /// Creates a cell background configuration.
     public init(color: NSColor? = nil,
@@ -186,11 +184,11 @@ public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         self.updateResolvedColors()
     }
      */
-    
-    internal var _resolvedColor: NSColor? = nil
-    internal var _resolvedBorderColor: NSColor? = nil
-    internal var _resolvedShadowColor: NSColor? = nil
-    internal var _resolvedInnerShadowColor: NSColor? = nil
+
+    internal var _resolvedColor: NSColor?
+    internal var _resolvedBorderColor: NSColor?
+    internal var _resolvedShadowColor: NSColor?
+    internal var _resolvedInnerShadowColor: NSColor?
 
     internal mutating func updateResolvedColors() {
         self._resolvedColor = self.resolvedColor()

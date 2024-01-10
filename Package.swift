@@ -9,14 +9,14 @@ let package = Package(
     products: [
         .library(
             name: "FZUIKit",
-            targets: ["FZUIKit"]),
+            targets: ["FZUIKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/flocked/FZSwiftUtils.git", branch: "main"),
+        .package(url: "https://github.com/flocked/FZSwiftUtils.git", branch: "main")
     ],
     targets: [
         .target(
             name: "FZUIKit",
-            dependencies: ["FZSwiftUtils"]),
+            dependencies: ["FZSwiftUtils"])
     ]
 )

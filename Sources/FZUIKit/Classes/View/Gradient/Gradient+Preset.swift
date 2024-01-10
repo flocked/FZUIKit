@@ -396,7 +396,7 @@ public extension Gradient {
         case neonGreen
         case dustyGrass
         case visualBlue
-        
+
         public var colors: [NSUIColor] {
             get {
                 switch self {
@@ -1165,7 +1165,7 @@ public extension Gradient {
                 }
             }
         }
-        
+
         public var name: String {
             get {
                 switch self {

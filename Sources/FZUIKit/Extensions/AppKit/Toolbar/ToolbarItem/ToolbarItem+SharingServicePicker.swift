@@ -21,24 +21,24 @@ public extension ToolbarItem {
             return servicePickerItem
         }
 
-        internal var itemsHandler: (() -> ([Any]))? = nil
+        internal var itemsHandler: (() -> ([Any]))?
         internal var delegateObject: DelegateObject!
-        
+
         /// The handlers for the sharing service picker of a ``ToolbarItem/SharingServicePicker`` toolbar item.
         public struct Handlers {
             /// Asks the items to share.
-            public var items: (() -> ([Any]))? = nil
-            
+            public var items: (() -> ([Any]))?
+
             /// Returns the selected sharing service for the current item, or `nil` if none is selected.
-            public var didChoose: ((_ service: NSSharingService?) -> ())? = nil
-            
+            public var didChoose: ((_ service: NSSharingService?) -> Void)?
+
             /// Asks to provide an object that the selected sharing service can use as its delegate.
-            public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))? = nil
-            
+            public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
+
             /// Asks to specify which services to make available from the sharing service picker.
-            public var sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))? = nil
+            public var sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?
         }
-        
+
         /// The handlers for the sharing service picker.
         public var handlers: Handlers = Handlers()
 
@@ -48,21 +48,21 @@ public extension ToolbarItem {
             handlers.items = items
             return self
         }
-        
+
         /// Returns the selected sharing service for the current item, or `nil` if none is selected.
         @discardableResult
-        public func didChoose(_ didChoose: ((_ service: NSSharingService?) -> ())?) -> Self {
+        public func didChoose(_ didChoose: ((_ service: NSSharingService?) -> Void)?) -> Self {
             handlers.didChoose = didChoose
             return self
         }
-        
+
         /// Asks to specify which services to make available from the sharing service picker.
         @discardableResult
         public func sharingServices(_ sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?) -> Self {
             handlers.sharingServices = sharingServices
             return self
         }
-        
+
         /// Asks to provide an object that the selected sharing service can use as its delegate.
         @discardableResult
         public func delegate(_ delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?) -> Self {
@@ -84,15 +84,15 @@ internal extension ToolbarItem.SharingServicePicker {
         public func items(for _: NSSharingServicePickerToolbarItem) -> [Any] {
             return pickerItem.handlers.items?() ?? []
         }
-        
+
         public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, didChoose service: NSSharingService?) {
             pickerItem.handlers.didChoose?(service)
         }
-        
+
         public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, delegateFor sharingService: NSSharingService) -> NSSharingServiceDelegate? {
             return pickerItem.handlers.delegate?(sharingService) ?? nil
         }
-        
+
         public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
             return pickerItem.handlers.sharingServices?(items, proposedServices) ?? []
         }

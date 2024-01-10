@@ -32,7 +32,7 @@ public class SimpleStackView: NSUIView {
         /// The view is distributed to the first baseline, This distribution only works when the stack view orientation is set to horizontal.
         case firstBaseline
     }
-    
+
     /// The array of views arranged by the stack view.
     public var arrangedSubviews: [NSUIView] = [] {
         didSet {
@@ -41,7 +41,7 @@ public class SimpleStackView: NSUIView {
             }
         }
     }
-    
+
     /// The horizontal or vertical layout direction of the stack view.
     public var orientation: NSUIUserInterfaceLayoutOrientation = .vertical {
         didSet {
@@ -50,7 +50,7 @@ public class SimpleStackView: NSUIView {
             }
         }
     }
-    
+
     /// The spacing between views in the stack view.
     public var spacing: CGFloat = 2.0 {
         didSet {
@@ -59,14 +59,14 @@ public class SimpleStackView: NSUIView {
             }
         }
     }
-    
+
     /// Sets the distribution for all arranged subviews. The default value is fill.
     public func setDistribution(_ distribution: ViewDistribution) {
         for subview in arrangedSubviews {
             self.setDistribution(distribution, for: subview)
         }
     }
-    
+
     /// Sets the distribution for an arranged subview. The default value is fill.
     public func setDistribution(_ distribution: ViewDistribution, for arrangedSubview: NSUIView) {
         guard self.arrangedSubviews.contains(arrangedSubview) else { return }
@@ -75,7 +75,7 @@ public class SimpleStackView: NSUIView {
         viewDistributions[id] = distribution
         updateViewConstraints()
     }
-            
+
     /**
      Creates and returns a stack view with a specified array of views.
      
@@ -87,14 +87,14 @@ public class SimpleStackView: NSUIView {
         self.arrangedSubviews = views
         self.setupManagedViews()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     internal var viewObservers: [Int: NSKeyValueObservation] = [:]
     internal var viewDistributions: [Int: ViewDistribution] = [:]
-    
+
     internal func setupManagedViews(previous: [NSUIView] = []) {
         var removedViews: [NSUIView] = []
         var newViews: [NSUIView] = []
@@ -113,17 +113,17 @@ public class SimpleStackView: NSUIView {
             self.removeObserver(for: $0)
             self.viewDistributions[ObjectIdentifier($0).hashValue] = nil
         })
-        
+
         newViews.forEach({
             $0.translatesAutoresizingMaskIntoConstraints = false
             self.addObserver(for: $0)
             self.viewDistributions[ObjectIdentifier($0).hashValue] = .fill
             self.addSubview($0)
         })
-        
+
         self.updateViewConstraints()
     }
-    
+
     internal func addObserver(for view: NSUIView) {
         let id = ObjectIdentifier(view).hashValue
         viewObservers[id] = view.observeChanges(for: \.isHidden, handler: {[weak self]  old, new in
@@ -133,14 +133,14 @@ public class SimpleStackView: NSUIView {
             }
         })
     }
-    
+
     internal func removeObserver(for view: NSUIView) {
         let id = ObjectIdentifier(view).hashValue
         viewObservers[id] = nil
     }
-        
+
     internal var viewConstraints: [NSLayoutConstraint] = []
-    
+
     internal func updateSpacing() {
         viewConstraints.filter({
             if self.orientation == .vertical {
@@ -149,8 +149,7 @@ public class SimpleStackView: NSUIView {
                 return $0.firstAttribute == .leading
             }
         }).forEach({$0.constant = spacing})
-        
-        
+
         viewConstraints.filter({
             if self.orientation == .vertical {
                 return $0.firstAttribute == .bottom
@@ -158,15 +157,15 @@ public class SimpleStackView: NSUIView {
                 return $0.firstAttribute == .trailing
             }
         }).forEach({$0.constant = -spacing})
-         
+
     }
-    
+
     public override var intrinsicContentSize: CGSize {
         self.sizeThatFits(CGSize(width: NSUIView.noIntrinsicMetric, height: NSUIView.noIntrinsicMetric))
     }
-    
+
     internal func _sizeThatFits(_ size: CGSize) -> CGSize {
-        var fittingSize: CGSize? = nil
+        var fittingSize: CGSize?
         if orientation == .vertical, size.width != .zero {
             let originalWidthConstraint: NSLayoutConstraint? = self.constraints.first(where: {$0.firstAttribute == .width
                 || $0.secondAttribute == .width
@@ -190,7 +189,7 @@ public class SimpleStackView: NSUIView {
         }
         return fittingSize ?? self.fittingSize
     }
-    
+
 #if os(macOS)
     public func sizeThatFits(_ size: CGSize) -> CGSize {
         self._sizeThatFits(size)
@@ -200,7 +199,7 @@ public class SimpleStackView: NSUIView {
         self._sizeThatFits(size)
     }
 #endif
-    
+
     internal func updateViewConstraints() {
         NSLayoutConstraint.deactivate(viewConstraints)
         viewConstraints.removeAll()

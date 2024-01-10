@@ -35,7 +35,7 @@ public extension NSUIColor {
         guard let cgColor = cgColor.converted(to: colorSpace, intent: .defaultIntent, options: nil) else { return nil }
         return NSUIColor(cgColor: cgColor)
     }
-    
+
     /**
      A Boolean value that indicates whether the color is light or dark.
 
@@ -47,12 +47,12 @@ public extension NSUIColor {
 
       return brightness >= 0.5
     }
-    
+
     /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't `zero`).
     var isVisible: Bool {
         self.alphaComponent != 0.0
     }
-    
+
     #if os(macOS)
     /**
      Generates the resolved color for the specified view,.
@@ -78,15 +78,15 @@ public extension NSUIColor {
         self.resolvedColor(with: view.traitCollection)
     }
     #endif
-    
+
     #if os(macOS) ||  os(iOS) || os(tvOS)
-    
+
     /// A Boolean value that indicates whether the color contains a different light and dark color variant.
     var isDynamic: Bool {
         let dyamic = self.dynamicColors
         return dyamic.light != dyamic.dark
     }
-    
+
     /**
      Creates a gradient color object that uses the specified colors and frame as gradient.
      

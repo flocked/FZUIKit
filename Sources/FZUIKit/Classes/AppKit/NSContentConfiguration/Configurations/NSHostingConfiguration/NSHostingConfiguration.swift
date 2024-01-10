@@ -45,7 +45,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
   let margins: NSDirectionalEdgeInsets
   let minWidth: CGFloat?
   let minHeight: CGFloat?
-    
+
     /**
      Creates a hosting configuration with the given contents.
 
@@ -78,7 +78,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
     self.minWidth = minWidth
     self.minHeight = minHeight
   }
-        
+
     /**
      Sets the background contents for the hosting configuration’s enclosing cell.
      
@@ -156,7 +156,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
         leading: edges.contains(.leading) ? insets.leading : margins.leading,
         bottom: edges.contains(.bottom) ? insets.bottom : margins.bottom,
         trailing: edges.contains(.trailing) ? insets.trailing : margins.trailing
-      ),      minWidth: minWidth,
+      ), minWidth: minWidth,
       minHeight: minHeight
     )
   }
@@ -217,7 +217,7 @@ public struct NSHostingConfiguration<Content, Background>: NSContentConfiguratio
       minHeight: height
     )
   }
-    
+
     /**
      Returns the configuration updated for the specified state, by applying the configuration’s default values for that state to any properties that have not been customized.
      */

@@ -61,7 +61,7 @@ public extension ToolbarItem {
         /// The action block that is called when the selection of the segmented control changes.
         @discardableResult
         public func onSelection(_ handler: @escaping ([NSSegment]) -> Void) -> Self {
-            self.segmentedControl.actionBlock = { [weak self] segment in
+            self.segmentedControl.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 var selected = self.segments.filter { $0.isSelected }
                 if let index = selected.firstIndex(where: { $0.isLastSelected == true }) {
@@ -70,7 +70,7 @@ public extension ToolbarItem {
                 }
                 handler(selected)
             }
-            
+
             /*
             item.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
@@ -121,8 +121,7 @@ public extension ToolbarItem {
             - segmentedControl: The segmented control of the item.
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil,
-                    segmentedControl: NSSegmentedControl)
-        {
+                    segmentedControl: NSSegmentedControl) {
             self.segmentedControl = segmentedControl
             super.init(identifier ?? .random)
             self.segmentedControl.translatesAutoresizingMaskIntoConstraints = false

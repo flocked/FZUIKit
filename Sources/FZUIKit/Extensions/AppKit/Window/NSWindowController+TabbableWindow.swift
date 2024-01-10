@@ -30,7 +30,7 @@ extension TabbableWindow {
             return windowController!
         }
     }
-    
+
     /**
      Creates a new tab if the `window` is the main window.
      
@@ -41,45 +41,43 @@ extension TabbableWindow {
     }
 }
 
-
-
 /// TabService manages the tabs of an window controller.
 class TabService {
     struct ManagedWindow {
         /// Keep the controller around to store a strong reference to it
         public let windowController: NSWindowController
-        
+
         /// Keep the window around to identify instances of this type
         public let window: NSWindow
-        
+
         /// React to window closing, auto-unsubscribing on dealloc
         public let closingSubscription: NotificationToken
     }
-    
+
     static let shared = TabService()
-    
+
     fileprivate(set) var managedWindows: [ManagedWindow] = []
-    
+
     /// Returns the main window of the managed window stack.
     /// Falls back the first element if no window is main. Note that this would
     /// likely be an internal inconsistency we gracefully handle here.
     var mainWindow: NSWindow? {
         let mainManagedWindow = managedWindows
             .first { $0.window.isMainWindow }
-        
+
         // In case we run into the inconsistency, let it crash in debug mode so we
         // can fix our window management setup to prevent this from happening.
         // assert(mainManagedWindow != nil || managedWindows.isEmpty)
-        
+
         return (mainManagedWindow ?? managedWindows.first)
             .map { $0.window }
     }
-    
+
     /// Creates an tab service object.
     init() {
-       
+
     }
-    
+
     /**
      Creates a new tab.
      
@@ -100,7 +98,7 @@ class TabService {
     private func addManagedWindow(windowController: NSWindowController) -> ManagedWindow? {
 
         guard let window = windowController.window else { return nil }
-        
+
         let subscription = NotificationCenter.default.observe(NSWindow.willCloseNotification, object: window) { [unowned self] notification in
             guard let window = notification.object as? NSWindow else { return }
             self.removeManagedWindow(forWindow: window)

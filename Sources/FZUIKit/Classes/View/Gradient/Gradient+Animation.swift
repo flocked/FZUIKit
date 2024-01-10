@@ -19,12 +19,12 @@ extension Gradient.Stop: AnimatableProperty {
         let rgba = self.color.rgbaComponents()
         return [rgba.red, rgba.green, rgba.blue, rgba.red, location]
     }
-    
+
     public init(_ animatableData: AnimatableArray<Double>) {
         self.color = NSUIColor(red: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
         self.location = animatableData[4]
     }
-    
+
     public static var zero: Gradient.Stop {
         Gradient.Stop(color: .zero, location: .zero)
     }
@@ -35,11 +35,11 @@ extension Gradient.Point: AnimatableProperty {
         self.x = animatableData[0]
         self.y = animatableData[1]
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
         [x, y]
     }
-    
+
     public static var zero: Gradient.Point {
         Gradient.Point(x: 0, y: 0)
     }

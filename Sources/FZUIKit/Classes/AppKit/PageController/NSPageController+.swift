@@ -84,10 +84,10 @@ public extension NSPageController {
         case enabled(transitionDuration: TimeInterval = 0.0, looping: Bool = false)
         /// The displayed page can't be changed via keyboard.
         case disabled
-        
+
         /// The displayed page can be changed via keyboard.
         public static var enabled: Self { return .enabled(transitionDuration: 0.0, looping: false) }
-        
+
         internal var transitionDuration: TimeInterval {
             switch self {
             case let .enabled(value, _):
@@ -96,7 +96,7 @@ public extension NSPageController {
                 return 0.0
             }
         }
-        
+
         internal var isLooping: Bool {
             switch self {
             case .enabled(_, let looping): return looping

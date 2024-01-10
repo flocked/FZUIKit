@@ -40,7 +40,7 @@ extension NSWindow {
     }
 }
 
-fileprivate func shakeAnimation(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02, frame: CGRect) -> CAKeyframeAnimation {
+private func shakeAnimation(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02, frame: CGRect) -> CAKeyframeAnimation {
     let shakeAnimation = CAKeyframeAnimation()
 
     let shakePath = CGMutablePath()

@@ -26,11 +26,10 @@ extension NSUIColor {
     #elseif os(OSX)
       if isEqual(NSUIColor.black) {
           return HSBAComponents(0.0, 0.0, 0.0, 1.0)
-      }
-      else if isEqual(NSUIColor.white) {
+      } else if isEqual(NSUIColor.white) {
           return HSBAComponents(0.0, 0.0, 1.0, 1.0)
       }
-        
+
         guard let color = self.withSupportedColorSpace() else {
           fatalError("Could not convert color to RGBA.")
         }
@@ -40,7 +39,7 @@ extension NSUIColor {
         return HSBAComponents(h, s, b, alphaComponent)
     #endif
   }
-    
+
     /// Creates a color using the HSBA components.
     convenience init(_ hsbaComponents: HSBAComponents) {
         self.init(hue: hsbaComponents.hue, saturation: hsbaComponents.saturation, brightness: hsbaComponents.brightness, alpha: hsbaComponents.alpha)
@@ -62,7 +61,7 @@ extension NSUIColor {
       return hsbaComponents().brightness
     }
   #endif
-    
+
     /**
      Returns a new color object with the specified hue value.
      
@@ -103,22 +102,22 @@ public struct HSBAComponents {
     public var hue: CGFloat {
         didSet { hue = hue.clamped(max: 1.0) }
     }
-    
+
     /// The saturation component of the color.
     public var saturation: CGFloat {
         didSet { saturation = saturation.clamped(max: 1.0) }
     }
-    
+
     /// The brightness component of the color.
     public var brightness: CGFloat {
         didSet { brightness = brightness.clamped(max: 1.0) }
     }
-    
+
     /// The alpha value of the color.
     public var alpha: CGFloat {
         didSet { alpha = alpha.clamped(max: 1.0) }
     }
-    
+
     /// Creates HSBA components with the specified hue, saturation, brightness and alpha components.
     public init(hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) {
         self.hue = hue.clamped(max: 1.0)
@@ -126,14 +125,14 @@ public struct HSBAComponents {
         self.brightness = brightness.clamped(max: 1.0)
         self.alpha = alpha.clamped(max: 1.0)
     }
-    
+
     internal init(_ hue: CGFloat, _ saturation: CGFloat, _ brightness: CGFloat, _ alpha: CGFloat) {
         self.hue = hue.clamped(max: 1.0)
         self.saturation = saturation.clamped(max: 1.0)
         self.brightness = brightness.clamped(max: 1.0)
         self.alpha = alpha.clamped(max: 1.0)
     }
-    
+
     #if os(macOS)
     /// Returns the `NSColor`.
     public func toNSColor() -> NSUIColor {
@@ -145,12 +144,12 @@ public struct HSBAComponents {
         NSUIColor(self)
     }
     #endif
-    
+
     /// Returns the SwiftUI `Color`.
     public func toColor() -> Color {
         Color(hue: hue, saturation: saturation, brightness: brightness, opacity: alpha)
     }
-    
+
     /// Returns the `CGColor`.
     public func toCGColor() -> CGColor {
         NSUIColor(self).cgColor

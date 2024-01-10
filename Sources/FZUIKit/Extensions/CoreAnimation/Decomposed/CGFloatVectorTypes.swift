@@ -161,7 +161,7 @@ public struct CGQuaternion: Hashable {
         get { return CGFloat(storage.angle) }
         set { storage = simd_quatd(angle: Double(newValue), axis: storage.axis) }
     }
-    
+
     /// The angle of rotation (specified in degree).
     public var degree: CGFloat {
         get { return CGFloat(storage.angle.radiansToDegrees) }
@@ -177,7 +177,7 @@ public struct CGQuaternion: Hashable {
     public init(angle: CGFloat, axis: CGVector3) {
         storage = simd_quatd(angle: Double(angle), axis: normalize(simd_double3(axis)))
     }
-    
+
     /**
      Default initializer.
 

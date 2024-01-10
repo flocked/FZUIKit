@@ -61,7 +61,6 @@ public extension LayoutItem {
         guard let superview = superview else { return [] }
         return pinEdges(to: superview, insets: insets, alignment: alignment, priority: priority)
     }
-    
 
     @discardableResult
     func pinEdges(to other: LayoutItem? = nil, insets: NSUIEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 0), alignment: NSUIView.LayoutAlignment = .fill, priority: NSUILayoutPriority? = nil) -> [NSLayoutConstraint] {

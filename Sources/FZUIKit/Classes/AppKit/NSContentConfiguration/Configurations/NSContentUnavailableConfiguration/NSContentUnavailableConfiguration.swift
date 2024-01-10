@@ -14,76 +14,76 @@ import AppKit
  A content-unavailable configuration is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. Fill the configuration with placeholder content, and then assign it to a view’s contentUnavailableConfiguration, or to a NSContentUnavailableView.
  */
 @available(macOS 12.0, *)
-public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashable {    
+public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashable {
     /// The image to display.
-    public var image: NSImage? = nil
-    
+    public var image: NSImage?
+
     /// The primary text to display.
-    public var text: String? = nil
+    public var text: String?
 
     /// An attributed variant of the primary text.
-    public var attributedText: NSAttributedString? = nil
-    
+    public var attributedText: NSAttributedString?
+
     /// The secondary text to display.
-    public var secondaryText: String? = nil
-    
+    public var secondaryText: String?
+
     /// An attributed variant of the secondary text.
-    public var secondaryAttributedText: NSAttributedString? = nil
-    
+    public var secondaryAttributedText: NSAttributedString?
+
     /// The button configuration.
-    public var button: ButtonConfiguration? = nil
-    
+    public var button: ButtonConfiguration?
+
     /// The secondary button configuration.
-    public var secondaryButton: ButtonConfiguration? = nil
-    
+    public var secondaryButton: ButtonConfiguration?
+
     /// The configuration for the image.
     public var imageProperties: ImageProperties = ImageProperties()
-    
+
     /// Properties for configuring the primary text.
     public var textProperties: TextProperties = .primary()
-    
+
     /// Properties for configuring the secondary text.
     public var secondaryTextProperties: TextProperties = .secondary()
-    
+
     /// The configuration for the background.
     public var background: NSBackgroundConfiguration = .clear()
-    
+
     /// The margins between the content and the edges of the content view.
     public var directionalLayoutMargins: NSDirectionalEdgeInsets = .init(6.0)
-    
+
     /// The padding between the image and the primary text.
     public var imageToTextPadding: CGFloat = 6.0
-    
+
     /// The padding between the primary and secondary text.
     public var textToSecondaryTextPadding: CGFloat = 2.0
-    
+
     /// The padding between the text and buttons.
     public var textToButtonPadding: CGFloat = 4.0
-    
+
     /// The padding between the primary button and secondary button.
     public var buttonToSecondaryButtonPadding: CGFloat = 4.0
-    
+
     /**
      The orientation of the buttons.
      
      If `vertical` the secondary button is placed  next to the primary button, if `horizontal` it's placed below the primary button.
      */
     public var buttonOrientation: NSUIUserInterfaceLayoutOrientation = .vertical
-    
+
     internal var displayLoadingIndicator: Bool = false
-    
+
     public func makeContentView() -> NSView & NSContentView {
         NSContentUnavailableView(configuration: self)
     }
-    
+
     public func updated(for state: FZUIKit.NSConfigurationState) -> NSContentUnavailableConfiguration {
         return self
     }
-    
+
     internal var hasText: Bool {
         self.text != nil || self.attributedText != nil
     }
-    
+
     internal var hasSecondaryText: Bool {
         self.secondaryText != nil || self.secondaryAttributedText != nil
     }
@@ -95,7 +95,7 @@ public extension NSContentUnavailableConfiguration {
     static func empty() -> NSContentUnavailableConfiguration {
         NSContentUnavailableConfiguration()
     }
-    
+
     /// Creates the default configuration for content that’s loading.
     static func loading() -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
@@ -104,7 +104,7 @@ public extension NSContentUnavailableConfiguration {
         configuration.displayLoadingIndicator = true
         return configuration
     }
-    
+
     /// Creates the default configuration for searches that return no results.
     static func search() -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
@@ -114,9 +114,9 @@ public extension NSContentUnavailableConfiguration {
         configuration.image = NSImage(systemSymbolName: "magnifyingglass")
         return configuration
     }
-    
+
     /// Creates the default configuration for drag and drop of files.
-    static func dropFiles(fileExtensions: [String]?, buttonHandler:(()->())?) -> NSContentUnavailableConfiguration {
+    static func dropFiles(fileExtensions: [String]?, buttonHandler: (() -> Void)?) -> NSContentUnavailableConfiguration {
         var configuration = NSContentUnavailableConfiguration()
         configuration.textProperties.font = .headline.weight(.semibold)
         configuration.textProperties.font = .title3
@@ -135,11 +135,10 @@ public extension NSContentUnavailableConfiguration {
         }
         return configuration
     }
-    
+
 }
 
 #endif
-
 
 /*
 /// The configuration for the primary button.

@@ -25,7 +25,7 @@ public extension NSUICollectionViewLayout {
             self.itemSizeProvider = itemSizeProvider
         }
 
-        public var itemSizeProvider: ItemSizeProvider? = nil {
+        public var itemSizeProvider: ItemSizeProvider? {
             didSet { invalidateLayout() }
         }
 
@@ -66,7 +66,7 @@ public extension NSUICollectionViewLayout {
          get { return collectionView!.delegate as? NSUICollectionViewWaterfallLayoutDelegate } }
          */
 
-        public var animationDuration: TimeInterval? = nil
+        public var animationDuration: TimeInterval?
 
         private var columnHeights: [[CGFloat]] = []
         private var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
@@ -198,8 +198,7 @@ public extension NSUICollectionViewLayout {
                     let yOffset = columnHeights[section][columnIndex]
                     var itemHeight: CGFloat = 0.0
                     if let itemSize = itemSizeProvider?(indexPath),
-                       itemSize.height > 0
-                    {
+                       itemSize.height > 0 {
                         itemHeight = itemSize.height
                         if itemSize.width > 0 {
                             itemHeight = floor(itemHeight * itemWidth / itemSize.width)

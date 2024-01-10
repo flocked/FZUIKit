@@ -27,14 +27,13 @@ public class SwipeTouchGestureRecognizer: NSGestureRecognizer {
             self.rawValue = rawValue
         }
     }
-    
+
     /**
      The permitted direction of the swipe for this gesture recognizer.
      
      The default direction is right. See descriptions of `SwipeTouchGestureRecognizer.Direction` constants for more information.
      */
     public var direction: Direction = .right
-    
 
     /// The number of swipes required to detect the swipe.
     public var numberOfTouchesRequired: Int = 2
@@ -131,14 +130,6 @@ public class SwipeTouchGestureRecognizer: NSGestureRecognizer {
     func happenedDown() {
         guard direction.contains(.down), let action = action else { return }
         _ = target?.perform(action, with: self)
-    }
-
-    override public func touchesEnded(with event: NSEvent) {
-        super.touchesEnded(with: event)
-    }
-
-    override public func touchesCancelled(with event: NSEvent) {
-        super.touchesCancelled(with: event)
     }
 }
 

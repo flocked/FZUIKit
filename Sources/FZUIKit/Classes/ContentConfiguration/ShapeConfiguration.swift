@@ -22,16 +22,16 @@ import SwiftUI
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 public struct ShapeConfiguration: Hashable {
     /// The shape.
-    public var shape: (any SwiftUI.Shape)? = nil
-    
+    public var shape: (any SwiftUI.Shape)?
+
     /// The margins for the shape.
     public var margins: NSDirectionalEdgeInsets = .zero
-    
+
     /// A Boolean value that indicates whether the shape is inverted.
     public var inverse: Bool = false
-    
+
     var name: String = UUID().uuidString
-    
+
     /**
      A shape configuration with the specified shape and margins.
      
@@ -46,14 +46,14 @@ public struct ShapeConfiguration: Hashable {
         self.margins = margins
         self.name = UUID().uuidString
     }
-            
+
     init(shape: (any SwiftUI.Shape)?, inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero, name: String? = nil) {
         self.shape = shape
         self.inverse = inverted
         self.margins = margins
         self.name = name ?? UUID().uuidString
     }
-    
+
     /**
      A circle shape.
      
@@ -64,7 +64,7 @@ public struct ShapeConfiguration: Hashable {
     public static func circle(inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
         Self(shape: SwiftUI.Circle(), inverted: inverted, margins: margins, name: "Circle\(inverted ? "Inverted" : "")")
     }
-    
+
     /**
      A capsule shape.
      
@@ -75,7 +75,7 @@ public struct ShapeConfiguration: Hashable {
     public static func capsule(inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
         Self(shape: SwiftUI.Capsule(), inverted: inverted, margins: margins, name: "Capsule\(inverted ? "Inverted" : "")")
     }
-    
+
     /**
      A ellipse shape.
      
@@ -86,7 +86,7 @@ public struct ShapeConfiguration: Hashable {
     public static func ellipse(inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
         Self(shape: SwiftUI.Ellipse(), inverted: inverted, margins: margins, name: "Ellipse\(inverted ? "Inverted" : "")")
     }
-            
+
     /**
      A rounded rectangle shape with the specified corner radius.
      
@@ -98,7 +98,7 @@ public struct ShapeConfiguration: Hashable {
     public static func roundedRectangle(cornerRadius: CGFloat, inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
         Self(shape: SwiftUI.RoundedRectangle(cornerRadius: cornerRadius), inverted: inverted, margins: margins, name: "RoundedRectangleCornerRadius\(inverted ? "Inverted" : "")")
     }
-    
+
     /**
      A rounded rectangle shape with the specified corner size.
      
@@ -110,7 +110,7 @@ public struct ShapeConfiguration: Hashable {
     public static func roundedRectangle(cornerSize: CGSize, inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
         Self(shape: SwiftUI.RoundedRectangle(cornerSize: cornerSize), inverted: inverted, margins: margins, name: "RoundedRectangleCornerSize")
     }
-    
+
     /**
      A star rectangle shape.
      
@@ -124,17 +124,17 @@ public struct ShapeConfiguration: Hashable {
         let name = rounded ? "StarRounded\(points)\(inverted ? "Inverted" : "")" : "Star\(points)\(inverted ? "Inverted" : "")"
         return Self(shape: Star(points: points, rounded: rounded), inverted: inverted, margins: margins, name: name)
     }
-    
+
     /// No shape.
     public static var none: Self = Self(shape: nil, name: "None")
-    
+
     public static func == (lhs: FZUIKit.ShapeConfiguration, rhs: FZUIKit.ShapeConfiguration) -> Bool {
         if lhs.name == rhs.name, lhs.margins == rhs.margins {
             return true
         }
         return false
     }
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(margins)
         hasher.combine(name)
@@ -182,7 +182,7 @@ public extension CALayer {
             }
         }
     }
-    
+
     fileprivate var frameObserver: NSKeyValueObservation? {
         get { getAssociatedValue(key: "frameObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "frameObserver", object: self) }
@@ -208,9 +208,9 @@ class ShapeLayer: CALayer {
             updateShape()
         }
     }
-        
+
     lazy var hostingController = NSUIHostingController(rootView: ShapeContentView(configuration: configuration))
-        
+
     func setupObserver(for layer: CALayer) {
         layer.frameObserver = layer.observeChanges(for: \.frame, handler: { [weak self] old, new in
             guard let self = self, old.size != new.size else { return }
@@ -223,19 +223,19 @@ class ShapeLayer: CALayer {
         }
         frame.size = layer.frame.size
     }
-    
+
     override var frame: CGRect {
         didSet {
             guard oldValue != frame else { return }
             layoutShape()
         }
     }
-    
+
     func updateShape() {
         hostingController.rootView = ShapeContentView(configuration: configuration)
         setNeedsLayout()
     }
-    
+
     func layoutShape() {
         var newSize = self.bounds.size
 
@@ -254,19 +254,19 @@ class ShapeLayer: CALayer {
         }
         imageLayer.contents = hostingController.view.renderedImage
     }
-    
+
     override init() {
         super.init()
         sharedInit()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }
-    
+
     let imageLayer = CALayer()
-    
+
     func sharedInit() {
         self.contentsGravity = .resizeAspect
         self.addSublayer(imageLayer)

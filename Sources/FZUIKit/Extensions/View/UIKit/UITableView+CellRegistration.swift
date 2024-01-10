@@ -23,7 +23,7 @@ public extension UITableView {
     func dequeueReusableCell<Cell, Item>(using registration: CellRegistration<Cell, Item>, for indexPath: IndexPath, item: Item) -> Cell where Cell: UITableViewCell {
         return registration.makeCell(self, indexPath, item)
     }
-    
+
     /**
      A registration for the table view’s cells.
      
@@ -54,14 +54,14 @@ public extension UITableView {
           
      - Important: Do not create your cell registration inside a `UITableViewDiffableDataSource.CellProvider` closure; doing so prevents cell reuse.
      */
-    struct CellRegistration<Cell, Item> where Cell: UITableViewCell  {
-        
+    struct CellRegistration<Cell, Item> where Cell: UITableViewCell {
+
         internal let reuseIdentifier: String
         private let nib: UINib?
         private let handler: Handler
-        
+
         // MARK: Creating a cell registration
-        
+
         /**
          Creates a cell registration with the specified registration handler.
          
@@ -73,7 +73,7 @@ public extension UITableView {
             self.nib = nil
             self.reuseIdentifier = String(describing: Cell.self)
         }
-        
+
         /**
          Creates a cell registration with the specified registration handler and nib file.
          
@@ -86,17 +86,17 @@ public extension UITableView {
             self.handler = handler
             self.reuseIdentifier = String(describing: Cell.self) + String(describing: nib.self)
         }
-        
+
         /// A closure that handles the cell registration and configuration.
-        public typealias Handler = ((_ cell: Cell, _ indexPath: IndexPath, _ item: Item)->(Void))
-        
+        public typealias Handler = ((_ cell: Cell, _ indexPath: IndexPath, _ item: Item) -> Void)
+
         internal func makeCell(_ tableView: UITableView, _ indexPath: IndexPath, _ element: Item) -> Cell {
             self.registerIfNeeded(for: tableView)
             let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! Cell
             self.handler(cell, indexPath, element)
             return cell
         }
-        
+
         internal func registerIfNeeded(for tableView: UITableView) {
             if tableView.registeredCellIdentifiers.contains(reuseIdentifier) == false {
                 if let nib = self.nib {
@@ -107,7 +107,7 @@ public extension UITableView {
                 tableView.registeredCellIdentifiers.append(reuseIdentifier)
             }
         }
-        
+
         internal func unregister(for tableView: UITableView) {
             if let index = tableView.registeredCellIdentifiers.firstIndex(of: reuseIdentifier) {
                 if self.nib != nil {
@@ -124,7 +124,7 @@ public extension UITableView {
 }
 
 internal extension UITableView {
-    var registeredCellIdentifiers: [String]   {
+    var registeredCellIdentifiers: [String] {
         get { getAssociatedValue(key: "registeredCellIdentifiers", object: self, initialValue: []) }
         set { set(associatedValue: newValue, key: "registeredCellIdentifiers", object: self) }
     }

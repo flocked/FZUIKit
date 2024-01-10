@@ -22,10 +22,10 @@ public class DisplayLinkTimer {
 
     /// The number of seconds between firings of the timer.
     public var timeInterval: TimeDuration = .seconds(0.0)
-    
+
     /// If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
     public var repeating = true
-    
+
     /// The handler to be called whenever the timer fires.
     public let action: Action
 
@@ -46,7 +46,7 @@ public class DisplayLinkTimer {
     public static func repeating(timeInterval: TimeDuration, shouldFire: Bool = true, action: @escaping Action) -> DisplayLinkTimer {
         DisplayLinkTimer(timeInterval: timeInterval, repeating: true, shouldFire: shouldFire, action: action)
     }
-    
+
     /**
      Returns a repeating timer object with the specified time interval.
      
@@ -59,7 +59,7 @@ public class DisplayLinkTimer {
     public static func scheduledTimer(repeating: TimeDuration, action: @escaping Action) -> DisplayLinkTimer {
         DisplayLinkTimer(timeInterval: repeating, repeating: true, shouldFire: true, action: action)
     }
-    
+
     /**
      Returns a repeating timer object with the specified time interval.
      
@@ -103,7 +103,7 @@ public class DisplayLinkTimer {
     }
 
     internal var _isRunning: Bool = false
-    
+
     /// Causes the timer's action to be called.
     public func fire() {
         if isRunning == false {

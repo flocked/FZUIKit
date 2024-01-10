@@ -18,7 +18,7 @@ open class ImageView: NSControl {
             self.invalidateIntrinsicContentSize()
         }
     }
-    
+
     /**
      The images displayed in the image view.
      
@@ -31,7 +31,7 @@ open class ImageView: NSControl {
             self.invalidateIntrinsicContentSize()
         }
     }
-    
+
     /// The currently displayed image.
     open var displayingImage: NSUIImage? {
         return self.imageLayer.displayingImage
@@ -40,14 +40,14 @@ open class ImageView: NSControl {
     /// The scaling of the image.
     open var imageScaling: CALayerContentsGravity {
         get { imageLayer.imageScaling }
-        set { 
+        set {
             guard newValue != imageScaling else { return }
             imageLayer.imageScaling = newValue
             layerContentsPlacement = newValue.viewLayerContentsPlacement
             resizeOverlayView()
         }
     }
-    
+
     open override func layout() {
         if imageLayer.frame.size != self.bounds.size {
             NSAnimationContext.runAnimationGroup {
@@ -58,7 +58,7 @@ open class ImageView: NSControl {
             }
         }
     }
-    
+
     /// A color used to tint template images.
     open var tintColor: NSColor? {
         get { self._tintColor }
@@ -67,7 +67,6 @@ open class ImageView: NSControl {
             updateTintColor()
         }
     }
-    
 
     func updateTintColor() {
         if _backgroundStyle == .emphasized {
@@ -76,19 +75,19 @@ open class ImageView: NSControl {
             self.imageLayer.tintColor = _tintColor?.resolvedColor(for: self)
         }
     }
-    
+
     var _backgroundStyle: NSView.BackgroundStyle = .normal
-    
+
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         guard backgroundStyle != self._backgroundStyle else { return }
         self._backgroundStyle = backgroundStyle
         self.updateTintColor()
         super.setBackgroundStyle(backgroundStyle)
     }
-    
-    private var _tintColor: NSColor? = nil
-    
-    private var _symbolConfiguration: Any? = nil
+
+    private var _tintColor: NSColor?
+
+    private var _symbolConfiguration: Any?
     @available(macOS 12.0, iOS 15.0, *)
     public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
@@ -98,7 +97,7 @@ open class ImageView: NSControl {
             self.imageLayer.symbolConfiguration = newValue
         }
     }
-    
+
     @available(macOS 12.0, iOS 13.0, *)
     internal var resolvedSymbolConfiguration: NSUIImage.SymbolConfiguration? {
         get {
@@ -107,7 +106,7 @@ open class ImageView: NSControl {
             return symbolConfiguration
         }
     }
-    
+
     /// Sets the displaying image to the specified option.
     open func setFrame(to option: ImageLayer.FramePosition) {
         imageLayer.setFrame(to: option)
@@ -133,7 +132,7 @@ open class ImageView: NSControl {
     open func toggleAnimating() {
         imageLayer.toggleAnimating()
     }
-    
+
     /// Returns a Boolean value indicating whether the animation is running.
     open var isAnimating: Bool {
         return imageLayer.isAnimating
@@ -148,7 +147,7 @@ open class ImageView: NSControl {
         get {  imageLayer.animationDuration }
         set { imageLayer.animationDuration = newValue }
     }
-    
+
     /**
      Specifies the number of times to repeat the animation.
      
@@ -158,13 +157,13 @@ open class ImageView: NSControl {
         get { imageLayer.animationRepeatCount }
         set { imageLayer.animationRepeatCount = newValue }
     }
-    
+
     /// A Boolean value indicating whether animatable images should automatically start animating.
     internal var autoAnimates: Bool {
         get { imageLayer.autoAnimates }
         set { imageLayer.autoAnimates = newValue }
     }
-    
+
     public enum AnimationPlaybackOption: Int {
         /// Images don't animate automatically.
         case none
@@ -175,19 +174,19 @@ open class ImageView: NSControl {
         /// A mouse down toggles animating the images.
         case mouseDown
     }
-    
+
     public var animationPlaybackOption: AnimationPlaybackOption = .automatic {
         didSet {
             self.imageLayer.autoAnimates = (animationPlaybackOption == .automatic)
             self.updateTrackingAreas()
         }
     }
-    
+
     private func setupMouse() {
         self.updateTrackingAreas()
     }
-    
-    internal var _trackingArea: TrackingArea? = nil
+
+    internal var _trackingArea: TrackingArea?
     open override func updateTrackingAreas() {
         if self.animationPlaybackOption == .mouseHover {
             if self._trackingArea == nil {
@@ -198,19 +197,19 @@ open class ImageView: NSControl {
         }
         _trackingArea?.update()
     }
-    
+
     open override func mouseEntered(with event: NSEvent) {
         if animationPlaybackOption == .mouseHover {
             self.startAnimating()
         }
     }
-    
+
     open override func mouseExited(with event: NSEvent) {
         if animationPlaybackOption == .mouseHover {
             self.stopAnimating()
         }
     }
-    
+
     open override func mouseDown(with event: NSEvent) {
         if animationPlaybackOption == .mouseDown {
             self.toggleAnimating()
@@ -218,7 +217,7 @@ open class ImageView: NSControl {
             super.mouseDown(with: event)
         }
     }
-    
+
     /// The transition animation when changing images.
     open var transition: ImageLayer.Transition {
         get { imageLayer.transition }
@@ -244,8 +243,8 @@ open class ImageView: NSControl {
         return imageLayer
     }
     */
-    
-    private var symbolImageView: NSImageView? = nil
+
+    private var symbolImageView: NSImageView?
     private func updateSymbolImageView() {
         if symbolImageView == nil {
             symbolImageView = NSImageView(frame: self.frame)
@@ -256,14 +255,14 @@ open class ImageView: NSControl {
         }
         symbolImageView?.image = displayingImage
     }
-    
+
     public override func alignmentRect(forFrame frame: NSRect) -> NSRect {
         updateSymbolImageView()
         let alignmentRect = symbolImageView?.alignmentRect(forFrame: frame) ?? super.alignmentRect(forFrame: frame)
         symbolImageView?.image = nil
         return alignmentRect
     }
-    
+
     public override func frame(forAlignmentRect alignmentRect: NSRect) -> NSRect {
         updateSymbolImageView()
         let frameForAlignmentRect = symbolImageView?.frame(forAlignmentRect: alignmentRect) ?? super.frame(forAlignmentRect: alignmentRect)
@@ -274,7 +273,7 @@ open class ImageView: NSControl {
     open override var intrinsicContentSize: CGSize {
         imageLayer.displayingSymbolImage?.alignmentRect.size ?? displayingImage?.alignmentRect.size ?? .zero
     }
-    
+
     public override func viewDidChangeEffectiveAppearance() {
         super.viewDidChangeEffectiveAppearance()
         updateTintColor()
@@ -285,12 +284,12 @@ open class ImageView: NSControl {
             }
         }
     }
-    
+
     public override func viewDidChangeBackingProperties() {
         guard let window = self.window else { return }
         imageLayer.contentsScale = window.backingScaleFactor
     }
-    
+
     public init() {
         super.init(frame: .zero)
         self.sharedInit()
@@ -306,7 +305,7 @@ open class ImageView: NSControl {
         super.init(frame: frameRect)
         sharedInit()
     }
-    
+
     /**
      A view for hosting layered content on top of the image view.
      
@@ -315,7 +314,7 @@ open class ImageView: NSControl {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `initclipsToBounds` property.
      */
     public let overlayContentView = NSView()
-    
+
     func resizeOverlayView() {
         if let imageSize = displayingImage?.size {
             switch imageScaling {

@@ -11,65 +11,65 @@ import AppKit
 
 /// A segment of a NSSegmentedControll.
 public class NSSegment: ExpressibleByStringLiteral {
-    internal weak var segmentedControl: NSSegmentedControl? = nil
+    internal weak var segmentedControl: NSSegmentedControl?
     internal var tag: Int = UUID().hashValue
-    
+
     /// The title of the segment.
     public var title: String? {
         didSet { if let index = index {
             segmentedControl?.setLabel(title ?? "", forSegment: index)
         } }
     }
-    
+
     /// The title alignemnt of the segment.
     public var titleAlignment: NSTextAlignment = .left {
         didSet { if let index = index {
             segmentedControl?.setAlignment(titleAlignment, forSegment: index)
         } }
     }
-    
+
     /// The image of the segment.
     public var image: NSImage? {
         didSet { if let index = index {
             segmentedControl?.setImage(image, forSegment: index)
         } }
     }
-    
+
     /// The image scaling of the segment.
     public var imageScaling: NSImageScaling = .scaleProportionallyDown {
         didSet { if let index = index {
             segmentedControl?.setImageScaling(imageScaling, forSegment: index)
         } }
     }
-    
+
     /// The menu of the segment.
-    public var menu: NSMenu? = nil {
+    public var menu: NSMenu? {
         didSet { if let index = index {
             segmentedControl?.setMenu(menu, forSegment: index)
         } }
     }
-    
+
     /// A Boolean value that indicates whether the segment shows a menu indicator.
     public var showsMenuIndicator: Bool = false {
         didSet { if let index = index {
             segmentedControl?.setShowsMenuIndicator(showsMenuIndicator, forSegment: index)
         } }
     }
-    
+
     /// A Boolean value that indicates whether the segment is selected.
     public var isSelected: Bool = false {
         didSet { if let index = index {
             segmentedControl?.setSelected(isSelected, forSegment: index)
         } }
     }
-    
+
     /// A Boolean value that indicates whether the segment is enabled.
     public var isEnabled: Bool = true {
         didSet { if let index = index {
             segmentedControl?.setEnabled(isEnabled, forSegment: index)
         } }
     }
-    
+
     /**
      The width of the segment.
      
@@ -81,70 +81,70 @@ public class NSSegment: ExpressibleByStringLiteral {
             segmentedControl?.setWidth(width, forSegment: index)
         } }
     }
-    
+
     /// The tooltip of the segment.
-    public var toolTip: String? = nil {
+    public var toolTip: String? {
         //     willSet { self.index = self.index }
         didSet { if let index = index {
             segmentedControl?.setToolTip(toolTip, forSegment: index)
         } }
     }
-    
+
     /// The title alignemnt of the segment.
     public var contentOffset: CGSize = .zero {
         didSet { if let index = index {
             segmentedControl?.setAlignment(titleAlignment, forSegment: index)
         } }
     }
-    
+
     /// Sets the title for the segment.
     public func title(_ value: String?) -> Self {
         title = value
         return self
     }
-    
+
     /// Sets the title alignment for the segment.
     public func titleAlignment(_ value: NSTextAlignment) -> Self {
         titleAlignment = value
         return self
     }
-    
+
     /// Sets the image for the segment.
     public func image(_ value: NSImage?) -> Self {
         image = value
         return self
     }
-    
+
     /// Sets the image scaling for the segment.
     public func imageScaling(_ value: NSImageScaling) -> Self {
         imageScaling = value
         return self
     }
-    
+
     /// Sets the menu for the segment.
     public func menu(_ value: NSMenu?) -> Self {
         menu = value
         return self
     }
-    
+
     /// Sets whether the menu indicator is shown.
     public func showsMenuIndicator(_ value: Bool) -> Self {
         showsMenuIndicator = value
         return self
     }
-    
+
     /// Sets whether the segment is selected.
     public func isSelected(_ value: Bool) -> Self {
         isSelected = value
         return self
     }
-    
+
     /// Sets whether the segment is enabled.
     public func isEnabled(_ value: Bool) -> Self {
         isEnabled = value
         return self
     }
-    
+
     /**
      Sets the width of the segment.
      
@@ -154,23 +154,23 @@ public class NSSegment: ExpressibleByStringLiteral {
         width = value
         return self
     }
-    
+
     /// Sets the tooltip for the segment.
     public func toolTip(_ value: String?) -> Self {
         toolTip = value
         return self
     }
-    
+
     /// The index of the segment, or `nil` if the segment isn't displayed in any segmented control.
     public var index: Int? {
         segmentedControl?.index(forTag: tag) ?? nil
     }
-    
+
     /// A Boolean value that indicates whether the segment is the last selected segment.
     public var isLastSelected: Bool {
         return segmentedControl?.selectedSegment ?? -2 == index
     }
-    
+
     /**
      Creates a new segment with the specified title.
      
@@ -183,7 +183,7 @@ public class NSSegment: ExpressibleByStringLiteral {
         self.title = title
         self.image = nil
     }
-    
+
     /**
      Creates a new segment with the specified image.
      
@@ -196,7 +196,7 @@ public class NSSegment: ExpressibleByStringLiteral {
         self.title = nil
         self.image = image
     }
-    
+
     @available(macOS 11.0, *)
     /**
      Creates a new segment with the specified system symbol name.
@@ -213,7 +213,7 @@ public class NSSegment: ExpressibleByStringLiteral {
         self.title = nil
         self.image = image
     }
-    
+
     /**
      Creates a new segment with the specified title and image.
      
@@ -227,7 +227,7 @@ public class NSSegment: ExpressibleByStringLiteral {
         self.title = title
         self.image = image
     }
-    
+
     /**
      Creates a new segment with the specified title.
      
@@ -240,7 +240,7 @@ public class NSSegment: ExpressibleByStringLiteral {
         self.title = value
         self.image = nil
     }
-    
+
     internal init(title: String?, titleAlignment: NSTextAlignment = .left, image: NSImage?, imageScaling: NSImageScaling = .scaleProportionallyDown, menu: NSMenu? = nil, showsMenuIndicator: Bool = false, isSelected: Bool, isEnabled: Bool = true, width: CGFloat = .zero, toolTip: String? = nil, tag: Int? = nil, segmentedControl: NSSegmentedControl? = nil) {
         self.title = title
         self.titleAlignment = titleAlignment
@@ -278,7 +278,7 @@ public extension NSSegmentedControl {
         trackingMode = switching
         self.segments = segments
     }
-    
+
     /**
      Creates a segmented control with the specified segments.
      
@@ -299,12 +299,12 @@ public extension NSSegmentedControl {
         trackingMode = switching
         self.segments = segments()
     }
-    
+
     /// Returns all segments that are selected.
     var selectedSegments: [NSSegment] {
         indexesOfSelectedItems.compactMap({ segment(at: $0) })
     }
-    
+
     /// Returns all segments displayed by the segmented control.
     var segments: [NSSegment] {
         get {
@@ -324,12 +324,12 @@ public extension NSSegmentedControl {
             }
         }
     }
-    
+
     /// Returns the segment that matches the title.
     func segment(withTitle title: String) -> NSSegment? {
         segments.first(where: { $0.title == title })
     }
-    
+
     /// Returns the segment at the specified index.
     func segment(at index: Int) -> NSSegment? {
         guard index < segmentCount else { return nil }
@@ -346,7 +346,7 @@ public extension NSSegmentedControl {
         let tag = self.tag(forSegment: index)
         return NSSegment(title: title, titleAlignment: titleAlignment, image: image, imageScaling: imageScaling, menu: menu, showsMenuIndicator: showsMenuIndicator, isSelected: isSelected, isEnabled: isEnabled, width: width, toolTip: toolTip, tag: tag, segmentedControl: self)
     }
-    
+
     /**
      Applies the values to the segment at the specified index.
      
@@ -371,15 +371,15 @@ public extension NSSegmentedControl {
         setToolTip(segment.toolTip, forSegment: index)
         setTag(segment.tag, forSegment: index)
     }
-    
+
     internal var indexesOfSelectedItems: [Int] {
         return (0..<segmentCount).filter({ self.isSelected(forSegment: $0) })
     }
-    
+
     internal func segment(withTag tag: Int) -> NSSegment? {
         segments.first(where: { $0.tag == tag })
     }
-    
+
     internal func index(forTag tag: Int) -> Int? {
         var count = 0
         for i in 0 ..< segmentCount {

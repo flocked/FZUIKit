@@ -23,27 +23,27 @@ public struct ImageConfiguration: Hashable {
 #if os(macOS)
     /// The scaling of the image.
     var scaling: NSImageScaling = .scaleProportionallyUpOrDown
-    
+
     /// The alignment of the image.
     var alignment: NSImageAlignment = .alignCenter
 #elseif canImport(UIKit)
     /// The scaling of the image.
     var scaling: UIView.ContentMode = .scaleAspectFit
 #endif
-    
+
     /// The max width of the image.
-    var maxWidth: CGFloat? = nil
-    
+    var maxWidth: CGFloat?
+
     /// The max height of the image.
-    var maxHeight: CGFloat? = nil
-    
+    var maxHeight: CGFloat?
+
     /// The tint color of the image.
-    var tintColor: NSUIColor? = nil
-            
+    var tintColor: NSUIColor?
+
     /// The color transformer for resolving the tint color.
-    public var tintColorTransform: ColorTransformer? = nil {
+    public var tintColorTransform: ColorTransformer? {
         didSet { updateResolvedColor() } }
-    
+
     /// Generates the resolved tint color, using the tint color and color transformer.
     public func resolvedTintColor() -> NSUIColor? {
         if let tintColor = tintColor {
@@ -51,10 +51,10 @@ public struct ImageConfiguration: Hashable {
         }
         return nil
     }
-    
+
     /// The symbol configuration of the image.
-    public var symbolConfiguration: ImageSymbolConfiguration? = nil
-    
+    public var symbolConfiguration: ImageSymbolConfiguration?
+
 #if os(macOS)
     /// Initalizes a image configuration.
     init(scaling: NSImageScaling = .scaleProportionallyUpOrDown,
@@ -86,8 +86,8 @@ public struct ImageConfiguration: Hashable {
         self.updateResolvedColor()
     }
 #endif
-    
-    internal var _resolvedTintColor: NSUIColor? = nil
+
+    internal var _resolvedTintColor: NSUIColor?
     internal mutating func updateResolvedColor() {
         _resolvedTintColor = resolvedTintColor()
     }
@@ -112,7 +112,7 @@ public extension NSUIImageView {
         self.tintColor = configuration._resolvedTintColor
         self.preferredSymbolConfiguration = configuration.symbolConfiguration?.nsUI()
         #endif
-        
+
         if var imageSize = self.image?.size {
             switch (configuration.maxWidth, configuration.maxHeight) {
             case (.some(let maxWidth), .some(let maxHeight)):

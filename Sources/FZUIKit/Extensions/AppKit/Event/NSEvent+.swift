@@ -35,7 +35,7 @@ public extension NSEvent {
     var isMouseMovement: Bool {
         NSEvent.EventTypeMask.mouseMovements.intersects(self)
     }
-    
+
     /// A Boolean value that indicates whether the command key is pressed.
     var isCommandDown: Bool {
         return modifierFlags.contains(.command)
@@ -75,12 +75,12 @@ public extension NSEvent {
 public extension NSEvent.EventType {
     /// All user interaction event types (excluding mouse up events).
     static let userInteractions: [NSEvent.EventType] = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .scrollWheel, .magnify, .keyDown]
-    
+
     /// All user interaction event types (including mouse up events).
     static let extendedUserInteractions: [NSEvent.EventType] = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .rightMouseDragged, .leftMouseUp, .rightMouseUp, .scrollWheel, .magnify]
-    
+
     static let allUserInteractions: [NSEvent.EventType] = [.leftMouseDown, .leftMouseUp, .leftMouseDragged, .rightMouseDown, .rightMouseUp, .rightMouseDragged, .scrollWheel, .magnify, .keyDown, .keyUp, .flagsChanged, .mouseMoved, .mouseExited, .mouseEntered]
-    
+
     /// All mouse movement event types.
     static let mouseMovements: [NSEvent.EventType] = [.mouseEntered, .mouseMoved, .mouseExited]
 
@@ -98,15 +98,15 @@ public extension NSEvent.EventTypeMask {
     func intersects(_ event: NSEvent?) -> Bool {
         return event?.associatedEventsMask.intersection(self).isEmpty == false
     }
-    
+
     /// All user interaction event types (excluding mouse up events).
     static let userInteractions: NSEvent.EventTypeMask = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .scrollWheel, .magnify, .keyDown]
-    
+
     /// All user interaction event types (including mouse up events).
     static let extendedUserInteractions: NSEvent.EventTypeMask = [.leftMouseDragged, .leftMouseDown, .rightMouseDown, .rightMouseDragged, .leftMouseUp, .rightMouseUp, .scrollWheel, .magnify]
-    
+
     static let allUserInteractions: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseUp, .leftMouseDragged, .rightMouseDown, .rightMouseUp, .rightMouseDragged, .scrollWheel, .magnify, .keyDown, .keyUp, .flagsChanged, .mouseMoved, .mouseExited, .mouseEntered]
-    
+
     /// All mouse movement event types.
     static let mouseMovements: NSEvent.EventTypeMask = [.mouseEntered, .mouseMoved, .mouseExited]
 
@@ -119,42 +119,42 @@ public extension NSEvent.ModifierFlags {
     var isCommandPressed: Bool {
         self.contains(.command)
     }
-    
+
     /// A Boolean value that indicates whether the Function key has been pressed.
     var isOptionPressed: Bool {
         self.contains(.option)
     }
-    
+
     /// A Boolean value that indicates whether the Control key has been pressed.
     var isControlPressed: Bool {
         self.contains(.control)
     }
-    
+
     /// A Boolean value that indicates whether the Command key has been pressed.
     var isFunctionPressed: Bool {
         self.contains(.function)
     }
-    
+
     /// A Boolean value that indicates whether the Shift key has been pressed.
     var isShiftPressed: Bool {
         self.contains(.shift)
     }
-    
+
     /// A Boolean value that indicates whether the Caps Lock key has been pressed.
     var isCapsLockPressed: Bool {
         self.contains(.capsLock)
     }
-    
+
     /// A Boolean value that indicates whether the Help key has been pressed.
     var isHelpPressed: Bool {
         self.contains(.help)
     }
-    
+
     /// A Boolean value that indicates whether a key in the numeric keypad or an arrow key has been pressed.
     var isNumericPadOrArrowPressed: Bool {
         self.contains(.numericPad)
     }
-    
+
     /// A Boolean value that indicates whether device-independent modifier flags are masked.
     var deviceIndependentFlagsAreMasked: Bool {
         self.contains(.deviceIndependentFlagsMask)

@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 13.05.22.
 //
 
-
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 #if os(macOS)
@@ -23,7 +22,7 @@ extension NSView {
 */
 
 public struct Gradient: Hashable {
-    
+
     /// The array of color stops.
     public var stops: [Stop] = []
     /// The start point of the gradient.
@@ -32,7 +31,7 @@ public struct Gradient: Hashable {
     public var endPoint: Point = .bottom
     /// The type of gradient.
     public var type: GradientType = .linear
-    
+
     /**
      Creates a gradient from an array of colors.
      
@@ -50,7 +49,7 @@ public struct Gradient: Hashable {
         self.endPoint = endPoint
         self.type = type
     }
-    
+
     /**
      Creates a gradient from an array of colors.
      
@@ -68,7 +67,7 @@ public struct Gradient: Hashable {
         self.endPoint = endPoint
         self.type = type
     }
-    
+
     /**
      Creates a gradient from an array of color stops.
           
@@ -84,7 +83,7 @@ public struct Gradient: Hashable {
         self.endPoint = endPoint
         self.type = type
     }
-    
+
     /**
      Returns a gradient for the specified preset.
           
@@ -100,12 +99,12 @@ public struct Gradient: Hashable {
         self.endPoint = endPoint
         self.type = type
     }
-    
+
     /// An empty gradient.
     public static func none() -> Gradient {
         Gradient(stops: [])
     }
-    
+
     internal static func stops(for colors: [NSUIColor]) -> [Stop] {
         var stops: [Stop] = []
         if colors.count == 1 {
@@ -126,7 +125,7 @@ extension Gradient {
         case linear
         case conic
         case radial
-        
+
         internal var stringValue: String {
             switch self {
             case .conic: return "conic"
@@ -134,11 +133,11 @@ extension Gradient {
             case .linear: return "axial"
             }
         }
-        
+
         internal var gradientLayerType: CAGradientLayerType {
             CAGradientLayerType(rawValue: self.stringValue)
         }
-        
+
         internal init(_ gradientLayerType: CAGradientLayerType) {
             switch gradientLayerType {
             case .conic: self = .conic
@@ -147,7 +146,7 @@ extension Gradient {
             }
         }
     }
-    
+
     /// One color stop in the gradient.
     public struct Stop: Hashable {
         /// The color for the stop.
@@ -160,27 +159,27 @@ extension Gradient {
             self.location = location
         }
     }
-    
+
     /// A point in the gradient.
     public struct Point: Hashable {
         public var x: CGFloat
         public var y: CGFloat
-        
+
         public init(x: CGFloat, y: CGFloat) {
             self.x = x
             self.y = y
         }
-        
+
         public init(_ x: CGFloat, _ y: CGFloat) {
             self.x = x
             self.y = y
         }
-        
+
         internal init(_ point: CGPoint) {
             self.x = point.x
             self.y = point.y
         }
-        
+
         internal var point: CGPoint {
             CGPoint(x, y)
         }
@@ -192,7 +191,7 @@ extension Gradient {
         public static var bottomLeading = Point(x: 0.0, y: 0.0)
         public static var bottom = Point(x: 0.5, y: 0.0)
         public static var bottomTrailing = Point(x: 1.0, y: 0.0)
-        
+
         public static var topLeading = Point(x: 0.0, y: 1.0)
         public static var top = Point(x: 0.5, y: 1.0)
         public static var topTrailing = Point(x: 1.0, y: 1.0)
@@ -200,7 +199,7 @@ extension Gradient {
         public static var bottomLeading = Point(x: 0.0, y: 1.0)
         public static var bottom = Point(x: 0.5, y: 1.0)
         public static var bottomTrailing = Point(x: 1.0, y: 1.0)
-        
+
         public static var topLeading = Point(x: 0.0, y: 0.0)
         public static var top = Point(x: 0.5, y: 0.0)
         public static var topTrailing = Point(x: 1.0, y: 0.0)
@@ -247,11 +246,10 @@ public extension CALayer {
             self._gradientLayer?.gradient = gradient
         }
     }
-    
+
     internal var _gradientLayer: GradientLayer? {
         self.firstSublayer(type: GradientLayer.self)
     }
 }
 
 #endif
-

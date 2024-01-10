@@ -27,7 +27,7 @@ public extension NSUIColor {
      */
     func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: ColorBlendMode = .rgb) -> NSUIColor {
         let fraction = fraction.clamped(max: 1.0)
-        
+
         switch mode {
         case .hsl:
           return mixedHSL(withColor: color, weight: fraction)
@@ -37,7 +37,7 @@ public extension NSUIColor {
           return mixedRGB(withColor: color, weight: fraction)
         }
     }
-    
+
     enum ColorBlendMode {
       /// The RGB color space.
       case rgb
@@ -46,7 +46,7 @@ public extension NSUIColor {
       /// The HSB color space.
       case hsb
     }
-    
+
     internal func mixedHSL(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
       let c1 = hslaComponents()
       let c2 = color.hslaComponents()
@@ -55,7 +55,7 @@ public extension NSUIColor {
         if h > 360 {
             h = h - 360
         }
-        
+
       let s     = c1.saturation + (weight * (c2.saturation - c1.saturation))
       let l     = c1.lightness + (weight * (c2.lightness - c1.lightness))
       let alpha = alphaComponent + (weight * (color.alphaComponent - alphaComponent))
@@ -90,8 +90,7 @@ public extension NSUIColor {
     internal static func mixedHue(source: CGFloat, target: CGFloat) -> CGFloat {
       if target > source && target - source > 180.0 {
         return target - source + 360.0
-      }
-      else if target < source && source - target > 180.0 {
+      } else if target < source && source - target > 180.0 {
         return target + 360.0 - source
       }
 

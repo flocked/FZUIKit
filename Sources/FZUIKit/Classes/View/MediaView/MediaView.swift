@@ -22,7 +22,7 @@ open class MediaView: NSView {
         get { imageView.autoAnimates }
         set { imageView.autoAnimates = newValue }
     }
-    
+
     /**
      The amount of time it takes to go through one cycle of the images.
      
@@ -32,7 +32,7 @@ open class MediaView: NSView {
         get {  imageView.animationDuration }
         set { imageView.animationDuration = newValue }
     }
-    
+
     /**
      Specifies the number of times to repeat the animation.
      
@@ -43,7 +43,7 @@ open class MediaView: NSView {
         set { imageView.animationRepeatCount = newValue }
     }
 
-    public var overlayView: NSView? = nil {
+    public var overlayView: NSView? {
         didSet {
             if let overlayView = overlayView, oldValue != overlayView {
                 oldValue?.removeFromSuperview()
@@ -74,7 +74,7 @@ open class MediaView: NSView {
             videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: contentScaling) ?? .resizeAspectFill
         }
     }
-    
+
     public override var intrinsicContentSize: NSSize {
         if imageView.displayingImage != nil {
             return imageView.intrinsicContentSize
@@ -85,9 +85,9 @@ open class MediaView: NSView {
         return .zero
     }
 
-    public private(set) var mediaType: FileType? = nil
+    public private(set) var mediaType: FileType?
 
-    public var mediaURL: URL? = nil {
+    public var mediaURL: URL? {
         didSet {
             self.pause()
             if let mediaURL = mediaURL {
@@ -226,43 +226,43 @@ open class MediaView: NSView {
         }
         return false
     }
-    
+
     public func seek(to interval: TimeDuration) {
         if self.mediaType == .video {
             videoView.player?.seek(to: interval)
         }
     }
-    
+
     public func seek(toPercentage percentage: Double) {
         if self.mediaType == .video {
             videoView.player?.seek(toPercentage: percentage)
         }
     }
-    
+
     public var videoPlaybackTime: TimeDuration {
         get { guard let seconds = videoView.player?.currentItem?.currentTime().seconds else { return .zero }
             return .seconds(seconds) }
         set { videoView.player?.seek(to: newValue) }
     }
-    
+
     public var videoDuration: TimeDuration {
         get { .seconds(videoView.player?.currentItem?.duration.seconds ?? 0)}
     }
-    
+
     public var videoPlaybackPosition: Double {
         get { videoView.player?.currentItem?.playbackPercentage ?? .zero }
         set { videoView.player?.seek(toPercentage: newValue) }
     }
-    
-    internal var playbackObserver: Any? = nil
-    public var videoPlaybackPositionHandler: ((TimeDuration)->())? {
+
+    internal var playbackObserver: Any?
+    public var videoPlaybackPositionHandler: ((TimeDuration) -> Void)? {
         didSet {
             if let playbackObserver = self.playbackObserver {
                 videoView.player?.removeTimeObserver(playbackObserver)
                 self.playbackObserver = nil
             }
             if let videoPlaybackPositionHandler = self.videoPlaybackPositionHandler {
-                self.playbackObserver = videoView.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds:0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: .main, using: { time in
+                self.playbackObserver = videoView.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: .main, using: { time in
                     videoPlaybackPositionHandler(.seconds(time.seconds))
                 })
             }
@@ -316,7 +316,7 @@ open class MediaView: NSView {
     }
 
     private var previousVideoPlaybackState: AVPlayer.State = .isStopped
-    private var mediaSize: CGSize? = nil
+    private var mediaSize: CGSize?
 
     private func updateVideoViewConfiguration() {
         videoView.player?.volume = volume
@@ -390,7 +390,7 @@ open class MediaView: NSView {
         addSubview(withConstraint: imageView)
         addSubview(withConstraint: videoView)
     }
-    
+
     /*
     /// The scaling of the media.
     open var scaling: CALayerContentsGravity = .resizeAspect {
@@ -455,11 +455,11 @@ open class MediaView: NSView {
         }
     }
      */
-    
+
     /// The appearance of the media.
     public struct MediaAppearance: Hashable {
         /// The background color of the media.
-        public var backgroundColor: NSColor? = nil
+        public var backgroundColor: NSColor?
         /// The corner radius of the media.
         public var cornerRadius: CGFloat = 0.0
         /// The border of the media.
@@ -469,7 +469,7 @@ open class MediaView: NSView {
         /// The inner shadow of the media.
         public var innerShadow: ShadowConfiguration = .none()
     }
-    
+
     /// The appearance of the media.
     open var mediaAppearance = MediaAppearance() {
         didSet {
@@ -487,41 +487,39 @@ open class MediaView: NSView {
         }
     }
 
-    
     open override func keyDown(with event: NSEvent) {
         if (handlers.keyDown?(event) ?? false) == false {
             super.keyDown(with: event)
         }
     }
-    
+
     open override func mouseDown(with event: NSEvent) {
         if (handlers.mouseDown?(event) ?? false) == false {
             super.mouseDown(with: event)
         }
     }
-    
+
     open override func rightMouseDown(with event: NSEvent) {
         if (handlers.rightMouseDown?(event) ?? false) == false {
             super.rightMouseDown(with: event)
         }
     }
-    
+
     /// Handlers for a media view.
     public struct Handlers {
         /// Handler that gets called whenever the player view receives a `keyDown` event.
-        public var keyDown: ((NSEvent)->(Bool))? = nil
-        
+        public var keyDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `mouseDown` event.
-        public var mouseDown: ((NSEvent)->(Bool))? = nil
-        
+        public var mouseDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
-        public var rightMouseDown: ((NSEvent)->(Bool))? = nil
-        
+        public var rightMouseDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `flagsChanged` event.
-        public var flagsChanged: ((NSEvent)->(Bool))? = nil
+        public var flagsChanged: ((NSEvent) -> (Bool))?
     }
-    
-    
+
     /// Handlers for the media view.
     public var handlers: Handlers = Handlers()
 }
@@ -531,17 +529,17 @@ public class NoKeyDownPlayerView: AVPlayerView {
         super.init(frame: .zero)
         addSubview(overlayContentView)
     }
-    
+
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         addSubview(overlayContentView)
     }
-    
+
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         addSubview(overlayContentView)
     }
-    
+
     /**
      A view for hosting layered content on top of the image view.
      
@@ -550,19 +548,19 @@ public class NoKeyDownPlayerView: AVPlayerView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `initclipsToBounds` property.
      */
     public let overlayContentView = NSView()
-    
+
     public override var videoGravity: AVLayerVideoGravity {
         didSet {
             guard oldValue != videoGravity else { return }
             resizeOverlayView()
         }
     }
-    
+
     public override func layout() {
         super.layout()
         resizeOverlayView()
     }
-    
+
     func resizeOverlayView() {
         if let videoSize = player?.currentItem?.asset.videoNaturalSize {
             switch videoGravity {
@@ -580,30 +578,30 @@ public class NoKeyDownPlayerView: AVPlayerView {
         }
         overlayContentView.center = bounds.center
     }
-    
+
     /// A Boolean value that indicates whether to ignore `keyDown` events.
     public var ignoreKeyDown = true
-    
+
     public var ignoreMouseDown = true
-    
+
     /// Handlers for a player view.
     public struct Handlers {
         /// Handler that gets called whenever the player view receives a `keyDown` event.
-        public var keyDown: ((NSEvent)->(Bool))? = nil
-        
+        public var keyDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `mouseDown` event.
-        public var mouseDown: ((NSEvent)->(Bool))? = nil
-        
+        public var mouseDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
-        public var rightMouseDown: ((NSEvent)->(Bool))? = nil
-        
+        public var rightMouseDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `flagsChanged` event.
-        public var flagsChanged: ((NSEvent)->(Bool))? = nil
+        public var flagsChanged: ((NSEvent) -> (Bool))?
     }
-    
+
     /// Handlers for the player view.
     public var handlers: Handlers = Handlers()
-    
+
     public override func mouseDown(with event: NSEvent) {
         if (handlers.mouseDown?(event) ?? false) == false {
             if ignoreMouseDown {
@@ -613,13 +611,13 @@ public class NoKeyDownPlayerView: AVPlayerView {
             }
         }
     }
-    
+
     public override func rightMouseDown(with event: NSEvent) {
         if (handlers.rightMouseDown?(event) ?? false) == false {
             super.rightMouseDown(with: event)
         }
     }
-    
+
     override public func keyDown(with event: NSEvent) {
         if (handlers.keyDown?(event) ?? false) == false {
             if ignoreKeyDown {
@@ -629,7 +627,7 @@ public class NoKeyDownPlayerView: AVPlayerView {
             }
         }
     }
-    
+
     public override func flagsChanged(with event: NSEvent) {
         if (handlers.flagsChanged?(event) ?? false) == false {
             super.flagsChanged(with: event)

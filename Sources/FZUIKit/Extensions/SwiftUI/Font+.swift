@@ -111,7 +111,7 @@ public extension NSUIImage.SymbolWeight {
         default: return .regular
         }
     }
-    
+
     /// A font representation of the symbol weight.
     var fontWeight: NSUIFont.Weight {
         switch self {

@@ -41,7 +41,7 @@ extension NSUIColor {
 
       self.init(hue: h, saturation: s, brightness: b, alpha: alpha)
   }
-    
+
     /// Creates a color using the HSLA components.
     convenience init(_ hslaComponents: HSLAComponents) {
         self.init(hue: hslaComponents.hue, saturation: hslaComponents.saturation, lightness: hslaComponents.lightness, alpha: hslaComponents.alpha)
@@ -62,7 +62,7 @@ extension NSUIColor {
         #else
         getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         #endif
-        
+
         let l = ((2.0 - s) * b) / 2.0
 
         switch l {
@@ -76,7 +76,7 @@ extension NSUIColor {
 
         return HSLAComponents(h * 360.0, s, l, a)
   }
-    
+
     /**
      Returns a new color object with the specified lightness value.
      
@@ -94,22 +94,22 @@ extension NSUIColor {
 public struct HSLAComponents {
     /// The hue component of the color.
     public var hue: CGFloat
-    
+
     /// The saturation component of the color.
     public var saturation: CGFloat {
         didSet { saturation = saturation.clamped(max: 1.0) }
     }
-    
+
     /// The lightness component of the color.
     public var lightness: CGFloat {
         didSet { lightness = lightness.clamped(max: 1.0) }
     }
-    
+
     /// The alpha value of the color.
     public var alpha: CGFloat {
         didSet { alpha = alpha.clamped(max: 1.0) }
     }
-    
+
     /// Creates HSLA components with the specified hue, saturation, lightness and alpha components.
     public init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
         self.hue = hue
@@ -117,14 +117,14 @@ public struct HSLAComponents {
         self.lightness = lightness.clamped(max: 1.0)
         self.alpha = alpha.clamped(max: 1.0)
     }
-    
+
     internal init(_ hue: CGFloat, _ saturation: CGFloat, _ lightness: CGFloat, _ alpha: CGFloat) {
         self.hue = hue
         self.saturation = saturation.clamped(max: 1.0)
         self.lightness = lightness.clamped(max: 1.0)
         self.alpha = alpha.clamped(max: 1.0)
     }
-    
+
     #if os(macOS)
     /// Returns the `NSColor`.
     public func nsColor() -> NSUIColor {
@@ -136,12 +136,12 @@ public struct HSLAComponents {
         NSUIColor(self)
     }
     #endif
-    
+
     /// Returns the SwiftUI `Color`.
     public func toColor() -> Color {
         Color(self)
     }
-    
+
     /// Returns the `CGColor`.
     public func toCGColor() -> CGColor {
         NSUIColor(self).cgColor

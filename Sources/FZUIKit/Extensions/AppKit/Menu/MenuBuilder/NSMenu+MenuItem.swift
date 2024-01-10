@@ -34,7 +34,7 @@ public struct MenuItem: AnyMenuItem {
         locale: Locale = .current,
         comment: StaticString? = nil
     ) {
-        modifiers = [{ item in
+        modifiers = [ { item in
             item.title = String(localized: s, table: table, bundle: bundle, locale: locale, comment: comment)
         }]
     }
@@ -42,22 +42,22 @@ public struct MenuItem: AnyMenuItem {
     /// Creates a menu item with the given (non-localized) title.
     @_disfavoredOverload
     public init(_ title: String) {
-        modifiers = [{ item in item.title = title }]
+        modifiers = [ { item in item.title = title }]
     }
 
     /// Creates a menu item with the given (non-localized) title.
     public init(verbatim title: String) {
-        modifiers = [{ item in item.title = title }]
+        modifiers = [ { item in item.title = title }]
     }
 
     /// Creates a menu item with the given localized string key used as the title.
     public init(localized title: String, table: String? = nil, bundle: Bundle = .main) {
-        modifiers = [{ item in item.title = bundle.localizedString(forKey: title, value: nil, table: table) }]
+        modifiers = [ { item in item.title = bundle.localizedString(forKey: title, value: nil, table: table) }]
     }
 
     /// Creates a menu item with the given attributed title.
     public init(_ title: NSAttributedString) {
-        modifiers = [{ item in
+        modifiers = [ { item in
             item.title = title.string
             item.attributedTitle = title
         }]
@@ -67,7 +67,7 @@ public struct MenuItem: AnyMenuItem {
     @available(macOS 12, *)
     @_disfavoredOverload
     public init(_ title: AttributedString) {
-        modifiers = [{ item in
+        modifiers = [ { item in
             item.title = title.description
             item.attributedTitle = NSAttributedString(title)
         }]

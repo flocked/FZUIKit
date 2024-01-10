@@ -21,7 +21,7 @@ public extension Shape {
         stroke(strokeStyle, lineWidth: lineWidth)
             .background(fill(fillStyle))
     }
-    
+
     /*
     @ViewBuilder
     func stroke<S>(_ content: S?, lineWidth: CGFloat = 1) -> some View where S : ShapeStyle {

@@ -29,7 +29,7 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
     public init(arrayLiteral elements: Element...) {
         self.elements = elements
     }
-    
+
     /**
      Creates a new array containing the elements of a sequence.
 
@@ -49,7 +49,7 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
     public init(repeating repeatedValue: Element, count: Int) {
         elements = .init(repeating: repeatedValue, count: count)
     }
-    
+
     /**
      Accesses the element at the specified position.
      
@@ -59,7 +59,7 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
         get {  return elements[index] }
         set {  elements[index] = newValue }
     }
-    
+
     public subscript(safe safeIndex: Index) -> Element? {
         get {
             if isEmpty == false, safeIndex < count {
@@ -73,7 +73,7 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
             }
         }
     }
-    
+
     /**
      Accesses a contiguous subrange of the array’s elements.
      
@@ -83,8 +83,7 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
         get { return elements[bounds] }
         set { elements[bounds] = newValue }
     }
-    
-    
+
     /// The position of the first element in a nonempty array.
     public var startIndex: Int {
         return elements.startIndex
@@ -99,22 +98,22 @@ public struct AnimatableArray<Element: VectorArithmetic & AdditiveArithmetic> {
     public var count: Int {
         return elements.count
     }
-    
+
     /// A Boolean value indicating whether the collection is empty.
     public var isEmpty: Bool {
         return elements.isEmpty
     }
-    
+
     /// The first element of the collection.
     public var first: Element? {
         return elements.first
     }
-    
+
     /// The last element of the collection.
     public var last: Element? {
         return elements.last
     }
-    
+
     /**
      Replaces the specified subrange of elements with the given collection.
      
@@ -155,7 +154,7 @@ extension AnimatableArray: Hashable where Element: Hashable {
 }
 
 extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
-    
+
     public static func + (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
         let count = Swift.min(lhs.count, rhs.count)
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
@@ -167,11 +166,11 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
         }
         return lhs
     }
-    
+
     public static func += (lhs: inout AnimatableArray, rhs: AnimatableArray) {
         lhs = lhs + rhs
     }
-    
+
     public static func - (lhs: AnimatableArray, rhs: AnimatableArray) -> AnimatableArray {
         let count = Swift.min(lhs.count, rhs.count)
         if let _lhs = lhs as? AnimatableArray<Double>, let _rhs = rhs as? AnimatableArray<Double> {
@@ -183,11 +182,11 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
         }
         return lhs
     }
-    
+
     public static func -= (lhs: inout Self, rhs: Self) {
         lhs = lhs - rhs
     }
-    
+
     public mutating func scale(by rhs: Double) {
         if let _self = self as? AnimatableArray<Double> {
             self.elements = vDSP.multiply(rhs, _self.elements) as! [Element]
@@ -197,7 +196,7 @@ extension AnimatableArray: VectorArithmetic & AdditiveArithmetic {
             }
         }
     }
-    
+
     public var magnitudeSquared: Double {
         if let _self = self as? AnimatableArray<Double> {
             return vDSP.sum(vDSP.multiply(_self.elements, _self.elements))
@@ -226,7 +225,7 @@ extension AnimatableArray: MultiplicativeArithmetic where Element: Multiplicativ
         }
         return array
     }
-    
+
     public static func /= (lhs: inout AnimatableArray, rhs: AnimatableArray) {
         lhs = lhs / rhs
     }
@@ -245,7 +244,7 @@ extension AnimatableArray: MultiplicativeArithmetic where Element: Multiplicativ
         }
         return array
     }
-    
+
     public static func *= (lhs: inout AnimatableArray, rhs: AnimatableArray) {
         lhs = lhs * rhs
     }

@@ -27,7 +27,7 @@ public class DashedBorderLayer: CALayer {
             borderInsets = newValue.insets
         }
     }
-    
+
     /// The insets of the border.
     public var borderInsets: NSDirectionalEdgeInsets = .init(0) {
         didSet {
@@ -35,59 +35,59 @@ public class DashedBorderLayer: CALayer {
             layoutBorderedLayer()
         }
     }
-    
+
     /// The dash pattern of the border.
     public var borderDashPattern: [CGFloat] {
         get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) ?? [] }
         set { borderedLayer.lineDashPattern = newValue as [NSNumber] }
     }
-    
+
     /// The border color.
     public override var borderColor: CGColor? {
         get { borderedLayer.strokeColor }
         set { borderedLayer.strokeColor = newValue }
     }
-    
+
     /// The border width.
     public override var borderWidth: CGFloat {
         get { borderedLayer.lineWidth }
         set { borderedLayer.lineWidth = newValue }
     }
-    
+
     public override var cornerRadius: CGFloat {
         didSet {
             guard oldValue != cornerRadius else { return }
             layoutBorderedLayer()
         }
     }
-    
+
     public override var cornerCurve: CALayerCornerCurve {
         didSet {
             borderedLayer.cornerCurve = cornerCurve
         }
     }
-    
+
     override public var bounds: CGRect {
         didSet {
             guard oldValue != bounds else { return }
             layoutBorderedLayer()
         }
     }
-    
+
     internal let borderedLayer = CAShapeLayer()
-    
+
     internal func layoutBorderedLayer() {
         let frameSize = CGSize(width: bounds.size.width-borderInsets.width, height: bounds.size.height-borderInsets.height)
         let shapeRect = CGRect(origin: CGPoint(x: borderInsets.leading, y: borderInsets.bottom), size: frameSize)
-        
+
         let scale = (shapeRect.size.width-borderWidth)/frame.size.width
         let cornerRadius = cornerRadius * scale
-        
+
         borderedLayer.bounds = CGRect(.zero, shapeRect.size)
         borderedLayer.position = CGPoint(x: frameSize.width/2, y: frameSize.height/2)
         borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
     }
-    
+
     /**
      Initalizes a dashed border layer with the specified configuration.
      
@@ -98,22 +98,22 @@ public class DashedBorderLayer: CALayer {
         super.init()
         self.configuration = configuration
     }
-        
+
     public override init() {
         super.init()
         sharedInit()
     }
-    
+
     public override init(layer: Any) {
         super.init(layer: layer)
         sharedInit()
     }
-    
+
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }
-    
+
     internal func sharedInit() {
         borderedLayer.fillColor = .clear
         borderedLayer.lineJoin = CAShapeLayerLineJoin.round

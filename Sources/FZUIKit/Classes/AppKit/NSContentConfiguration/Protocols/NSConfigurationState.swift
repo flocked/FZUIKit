@@ -66,14 +66,14 @@ public struct NSConfigurationStateCustomKey: Hashable, RawRepresentable {
     public init(_ rawValue: String) {
         self.rawValue = rawValue
     }
-    
+
     /**
      Creates a custom state key with the specified raw value.
      */
     public init(rawValue: String) {
         self.rawValue = rawValue
     }
-    
+
     public var rawValue: String
     public typealias RawValue = String
 }

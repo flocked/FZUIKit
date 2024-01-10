@@ -92,7 +92,7 @@ public extension simd_quatf {
             sx * cy * cz - cx * sy * sz, // x
             cx * sy * cz + sx * cy * sz, // y
             cx * cy * sz - sx * sy * cz, // z
-            cx * cy * cz + sx * sy * sz, // w
+            cx * cy * cz + sx * sy * sz // w
         ])
     }
 }
@@ -135,7 +135,7 @@ public extension simd_quatd {
             sx * cy * cz - cx * sy * sz, // x
             cx * sy * cz + sx * cy * sz, // y
             cx * cy * sz - sx * sy * cz, // z
-            cx * cy * cz + sx * sy * sz, // w
+            cx * cy * cz + sx * sy * sz // w
         ])
     }
 }

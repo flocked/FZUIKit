@@ -17,7 +17,7 @@ public extension NSAnimationContext {
             changes()
         })
     }
-    
+
     /**
      Runs the animation group.
      
@@ -29,8 +29,8 @@ public extension NSAnimationContext {
         - completionHandler: An optional completion block that is called when the animations have completed. The default value is `nil`.
 
      */
-    class func runAnimations(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: ()->(), completionHandler: (()->())? = nil) {
-        NSAnimationContext.runAnimationGroup() { context in
+    class func runAnimations(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: () -> Void, completionHandler: (() -> Void)? = nil) {
+        NSAnimationContext.runAnimationGroup { context in
             context.duration = duration
             context.timingFunction = timingFunction
             context.allowsImplicitAnimation = allowsImplicitAnimation

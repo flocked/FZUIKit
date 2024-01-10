@@ -17,10 +17,10 @@ public extension ToolbarItem {
     class PopoverButton: ToolbarItem, NSPopoverDelegate {
         /// The button of the toolbar item that opens the popover.
         public let button: NSButton
-        
+
         /// The view controller of the popover.
         public weak var popoverViewController: NSViewController?
-        
+
         weak var popover: NSPopover?
 
         /// The title of the button.
@@ -64,7 +64,7 @@ public extension ToolbarItem {
             button.state = state
             return self
         }
-        
+
         /// The state of the button.
         public var state: NSControl.StateValue {
             get { button.state }

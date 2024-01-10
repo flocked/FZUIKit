@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0,  *)
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension NSUIImage.SymbolConfiguration {
     /// Returns the symbol configuration with the specified text style.
     func font(_ textStyle: NSUIFont.TextStyle?) -> NSUIImage.SymbolConfiguration {
@@ -337,7 +337,6 @@ public extension NSFont.Weight {
 }
 #endif
 
-
 @available(macOS 12.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 internal extension NSUIImage.SymbolConfiguration {
     static var colorsValueKey: String {
@@ -400,7 +399,7 @@ internal extension NSUIImage.SymbolConfiguration {
 public extension NSImage.SymbolScale {
     /// The default scale variant that matches the system usage.
     static var `default`: NSImage.SymbolScale { return NSImage.SymbolScale(rawValue: -1)! }
-    
+
     /// An unspecified scale.
     static var unspecified: NSImage.SymbolScale { return NSImage.SymbolScale(rawValue: 0)! }
 

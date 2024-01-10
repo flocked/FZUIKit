@@ -29,13 +29,13 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         get { self[\.bounds] }
         set { self[\.bounds] = newValue }
     }
-    
+
     /// The frame of the layer.
     public var frame: CGRect {
         get { self[\.frame] }
         set { self[\.frame] = newValue }
     }
-    
+
     /// The size of the layer. Changing the value keeps the layer centered. To change the size without centering use the layer's frame size.
     public var size: CGSize {
         get { frame.size }
@@ -44,122 +44,122 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
             frame.sizeCentered = newValue
         }
     }
-    
+
     /// The origin of the layer.
     public var origin: CGPoint {
         get { frame.origin }
         set { frame.origin = newValue }
     }
-    
+
     /// The center of the layer.
     public var center: CGPoint {
         get { frame.center }
         set { frame.center = newValue }
     }
-    
+
     /// The layer’s position on the z axis.
     public var zPosition: CGFloat {
         get { self[\.zPosition] }
         set { self[\.zPosition] = newValue }
     }
-    
+
     /// Defines the anchor point of the layer's bounds rectangle.
     public var anchorPoint: CGPoint {
         get { self[\.anchorPoint] }
         set { self[\.anchorPoint] = newValue }
     }
-    
+
     /// The background color of the layer.
     public var backgroundColor: CGColor? {
         get { self[\.backgroundColor] }
         set { self[\.backgroundColor] = newValue }
     }
-    
+
     /// The anchor point for the layer’s position along the z axis.
     public var anchorPointZ: CGFloat {
         get { self[\.anchorPointZ] }
         set { self[\.anchorPointZ] = newValue }
     }
-        
+
     /// The opacity value of the layer.
     public var opacity: CGFloat {
         get { CGFloat(self[\.opacity]) }
         set { self[\.opacity] = Float(newValue) }
     }
-    
+
     /*
     public var transform2D: CGAffineTransform {
         get { self[\.transform2D] }
         set { self[\.transform2D] = newValue }
     }
     */
-    
+
     /// The three-dimensional transform of the layer.
     public var transform: CATransform3D {
         get { self[\._transform] }
         set { self[\._transform] = newValue }
     }
-    
+
     /// The translation transform of the layer.
     public var translation: CGPoint {
         get { CGPoint(transform.translation.x, transform.translation.y) }
         set { transform.translation = Translation(newValue.x, newValue.y, transform.translation.z) }
     }
-    
+
     /// The scale of the layer.
     public var scale: CGPoint {
         get { CGPoint(self.transform.scale.x, self.transform.scale.y) }
         set { self.transform.scale = Scale(newValue.x, newValue.y, transform.scale.z) }
     }
-    
+
     /// The rotation of the layer's transform as euler angles in degrees.
     public var rotation: CGVector3 {
         get { transform.eulerAnglesDegrees }
         set { transform.eulerAnglesDegrees = newValue }
     }
-    
+
     /// The rotation of the layer's transform as euler angles in radians.
     public var rotationInRadians: CGVector3 {
         get { transform.eulerAngles }
         set { transform.eulerAngles = newValue }
     }
-    
+
     /// The perspective of the layer's transform (e.g. .m34).
     public var perspective: Perspective {
         get { transform.perspective }
         set { transform.perspective = newValue }
     }
-    
+
     /// The shearing of the layer's transform.
     public var skew: Skew {
         get { transform.skew }
         set { transform.skew = newValue }
     }
-    
+
     /// The corner radius of the layer.
     public var cornerRadius: CGFloat {
         get { self[\.cornerRadius] }
         set { self[\.cornerRadius] = newValue }
     }
-    
+
     /// The border of the layer.
     public var border: BorderConfiguration {
         get { self[\.border] }
         set { self[\.border] = newValue }
     }
-    
+
     /// The border color of the layer.
     public var borderColor: CGColor? {
         get { self[\.borderColor] }
         set { self[\.borderColor] = newValue }
     }
-    
+
     /// The border width of the layer.
     public var borderWidth: CGFloat {
         get { self[\.borderWidth] }
         set { self[\.borderWidth] = newValue }
     }
-    
+
     /// The shadow of the layer.
     public var shadow: ShadowConfiguration {
         get { self[\.shadow] }
@@ -168,7 +168,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
             self[\.shadow] = newValue
         }
     }
-    
+
     /// The inner shadow of the layer.
     public var innerShadow: ShadowConfiguration {
         get { self[\.innerShadow] }
@@ -179,17 +179,17 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
     public var sublayers: [LayerAnimator<CALayer>] {
         object.sublayers?.compactMap({$0.animator}) ?? []
     }
-    
+
     /// The property animator for the layer's superlayer.
     public var superlayer: LayerAnimator<CALayer>? {
         object.superlayer?.animator
     }
-    
+
     /// The property animator for the layer's mask.
     public var mask: LayerAnimator<CALayer>? {
         object.mask?.animator
     }
-    
+
     /**
      Adds the specified layer animated. The sublayers's opacity gets animated to `1.0`.
      
@@ -204,7 +204,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         object.addSublayer(layer)
         layer.animator.opacity = 1.0
     }
-    
+
     /**
      Inserts the layer at the specified index animated. The sublayers's opacity gets animated to `1.0`.
      
@@ -219,7 +219,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         object.insertSublayer(layer, at: index)
         layer.animator.opacity = 1.0
     }
-    
+
     /**
      Inserts the layer above a different sublayer animated. The sublayers's opacity gets animated to `1.0`.
      
@@ -234,7 +234,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         object.insertSublayer(layer, above: sibling)
         layer.animator.opacity = 1.0
     }
-    
+
     /**
      Inserts the layer below a different sublayer animated. The sublayers's opacity gets animated to `1.0`.
      
@@ -249,7 +249,7 @@ public class LayerAnimator<Layer: CALayer>: PropertyAnimator<Layer> {
         object.insertSublayer(layer, below: sibling)
         layer.animator.opacity = 1.0
     }
-    
+
     /**
      Removes the layer from it's superlayer animated. The layer's opacity gets animated to `0.0` and on completion removed from it's superlayer.
      
@@ -277,7 +277,7 @@ extension CALayer {
             }
         }
     }
-    
+
     internal var _shadowColor: NSUIColor {
         get { shadowColor?.nsUIColor ?? .zero }
         set { shadowColor = newValue.cgColor }
@@ -290,7 +290,7 @@ extension LayerAnimator where Layer: CATextLayer {
         get { self[\.fontSize] }
         set { self[\.fontSize] = newValue }
     }
-    
+
     /// The text color of the layer.
     public var textColor: CGColor? {
         get { self[\.textColor] }
@@ -311,43 +311,43 @@ extension LayerAnimator where Layer: CAShapeLayer {
         get { self[\.fillColor] }
         set { self[\.fillColor] = newValue }
     }
-        
+
     /// The dash pattern applied to the shape’s path when stroked.
     public var lineDashPattern: [Double] {
         get { self[\._lineDashPattern] }
         set { self[\._lineDashPattern] = newValue }
     }
-    
+
     /// The dash phase applied to the shape’s path when stroked.
     public var lineDashPhase: CGFloat {
         get { self[\.lineDashPhase] }
         set { self[\.lineDashPhase] = newValue }
     }
-    
+
     /// Specifies the line width of the shape’s path.
     public var lineWidth: CGFloat {
         get { self[\.lineWidth] }
         set { self[\.lineWidth] = newValue }
     }
-    
+
     /// The miter limit used when stroking the shape’s path.
     public var miterLimit: CGFloat {
         get { self[\.miterLimit] }
         set { self[\.miterLimit] = newValue }
     }
-        
+
     /// The color used to stroke the shape’s path.
     public var strokeColor: CGColor? {
         get { self[\.strokeColor] }
         set { self[\.strokeColor] = newValue }
     }
-    
+
     /// The relative location at which to begin stroking the path.
     public var strokeStart: CGFloat {
         get { self[\.strokeStart] }
         set { self[\.strokeStart] = newValue }
     }
-    
+
     /// The relative location at which to stop stroking the path.
     public var strokeEnd: CGFloat {
         get { self[\.strokeEnd] }
@@ -361,37 +361,37 @@ extension LayerAnimator where Layer: CAReplicatorLayer {
         get { self[\.instanceDelay] }
         set { self[\.instanceDelay] = newValue }
     }
-    
+
     /// The transform matrix applied to the previous instance to produce the current instance.
     public var instanceTransform: CATransform3D {
         get { self[\.instanceTransform] }
         set { self[\.instanceTransform] = newValue }
     }
-    
+
     /// Defines the color used to multiply the source object.
     public var instanceColor: CGColor? {
         get { self[\.instanceColor] }
         set { self[\.instanceColor] = newValue }
     }
-    
+
     /// Defines the offset added to the red component of the color for each replicated instance. Animatable.
     public var instanceRedOffset: CGFloat {
         get { CGFloat(self[\.instanceRedOffset]) }
         set { self[\.instanceRedOffset] = Float(newValue) }
     }
-    
+
     /// Defines the offset added to the green component of the color for each replicated instance. Animatable.
     public var instanceGreenOffset: CGFloat {
         get { CGFloat(self[\.instanceGreenOffset]) }
         set { self[\.instanceGreenOffset] = Float(newValue) }
     }
-    
+
     /// Defines the offset added to the blue component of the color for each replicated instance. Animatable.
     public var instanceBlueOffset: CGFloat {
         get { CGFloat(self[\.instanceBlueOffset]) }
         set { self[\.instanceBlueOffset] = Float(newValue) }
     }
-    
+
     /// Defines the offset added to the alpha component of the color for each replicated instance. Animatable.
     public var instanceAlphaOffset: CGFloat {
         get { CGFloat(self[\.instanceAlphaOffset]) }
@@ -413,19 +413,19 @@ extension LayerAnimator where Layer: CAGradientLayer {
         get { self[\._colors]}
         set { self[\._colors] = newValue }
     }
-    
+
     /// The locations of each gradient stop.
     public var locations: [CGFloat] {
         get { self[\._locations] }
         set { self[\._locations] = newValue }
     }
-    
+
     /// The start point of the gradient when drawn in the layer’s coordinate space.
     public var startPoint: CGPoint {
         get { self[\.startPoint] }
         set { self[\.startPoint] = newValue }
     }
-    
+
     /// The end point of the gradient when drawn in the layer’s coordinate space.
     public var endPoint: CGPoint {
         get { self[\.endPoint] }
@@ -439,43 +439,43 @@ extension LayerAnimator where Layer: CAEmitterLayer {
         get { self[\.emitterPosition] }
         set { self[\.emitterPosition] = newValue }
     }
-    
+
     /// Specifies the center of the particle emitter shape along the z-axis.
     public var emitterZPosition: CGFloat {
         get { self[\.emitterZPosition] }
         set { self[\.emitterZPosition] = newValue }
     }
-    
+
     /// Determines the depth of the emitter shape.
     public var emitterDepth: CGFloat {
         get { self[\.emitterDepth] }
         set { self[\.emitterDepth] = newValue }
     }
-    
+
     /// Determines the size of the particle emitter shape.
     public var emitterSize: CGSize {
         get { self[\.emitterSize] }
         set { self[\.emitterSize] = newValue }
     }
-    
+
     /// Defines a multiplier applied to the cell-defined particle spin.
     public var spin: CGFloat {
         get { CGFloat(self[\.spin]) }
         set { self[\.spin] = Float(newValue) }
     }
-    
+
     /// Defines a multiplier applied to the cell-defined particle velocity.
     public var velocity: CGFloat {
         get { CGFloat(self[\.velocity]) }
         set { self[\.velocity] = Float(newValue) }
     }
-    
+
     /// Defines a multiplier that is applied to the cell-defined birth rate.
     public var birthRate: CGFloat {
         get { CGFloat(self[\.birthRate]) }
         set { self[\.birthRate] = Float(newValue) }
     }
-    
+
     /// Defines a multiplier applied to the cell-defined lifetime range when particles are created.
     public var lifetime: CGFloat {
         get { CGFloat(self[\.lifetime]) }
@@ -516,12 +516,12 @@ extension LayerAnimator {
         _ = self[keyPath: keyPath]
         return animations[lastAnimationKey != "" ? lastAnimationKey : keyPath.stringValue]
     }
-    
+
     func _animation<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayerAnimator, Value>) -> AnimationProviding? {
         _ = self[keyPath: keyPath]
         return animations[lastAnimationKey]
     }
-    
+
     /**
      The current animation velocity for the property at the specified keypath, or `nil` if there isn't an animation for the keypath or the animation doesn't support velocity values.
      
@@ -529,7 +529,7 @@ extension LayerAnimator {
      */
     public func animationVelocity<Value: AnimatableProperty>(for keyPath: WritableKeyPath<LayerAnimator, Value>) -> Value? {
         var velocity: Value?
-        Anima.updateVelocity() {
+        Anima.updateVelocity {
             velocity = self[keyPath: keyPath]
         }
         return velocity

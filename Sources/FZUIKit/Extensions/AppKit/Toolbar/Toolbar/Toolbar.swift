@@ -35,9 +35,9 @@ public class Toolbar: NSObject {
             toolbar.autosavesConfiguration = true
         }
     }
-    
+
   //  internal var delegate: DelegateProxy!
-    
+
     /**
      Creates a newly toolbar with the specified identifier.
      
@@ -55,10 +55,10 @@ public class Toolbar: NSObject {
     ) {
         self.init(identifier, allowsUserCustomization: allowsUserCustomization, items: items())
     }
-    
+
     /// The value you use to identify the toolbar in your app.
     public let identifier: NSToolbar.Identifier
-    
+
     /// The window of the toolbar.
     public var attachedWindow: NSWindow? {
         didSet {
@@ -68,20 +68,20 @@ public class Toolbar: NSObject {
             }
         }
     }
-        
+
     @discardableResult
     /// The window of the toolbar.
     public func attachedWindow(_ window: NSWindow?) -> Self {
         self.attachedWindow = window
         return self
     }
-    
+
     /// A Boolean value that indicates whether the toolbar is visible.
     public var isVisible: Bool {
         get { toolbar.isVisible }
         set { toolbar.isVisible = newValue }
     }
-    
+
     @available(macOS 11.0, *)
     /// The style that determines the appearance and location of the toolbar in relation to the title bar.
     public var style: NSWindow.ToolbarStyle? {
@@ -92,7 +92,7 @@ public class Toolbar: NSObject {
             }
         }
     }
-    
+
     @available(macOS 11.0, *)
     /// The style that determines the appearance and location of the toolbar in relation to the title bar.
     @discardableResult public func style(_ style: NSWindow.ToolbarStyle) -> Self {
@@ -123,21 +123,21 @@ public class Toolbar: NSObject {
         get { toolbar.allowsExtensionItems }
         set { toolbar.allowsExtensionItems = newValue }
     }
-    
+
     /// An array containing the toolbar’s current items, in order.
     public var items: [ToolbarItem] {
-        self.toolbar.items.compactMap({ item in self._items.first(where: {$0.item == item} ) })
+        self.toolbar.items.compactMap({ item in self._items.first(where: {$0.item == item}) })
     }
-    
+
     /// An array containing the toolbar’s currently visible items.
     public var visibleItems: [ToolbarItem]? {
-        toolbar.visibleItems?.compactMap({ item in self._items.first(where: {$0.item == item} ) })
+        toolbar.visibleItems?.compactMap({ item in self._items.first(where: {$0.item == item}) })
     }
-    
+
     @available(macOS 13.0, *)
     /// The set of custom items to display in the center of the toolbar.
     public var centeredItems: [ToolbarItem] {
-        self.toolbar.centeredItemIdentifiers.compactMap({ identifier in self._items.first(where: {$0.identifier == identifier} ) })
+        self.toolbar.centeredItemIdentifiers.compactMap({ identifier in self._items.first(where: {$0.identifier == identifier}) })
     }
 
     /// The currently selected item.
@@ -158,19 +158,19 @@ public class Toolbar: NSObject {
     public func runCustomizationPalette(_ sender: Any?) {
         toolbar.runCustomizationPalette(sender)
     }
-    
+
     /// A Boolean value that indicates whether the toolbar’s customization palette is in use.
     public var customizationPaletteIsRunning: Bool {
         get { toolbar.customizationPaletteIsRunning }
     }
-    
+
     /// Toolbar item handlers.
     public var itemHandlers = ItemHandlers() {
         didSet {
-            
+
         }
     }
-    
+
     /**
      Inserts an item into the toolbar at the specified index.
      
@@ -184,7 +184,7 @@ public class Toolbar: NSObject {
     public func insertItem(_ item: ToolbarItem, at index: Int) {
         self.toolbar.insertItem(withItemIdentifier: item.identifier, at: index)
     }
-    
+
     /**
      Removes the item at the specified index in the toolbar.
      
@@ -196,29 +196,29 @@ public class Toolbar: NSObject {
     public func removeItem(at index: Int) {
         self.toolbar.removeItem(at: index)
     }
-    
+
     /// Toolbar item handlers.
     public struct ItemHandlers {
         /// Handler that gets called when the selected item changed.
-        public var selectionChanged: ((ToolbarItem?) -> Void)? = nil
+        public var selectionChanged: ((ToolbarItem?) -> Void)?
         /// Handler that determines whether an item can be inserted.
-        public var canInsert: ((_ item: ToolbarItem, _ index: Int) -> Bool)? = nil
+        public var canInsert: ((_ item: ToolbarItem, _ index: Int) -> Bool)?
         /// Handler that gets called when a item will be added.
-        public var willAdd: ((_ item: ToolbarItem) -> Void)? = nil
+        public var willAdd: ((_ item: ToolbarItem) -> Void)?
         /// Handler that gets called when a item did remove.
-        public var didRemove: ((_ item: ToolbarItem) -> Void)? = nil
+        public var didRemove: ((_ item: ToolbarItem) -> Void)?
     }
 
     private var _items: [ToolbarItem] = []
-    
+
     internal lazy var toolbar: NSToolbar = {
         let toolbar = NSToolbar(identifier: self.identifier)
         toolbar.delegate = self
         return toolbar
     }()
-    
-    internal var toolbarItemSelectionObserver: NSKeyValueObservation? = nil
-    
+
+    internal var toolbarItemSelectionObserver: NSKeyValueObservation?
+
     internal func setupToolbarItemSelectionObserver() {
         if itemHandlers.selectionChanged != nil {
             if toolbarItemSelectionObserver == nil {

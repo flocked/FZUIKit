@@ -37,7 +37,7 @@ public extension ContentTransform {
     init(_ transform: @escaping ((Content) -> Content)) {
         self.init(UUID().uuidString, transform)
     }
-    
+
     /**
      Initalizes the transformer with the specified transformers.
      
@@ -55,7 +55,7 @@ public extension ContentTransform {
             return content
         }
     }
-    
+
     /**
      Initalizes the transformer with the specified transformers.
      
@@ -66,7 +66,7 @@ public extension ContentTransform {
     init(_ transformers: Self...) {
         self.init(transformers)
     }
-    
+
     /// Performs the transformation on a single input.
     func callAsFunction(_ input: Content) -> Content {
         return transform(input)
@@ -111,15 +111,15 @@ public extension ContentTransform {
         let results = await inputs.asyncMap { await self($0) }
         return results
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
     }
-    
+
     static func + (lhs: Self, rhs: Self) -> Self {
         return Self { input in
             var result = lhs(input)

@@ -19,29 +19,29 @@ public extension NSContentUnavailableConfiguration {
             case bordered
             case link
         }
-        
+
         public var title: String?
-        public var atributedTitle: AttributedString? = nil
-        public var image: NSImage? = nil
-        
-        public var action: (()->())
+        public var atributedTitle: AttributedString?
+        public var image: NSImage?
+
+        public var action: (() -> Void)
         public var isEnabled: Bool = true
-        
-        public var contentTintColor: NSColor? = nil
+
+        public var contentTintColor: NSColor?
         public var style: Style = .bordered
-        public var symbolConfiguration: SymbolConfiguration? = nil
-        
+        public var symbolConfiguration: SymbolConfiguration?
+
         public typealias SymbolConfiguration = ImageSymbolConfiguration
-        
+
         internal var hasContent: Bool {
             (self.title != nil || self.atributedTitle != nil || self.image != nil)
         }
-        
-        public static func titleButton(_ title: String, font: SymbolConfiguration.FontConfiguration = .body, action: @escaping (()->())) -> Self {
+
+        public static func titleButton(_ title: String, font: SymbolConfiguration.FontConfiguration = .body, action: @escaping (() -> Void)) -> Self {
             Self(title: title, action: action)
         }
-        
-        public static func imageButton(_ image: NSImage, action: @escaping (()->())) -> Self {
+
+        public static func imageButton(_ image: NSImage, action: @escaping (() -> Void)) -> Self {
             Self(image: image, action: action)
         }
     }
@@ -79,7 +79,7 @@ internal extension View {
 @available(macOS 12.0, *)
 public extension NSContentUnavailableConfiguration.ButtonConfiguration {
     struct ButtonStyle: Hashable {
-        
+
     }
 }
 

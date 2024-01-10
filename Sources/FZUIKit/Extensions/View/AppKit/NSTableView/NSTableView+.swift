@@ -86,7 +86,7 @@ public extension NSTableView {
         }
         return cells
     }
-    
+
     /**
      Returns the row view at the specified location.
      
@@ -98,7 +98,7 @@ public extension NSTableView {
         guard index >= 0 else { return nil }
         return self.rowView(atRow: index, makeIfNecessary: false)
     }
-    
+
     /**
      Returns the table cell view at the specified location.
      

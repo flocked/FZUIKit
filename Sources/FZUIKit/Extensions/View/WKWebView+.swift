@@ -13,15 +13,15 @@ public extension WKWebView {
      Returns the html string of the current website to the specified completion block.
      - Parameter completion: The handler that returns the htmlString, or `nil` if no htmlString is available.
      */
-    func htmlString(completion: @escaping ((String?)->()))  {
+    func htmlString(completion: @escaping ((String?) -> Void)) {
         DispatchQueue.main.async {
-            self.evaluateJavaScript("document.body.innerHTML") { result, error in
+            self.evaluateJavaScript("document.body.innerHTML") { result, _ in
                 let htmlString = result as? String
                 completion(htmlString)
             }
         }
     }
-    
+
     /**
      Loads the web content that the specified URL references and navigates to that content.
      
@@ -35,7 +35,7 @@ public extension WKWebView {
         let request = URLRequest(url: url)
         return self.load(request)
     }
-    
+
     /**
      Loads the web content that the specified URL references and navigates to that content.
      

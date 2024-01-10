@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 
-
 /// A rectangular shape with specific corners that are rounded, aligned inside the frame of the view containing it.
 public struct RoundedCornerRectangle: Shape {
     private let radius: CGFloat

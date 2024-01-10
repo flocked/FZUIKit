@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 public enum Unarchiver {
-    ///The supported file extensions for extracting files.
+    /// The supported file extensions for extracting files.
     public static let supportedFileExtensions: [String] = ["zip", "tar", "tar.gz", "tgz", "gz"]
 
     /**
@@ -54,7 +54,7 @@ public enum Unarchiver {
         guard FileManager.default.fileExists(atPath: archive.path) else {
             throw Errors.archiveDoesntExist
         }
-        
+
         if let directory = directory {
             guard FileManager.default.fileExists(atPath: directory.path) else {
                 throw Errors.directoryDoesntExist
@@ -76,8 +76,7 @@ public enum Unarchiver {
     }
 
     internal static func postProcess(for archive: URL, directory: URL,
-                                     deleteArchiveWhenDone: Bool = false, stdout: String) -> [URL]
-    {
+                                     deleteArchiveWhenDone: Bool = false, stdout: String) -> [URL] {
         let archivePath = archive.path
         let fileExtension = archive.pathExtension.lowercased()
 

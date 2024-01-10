@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 16.09.21.
 //
 
-
 #if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 #if os(macOS)
@@ -19,22 +18,22 @@ public class GradientLayer: CAGradientLayer {
         self.init()
         self.gradient = gradient
     }
-    
+
     override init() {
         super.init()
         self.sharedInit()
     }
-    
+
     override init(layer: Any) {
         super.init(layer: layer)
         self.sharedInit()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.sharedInit()
     }
-    
+
     private func sharedInit() {
         self.masksToBounds = true
     }
@@ -60,4 +59,3 @@ public extension CAGradientLayer {
 }
 
 #endif
-

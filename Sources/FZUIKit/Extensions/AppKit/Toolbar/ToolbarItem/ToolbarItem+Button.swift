@@ -17,14 +17,14 @@ public extension ToolbarItem {
     class Button: ToolbarItem {
         /// The button of the item.
         public let button: NSButton
-        
+
         /// The title of the button.
         @discardableResult
         public func title(_ title: String) -> Self {
             button.title = title
             return self
         }
-        
+
         /// The alternate title of the button.
         @discardableResult
         public func alternateTitle(_ title: String) -> Self {
@@ -45,7 +45,6 @@ public extension ToolbarItem {
             button.attributedAlternateTitle = title
             return self
         }
-        
 
         /// Sets the button’s type, which affects its user interface and behavior when clicked.
         @discardableResult
@@ -96,7 +95,7 @@ public extension ToolbarItem {
             button.alternateImage = image
             return self
         }
-        
+
         @available(macOS 11.0, *)
         /// The alternate symbol image of the button.
         @discardableResult
@@ -141,7 +140,6 @@ public extension ToolbarItem {
             return self
         }
 
-        
         /// The action block of the button.
         @discardableResult
         public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
@@ -167,7 +165,7 @@ public extension ToolbarItem {
             button.bezelStyle = type
             return button
         }
-        
+
         /**
          Creates a button toolbar item.
          
@@ -181,7 +179,7 @@ public extension ToolbarItem {
             button.title = title
             self.init(identifier, button: button)
         }
-        
+
         /**
          Creates a button toolbar item.
          
@@ -196,7 +194,7 @@ public extension ToolbarItem {
             button.image = image
             self.init(identifier, button: button)
         }
-        
+
         /**
          Creates a button toolbar item.
          

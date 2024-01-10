@@ -20,7 +20,7 @@ public protocol NSContentView: NSObjectProtocol {
      Setting this property applies the new configuration to the view.
      */
     var configuration: NSContentConfiguration { get set }
-    
+
     /**
      Determines whether the view is compatible with the provided configuration.
 

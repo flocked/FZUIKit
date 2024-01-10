@@ -81,10 +81,10 @@ public enum Anima {
             options: options,
             completion: completion
         )
-        
+
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
-    
+
     /**
      Performs easing animations based on the specified ``TimingFunction``.
      
@@ -121,10 +121,10 @@ public enum Anima {
             options: options,
             completion: completion
         )
-        
+
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
-    
+
     /**
      Performs animations with a decaying acceleration.
      
@@ -174,10 +174,10 @@ public enum Anima {
             options: options,
             completion: completion
         )
-        
+
         AnimationController.shared.runAnimationBlock(settings: settings, animations: animations, completion: completion)
     }
-        
+
     /**
      Performs the specified changes non animated.
      
@@ -201,10 +201,10 @@ public enum Anima {
             groupID: UUID(),
             configuration: .nonAnimated
         )
-        
+
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
-    
+
     /**
      Stops all animations.
      
@@ -213,7 +213,7 @@ public enum Anima {
     public static func stopAnimating(immediately: Bool = true) {
         AnimationController.shared.stopAllAnimations(immediately: immediately)
     }
-    
+
     /**
      Updates the animation velocities for animations that support velocity values (``SpringAnimation`` and ``DecayAnimation``).
 
@@ -233,17 +233,17 @@ public enum Anima {
             groupID: UUID(),
             configuration: .velocityUpdate
         )
-        
+
         AnimationController.shared.runAnimationBlock(settings: settings, animations: changes, completion: nil)
     }
-    
+
     /// The preferred framerate of the animations. The default value is `nil` which uses the default frame rate of the display.
     @available(macOS 14.0, iOS 15.0, tvOS 15.0, *)
     public var preferredFrameRateRange: CAFrameRateRange? {
         get { AnimationController.shared.preferredFrameRateRange }
         set { AnimationController.shared.preferredFrameRateRange = newValue }
     }
-    
+
     /// The mode how ``Anima`` should animate properties with a decaying animation.
     public enum DecayAnimationMode {
         /// The value of animated properties will increase or decrease (depending on the values applied) with a decelerating rate.  This essentially provides the same "decaying" that `UIScrollView` does when you drag and let go. The animation is seeded with velocity, and that velocity decays over time.

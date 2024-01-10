@@ -18,7 +18,7 @@ extension AnimatablePair: MultiplicativeArithmetic where First: MultiplicativeAr
     public static func / (lhs: Self, rhs: Self) -> Self {
         Self(lhs.first / rhs.first, lhs.second / rhs.second)
     }
-    
+
     public static func * (lhs: Self, rhs: Self) -> Self {
         Self(lhs.first * rhs.first, lhs.second * rhs.second)
     }

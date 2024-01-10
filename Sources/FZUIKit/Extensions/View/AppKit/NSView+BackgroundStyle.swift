@@ -35,7 +35,7 @@ extension NSView {
         } else if let self = self as? NSTableCellView, self.backgroundStyle != backgroundStyle {
             self.backgroundStyle = backgroundStyle
         }
-        
+
         for subview in subviews {
             subview.setBackgroundStyle(backgroundStyle)
         }

@@ -43,7 +43,7 @@ public extension ToolbarItem {
             button.menu = menu
             return self
         }
-        
+
         /// The menu of the popup button.
         public var menu: NSMenu? {
             get { button.menu }
@@ -70,7 +70,7 @@ public extension ToolbarItem {
             button.pullsDown = pullsDown
             return self
         }
-        
+
         /// A Boolean value indicating whether the button displays a pull-down or pop-up menu.
         public var pullsDown: Bool {
             get { button.pullsDown }

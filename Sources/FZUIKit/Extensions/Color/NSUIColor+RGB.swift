@@ -31,7 +31,7 @@ public extension NSUIColor {
         return RGBAComponents(r, g, b, a)
       #endif
     }
-    
+
     #if os(iOS) || os(tvOS) || os(watchOS)
     /// The red component of the color.
     var redComponent: CGFloat {
@@ -101,27 +101,27 @@ public extension NSUIColor {
 
 /// The RGBA (red, green, blue, alpha) components of a color.
 public struct RGBAComponents: Codable, Hashable {
-    
+
     /// The red component of the color.
     public var red: CGFloat {
         didSet { red = red.clamped(max: 1.0) }
     }
-    
+
     /// The green component of the color.
     public var green: CGFloat {
         didSet { green = green.clamped(max: 1.0) }
     }
-    
+
     /// The blue component of the color.
     public var blue: CGFloat {
         didSet { blue = blue.clamped(max: 1.0) }
     }
-    
+
     /// The alpha value of the color.
     public var alpha: CGFloat {
         didSet { alpha = alpha.clamped(max: 1.0) }
     }
-    
+
     #if os(macOS)
     /// Returns the `NSColor`.
     public func nsColor() -> NSUIColor {
@@ -133,19 +133,19 @@ public struct RGBAComponents: Codable, Hashable {
         NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
     }
     #endif
-    
+
     /// Returns the `CGColor`.
     public func cgColor() -> CGColor {
         CGColor(red: red, green: green, blue: blue, alpha: alpha)
     }
-    
+
     /// Returns the SwiftUI `Color`.
     public func color() -> Color {
         Color(red: red, green: green, blue: blue, opacity: alpha)
     }
-    
+
     internal static let zero = RGBAComponents(0.0, 0.0, 0.0, 0.0)
-    
+
     /// Creates RGBA components with the specified red, green, blue and alpha components.
     public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
         self.red = red.clamped(max: 1.0)
@@ -153,7 +153,7 @@ public struct RGBAComponents: Codable, Hashable {
         self.blue = blue.clamped(max: 1.0)
         self.alpha = alpha.clamped(max: 1.0)
     }
-    
+
     internal init(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat) {
         self.red = red.clamped(max: 1.0)
         self.green = green.clamped(max: 1.0)

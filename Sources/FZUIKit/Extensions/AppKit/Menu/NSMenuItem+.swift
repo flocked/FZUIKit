@@ -85,8 +85,7 @@ public extension NSMenuItem {
      - Returns: An instance of `NSMenuItem`.
      */
     convenience init(title: String,
-                     @MenuBuilder items: () -> [NSMenuItem])
-    {
+                     @MenuBuilder items: () -> [NSMenuItem]) {
         self.init(title: title)
         submenu = NSMenu(title: "", items: items())
     }

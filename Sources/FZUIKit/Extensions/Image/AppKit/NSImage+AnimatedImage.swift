@@ -46,7 +46,7 @@ public extension NSImage {
         }
         return nil
     }
-    
+
     /// A Boolean value that indicates whether the image is animated (e.g. a GIF).
     var isAnimated: Bool {
         guard framesCount > 1 else { return false }
@@ -70,14 +70,13 @@ public extension NSImage {
         guard let imageSource = ImageSource(image: self) else { return 1 }
         return imageSource.count
     }
-    
-    
+
     /// The animation duration of an animated (e.g. GIF) image.
     var animationDuration: TimeInterval? {
         guard let source = ImageSource(image: self) else { return nil }
         return source.animationDuration
     }
-    
+
     /**
      The number of times that an animated image should play through its frames before stopping.
      
@@ -87,7 +86,6 @@ public extension NSImage {
         guard let source = ImageSource(image: self), source.count > 1 else { return nil }
         return source.properties()?.loopCount ?? source.properties(at: 0)?.loopCount
     }
-
 
     /// The images of an animated (e.g. GIF) image.
     var images: [NSUIImage]? {

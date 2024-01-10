@@ -27,13 +27,6 @@ public extension NSUIImage {
         public let secondary: NSUIColor
         /// The detail color of the image.
         public let detail: NSUIColor
-
-        internal init(background: NSUIColor, primary: NSUIColor, secondary: NSUIColor, detail: NSUIColor) {
-            self.background = background
-            self.primary = primary
-            self.secondary = secondary
-            self.detail = detail
-        }
     }
 
     /// The quality at which the main colors of an image should be analysed. A higher value takes longer to analyse.
@@ -47,10 +40,6 @@ public extension NSUIImage {
     fileprivate struct ImageColorsCounter {
         let color: Double
         let count: Int
-        init(color: Double, count: Int) {
-            self.color = color
-            self.count = count
-        }
     }
 }
 
@@ -215,7 +204,7 @@ extension NSUIImage {
             detail: proposed[3].uicolor
         )
     }
-    
+
     /**
      Analysis the main colors of the image asynchronously on a background thread.
      

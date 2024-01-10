@@ -5,7 +5,6 @@
 //  Copyright (c) 2015 Kåre Morstøl, NotTooBad Software (nottoobadsoftware.com)
 //
 
-
 #if os(macOS)
 import Foundation
 import FZSwiftUtils

@@ -13,13 +13,13 @@ public struct BarProgressStyle: ProgressViewStyle {
     let color: Color
     let backgroundColor: Color
     let cornerRadius: CGFloat
-    
+
     public init(color: Color = .accentColor, backgroundColor: Color = .gray, cornerRadius: CGFloat = 10.0) {
         self.color = color
         self.backgroundColor = backgroundColor
         self.cornerRadius = cornerRadius
     }
-    
+
     public func makeBody(configuration: Configuration) -> some View {
         let progress = configuration.fractionCompleted ?? 0.0
         GeometryReader { geometry in
@@ -46,7 +46,7 @@ public struct BarProgressLabelStyle: ProgressViewStyle {
     let alignment: Alignment
     let cornerRadius: CGFloat
     let padding: CGFloat
-            
+
     public init(color: Color = .accentColor, backgroundColor: Color = .gray, font: Font = .headline, textColor: Color = .white, alignment: Alignment = .leading, unit: String = "%", range: ClosedRange<Double> = 0...100, padding: CGFloat = 6.0, cornerRadius: CGFloat = 6.0) {
         self.color = color
         self.backgroundColor = backgroundColor
@@ -58,14 +58,14 @@ public struct BarProgressLabelStyle: ProgressViewStyle {
         self.padding = padding
         self.cornerRadius = cornerRadius
     }
-    
+
     internal var numberFormatter: NumberFormatter {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         numberFormatter.maximumFractionDigits = 2
         return numberFormatter
     }
-    
+
     public func makeBody(configuration: Configuration) -> some View {
         let progress = configuration.fractionCompleted ?? 0.0
         let progressValue = self.range.lowerBound + ((self.range.upperBound - self.range.lowerBound) * progress).rounded(.toPlaces(2))

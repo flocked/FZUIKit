@@ -10,7 +10,7 @@
 import AppKit
 import Foundation
 
-fileprivate let TargetActionProtocolAssociatedObjectKey = UnsafeMutablePointer<Int8>.allocate(capacity: 1)
+private let TargetActionProtocolAssociatedObjectKey = UnsafeMutablePointer<Int8>.allocate(capacity: 1)
 
 public extension NSMenuItem {
     convenience init(_ title: String, action: @escaping ActionBlock) {

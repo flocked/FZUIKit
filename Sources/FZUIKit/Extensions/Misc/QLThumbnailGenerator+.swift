@@ -22,7 +22,7 @@ public extension QLThumbnailGenerator {
     func cancel(_ requests: [QLThumbnailGenerator.Request]) {
         requests.forEach { self.cancel($0) }
     }
-    
+
     /// Cancels the generation of all thumbnail requests.
     func cancelAllRequests() {
         self.cancel(processingRequests)
@@ -39,7 +39,7 @@ public extension QLThumbnailGenerator {
         requests[.preparingGeneration] = preparingGenerationRequests
         return requests
     }
-    
+
     /// The status of the request
     enum RequestStatus: Int {
         /// The request is pending generation.

@@ -20,7 +20,7 @@ public struct SimpleImageView: NSViewRepresentable {
     private var symbolConfiguration: NSImage.SymbolConfiguration?
     private var tintColor: NSColor?
     private var animates: Bool
-    
+
     public init(images: [NSImage],
                 imageScaling: CALayerContentsGravity) {
         self.image = nil
@@ -40,7 +40,7 @@ public struct SimpleImageView: NSViewRepresentable {
         self.images = []
         self.animates = animates
     }
-    
+
     public init(symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration? = nil, tintColor: NSColor? = nil) {
         self.image = NSImage(systemSymbolName: symbolName)
         self.symbolConfiguration = symbolConfiguration
@@ -89,19 +89,19 @@ public struct SimpleImageView: NSViewRepresentable {
         view.imageScaling = imageScaling
         return view
     }
-    
+
     public func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration?) -> SimpleImageView {
         var view = self
         view.symbolConfiguration = configuration
         return view
     }
-    
+
     public func tintColor(_ tintColor: NSColor?) -> SimpleImageView {
         var view = self
         view.tintColor = tintColor
         return view
     }
-    
+
     public func animates(_ animates: Bool) -> SimpleImageView {
         var view = self
         view.animates = animates

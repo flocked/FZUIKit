@@ -23,7 +23,7 @@ public struct AttributedStringTransformer: ContentTransform {
         self.transform = transform
         self.id = identifier
     }
-    
+
     /// Creates a color transformer that generates a capitalized version of the attributed string.
     public static func capitalized() -> Self {
         return Self("capitalized") { $0.capitalized() }
@@ -54,7 +54,7 @@ public struct NSAttributedStringTransformer: ContentTransform {
         self.transform = transform
         self.id = id
     }
-    
+
     /// Creates a color transformer that generates a capitalized version of the attributed string.
     public static func capitalized() -> Self {
         return Self("capitalized") { $0.capitalized() }

@@ -25,7 +25,7 @@ extension NSShadow {
         shadow.shadowOffset = CGSize(offset.x, offset.y)
         return shadow
     }
-    
+
     #if os(macOS)
     /// A shadow with accent color.
     public static func accentColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
@@ -36,7 +36,7 @@ extension NSShadow {
         return shadow
     }
     #endif
-    
+
     /// A shadow with the specified color.
     public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
         let shadow = Self()
@@ -45,7 +45,7 @@ extension NSShadow {
         shadow.shadowOffset = CGSize(offset.x, offset.y)
         return shadow
     }
-    
+
     /// Creates a shadow from the shadow values of the specified layer.
     public convenience init(layer: CALayer) {
         self.init()

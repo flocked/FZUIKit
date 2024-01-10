@@ -14,7 +14,7 @@ public extension Toolbar {
         public static func buildBlock(_ block: [ToolbarItem]...) -> [ToolbarItem] {
             block.flatMap { $0 }
         }
-        
+
         public static func buildOptional(_ item: ToolbarItem?) -> [ToolbarItem] {
             if let item = item {
                 return [item]

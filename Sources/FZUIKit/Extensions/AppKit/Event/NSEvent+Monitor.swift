@@ -60,7 +60,7 @@ public extension NSEvent {
         private var monitor: Any?
         private let handler: Any
         private let type: MonitorType
-        
+
         private enum MonitorType: Int {
             case global
             case local
@@ -94,9 +94,9 @@ public extension NSEvent {
             if isRunning == false {
                 switch type {
                 case .global:
-                    monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent)->Void))
+                    monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> Void))
                 case .local:
-                    monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent)->(NSEvent?)))
+                    monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
                 }
             }
         }

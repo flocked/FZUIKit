@@ -17,8 +17,7 @@ public extension View {
             self
         }
     }
-    
-    
+
     @ViewBuilder
     func shadow(color: Color?, radius: CGFloat, offset: CGPoint) -> some View {
         if let color = color {
@@ -27,7 +26,7 @@ public extension View {
             self
         }
     }
-    
+
     @ViewBuilder
     func border<S>(_ content: S?, width: CGFloat = 1) -> some View where S: ShapeStyle {
         if let content = content, width > 0.0 {
@@ -36,7 +35,7 @@ public extension View {
             self
         }
     }
-    
+
     @ViewBuilder
     func border<S, A: Shape>(_ content: S?, width: CGFloat = 1, shape: A) -> some View where S: ShapeStyle {
         if let content = content, width > 0.0 {

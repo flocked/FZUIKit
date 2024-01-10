@@ -103,7 +103,7 @@ public extension DisplayLinkTimer {
             }
         }
 
-        internal var displayLink: AnyCancellable? = nil
+        internal var displayLink: AnyCancellable?
         internal var previousTimestamp: TimeInterval = 0.0
         internal var timeIntervalSinceLastFire: TimeInterval = 0.0
     }

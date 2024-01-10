@@ -27,7 +27,7 @@ public extension ToolbarItem {
             menuItem.showsIndicator = showsIndicator
             return self
         }
-        
+
         /// A Boolean value that determines whether the toolbar item displays an indicator of additional functionality.
         public var showsIndicator: Bool {
             get { menuItem.showsIndicator }
@@ -40,7 +40,7 @@ public extension ToolbarItem {
             menuItem.menu = menu
             return self
         }
-        
+
         /// The menu presented from the toolbar item.
         public var menu: NSMenu {
             get { menuItem.menu }

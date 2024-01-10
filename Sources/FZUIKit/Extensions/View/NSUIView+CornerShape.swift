@@ -18,23 +18,23 @@ extension NSUIView {
     public enum CornerShape: Hashable {
         /// A rounded shape with corner radius equal to the specified value.
         case rounded(CGFloat)
-        
+
         /// A rounded shape with corner radius relative to half the length of the view's smallest edge.
         case roundedRelative(CGFloat)
-        
+
         /// A circular shape with corner radius equal to half the length of the view's smallest edge.
         case circular
-        
+
         /// A capsule shape with corner radius equal to half the length of the view's smallest edge.
         case capsule
-        
+
         internal var needsViewObservation: Bool {
             switch self {
             case .rounded: return false
             default: return true
             }
         }
-        
+
         internal var clamped: Self {
             switch self {
             case .roundedRelative(let value): return .roundedRelative(value.clamped(max: 1.0))
@@ -42,7 +42,7 @@ extension NSUIView {
             }
         }
     }
-    
+
     /// The corner shape of the view.
     public var cornerShape: CornerShape? {
         get { getAssociatedValue(key: "_cornerShape", object: self, initialValue: nil) }
@@ -67,7 +67,7 @@ extension NSUIView {
         get { getAssociatedValue(key: "_cornerShapeBoundsObserver", object: self) }
         set { set(associatedValue: newValue, key: "_cornerShapeBoundsObserver", object: self) }
     }
-    
+
     func updateCornerShape() {
         guard let cornerShape = self.cornerShape else { return }
         switch cornerShape {

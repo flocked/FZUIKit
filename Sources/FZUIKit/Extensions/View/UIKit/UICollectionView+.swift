@@ -14,14 +14,14 @@ public extension UICollectionView {
     func displayingIndexPaths() -> [IndexPath] {
         return (displayingCells().compactMap { self.indexPath(for: $0) }).sorted()
     }
-    
+
     /// Returns an array of all displayed cells. Unlike `visibleCells()` it only returns the items with visible frame.
     func displayingCells() -> [UICollectionViewCell] {
         let visibleCells = self.visibleCells
-        let visibleRect = CGRectIntersection(self.frame, superview?.bounds ?? self.frame)
+        let visibleRect = self.frame.intersection(superview?.bounds ?? self.frame)
         return visibleCells.filter { $0.frame.intersects(visibleRect) }
     }
-    
+
     /// Handlers that get called whenever the collection view is displaying new items.
     var displayingItemsHandlers: DisplayingItemsHandlers {
         get { getAssociatedValue(key: "displayingItemsHandlers", object: self, initialValue: DisplayingItemsHandlers()) }
@@ -30,7 +30,7 @@ public extension UICollectionView {
             setupDisplayingItemsTracking()
         }
     }
-    
+
     /**
      Handlers for the displaying items.
      
@@ -38,41 +38,40 @@ public extension UICollectionView {
      */
     struct DisplayingItemsHandlers {
         /// Handler that gets called whenever items start getting displayed.
-        var isDisplaying: (([IndexPath])->())? = nil
+        var isDisplaying: (([IndexPath]) -> Void)?
         /// Handler that gets called whenever items end getting displayed.
-        var didEndDisplaying: (([IndexPath])->())? = nil
+        var didEndDisplaying: (([IndexPath]) -> Void)?
     }
-    
+
     internal var previousDisplayingIndexPaths: [IndexPath] {
         get { getAssociatedValue(key: "previousDisplayingIndexPaths", object: self, initialValue: []) }
         set {
             set(associatedValue: newValue, key: "previousDisplayingIndexPaths", object: self)
         }
     }
-    
+
     internal var contentOffsetObserver: NSKeyValueObservation? {
         get { getAssociatedValue(key: "contentOffsetObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "contentOffsetObserver", object: self) }
     }
-    
+
     @objc internal func didScroll() {
         let isDisplaying = self.displayingItemsHandlers.isDisplaying
         let didEndDisplaying = self.displayingItemsHandlers.didEndDisplaying
         guard isDisplaying != nil || didEndDisplaying != nil else { return }
-        
+
         let displayingIndexPaths = self.displayingIndexPaths()
         let previousDisplayingIndexPaths = self.previousDisplayingIndexPaths
         guard displayingIndexPaths != previousDisplayingIndexPaths else { return }
         self.previousDisplayingIndexPaths = displayingIndexPaths
 
-        
         if let isDisplaying = isDisplaying {
             let indexPaths = displayingIndexPaths.filter({ previousDisplayingIndexPaths.contains($0) == false })
             if indexPaths.isEmpty == false {
                 isDisplaying(indexPaths)
             }
         }
-        
+
         if let didEndDisplaying = didEndDisplaying {
             let indexPaths = previousDisplayingIndexPaths.filter({ displayingIndexPaths.contains($0) == false })
             if indexPaths.isEmpty == false {
@@ -80,7 +79,7 @@ public extension UICollectionView {
             }
         }
     }
-    
+
     internal func setupDisplayingItemsTracking() {
         if self.displayingItemsHandlers.isDisplaying != nil || self.displayingItemsHandlers.didEndDisplaying != nil {
             if contentOffsetObserver == nil {

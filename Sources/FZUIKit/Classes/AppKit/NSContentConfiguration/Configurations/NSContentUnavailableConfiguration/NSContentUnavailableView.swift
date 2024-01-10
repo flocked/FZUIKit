@@ -20,12 +20,12 @@ public class NSContentUnavailableView: NSView, NSContentView {
             }
         }
     }
-    
+
     /// Determines whether the view is compatible with the provided configuration.
     public func supports(_ configuration: NSContentConfiguration) -> Bool {
         configuration is NSContentUnavailableConfiguration
     }
-        
+
     /// Creates a item content view with the specified content configuration.
     public init(configuration: NSContentUnavailableConfiguration) {
         self.appliedConfiguration = configuration
@@ -34,12 +34,12 @@ public class NSContentUnavailableView: NSView, NSContentView {
         self.hostingConstraints = addSubview(withConstraint: hostingView)
         self.updateConfiguration()
     }
-    
+
     internal var backgroundConstraints: [NSLayoutConstraint] = []
     internal var hostingConstraints: [NSLayoutConstraint] = []
-    
+
     internal lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
-    
+
     internal var appliedConfiguration: NSContentUnavailableConfiguration {
         didSet {
             if oldValue != appliedConfiguration {
@@ -47,11 +47,11 @@ public class NSContentUnavailableView: NSView, NSContentView {
             }
         }
     }
-    
+
     internal func updateConfiguration() {
         backgroundView.configuration = appliedConfiguration.background
         hostingView.rootView =  ContentView(configuration: self.appliedConfiguration)
-        
+
         backgroundConstraints[1].constant = -appliedConfiguration.directionalLayoutMargins.bottom
         backgroundConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
         backgroundConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
@@ -62,7 +62,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
         hostingConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
         hostingConstraints[3].constant = -appliedConfiguration.directionalLayoutMargins.height
     }
-    
+
     internal lazy var hostingView: NSHostingView<ContentView> = {
         let contentView = ContentView(configuration: self.appliedConfiguration)
         let hostingView = NSHostingView(rootView: contentView)
@@ -71,7 +71,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
         hostingView.clipsToBounds = false
         return hostingView
     }()
- 
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -82,21 +82,21 @@ public class NSContentUnavailableView: NSView, NSContentView {
 internal extension NSContentUnavailableView {
     struct ContentView: View {
         let configuration: NSContentUnavailableConfiguration
-        
+
         @ViewBuilder
         var buttonItem: some View {
             if let configuration = configuration.button, configuration.hasContent {
                 ButtonItem(configuration: configuration)
             }
         }
-        
+
         @ViewBuilder
         var secondaryButton: some View {
             if let configuration = configuration.secondaryButton, configuration.hasContent {
                 ButtonItem(configuration: configuration)
             }
         }
-        
+
         @ViewBuilder
         var buttonItems: some View {
             if configuration.buttonOrientation == .vertical {
@@ -111,7 +111,7 @@ internal extension NSContentUnavailableView {
                 }
             }
         }
-        
+
         @ViewBuilder
         var imageItem: some View {
             if let image = configuration.image {
@@ -122,7 +122,7 @@ internal extension NSContentUnavailableView {
                     .cornerRadius(configuration.imageProperties.cornerRadius)
             }
         }
-        
+
         @ViewBuilder
         var textItems: some View {
             VStack(spacing: configuration.textToSecondaryTextPadding) {
@@ -130,7 +130,7 @@ internal extension NSContentUnavailableView {
                 TextItem(text: configuration.secondaryText, attributedText: configuration.secondaryAttributedText, properties: configuration.secondaryTextProperties)
             }
         }
-        
+
         @ViewBuilder
         var loadingIndicatorItem: some View {
             if configuration.displayLoadingIndicator {
@@ -139,7 +139,7 @@ internal extension NSContentUnavailableView {
                     .progressViewStyle(CircularProgressViewStyle())
             }
         }
-        
+
         @ViewBuilder
         var imageTextStack: some View {
             VStack(spacing: configuration.imageToTextPadding) {
@@ -148,7 +148,7 @@ internal extension NSContentUnavailableView {
                 textItems
             }
         }
-        
+
         @ViewBuilder
         var stack: some View {
             VStack(spacing: configuration.textToButtonPadding) {
@@ -156,16 +156,16 @@ internal extension NSContentUnavailableView {
                 buttonItems
             }
         }
-        
+
         var body: some View {
             stack
-                .frame(maxWidth: .infinity,  maxHeight: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
-    
+
     struct ButtonItem: View {
         let configuration: NSContentUnavailableConfiguration.ButtonConfiguration
-        
+
         var body: some View {
             Button {
                 configuration.action()
@@ -190,18 +190,18 @@ internal extension NSContentUnavailableView {
                 .symbolConfiguration(configuration.symbolConfiguration)
         }
     }
-    
+
     struct TextItem: View {
         let text: String?
         let attributedText: NSAttributedString?
         let properties: NSContentUnavailableConfiguration.TextProperties
-        
+
         init(text: String?, attributedText: NSAttributedString?, properties: NSContentUnavailableConfiguration.TextProperties) {
             self.text = text
             self.attributedText = attributedText
             self.properties = properties
         }
-        
+
         @ViewBuilder
         var item: some View {
             if let attributedText = attributedText {
@@ -210,7 +210,7 @@ internal extension NSContentUnavailableView {
                 Text(text)
             }
         }
-        
+
         var body: some View {
             item
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -220,6 +220,6 @@ internal extension NSContentUnavailableView {
                 .foregroundColor(properties.color.swiftUI)
         }
     }
-    
+
 }
 #endif

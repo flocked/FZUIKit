@@ -55,11 +55,11 @@ public extension AVPlayer {
         case isStopped
         /// The player has an error.
         case error(Error)
-        
+
         public static func == (lhs: AVPlayer.State, rhs: AVPlayer.State) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
-        
+
         public func hash(into hasher: inout Hasher) {
             switch self {
             case .isPlaying:
@@ -68,7 +68,7 @@ public extension AVPlayer {
                 hasher.combine(2)
             case .isStopped:
                 hasher.combine(3)
-            case .error(_):
+            case .error:
                 hasher.combine(4)
             }
         }

@@ -22,22 +22,22 @@ public extension NSFont {
         let ctFont = self.cleanedFont as CTFont
         return CTFontGetAscent(ctFont) + CTFontGetDescent(ctFont) + CTFontGetLeading(ctFont)
     }
-    
+
     internal var descenderReal: CGFloat {
         let ctFont = self.cleanedFont as CTFont
         return CTFontGetDescent(ctFont)
     }
-    
+
     internal var ascenderReal: CGFloat {
         let ctFont = self.cleanedFont as CTFont
         return CTFontGetAscent(ctFont)
     }
-    
+
     internal var leadingReal: CGFloat {
         let ctFont = self.cleanedFont as CTFont
         return CTFontGetLeading(ctFont)
     }
-    
+
     var spc: CGFloat? {
         if let spc: CGFloat = getAssociatedValue(key: "spc", object: self) {
             return spc
@@ -52,7 +52,7 @@ public extension NSFont {
         }
         return nil
     }
-    
+
     internal var cleanedFont: NSFont {
         var attributes = fontDescriptor.fontAttributes
         var font = self
@@ -119,7 +119,6 @@ public extension NSFont {
         return withSize(newPointSize)
     }
 
-    
     func sized(toFit text: String, width: CGFloat) -> NSFont {
         let font = withSize(1)
         var textSize = text.size(withAttributes: [.font: font])

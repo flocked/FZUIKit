@@ -19,12 +19,12 @@ extension NSTableViewRowAction {
             - action: The action object representing the action that the user selected.
             - rowIndex: The table row that the user acted on.
      */
-    public static func regular(_ title: String, color: NSColor? = .systemBlue, handler: @escaping (NSTableViewRowAction, Int) -> ()) -> NSTableViewRowAction {
+    public static func regular(_ title: String, color: NSColor? = .systemBlue, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
         let action = NSTableViewRowAction(style: .destructive, title: title, handler: handler)
         action.backgroundColor = color
         return action
     }
-    
+
     /**
      Creates a destructive row action with a text.
      
@@ -35,12 +35,12 @@ extension NSTableViewRowAction {
             - action: The action object representing the action that the user selected.
             - rowIndex: The table row that the user acted on.
      */
-    public static func destructive(_ title: String, color: NSColor? = .systemRed, handler: @escaping (NSTableViewRowAction, Int) -> ()) -> NSTableViewRowAction {
+    public static func destructive(_ title: String, color: NSColor? = .systemRed, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
         let action = NSTableViewRowAction(style: .destructive, title: title, handler: handler)
         action.backgroundColor = color
         return action
     }
-    
+
     /**
      Creates a regular row action with a symbol image.
      
@@ -53,13 +53,13 @@ extension NSTableViewRowAction {
             - rowIndex: The table row that the user acted on.
      */
     @available(macOS 11.0, *)
-    public static func regular(_ title: String? = nil, symbolName: String, color: NSColor? = .systemBlue, handler: @escaping (NSTableViewRowAction, Int) -> ()) -> NSTableViewRowAction {
+    public static func regular(_ title: String? = nil, symbolName: String, color: NSColor? = .systemBlue, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
         let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
         action.backgroundColor = color
         action.image = NSImage(systemSymbolName: symbolName)
         return action
     }
-    
+
     /**
      Creates a destructive row action with a symbol image.
      
@@ -72,13 +72,13 @@ extension NSTableViewRowAction {
             - rowIndex: The table row that the user acted on.
      */
     @available(macOS 11.0, *)
-    public static func destructive(_ title: String? = nil, symbolName: String, color: NSColor = .systemRed, handler: @escaping (NSTableViewRowAction, Int) -> ()) -> NSTableViewRowAction {
+    public static func destructive(_ title: String? = nil, symbolName: String, color: NSColor = .systemRed, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
         let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
         action.backgroundColor = color
         action.image = NSImage(systemSymbolName: symbolName)
         return action
     }
-    
+
     /**
      Creates and returns a new table view row action object.
      
@@ -95,7 +95,7 @@ extension NSTableViewRowAction {
         self.image = image
         self.backgroundColor = color
     }
-    
+
     /**
      Creates and returns a new table view row action object.
      
@@ -113,7 +113,7 @@ extension NSTableViewRowAction {
         self.image = image
         self.backgroundColor = color ?? (style == .regular ? .systemBlue : .systemRed)
     }
-    
+
     /**
      Creates and returns a new table view row action object.
      

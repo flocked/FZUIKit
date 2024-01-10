@@ -15,7 +15,7 @@ extension SwiftUI.Spring: CustomStringConvertible {
             response: \(response)
             dampingRatio: \(dampingRatio)
             mass: \(mass)
-        
+
             settlingDuration: \(String(format: "%.3f", settlingDuration))
             duration: \(String(format: "%.3f", duration))
             damping: \(damping)

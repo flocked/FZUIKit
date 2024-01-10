@@ -22,13 +22,13 @@ import SwiftUI
  */
 public struct ViewConfiguration: Hashable {
     /// The background color.
-    public var backgroundColor: NSUIColor? = nil {
+    public var backgroundColor: NSUIColor? {
         didSet { updateResolvedColor() } }
-    
+
     /// The color transformer for resolving the background color.
-    public var backgroundColorTransformer: ColorTransformer? = nil {
+    public var backgroundColorTransformer: ColorTransformer? {
         didSet { updateResolvedColor() } }
-    
+
     /// Generates the resolved background color,, using the background color and color transformer.
     public func resolvedBackgroundColor() -> NSUIColor? {
         if let backgroundColor = self.backgroundColor {
@@ -36,55 +36,55 @@ public struct ViewConfiguration: Hashable {
         }
         return nil
     }
-    
+
     /// The visual effect of the view.
-    public var visualEffect: VisualEffectConfiguration? = nil
-    
+    public var visualEffect: VisualEffectConfiguration?
+
     /// The border of the view.
     public var border: BorderConfiguration = .none()
-    
+
     /// The shadow of the view.
     public var shadow: ShadowConfiguration = .none()
-    
+
     /// The inner shadow of the view.
     public var innerShadow: ShadowConfiguration = .none()
-    
+
     /// The alpha value of the view.
     public var alpha: CGFloat = 1.0
-    
+
     /// The corner radius of the view.
     public var cornerRadius: CGFloat = 0.0
-    
+
     /// The corner curve of the view.
     public var cornerCurve: CALayerCornerCurve = .circular
-    
+
     /// The rounded corners of the view.
     public var roundedCorners: CACornerMask = .all
-    
+
     /// The mask of the view.
-    public var mask: NSUIView? = nil
-    
+    public var mask: NSUIView?
+
     /// A Boolean value indicating whether the mask is inverted.
     public var maskIsInverted: Bool = false
-    
+
     /// The scale transform of the view.
     public var scale: CGSize = CGSize(width: 1, height: 1)
-    
+
     /// The rotation of the view as euler angles in degrees.
     public var rotation: CGVector3 = .zero
-    
+
     /// The background configuration of the view.
-    public var backgrpundConfiguration: NSContentConfiguration? = nil
-    
+    public var backgrpundConfiguration: NSContentConfiguration?
+
     public init() {
-        
+
     }
-    
-    internal var _backgroundColor: NSUIColor? = nil
+
+    internal var _backgroundColor: NSUIColor?
     internal mutating func updateResolvedColor() {
         _backgroundColor = resolvedBackgroundColor()
     }
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(backgroundColor)
         hasher.combine(backgroundColorTransformer)
@@ -102,7 +102,7 @@ public struct ViewConfiguration: Hashable {
         hasher.combine(scale)
         hasher.combine(rotation)
     }
-    
+
     public static func == (lhs: ViewConfiguration, rhs: ViewConfiguration) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
@@ -115,13 +115,13 @@ public struct ViewConfiguration: Hashable {
  */
 public struct ViewConfiguration: Hashable {
     /// The background color.
-    public var backgroundColor: NSUIColor? = nil {
+    public var backgroundColor: NSUIColor? {
         didSet { updateResolvedColor() } }
-    
+
     /// The color transformer for resolving the background color.
-    public var backgroundColorTransformer: ColorTransformer? = nil {
+    public var backgroundColorTransformer: ColorTransformer? {
         didSet { updateResolvedColor() } }
-    
+
     /// Generates the resolved background color,, using the background color and color transformer.
     public func resolvedBackgroundColor() -> NSUIColor? {
         if let backgroundColor = self.backgroundColor {
@@ -129,52 +129,52 @@ public struct ViewConfiguration: Hashable {
         }
         return nil
     }
-    
+
     /// The visual effect of the view.
-    public var visualEffect: VisualEffectConfiguration? = nil
-    
+    public var visualEffect: VisualEffectConfiguration?
+
     /// The border of the view.
     public var border: BorderConfiguration = .none()
-    
+
     /// The shadow of the view.
     public var shadow: ShadowConfiguration = .none()
-    
+
     /// The inner shadow of the view.
     public var innerShadow: ShadowConfiguration = .none()
-    
+
     /// The alpha value of the view.
     public var alpha: CGFloat = 1.0
-    
+
     /// The corner radius of the view.
     public var cornerRadius: CGFloat = 0.0
-    
+
     /// The corner curve of the view.
     public var cornerCurve: CALayerCornerCurve = .circular
-    
+
     /// The rounded corners of the view.
     public var roundedCorners: CACornerMask = .all
-    
+
     /// The mask of the view.
-    public var mask: NSUIView? = nil
-    
+    public var mask: NSUIView?
+
     /// A Boolean value indicating whether the mask is inverted.
     public var maskIsInverted: Bool = false
 
     /// The scale transform of the view.
     public var scale: CGSize = CGSize(width: 1, height: 1)
-    
+
     /// The rotation of the view.
     public var rotation: CGVector3 = .zero
-    
+
     public init() {
-        
+
     }
-    
-    internal var _backgroundColor: NSUIColor? = nil
+
+    internal var _backgroundColor: NSUIColor?
     internal mutating func updateResolvedColor() {
         _backgroundColor = resolvedBackgroundColor()
     }
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(backgroundColor)
         hasher.combine(backgroundColorTransformer)
@@ -192,7 +192,7 @@ public struct ViewConfiguration: Hashable {
         hasher.combine(scale)
         hasher.combine(rotation)
     }
-    
+
     public static func == (lhs: ViewConfiguration, rhs: ViewConfiguration) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
@@ -228,7 +228,7 @@ public extension NSUIView {
         self.visualEffect = configuration.visualEffect
         self.scale = CGPoint(configuration.scale.width, configuration.scale.height)
         self.rotation = configuration.rotation
-        
+
         #if os(macOS)
         if let backgrpundConfiguration = configuration.backgrpundConfiguration {
             if let backgroundView = backgroundView {
@@ -242,27 +242,27 @@ public extension NSUIView {
         }
         #endif
     }
-    
+
     #if os(macOS)
     fileprivate var backgroundView: BackgroundView? {
         self.viewWithTag(24532453) as? BackgroundView
     }
-    
+
     fileprivate class BackgroundView: NSUIView {
         #if os(macOS)
         override var tag: Int {
             return 24532453
         }
         #endif
-        
+
         var configuration: NSContentConfiguration {
             didSet {
                 updateConfiguration()
             }
         }
-        
+
         var contentView: (NSUIView & NSContentView)
-        
+
         init(configuration: NSContentConfiguration) {
             self.configuration = configuration
             self.contentView = configuration.makeContentView()
@@ -272,7 +272,7 @@ public extension NSUIView {
             self.tag = 24532453
             #endif
         }
-        
+
         func updateConfiguration() {
             if self.contentView.supports(configuration) {
                 self.contentView.configuration = configuration
@@ -282,7 +282,7 @@ public extension NSUIView {
                 self.addSubview(withConstraint: contentView)
             }
         }
-        
+
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }

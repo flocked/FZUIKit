@@ -48,7 +48,7 @@ public class ColorPickerView: NSView {
         }
     }
 
-    @IBOutlet public var nameTextField: NSTextField? = nil
+    @IBOutlet public var nameTextField: NSTextField?
 
     internal var mouseLocation = CGPoint.zero
     internal var hooveringColorIbdex = -1
@@ -63,7 +63,7 @@ public class ColorPickerView: NSView {
         (#colorLiteral(red: 0.000, green: 0.769, blue: 0.953, alpha: 1.000), "Blue"),
         (#colorLiteral(red: 0.306, green: 0.886, blue: 0.624, alpha: 1.000), "Green"),
         (#colorLiteral(red: 0.953, green: 0.902, blue: 0.439, alpha: 1.000), "Yellow"),
-        (#colorLiteral(red: 0.957, green: 0.537, blue: 0.286, alpha: 1.000), "Orange"),
+        (#colorLiteral(red: 0.957, green: 0.537, blue: 0.286, alpha: 1.000), "Orange")
     ]
 
     // MARK: - Input

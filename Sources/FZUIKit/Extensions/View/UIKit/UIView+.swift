@@ -19,7 +19,7 @@ public extension UIView {
             return nil
         }
     }
-    
+
     /**
      The rotation of the view as euler angles in degrees.
 
@@ -29,7 +29,7 @@ public extension UIView {
         get { self.transform3D.eulerAnglesDegrees }
         set { self.transform3D.eulerAnglesDegrees = newValue }
     }
-    
+
     /**
      The rotation of the view as euler angles in radians.
 
@@ -39,7 +39,7 @@ public extension UIView {
         get { self.transform3D.eulerAngles }
         set { self.transform3D.eulerAngles = newValue }
     }
-    
+
     /**
      The scale transform of the view.
 
@@ -49,7 +49,7 @@ public extension UIView {
         get { self.layer.scale }
         set { self.layer.scale = newValue }
     }
-    
+
     /**
      The perspective of the view's transform
 
@@ -61,7 +61,7 @@ public extension UIView {
         get { self.transform3D.perspective }
         set { self.transform3D.perspective = newValue }
     }
-    
+
     /**
      The shearing of the view's transform.
 
@@ -73,7 +73,7 @@ public extension UIView {
         get { self.transform3D.skew }
         set { self.transform3D.skew = newValue }
     }
-    
+
     /**
      The border of the view.
      
@@ -121,7 +121,7 @@ public extension UIView {
         get { layer.cornerCurve }
         set { layer.cornerCurve = newValue }
     }
-    
+
     /**
      The view whose inverse alpha channel is used to mask a view’s content.
      
@@ -139,7 +139,7 @@ public extension UIView {
             }
         }
     }
-    
+
     /**
      The shadow of the view.
      
@@ -149,7 +149,7 @@ public extension UIView {
         get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
         set { self.configurate(using: newValue, type: .outer) }
     }
-    
+
     /**
      The inner shadow of the view.
      
@@ -159,31 +159,31 @@ public extension UIView {
         get { self.layer.innerShadowLayer?.configuration ?? .none() }
         set { self.configurate(using: newValue, type: .inner) }
     }
-    
+
     /// The shadow color of the view.
     @objc internal dynamic var shadowColor: NSUIColor? {
         get { layer.shadowColor?.uiColor }
         set { layer.shadowColor = newValue?.resolvedColor(for: self).cgColor }
     }
-    
+
     /// The shadow offset of the view.
     @objc internal dynamic var shadowOffset: CGPoint {
         get { layer.shadowOffset.point }
         set { layer.shadowOffset = newValue.size }
     }
-    
+
     /// The shadow radius of the view.
     @objc internal dynamic var shadowRadius: CGFloat {
         get { layer.shadowRadius }
         set { layer.shadowRadius = newValue }
     }
-    
+
     /// The shadow opacity of the view.
      @objc internal dynamic var shadowOpacity: CGFloat {
         get { CGFloat(layer.shadowOpacity) }
         set { layer.shadowOpacity = Float(newValue) }
     }
-    
+
     /**
      The inner shadow of the view.
      

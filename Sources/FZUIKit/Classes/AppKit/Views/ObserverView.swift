@@ -36,40 +36,40 @@ var     Observes the view by adding a hidden ``ObserverView`` as subview to the 
 public class ObserverView: NSView {
     /// The handlers for the window state.
     public var windowHandlers = WindowHandlers() {
-        didSet { 
+        didSet {
             self.updateWindowObserver()
         }
     }
-    
+
     /// The handlers for the view state.
     public var viewHandlers = ViewHandlers() {
-        didSet { 
+        didSet {
             self.setupObservation(needsSetup: viewHandlers.needsSetup)
         }
     }
-    
+
     /// The handlers for mouse events.
     public var mouseHandlers = MouseHandlers() {
         didSet {
             self._trackingArea.options = mouseHandlers.trackingAreaOptions
         }
     }
-    
-    ///The handlers for drag and drop of files (either images or urls, strings).
+
+    /// The handlers for drag and drop of files (either images or urls, strings).
     public var dragAndDropHandlers = DragAndDropHandlers() {
         didSet {
             self.setupDragAndDrop(needsSetup: dragAndDropHandlers.needsSetup)
         }
     }
-    
+
     public override func hitTest(_ point: NSPoint) -> NSView? {
         nil
     }
-    
+
     public override var acceptsFirstResponder: Bool {
         false
     }
-    
+
     internal func setupDragAndDrop(needsSetup: Bool) {
         if needsSetup {
             self.registerForDraggedTypes([.fileURL, .png, .string, .tiff])
@@ -77,77 +77,77 @@ public class ObserverView: NSView {
             self.unregisterDraggedTypes()
         }
     }
-    
+
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         self.initalSetup()
     }
-    
+
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         self.initalSetup()
     }
-    
+
     internal func initalSetup() {
         _trackingArea.options = mouseHandlers.trackingAreaOptions
         _trackingArea.update()
     }
-    
+
     public override func updateTrackingAreas() {
         super.updateTrackingAreas()
         _trackingArea.update()
     }
-    
+
     public override func mouseEntered(with event: NSEvent) {
-        if (self.mouseHandlers.entered?(event) ?? true) {
+        if self.mouseHandlers.entered?(event) ?? true {
             super.mouseEntered(with: event)
         }
     }
-    
+
     public override func mouseExited(with event: NSEvent) {
-        if (self.mouseHandlers.exited?(event) ?? true) {
+        if self.mouseHandlers.exited?(event) ?? true {
             super.mouseExited(with: event)
         }
     }
-    
+
     public override func mouseDown(with event: NSEvent) {
-        if (self.mouseHandlers.down?(event) ?? true) {
+        if self.mouseHandlers.down?(event) ?? true {
             super.mouseDown(with: event)
         }
     }
-    
+
     public override func rightMouseDown(with event: NSEvent) {
-        if (self.mouseHandlers.rightDown?(event) ?? true) {
+        if self.mouseHandlers.rightDown?(event) ?? true {
             super.rightMouseDown(with: event)
         }
     }
-    
+
     public override func mouseUp(with event: NSEvent) {
-        if (self.mouseHandlers.up?(event) ?? true) {
+        if self.mouseHandlers.up?(event) ?? true {
             super.mouseUp(with: event)
         }
     }
-    
+
     public override func rightMouseUp(with event: NSEvent) {
-        if (self.mouseHandlers.rightUp?(event) ?? true) {
+        if self.mouseHandlers.rightUp?(event) ?? true {
             super.rightMouseUp(with: event)
         }
     }
-    
+
     public override func mouseMoved(with event: NSEvent) {
-        if (self.mouseHandlers.moved?(event) ?? true) {
+        if self.mouseHandlers.moved?(event) ?? true {
             super.mouseMoved(with: event)
         }
     }
-    
+
     public override func mouseDragged(with event: NSEvent) {
-        if (self.mouseHandlers.dragged?(event) ?? true) {
+        if self.mouseHandlers.dragged?(event) ?? true {
             super.mouseDragged(with: event)
         }
     }
-    
-    var keyValueObserver: KeyValueObserver<NSView>? = nil
-    
+
+    var keyValueObserver: KeyValueObserver<NSView>?
+
     func setupObservation(needsSetup: Bool) {
         if needsSetup {
             if keyValueObserver == nil {
@@ -155,22 +155,22 @@ public class ObserverView: NSView {
                 keyValueObserver?.add(\.superview?.superview, sendInitalValue: true, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.viewHandlers.superviewChanged?(new)
-                    
+
                 })
             }
         } else {
             keyValueObserver = nil
         }
     }
-    
+
     public override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return false }
-        
+
         let items = sender.pasteboardReadWritings()
         guard items.count > 0 else { return false }
         return (canDrop(items).count > 0)
     }
-    
+
     public override func draggingExited(_ sender: NSDraggingInfo?) {
         if let dropOutside = self.dragAndDropHandlers.dropOutside?() {
             let pasteboard = NSPasteboard.general
@@ -194,11 +194,10 @@ public class ObserverView: NSView {
         guard let canDrop = self.dragAndDropHandlers.canDrop else { return [] }
         let items = sender.pasteboardReadWritings()
         guard items.count > 0 else { return [] }
-        guard (canDrop(items).count > 0) else { return [] }
-        
+        guard canDrop(items).count > 0 else { return [] }
+
         return .copy
     }
-
 
     public override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         var items = sender.pasteboardReadWritings()
@@ -207,16 +206,16 @@ public class ObserverView: NSView {
         dragAndDropHandlers.didDrop?(items)
         return true
     }
-    
+
     public override func viewDidMoveToWindow() {
         if let window = self.window {
             self.windowHandlers.didMoveToWindow?(window)
         }
         super.viewDidMoveToWindow()
     }
-        
+
     public override func viewWillMove(toWindow newWindow: NSWindow?) {
-        if (newWindow != self.window) {
+        if newWindow != self.window {
             self.removeWindowKeyObserver()
             self.removeWindowMainObserver()
             if let newWindow = newWindow {
@@ -226,78 +225,78 @@ public class ObserverView: NSView {
         self.windowHandlers.willMoveToWindow?(newWindow)
         super.viewWillMove(toWindow: newWindow)
     }
-    
+
     func updateWindowObserver() {
         if windowHandlers.isKey == nil {
             self.removeWindowKeyObserver()
         }
-        
+
         if windowHandlers.isMain == nil {
             self.removeWindowMainObserver()
         }
-        
+
         if let window = self.window {
             self.observeWindowState(for: window)
         }
     }
-    
+
     lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
-    
+
     func removeWindowKeyObserver() {
         windowDidBecomeKeyObserver = nil
         windowDidResignKeyObserver = nil
     }
-    
+
     func removeWindowMainObserver() {
         windowDidBecomeMainObserver = nil
         windowDidResignMainObserver = nil
     }
-    
+
     func observeWindowState(for window: NSWindow) {
         windowIsKey = window.isKeyWindow
         windowIsMain = window.isMainWindow
         if windowDidBecomeKeyObserver == nil, windowHandlers.isKey != nil {
-            windowDidBecomeKeyObserver = NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: window) { notification in
+            windowDidBecomeKeyObserver = NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: window) { _ in
                 self.windowIsKey = true
             }
-            
-            windowDidResignKeyObserver = NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: window) { notification in
+
+            windowDidResignKeyObserver = NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: window) { _ in
                 self.windowIsKey = false
             }
         }
-        
+
         if windowDidBecomeMainObserver == nil, windowHandlers.isMain != nil {
-            windowDidBecomeMainObserver = NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: window) { notification in
+            windowDidBecomeMainObserver = NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: window) { _ in
                 self.windowIsMain = true
             }
-            
-            windowDidResignMainObserver = NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: window) { notification in
+
+            windowDidResignMainObserver = NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: window) { _ in
                 self.windowIsMain = false
             }
         }
     }
-    
+
     var windowIsKey = false {
         didSet {
-            if (oldValue != self.windowIsKey) {
+            if oldValue != self.windowIsKey {
                 windowHandlers.isKey?(self.windowIsKey)
             }
         }
     }
-    
+
     var windowIsMain = false {
         didSet {
-            if (oldValue != self.windowIsMain) {
+            if oldValue != self.windowIsMain {
                 windowHandlers.isMain?(self.windowIsMain)
             }
         }
     }
-        
-    var windowDidBecomeKeyObserver: NotificationToken? = nil
-    var windowDidResignKeyObserver: NotificationToken? = nil
-    var windowDidBecomeMainObserver: NotificationToken? = nil
-    var windowDidResignMainObserver: NotificationToken? = nil
-    
+
+    var windowDidBecomeKeyObserver: NotificationToken?
+    var windowDidResignKeyObserver: NotificationToken?
+    var windowDidBecomeMainObserver: NotificationToken?
+    var windowDidResignMainObserver: NotificationToken?
+
     lazy var _superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self]  _, new in
         guard let self = self else { return }
         self.viewHandlers.superviewChanged?(new)
@@ -311,57 +310,57 @@ public class ObserverView: NSView {
 }
 
 extension ObserverView {
-    ///The handlers for the window state.
+    /// The handlers for the window state.
     public struct WindowHandlers {
         /// The view will move to a window.
-        public var willMoveToWindow: ((NSWindow?)->())? = nil
-        
+        public var willMoveToWindow: ((NSWindow?) -> Void)?
+
         /// The view did move to a window.
-        public var didMoveToWindow: ((NSWindow)->())? = nil
-        
+        public var didMoveToWindow: ((NSWindow) -> Void)?
+
         /// The window is key.
-        public var isKey: ((Bool)->())? = nil
-        
+        public var isKey: ((Bool) -> Void)?
+
         /// The window is main.
-        public var isMain: ((Bool)->())? = nil
+        public var isMain: ((Bool) -> Void)?
     }
-    
-    ///The handlers for file drag and drop.
+
+    /// The handlers for file drag and drop.
     public struct DragAndDropHandlers {
-        public var canDrop: (([PasteboardReadWriting]) -> ([PasteboardReadWriting]))? = nil
-        
-        public var didDrop: (([PasteboardReadWriting]) -> ())? = nil
-        
-        public var dropOutside: (() -> ([PasteboardReadWriting]))? = nil
-        
+        public var canDrop: (([PasteboardReadWriting]) -> ([PasteboardReadWriting]))?
+
+        public var didDrop: (([PasteboardReadWriting]) -> Void)?
+
+        public var dropOutside: (() -> ([PasteboardReadWriting]))?
+
         var needsSetup: Bool {
             self.canDrop != nil && self.didDrop != nil
         }
     }
-    
+
     /// The handlers for the view.
     public struct ViewHandlers {
         /// The superview changed.
-        public var superviewChanged: ((NSView?)->())? = nil
-        
+        public var superviewChanged: ((NSView?) -> Void)?
+
         var needsSetup: Bool {
             superviewChanged != nil
         }
     }
-    
+
     /// The handlers for mouse events.
     public struct MouseHandlers {
         /// Options when the mouse handlers are active.
         public enum ActiveOption: Int, Hashable {
             /// The mouse handlers are always active.
             case always
-            
+
             /// The mouse handlers is active when the window is key.
             case inKeyWindow
-            
+
             /// The mouse handlers is active when the application is active.
             case inActiveApp
-            
+
             var option: NSTrackingArea.Options {
                 switch self {
                 case .always: return [.activeAlways]
@@ -370,41 +369,41 @@ extension ObserverView {
                 }
             }
         }
-        
+
         /// The mouse moved.
-        public var moved: ((NSEvent)->(Bool))? = nil
-        
+        public var moved: ((NSEvent) -> (Bool))?
+
         /// The mouse dragged.
-        public var dragged: ((NSEvent)->(Bool))? = nil
-        
+        public var dragged: ((NSEvent) -> (Bool))?
+
         /// The mouse entered.
-        public var entered: ((NSEvent)->(Bool))? = nil
-        
+        public var entered: ((NSEvent) -> (Bool))?
+
         /// The mouse entered.
-        public var exited: ((NSEvent)->(Bool))? = nil
-        
+        public var exited: ((NSEvent) -> (Bool))?
+
         /// The mouse did left click.
-        public var down: ((NSEvent)->(Bool))? = nil
-        
+        public var down: ((NSEvent) -> (Bool))?
+
         /// The mouse did right click.
-        public var rightDown: ((NSEvent)->(Bool))? = nil
-        
+        public var rightDown: ((NSEvent) -> (Bool))?
+
         /// The mouse did left click up.
-        public var up: ((NSEvent)->(Bool))? = nil
-        
+        public var up: ((NSEvent) -> (Bool))?
+
         /// The mouse did right click up.
-        public var rightUp: ((NSEvent)->(Bool))? = nil
-        
+        public var rightUp: ((NSEvent) -> (Bool))?
+
         /// Option when the mouse handlers are active. The default value is `inKeyWindow`.
         public var active: ActiveOption = .inKeyWindow
-        
+
         var trackingAreaOptions: NSTrackingArea.Options {
             var options: NSTrackingArea.Options = [.inVisibleRect, .mouseEnteredAndExited]
             options.insert(active.option)
-            if (dragged != nil) {
+            if dragged != nil {
                 options.insert(.enabledDuringMouseDrag)
             }
-            if (moved != nil) {
+            if moved != nil {
                 options.insert(NSTrackingArea.Options.mouseMoved)
             }
             return options
@@ -417,41 +416,40 @@ extension NSView {
         get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
         set { set(associatedValue: newValue, key: "windowHandlers", object: self) }
     }
-        
+
     public var mouseHandlersNew: MouseHandlers {
         get { getAssociatedValue(key: "mouseHandlers", object: self, initialValue: MouseHandlers()) }
         set { set(associatedValue: newValue, key: "mouseHandlers", object: self) }
     }
-    
-    ///The handlers for the window state.
+
+    /// The handlers for the window state.
     public struct WindowHandlers {
         /// The view will move to a window.
-        public var willMoveToWindow: ((NSWindow?)->())? = nil
-        
+        public var willMoveToWindow: ((NSWindow?) -> Void)?
+
         /// The view did move to a window.
-        public var didMoveToWindow: ((NSWindow)->())? = nil
-        
+        public var didMoveToWindow: ((NSWindow) -> Void)?
+
         /// The window is key.
-        public var isKey: ((Bool)->())? = nil
-        
+        public var isKey: ((Bool) -> Void)?
+
         /// The window is main.
-        public var isMain: ((Bool)->())? = nil
+        public var isMain: ((Bool) -> Void)?
     }
-    
-    
+
     /// The handlers for mouse events.
     public struct MouseHandlers {
         /// Options when the mouse handlers are active.
         public enum ActiveOption: Int, Hashable {
             /// The mouse handlers are always active.
             case always
-            
+
             /// The mouse handlers is active when the window is key.
             case inKeyWindow
-            
+
             /// The mouse handlers is active when the application is active.
             case inActiveApp
-            
+
             var option: NSTrackingArea.Options {
                 switch self {
                 case .always: return [.activeAlways]
@@ -460,46 +458,46 @@ extension NSView {
                 }
             }
         }
-    
+
     /// The mouse moved.
-    public var moved: ((NSEvent)->(Bool))? = nil
-    
+    public var moved: ((NSEvent) -> (Bool))?
+
     /// The mouse dragged.
-    public var dragged: ((NSEvent)->(Bool))? = nil
-    
+    public var dragged: ((NSEvent) -> (Bool))?
+
     /// The mouse entered.
-    public var entered: ((NSEvent)->(Bool))? = nil
-    
+    public var entered: ((NSEvent) -> (Bool))?
+
     /// The mouse entered.
-    public var exited: ((NSEvent)->(Bool))? = nil
-    
+    public var exited: ((NSEvent) -> (Bool))?
+
     /// The mouse did left click.
-    public var down: ((NSEvent)->(Bool))? = nil
-    
+    public var down: ((NSEvent) -> (Bool))?
+
     /// The mouse did right click.
-    public var rightDown: ((NSEvent)->(Bool))? = nil
-    
+    public var rightDown: ((NSEvent) -> (Bool))?
+
     /// The mouse did left click up.
-    public var up: ((NSEvent)->(Bool))? = nil
-    
+    public var up: ((NSEvent) -> (Bool))?
+
     /// The mouse did right click up.
-    public var rightUp: ((NSEvent)->(Bool))? = nil
-    
+    public var rightUp: ((NSEvent) -> (Bool))?
+
     /// Option when the mouse handlers are active. The default value is `inKeyWindow`.
     public var active: ActiveOption = .inKeyWindow
-    
+
     var trackingAreaOptions: NSTrackingArea.Options {
         var options: NSTrackingArea.Options = [.inVisibleRect, .mouseEnteredAndExited]
         options.insert(active.option)
-        if (dragged != nil) {
+        if dragged != nil {
             options.insert(.enabledDuringMouseDrag)
         }
-        if (moved != nil) {
+        if moved != nil {
             options.insert(NSTrackingArea.Options.mouseMoved)
         }
         return options
     }
-        
+
         /*
         func removeWindowKeyObserver() {
             windowDidBecomeKeyObserver = nil
@@ -507,7 +505,7 @@ extension NSView {
         }
         */
 }
-    
+
     /*
     func updateWindowObserver() {
         if windowHandlers.isKey == nil {
@@ -523,7 +521,7 @@ extension NSView {
         }
     }
      */
-    
+
     /*
     var windowDidBecomeKeyObserver: NotificationToken? {
         get { getAssociatedValue(key: "didBecomeKey", object: self) }
@@ -546,7 +544,7 @@ extension NSView {
         windowDidResignMainObserver = nil
     }
     */
-    
+
 }
 
 #endif

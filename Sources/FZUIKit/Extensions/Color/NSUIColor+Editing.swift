@@ -79,7 +79,7 @@ public extension NSUIColor {
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
         return saturated(by: amount * -1.0)
     }
-    
+
     /**
      Creates and returns a color object with the hue rotated along the color wheel by the given amount.
 
@@ -107,7 +107,6 @@ public extension NSUIColor {
     final func complemented() -> NSUIColor {
       return adjustedHue(amount: 180.0)
     }
-
 
     /**
      A grayscaled representation of the color.
@@ -142,7 +141,7 @@ public extension NSUIColor {
         /// HSV value
         case value = "Value"
     }
-    
+
     /**
      Creates and return a color object where the red, green, and blue values are inverted, while the alpha channel is left alone.
 

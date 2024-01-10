@@ -13,7 +13,6 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-
 public extension NSUIView {
     /// A value that indicates whether a view is movable by clicking and dragging anywhere in its background.
     enum BackgroundDragOption: Hashable {
@@ -23,10 +22,10 @@ public extension NSUIView {
         case on
         /// The view isn't movable.
         case off
-        
+
         /// The view is movable and bounds to the superview.
         public static var boundsToSuperview = BackgroundDragOption.boundsToSuperview(.zero)
-        
+
         internal var margins: NSDirectionalEdgeInsets? {
             switch self {
                 case .boundsToSuperview(let margins): return margins
@@ -34,7 +33,7 @@ public extension NSUIView {
             }
         }
     }
-    
+
     /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
     var isMovableByViewBackground: BackgroundDragOption {
         get { getAssociatedValue(key: "isMovableByViewBackground", object: self, initialValue: .off) }
@@ -44,17 +43,17 @@ public extension NSUIView {
             self.setupDragResizeGesture()
         }
     }
-    
+
     /// A handler that provides the moved velocity when the view ``isMovableByViewBackground``.
-    var movableViewVelocity: ((CGPoint)->())? {
+    var movableViewVelocity: ((CGPoint) -> Void)? {
         get { getAssociatedValue(key: "movableViewVelocity", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "movableViewVelocity", object: self) }
     }
-    
+
     internal func setupDragResizeGesture() {
         if isMovableByViewBackground != .off {
             if panGesture == nil {
-                panGesture = NSUIPanGestureRecognizer() { [weak self] gesture in
+                panGesture = NSUIPanGestureRecognizer { [weak self] gesture in
                     guard let self = self else { return }
                     switch gesture.state {
                     case .began:
@@ -94,12 +93,12 @@ public extension NSUIView {
             }
         }
     }
-    
+
     private var dragPoint: CGPoint {
         get { getAssociatedValue(key: "dragPoint", object: self, initialValue: .zero) }
         set { set(associatedValue: newValue, key: "dragPoint", object: self) }
     }
-    
+
     private var panGesture: NSUIPanGestureRecognizer? {
         get { getAssociatedValue(key: "panGesture", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "panGesture", object: self) }

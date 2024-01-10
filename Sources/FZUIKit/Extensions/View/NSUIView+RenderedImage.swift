@@ -17,7 +17,7 @@ public extension NSView {
     internal static var currentContext: CGContext? {
         return NSGraphicsContext.current?.cgContext
     }
-    
+
     /// A rendered image of the view.
     var renderedImage: NSImage {
         let rep = self.bitmapImageRepForCachingDisplay(in: self.bounds)!
@@ -25,7 +25,7 @@ public extension NSView {
 
         let image = NSImage(size: self.bounds.size)
         image.addRepresentation(rep)
-        
+
         return image
     }
 
@@ -33,7 +33,7 @@ public extension NSView {
     static func renderedImage(from views: [NSView]) -> NSImage {
         var frame = CGRect.zero
         for view in views {
-            frame = NSUnionRect(frame, view.frame)
+            frame = frame.union(view.frame)
         }
 
         let image = NSImage(size: frame.size)

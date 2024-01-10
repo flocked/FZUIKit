@@ -11,7 +11,6 @@ import AppKit
 import Foundation
 import FZSwiftUtils
 
-
 /// A magnifiable view that presents media.
 open class MagnifyMediaView: NSView {
     public let mediaView = MediaView()
@@ -32,7 +31,7 @@ open class MagnifyMediaView: NSView {
     }
 
     open var doubleClickZoomFactor: CGFloat = 0.5
-    
+
     override open func mouseDown(with event: NSEvent) {
         window?.makeFirstResponder(self)
         if event.clickCount == 2 {
@@ -168,36 +167,35 @@ open class MagnifyMediaView: NSView {
         get { mediaView.videoPlaybackOption }
         set { mediaView.videoPlaybackOption = newValue }
     }
-    
+
     public func seek(to interval: TimeDuration) {
         mediaView.seek(to: interval)
     }
-    
+
     public func seek(toPercentage percentage: Double) {
         mediaView.seek(toPercentage: percentage)
 
     }
-    
+
     public var videoPlaybackTime: TimeDuration {
         get { mediaView.videoPlaybackTime }
         set { mediaView.videoPlaybackTime = newValue }
     }
-    
+
     public var videoDuration: TimeDuration {
         get { mediaView.videoDuration }
     }
 
-    
     public var videoPlaybackPosition: Double {
         get { mediaView.videoPlaybackPosition }
         set { mediaView.videoPlaybackPosition = newValue }
     }
-    
-    public var videoPlaybackPositionHandler: ((TimeDuration)->())? {
+
+    public var videoPlaybackPositionHandler: ((TimeDuration) -> Void)? {
         get { mediaView.videoPlaybackPositionHandler }
         set { mediaView.videoPlaybackPositionHandler = newValue }
     }
-    
+
     open override var menu: NSMenu? {
         get { mediaView.menu }
         set { mediaView.menu = newValue }
@@ -297,18 +295,18 @@ open class MagnifyMediaView: NSView {
     override open var enclosingScrollView: NSScrollView? {
         return scrollView
     }
-    
+
     public init() {
         super.init(frame: .zero)
         sharedInit()
     }
-    
+
     public init(mediaURL: URL) {
         super.init(frame: .zero)
         sharedInit()
         self.mediaURL = mediaURL
     }
-    
+
     public init(image: NSImage) {
         super.init(frame: .zero)
         sharedInit()
@@ -324,7 +322,7 @@ open class MagnifyMediaView: NSView {
         super.init(coder: coder)
         sharedInit()
     }
-    
+
     open override func layout() {
         super.layout()
         scrollView.frame.size = self.bounds.size
@@ -336,7 +334,7 @@ open class MagnifyMediaView: NSView {
         mediaView.wantsLayer = true
         mediaView.frame = bounds
         scrollView.frame = bounds
-        
+
         addSubview(scrollView)
 
         scrollView.contentView = CenteredClipView()
@@ -355,23 +353,22 @@ open class MagnifyMediaView: NSView {
         backgroundColor = .black
         enclosingScrollView?.backgroundColor = .black
     }
-    
+
     /// Handlers for a media view.
     public struct Handlers {
         /// Handler that gets called whenever the player view receives a `keyDown` event.
-        public var keyDown: ((NSEvent)->(Bool))? = nil
-        
+        public var keyDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `mouseDown` event.
-        public var mouseDown: ((NSEvent)->(Bool))? = nil
-        
+        public var mouseDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
-        public var rightMouseDown: ((NSEvent)->(Bool))? = nil
-        
+        public var rightMouseDown: ((NSEvent) -> (Bool))?
+
         /// Handler that gets called whenever the player view receives a `flagsChanged` event.
-        public var flagsChanged: ((NSEvent)->(Bool))? = nil
+        public var flagsChanged: ((NSEvent) -> (Bool))?
     }
-    
-    
+
     /// Handlers for the media view.
     public var handlers: Handlers = Handlers()
 }

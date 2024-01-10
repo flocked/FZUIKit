@@ -17,7 +17,7 @@ public extension NSApplication {
             $0.isVisible && $0.isOnActiveSpace && !$0.isFloatingPanel
         }
     }
-    
+
     /// A Boolean value that indicates whether the application is a trusted accessibility client.
     func checkAccessibilityAccess() -> Bool {
         let checkOptPrompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString

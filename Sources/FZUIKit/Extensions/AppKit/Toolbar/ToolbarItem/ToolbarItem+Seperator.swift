@@ -10,7 +10,7 @@ import AppKit
 import SwiftUI
 
 @available(macOS 11.0, *)
-public extension ToolbarItem {    
+public extension ToolbarItem {
     /**
      A toolbar separator that aligns with the vertical split view in the same window.
      

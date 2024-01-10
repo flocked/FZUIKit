@@ -13,7 +13,7 @@ public extension NSSegmentedControl {
         public static func buildBlock(_ block: [NSSegment]...) -> [NSSegment] {
             block.flatMap { $0 }
         }
-        
+
         public static func buildOptional(_ item: NSSegment?) -> [NSSegment] {
             if let item = item {
                 return [item]

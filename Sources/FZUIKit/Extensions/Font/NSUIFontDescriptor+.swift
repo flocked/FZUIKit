@@ -16,7 +16,7 @@ public extension NSUIFontDescriptor {
     var traits: [TraitKey: Any]? {
         fontAttributes[.traits] as? [TraitKey: Any]
     }
-    
+
     /// The system design of the font descriptor.
     var design: NSUIFontDescriptor.SystemDesign? {
         if let rawValue = self.traits?[.design] as? String {
@@ -24,7 +24,7 @@ public extension NSUIFontDescriptor {
         }
         return nil
     }
-    
+
     /// The weight of the font descriptor.
     var weight: NSUIFont.Weight? {
         if let rawValue = self.traits?[.weight] as? CGFloat {
@@ -32,7 +32,7 @@ public extension NSUIFontDescriptor {
         }
         return nil
     }
-    
+
     /// The text style of the font descriptor.
     @available(macOS 11.0, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
     var textStyle: NSUIFont.TextStyle? {
@@ -63,13 +63,12 @@ public extension NSUIFontDescriptor.TraitKey {
     static var design: Self {
         return .init(rawValue: "NSCTFontUIFontDesignTrait")
     }
-    
+
     /// The normalized weight value.
     static var weight: Self {
         return .init(rawValue: "NSCTFontWeightTrait")
     }
 }
-
 
 public extension NSUIFontDescriptor.AttributeName {
     #if canImport(UIKit)
@@ -78,7 +77,7 @@ public extension NSUIFontDescriptor.AttributeName {
         return .init(rawValue: "NSCTFontSizeCategoryAttribute")
     }
     #endif
-        
+
     /// An optional string object that specifies the font size category.
     static var sizeCategory: Self {
         return .init(rawValue: "NSCTFontSizeCategoryAttribute")

@@ -18,7 +18,7 @@ extension NSCollectionViewItem {
         }
         return nil
     }
-    
+
     /// The next item in the collection view, or `nil` if there isn't a next item or the item isn't in a collection view..
     @objc open var nextItem: NSCollectionViewItem? {
         if let indexPath = self.collectionView?.indexPath(for: self), indexPath.item + 1 < (self.collectionView?.numberOfItems(inSection: indexPath.section) ?? -10) {

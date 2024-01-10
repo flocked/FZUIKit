@@ -51,7 +51,7 @@ public extension Nibloadable {
         #endif
         return nil
     }
-    
+
     /**
      Initalizes the object from the nib named as the object class.
      
@@ -66,7 +66,7 @@ public extension Nibloadable {
         #endif
         return loadFromNib(nib)
     }
-    
+
     /**
      Initalizes the object from a nib with the specified name.
      
@@ -84,7 +84,7 @@ public extension Nibloadable {
         #endif
         return loadFromNib(nib)
     }
-    
+
     /**
      Initalizes the object from the storyboard.
      

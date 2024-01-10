@@ -143,8 +143,8 @@ public extension NSUIFont {
     func weight(_ weight: NSUIFont.Weight) -> NSUIFont {
         addingAttributes([
             NSUIFontDescriptor.AttributeName.traits: [
-                NSUIFontDescriptor.TraitKey.weight: weight.rawValue,
-            ],
+                NSUIFontDescriptor.TraitKey.weight: weight.rawValue
+            ]
         ])
     }
 
@@ -223,8 +223,6 @@ public extension NSUIFont {
             #endif
         }
     }
-    
-    
 
     /// Applies the specified width value to the font.
     func width(_ width: FontWidth) -> NSUIFont {
@@ -237,19 +235,19 @@ public extension NSUIFont {
             #endif
         case .expanded:
             #if os(macOS)
-            return includingSymbolicTraits( .expanded , without: .condensed)
+            return includingSymbolicTraits( .expanded, without: .condensed)
             #else
             return includingSymbolicTraits(.traitExpanded, without: .traitCondensed)
             #endif
             default:
             #if os(macOS)
-            return includingSymbolicTraits( .condensed , without: .expanded)
+            return includingSymbolicTraits( .condensed, without: .expanded)
             #else
             return includingSymbolicTraits(.traitCondensed, without: .traitExpanded)
             #endif
         }
     }
-    
+
     /// The font width.
     enum FontWidth {
         /// The font uses a standard leading value.
@@ -270,7 +268,7 @@ public extension NSUIFont {
         /// The font uses a leading value that’s less than the default.
         case tight
     }
-    
+
     /// Applies the specified design to the font.
     func design(_ design: NSUIFontDescriptor.SystemDesign) -> NSUIFont {
         let descriptor = self.fontDescriptor.withDesign(design)!
@@ -280,7 +278,7 @@ public extension NSUIFont {
         return NSUIFont(descriptor: descriptor, size: self.pointSize)
         #endif
     }
-    
+
     /// Applies the specified symbolic traits to the font.
     func symbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
         var descriptor = fontDescriptor.withSymbolicTraits(symbolicTraits)
@@ -291,7 +289,6 @@ public extension NSUIFont {
         #endif
     }
 
-    
     internal func includingSymbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits, without: NSUIFontDescriptor.SymbolicTraits? = nil) -> NSUIFont {
         var traits = fontDescriptor.symbolicTraits
         guard traits.contains(symbolicTraits) == false else { return self }

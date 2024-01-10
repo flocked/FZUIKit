@@ -13,12 +13,12 @@ extension NSWindow {
     /// A Boolean value that indicates whether the window is fullscreen.
     public var isFullscreen: Bool {
         get { styleMask.contains(.fullScreen) }
-        set { 
+        set {
             guard newValue != isFullscreen else { return }
             self.toggleFullScreen(nil)
         }
     }
-    
+
     /// the index of the window tab or nil if the window isn't a tab.
     public var tabIndex: Int? {
         tabbedWindows?.firstIndex(of: self)
@@ -38,7 +38,7 @@ extension NSWindow {
         origin.y = screenFrame.origin.y + point.y
         setFrameOrigin(origin)
     }
-    
+
     /**
      Sets the window’s location to the center of the specified screen.
      
@@ -52,7 +52,7 @@ extension NSWindow {
         frame.center = screen.frame.center
         setFrame(frame, display: true)
     }
-    
+
     /**
      The center point of the window's frame rectangle.
 
@@ -70,7 +70,7 @@ extension NSWindow {
             setFrame(frame, display: true)
         }
     }
-    
+
     /**
      Make the receiver a sensible size, given the current screen
      
@@ -87,7 +87,7 @@ extension NSWindow {
             newSize.width = minSize.width
         }
     }
-    
+
     /**
      Returns the total titlebar height
      
@@ -109,7 +109,7 @@ extension NSWindow {
                 if tabbedWindows == nil {
                     return false
                 }
-                
+
                 return tabGroup?.isTabBarVisible ?? false
             } else {
                 return false
@@ -120,7 +120,7 @@ extension NSWindow {
             self.toggleTabBar(nil)
         }
     }
-    
+
     /**
      Returns the tab bar height.
      
@@ -258,7 +258,7 @@ internal extension NSWindow {
         }
         return self.swizzledAnimation(forKey: key)
     }
-    
+
     /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
     static var didSwizzleAnimationForKey: Bool {
         get { getAssociatedValue(key: "NSWindow_didSwizzleAnimationForKey", object: self, initialValue: false) }
@@ -266,7 +266,7 @@ internal extension NSWindow {
             set(associatedValue: newValue, key: "NSWindow_didSwizzleAnimationForKey", object: self)
         }
     }
-    
+
     /// Swizzles windows to support additional properties for animating.
     static func swizzleAnimationForKey() {
         if didSwizzleAnimationForKey == false {

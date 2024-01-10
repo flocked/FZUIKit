@@ -20,7 +20,7 @@ public extension CADisplayLink {
     var framesPerSecond: Double {
         1 / (targetTimestamp - timestamp)
     }
-    
+
     /// The frame duration.
     var frameDuration: Double {
         targetTimestamp - timestamp

@@ -44,19 +44,19 @@ import FZSwiftUtils
  ```
  */
 public protocol AnimatableProperty: Equatable {
-    
+
     /// The type defining the animatable representation of the value.
     associatedtype AnimatableData: VectorArithmetic
-    
+
     /// The animatable representation of the value.
     var animatableData: AnimatableData { get }
-    
+
     /// Initializes the value with the specified animatable representation of the value.
     init(_ animatableData: AnimatableData)
-    
+
     /// The scaled integral representation of this value.
     var scaledIntegral: Self { get }
-    
+
     /// The zero value.
     static var zero: Self { get }
 }
@@ -71,12 +71,12 @@ extension Optional: AnimatableProperty where Wrapped: AnimatableProperty {
     public var animatableData: Wrapped.AnimatableData {
         self.optional?.animatableData ?? Wrapped.zero.animatableData
     }
-    
+
     public init(_ animatableData: Wrapped.AnimatableData) {
         self = Wrapped.init(animatableData)
     }
-    
-    public static var zero: Optional<Wrapped> {
+
+    public static var zero: Wrapped? {
         Wrapped.zero
     }
 }
@@ -91,19 +91,19 @@ extension AnimatableProperty where Self.AnimatableData == Self {
     public var animatableData: Self {
         self
     }
-    
+
     public init(_ animatableData: Self) {
         self = animatableData
     }
 }
 
 extension Float: AnimatableProperty { }
- 
+
 extension Double: AnimatableProperty {
     public var animatableData: Self {
         self
     }
-    
+
     public init(_ animatableData: Self) {
         self = animatableData
     }
@@ -113,7 +113,7 @@ extension CGFloat: AnimatableProperty {
     public var animatableData: Self {
         self
     }
-    
+
     public init(_ animatableData: Self) {
         self = animatableData
     }
@@ -129,7 +129,7 @@ extension NSNumber: AnimatableProperty {
     public var animatableData: AnimatableArray<Double> {
         [doubleValue]
     }
-    
+
     public static var zero: Self {
         Self(value: 0.0)
     }
@@ -168,7 +168,7 @@ extension NSUIColor: AnimatableProperty {
         let rgba = self.rgbaComponents()
         return [rgba.red, rgba.green, rgba.blue, rgba.alpha]
     }
-    
+
     public static var zero: Self {
         Self(red: 0, green: 0, blue: 0, alpha: 0)
     }
@@ -179,7 +179,7 @@ extension AnimatableProperty where Self: CGColor {
         self.init(deviceRed: animatableData[0], green: animatableData[1], blue: animatableData[2], alpha: animatableData[3])
       //  self = NSUIColor(animatableData).cgColor as! Self
     }
-    
+
     /**
      Creates a color object using the specified opacity and RGB component values in a device-dependent color space.
      
@@ -200,7 +200,7 @@ extension CGColor: AnimatableProperty {
         return [components.red, components.green, components.blue, components.alpha]
        // self.nsUIColor?.animatableData ?? [0,0,0,0]
     }
-    
+
     public static var zero: Self {
         Self(red: 0, green: 0, blue: 0, alpha: 0)
     }
@@ -210,12 +210,12 @@ extension CGAffineTransform: AnimatableProperty, Animatable {
     @inlinable public init(_ animatableData: AnimatableArray<Double>) {
         self.init(animatableData[0], animatableData[1], animatableData[2], animatableData[3], animatableData[4], animatableData[5])
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
         get { [a, b, c, d, tx, ty, 0, 0] }
         set { self = .init(newValue) }
     }
-    
+
     public static var zero: CGAffineTransform {
         CGAffineTransform()
     }
@@ -225,7 +225,7 @@ extension NSDirectionalEdgeInsets: AnimatableProperty, Animatable {
     public init(_ animatableData: AnimatableArray<Double>) {
         self.init(top: animatableData[0], leading: animatableData[1], bottom: animatableData[2], trailing: animatableData[3])
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
         get { [top, bottom, leading, trailing] }
         set { self = .init(newValue) }
@@ -237,7 +237,7 @@ extension NSUIEdgeInsets: AnimatableProperty, Animatable {
         get { [top, self.left, bottom, self.right] }
         set { self = .init(newValue) }
     }
-    
+
     public init(_ animatableData: AnimatableArray<Double>) {
         self.init(top: animatableData[0], left: animatableData[1], bottom: animatableData[2], right: animatableData[3])
     }
@@ -248,7 +248,7 @@ extension CGVector: AnimatableProperty, Animatable {
         get { [dx, dy] }
         set { self = .init(newValue) }
     }
-    
+
     public init(_ animatableData: AnimatableArray<Double>) {
         self.init(dx: animatableData[0], dy: animatableData[1])
     }
@@ -259,7 +259,7 @@ extension CATransform3D: AnimatableProperty, Animatable {
     public init(_ animatableData: AnimatableArray<Double>) {
         self.init(m11: animatableData[0], m12: animatableData[1], m13: animatableData[2], m14: animatableData[3], m21: animatableData[4], m22: animatableData[5], m23: animatableData[6], m24: animatableData[7], m31: animatableData[8], m32: animatableData[9], m33: animatableData[10], m34: animatableData[11], m41: animatableData[12], m42: animatableData[13], m43: animatableData[14], m44: animatableData[15])
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
         get { [m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44] }
         set { self = .init(newValue) }
@@ -270,12 +270,12 @@ extension CGQuaternion: AnimatableProperty, Animatable {
     public init(_ animatableData: AnimatableArray<Double>) {
         self.storage = .init(ix: animatableData[0], iy: animatableData[1], iz: animatableData[2], r: animatableData[3])
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
         get { [self.storage.vector[0], self.storage.vector[1], self.storage.vector[2], self.storage.vector[3]] }
         set { self = .init(newValue) }
     }
-    
+
     public static var zero: CGQuaternion {
         CGQuaternion.init(degree: 0, axis: .init(0, 0, 0))
     }
@@ -287,16 +287,16 @@ extension CGVector3: AnimatableProperty, Animatable, Hashable {
         hasher.combine(y)
         hasher.combine(z)
     }
-    
+
     public init(_ animatableData: AnimatableArray<Double>) {
         self.storage = .init(x: animatableData[0], y: animatableData[1], z: animatableData[2])
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
-        get { [x, y, z,] }
+        get { [x, y, z ] }
         set { self = .init(newValue) }
     }
-    
+
     public static var zero: CGVector3 {
         CGVector3(0, 0, 0)
     }
@@ -311,7 +311,7 @@ extension CGVector4: AnimatableProperty, Animatable {
         get { [x, y, z, w] }
         set { self = .init(newValue) }
     }
-        
+
     public static var zero: CGVector4 {
         CGVector4(0, 0, 0, 0)
     }
@@ -323,11 +323,11 @@ extension ShadowConfiguration: AnimatableProperty, Animatable {
     public static var zero: ShadowConfiguration {
         .none()
     }
-    
+
     public init(_ animatableData: AnimatableArray<Double>) {
         self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), opacity: animatableData[4], radius: animatableData[5], offset: .init(animatableData[6], animatableData[7]))
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
         get { (self._resolvedColor ?? .zero).animatableData + [opacity, radius, offset.x, offset.y] }
         set { self = .init(newValue) }
@@ -338,12 +338,12 @@ extension BorderConfiguration: AnimatableProperty, Animatable {
     public static var zero: BorderConfiguration {
         .none()
     }
-    
+
     public init(_ animatableData: AnimatableArray<Double>) {
         self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), width: animatableData[4])
        // self.init(color: .init([animatableData[0], animatableData[1], animatableData[2], animatableData[3]]), opacity: animatableData[4], radius: animatableData[5], offset: .init(animatableData[6], animatableData[7]))
     }
-    
+
     public var animatableData: AnimatableArray<Double> {
         get { (self._resolvedColor ?? .zero).animatableData + [width] }
         set { self = .init(newValue) }
@@ -363,19 +363,19 @@ extension Array: AnimatableProperty, AnimatableCollection where Element: Animata
     public init(_ animatableData: AnimatableArray<Element.AnimatableData>) {
         self.init(animatableData.elements.compactMap({Element($0)}))
     }
-    
+
     public var animatableData: AnimatableArray<Element.AnimatableData> {
         get { AnimatableArray<Element.AnimatableData>(self.compactMap({$0.animatableData})) }
     }
-    
-    public static var zero: Array<Element> {
+
+    public static var zero: [Element] {
         Self.init()
     }
-    
+
     func withNewValues(amount: Int) -> Self {
         self + Array(repeating: .zero, count: amount)
     }
-    
+
     func animatable(to collection: any AnimatableCollection) -> Self {
         let diff = collection.count - self.count
         return diff > 0 ? (self + Array(repeating: .zero, count: diff)) : self
@@ -411,7 +411,6 @@ extension AnimatableShadow {
 extension ShadowConfiguration: AnimatableShadow { }
 extension BorderConfiguration: AnimatableShadow { }
 #endif
-
 
 // MARK: - AnimatableColor
 

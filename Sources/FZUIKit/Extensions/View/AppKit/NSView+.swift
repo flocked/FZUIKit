@@ -27,7 +27,7 @@ extension NSView {
     public var frameOnScreen: CGRect? {
         return window?.convertToScreen(frameInWindow)
     }
-    
+
     /**
      Embeds the view in a scroll view and returns that scroll view.
      
@@ -62,7 +62,7 @@ extension NSView {
             layer?.mask = newValue?.layer
         }
     }
-    
+
     /**
      The view whose inverse alpha channel is used to mask a view’s content.
      
@@ -104,7 +104,7 @@ extension NSView {
             layer?.isOpaque = newValue
         }
     }
-    
+
     /**
      The center point of the view's frame rectangle.
 
@@ -120,7 +120,7 @@ extension NSView {
             Self.swizzleAnimationForKey()
             frame.center = newValue }
     }
-    
+
     /**
      The transform to apply to the view, relative to the center of its bounds.
      
@@ -140,7 +140,7 @@ extension NSView {
             layer?.setAffineTransform(newValue)
         }
     }
-        
+
     /**
      The three-dimensional transform to apply to the view.
 
@@ -149,7 +149,7 @@ extension NSView {
      The default value is `CATransform3DIdentity`, which results in a view with no transformation.
      */
     @objc open dynamic var transform3D: CATransform3D {
-        get { 
+        get {
             wantsLayer = true
             return layer?.transform ?? CATransform3DIdentity
         }
@@ -159,7 +159,7 @@ extension NSView {
             layer?.transform = newValue
         }
     }
-        
+
     /**
      The rotation of the view as euler angles in degrees.
 
@@ -169,12 +169,12 @@ extension NSView {
      */
     public dynamic var rotation: CGVector3 {
         get { self.transform3D.eulerAnglesDegrees }
-        set { 
+        set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             self.transform3D.eulerAnglesDegrees = newValue }
     }
-    
+
     /**
      The rotation of the view as euler angles in radians.
 
@@ -184,12 +184,12 @@ extension NSView {
      */
     public dynamic var rotationInRadians: CGVector3 {
         get { self.transform3D.eulerAngles }
-        set { 
+        set {
             wantsLayer = true
             Self.swizzleAnimationForKey()
             self.transform3D.eulerAngles = newValue }
     }
-    
+
     /**
      The scale transform of the view..
 
@@ -205,7 +205,7 @@ extension NSView {
             self.transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
         }
     }
-    
+
     /**
      The perspective of the view's transform
 
@@ -221,7 +221,7 @@ extension NSView {
             self.transform3D.perspective = newValue
         }
     }
-    
+
     /**
      The shearing of the view's transform.
 
@@ -257,7 +257,7 @@ extension NSView {
             setAnchorPoint(newValue)
         }
     }
-    
+
     /**
      The corner radius of the view.
 
@@ -269,7 +269,7 @@ extension NSView {
         get { self._cornerRadius }
         set { self._cornerRadius = newValue }
     }
-    
+
     // fix for macOS 14.0 bug
     @objc dynamic var _cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
@@ -282,7 +282,7 @@ extension NSView {
             layer?.masksToBounds = clipsToBounds
         }
     }
-    
+
     /**
      The corner curve of the view.
 
@@ -309,7 +309,7 @@ extension NSView {
             layer?.maskedCorners = newValue
         }
     }
-    
+
     /**
      The border of the view.
      
@@ -327,7 +327,7 @@ extension NSView {
             }
         }
     }
-        
+
     /**
      The border width of the view.
 
@@ -364,13 +364,12 @@ extension NSView {
             self.borderColorAnimatable = animatableColor
         }
     }
-    
+
     @objc dynamic var borderColorAnimatable: NSColor? {
         get { layer?.borderColor?.nsColor }
         set { layer?.borderColor = newValue?.cgColor }
     }
-    
-    
+
     /**
      The shadow of the view (an alternative way of configurating the shadow).
      
@@ -379,7 +378,7 @@ extension NSView {
      The default value is `none()`, which results in a view with no shadow.
      */
     public dynamic var shadow1: ShadowConfiguration {
-        get { 
+        get {
             if self.isProxy(), let proxyShadow = self.proxyShadow {
                 return proxyShadow
             }
@@ -392,12 +391,12 @@ extension NSView {
             self.shadowColor = newValue._resolvedColor
         }
     }
-    
+
     var proxyShadow: ShadowConfiguration? {
         get { getAssociatedValue(key: "proxyShadow", object: self, initialValue: .none()) }
         set { set(associatedValue: newValue, key: "proxyShadow", object: self) }
     }
-        
+
     /**
      The shadow color of the view.
      
@@ -422,17 +421,17 @@ extension NSView {
             self.shadowColorAnimatable = animatableColor
         }
     }
-    
+
     dynamic var shadowColorDynamic: NSColor? {
         get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self) }
     }
-    
+
     @objc dynamic var shadowColorAnimatable: NSColor? {
         get { layer?.shadowColor?.nsColor }
         set { layer?.shadowColor = newValue?.cgColor }
     }
-    
+
     /**
      The shadow offset of the view.
 
@@ -448,7 +447,7 @@ extension NSView {
             layer?.shadowOffset = newValue.size
         }
     }
-    
+
     /**
      The shadow radius of the view.
 
@@ -464,7 +463,7 @@ extension NSView {
             layer?.shadowRadius = newValue
         }
     }
-    
+
     /**
      The shadow opacity of the view.
 
@@ -480,7 +479,7 @@ extension NSView {
             layer?.shadowOpacity = Float(newValue)
         }
     }
-    
+
     /**
      The shadow path of the view.
 
@@ -505,12 +504,12 @@ extension NSView {
             }
         }
     }
-    
+
     @objc dynamic var shadowPathAnimatable: CGPath? {
         get { layer?.shadowPath }
         set { layer?.shadowPath = newValue }
     }
-    
+
     /**
      The inner shadow of the view.
      
@@ -529,7 +528,7 @@ extension NSView {
             Self.swizzleAnimationForKey()
             self.proxyInnerShadow = newValue
             self.dynamicColors.innerShadow = newValue._resolvedColor
-            
+
             if self.innerShadowLayer == nil {
                 let innerShadowLayer = InnerShadowLayer()
                 self.layer?.addSublayer(withConstraint: innerShadowLayer)
@@ -551,27 +550,27 @@ extension NSView {
             self.innerShadowOpacity = newValue.opacity
         }
     }
-    
+
     var proxyInnerShadow: ShadowConfiguration? {
         get { getAssociatedValue(key: "proxyInnerShadow", object: self, initialValue: layer?.innerShadowLayer?.configuration) }
         set { set(associatedValue: newValue, key: "proxyInnerShadow", object: self) }
     }
-    
+
     @objc dynamic var innerShadowColor: NSColor? {
         get { self.layer?.innerShadowLayer?.shadowColor?.nsUIColor }
         set { self.layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
     }
-    
+
     @objc dynamic var innerShadowOpacity: CGFloat {
         get { CGFloat(self.layer?.innerShadowLayer?.shadowOpacity ?? 0) }
         set { self.layer?.innerShadowLayer?.shadowOpacity = Float(newValue) }
     }
-    
+
     @objc dynamic var innerShadowRadius: CGFloat {
         get { self.layer?.innerShadowLayer?.configuration.radius ?? 0 }
         set { self.layer?.innerShadowLayer?.configuration.radius = newValue }
     }
-    
+
     @objc dynamic var innerShadowOffset: CGPoint {
         get { self.layer?.innerShadowLayer?.configuration.offset ?? .zero }
         set { self.layer?.innerShadowLayer?.configuration.offset = newValue }
@@ -587,7 +586,7 @@ extension NSView {
     public func addTrackingArea(rect: NSRect? = nil, options: NSTrackingArea.Options = [
         .mouseMoved,
         .mouseEnteredAndExited,
-        .activeInKeyWindow,
+        .activeInKeyWindow
     ]) {
         addTrackingArea(NSTrackingArea(
             rect: rect ?? bounds,
@@ -602,7 +601,7 @@ extension NSView {
             removeTrackingArea(trackingArea)
         }
     }
-    
+
     /**
      Marks the receiver’s entire bounds rectangle as needing to be redrawn.
      
@@ -635,7 +634,7 @@ extension NSView {
         needsUpdateConstraints = true
         return self
     }
-    
+
     /**
      Turns the view into a layer-backed view
      
@@ -663,7 +662,7 @@ extension NSView {
     public var isVisible: Bool {
         window != nil && alphaValue != 0.0 && visibleRect != .zero && isHidden == false
     }
-    
+
     /**
      Resizes and repositions the view to it's superview using the specified scale.
      
@@ -702,7 +701,7 @@ extension NSView {
             center = superview.bounds.center
         }
     }
-    
+
     /**
      Scrolls the view’s closest ancestor `NSClipView object animated so a point in the view lies at the origin of the clip view's bounds rectangle.
      
@@ -739,12 +738,12 @@ extension NSView {
                 context.duration = animationDuration
                 self.scrollToVisible(rect)
             }
-            
+
         } else {
             scrollToVisible(rect)
         }
     }
-        
+
     var alpha: CGFloat {
         get { guard let cgValue = layer?.opacity else { return 1.0 }
             return CGFloat(cgValue)
@@ -798,7 +797,7 @@ extension NSView {
             Swift.debugPrint(error)
         }
     }
-    
+
     @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
         if NSViewAnimationKeys.contains(key) {
             let animation = CABasicAnimation()
@@ -809,7 +808,7 @@ extension NSView {
         let animation = self.swizzled_Animation(forKey: key)
         return animation
     }
-    
+
     /// A Boolean value that indicates whether views are swizzled to support additional properties for animating.
     static var didSwizzleAnimationForKey: Bool {
        get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }

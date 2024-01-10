@@ -24,7 +24,7 @@ public protocol FirstRespondable: NSUIResponder {
      - Returns: `true` if the responder is the first responder; otherwise, `false`.
      */
     var isFirstResponder: Bool { get }
-    
+
     /// A Boolean value that indicates whether the responder accepts first responder status.
     var acceptsFirstResponder: Bool { get }
     #elseif canImport(UIKit)
@@ -36,14 +36,14 @@ public protocol FirstRespondable: NSUIResponder {
      - Returns: `true` if the responder is the first responder; otherwise, `false`.
      */
     var isFirstResponder: Bool { get }
-    
+
     /// Returns a Boolean value indicating whether this object can become the first responder.
     var canBecomeFirstResponder: Bool { get }
     #endif
-    
+
     /// Attempts to make a given responder the first responder for the window.
     @discardableResult func becomeFirstResponder() -> Bool
-    
+
     /// Attempts to resign a given responder the first responder for the window.
     @discardableResult func resignFirstResponder() -> Bool
 }
@@ -108,7 +108,7 @@ extension NSView {
        isChangingFirstResponder = false
        return true
    }
-   
+
     /**
      Notifies the receiver that it’s been asked to relinquish its status as first responder in its window.
      
@@ -123,7 +123,7 @@ extension NSView {
         isChangingFirstResponder = false
         return super.resignFirstResponder()
    }
-   
+
    internal var isChangingFirstResponder: Bool {
        get { getAssociatedValue(key: "isChangingFirstResponder", object: self, initialValue: false) }
        set { set(associatedValue: newValue, key: "isChangingFirstResponder", object: self) }
@@ -145,7 +145,7 @@ extension NSViewController {
        isChangingFirstResponder = false
        return super.becomeFirstResponder()
    }
-   
+
     /**
      Notifies the receiver that it’s been asked to relinquish its status as first responder in its window.
      
@@ -160,7 +160,7 @@ extension NSViewController {
         isChangingFirstResponder = false
         return super.resignFirstResponder()
    }
-   
+
    internal var isChangingFirstResponder: Bool {
        get { getAssociatedValue(key: "isChangingFirstResponder", object: self, initialValue: false) }
        set { set(associatedValue: newValue, key: "isChangingFirstResponder", object: self) }

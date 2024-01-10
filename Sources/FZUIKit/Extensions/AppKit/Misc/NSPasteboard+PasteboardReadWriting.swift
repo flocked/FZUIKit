@@ -56,31 +56,31 @@ extension NSPasteboard {
         let writings = objects.compactMap({$0.nsPasteboardWriting})
         self.writeObjects(writings)
     }
-    
+
     /// The current `PasteboardReadWriting` objects of the pasteboard.
     public func pasteboardReadWritings() -> [PasteboardReadWriting] {
         var items: [PasteboardReadWriting] = []
-        
+
         if let fileURLs = self.fileURLs {
             items.append(contentsOf: fileURLs)
         }
-        
+
         if let color = self.color {
             items.append(color)
         }
-        
+
         if let string = self.string {
             items.append(string)
         }
-        
+
         if let sound = self.sound {
             items.append(sound)
         }
-        
+
         if let images = self.images {
             items.append(contentsOf: images)
         }
-        
+
         return items
     }
 }

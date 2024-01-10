@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
-
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
@@ -22,7 +21,7 @@ public class DashedBorderView: NSUIView {
         get { borderedLayer.borderInsets }
         set { borderedLayer.borderInsets = newValue }
     }
-    
+
     /// The dash pattern of the border.
     public var borderDashPattern: [CGFloat] {
         get { borderedLayer.borderDashPattern }
@@ -34,7 +33,7 @@ public class DashedBorderView: NSUIView {
         get { borderedLayer.configuration }
         set { borderedLayer.configuration = newValue }
     }
-        
+
     /**
      Initalizes a dashed border view with the specified configuration.
      
@@ -52,7 +51,7 @@ public class DashedBorderView: NSUIView {
 #endif
         return self.layer as! DashedBorderLayer
     }
-    
+
     #if os(macOS)
     override public func makeBackingLayer() -> CALayer {
         let borderedLayer = DashedBorderLayer()
@@ -68,7 +67,7 @@ public class DashedBorderView: NSUIView {
         return DashedBorderLayer.self
     }
     #endif
-        
+
     override public init(frame: CGRect) {
         super.init(frame: frame)
         self.sharedInit()
@@ -78,7 +77,7 @@ public class DashedBorderView: NSUIView {
         super.init(coder: coder)
         self.sharedInit()
     }
-    
+
     internal func sharedInit() {
 #if canImport(UIKit)
         tag = Self.Tag

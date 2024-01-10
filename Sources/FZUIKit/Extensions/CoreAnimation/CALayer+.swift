@@ -26,7 +26,7 @@ public extension CALayer {
             shadowOffset = newValue.offset.size
         }
     }
-    
+
     var shadowColorDynamic: NSUIColor? {
         get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: shadowColor?.nsUIColor) }
         set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self)
@@ -37,25 +37,25 @@ public extension CALayer {
             }
         }
     }
-    
+
     /// The inner shadow of the layer.
     dynamic var innerShadow: ShadowConfiguration {
         get { self.innerShadowLayer?.configuration ?? .none() }
         set { self.configurate(using: newValue, type: .inner) }
     }
-    
+
     /// Sends the layer to the front of it's superlayer.
     func sendToFront() {
         guard let superlayer = superlayer else { return }
         superlayer.addSublayer(self)
     }
-    
+
     /// Sends the layer to the back of it's superlayer.
     func sendToBack() {
         guard let superlayer = superlayer else { return }
         superlayer.insertSublayer(self, at: 0)
     }
-    
+
     /**
      Adds the specified sublayer and constraints it to the layer.
      
@@ -69,7 +69,7 @@ public extension CALayer {
         self.addSublayer(layer)
         layer.constraintTo(layer: self, insets: insets)
     }
-    
+
     /**
      Inserts the specified layer at the specified index and constraints it to the layer.
      
@@ -84,7 +84,7 @@ public extension CALayer {
         self.insertSublayer(layer, at: index)
         layer.constraintTo(layer: self, insets: insets)
     }
-    
+
     /**
      Constraints the layer to the specified layer.
      
@@ -93,7 +93,7 @@ public extension CALayer {
      - Parameter layer: The layer to constraint to.
      */
     func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
-        let layerBoundsUpdate: (()->()) = { [weak self] in
+        let layerBoundsUpdate: (() -> Void) = { [weak self] in
             guard let self = self else { return }
             let frameSize = layer.frame.size
             var shapeRect = CGRect(origin: .zero, size: frameSize)
@@ -104,33 +104,33 @@ public extension CALayer {
             self.bounds = shapeRect
             self.position = position
         }
-        
-        let layerUpdate: (()->()) = { [weak self] in
+
+        let layerUpdate: (() -> Void) = { [weak self] in
             guard let self = self else { return }
             self.cornerRadius = layer.cornerRadius
             self.maskedCorners = layer.maskedCorners
             self.cornerCurve = layer.cornerCurve
         }
-        
+
         if layerObserver?.observedObject != layer {
             layerObserver = KeyValueObserver(layer)
         }
-        
+
         layerObserver?.add(\.cornerRadius) { old, new in
             guard old != new else { return }
             layerUpdate()
         }
-        
+
         layerObserver?.add(\.cornerCurve) { old, new in
             guard old != new else { return }
             layerUpdate()
         }
-        
+
         layerObserver?.add(\.maskedCorners) { old, new in
             guard old != new else { return }
             layerUpdate()
         }
-        
+
         layerObserver?.add(\.bounds) { old, new in
             guard old != new else { return }
             layerBoundsUpdate()
@@ -138,17 +138,17 @@ public extension CALayer {
         layerBoundsUpdate()
         layerUpdate()
     }
-    
+
     /// Removes the layer constraints.
     func removeConstraints() {
         self.layerObserver = nil
     }
-    
+
     internal var layerObserver: KeyValueObserver<CALayer>? {
         get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
     }
-    
+
     /// The associated view using the layer.
     var parentView: NSUIView? {
         if let view = delegate as? NSUIView {
@@ -156,7 +156,7 @@ public extension CALayer {
         }
         return superlayer?.parentView
     }
-    
+
     /// A rendered image of the layer.
     var renderedImage: NSUIImage {
         #if os(macOS)
@@ -176,7 +176,7 @@ public extension CALayer {
         return outputImage!
         #endif
     }
-    
+
     /**
      The first superlayer that matches the specificed layer type.
      
@@ -186,14 +186,14 @@ public extension CALayer {
     func firstSuperlayer<V: CALayer>(for layerType: V.Type) -> V? {
         return self.firstSuperlayer(where: {$0 is V}) as? V
     }
-    
+
     /**
      The first superlayer that matches the specificed predicate.
      
      - Parameter predicate: The closure to match.
      - Returns: The first parent layer that is matching the predicate or `nil` if none match or there isn't a matching parent.
      */
-    func firstSuperlayer(where predicate: (CALayer)->(Bool)) -> CALayer? {
+    func firstSuperlayer(where predicate: (CALayer) -> (Bool)) -> CALayer? {
         if let superlayer = superlayer {
             if predicate(superlayer) == true {
                 return superlayer
@@ -202,12 +202,12 @@ public extension CALayer {
         }
         return nil
     }
-    
+
     /// Returns the first sublayer of a specific type.
     func firstSublayer<V: CALayer>(type _: V.Type) -> V? {
         self.sublayers?.first(where: { $0 is V }) as? V
     }
-    
+
     /**
      An array of all sublayers upto the maximum depth.
      
@@ -221,7 +221,7 @@ public extension CALayer {
             return sublayers
         }
     }
-    
+
     /**
     An array of all sublayers matching the specified layer type.
 
@@ -232,7 +232,7 @@ public extension CALayer {
     func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
         self.sublayers(depth: depth).compactMap({$0 as? V})
     }
-    
+
     /**
     An array of all sublayers matching the specified predicte.
 
@@ -240,10 +240,10 @@ public extension CALayer {
         - predicate: The predicate to match.
         - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
      */
-    func sublayers(where predicate: (CALayer)->(Bool), depth: Int = 0) -> [CALayer] {
+    func sublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
         self.sublayers(depth: depth).filter({predicate($0) == true})
     }
-    
+
     /**
      Removes all sublayers matching the specified layer type.
 
@@ -259,7 +259,7 @@ public extension CALayer {
         removed.forEach { $0.removeFromSuperlayer() }
         return removed
     }
-    
+
     /**
      Removes all sublayers matching the specified predicate.
      
@@ -270,12 +270,12 @@ public extension CALayer {
      - Returns: The removed layers.
      */
     @discardableResult
-    func removeSublayers(where predicate: (CALayer)->(Bool), depth: Int = 0) -> [CALayer] {
+    func removeSublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
         let removed = sublayers(where: predicate, depth: depth)
         removed.forEach { $0.removeFromSuperlayer() }
         return removed
     }
-    
+
     /*
      An optional layer whose inverse alpha channel is used to mask the layer’s content.
      
@@ -299,7 +299,6 @@ public extension CAAutoresizingMask {
     static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
 }
 #endif
-
 
 /*
  @discardableResult

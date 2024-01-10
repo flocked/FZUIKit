@@ -23,21 +23,21 @@ public class AutoHeightHostingController<Content>: NSUIHostingController<Content
         #endif
         self.heightAnchor.isActive = true
     }
-    
+
     @MainActor required dynamic init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     /// A Boolean value that indicates whether the view's height should be adjusted to fit the SwiftUI's view.
     public var autoAdjustHeight: Bool = true {
         didSet {
             self.heightAnchor.isActive = self.autoAdjustHeight
         }
     }
-    
+
     internal var previousWidth: CGFloat = 0.0
     internal lazy var heightAnchor = self.view.heightAnchor.constraint(equalToConstant: 1000)
-    
+
     #if os(macOS)
     public override func viewDidLayout() {
         if self.view.frame.size.width != previousWidth {

@@ -20,8 +20,7 @@ public struct IrregularGradient<Background: View>: View {
      */
     public init(colors: [Color],
                 background: @autoclosure @escaping () -> Background,
-                speed: Double = 0)
-    {
+                speed: Double = 0) {
         let blobs = colors.map { ColorBlob(color: $0) }
         self.init(colorBlobs: blobs, background: background(), speed: speed)
     }
@@ -36,8 +35,7 @@ public struct IrregularGradient<Background: View>: View {
      */
     public init(colorBlobs: [ColorBlob],
                 background: @autoclosure @escaping () -> Background,
-                speed: Double = 0)
-    {
+                speed: Double = 0) {
         _colorBlobs = State(initialValue: colorBlobs)
         self.background = background()
         self.speed = speed
@@ -48,7 +46,7 @@ public struct IrregularGradient<Background: View>: View {
             timer.upstream.connect().cancel()
         }
     }
-    
+
     @State var colorBlobs: [ColorBlob]
     var background: Background
     var speed: Double
@@ -98,8 +96,7 @@ public extension IrregularGradient where Background == Color {
      */
     init(colors: [Color],
          backgroundColor: Color = .clear,
-         speed: Double = 0)
-    {
+         speed: Double = 0) {
         self.init(colors: colors,
                   background: backgroundColor,
                   speed: speed)

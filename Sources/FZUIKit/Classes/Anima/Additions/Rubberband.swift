@@ -14,7 +14,7 @@ import QuartzCore
 public struct Rubberband {
     /// The standard rubberbanding constant for a scroll view.
     public static let ScrollViewRubberBandingConstant = 0.55
-    
+
     /**
      Rubberbands a floating point value based on the specified range and interval.
 
@@ -29,7 +29,7 @@ public struct Rubberband {
         // * c = constant value, UIScrollView uses 0.55
         // * d = dimension, either width or height
         // b = (1.0 – (1.0 / ((x * c / d) + 1.0))) * d
-        
+
         if range.contains(value) {
             return value
         }
@@ -48,7 +48,6 @@ public struct Rubberband {
             return range.lowerBound - b
         }
     }
-
 
     /**
      Rubberbands a floating point value based on the specified boundsSize and contentSize.
@@ -90,7 +89,7 @@ public struct Rubberband {
             return -rubberBandedAmount
         }
     }
-    
+
     /**
      Rubberbands the frame inside the bounds.
 

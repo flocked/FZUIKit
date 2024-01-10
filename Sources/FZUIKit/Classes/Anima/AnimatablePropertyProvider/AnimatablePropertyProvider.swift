@@ -13,7 +13,7 @@ import FZSwiftUtils
 /// An object that provides animatable properties that can be accessed via ``AnimatablePropertyProvider/animator``.
 public protocol AnimatablePropertyProvider: AnyObject {
     associatedtype Provider: AnimatablePropertyProvider = Self
-    
+
     /**
      Provides animatable properties. To animate a property, change it's value in a ``Anima`` animation block.
                
@@ -50,7 +50,7 @@ public protocol AnimatablePropertyProvider: AnyObject {
      ```
      */
     var animator: PropertyAnimator<Provider> { get }
-    
+
     /**
      A Boolean value that indicates whether the animator should dynamically provide all animatable properties of the object.
      

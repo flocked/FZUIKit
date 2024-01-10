@@ -20,8 +20,7 @@ public struct EffectView: NSViewRepresentable {
     private var state: NSVisualEffectView.State
 
     public init(
-        _ blendingMode: NSVisualEffectView.BlendingMode = .withinWindow)
-    {
+        _ blendingMode: NSVisualEffectView.BlendingMode = .withinWindow) {
         self.init(material: NSVisualEffectView.Material(rawValue: 0)!, blendingMode: blendingMode, emphasized: false)
     }
 
@@ -34,16 +33,14 @@ public struct EffectView: NSViewRepresentable {
 
     public init(material: NSVisualEffectView.Material,
                 blendingMode: NSVisualEffectView.BlendingMode = .withinWindow,
-                emphasized: Bool = false)
-    {
+                emphasized: Bool = false) {
         self.init(material: material, blendingMode: blendingMode, emphasized: emphasized, state: .followsWindowActiveState)
     }
 
     public init(material: NSVisualEffectView.Material,
                 blendingMode: NSVisualEffectView.BlendingMode = .withinWindow,
                 emphasized: Bool = false,
-                state: NSVisualEffectView.State = .followsWindowActiveState)
-    {
+                state: NSVisualEffectView.State = .followsWindowActiveState) {
         self.material = material
         self.blendingMode = blendingMode
         self.emphasized = emphasized

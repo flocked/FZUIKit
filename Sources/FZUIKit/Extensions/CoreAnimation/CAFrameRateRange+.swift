@@ -8,7 +8,6 @@
 #if canImport(QuartzCore)
 import QuartzCore
 
-
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
 extension CAFrameRateRange {
     public init(_ range: ClosedRange<Float>) {

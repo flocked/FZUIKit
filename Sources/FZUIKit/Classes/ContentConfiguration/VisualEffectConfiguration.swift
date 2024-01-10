@@ -24,7 +24,7 @@ public struct VisualEffectConfiguration: Hashable {
 
     /// The material shown by the visual effect view.
     public var material: Material
-    
+
     /**
      A value indicating how the view’s contents blend with the surrounding content.
 
@@ -33,7 +33,7 @@ public struct VisualEffectConfiguration: Hashable {
      If the visual effect view's material is Material.titlebar, set the blending mode to withinWindow.
      */
     public var blendingMode: BlendingMode
-    
+
     /**
      The appearance of the visual effect view.
 
@@ -41,15 +41,15 @@ public struct VisualEffectConfiguration: Hashable {
 
      Individual subviews may still override the the appearance.
      */
-    public var appearance: NSAppearance? = nil
-    
+    public var appearance: NSAppearance?
+
     /**
      A value that indicates whether a view has a visual effect applied.
 
      The default value of this property is `followsWindowActiveState`.
      */
     public var state: State
-    
+
     /**
      A Boolean value indicating whether to emphasize the look of the material.
 
@@ -58,7 +58,7 @@ public struct VisualEffectConfiguration: Hashable {
      The default value of this property is `false`.
      */
     public var isEmphasized: Bool
-    
+
     /**
      An image whose alpha channel masks the visual effect view's material.
 
@@ -67,15 +67,14 @@ public struct VisualEffectConfiguration: Hashable {
      If the visual effect view is the content view of a window, the mask is applied in an appropriate way to the window's shadow.
      */
     public var maskImage: NSImage?
-    
+
     /// Initalizes a visual effect configuration.
     public init(material: Material,
                 blendingMode: BlendingMode,
                 appearance: NSAppearance? = nil,
                 state: State = .followsWindowActiveState,
                 isEmphasized: Bool = false,
-                maskImage: NSImage? = nil)
-    {
+                maskImage: NSImage? = nil) {
         self.material = material
         self.blendingMode = blendingMode
         self.appearance = appearance
@@ -83,7 +82,7 @@ public struct VisualEffectConfiguration: Hashable {
         self.isEmphasized = isEmphasized
         self.maskImage = maskImage
     }
-    
+
     /// A visual effect configuration with the specified appearance.
     internal static func appearance(_ appearanceName: NSAppearance.Name, blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self {
         return Self(material: material, blendingMode: blendingMode, appearance: NSAppearance(named: appearanceName))
@@ -100,7 +99,7 @@ public struct VisualEffectConfiguration: Hashable {
 
     /// A visual effect configuration with a dark vibrant appearance.
     public static func vibrantDark(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.vibrantDark, blendingMode: blendingMode, material: material) }
-    
+
     /*
     /// A visual effect configuration with a high-contrast version of the standard light system appearance.
     public static func accessibilityHighContrastAqua(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastAqua, blendingMode: blendingMode, material: material) }
@@ -154,7 +153,7 @@ public extension NSVisualEffectView {
             self.appearance = newValue.appearance
         }
     }
-    
+
     /// Initializes and returns a new visual effect view with the specified configuration.
     convenience init(configuration: VisualEffectConfiguration) {
         self.init(frame: .zero)
@@ -180,13 +179,13 @@ public struct VisualEffectConfiguration: Hashable {
         case blur(UIBlurEffect.Style)
     }
 
-    public var style: Self.Style? = nil
-    
+    public var style: Self.Style?
+
     /// Creates a visual effect configuration.
     public init(style: Self.Style? = nil) {
         self.style = style
     }
-    
+
     /// A visual blurring vibrancy effect.
     public static func vibrancy(_ vibrancy: UIVibrancyEffectStyle, blur: UIBlurEffect.Style) -> Self { return Self(style: .vibrancy(vibrancy, blur: blur)) }
 
@@ -222,7 +221,6 @@ public extension UIView {
 }
 
 #elseif os(tvOS)
-import UIKit
 
 /**
  A configuration that specifies the appearance of a visual effect view.
@@ -233,8 +231,8 @@ import UIKit
  */
 public struct VisualEffectConfiguration: Hashable {
     /// The blur style.
-    public var blur: UIBlurEffect.Style? = nil
-    
+    public var blur: UIBlurEffect.Style?
+
     /// Creates a visual effect configuration.
     public init(blur: UIBlurEffect.Style? = nil) {
         self.blur = blur

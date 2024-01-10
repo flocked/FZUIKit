@@ -14,7 +14,7 @@ public extension CAPropertyAnimation {
       self.init(keyPath: key.keyPath)
       self.duration = duration
   }
-    
+
     /// The keys of the animatable properties.
     enum Key {
         case caLayer(_ property: CALayer.CALayerAnimatableProperty)
@@ -182,7 +182,7 @@ public extension CAEmitterLayer {
 }
 
 public extension CAGradientLayer {
-    
+
     /// The properties that can be animated.
     enum AnimatableProperty: String {
         /// [CGColor]? ([Any]? by Apple docs, but CGColor works as well)
@@ -198,7 +198,7 @@ public extension CAGradientLayer {
 }
 
 public extension CAReplicatorLayer {
-    
+
     /// The properties that can be animated.
     enum AnimatableProperty: String {
         /// CFTimeInterval (Double)
@@ -217,7 +217,7 @@ public extension CAReplicatorLayer {
 }
 
 public extension CATextLayer {
-    
+
     /// The properties that can be animated.
     enum AnimatableProperty: String {
         /// CGSize

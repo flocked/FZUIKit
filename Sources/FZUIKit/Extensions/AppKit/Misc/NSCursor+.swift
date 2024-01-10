@@ -16,7 +16,7 @@ public extension NSCursor {
         if let image = NSImage(byReferencingFile: "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/resizenorthwestsoutheast/cursor.pdf") {
             return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
         }
-        
+
         // let path = Bundle.module.path(forResource: "northWestSouthEastResizeCursor", ofType: "png")!
         // let image = NSImage(byReferencingFile: path)!
         // return NSCursor(image: image, hotSpot: NSPoint(x: 8, y: 8))
@@ -33,7 +33,7 @@ public extension NSCursor {
         // return NSCursor(image: image, hotSpot: NSPoint(x: 8, y: 8))
         return nil
     }
-    
+
     /**
      Initializes an animated cursor with the given images, frame duration and hot spot.
      
@@ -54,7 +54,7 @@ public extension NSCursor {
             self.init(image: image, hotSpot: hotSpot)
         }
     }
-    
+
     /**
      Initializes an animated cursor with the given images, frame duration and hot spot.
      
@@ -64,13 +64,13 @@ public extension NSCursor {
         - hotSpot: The point to set as the cursor's hot spot.
      */
     convenience init(animated images: [NSImage], frameDuration: TimeInterval, hotSpot: CGPoint) {
-        
+
         self.init(image: images.first ?? NSCursor.current.image, hotSpot: images.isEmpty ? NSCursor.current.hotSpot : hotSpot)
         do {
             try self.replaceMethod(
                 #selector(NSCursor.set),
-                methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in { object in
+                methodSignature: (@convention(c)  (AnyObject, Selector) -> Void).self,
+                hookSignature: (@convention(block)  (AnyObject) -> Void).self) { store in { object in
                     store.original(object, #selector(NSCursor.set))
                     NSCursorAnimator.shared.frameDuration = frameDuration
                     NSCursorAnimator.shared.hotSpot = hotSpot
@@ -82,37 +82,37 @@ public extension NSCursor {
             Swift.debugPrint(error)
         }
     }
-    
+
     private class NSCursorAnimator {
         static let shared = NSCursorAnimator()
-        var timer: Timer? = nil
+        var timer: Timer?
         var images: [NSImage] = []
         var frameDuration: TimeInterval = 0.0
         var index: Int = 0
         var hotSpot: CGPoint = CGPoint(x: 8, y: 8)
-        
+
         func restart() {
             stop()
             start()
         }
-        
+
         func start() {
             guard frameDuration != 0.0 && images.count > 1 else {
                 stop()
                 return
             }
             timer?.invalidate()
-            timer = Timer.scheduledTimer(withTimeInterval: frameDuration, repeats: true, block: { timer in
+            timer = Timer.scheduledTimer(withTimeInterval: frameDuration, repeats: true, block: { _ in
                 self.advanceImage()
             })
         }
-        
+
         func stop() {
             timer?.invalidate()
             timer = nil
             index = 0
         }
-        
+
         func advanceImage() {
             if self.images.contains(NSCursor.current.image) == false || images.isEmpty {
                 self.stop()

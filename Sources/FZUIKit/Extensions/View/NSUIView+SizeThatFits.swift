@@ -34,7 +34,7 @@ public protocol Sizable {
      You should not override this method. If you want to change the default sizing information for your view, override the `sizeThatFits(_:)` instead. That method performs any needed calculations and returns them to this method, which then makes the change.
      */
     func sizeToFit()
-    
+
     /// The minimum size of the view that satisfies the constraints it holds.
     var fittingSize: CGSize { get }
 }
@@ -45,11 +45,11 @@ public extension Sizable where Self: NSUIView {
     var fittingSize: CGSize {
         sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
     }
-    
+
     func sizeToFit() {
         self.frame.size = self.sizeThatFits(CGSize(NSUIView.noIntrinsicMetric, NSUIView.noIntrinsicMetric))
     }
-    
+
     func sizeThatFits(_ size: CGSize) -> CGSize {
         return self.frame.size
     }

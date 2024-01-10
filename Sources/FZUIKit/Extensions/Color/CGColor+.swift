@@ -38,7 +38,7 @@ public extension CGColor {
             #endif
         }
     }
-    
+
     /**
      Creates a new color object whose component values are a weighted sum of the current color object and the specified color object's.
      
@@ -50,20 +50,20 @@ public extension CGColor {
      */
     func blended(withFraction fraction: CGFloat, of color: CGColor) -> CGColor? {
         guard let c1 = rgbaComponents(), let c2 = color.rgbaComponents() else { return nil }
-        
+
         let red   = c1.red + (fraction * (c2.red - c1.red))
         let green = c1.green + (fraction * (c2.green - c1.green))
         let blue  = c1.blue + (fraction * (c2.blue - c1.blue))
         let alpha = c1.alpha + (fraction * (c2.alpha - c1.alpha))
-        
+
         return CGColor(red: red, green: green, blue: blue, alpha: alpha)
     }
-    
+
     /// A Boolean value that indicates whether the color is visible (alpha value isn't zero).
     var isVisible: Bool {
         alpha != 0.0
     }
-    
+
     /**
      Creates a color object with the specified alpha component.
 
@@ -103,7 +103,7 @@ public extension CGColor {
     var nsColor: NSColor? {
         return NSColor(cgColor: self)
     }
-    
+
     /// Returns a `Color` representation of the color.
     var swiftUI: Color? {
         if let color = self.nsColor {
@@ -116,18 +116,18 @@ public extension CGColor {
     var uiColor: UIColor {
         return UIColor(cgColor: self)
     }
-    
+
     /// Returns a `Color` representation of the color.
     var swiftUI: Color {
         Color(self.uiColor)
     }
-    
+
     /// The clear color in the Generic gray color space.
     static var clear: CGColor {
         CGColor(gray: 0, alpha: 0)
     }
     #endif
-    
+
     internal var nsUIColor: NSUIColor? {
         return NSUIColor(cgColor: self)
     }

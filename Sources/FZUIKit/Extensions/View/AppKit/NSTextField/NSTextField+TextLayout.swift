@@ -19,7 +19,7 @@ public extension NSTextField {
         self.textLayout = layout
         self.maximumNumberOfLines = 0
     }
-    
+
     /// The text layout of the text field.
     var textLayout: TextLayout? {
         get {

@@ -64,7 +64,7 @@ public extension NSCollectionView {
         - animationDuration: The animation duration.
         - completion: The completion handler that gets called when the animation is completed.
      */
-    func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animationDuration: CGFloat, completion: (() -> ())? = nil) {
+    func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animationDuration: CGFloat, completion: (() -> Void)? = nil) {
         if animationDuration > 0.0 {
             NSAnimationContext.runAnimationGroup({ context in
                 context.duration = animationDuration
@@ -83,7 +83,7 @@ public extension NSCollectionView {
      */
     @objc dynamic var contentOffset: CGPoint {
         get { enclosingScrollView?.contentOffset ?? .zero }
-        set { 
+        set {
             NSView.swizzleAnimationForKey()
             enclosingScrollView?.contentOffset = newValue }
     }
@@ -107,12 +107,12 @@ public extension NSCollectionView {
     struct SavedScrollPosition {
         let displayingIndexPaths: [IndexPath]
     }
-    
+
     /// Saves the current scroll position.
     func saveScrollPosition() -> SavedScrollPosition {
         SavedScrollPosition(displayingIndexPaths: displayingIndexPaths())
     }
-    
+
     /**
      Restores the specified saved scroll position.
      

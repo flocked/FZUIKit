@@ -14,31 +14,29 @@ import FZSwiftUtils
 public extension NSContentUnavailableConfiguration {
     /// Properties that affect the cell content configuration’s text.
     struct TextProperties: Hashable {
-        
+
         /// The font of the text.
         public var font: NSFont = .body
-        
+
         /// The color of the text.
         public var color: NSColor = .labelColor
-        
+
         /// The line break mode to use for the text.
         public var lineBreakMode: NSLineBreakMode = .byWordWrapping
-        
+
         /**
          The maximum number of lines.
          
          The default value of 0 indicates no limit to the number of lines.
          */
         public var maxNumberOfLines: Int = 0
-        
-        
+
         /// A default configuration for a primary text.
         public static func primary() -> Self { TextProperties(font: .body.weight(.semibold)) }
-        
+
         /// A default configuration for a secondary text.
         public static func secondary() -> Self { TextProperties(font: .callout, color: .secondaryLabelColor) }
-        
-        
+
         /// A configuration with a font for captions.
         public static func caption2() -> Self { TextProperties(font: .caption2) }
         /// A configuration with a font for captions.
@@ -61,7 +59,7 @@ public extension NSContentUnavailableConfiguration {
         public static func title3() -> Self { TextProperties(font: .title3) }
         /// A configuration with a font for large titles.
         public static func largeTitle() -> Self { TextProperties(font: .largeTitle) }
-        
+
     }
 }
 #endif

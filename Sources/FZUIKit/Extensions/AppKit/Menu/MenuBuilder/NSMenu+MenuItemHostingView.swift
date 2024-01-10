@@ -9,7 +9,7 @@
 import AppKit
 import SwiftUI
 
-public extension NSMenu {    
+public extension NSMenu {
     /// A custom menu item view that manages highlight state and renders
     /// an appropriate backdrop behind the view when highlighted
     class MenuItemHostingView<Content: View>: NSView {

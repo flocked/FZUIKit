@@ -12,7 +12,7 @@ public extension Text {
     func forceMultiline() -> some View {
         self.fixedSize(horizontal: false, vertical: true)
     }
-    
+
     /// Force single-line rendering where the text can become truncated even if there's space.
     func forceSingleLine() -> some View {
         self.fixedSize(horizontal: true, vertical: false)

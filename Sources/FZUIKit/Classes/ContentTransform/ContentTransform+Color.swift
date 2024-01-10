@@ -68,7 +68,7 @@ public struct ColorTransformer: ContentTransform {
     public static func desaturated(by amount: CGFloat = 0.2) -> Self {
         return Self("darkened: \(amount)") { $0.desaturated(by: amount) }
     }
-    
+
     public static func color(_ color: NSUIColor) -> Self {
         Self("color: \(String(describing: color))") { _ in return color }
     }

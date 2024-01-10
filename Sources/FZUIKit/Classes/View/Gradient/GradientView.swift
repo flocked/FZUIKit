@@ -34,22 +34,22 @@ public class GradientView: NSUIView {
         get { gradientLayer.locations ?? [] }
         set {  gradientLayer.locations = newValue }
     }
-    
+
     @objc dynamic internal var colors: [CGColor] {
         get { (gradientLayer.colors as? [CGColor]) ?? [] }
         set { gradientLayer.colors = newValue }
     }
-    
+
     @objc dynamic internal var startPoint: CGPoint {
         get { gradientLayer.startPoint }
         set { gradientLayer.startPoint = newValue }
     }
-    
+
     @objc dynamic internal var endPoint: CGPoint {
         get { gradientLayer.endPoint }
         set { gradientLayer.endPoint = newValue }
     }
-    
+
     @objc dynamic internal var type: CAGradientLayerType {
         get { gradientLayer.type }
         set { gradientLayer.type = newValue }
@@ -72,7 +72,7 @@ public class GradientView: NSUIView {
 #endif
         return self.layer as! GradientLayer
     }
-    
+
     #if os(macOS)
     override public func makeBackingLayer() -> CALayer {
         let gradientLayer = GradientLayer()
@@ -83,7 +83,7 @@ public class GradientView: NSUIView {
         return GradientLayer.self
     }
     #endif
-        
+
     override public init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -91,7 +91,7 @@ public class GradientView: NSUIView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-    
+
     #if os(macOS)
     public override func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
         if Self.gradientAnimationKeys.contains(key) {
@@ -101,7 +101,7 @@ public class GradientView: NSUIView {
         }
         return super.animation(forKey: key)
     }
-    
+
     internal static let gradientAnimationKeys = ["locations", "colors", "startPoint", "endPoint"]
     #endif
 }

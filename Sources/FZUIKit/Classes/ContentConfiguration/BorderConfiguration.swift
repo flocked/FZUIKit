@@ -19,15 +19,15 @@ import FZSwiftUtils
  `NSView/UIView` and `CALayer` can be configurated by passing the configuration to `configurate(using configuration: BorderConfiguration)`.
  */
 public struct BorderConfiguration: Hashable {
-    
+
     /// The color of the border.
-    public var color: NSUIColor? = nil {
+    public var color: NSUIColor? {
         didSet { updateResolvedColor() } }
-    
+
     /// The color transformer for resolving the border color.
-    public var colorTransformer: ColorTransformer? = nil {
+    public var colorTransformer: ColorTransformer? {
         didSet { updateResolvedColor() } }
-    
+
     /// Generates the resolved border color, using the border color and color transformer.
     public func resolvedColor() -> NSUIColor? {
         if let color = self.color {
@@ -35,23 +35,22 @@ public struct BorderConfiguration: Hashable {
         }
         return nil
     }
-    
+
     /// The width of the border.
     public var width: CGFloat = 0.0
-    
+
     /// The dash pattern of the border.
     public var dashPattern: [CGFloat] = []
-    
+
     /// The insets of the border.
     public var insets: NSDirectionalEdgeInsets = .init(0)
-    
+
     /// Initalizes a border configuration.
     public init(color: NSUIColor? = nil,
                 colorTransformer: ColorTransformer? = nil,
                 width: CGFloat = 0.0,
                 dashPattern: [CGFloat] = [],
-                insets: NSDirectionalEdgeInsets = .init(0))
-    {
+                insets: NSDirectionalEdgeInsets = .init(0)) {
         self.color = color
         self.width = width
         self.dashPattern = dashPattern
@@ -62,39 +61,39 @@ public struct BorderConfiguration: Hashable {
 
     /// A border configuration without a border.
     public static func none() -> Self { return Self() }
-    
+
     /// A configuration for a black border.
     public static func black(width: CGFloat = 2.0) -> Self {
         Self(color: .black, width: width)
     }
-    
+
     /// A configuration for a border with the specified color.
     public static func color(_ color: NSUIColor, width: CGFloat = 2.0) -> Self {
         Self(color: color, width: width)
     }
-    
+
     #if os(macOS)
     /// A configuration for a border with controlAccent color.
     public static func controlAccent(width: CGFloat = 2.0) -> Self {
         Self(color: .controlAccentColor, width: width)
     }
     #endif
-    
+
     /// A configuration for a dashed border with the specified color.
     public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0) -> Self {
         return Self(color: color, width: width, dashPattern: [2])
     }
-    
-    internal var _resolvedColor: NSUIColor? = nil
+
+    internal var _resolvedColor: NSUIColor?
     internal mutating func updateResolvedColor() {
         _resolvedColor = resolvedColor()
     }
-    
+
     /// A Boolean value that indicates whether the border is invisible (when the color is `nil`, `clear` or the width `0`).
     public var isInvisible: Bool {
         return (self.width == 0.0 || self._resolvedColor == nil || self._resolvedColor == .clear)
     }
-    
+
     internal var needsDashedBordlerLayer: Bool {
        return (self.insets != .zero || self.dashPattern != [])
     }
@@ -132,7 +131,7 @@ public extension NSUIView {
             self.borderWidth = configuration.width
         }
     }
-    
+
     internal var dashedBorderLayer: DashedBorderLayer? {
         get { self.optionalLayer?.firstSublayer(type: DashedBorderLayer.self) }
     }
@@ -149,7 +148,7 @@ public extension CALayer {
         if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
             self.borderLayer?.removeFromSuperlayer()
         }
-        
+
         if configuration.needsDashedBordlerLayer {
             self.borderColor = nil
             self.borderWidth = 0.0
@@ -164,7 +163,7 @@ public extension CALayer {
             self.borderWidth = configuration.width
         }
     }
-    
+
     internal var borderLayer: DashedBorderLayer? {
         self.firstSublayer(type: DashedBorderLayer.self)
     }

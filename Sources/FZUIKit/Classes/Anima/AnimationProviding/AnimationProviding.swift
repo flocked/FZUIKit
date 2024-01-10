@@ -11,16 +11,16 @@ import Foundation
 public protocol AnimationProviding {
     /// A unique identifier for the animation.
     var id: UUID { get }
-    
+
     /// A unique identifier that associates an animation with an grouped animation block.
     var groupUUID: UUID? { get }
-    
+
     /// The relative priority of the animation.
     var relativePriority: Int { get set }
-    
+
     /// The current state of the animation.
     var state: AnimationState { get }
-    
+
     /**
      The delay (in seconds) after which the animations begin.
      
@@ -28,24 +28,24 @@ public protocol AnimationProviding {
      To set a value for this property, use the ``start(afterDelay:)`` method when starting your animations.
      */
     var delay: TimeInterval { get }
-    
+
     /**
      Updates the progress of the animation with the specified delta time.
 
      - parameter deltaTime: The delta time.
      */
     func updateAnimation(deltaTime: TimeInterval)
-    
+
     /**
      Starts the animation from its current position with an optional delay.
      
      - parameter delay: The amount of time (measured in seconds) to wait before starting the animation.
      */
     func start(afterDelay delay: TimeInterval)
-    
+
     /// Pauses the animation at the current position.
     func pause()
-    
+
     /**
      Stops the animation at the specified position.
      
@@ -61,13 +61,12 @@ extension AnimationProviding {
     public func start() {
         self.start(afterDelay: 0.0)
     }
-    
+
     /// Starts the animation immediately at its current position.
     public func stop() {
         stop(at: .current, immediately: true)
     }
 }
-
 
 /// An internal extension to `AnimationProviding` used for configurating animations.
 internal protocol ConfigurableAnimationProviding<Value>: AnimationProviding {
@@ -94,7 +93,7 @@ extension ConfigurableAnimationProviding {
         var animation = self
         animation._velocity = velocity
     }
-    
+
     func setVelocity(_ velocity: Any) {
         guard let velocity = velocity as? Value, velocity != self.velocity else { return }
         var animation = self

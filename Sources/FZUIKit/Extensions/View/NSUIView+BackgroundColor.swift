@@ -31,12 +31,12 @@ public extension BackgroundColorSettable where Self: NSView {
             self.wantsLayer = true
             Self.swizzleAnimationForKey()
             self.dynamicColors.background = newValue
-            
+
             var animatableColor = newValue?.resolvedColor(for: self)
             if animatableColor == nil, self.isProxy() {
                 animatableColor = .clear
             }
-            
+
             if self.layer?.backgroundColor?.isVisible == false || self.layer?.backgroundColor == nil {
                 self.layer?.backgroundColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
             }
@@ -52,21 +52,21 @@ internal extension NSView {
             layer?.backgroundColor = newValue?.cgColor
         }
     }
-    
+
     struct DynamicColors {
-        var shadow: NSColor? = nil {
+        var shadow: NSColor? {
             didSet { if shadow?.isDynamic == false { shadow = nil } } }
-        var innerShadow: NSColor? = nil {
+        var innerShadow: NSColor? {
             didSet { if innerShadow?.isDynamic == false { innerShadow = nil } } }
-        var border: NSColor? = nil {
+        var border: NSColor? {
             didSet { if border?.isDynamic == false { border = nil } } }
-        var background: NSColor? = nil {
+        var background: NSColor? {
             didSet { if background?.isDynamic == false { background = nil } } }
-        
+
         var needsAppearanceObserver: Bool {
             background != nil || border != nil || shadow != nil || innerShadow != nil
         }
-        
+
         mutating func update(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) {
             guard let dynamics = self[keyPath: keyPath]?.dynamicColors else { return }
             if  cgColor != dynamics.light.cgColor && cgColor != dynamics.dark.cgColor {
@@ -74,14 +74,14 @@ internal extension NSView {
             }
         }
     }
-    
+
     var dynamicColors: DynamicColors {
         get { getAssociatedValue(key: "dynamicColors", object: self, initialValue: DynamicColors() ) }
         set { set(associatedValue: newValue, key: "dynamicColors", object: self)
             setupEffectiveAppearanceObserver()
         }
     }
-    
+
     var _effectiveAppearanceKVO: NSKeyValueObservation? {
         get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
         set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
@@ -99,13 +99,13 @@ internal extension NSView {
             _effectiveAppearanceKVO = nil
         }
     }
-    
+
     func updateEffectiveColors() {
         dynamicColors.update(\.shadow, cgColor: self.layer?.shadowColor)
         dynamicColors.update(\.background, cgColor: self.layer?.backgroundColor)
         dynamicColors.update(\.border, cgColor: self.layer?.borderColor)
         dynamicColors.update(\.innerShadow, cgColor: self.innerShadowLayer?.shadowColor)
-        
+
         if let color = dynamicColors.shadow?.resolvedColor(for: self).cgColor {
             layer?.shadowColor = color
         }

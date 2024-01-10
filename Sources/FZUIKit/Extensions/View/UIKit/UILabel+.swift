@@ -14,7 +14,7 @@ public extension UILabel {
         get { font.pointSize }
         set { font = font?.withSize(newValue) }
     }
-    
+
     /// Returns the number of visible lines.
     var numberOfVisibleLines: Int {
         guard let font = self.font else { return -1 }

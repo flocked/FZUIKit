@@ -20,8 +20,7 @@ public extension NSColor {
      */
     convenience init(name: NSColor.Name? = nil,
                      light lightModeColor: @escaping @autoclosure () -> NSColor,
-                     dark darkModeColor: @escaping @autoclosure () -> NSColor)
-    {
+                     dark darkModeColor: @escaping @autoclosure () -> NSColor) {
         self.init(name: name, dynamicProvider: { appereance in
             if appereance.isLight {
                 return lightModeColor()
@@ -37,7 +36,7 @@ public extension NSColor {
         let dark = self.resolvedColor(for: .darkAqua)
         return (light, dark)
     }
-    
+
     /**
      Generates the resolved color for the specified appearance.
      
@@ -46,7 +45,7 @@ public extension NSColor {
     func resolvedColor(for appearance: NSAppearance? = nil) -> NSColor {
         resolvedColor(for: appearance, colorSpace: nil) ?? self
     }
-    
+
     /**
      Generates the resolved color for the specified appearance and color space. If color space is `nil`, the color resolves to the first compatible color space.
      
@@ -56,7 +55,7 @@ public extension NSColor {
      - Returns: A color for the appearance and color space.
      */
     func resolvedColor(for appearance: NSAppearance? = nil, colorSpace: NSColorSpace?) -> NSColor? {
-        var color: NSColor? = nil
+        var color: NSColor?
         if type == .catalog {
             if let colorSpace = colorSpace {
                 if #available(macOS 11.0, *) {
@@ -81,7 +80,7 @@ public extension NSColor {
         }
         return color
     }
-    
+
     /**
      Generates the resolved color for the specified window,
      
@@ -115,12 +114,12 @@ public extension NSColor {
         }
         return nil
     }
-    
+
     /// A `CIColor` representation of the color, or `nil` if the color cannot be accurately represented as `CIColor`.
     var ciColor: CIColor? {
         CIColor(color: self)
     }
-    
+
     /// A Boolean value that indicates whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
     var hasColorSpace: Bool {
         if type == .pattern {
@@ -128,7 +127,7 @@ public extension NSColor {
         }
         return String(describing: self).contains("customDynamic") == false
     }
-    
+
     /// Supported color spaces for displaying a color.
     internal static let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
 }

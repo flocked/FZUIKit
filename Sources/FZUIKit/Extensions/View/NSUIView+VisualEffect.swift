@@ -38,7 +38,7 @@ public extension NSUIView {
             }
         }
     }
-    
+
     internal var visualEffectBackgroundView: TaggedVisualEffectView? {
         get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView
         }
@@ -60,11 +60,11 @@ internal extension NSView {
         public static var Tag: Int {
             return 3_443_024
         }
-        
+
         override var tag: Int {
             return Self.Tag
         }
-        
+
         public var contentProperties: VisualEffectConfiguration {
             get {
                 return VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage)
@@ -87,7 +87,7 @@ internal extension UIView {
         public var contentProperties: VisualEffectConfiguration = .init() {
             didSet { updateEffect() }
         }
-        
+
         internal func updateEffect() {
             #if os(iOS)
             if let newStyle = contentProperties.style {
@@ -109,11 +109,11 @@ internal extension UIView {
             }
             #endif
         }
-        
+
         public static var Tag: Int {
             return 3_443_024
         }
-        
+
         override var tag: Int {
             get { return Self.Tag }
             set { }

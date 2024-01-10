@@ -13,20 +13,20 @@ extension NSPopover {
     /// Handlers for a popover.
     public struct Handlers {
         /// Handler that gets called whenever the popover is about to show.
-        public var willShow: (()->())? = nil
+        public var willShow: (() -> Void)?
         /// Handler that gets called whenever the popover did show.
-        public var didShow: (()->())? = nil
+        public var didShow: (() -> Void)?
         /// Handler that gets called whenever the popover is about to close.
-        public var willClose: (()->())? = nil
+        public var willClose: (() -> Void)?
         /// Handler that gets called whenever the popover did close.
-        public var didClose: (()->())? = nil
+        public var didClose: (() -> Void)?
         /// Handler that determines whether the popover should close.
-        public var shouldClose: (()->(Bool))? = nil
+        public var shouldClose: (() -> (Bool))?
         /// Handler that gets called whenever the popover did detach.
-        public var didDetach: (()->())? = nil
+        public var didDetach: (() -> Void)?
         /// Handler that determines whether the popover should detach.
-        public var shouldDetach: (()->(Bool))? = nil
-        
+        public var shouldDetach: (() -> (Bool))?
+
         internal var needsSwizzle: Bool {
             willShow != nil ||
             didShow != nil ||
@@ -37,7 +37,7 @@ extension NSPopover {
             shouldDetach != nil
         }
     }
-    
+
     /// Handlers for the popover.
     public var handlers: Handlers {
         get { getAssociatedValue(key: "handlers", object: self, initialValue: Handlers()) }
@@ -47,7 +47,7 @@ extension NSPopover {
             }
         }
     }
-    
+
     /// Creates and returns a popover with the specified view.
     public convenience init(view: NSView) {
         self.init()
@@ -56,7 +56,7 @@ extension NSPopover {
         self.contentViewController = viewController
         self.contentSize = view.bounds.size
     }
-    
+
     /// A Boolean value that indicates whether the popover is detachable by the user.
     public var isDetachable: Bool {
         get { getAssociatedValue(key: "isDetachable", object: self, initialValue: false) }
@@ -66,7 +66,7 @@ extension NSPopover {
             }
         }
     }
-    
+
     /// A Boolean value that indicates whether the popover's close button is hidden when deteched.
     public var hideDetachedCloseButton: Bool {
         get { getAssociatedValue(key: "hideDetachedCloseButton", object: self, initialValue: false) }
@@ -78,7 +78,7 @@ extension NSPopover {
             }
         }
     }
-    
+
     /// Detaches the popover.
     public func detach() {
         if self.isDetached == false {
@@ -89,7 +89,7 @@ extension NSPopover {
             closeButton?.isHidden = self.hideDetachedCloseButton
         }
     }
-    
+
     /**
      Shows the popover anchored to the specified view.
      
@@ -102,7 +102,7 @@ extension NSPopover {
     public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, trackViewFrame: Bool) {
         self.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: false, trackViewFrame: trackViewFrame)
     }
-    
+
     /**
      Shows the popover anchored to the specified view.
      
@@ -132,9 +132,9 @@ extension NSPopover {
             default: break
             }
             self.noArrowView = noArrowView
-            positioningView.superview?.addSubview(noArrowView, positioned: .below,relativeTo: positioningView)
+            positioningView.superview?.addSubview(noArrowView, positioned: .below, relativeTo: positioningView)
             self.show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
-            noArrowView.frame =  NSMakeRect(0, -200, 10, 10)
+            noArrowView.frame =  NSRect(x: 0, y: -200, width: 10, height: 10)
             willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
                 (notification.object as? NSPopover)?.dismissNoArrow()
             })
@@ -152,33 +152,33 @@ extension NSPopover {
         }
         isOpeningPopover = false
     }
-    
+
     private func dismissNoArrow() {
         self.noArrowView?.removeFromSuperview()
         self.noArrowView = nil
         self.willCloseObserver = nil
     }
-    
+
     private var closeButton: NSButton? {
         self.contentViewController?.view.superview?.subviews.last as? NSButton
     }
-    
+
     private var willCloseObserver: NotificationToken? {
         get { getAssociatedValue(key: "willClosePopoverObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "willClosePopoverObserver", object: self) }
     }
-    
+
     private var noArrowView: NSView? {
         get { getAssociatedValue(key: "noArrowView", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "noArrowView", object: self) }
     }
-    
-    private var positioningViewFrameObserver: NSKeyValueObservation?  {
+
+    private var positioningViewFrameObserver: NSKeyValueObservation? {
         get { getAssociatedValue(key: "positioningFrameObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "positioningFrameObserver", object: self) }
     }
-    
-    private var isOpeningPopover: Bool  {
+
+    private var isOpeningPopover: Bool {
         get { getAssociatedValue(key: "isOpeningPopover", object: self, initialValue: true) }
         set { set(associatedValue: newValue, key: "isOpeningPopover", object: self) }
     }
@@ -187,11 +187,11 @@ extension NSPopover {
         get { FZSwiftUtils.getAssociatedValue(key: "didSwizzlePopover", object: self, initialValue: false) }
         set { set(associatedValue: newValue, key: "didSwizzlePopover", object: self) }
     }
-    
+
     private var popoverProxy: DelegateProxy {
         get { getAssociatedValue(key: "popoverProxy", object: self, initialValue: DelegateProxy(delegate: self.delegate, popover: self)) }
     }
-    
+
     internal func swizzlePopover() {
         guard didSwizzlePopover == false else { return }
         didSwizzlePopover = true
@@ -200,16 +200,16 @@ extension NSPopover {
             try self.replaceMethod(
                 #selector(getter: delegate),
                 methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSPopoverDelegate?)).self,
-                hookSignature: (@convention(block)  (AnyObject) -> (NSPopoverDelegate?)).self) { store in { object in
+                hookSignature: (@convention(block)  (AnyObject) -> (NSPopoverDelegate?)).self) { _ in { object in
                     return (object as? NSPopover)?.popoverProxy.delegate
                    // store.original(object, #selector(getter: delegate))
                 }
                 }
-            
+
             try self.replaceMethod(
                 #selector(setter: delegate),
-                methodSignature: (@convention(c)  (AnyObject, Selector, NSPopoverDelegate?) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject, NSPopoverDelegate?) -> ()).self) { store in { object, delegate in
+                methodSignature: (@convention(c)  (AnyObject, Selector, NSPopoverDelegate?) -> Void).self,
+                hookSignature: (@convention(block)  (AnyObject, NSPopoverDelegate?) -> Void).self) { _ in { object, delegate in
                     (object as? NSPopover)?.popoverProxy.delegate = delegate
                   //  return (object as? NSPopover)?.popoverProxy.delegate
                    // store.original(object, #selector(getter: delegate))
@@ -219,7 +219,7 @@ extension NSPopover {
             Swift.debugPrint()
         }
     }
-    
+
     private class DelegateProxy: NSObject, NSPopoverDelegate {
         weak var delegate: NSPopoverDelegate?
         weak var popover: NSPopover!
@@ -227,35 +227,35 @@ extension NSPopover {
             self.delegate = delegate
             self.popover = popover
         }
-        
+
         func popoverWillShow(_ notification: Notification) {
             delegate?.popoverWillShow?(notification)
             popover.handlers.willShow?()
         }
-        
+
         func popoverDidShow(_ notification: Notification) {
             delegate?.popoverDidShow?(notification)
             popover.handlers.didShow?()
         }
-        
+
         func popoverDidClose(_ notification: Notification) {
             delegate?.popoverDidClose?(notification)
             popover.handlers.didClose?()
         }
-        
+
         func popoverWillClose(_ notification: Notification) {
             delegate?.popoverWillClose?(notification)
             popover.handlers.willClose?()
         }
-        
+
         func popoverShouldClose(_ popover: NSPopover) -> Bool {
             popover.handlers.shouldClose?() ?? delegate?.popoverShouldClose?(popover) ?? true
         }
-        
+
         func popoverShouldDetach(_ popover: NSPopover) -> Bool {
             popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
         }
-        
+
         func popoverDidDetach(_ popover: NSPopover) {
             delegate?.popoverDidDetach?(popover)
             popover.handlers.didDetach?()

@@ -17,7 +17,7 @@ public class ToolbarItem: NSObject {
     public typealias ActionBlock = NSToolbarItem.ActionBlock
 
     public let identifier: NSToolbarItem.Identifier
-    
+
     internal var isDefault = true
     internal var isSelectable = false
     internal var isImmovableItem = false

@@ -17,8 +17,8 @@ public extension NSTextView {
     var attributedString: NSAttributedString! {
             set {
                 let len = self.textStorage?.length ?? 0
-                let range = NSMakeRange(0,len)
-                self.textStorage?.replaceCharacters(in:range,with:newValue)
+                let range = NSRange(location: 0, length: len)
+                self.textStorage?.replaceCharacters(in: range, with: newValue)
             }
             get { return self.textStorage?.copy() as? NSAttributedString }
         }

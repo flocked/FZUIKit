@@ -60,8 +60,7 @@ public class LayoutItemProvider {
     public init(columnCount: Int = 2,
                 spacing: CGFloat = 8,
                 environment: NSCollectionLayoutEnvironment,
-                itemSizeProvider: @escaping CollectionViewItemSizeProvider)
-    {
+                itemSizeProvider: @escaping CollectionViewItemSizeProvider) {
         columnHeights = [CGFloat](repeating: 0, count: columnCount)
         self.columnCount = CGFloat(columnCount)
         self.itemSizeProvider = itemSizeProvider

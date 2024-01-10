@@ -41,20 +41,20 @@ extension NSButton {
                 AdvanceConfigurationButtonView = nil
             }
             guard newValue != nil else { return  }
-            
+
             if let oldValue = oldValue as? NSButton.AdvanceConfiguration, let newValue = newValue as? NSButton.AdvanceConfiguration, newValue == oldValue {
                 return
             } else if let oldValue = oldValue as? NSButton.Configuration, let newValue = newValue as? NSButton.Configuration, newValue == oldValue {
                 return
             }
-            
+
             self.updateConfiguration()
             if self.automaticallyUpdatesConfiguration == true, newValue != nil {
                 setupConfigurationStateObserver()
             }
         }
     }
-    
+
     /**
      A Boolean value that determines whether the button configuration changes when button’s state changes.
      
@@ -67,12 +67,12 @@ extension NSButton {
             self.setupConfigurationStateObserver()
         }
     }
-    
+
     internal var keyValueObserver: KeyValueObserver<NSButton>? {
         get { getAssociatedValue(key: "keyValueObserver", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "keyValueObserver", object: self) }
     }
-    
+
     internal func setupConfigurationStateObserver() {
         if self.automaticallyUpdatesConfiguration == true || configurationUpdateHandler != nil {
             if keyValueObserver == nil {
@@ -95,33 +95,33 @@ extension NSButton {
                  keyValueObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
                  */
             }
-            
+
             if observerView == nil {
                 let observerView = ObserverView(frame: .zero)
-                observerView.mouseHandlers.exited = { [weak self] event in
+                observerView.mouseHandlers.exited = { [weak self] _ in
                     guard let self = self else { return true }
                     self.isHovered = false
                     return true
                 }
-                
-                observerView.mouseHandlers.moved = { [weak self] event in
+
+                observerView.mouseHandlers.moved = { [weak self] _ in
                     guard let self = self else { return true }
                     self.isHovered = true
                     return true
                 }
-                
-                observerView.mouseHandlers.dragged = { [weak self] event in
+
+                observerView.mouseHandlers.dragged = { [weak self] _ in
                     guard let self = self else { return true }
                     self.isHovered = true
                     return true
                 }
-                
-                observerView.mouseHandlers.entered = { [weak self] event in
+
+                observerView.mouseHandlers.entered = { [weak self] _ in
                     guard let self = self else { return true }
                     self.isHovered = true
                     return true
                 }
-                
+
                 self.observerView = observerView
                 self.addSubview(withConstraint: observerView)
                 observerView.sendToBack()
@@ -132,22 +132,22 @@ extension NSButton {
             observerView = nil
         }
     }
-    
+
     internal var isHovered: Bool {
         get { getAssociatedValue(key: "isHovered", object: self, initialValue: false) }
         set {
             guard newValue != self.isHovered else { return }
             set(associatedValue: newValue, key: "isHovered", object: self)
-            if (self.automaticallyUpdatesConfiguration) {
+            if self.automaticallyUpdatesConfiguration {
                 self.updateConfiguration()
             }
         }
     }
-    
+
     internal var configurationState: ConfigurationState {
         ConfigurationState(state: self.state, isEnabled: self.isEnabled, isHovered: self.isHovered, isPressed: isPressed)
     }
-    
+
     /**
      Requests the system update the button configuration.
      
@@ -156,7 +156,7 @@ extension NSButton {
     public func setNeedsUpdateConfiguration() {
         self.updateConfiguration()
     }
-    
+
     /**
      Updates button configuration in response to button state change.
      
@@ -192,11 +192,11 @@ extension NSButton {
             self.image = nil
             self.alternateImage = nil
             self.sound = configuration.sound
-            
+
             if automaticallyUpdatesConfiguration {
                 configuration = configuration.updated(for: configurationState)
             }
-            
+
             if let AdvanceConfigurationButtonView = self.AdvanceConfigurationButtonView {
                 AdvanceConfigurationButtonView.configuration = configuration
             } else {
@@ -208,7 +208,7 @@ extension NSButton {
         }
         self.configurationUpdateHandler?(self.configurationState)
     }
-    
+
     /**
      A closure that executes when the button state changes.
      
@@ -222,40 +222,39 @@ extension NSButton {
             self.setNeedsUpdateConfiguration()
         }
     }
-    
+
     /**
      A closure to update the configuration of a button.
      
      - Parameter state: The current state of the button.
      */
     public typealias ConfigurationUpdateHandler  = (_ state: ConfigurationState) -> Void
-    
-    
+
     internal var AdvanceConfigurationButtonView: NSButton.AdvanceConfiguration.ButtonView? {
         get { getAssociatedValue(key: "NSButton_AdvanceConfigurationButtonView", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "NSButton_AdvanceConfigurationButtonView", object: self)
         }
     }
-    
+
     internal var observerView: ObserverView? {
         get { getAssociatedValue(key: "NSButton_observerView", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "NSButton_observerView", object: self)
         }
     }
-    
+
     internal var isPressed: Bool {
         get { getAssociatedValue(key: "isPressed", object: self, initialValue: false) }
         set {
             guard newValue != self.isPressed else { return }
             set(associatedValue: newValue, key: "isPressed", object: self)
-            if (self.automaticallyUpdatesConfiguration) {
+            if self.automaticallyUpdatesConfiguration {
                 self.updateConfiguration()
             }
         }
     }
-    
+
     internal func sendAction() {
         guard let action = action, let target = target else { return }
         sendAction(action, to: target)

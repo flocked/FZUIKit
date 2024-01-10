@@ -18,7 +18,7 @@ extension NSTableCellView {
     public var tableView: NSTableView? {
         firstSuperview(for: NSTableView.self)
     }
-    
+
     /// The row of the table cell, or `nil` if the cell isn't displayed in a table view.
     public var row: Int? {
         tableView?.row(for: self)
@@ -26,7 +26,7 @@ extension NSTableCellView {
 
     /// The index of the column that displays the cell, or `nil` if the cell isn't displayed in a table view.
     public var columnIndex: Int? { tableView?.column(for: self) }
-    
+
     /**
      A Boolean value that indicates whether the column displaying the cell is selected.
      */

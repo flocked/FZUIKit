@@ -15,7 +15,7 @@ import SwiftUI
 extension NSButton.AdvanceConfiguration.ButtonView {
     internal struct ContentView: View {
         let configuration: NSButton.AdvanceConfiguration
-        
+
         public init(configuration: NSButton.AdvanceConfiguration) {
             self.configuration = configuration
         }
@@ -29,7 +29,7 @@ extension NSButton.AdvanceConfiguration.ButtonView {
             @unknown default: return .system(.body)
             }
         }
-        
+
         var subtitleFont: Font {
             switch configuration.size {
             case .large: return .system(.body) // 13
@@ -39,7 +39,7 @@ extension NSButton.AdvanceConfiguration.ButtonView {
             @unknown default: return .system(.subheadline)
             }
         }
-        
+
         @ViewBuilder
         var textItems: some View {
             VStack(alignment: configuration._resolvedTitleAlignment.alignment, spacing: configuration.titlePadding) {
@@ -51,7 +51,7 @@ extension NSButton.AdvanceConfiguration.ButtonView {
                     .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
             }
         }
-        
+
         @ViewBuilder
         var titleItem: some View {
             if let title = configuration.title {
@@ -60,7 +60,7 @@ extension NSButton.AdvanceConfiguration.ButtonView {
                 Text(AttributedString(attributedTitle))
             }
         }
-        
+
         @ViewBuilder
         var subtitleItem: some View {
             if let subtitle = configuration.subtitle {
@@ -69,7 +69,7 @@ extension NSButton.AdvanceConfiguration.ButtonView {
                 Text(AttributedString(attributedSubtitle))
             }
         }
-        
+
         @ViewBuilder
         var imageItem: some View {
             if let image = configuration.image {
@@ -78,13 +78,13 @@ extension NSButton.AdvanceConfiguration.ButtonView {
                     .symbolConfiguration(configuration.imageSymbolConfiguration)
             }
         }
-        
+
         @ViewBuilder
         var stackItem: some View {
             switch configuration.imagePlacement {
             case .leading, .trailing:
                 HStack(alignment: .center, spacing: configuration.imagePadding) {
-                    if (configuration.imagePlacement == .leading) {
+                    if configuration.imagePlacement == .leading {
                         imageItem
                         textItems
                     } else {
@@ -94,7 +94,7 @@ extension NSButton.AdvanceConfiguration.ButtonView {
                 }
             default:
                 VStack(alignment: .center, spacing: configuration.imagePadding) {
-                    if (configuration.imagePlacement == .top) {
+                    if configuration.imagePlacement == .top {
                         imageItem
                         textItems
                     } else {
@@ -104,8 +104,7 @@ extension NSButton.AdvanceConfiguration.ButtonView {
                 }
             }
         }
-        
-        
+
         var body: some View {
             stackItem
                 .padding(configuration.contentInsets.edgeInsets)
@@ -129,23 +128,22 @@ internal extension NSButton.AdvanceConfiguration {
                 }
             }
         }
-        
+
         var button: NSButton? {
             superview as? NSButton
         }
-        
+
         override func mouseDown(with event: NSEvent) {
             button?.isPressed = true
         }
-                
+
         override func mouseUp(with event: NSEvent) {
             button?.isPressed = false
             if self.frame.contains(event.location(in: self)) {
                 button?.sendAction()
             }
         }
-        
-        
+
         /// Creates a item content view with the specified content configuration.
         public init(configuration: NSButton.AdvanceConfiguration) {
             self.configuration = configuration
@@ -153,14 +151,14 @@ internal extension NSButton.AdvanceConfiguration {
             self.hostingViewConstraints = addSubview(withConstraint: hostingController.view)
             self.updateConfiguration()
         }
-        
+
         internal var hostingViewConstraints: [NSLayoutConstraint] = []
-        
+
         internal func updateConfiguration() {
             hostingController.rootView =  ContentView(configuration: self.configuration)
             self.sizeToFit()
         }
-        
+
         internal var margins: NSDirectionalEdgeInsets {
             get {
                 var edgeInsets = NSDirectionalEdgeInsets(top: hostingViewConstraints[0].constant, leading: hostingViewConstraints[1].constant, bottom: 0, trailing: 0)
@@ -175,7 +173,7 @@ internal extension NSButton.AdvanceConfiguration {
                 hostingViewConstraints[3].constant = -newValue.height
             }
         }
-        
+
         internal lazy var hostingController: NSHostingController<ContentView> = {
             let contentView = ContentView(configuration: self.configuration)
             let hostingController = NSHostingController(rootView: contentView)
@@ -184,7 +182,7 @@ internal extension NSButton.AdvanceConfiguration {
             hostingController.view.clipsToBounds = false
             return hostingController
         }()
-        
+
         @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")

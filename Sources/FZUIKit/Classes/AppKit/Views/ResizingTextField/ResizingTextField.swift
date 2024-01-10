@@ -20,20 +20,20 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         /// The user did change the text.
         case changed
     }
-    
+
     /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
     @IBInspectable public var automaticallyResizesToFit: Bool = true {
         didSet {
                 self.invalidateIntrinsicContentSize()
         }
     }
-    
+
     /// Indicates how the text field should resize for fitting the placeholder.
     public var resizesToFitPlaceholder: PlaceHolderResizeOption = .emptyText {
         didSet { if oldValue != resizesToFitPlaceholder, resizesToFitPlaceholder != .never {
             self.invalidateIntrinsicContentSize() } }
     }
-    
+
     /// The placeholder resize option.
     public enum PlaceHolderResizeOption: Int {
         /// Resizes the text field to always fit the placeholder.
@@ -43,31 +43,31 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         /// Never resizes the text field to fit the placeholder.
         case never
     }
-    
+
     /**
      The minimum width of the text field when it automatically resizes to fit its text.
      
      When the text field hits the maximum width, it will automatically grow it's height.
      */
-    public var minWidth: CGFloat? = nil {
+    public var minWidth: CGFloat? {
         didSet { if oldValue != minWidth {
             self.invalidateIntrinsicContentSize() } }
     }
-    
+
     /**
      The maximum width of the text field when it automatically resizes to fit its text.
 
      When `automaticallyResizesToFit` is enabled and the text field hits the maximum width, it will automatically grow in height.
      */
-    public var maxWidth: CGFloat? = nil {
+    public var maxWidth: CGFloat? {
         didSet { if oldValue != maxWidth {
             self.invalidateIntrinsicContentSize() } }
     }
-        
+
     /// The minimum amount of characters required when the user edits the text.
-    public var minAmountChars: Int? = nil
+    public var minAmountChars: Int?
     /// The maximum amount of characters allowed when the user edits the text.
-    public var maxAmountChars: Int? = nil
+    public var maxAmountChars: Int?
 
     /*
     /// The allowed characters the user can enter when editing.
@@ -114,13 +114,13 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
     /// The allowed characters the user can enter when editing.
     var allowedCharacters: AllowedCharacters = .all
     */
-    
+
     /*
     /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
     @IBInspectable public var stopsEditingOnOutsideMouseDown = false {
         didSet { self.setupMouseDownMonitor() } }
      */
-    
+
     /// A Boolean value that indicates whether the user is editing the text.
     public private(set) var isEditing = false
 
@@ -138,7 +138,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     /// The handler called when the edit state changes.
     public var editingStateHandler: ((EditState) -> Void)?
-        
+
     /// The location of the cursor while editing.
     public var editingCursorLocation: Int? {
         let currentEditor = self.currentEditor() as? NSTextView
@@ -158,7 +158,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
             }
         }
     }
-    
+
     override public init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         sharedInit()
@@ -168,7 +168,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         super.init(coder: coder)
         sharedInit()
     }
-    
+
     internal func sharedInit() {
         self.drawsBackground = false
         self.isBordered = false
@@ -178,7 +178,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         textCell?.setWantsNotificationForMarkedText(true)
         self.translatesAutoresizingMaskIntoConstraints = false
         self.delegate = self
-        
+
         self.cell?.isScrollable = true
         self.cell?.wraps = true
         self.lineBreakMode = .byTruncatingTail
@@ -194,7 +194,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         }
         return canBecome
     }
-    
+
     internal func trimString(_ string: String) -> String {
         self.allowedCharacters.trimString(string)
     }
@@ -207,13 +207,13 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         }
         return self.actionHandlers.confirm?(string) ?? true
     }
-    
+
     /// Handlers that get called whenever the user tries to confirm (Enter key) or cancel (ESC key) its editing string.
     public struct ActionHandlers {
         /// The handler that gets called whenever the user tries to cancel (ESC key) its string. Return `true` to allow cancellation. The string will return to it's initial value prior editing. Return `false` to to disallow cancellation. The text will stay in editing state.
-        var cancel: ((String)->(Bool))? = nil
+        var cancel: ((String) -> (Bool))?
         /// The handler that gets called whenever the user tries to confirm (Enter key) its string. Return `true` to allow the string and `false` if not.
-        var confirm: ((String)->(Bool))? = nil
+        var confirm: ((String) -> (Bool))?
     }
 
     /// Handlers that get called whenever the user tries to conform or cancel its string.
@@ -237,7 +237,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
                 return true
             }
         }
-        
+
         return false
     }
 
@@ -255,16 +255,16 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
             placeholderSize = NSSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
         }
     }}
-    
+
     internal var lastContentSize = NSSize() { didSet {
         lastContentSize = NSSize(width: ceil(self.lastContentSize.width), height: ceil(self.lastContentSize.height))
     }}
-    
+
     override public var stringValue: String { didSet {
         guard !self.isEditing else { return }
         self.lastContentSize = stringValueSize()
     }}
-    
+
     public override var attributedStringValue: NSAttributedString { didSet {
         guard !self.isEditing else { return }
         self.lastContentSize = stringValueSize()
@@ -274,7 +274,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         guard oldValue != placeholderString else { return }
         self.placeholderSize = placeholderStringSize()
     }}
-    
+
     public override var placeholderAttributedString: NSAttributedString? { didSet {
         guard oldValue != placeholderAttributedString else { return }
         self.placeholderSize = placeholderStringSize()
@@ -287,15 +287,15 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
             self.placeholderSize = placeholderStringSize()
         }
     }
-    
+
     internal func stringValueSize() -> CGSize {
         let stringSize = self.attributedStringValue.size()
         return CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
     }
-    
+
     internal func placeholderStringSize() -> CGSize? {
         let font = self.font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .regular)
-        var attributedString: NSAttributedString? = nil
+        var attributedString: NSAttributedString?
         if let placeholderAttributedString = self.placeholderAttributedString {
             attributedString = placeholderAttributedString.font(font)
         } else if let placeholderString = self.placeholderString {
@@ -309,7 +309,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
 
     internal var previousStringValue: String = ""
     internal var previousCharStringValue: String = ""
-    internal var previousSelectedRange: NSRange? = nil
+    internal var previousSelectedRange: NSRange?
 
     public override func textDidBeginEditing(_ notification: Notification) {
         super.textDidBeginEditing(notification)
@@ -366,7 +366,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
             }
             minSize.width = maxWidth
         }
-        
+
         if let placeholderSize = self.placeholderSize {
             switch resizesToFitPlaceholder {
             case .always:
@@ -378,7 +378,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
             case .never: break
             }
         }
-        
+
         if let minWidth = self.minWidth {
             minSize.width = max(minSize.width, minWidth)
         }
@@ -404,7 +404,7 @@ open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         if let minWidth = self.minWidth {
             newWidth = max(newWidth, minWidth)
         }
-        
+
         var newSize = NSSize(width: newWidth, height: intrinsicContentSize.height)
         if let maxWidth = maxWidth, newSize.width >= maxWidth {
             if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 1000)) {
