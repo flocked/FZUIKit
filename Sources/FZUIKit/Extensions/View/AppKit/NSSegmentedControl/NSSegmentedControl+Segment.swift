@@ -22,7 +22,7 @@
         }
 
         /// The title alignemnt of the segment.
-        public var titleAlignment: NSTextAlignment = .left {
+        public var titleAlignment: NSTextAlignment = .center {
             didSet { if let index = index {
                 segmentedControl?.setAlignment(titleAlignment, forSegment: index)
             } }
