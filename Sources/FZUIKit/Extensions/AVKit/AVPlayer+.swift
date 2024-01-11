@@ -103,7 +103,7 @@ public extension AVPlayer {
     func seek(toPercentage percentage: Double) {
         if let currentItem = currentItem {
             let duration = currentItem.duration
-            let to: Double = duration.seconds / percentage.clamped(max: 1.0)
+            let to: Double = duration.seconds * percentage.clamped(max: 1.0)
             let seekTo = CMTime(seconds: to)
             seek(to: seekTo)
         }
