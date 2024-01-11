@@ -23,7 +23,7 @@ public extension AVPlayerItem {
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted.
      */
     func seek(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
-        let to: Double = duration.seconds / percentage.clamped(max: 1.0)
+        let to: Double = duration.seconds * percentage.clamped(max: 1.0)
         let seekTo = CMTime(seconds: to)
         seek(to: seekTo, completionHandler: completionHandler)
     }
