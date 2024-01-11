@@ -15,6 +15,11 @@
     open class MagnifyMediaView: NSView {
         public let mediaView = MediaView()
         private let scrollView = NSScrollView()
+        
+        /// The video player view that is playing video.
+        public var videoView: AVPlayerView {
+            mediaView.videoView
+        }
 
         override open var acceptsFirstResponder: Bool {
             true
