@@ -337,7 +337,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
          */
-        @objc dynamic var borderWidth: CGFloat {
+        @objc  public dynamic var borderWidth: CGFloat {
             get { layer?.borderWidth ?? 0.0 }
             set {
                 wantsLayer = true
