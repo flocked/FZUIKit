@@ -434,8 +434,8 @@
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
                 }
-                if layer?.borderColor?.isVisible == false || layer?.borderColor == nil {
-                    layer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                if layer?.shadowColor?.isVisible == false || layer?.shadowColor == nil {
+                    layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
 
                 borderColorAnimatable = animatableColor
