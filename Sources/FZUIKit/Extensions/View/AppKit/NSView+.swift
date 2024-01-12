@@ -429,7 +429,7 @@
                  */
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
-                dynamicColors.border = borderColor
+                dynamicColors.shadow = shadowColor
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
