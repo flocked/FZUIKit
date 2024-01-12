@@ -416,7 +416,6 @@
                 self.shadowColorDynamic = newValue
                 Self.swizzleAnimationForKey()
                 self.dynamicColors.shadow = newValue
-                /*
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, self.isProxy() {
                     animatableColor = .clear
@@ -425,7 +424,6 @@
                     layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
                 self.shadowColorAnimatable = animatableColor
-                */
             }
         }
 
