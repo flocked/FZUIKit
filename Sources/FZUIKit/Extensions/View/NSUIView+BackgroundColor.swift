@@ -88,7 +88,7 @@
             var dynamicColors: DynamicColors {
                 get { getAssociatedValue(key: "dynamicColors", object: self, initialValue: DynamicColors()) }
                 set { set(associatedValue: newValue, key: "dynamicColors", object: self)
-                   // setupEffectiveAppearanceObserver()
+                    setupEffectiveAppearanceObserver()
                 }
             }
 
@@ -99,11 +99,13 @@
 
             func setupEffectiveAppearanceObserver() {
                 if dynamicColors.needsAppearanceObserver {
+                    /*
                     if _effectiveAppearanceKVO == nil {
                         _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                             self?.updateEffectiveColors()
                         }
                     }
+                     */
                 } else {
                     _effectiveAppearanceKVO?.invalidate()
                     _effectiveAppearanceKVO = nil
