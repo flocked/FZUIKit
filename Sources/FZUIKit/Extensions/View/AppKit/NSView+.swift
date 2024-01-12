@@ -356,7 +356,10 @@
             set {
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
-                dynamicColors.border = newValue
+                if isProxy() {
+                    layer?.parentView?.dynamicColors.border = newValue
+                  //  dynamicColors.border = newValue
+                }
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
