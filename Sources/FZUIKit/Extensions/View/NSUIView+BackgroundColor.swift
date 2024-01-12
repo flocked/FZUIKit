@@ -97,7 +97,7 @@
             func setupEffectiveAppearanceObserver() {
                 if dynamicColors.needsAppearanceObserver {
                     if _effectiveAppearanceKVO == nil {
-                        self.observe(\.effectiveAppearance, options: [.old, .new], changeHandler: { view, change in
+                        layer?.parentView?._effectiveAppearanceKVO = self.observe(\.effectiveAppearance, options: [.old, .new], changeHandler: { view, change in
                             
                         })
                         /*
