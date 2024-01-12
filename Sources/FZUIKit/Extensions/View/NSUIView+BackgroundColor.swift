@@ -90,7 +90,7 @@
             }
 
             var _effectiveAppearanceKVO: NSKeyValueObservation? {
-                get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
+                get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self, initialValue: nil) }
                 set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
             }
             
@@ -103,11 +103,11 @@
                 if dynamicColors.needsAppearanceObserver {
                     if _effectiveAppearanceKVO == nil {
                         testVall = 10
-                        /*
+                        
                         layer?.parentView?._effectiveAppearanceKVO = self.observe(\.effectiveAppearance, options: [.old, .new], changeHandler: { view, change in
                             
                         })
-                         */
+                        
                         /*
                         _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                             self?.updateEffectiveColors()
