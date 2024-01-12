@@ -393,7 +393,7 @@
                 shadowOffset = newValue.offset
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
-            //    shadowColor = newValue._resolvedColor
+                shadowColor = newValue._resolvedColor
             }
         }
 
@@ -415,6 +415,7 @@
                 wantsLayer = true
                 self.shadowColorDynamic = newValue
                 Self.swizzleAnimationForKey()
+                /*
                 self.dynamicColors.shadow = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, self.isProxy() {
@@ -424,6 +425,7 @@
                     layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
                 self.shadowColorAnimatable = animatableColor
+                */
             }
         }
 
