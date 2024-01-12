@@ -438,7 +438,7 @@
                     layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
 
-                borderColorAnimatable = animatableColor
+                shadowColorAnimatable = animatableColor
                 
             }
         }
@@ -461,6 +461,7 @@
             get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self) }
         }
+        
 
         @objc dynamic var shadowColorAnimatable: NSColor? {
             get { layer?.shadowColor?.nsColor }
