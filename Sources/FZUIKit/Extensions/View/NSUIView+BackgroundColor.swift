@@ -30,12 +30,7 @@
                 set {
                     wantsLayer = true
                     Self.swizzleAnimationForKey()
-                    if isProxy() {
-                        layer?.parentView?.dynamicColors.background = newValue
-                    } else {
-                        dynamicColors.background = newValue
-                    }
-
+                    NSView.toRealSelf(self).dynamicColors.background = newValue
                     var animatableColor = newValue?.resolvedColor(for: self)
                     if animatableColor == nil, isProxy() {
                         animatableColor = .clear

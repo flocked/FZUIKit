@@ -362,11 +362,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             set {
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
-                if isProxy() {
-                    layer?.parentView?.dynamicColors.border = newValue
-                } else {
-                    dynamicColors.border = newValue
-                }
+                NSView.toRealSelf(self).dynamicColors.border = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
@@ -424,11 +420,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             set {
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
-                if isProxy() {
-                    layer?.parentView?.dynamicColors.shadow = newValue
-                } else {
-                    dynamicColors.shadow = newValue
-                }
+                NSView.toRealSelf(self).dynamicColors.shadow = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
@@ -550,12 +542,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
                 proxyInnerShadow = newValue
-                if isProxy() {
-                    layer?.parentView?.dynamicColors.innerShadow = newValue._resolvedColor
-                } else {
-                    dynamicColors.innerShadow = newValue._resolvedColor
-                }
-
+                NSView.toRealSelf(self).dynamicColors.innerShadow = newValue._resolvedColor
                 if innerShadowLayer == nil {
                     let innerShadowLayer = InnerShadowLayer()
                     layer?.addSublayer(withConstraint: innerShadowLayer)
@@ -844,6 +831,13 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             }
         }
     }
+
+extension NSView {
+    @objc private func realSelf() -> NSView { self }
+    static func toRealSelf(_ v: NSView) -> NSView {
+        v.perform(#selector(realSelf))!.takeUnretainedValue() as! NSView
+    }
+}
 
     /// The additional `NSView` keys of properties that can be animated.
     private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize"]
