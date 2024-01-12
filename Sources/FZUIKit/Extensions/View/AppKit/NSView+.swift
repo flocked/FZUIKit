@@ -356,7 +356,7 @@
             set {
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
-                dynamicColors.border = borderColor
+                dynamicColors.border = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
@@ -412,7 +412,7 @@
         public dynamic var shadowColor: NSColor? {
             get { self.layer?.shadowColor?.nsColor }
             set {
-                
+                /*
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
 
@@ -426,8 +426,20 @@
                     layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
                 shadowColorAnimatable = animatableColor
+                */
                 
-                
+                wantsLayer = true
+                Self.swizzleAnimationForKey()
+                dynamicColors.shadow = shadowColor
+                var animatableColor = newValue?.resolvedColor(for: self)
+                if animatableColor == nil, isProxy() {
+                    animatableColor = .clear
+                }
+                if layer?.shadowColor?.isVisible == false || layer?.shadowColor == nil {
+                    layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                }
+
+                shadowColorAnimatable = animatableColor
                 
                 
                 
