@@ -54,9 +54,12 @@
             }
 
             struct DynamicColors {
+                /*
                 var shadow: NSColor? {
                     didSet { if shadow?.isDynamic == false { shadow = nil } }
                 }
+                 */
+                var shadow: NSColor?
 
                 var innerShadow: NSColor? {
                     didSet { if innerShadow?.isDynamic == false { innerShadow = nil } }
