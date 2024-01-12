@@ -410,22 +410,37 @@
          The default value is `nil`, which results in a view with no shadow.
          */
         public dynamic var shadowColor: NSColor? {
-            get { self.shadowColorDynamic }
+            get { self.layer?.shadowColor?.nsColor }
             set {
                 wantsLayer = true
-                self.shadowColorDynamic = newValue
                 Self.swizzleAnimationForKey()
-                self.dynamicColors.shadow = newValue
+
+            //    self.shadowColorDynamic = newValue
+                dynamicColors.shadow = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, self.isProxy() {
                     animatableColor = .clear
                 }
-                if self.layer?.shadowColor?.isVisible == false || self.layer?.shadowColor == nil {
+                if layer?.shadowColor?.isVisible == false || layer?.shadowColor == nil {
                     layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
-                self.shadowColorAnimatable = animatableColor
+                shadowColorAnimatable = animatableColor
             }
         }
+        
+        /*
+         Self.swizzleAnimationForKey()
+         dynamicColors.border = borderColor
+         var animatableColor = newValue?.resolvedColor(for: self)
+         if animatableColor == nil, isProxy() {
+             animatableColor = .clear
+         }
+         if layer?.borderColor?.isVisible == false || layer?.borderColor == nil {
+             layer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+         }
+
+         borderColorAnimatable = animatableColor
+         */
 
         dynamic var shadowColorDynamic: NSColor? {
             get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: nil) }
