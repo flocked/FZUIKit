@@ -168,4 +168,63 @@
             firstSublayer(type: DashedBorderLayer.self)
         }
     }
+
+/// The Objective-C class for ``BorderConfiguration``.
+public class __BorderConfiguration: NSObject, NSCopying {
+    var color: NSUIColor?
+    var colorTransformer: ColorTransformer?
+    var width: CGFloat
+    var dashPattern: [CGFloat]
+    var insets: NSDirectionalEdgeInsets
+    var _resolvedColor: NSUIColor?
+
+    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dashPattern: [CGFloat], insets: NSDirectionalEdgeInsets, resolvedColor: NSColor? = nil) {
+        self.color = color
+        self.width = width
+        self.dashPattern = dashPattern
+        self.colorTransformer = colorTransformer
+        self.insets = insets
+        self._resolvedColor = resolvedColor
+        super.init()
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        BorderConfiguration()
+    }
+}
+
+extension BorderConfiguration: ReferenceConvertible {
+    /// The Objective-C type for this state.
+    public typealias ReferenceType = __BorderConfiguration
+
+    public var description: String {
+      ""
+    }
+
+    public var debugDescription: String {
+        description
+    }
+
+    public func _bridgeToObjectiveC() -> __BorderConfiguration {
+        return __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, insets: insets, resolvedColor: _resolvedColor)
+    }
+
+    public static func _forceBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) {
+        result = BorderConfiguration(color: source.color, colorTransformer: source.colorTransformer, width: source.width, dashPattern: source.dashPattern, insets: source.insets)
+    }
+
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __BorderConfiguration?) -> BorderConfiguration {
+        if let source = source {
+            var result: BorderConfiguration?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return BorderConfiguration()
+    }
+}
 #endif

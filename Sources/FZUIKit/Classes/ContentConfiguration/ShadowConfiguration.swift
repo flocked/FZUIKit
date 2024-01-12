@@ -215,6 +215,64 @@
         }
     }
 
+/// The Objective-C class for ``ShadowConfiguration``.
+public class __ShadowConfiguration: NSObject, NSCopying {
+    var color: NSUIColor?
+    var colorTransform: ColorTransformer?
+    var opacity: CGFloat = 0.3
+    var radius: CGFloat = 2.0
+    var offset: CGPoint = .init(x: 1.0, y: -1.5)
+    var _resolvedColor: NSUIColor?
+
+    public init(color: NSUIColor?, opacity: CGFloat, radius: CGFloat, offset: CGPoint, resolvedColor: NSColor?) {
+        self.color = color
+        self.opacity = opacity
+        self.radius = radius
+        self.offset = offset
+        self._resolvedColor = resolvedColor
+        super.init()
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset, resolvedColor: _resolvedColor)
+    }
+}
+
+extension ShadowConfiguration: ReferenceConvertible {
+    /// The Objective-C type for this state.
+    public typealias ReferenceType = __ShadowConfiguration
+
+    public var description: String {
+      ""
+    }
+
+    public var debugDescription: String {
+        description
+    }
+
+    public func _bridgeToObjectiveC() -> __ShadowConfiguration {
+        return __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset, resolvedColor: _resolvedColor)
+    }
+
+    public static func _forceBridgeFromObjectiveC(_ source: __ShadowConfiguration, result: inout ShadowConfiguration?) {
+        result = ShadowConfiguration(color: source.color, opacity: source.opacity, radius: source.radius, offset: source.offset)
+    }
+
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __ShadowConfiguration, result: inout ShadowConfiguration?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __ShadowConfiguration?) -> ShadowConfiguration {
+        if let source = source {
+            var result: ShadowConfiguration?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return ShadowConfiguration()
+    }
+}
+
     /*
      public extension NSMutableAttributedString {
          /// Configurates the shadow of the attributed string.

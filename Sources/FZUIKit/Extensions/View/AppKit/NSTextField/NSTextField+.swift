@@ -29,7 +29,7 @@
             let height = font.spc ?? defaultLineHeight - font.ascenderReal
             return lastLineFrame.origin.y + height
         }
-
+        
         /// Returns the number of visible lines.
         var numberOfVisibleLines: Int {
             guard let font = font else { return -1 }
