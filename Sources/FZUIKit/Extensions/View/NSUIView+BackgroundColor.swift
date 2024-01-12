@@ -54,12 +54,9 @@
             }
 
             struct DynamicColors {
-                /*
                 var shadow: NSColor? {
                     didSet { if shadow?.isDynamic == false { shadow = nil } }
                 }
-                 */
-                var shadow: NSColor?
 
                 var innerShadow: NSColor? {
                     didSet { if innerShadow?.isDynamic == false { innerShadow = nil } }
@@ -99,13 +96,11 @@
 
             func setupEffectiveAppearanceObserver() {
                 if dynamicColors.needsAppearanceObserver {
-                    /*
                     if _effectiveAppearanceKVO == nil {
                         _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
-                            self?.updateEffectiveColors()
+                          //  self?.updateEffectiveColors()
                         }
                     }
-                     */
                 } else {
                     _effectiveAppearanceKVO?.invalidate()
                     _effectiveAppearanceKVO = nil
