@@ -25,7 +25,7 @@
     #if os(macOS)
         public extension BackgroundColorSettable where Self: NSView {
             /// The background color of the view.
-            dynamic var backgroundColor: NSColor? {
+            var backgroundColor: NSColor? {
                 get { backgroundColorAnimatable }
                 set {
                     wantsLayer = true
