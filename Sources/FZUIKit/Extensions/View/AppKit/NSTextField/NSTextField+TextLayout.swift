@@ -10,14 +10,19 @@
 
     public extension NSTextField {
         /**
-         Initializes a text field with the specified layout.
-         - Parameter layout: The text layout of the text field.
+         Initializes a text field with the specified text layout.
+         
+         - Parameter layout: The text layout for the text field.
          - Returns: An initialized `NSTextField`.
          */
         convenience init(layout: TextLayout) {
-            self.init(frame: .zero)
-            textLayout = layout
-            maximumNumberOfLines = 0
+            if layout == .wraps {
+                self.init(wrappingLabelWithString: "")
+            } else {
+                self.init(string: "")
+                textLayout = layout
+                maximumNumberOfLines = 0
+            }
         }
 
         /// The text layout of the text field.
@@ -38,9 +43,9 @@
                 if let newValue = newValue {
                     lineBreakMode = newValue.lineBreakMode
                     usesSingleLineMode = false
-                    cell?.wraps = newValue.wraps
+                    wraps = newValue.wraps
                     truncatesLastVisibleLine = true
-                    cell?.isScrollable = newValue.isScrollable
+                    isScrollable = newValue.isScrollable
                     setContentCompressionResistancePriority(newValue.layoutPriority, for: .horizontal)
                 }
             }
@@ -55,11 +60,6 @@
             /// The text scrolls past the text field cell.
             case scrolls = 2
 
-            init?(lineBreakMode: NSLineBreakMode) {
-                guard let found = Self.allCases.first(where: { $0.lineBreakMode == lineBreakMode }) else { return nil }
-                self = found
-            }
-
             var isScrollable: Bool {
                 self == .scrolls
             }
@@ -69,7 +69,7 @@
             }
 
             var layoutPriority: NSLayoutConstraint.Priority {
-                (self == .wraps) ? .fittingSizeCompression : .defaultLow
+                self == .wraps ? .fittingSizeCompression : .defaultLow
             }
 
             var lineBreakMode: NSLineBreakMode {
@@ -84,5 +84,13 @@
             }
         }
     }
+
+public extension NSTextField.TextLayout {
+    /// Returns the text layout for the specifed line break mode.
+    init?(lineBreakMode: NSLineBreakMode) {
+        guard let found = Self.allCases.first(where: { $0.lineBreakMode == lineBreakMode }) else { return nil }
+        self = found
+    }
+}
 
 #endif

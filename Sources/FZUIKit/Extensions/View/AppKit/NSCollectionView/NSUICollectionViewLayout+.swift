@@ -87,10 +87,10 @@
                 section.contentInsets = insets
 
                 // Header & Footer
-                if let headerItem = header?.item(elementKind: "Header") {
+                if let headerItem = header?.item(elementKind: NSUICollectionView.elementKindSectionHeader) {
                     section.boundarySupplementaryItems.append(headerItem)
                 }
-                if let footherItem = footer?.item(elementKind: "Footer") {
+                if let footherItem = footer?.item(elementKind: NSUICollectionView.elementKindSectionFooter) {
                     section.boundarySupplementaryItems.append(footherItem)
                 }
                 return section

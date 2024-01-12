@@ -345,6 +345,12 @@
                 layer?.borderWidth = newValue
             }
         }
+        
+        func tttt() {
+if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
+    // use the view without NSProxy
+}
+        }
 
         /**
          The border color of the view.

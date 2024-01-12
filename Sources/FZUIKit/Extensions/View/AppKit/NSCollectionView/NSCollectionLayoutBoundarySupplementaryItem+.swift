@@ -16,7 +16,7 @@
         static func sectionHeader(height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = false) -> NSCollectionLayoutBoundarySupplementaryItem {
             let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                     heightDimension: height)
-            let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: layoutSize, elementKind: NSUICollectionView.ElementKind.sectionHeader, alignment: .top)
+            let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: layoutSize, elementKind: NSUICollectionView.elementKindSectionHeader, alignment: .top)
 
             item.zIndex = .max
             item.pinToVisibleBounds = floating
@@ -25,7 +25,7 @@
 
         static func sectionFooter(height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = false) -> NSCollectionLayoutBoundarySupplementaryItem {
             let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: height)
-            let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: layoutSize, elementKind: NSUICollectionView.ElementKind.sectionFooter, alignment: .bottom)
+            let item = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: layoutSize, elementKind: NSUICollectionView.elementKindSectionFooter, alignment: .bottom)
 
             item.zIndex = .max
             item.pinToVisibleBounds = floating

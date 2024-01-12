@@ -45,12 +45,38 @@
             return numberOfVisibleLines
         }
 
-        /// A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
+        /**
+         A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
+         
+         When the value of this property is `true`, the text field truncates text and adds an ellipsis character to the last visible line when the text does not fit. The value in the `lineBreakMode` property must be `byWordWrapping` or `byCharWrapping` for this option to have any effect.
+         */
         var truncatesLastVisibleLine: Bool {
             get { cell?.truncatesLastVisibleLine ?? false }
             set { cell?.truncatesLastVisibleLine = newValue }
         }
-
+        
+        /**
+         A Boolean value indicating whether the text field wraps text whose length that exceeds the text field’s frame.
+         
+         To specify the maximum numbers of lines for wrapping, use `maximumNumberOfLines`.
+         
+         When the value of this property is `true`, the text field wraps text and makes the cell non-scrollable. If the text of the text field is an attributed string value, you must explicitly set the paragraph style line break mode. Setting the value of this property to `true` is equivalent to setting the `lineBreakMode` property to `byWordWrapping`.
+         */
+        var wraps: Bool {
+            get { cell?.wraps ?? false }
+            set { cell?.wraps = newValue }
+        }
+        
+        /**
+         A Boolean value indicating whether excess text scrolls past the text field’s bounds.
+         
+         When the value of this property is `true`, text can be scrolled past the text field’s bound. When the value is `false`, the text field wraps its text.
+         */
+        var isScrollable: Bool {
+            get { cell?.isScrollable ?? false }
+            set { cell?.isScrollable = newValue }
+        }
+        
         /// A Boolean value indicating whether the text field has keyboard focus.
         var hasKeyboardFocus: Bool {
             currentEditor() == window?.firstResponder
