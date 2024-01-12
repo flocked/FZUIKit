@@ -419,7 +419,7 @@
             //    self.shadowColorDynamic = newValue
                 dynamicColors.shadow = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
-                if animatableColor == nil, self.isProxy() {
+                if animatableColor == nil, isProxy() {
                     animatableColor = .clear
                 }
                 if layer?.shadowColor?.isVisible == false || layer?.shadowColor == nil {
