@@ -88,7 +88,7 @@
             var dynamicColors: DynamicColors {
                 get { getAssociatedValue(key: "dynamicColors", object: self, initialValue: DynamicColors()) }
                 set { set(associatedValue: newValue, key: "dynamicColors", object: self)
-                    setupEffectiveAppearanceObserver()
+                   // setupEffectiveAppearanceObserver()
                 }
             }
 
