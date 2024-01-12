@@ -90,37 +90,20 @@
             }
 
             var _effectiveAppearanceKVO: NSKeyValueObservation? {
-                get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self, initialValue: nil) }
+                get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
                 set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
-            }
-            
-            var appearanceObserver: NSKeyValueObservation? {
-                get { getAssociatedValue(key: "appearanceObserver", object: self, initialValue: nil) }
-                set { set(associatedValue: newValue, key: "appearanceObserver", object: self) }
-            }
-            
-            var testVall: Int {
-                get { getAssociatedValue(key: "testVall", object: self, initialValue: 3) }
-                set { set(associatedValue: newValue, key: "testVall", object: self) }
             }
 
             func setupEffectiveAppearanceObserver() {
                 if dynamicColors.needsAppearanceObserver {
-                    if self.appearanceObserver == nil {
-                        testVall = 10
-                        self.appearanceObserver = self.observe(\.effectiveAppearance, options: [.old, .new], changeHandler: { view, change in
-                            
-                        })
-                        
-                        /*
+                    if _effectiveAppearanceKVO == nil {
                         _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                             self?.updateEffectiveColors()
                         }
-                         */
                     }
                 } else {
-                    self.appearanceObserver?.invalidate()
-                    self.appearanceObserver = nil
+                    _effectiveAppearanceKVO?.invalidate()
+                    _effectiveAppearanceKVO = nil
                 }
             }
 
