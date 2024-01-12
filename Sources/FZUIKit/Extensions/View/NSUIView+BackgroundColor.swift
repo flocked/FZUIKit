@@ -45,7 +45,7 @@
         }
 
         extension NSView {
-            @objc dynamic var backgroundColorAnimatable: NSColor? {
+            @objc var backgroundColorAnimatable: NSColor? {
                 get { layer?.backgroundColor?.nsColor }
                 set {
                     layer?.backgroundColor = newValue?.cgColor
