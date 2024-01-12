@@ -351,7 +351,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
          */
-        dynamic var borderColor: NSColor? {
+       public dynamic var borderColor: NSColor? {
             get { layer?.borderColor?.nsColor }
             set {
                 wantsLayer = true
