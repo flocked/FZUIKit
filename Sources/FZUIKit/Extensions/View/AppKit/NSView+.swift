@@ -393,7 +393,7 @@
                 shadowOffset = newValue.offset
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
-                shadowColor = newValue._resolvedColor
+            //    shadowColor = newValue._resolvedColor
             }
         }
 
