@@ -317,7 +317,7 @@
 
              Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
              */
-            dynamic var gradient: Gradient? {
+            var gradient: Gradient? {
                 get { self.optionalLayer?._gradientLayer?.gradient }
                 set {
                     Self.swizzleAnimationForKey()
@@ -352,7 +352,7 @@
 
         #elseif canImport(UIKit)
             /// The background gradient of the view. Applying a gradient sets the view's `backgroundColor` to `nil`.
-            dynamic var gradient: Gradient? {
+            var gradient: Gradient? {
                 get { optionalLayer?._gradientLayer?.gradient }
                 set { configurate(using: newValue ?? .init(stops: []))
                     if newValue?.stops.isEmpty == false {
@@ -362,7 +362,7 @@
             }
         #endif
 
-        internal dynamic var _gradientLocations: [CGFloat] {
+        internal var _gradientLocations: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
             set {
                 var newValue = newValue
@@ -379,23 +379,23 @@
             }
         }
 
-        @objc internal dynamic var gradientLocations: [CGFloat] {
+        @objc internal var gradientLocations: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
             set { optionalLayer?._gradientLayer?.locations = newValue.compactMap { NSNumber($0) }
             }
         }
 
-        @objc internal dynamic var gradientStartPoint: CGPoint {
+        @objc internal var gradientStartPoint: CGPoint {
             get { optionalLayer?._gradientLayer?.startPoint ?? .zero }
             set { optionalLayer?._gradientLayer?.startPoint = newValue }
         }
 
-        @objc internal dynamic var gradientEndPoint: CGPoint {
+        @objc internal var gradientEndPoint: CGPoint {
             get { optionalLayer?._gradientLayer?.endPoint ?? .zero }
             set { optionalLayer?._gradientLayer?.endPoint = newValue }
         }
 
-        internal dynamic var _gradientColors: [CGColor] {
+        internal var _gradientColors: [CGColor] {
             get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
             set {
                 var newValue = newValue
@@ -412,7 +412,7 @@
             }
         }
 
-        @objc internal dynamic var gradientColors: [CGColor] {
+        @objc internal var gradientColors: [CGColor] {
             get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
             set { optionalLayer?._gradientLayer?.colors = newValue }
         }

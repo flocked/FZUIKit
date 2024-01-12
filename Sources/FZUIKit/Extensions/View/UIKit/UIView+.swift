@@ -25,7 +25,7 @@
 
          Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
          */
-        dynamic var rotation: CGVector3 {
+        var rotation: CGVector3 {
             get { self.transform3D.eulerAnglesDegrees }
             set { self.transform3D.eulerAnglesDegrees = newValue }
         }
@@ -35,7 +35,7 @@
 
          Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
          */
-        dynamic var rotationInRadians: CGVector3 {
+        var rotationInRadians: CGVector3 {
             get { self.transform3D.eulerAngles }
             set { self.transform3D.eulerAngles = newValue }
         }
@@ -45,7 +45,7 @@
 
          Changes to this property can be animated. The default value is is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
          */
-        dynamic var scale: CGPoint {
+        var scale: CGPoint {
             get { self.layer.scale }
             set { self.layer.scale = newValue }
         }
@@ -57,7 +57,7 @@
 
          The default value is `zero`, which results in a view with no transformed perspective.
          */
-        dynamic var perspective: Perspective {
+        var perspective: Perspective {
             get { self.transform3D.perspective }
             set { self.transform3D.perspective = newValue }
         }
@@ -69,7 +69,7 @@
 
          The default value is `zero`, which results in a view with no transformed shearing.
          */
-        dynamic var skew: Skew {
+        var skew: Skew {
             get { transform3D.skew }
             set { transform3D.skew = newValue }
         }
@@ -85,13 +85,13 @@
         }
 
         /// The border color of the view.
-        @objc internal dynamic var borderColor: UIColor? {
+        @objc internal var borderColor: UIColor? {
             get { layer.borderColor?.nsUIColor }
             set { layer.borderColor = newValue?.cgColor }
         }
 
         /// The border width of the view.
-        @objc internal dynamic var borderWidth: CGFloat {
+        @objc internal var borderWidth: CGFloat {
             get { layer.borderWidth }
             set { layer.borderWidth = newValue }
         }
@@ -101,7 +101,7 @@
 
          The default value is `[]`, which results in a view with all corners rounded.
          */
-        @objc dynamic var roundedCorners: CACornerMask {
+        @objc var roundedCorners: CACornerMask {
             get { layer.maskedCorners }
             set { layer.maskedCorners = newValue }
         }
@@ -111,13 +111,13 @@
 
          Changes to this property can be animated. The default value is `0.0`, which results in a view with no rounded corners.
          */
-        @objc dynamic var cornerRadius: CGFloat {
+        @objc var cornerRadius: CGFloat {
             get { layer.cornerRadius }
             set { layer.cornerRadius = newValue }
         }
 
         /// The corner curve of the view.
-        @objc dynamic var cornerCurve: CALayerCornerCurve {
+        @objc var cornerCurve: CALayerCornerCurve {
             get { layer.cornerCurve }
             set { layer.cornerCurve = newValue }
         }
@@ -129,7 +129,7 @@
 
          Changes to this property can be animated. The default value is `nil`, which results in a view with no inverse mask.
          */
-        @objc dynamic var inverseMask: NSUIView? {
+        @objc var inverseMask: NSUIView? {
             get { (layer.mask as? InverseMaskLayer)?.maskLayer?.parentView }
             set {
                 if let newMaskLayer = newValue?.layer {
@@ -145,7 +145,7 @@
 
          Changes to this property can be animated. The default value is `none()`, which results in a view with no shadow.
          */
-        dynamic var shadow: ShadowConfiguration {
+        var shadow: ShadowConfiguration {
             get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
             set { self.configurate(using: newValue, type: .outer) }
         }
@@ -155,31 +155,31 @@
 
          Changes to this property can be animated. The default value is `none()`, which results in a view with no inner shadow.
          */
-        dynamic var innerShadow: ShadowConfiguration {
+        var innerShadow: ShadowConfiguration {
             get { layer.innerShadowLayer?.configuration ?? .none() }
             set { configurate(using: newValue, type: .inner) }
         }
 
         /// The shadow color of the view.
-        @objc internal dynamic var shadowColor: NSUIColor? {
+        @objc internal var shadowColor: NSUIColor? {
             get { layer.shadowColor?.uiColor }
             set { layer.shadowColor = newValue?.resolvedColor(for: self).cgColor }
         }
 
         /// The shadow offset of the view.
-        @objc internal dynamic var shadowOffset: CGPoint {
+        @objc internal var shadowOffset: CGPoint {
             get { layer.shadowOffset.point }
             set { layer.shadowOffset = newValue.size }
         }
 
         /// The shadow radius of the view.
-        @objc internal dynamic var shadowRadius: CGFloat {
+        @objc internal var shadowRadius: CGFloat {
             get { layer.shadowRadius }
             set { layer.shadowRadius = newValue }
         }
 
         /// The shadow opacity of the view.
-        @objc internal dynamic var shadowOpacity: CGFloat {
+        @objc internal var shadowOpacity: CGFloat {
             get { CGFloat(layer.shadowOpacity) }
             set { layer.shadowOpacity = Float(newValue) }
         }
@@ -189,7 +189,7 @@
 
          Changes to this property can be animated. The default value is `nil`, which results in a view with no shadow path.
          */
-        @objc dynamic var shadowPath: CGPath? {
+        @objc var shadowPath: CGPath? {
             get { layer.shadowPath }
             set { layer.shadowPath = newValue }
         }

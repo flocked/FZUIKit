@@ -81,7 +81,7 @@
 
          The default value is `zero`. The value can be animated via `animator()`.
          */
-        @objc dynamic var contentOffset: CGPoint {
+        @objc var contentOffset: CGPoint {
             get { enclosingScrollView?.contentOffset ?? .zero }
             set {
                 NSView.swizzleAnimationForKey()
@@ -94,7 +94,7 @@
 
          The value can be animated via `animator()`.
          */
-        @objc dynamic var documentSize: CGSize {
+        @objc var documentSize: CGSize {
             get { enclosingScrollView?.documentView?.frame.size ?? NSSize.zero }
             set {
                 NSView.swizzleAnimationForKey()

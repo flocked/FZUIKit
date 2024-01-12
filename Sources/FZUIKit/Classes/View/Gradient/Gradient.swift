@@ -15,7 +15,7 @@
 
     /*
      extension NSView {
-         dynamic var gradient: Gradient {
+         var gradient: Gradient {
              get { .zero }
          }
      }

@@ -56,7 +56,7 @@
     }
 
     fileprivate extension NSWindow {
-        @objc dynamic var frame_: CGRect {
+        @objc var frame_: CGRect {
             get { frame }
             set { setFrame(newValue, display: false) }
         }

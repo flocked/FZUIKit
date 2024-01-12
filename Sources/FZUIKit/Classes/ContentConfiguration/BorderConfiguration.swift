@@ -178,7 +178,7 @@ public class __BorderConfiguration: NSObject, NSCopying {
     var insets: NSDirectionalEdgeInsets
     var _resolvedColor: NSUIColor?
 
-    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dashPattern: [CGFloat], insets: NSDirectionalEdgeInsets, resolvedColor: NSColor? = nil) {
+    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dashPattern: [CGFloat], insets: NSDirectionalEdgeInsets, resolvedColor: NSUIColor? = nil) {
         self.color = color
         self.width = width
         self.dashPattern = dashPattern

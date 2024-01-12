@@ -225,7 +225,7 @@ public class __ShadowConfiguration: NSObject, NSCopying {
     var offset: CGPoint = .init(x: 1.0, y: -1.5)
     var _resolvedColor: NSUIColor?
 
-    public init(color: NSUIColor?, opacity: CGFloat, radius: CGFloat, offset: CGPoint, resolvedColor: NSColor?) {
+    public init(color: NSUIColor?, opacity: CGFloat, radius: CGFloat, offset: CGPoint, resolvedColor: NSUIColor?) {
         self.color = color
         self.opacity = opacity
         self.radius = radius

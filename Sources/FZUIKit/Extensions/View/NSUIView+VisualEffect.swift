@@ -18,7 +18,7 @@
 
          The property adds a visual effect view as background to the view. The default value is `nil`.
          */
-        dynamic var visualEffect: VisualEffectConfiguration? {
+        var visualEffect: VisualEffectConfiguration? {
             get {
                 visualEffectBackgroundView?.contentProperties
             }

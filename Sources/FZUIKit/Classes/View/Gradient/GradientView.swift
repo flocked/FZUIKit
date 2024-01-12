@@ -15,7 +15,7 @@
     public extension GradientView {
         /*
          /// The gradient.
-         dynamic var gradient: Gradient {
+         var gradient: Gradient {
              get { gradientLayer.gradient }
              set {
                  self.startPoint = newValue.startPoint.point
@@ -30,27 +30,27 @@
 
     /// A view that displays a gradient.
     public class GradientView: NSUIView {
-        @objc dynamic var locations: [NSNumber] {
+        @objc var locations: [NSNumber] {
             get { gradientLayer.locations ?? [] }
             set { gradientLayer.locations = newValue }
         }
 
-        @objc dynamic var colors: [CGColor] {
+        @objc var colors: [CGColor] {
             get { (gradientLayer.colors as? [CGColor]) ?? [] }
             set { gradientLayer.colors = newValue }
         }
 
-        @objc dynamic var startPoint: CGPoint {
+        @objc var startPoint: CGPoint {
             get { gradientLayer.startPoint }
             set { gradientLayer.startPoint = newValue }
         }
 
-        @objc dynamic var endPoint: CGPoint {
+        @objc var endPoint: CGPoint {
             get { gradientLayer.endPoint }
             set { gradientLayer.endPoint = newValue }
         }
 
-        @objc dynamic var type: CAGradientLayerType {
+        @objc var type: CAGradientLayerType {
             get { gradientLayer.type }
             set { gradientLayer.type = newValue }
         }

@@ -61,7 +61,7 @@
 
          The value can be animated via `animator()`.
          */
-        @objc open dynamic var centerPoint: CGPoint {
+        @objc open var centerPoint: CGPoint {
             get { frame.center }
             set {
                 Self.swizzleAnimationForKey()
@@ -172,7 +172,7 @@
 
           Using this property turns the window’s content view into a layer-backed view.
           */
-         @objc open dynamic var cornerRadius: CGFloat {
+         @objc open var cornerRadius: CGFloat {
              get { getAssociatedValue(key: "_windowCornerRadius", object: self, initialValue: -1) }
              set {
                  Self.swizzleAnimationForKey()
@@ -186,7 +186,7 @@
 
           Using this property turns the window’s content view into a layer-backed view.
           */
-         @objc open dynamic var cornerCurve: CALayerCornerCurve {
+         @objc open var cornerCurve: CALayerCornerCurve {
              get { contentView?.layer?.cornerCurve ?? .circular }
              set {
                  Self.swizzleAnimationForKey()
@@ -200,7 +200,7 @@
 
           Using this property turns the window’s content view into a layer-backed view.
           */
-         @objc open dynamic var borderWidth: CGFloat {
+         @objc open var borderWidth: CGFloat {
              get { contentView?.layer?.borderWidth ?? 0.0 }
              set {
                  Self.swizzleAnimationForKey()
@@ -214,7 +214,7 @@
 
           Using this property turns the window’s content view into a layer-backed view.
           */
-         @objc open dynamic var borderColor: NSColor? {
+         @objc open var borderColor: NSColor? {
              get {
                  if let cgColor = contentView?.layer?.borderColor {
                      return NSColor(cgColor: cgColor)

@@ -29,7 +29,7 @@
 
          - Parameter backgroundStyle: The background style to apply.
          */
-        @objc open dynamic func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+        @objc open func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
             if let self = self as? NSControl, self.backgroundStyle != backgroundStyle {
                 self.backgroundStyle = backgroundStyle
             } else if let self = self as? NSTableCellView, self.backgroundStyle != backgroundStyle {

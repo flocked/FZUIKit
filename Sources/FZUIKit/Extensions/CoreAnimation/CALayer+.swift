@@ -17,7 +17,7 @@ import FZSwiftUtils
 #if os(macOS) || os(iOS) || os(tvOS)
     public extension CALayer {
         /// The shadow of the layer.
-        dynamic var shadow: ShadowConfiguration {
+        var shadow: ShadowConfiguration {
             get { .init(color: shadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
             set {
                 shadowColorDynamic = newValue._resolvedColor
@@ -39,7 +39,7 @@ import FZSwiftUtils
         }
 
         /// The inner shadow of the layer.
-        dynamic var innerShadow: ShadowConfiguration {
+        var innerShadow: ShadowConfiguration {
             get { innerShadowLayer?.configuration ?? .none() }
             set { configurate(using: newValue, type: .inner) }
         }
@@ -281,7 +281,7 @@ import FZSwiftUtils
 
          In contrast to `mask` transparent pixels allow the underlying content to show, while opaque pixels block the content.
          */
-        @objc dynamic var inverseMask: CALayer? {
+        @objc var inverseMask: CALayer? {
             get { (mask as? InverseMaskLayer)?.maskLayer }
             set {
                 if let newValue = newValue {
