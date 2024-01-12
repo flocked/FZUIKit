@@ -52,7 +52,7 @@
 
          The default value is `nil`, which results in a view with no mask.
          */
-        @objc open dynamic var mask: NSView? {
+        @objc open var mask: NSView? {
             get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
             set {
                 wantsLayer = true
@@ -72,7 +72,7 @@
 
          The default value is `nil`, which results in a view with no inverse mask.
          */
-        @objc open dynamic var inverseMask: NSView? {
+        @objc open var inverseMask: NSView? {
             get { mask }
             set {
                 wantsLayer = true
@@ -114,7 +114,7 @@
 
          Changes to this property can be animated via `animator().center`.
          */
-        @objc open dynamic var center: CGPoint {
+        @objc open var center: CGPoint {
             get { frame.center }
             set {
                 Self.swizzleAnimationForKey()
@@ -131,7 +131,7 @@
 
          The default value is `CGAffineTransformIdentity`, which results in a view with no transformation.
          */
-        @objc open dynamic var transform: CGAffineTransform {
+        @objc open var transform: CGAffineTransform {
             get { wantsLayer = true
                 return layer?.affineTransform() ?? CGAffineTransformIdentity
             }
@@ -149,7 +149,7 @@
 
          The default value is `CATransform3DIdentity`, which results in a view with no transformation.
          */
-        @objc open dynamic var transform3D: CATransform3D {
+        @objc open var transform3D: CATransform3D {
             get {
                 wantsLayer = true
                 return layer?.transform ?? CATransform3DIdentity
@@ -168,7 +168,7 @@
 
          The default value is `0.0`, which results in a view with no rotation.
          */
-        public dynamic var rotation: CGVector3 {
+        public var rotation: CGVector3 {
             get { transform3D.eulerAnglesDegrees }
             set {
                 wantsLayer = true
@@ -184,7 +184,7 @@
 
          The default value is `0.0`, which results in a view with no rotation.
          */
-        public dynamic var rotationInRadians: CGVector3 {
+        public var rotationInRadians: CGVector3 {
             get { transform3D.eulerAngles }
             set {
                 wantsLayer = true
@@ -200,7 +200,7 @@
 
          The default value is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
          */
-        public dynamic var scale: CGPoint {
+        public var scale: CGPoint {
             get { layer?.scale ?? CGPoint(x: 1, y: 1) }
             set {
                 wantsLayer = true
@@ -216,7 +216,7 @@
 
          The default value is `zero`, which results in a view with no transformed perspective.
          */
-        public dynamic var perspective: Perspective {
+        public var perspective: Perspective {
             get { transform3D.perspective }
             set {
                 wantsLayer = true
@@ -232,7 +232,7 @@
 
          The default value is `zero`, which results in a view with no transformed shearing.
          */
-        public dynamic var skew: Skew {
+        public var skew: Skew {
             get { transform3D.skew }
             set {
                 wantsLayer = true
@@ -252,7 +252,7 @@
 
          The default value is `CGPoint(x: 0, y:0)`.
          */
-        @objc open dynamic var anchorPoint: CGPoint {
+        @objc open var anchorPoint: CGPoint {
             get { layer?.anchorPoint ?? .zero }
             set {
                 wantsLayer = true
@@ -268,13 +268,13 @@
 
          The default value is `0.0`, which results in a view with no rounded corners.
          */
-        public dynamic var cornerRadius: CGFloat {
+        public var cornerRadius: CGFloat {
             get { _cornerRadius }
             set { _cornerRadius = newValue }
         }
 
         // fix for macOS 14.0 bug
-        @objc dynamic var _cornerRadius: CGFloat {
+        @objc var _cornerRadius: CGFloat {
             get { layer?.cornerRadius ?? 0.0 }
             set {
                 let clipsToBounds = clipsToBounds
@@ -291,7 +291,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
          */
-        @objc open dynamic var cornerCurve: CALayerCornerCurve {
+        @objc open var cornerCurve: CALayerCornerCurve {
             get { layer?.cornerCurve ?? .circular }
             set {
                 wantsLayer = true
@@ -305,7 +305,7 @@
 
          Using this property turns the view into a layer-backed view.
          */
-        @objc open dynamic var roundedCorners: CACornerMask {
+        @objc open var roundedCorners: CACornerMask {
             get { layer?.maskedCorners ?? CACornerMask() }
             set {
                 wantsLayer = true
@@ -318,7 +318,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
          */
-        public dynamic var border: BorderConfiguration {
+        public var border: BorderConfiguration {
             get {
                 dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth)
             }
@@ -337,7 +337,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
          */
-        @objc dynamic var borderWidth: CGFloat {
+        @objc var borderWidth: CGFloat {
             get { layer?.borderWidth ?? 0.0 }
             set {
                 wantsLayer = true
@@ -357,7 +357,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
          */
-        dynamic var borderColor: NSColor? {
+        var borderColor: NSColor? {
             get { layer?.borderColor?.nsColor }
             set {
                 wantsLayer = true
@@ -375,7 +375,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             }
         }
 
-        @objc dynamic var borderColorAnimatable: NSColor? {
+        @objc var borderColorAnimatable: NSColor? {
             get { layer?.borderColor?.nsColor }
             set { layer?.borderColor = newValue?.cgColor }
         }
@@ -387,7 +387,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          The default value is `none()`, which results in a view with no shadow.
          */
-       @objc public dynamic var shadow1: ShadowConfiguration {
+       @objc public var shadow1: ShadowConfiguration {
             get {
                 if isProxy(), let proxyShadow = proxyShadow {
                     return proxyShadow
@@ -415,7 +415,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          The default value is `nil`, which results in a view with no shadow.
          */
-        public dynamic var shadowColor: NSColor? {
+        public var shadowColor: NSColor? {
             get { self.layer?.shadowColor?.nsColor }
             set {
                 wantsLayer = true
@@ -436,12 +436,12 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             }
         }
 
-        dynamic var shadowColorDynamic: NSColor? {
+        var shadowColorDynamic: NSColor? {
             get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self) }
         }
 
-        @objc dynamic var shadowColorAnimatable: NSColor? {
+        @objc var shadowColorAnimatable: NSColor? {
             get { layer?.shadowColor?.nsColor }
             set { layer?.shadowColor = newValue?.cgColor }
         }
@@ -453,7 +453,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          The default value is `zero`, which results in a view with no shadow offset.
          */
-        @objc public dynamic var shadowOffset: CGPoint {
+        @objc public var shadowOffset: CGPoint {
             get { (layer?.shadowOffset ?? .zero).point }
             set {
                 wantsLayer = true
@@ -469,7 +469,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          The default value is `0.0`, which results in a view with no shadow radius.
          */
-        @objc public dynamic var shadowRadius: CGFloat {
+        @objc public var shadowRadius: CGFloat {
             get { layer?.shadowRadius ?? .zero }
             set {
                 wantsLayer = true
@@ -485,7 +485,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          The default value is `0.0`, which results in a view with no shadow.
          */
-        @objc public dynamic var shadowOpacity: CGFloat {
+        @objc public var shadowOpacity: CGFloat {
             get { CGFloat(layer?.shadowOpacity ?? .zero) }
             set {
                 wantsLayer = true
@@ -501,7 +501,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          The default value is `nil`, which results in a view with no shadow path.
          */
-        public dynamic var shadowPath: NSBezierPath? {
+        public var shadowPath: NSBezierPath? {
             get {
                 if let cgPath = shadowPathAnimatable {
                     return NSBezierPath(cgPath: cgPath)
@@ -519,7 +519,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             }
         }
 
-        @objc dynamic var shadowPathAnimatable: CGPath? {
+        @objc var shadowPathAnimatable: CGPath? {
             get { layer?.shadowPath }
             set { layer?.shadowPath = newValue }
         }
@@ -531,7 +531,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
 
          The default value is `none()`, which results in a view with no inner shadow.
          */
-        public dynamic var innerShadow: ShadowConfiguration {
+        public var innerShadow: ShadowConfiguration {
             get {
                 if isProxy(), let proxyInnerShadow = proxyInnerShadow {
                     return proxyInnerShadow
@@ -570,22 +570,22 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             set { set(associatedValue: newValue, key: "proxyInnerShadow", object: self) }
         }
 
-        @objc dynamic var innerShadowColor: NSColor? {
+        @objc var innerShadowColor: NSColor? {
             get { layer?.innerShadowLayer?.shadowColor?.nsUIColor }
             set { layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
         }
 
-        @objc dynamic var innerShadowOpacity: CGFloat {
+        @objc var innerShadowOpacity: CGFloat {
             get { CGFloat(layer?.innerShadowLayer?.shadowOpacity ?? 0) }
             set { layer?.innerShadowLayer?.shadowOpacity = Float(newValue) }
         }
 
-        @objc dynamic var innerShadowRadius: CGFloat {
+        @objc var innerShadowRadius: CGFloat {
             get { layer?.innerShadowLayer?.configuration.radius ?? 0 }
             set { layer?.innerShadowLayer?.configuration.radius = newValue }
         }
 
-        @objc dynamic var innerShadowOffset: CGPoint {
+        @objc var innerShadowOffset: CGPoint {
             get { layer?.innerShadowLayer?.configuration.offset ?? .zero }
             set { layer?.innerShadowLayer?.configuration.offset = newValue }
         }
