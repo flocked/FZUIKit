@@ -215,7 +215,7 @@
         }
     }
 
-/*
+
 /// The Objective-C class for ``ShadowConfiguration``.
 public class __ShadowConfiguration: NSObject, NSCopying {
     var color: NSUIColor?
@@ -292,5 +292,4 @@ extension ShadowConfiguration: ReferenceConvertible {
          }
      }
      */
- */ 
 #endif

@@ -385,7 +385,7 @@
 
          The default value is `none()`, which results in a view with no shadow.
          */
-        public dynamic var shadow1: ShadowConfiguration {
+       @objc public dynamic var shadow1: ShadowConfiguration {
             get {
                 if isProxy(), let proxyShadow = proxyShadow {
                     return proxyShadow
@@ -393,11 +393,32 @@
                 return ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset)
             }
             set {
+                wantsLayer = true
+                Self.swizzleAnimationForKey()
+                if isProxy() {
+                    layer?.parentView?.dynamicColors.shadow = newValue.color
+                } else {
+                    dynamicColors.shadow = newValue.color
+                }
+                var animatableColor = newValue.color?.resolvedColor(for: self)
+                if animatableColor == nil, isProxy() {
+                    animatableColor = .clear
+                }
+                if layer?.shadowColor?.isVisible == false || layer?.shadowColor == nil {
+                    layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                }
+                layer?.shadowColor = animatableColor?.cgColor
+                layer?.shadowOpacity = Float(newValue.opacity)
+                layer?.shadowRadius = newValue.radius
+                layer?.shadowOffset = newValue.offset.size
+                
+                /*
                 proxyShadow = newValue
                 shadowOffset = newValue.offset
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
                 shadowColor = newValue._resolvedColor
+                 */
             }
         }
 
@@ -840,7 +861,7 @@
     }
 
     /// The additional `NSView` keys of properties that can be animated.
-    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize"]
+    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize", "shadow1"]
 
 #endif
 
