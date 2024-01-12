@@ -388,10 +388,12 @@
                     return proxyShadow
                 }
                  */
-                
-                return ShadowConfiguration(color: shadowColorDynamic, opacity: CGFloat(layer?.opacity ?? 0.0), radius: layer?.shadowRadius ?? 0.0, offset: layer?.shadowOffset.point ?? .zero)
+                return ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset)
+
+            //    return ShadowConfiguration(color: shadowColorDynamic, opacity: CGFloat(layer?.opacity ?? 0.0), radius: layer?.shadowRadius ?? 0.0, offset: layer?.shadowOffset.point ?? .zero)
             }
             set {
+                /*
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
                 
@@ -405,16 +407,17 @@
                 if self.layer?.shadowColor?.isVisible == false || self.layer?.shadowColor == nil {
                     layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
-                layer?.shadowOffset = newValue.offset.size
-                layer?.shadowOpacity = Float(newValue.opacity)
-                layer?.shadowRadius = newValue.radius
-                /*
+                */
+            //    layer?.shadowOffset = newValue.offset.size
+            //    layer?.shadowOpacity = Float(newValue.opacity)
+            //    layer?.shadowRadius = newValue.radius
+                
                 proxyShadow = newValue
                 shadowOffset = newValue.offset
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
                 shadowColor = newValue._resolvedColor
-                 */
+                
             }
         }
 
