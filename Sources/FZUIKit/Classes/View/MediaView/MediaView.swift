@@ -610,11 +610,23 @@
                 }
             }
         }
+        
+        public override func mouseUp(with event: NSEvent) {
+            <#code#>
+        }
+        
+        public override var acceptsFirstResponder: Bool {
+            return false
+        }
 
         override public func rightMouseDown(with event: NSEvent) {
             if (handlers.rightMouseDown?(event) ?? false) == false {
                 super.rightMouseDown(with: event)
             }
+        }
+    
+        public override func rightMouseUp(with event: NSEvent) {
+            
         }
 
         override public func keyDown(with event: NSEvent) {

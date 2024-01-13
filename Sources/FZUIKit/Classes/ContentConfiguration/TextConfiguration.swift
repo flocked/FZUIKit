@@ -40,20 +40,20 @@
             public var numberFormatter: NumberFormatter?
         #endif
 
-        /// A Boolean value that determines whether the label reduces the text’s font size to fit the title string into the label’s bounding rectangle.
+        /// A Boolean value that determines whether the text’s font size reduces to fit the string into the bounding rectangle.
         public var adjustsFontSizeToFitWidth: Bool = false
 
-        /// The minimum scale factor for the label’s text.
+        /// The minimum scale factor for the text.
         public var minimumScaleFactor: CGFloat = 0.0
 
-        /// A Boolean value that determines whether the label tightens text before truncating.
+        /// A Boolean value that determines whether the text tightens before truncating.
         public var allowsDefaultTighteningForTruncation: Bool = false
 
         #if canImport(UIKit)
             /// A Boolean that indicates whether the object automatically updates its font when the device’s content size category changes.
             public var adjustsFontForContentSizeCategory: Bool = false
 
-            /// A Boolean value that determines whether the full text of the label displays when the pointer hovers over the truncated text.
+            /// A Boolean value that determines whether the full text displays when the pointer hovers over the truncated text.
             public var showsExpansionTextWhenTruncated: Bool = false
         #endif
 

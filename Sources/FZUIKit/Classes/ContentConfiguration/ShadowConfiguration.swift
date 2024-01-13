@@ -34,14 +34,14 @@
         }
 
         /// The color transformer for resolving the shadow color.
-        public var colorTransform: ColorTransformer? {
+        public var colorTransformer: ColorTransformer? {
             didSet { updateResolvedColor() }
         }
 
         /// Generates the resolved shadow color, using the shadow color, color transformer and optionally the opacity.
         public func resolvedColor(withOpacity: Bool = false) -> NSUIColor? {
             if let color = withOpacity == true ? color?.withAlphaComponent(opacity) : color {
-                return colorTransform?(color) ?? color
+                return colorTransformer?(color) ?? color
             }
             return nil
         }
@@ -219,7 +219,7 @@
 /// The Objective-C class for ``ShadowConfiguration``.
 public class __ShadowConfiguration: NSObject, NSCopying {
     var color: NSUIColor?
-    var colorTransform: ColorTransformer?
+    var colorTransformer: ColorTransformer?
     var opacity: CGFloat = 0.3
     var radius: CGFloat = 2.0
     var offset: CGPoint = .init(x: 1.0, y: -1.5)
@@ -240,16 +240,8 @@ public class __ShadowConfiguration: NSObject, NSCopying {
 }
 
 extension ShadowConfiguration: ReferenceConvertible {
-    /// The Objective-C type for this state.
+    /// The Objective-C type for the configuration.
     public typealias ReferenceType = __ShadowConfiguration
-
-    public var description: String {
-      ""
-    }
-
-    public var debugDescription: String {
-        description
-    }
 
     public func _bridgeToObjectiveC() -> __ShadowConfiguration {
         return __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset, resolvedColor: _resolvedColor)
@@ -272,24 +264,40 @@ extension ShadowConfiguration: ReferenceConvertible {
         }
         return ShadowConfiguration()
     }
+    
+    public var description: String {
+              """
+              ShadowConfiguration(
+                color: \(String(describing: color))
+                colorTransformer: \(String(describing: colorTransformer))
+                opacity: \(opacity)
+                radius: \(radius)
+                offset: \(offset)
+              )
+              """
+    }
+
+    public var debugDescription: String {
+        description
+    }
 }
-
-    /*
-     public extension NSMutableAttributedString {
-         /// Configurates the shadow of the attributed string.
-         func configurate(using configuration: ShadowConfiguration) {
-             var attributes = self.attributes(at: 0, effectiveRange: nil)
-             attributes[.shadow] = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
-             self.setAttributes(attributes, range: NSRange(0..<length))
-         }
-     }
-
-     @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
-     public extension AttributedString {
-         /// Configurates the shadow of the attributed string.
-         mutating func configurate(using configuration: ShadowConfiguration) {
-             self.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
-         }
-     }
-     */
 #endif
+
+/*
+ public extension NSMutableAttributedString {
+     /// Configurates the shadow of the attributed string.
+     func configurate(using configuration: ShadowConfiguration) {
+         var attributes = self.attributes(at: 0, effectiveRange: nil)
+         attributes[.shadow] = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
+         self.setAttributes(attributes, range: NSRange(0..<length))
+     }
+ }
+
+ @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
+ public extension AttributedString {
+     /// Configurates the shadow of the attributed string.
+     mutating func configurate(using configuration: ShadowConfiguration) {
+         self.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
+     }
+ }
+ */

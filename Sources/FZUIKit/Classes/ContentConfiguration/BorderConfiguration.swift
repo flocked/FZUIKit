@@ -194,16 +194,8 @@ public class __BorderConfiguration: NSObject, NSCopying {
 }
 
 extension BorderConfiguration: ReferenceConvertible {
-    /// The Objective-C type for this state.
+    /// The Objective-C type for the configuration.
     public typealias ReferenceType = __BorderConfiguration
-
-    public var description: String {
-      ""
-    }
-
-    public var debugDescription: String {
-        description
-    }
 
     public func _bridgeToObjectiveC() -> __BorderConfiguration {
         return __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, insets: insets, resolvedColor: _resolvedColor)
@@ -225,6 +217,22 @@ extension BorderConfiguration: ReferenceConvertible {
             return result!
         }
         return BorderConfiguration()
+    }
+    
+    public var description: String {
+                    """
+                    BorderConfiguration(
+                        color: \(String(describing: color))
+                        colorTransformer: \(String(describing: colorTransformer))
+                        width: \(width)
+                        dashPattern: \(dashPattern)
+                        insets: \(insets)
+                    )
+                    """
+    }
+
+    public var debugDescription: String {
+        description
     }
 }
 #endif

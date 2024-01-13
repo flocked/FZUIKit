@@ -535,14 +535,5 @@
         }
     }
 
-    extension CALayer {
-        var border: BorderConfiguration {
-            get { BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
-            set {
-                borderColor = newValue._resolvedColor?.cgColor
-                borderWidth = newValue.width
-            }
-        }
-    }
 
 #endif

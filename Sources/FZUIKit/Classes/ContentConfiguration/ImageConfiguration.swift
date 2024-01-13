@@ -41,14 +41,14 @@
         var tintColor: NSUIColor?
 
         /// The color transformer for resolving the tint color.
-        public var tintColorTransform: ColorTransformer? {
+        public var tintColorTransformer: ColorTransformer? {
             didSet { updateResolvedColor() }
         }
 
         /// Generates the resolved tint color, using the tint color and color transformer.
         public func resolvedTintColor() -> NSUIColor? {
             if let tintColor = tintColor {
-                return tintColorTransform?(tintColor) ?? tintColor
+                return tintColorTransformer?(tintColor) ?? tintColor
             }
             return nil
         }

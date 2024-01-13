@@ -320,7 +320,7 @@
          */
         public var border: BorderConfiguration {
             get {
-                dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth)
+                NSView.toRealSelf(self).dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth)
             }
             set {
                 if newValue.needsDashedBordlerLayer {
@@ -532,16 +532,10 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
          The default value is `none()`, which results in a view with no inner shadow.
          */
         public var innerShadow: ShadowConfiguration {
-            get {
-                if isProxy(), let proxyInnerShadow = proxyInnerShadow {
-                    return proxyInnerShadow
-                }
-                return ShadowConfiguration(color: innerShadowColor, opacity: innerShadowOpacity, radius: innerShadowRadius, offset: innerShadowOffset)
-            }
+            get { NSView.toRealSelf(self).layer?.innerShadowLayer?.configuration ?? .none() }
             set {
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
-                proxyInnerShadow = newValue
                 NSView.toRealSelf(self).dynamicColors.innerShadow = newValue._resolvedColor
                 if innerShadowLayer == nil {
                     let innerShadowLayer = InnerShadowLayer()
@@ -563,11 +557,6 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
             }
-        }
-
-        var proxyInnerShadow: ShadowConfiguration? {
-            get { getAssociatedValue(key: "proxyInnerShadow", object: self, initialValue: layer?.innerShadowLayer?.configuration) }
-            set { set(associatedValue: newValue, key: "proxyInnerShadow", object: self) }
         }
 
         @objc var innerShadowColor: NSColor? {

@@ -14,36 +14,70 @@
 #endif
 import FZSwiftUtils
 
+
 #if os(macOS) || os(iOS) || os(tvOS)
     public extension CALayer {
         /// The shadow of the layer.
         var shadow: ShadowConfiguration {
-            get { .init(color: shadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
+            get { .init(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
             set {
-                shadowColorDynamic = newValue._resolvedColor
+                if let parentView = parentView {
+                    shadowColor = newValue.color?.resolvedColor(for: parentView).cgColor
+                    #if os(macOS)
+                    parentView.dynamicColors.shadow = newValue.color
+                    #endif
+                } else {
+                    shadowColor = newValue.color?.cgColor
+                }
                 shadowOpacity = Float(newValue.opacity)
                 shadowRadius = newValue.radius
                 shadowOffset = newValue.offset.size
             }
         }
-
-        var shadowColorDynamic: NSUIColor? {
-            get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: shadowColor?.nsUIColor) }
-            set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self)
-                if let parentView = parentView {
-                    shadowColor = newValue?.resolvedColor(for: parentView).cgColor
-                } else {
-                    shadowColor = newValue?.cgColor
-                }
-            }
-        }
-
+        
         /// The inner shadow of the layer.
         var innerShadow: ShadowConfiguration {
             get { innerShadowLayer?.configuration ?? .none() }
-            set { configurate(using: newValue, type: .inner) }
+            set {
+                if newValue.isInvisible {
+                    innerShadowLayer?.removeFromSuperlayer()
+                } else {
+                    if innerShadowLayer == nil {
+                        let innerShadowLayer = InnerShadowLayer()
+                        addSublayer(withConstraint: innerShadowLayer)
+                        innerShadowLayer.sendToBack()
+                        innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+                    }
+                    innerShadowLayer?.configuration = newValue
+                }
+            }
         }
+        
+        /// The border of the layer.
+        var border: BorderConfiguration {
+            get { borderLayer?.configuration ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
+            set {
+                guard newValue != border else { return }
+                if newValue.isInvisible || !newValue.needsDashedBordlerLayer {
+                    borderLayer?.removeFromSuperlayer()
+                }
 
+                if newValue.needsDashedBordlerLayer {
+                    borderColor = nil
+                    borderWidth = 0.0
+                    if borderLayer == nil {
+                        let borderedLayer = DashedBorderLayer()
+                        addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
+                        borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
+                    }
+                    borderLayer?.configuration = newValue
+                } else {
+                    borderColor = newValue._resolvedColor?.cgColor
+                    borderWidth = newValue.width
+                }
+            }
+        }
+        
         /// Sends the layer to the front of it's superlayer.
         func sendToFront() {
             guard let superlayer = superlayer else { return }

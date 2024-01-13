@@ -31,7 +31,7 @@ public struct ImageSymbolConfiguration: Hashable {
     }
 
     /// The color transformer for resolving the color style.
-    public var colorTransform: ColorTransformer? {
+    public var colorTransformer: ColorTransformer? {
         didSet { updateResolvedColors() }
     }
 
@@ -56,9 +56,9 @@ public struct ImageSymbolConfiguration: Hashable {
 
     /// Sets the color transformer of the symbol configuration.
     @discardableResult
-    public func colorTransformer(_ transformer: ColorTransformer?) -> Self {
+    public func colorTransformerer(_ transformer: ColorTransformer?) -> Self {
         var newConfiguration = self
-        newConfiguration.colorTransform = transformer
+        newConfiguration.colorTransformer = transformer
         return newConfiguration
     }
 
@@ -76,15 +76,15 @@ public struct ImageSymbolConfiguration: Hashable {
      - Parameters:
         - font: The font.
         - color: The color configuration.
-        - colorTransform: The color transformer.
+        - colorTransformer: The color transformer.
         - imageScale: The image scaling.
 
      - Returns: a symbol configuration object.
      */
-    public init(font: FontConfiguration? = nil, color: ColorConfiguration? = nil, colorTransform: ColorTransformer? = nil, imageScale: ImageScale? = nil) {
+    public init(font: FontConfiguration? = nil, color: ColorConfiguration? = nil, colorTransformer: ColorTransformer? = nil, imageScale: ImageScale? = nil) {
         self.font = font
         self.color = color
-        self.colorTransform = colorTransform
+        self.colorTransformer = colorTransformer
         self.imageScale = imageScale
         updateResolvedColors()
     }
@@ -157,7 +157,7 @@ public struct ImageSymbolConfiguration: Hashable {
     /// Generates the resolved primary color for the specified color style, using the color style's primary color and color transformer.
     public func resolvedPrimaryColor() -> NSUIColor? {
         if let primary = color?.primary {
-            return colorTransform?(primary) ?? primary
+            return colorTransformer?(primary) ?? primary
         }
         return nil
     }
@@ -165,7 +165,7 @@ public struct ImageSymbolConfiguration: Hashable {
     /// Generates the resolved secondary color for the specified color style, using the color style's secondary color and color transformer.
     public func resolvedSecondaryColor() -> NSUIColor? {
         if let secondary = color?.secondary {
-            return colorTransform?(secondary) ?? secondary
+            return colorTransformer?(secondary) ?? secondary
         }
         return nil
     }
@@ -173,7 +173,7 @@ public struct ImageSymbolConfiguration: Hashable {
     /// Generates the resolved tertiary color for the specified color style, using the color style's tertiary color and color transformer.
     public func resolvedTertiaryColor() -> NSUIColor? {
         if let tertiary = color?.tertiary {
-            return colorTransform?(tertiary) ?? tertiary
+            return colorTransformer?(tertiary) ?? tertiary
         }
         return nil
     }
