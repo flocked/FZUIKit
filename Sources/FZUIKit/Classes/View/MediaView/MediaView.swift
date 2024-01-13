@@ -612,7 +612,7 @@
         }
         
         public override func mouseUp(with event: NSEvent) {
-            <#code#>
+            
         }
         
         public override var acceptsFirstResponder: Bool {
