@@ -82,16 +82,17 @@
             return color
         }
 
+        
         /**
-         Generates the resolved color for the specified window,
+         Generates the resolved color for the specified appearance provider object (e.g.  `NSApplication`, `NSView` or `NSWindow`).
 
-         It uses the window's `effectiveAppearance` for resolving the color.
+         It uses the objects's `effectiveAppearance` for resolving the color.
 
-         - Parameter window: The window for the resolved color.
-         - Returns: A resolved color for the window.
+         - Parameter appearanceProvider: The object for the resolved color.
+         - Returns: A resolved color for the object.
          */
-        func resolvedColor(for window: NSWindow) -> NSColor {
-            resolvedColor(for: window.effectiveAppearance)
+        func resolvedColor<AppearanceProvider>(for appearanceProvider: AppearanceProvider) -> NSColor where AppearanceProvider: NSAppearanceCustomization {
+            resolvedColor(for: appearanceProvider.effectiveAppearance)
         }
 
         /// Creates a new color object with a supported color space.

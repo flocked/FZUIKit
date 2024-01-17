@@ -73,7 +73,7 @@
             public var scale: CGSize = .init(width: 1, height: 1)
 
             /// The rotation of the view as euler angles in degrees.
-            public var rotation: CGVector3 = .zero
+            public var rotation: CGVector3 = .init(0, 0, 0)
 
             /// The background configuration of the view.
             public var backgrpundConfiguration: NSContentConfiguration?

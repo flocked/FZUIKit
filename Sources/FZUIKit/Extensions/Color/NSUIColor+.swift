@@ -53,20 +53,7 @@ public extension NSUIColor {
         alphaComponent != 0.0
     }
 
-    #if os(macOS)
-        /**
-         Generates the resolved color for the specified view,.
-
-         It uses the view's `effectiveAppearance` for resolving the color.
-
-         - Parameter view: The view for the resolved color.
-         - Returns: A resolved color for the view.
-         */
-        func resolvedColor(for view: NSUIView) -> NSUIColor {
-            resolvedColor(for: view.effectiveAppearance)
-        }
-
-    #elseif os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS)
         /**
          Generates the resolved color for the specified view,.
 

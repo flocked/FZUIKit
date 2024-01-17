@@ -406,7 +406,7 @@
                         newValue[safe: i] = newValue[i].nsUIColor?.withAlphaComponent(0.0).cgColor
                     }
                 } else if diff > 0 {
-                    newValue.append(contentsOf: Array(repeating: .zero, count: diff))
+                    newValue.append(contentsOf: Array(repeating: .clear, count: diff))
                 }
                 gradientColors = newValue
             }

@@ -56,6 +56,19 @@
         }
     }
 
+extension CGVector3:  Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(x)
+        hasher.combine(y)
+        hasher.combine(z)
+    }
+    
+    public static var zero: CGVector3 {
+        CGVector3(0, 0, 0)
+    }
+}
+
+
     // MARK: - ExpressibleByArrayLiteral
 
     extension CGVector3: ExpressibleByArrayLiteral {
