@@ -27,6 +27,35 @@ import FZSwiftUtils
         extension NSWindowController: Nibloadable {}
     #endif
 
+#if os(macOS)
+public extension Nibloadable where Self: NSViewController {
+    /**
+     Initalizes the object from a nib with the specified name.
+
+     - Parameters:
+        - nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
+        - bundle: The bundle in which to search for the nib file. If you specify `nil`, this method looks for the nib file in the main bundle.
+
+     - Returns: The initalized object, or `nil` if it couldn't be initalized.
+     */
+    static func loadFromNib(named nibName: String, bundle: Bundle? = nil) -> Self? {
+        guard NSNib(nibNamed: nibName, bundle: bundle) != nil else { return nil }
+        return Self(nibName: nibName, bundle: bundle)
+    }
+    
+    /**
+     Initalizes the object from the nib named as the object class.
+
+     - Returns: The initalized object, or `nil` if it couldn't be initalized.
+     */
+    static func loadFromNib() -> Self? {
+        let nibName = String(describing: self)
+        guard NSNib(nibNamed: nibName, bundle: nil) != nil else { return nil }
+        return Self(nibName: nibName, bundle: nil )
+    }
+}
+#endif
+
     public extension Nibloadable {
         /**
          Initalizes the object from the specified nib.
