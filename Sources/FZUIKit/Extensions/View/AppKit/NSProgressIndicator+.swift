@@ -14,6 +14,7 @@ extension NSProgressIndicator {
         let progressIndicator = NSProgressIndicator()
         progressIndicator.style = .spinning
         progressIndicator.stopAnimation(nil)
+        progressIndicator.sizeToFit()
         return progressIndicator
     }
 }
