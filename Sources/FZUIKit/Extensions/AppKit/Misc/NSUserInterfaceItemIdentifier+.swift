@@ -6,7 +6,6 @@
 //
 
 #if os(macOS)
-
     import AppKit
 
     extension NSUserInterfaceItemIdentifier: ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
