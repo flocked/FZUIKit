@@ -34,9 +34,27 @@
 
         /// Launches another instance of the application (works only for-non sandboxed applications).
         func launchAnotherInstance() {
-            let path = Bundle.main.bundleURL.path
-            Shell.run(.bash, "open", "-n", atPath: path)
+            let path = Bundle.main.bundleURL.path.replacingOccurrences(of: " ", with: "\\ ")
+            shell("cd \(path) && open -n")
         }
     }
+
+@discardableResult
+fileprivate func shell(_ command: String) -> String {
+    let task = Process()
+    let pipe = Pipe()
+    
+    task.standardOutput = pipe
+    task.standardError = pipe
+    task.arguments = ["-c", command]
+    task.launchPath = "/bin/zsh"
+    task.standardInput = nil
+    task.launch()
+    
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    let output = String(data: data, encoding: .utf8)!
+    
+    return output
+}
 
 #endif
