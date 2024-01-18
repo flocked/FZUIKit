@@ -26,14 +26,23 @@
              swizzleUserInteraction()
          }
      }
+     
+     @objc func swizzled_mouseDown(with event: NSEvent) {
+         Swift.print("swizzled_mouseDown")
+     }
 
       func swizzleUserInteraction() {
           Swift.debugPrint("swizzleUserInteraction", isUserInteractionEnabled, didSwizzleUserInteraction)
 
           if isUserInteractionEnabled {
+
               guard didSwizzleUserInteraction == false else { return }
               didSwizzleUserInteraction = true
               do {
+                  try Swizzle(NSView.self) {
+                      #selector(NSView.mouseDown(with:)) <-> #selector(NSView.swizzled_mouseDown(with:))
+                  }
+                  
                   try self.replaceMethod(
                     #selector(NSView.mouseDown(with:)),
                     methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
