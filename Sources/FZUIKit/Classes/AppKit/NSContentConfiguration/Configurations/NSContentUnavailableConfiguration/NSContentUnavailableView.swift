@@ -243,17 +243,4 @@
             }
         }
     }
-
-@available(macOS 12.0, *)
-extension View {
-    @ViewBuilder
-    func progressViewStyle(isLinear: Bool) -> some View {
-        if isLinear {
-            self.progressViewStyle(.linear)
-        } else {
-            self.progressViewStyle(.circular)
-        }
- 
-    }
-}
 #endif

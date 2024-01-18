@@ -83,15 +83,8 @@
             /// A circular progress indicator.
             case circular(value: Double = 0.0, total: Double = 0.0, text: String? = nil, textStyle: NSFont.TextStyle = .body, textColor: NSColor = .labelColor, size: Size = .regular)
             
-            var isLinear: Bool {
-                switch self {
-                case .bar: return true
-                default: return false
-                }
-            }
-            
             /// The size of the loading indicator.
-            public enum Size: Hashable {
+            public enum Size: Int, Hashable {
                 /// A loading indicator that is minimally sized.
                 case mini
                 /// A loading indicator that is proportionally smaller size for space-constrained views.
@@ -100,12 +93,20 @@
                 case regular
                 /// A loading indicator that is prominently sized.
                 case large
+                @available(macOS 14.0, *)
+                /// A loading indicator that is sized extra large.
+                case extraLarge
                 var swiftUI: SwiftUI.ControlSize {
                     switch self {
                     case .mini: return .mini
                     case .small: return .small
                     case .regular: return .regular
                     case .large: return .large
+                    case .extraLarge: if #available(macOS 14.0, *) {
+                        return .extraLarge
+                    } else {
+                        return .regular
+                    }
                     }
                 }
             }

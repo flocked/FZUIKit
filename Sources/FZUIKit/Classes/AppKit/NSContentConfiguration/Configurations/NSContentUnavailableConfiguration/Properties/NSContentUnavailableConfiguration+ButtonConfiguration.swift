@@ -16,15 +16,19 @@
         struct ButtonConfiguration {
             
             /// The style of the button.
-            public enum Style: Hashable {
+            public enum Style: Int, Hashable {
+                /// A button style that doesn’t style or decorate its content while idle, but may apply a visual effect to indicate the pressed, focused, or enabled state of the button.
                 case plain
+                /// A button style that doesn’t apply a border.
                 case borderless
+                /// A button style that applies standard border artwork based on the button’s context.
                 case bordered
+                /// A button style that doesn’t apply a border.
                 case link
             }
             
             /// The size of the button
-            public enum Size: Hashable {
+            public enum Size: Int, Hashable {
                 /// A button that is minimally sized.
                 case mini
                 /// A button that is proportionally smaller size for space-constrained views.
@@ -33,12 +37,20 @@
                 case regular
                 /// A button that is prominently sized.
                 case large
+                @available(macOS 14.0, *)
+                /// A button that is sized extra large.
+                case extraLarge
                 var swiftUI: SwiftUI.ControlSize {
                     switch self {
                     case .mini: return .mini
                     case .small: return .small
                     case .regular: return .regular
                     case .large: return .large
+                    case .extraLarge: if #available(macOS 14.0, *) {
+                        return .extraLarge
+                    } else {
+                        return .regular
+                    }
                     }
                 }
             }
