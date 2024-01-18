@@ -154,6 +154,7 @@ import Combine
                 displayLink = DisplayLink.shared.sink { [weak self] frame in
                     guard let self = self else { return }
                     let current = CFAbsoluteTimeGetCurrent()
+                    Swift.print(current - self.lastFrameTime, self.frames[self.index].duration!)
                     if current - self.lastFrameTime > self.frames[self.index].duration ?? 0.12 {
                         self.lastFrameTime = current
                         self.advanceImage()
