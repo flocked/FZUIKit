@@ -253,10 +253,6 @@ extension NSView {
             }
         }
         
-        override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
-            return true
-        }
-        
         /// The handlers for the view state.
         public var _viewHandlers = ViewHandlers() {
             didSet {
@@ -283,7 +279,7 @@ extension NSView {
         }
         
         override public var acceptsFirstResponder: Bool {
-            true
+            false
         }
         
         func setupDragAndDrop(needsSetup: Bool) {
