@@ -62,14 +62,14 @@
         public var textToButtonPadding: CGFloat = 4.0
 
         /// The padding between the primary button and secondary button.
-        public var buttonToSecondaryButtonPadding: CGFloat = 4.0
+        public var buttonToSecondaryButtonPadding: CGFloat = 10.0
 
         /**
          The orientation of the buttons.
 
          If `vertical` the secondary button is placed  next to the primary button, if `horizontal` it's placed below the primary button.
          */
-        public var buttonOrientation: NSUIUserInterfaceLayoutOrientation = .vertical
+        public var buttonOrientation: NSUIUserInterfaceLayoutOrientation = .horizontal
         
         /// The loading indicator.
         public var loadingIndicator: LoadingIndicator? = nil
