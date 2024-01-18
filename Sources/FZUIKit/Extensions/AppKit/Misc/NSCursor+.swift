@@ -144,13 +144,14 @@ import Combine
             }
             
             func start() {
+                Swift.print("start")
                 guard frames.count >= 1 else {
                     stop()
                     return
                 }
                 guard displayLink == nil else { return }
                 lastFrameTime = CFAbsoluteTimeGetCurrent()
-                Swift.print("start")
+                Swift.print("start1")
                 displayLink = DisplayLink.shared.sink { [weak self] frame in
                     guard let self = self else { return }
                     let current = CFAbsoluteTimeGetCurrent()
@@ -168,12 +169,12 @@ import Combine
                 displayLink?.cancel()
                 displayLink = nil
                 index = 0
-                frames = []
             }
 
             func advanceImage() {
                 if frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty {
                     stop()
+                    frames = []
                 } else {
                     index = index + 1
                     if index >= frames.count {
