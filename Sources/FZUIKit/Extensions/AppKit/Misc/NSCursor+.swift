@@ -133,14 +133,14 @@ import Combine
  
             
             func start() {
-                Swift.print("start")
 
-                guard frameDuration != 0.0, images.count > 1 else {
+                guard images.count > 1 else {
                     stop()
                     return
                 }
                 guard displayLink == nil else { return }
                 lastFrameTime = CFAbsoluteTimeGetCurrent()
+
                 displayLink = DisplayLink.shared.sink { [weak self] frame in
                     Swift.print("fff")
                     guard let self = self else { return }
