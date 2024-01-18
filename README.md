@@ -7,9 +7,11 @@ Swift AppKit/UIKit extensions and useful Classes & utilities.
 ## Notable Extensions & Classes
 
 ### NSContentConfiguration & NSContentView
+
 A port of UIContentConfiguration & UIContentView to AppKit.
 
 #### NSHostingConfiguration
+
 A content configuration suitable for hosting a hierarchy of SwiftUI views.
 
 ```
@@ -21,6 +23,7 @@ collectionViewItem.contentConfiguration = configuration
 ```
 
 #### NSBackgroundConfiguration
+
 A content configuration suitable for backgrounds.
 
 ```
@@ -35,6 +38,7 @@ let backgroundView = NSBackgroundView(configuration: configuration)
 ```
 
 #### NSContentUnavailableConfiguration
+
 A content configuration for a content-unavailable view. It is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. 
 
 ```
@@ -58,7 +62,7 @@ view.backgroundColor = .systemRed
 view.mask = roundedView
 ```
 
-- Additional `NSView` properties that can be all animated via the views `animator()`:
+- Properties that can be all animated via the views `animator()`:
     - `cornerRadius: CGFloat`
     - `cornerCurve: CALayerCornerCurve`
     - `roundedCorners: CACornerMask`
@@ -80,6 +84,7 @@ view.animate(duration: 0.5) {
 ```
 
 ### NSImage prepareForDisplay & prepareThumbnail
+
 An UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
 
 ```
@@ -102,34 +107,47 @@ Configurates several aspects of views, windows, etc. Examples:
 window.visualEffect = .darkAqua()
 view.visualEffect = .vibrantLight(material: .sidebar)
 ```
+
 - Shadow/InnerShadow:
 ```
 let shadow = ShadowConfiguration(color: .controlAccentColor, opacity: 0.5, radius: 2.0)
 view.outerShadow = shadow
+
 // inner shadow
 view.innerShadow = shadow
 ```
+
 - Border
 ```
 let border = BorderConfiguration(color: .black, width: 1.0)
 view.border = border
+
 let dashedBorder: BorderConfiguration = .dashed(color: .red)
 view.border = dashedBorder
 ```
+
 - SymbolConfiguration: A simplified version of UIImage/NSImage.SymbolConfiguration.
 ```
-let symbolConfiguration: ImageSymbolConfiguration = .hierarchical(.red).font(.body).imageScale(.large)
+let symbolConfiguration: ImageSymbolConfiguration = .hierarchical(color: .red)
+symbolConfiguration.font = .body
+symbolConfiguration.imageScaling = .large
 imageView.configurate(using: symbolConfiguration)
 ```
+
 - Text
 ```
-var textConfiguration = TextConfiguration(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
+var textConfiguration = TextConfiguration()
+textConfiguration.font = .body
+textConfiguration.color = .systemRed
+textConfiguration.numberOfLines = 1
 textConfiguration.adjustsFontSizeToFitWidth = true
 textField.configurate(using: textConfiguration)
 ```
 
 ### NSSegmentedControl Segments
-Configurates the segments of a NSSegmentedControl.
+
+Configurates the segments of a NSSegmentedControl:
+
 ```
 let segmentedControl = NSSegmentedControl() {
     Segment("Segment 1").isSelected(true)
@@ -139,17 +157,23 @@ let segmentedControl = NSSegmentedControl() {
 }
 ```
 ### NSTextField
+
 - `adjustsFontSizeToFitWidth` & `minimumScaleFactor` (Port of UILabel)
+
 ```swift
 textField.adjustsFontSizeToFitWidth = true
 textField.minimumScaleFactor = 0.7
 ```
+
 - `minimumNumberOfCharacters`, `maximumNumberOfCharacters` & `allowedCharacters`
+
 ```swift
 textField.maximumNumberOfCharacters = 20
 textField.allowedCharacters = [.lowercaseLetters, .digits, .emojis]
 ```
-- `actionOnEnterKeyDown`, `actionOnEscapeKeyDown` & `endEditingOnOutsideMouseDown`
+
+- `actionOnEnterKeyDown`, `actionOnEscapeKeyDown` & `endEditingOnOutsideMouseDown`:
+
 ```swift
 // Ends editing on enter/return.
 textField.actionOnEnterKeyDown = .endEditing
@@ -158,7 +182,9 @@ textField.actionOnEscapeKeyDown = .endEditingAndReset
 // Ends editing when the user clicks outside the text field.
 textField.endEditingOnOutsideMouseDown = true
 ```
-- `EditingHandlers`
+
+- `EditingHandlers`:
+
 ```swift
 textField.editingHandlers.didBegin {
     // Editing of the text did begin
@@ -174,6 +200,7 @@ textField.editingHandlers.shouldEdit {
 
 ### NSToolbar
 Configurate the items of a NSToolbar.
+
 ```swift
 let toolbar = Toolbar("ToolbarIdentifier") {
         Button("OpenItem", title: "Open…")
@@ -191,7 +218,9 @@ toolbar.attachedWindow = window
 ```
 
 ### NSMenu
+
 Configurate the items of a Menu.
+
 ```
 let menu = NSMenu() {
         MenuItem("Open…")
@@ -209,7 +238,9 @@ let menu = NSMenu() {
 ```
 
 ### DateTextFieldLabel
+
 A text field with a date property that automatically updates its string baased on date. It can show the date absolute or relative.
+
 ```
 let textField = DateTextField(date: Date())
 textField.dateDisplayMode = .relative // It displays e.g. "2 mins ago"
@@ -217,7 +248,9 @@ textField.dateDisplayMode = .absolute // It displays e.g. "04.04.2023 10:20pm"
 ```
 
 ### ResizingTextField
+
 A `NSTextField` that automatically resizes to fit it's text.
+
 ```
 let textField = ResizingTextField(string: "Some string")
 textField.automaticallyResizesToFit = true
@@ -225,7 +258,9 @@ textField.maxWidth = 200 // The max width of the text field when resizing.
 ```
 
 ### ImageView
+
 An advanced `NSImageView` that supports scaleToFill, multiple images, gif animation speed, etc.
+
 ```
 let imageView = ImageView()
 imageView.image = myGifImage
@@ -236,15 +271,20 @@ imageView.animationPlaybackOption = .mouseDown /// toggle playback via mouse cli
 ```
 
 ### AVPlayer extensions
+
 - `isLooping`: Easy looping of the playing item.
+
 ```
 player.isLooping = true
 ```
+
 - `state`: The current playback state of the player: .isPlaying, .isPaused, .isStopped, .error(Error)
 - `seek(toPercentage: Double)`
 
 ### DisplayLinkeTimer
+
 A much more precise `Timer` which time interval can be changed without invalidating the timer.
+
 ```
 let timer = DisplayLinkTimer.scheduledTimer(timeInterval: .seconds(3.0), action: {
     // some action
