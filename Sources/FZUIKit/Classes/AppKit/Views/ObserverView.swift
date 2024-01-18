@@ -279,7 +279,6 @@ class ObserverView: NSView {
     }
 
     override public func mouseMoved(with event: NSEvent) {
-        Swift.print("mouseMoved", _mouseHandlers.moved != nil)
         if _mouseHandlers.moved?(event) ?? true {
             super.mouseMoved(with: event)
         }
