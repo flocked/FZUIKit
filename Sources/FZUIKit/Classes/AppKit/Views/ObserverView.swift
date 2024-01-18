@@ -253,6 +253,10 @@ extension NSView {
             }
         }
         
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            return true
+        }
+        
         /// The handlers for the view state.
         public var _viewHandlers = ViewHandlers() {
             didSet {
