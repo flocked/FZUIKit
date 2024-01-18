@@ -67,8 +67,10 @@ extension NSView {
                         methodSignature: (@convention(c) (AnyObject, Selector, NSView) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, NSView) -> Void).self
                     ) { store in { object, subview in
-                        Swift.print("subview", subview)
+                        let lastView = (object as? NSView)?.subviews.last
                         store.original(object, #selector(NSView.didAddSubview(_:)), subview)
+                        (object as? NSView)?.addSubview(withConstraint: observerView)
+                        Swift.print("subview", lastView ?? "nil",  (object as? NSView)?.subviews.last ?? "nil")
                     }
                     }
                 } catch {
