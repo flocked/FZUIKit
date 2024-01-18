@@ -37,6 +37,7 @@
                     methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in { object, event in
                         let view = (object as! NSView)
+                        Swift.print("mouseDown")
                         guard view.isUserInteractionEnabled else { return }
                         store.original(object, #selector(NSView.mouseDown(with:)), event)
                     }
@@ -46,6 +47,7 @@
                     methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in { object, event in
                         let view = (object as! NSView)
+                        Swift.print("mouseUp")
                         guard view.isUserInteractionEnabled else { return }
                         store.original(object, #selector(NSView.mouseUp(with:)), event)
                     }
