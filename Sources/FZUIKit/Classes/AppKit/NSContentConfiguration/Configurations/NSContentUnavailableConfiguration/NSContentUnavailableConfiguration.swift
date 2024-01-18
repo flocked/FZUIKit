@@ -79,7 +79,7 @@
             /// A spinning loading indicator.
             case spinning(size: Size = .regular)
             /// A bar progress indicator.
-            case bar(value: Double = 0.0, total: Double = 0.0, text: String? = nil, textStyle: NSFont.TextStyle = .body, textColor: NSColor = .labelColor, size: Size = .regular)
+            case bar(value: Double = 0.0, total: Double = 0.0, text: String? = nil, textStyle: NSFont.TextStyle = .body, textColor: NSColor = .labelColor, size: Size = .regular, width: CGFloat = 200.0)
             /// A circular progress indicator.
             case circular(value: Double = 0.0, total: Double = 0.0, text: String? = nil, textStyle: NSFont.TextStyle = .body, textColor: NSColor = .labelColor, size: Size = .regular)
             

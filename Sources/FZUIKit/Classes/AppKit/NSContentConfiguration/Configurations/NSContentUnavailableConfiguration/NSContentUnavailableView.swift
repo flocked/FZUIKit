@@ -8,7 +8,6 @@
 #if os(macOS)
     import AppKit
     import SwiftUI
-
     /**
      A view that indicates there’s no content to display.
  
@@ -144,18 +143,34 @@
                     case .spinning(let size):
                         ProgressView()
                             .controlSize(size.swiftUI)
-                    case .bar(let value, let total, let text, let textStyle, let textColor, let size), .circular(let value, let total, let text, let textStyle, let textColor, let size):
+                    case .bar(let value, let total, let text, let textStyle, let textColor, let size, let width):
                         if let text = text {
                             ProgressView(value: value, total: total) {
                                 Text(text)
                                     .font(.system(textStyle.swiftUI))
                                     .foregroundStyle(Color(textColor))
                             }
-                            .progressViewStyle(isLinear: loadingIndicator.isLinear)
+                            .progressViewStyle(.linear)
+                            .controlSize(size.swiftUI)
+                            .frame(width: width)
+                        } else {
+                            ProgressView(value: value, total: total)
+                                .progressViewStyle(.linear)
+                                .controlSize(size.swiftUI)
+                                .frame(width: width)
+                        }
+                    case .circular(let value, let total, let text, let textStyle, let textColor, let size):
+                        if let text = text {
+                            ProgressView(value: value, total: total) {
+                                Text(text)
+                                    .font(.system(textStyle.swiftUI))
+                                    .foregroundStyle(Color(textColor))
+                            }
+                            .progressViewStyle(.circular)
                                 .controlSize(size.swiftUI)
                         } else {
                             ProgressView(value: value, total: total)
-                                .progressViewStyle(isLinear: loadingIndicator.isLinear)
+                                .progressViewStyle(.circular)
                                 .controlSize(size.swiftUI)
                         }
                     }
