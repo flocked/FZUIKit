@@ -12,21 +12,21 @@
     public extension NSStatusItem {
         /// The handler to be called when the status item gets clicked.
         var onClick: NSButton.ActionBlock? {
-            get { getAssociatedValue(key: "_statusItemActionBlock", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "_statusItemActionBlock", object: self)
+            get { getAssociatedValue(key: "statusItemActionBlock", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "statusItemActionBlock", object: self)
                 updateAction()
             }
         }
 
         /// The handler to be called when the status item gets right clicked.
         var onRightClick: NSButton.ActionBlock? {
-            get { getAssociatedValue(key: "_statusItemRightActionBlock", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "_statusItemRightActionBlock", object: self)
+            get { getAssociatedValue(key: "statusItemRightActionBlock", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "statusItemRightActionBlock", object: self)
                 updateAction()
             }
         }
 
-        internal func updateAction() {
+        func updateAction() {
             var mask: NSEvent.EventTypeMask = []
             if onClick != nil {
                 mask.insert(.leftMouseUp)

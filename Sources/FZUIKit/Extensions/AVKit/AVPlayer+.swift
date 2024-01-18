@@ -98,25 +98,39 @@ public extension AVPlayer {
     /**
      Requests that the player seek to a specified percentage.
 
-     - Parameter percentage: The percentage to which to seek.
+     - Parameters:
+        - percentage: The percentage to which to seek.
+        - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+            - finished: A Boolean value that indicates whether the seek operation completed.
      */
-    func seek(toPercentage percentage: Double) {
+    func seek(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
         if let currentItem = currentItem {
             let duration = currentItem.duration
             let to: Double = duration.seconds * percentage.clamped(max: 1.0)
             let seekTo = CMTime(seconds: to)
-            seek(to: seekTo)
+            if let completionHandler = completionHandler {
+                seek(to: seekTo, completionHandler: completionHandler)
+            } else {
+                seek(to: seekTo)
+            }
         }
     }
 
     /**
-     Requests that the player seek to a specified time expressed by seconds.
+     Requests that the player seek to a specified time.
 
-     - Parameter duration: The time to which to seek.
+     - Parameters:
+        - time: The time to which to seek.
+        - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+            - finished: A Boolean value that indicates whether the seek operation completed.
      */
-    func seek(to time: TimeDuration) {
+    func seek(to time: TimeDuration, completionHandler: ((Bool) -> Void)? = nil) {
         let seekTo = CMTime(duration: time)
-        seek(to: seekTo)
+        if let completionHandler = completionHandler {
+            seek(to: seekTo, completionHandler: completionHandler)
+        } else {
+            seek(to: seekTo)
+        }
     }
 
     /// The remaining time until the player reaches to end.
@@ -136,7 +150,7 @@ public extension AVPlayer {
         return nil
     }
 
-    /// Toggles the playback.
+    /// Toggles the playback between play and pause.
     func togglePlayback() {
         if state == .isPlaying {
             pause()

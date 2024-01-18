@@ -245,7 +245,7 @@ import FZSwiftUtils
         /**
          An array of all sublayers upto the maximum depth.
 
-         - Parameter depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+         - Parameter depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
          */
         func sublayers(depth: Int) -> [CALayer] {
             let sublayers = sublayers ?? []
@@ -261,7 +261,7 @@ import FZSwiftUtils
 
           - Parameters:
              - type: The type of sublayers.
-             - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+             - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
           */
         func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
             sublayers(depth: depth).compactMap { $0 as? V }
@@ -272,45 +272,13 @@ import FZSwiftUtils
 
           - Parameters:
              - predicate: The predicate to match.
-             - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
+             - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
           */
         func sublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
             sublayers(depth: depth).filter { predicate($0) == true }
         }
 
         /**
-         Removes all sublayers matching the specified layer type.
-
-         - Parameters:
-            - type: The type of sublayers to remove.
-            - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
-
-         - Returns: The removed layers.
-         */
-        @discardableResult
-        func removeSublayers<V: CALayer>(type: V.Type, depth: Int = 0) -> [V] {
-            let removed = sublayers(type: type, depth: depth)
-            removed.forEach { $0.removeFromSuperlayer() }
-            return removed
-        }
-
-        /**
-         Removes all sublayers matching the specified predicate.
-
-         - Parameters:
-            - predicate: The predicate to match.
-            - depth: The maximum depth. A value of 0 will return sublayers of the current layer. A value of 1 e.g. returns sublayers of the current layer and all sublayers of the layers's sublayers.
-
-         - Returns: The removed layers.
-         */
-        @discardableResult
-        func removeSublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
-            let removed = sublayers(where: predicate, depth: depth)
-            removed.forEach { $0.removeFromSuperlayer() }
-            return removed
-        }
-
-        /*
          An optional layer whose inverse alpha channel is used to mask the layer’s content.
 
          In contrast to `mask` transparent pixels allow the underlying content to show, while opaque pixels block the content.

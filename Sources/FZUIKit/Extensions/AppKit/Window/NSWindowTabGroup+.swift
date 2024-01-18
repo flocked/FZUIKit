@@ -10,12 +10,20 @@
     import AppKit
 
     public extension NSWindowTabGroup {
-        enum TabInsertionType {
+        
+        /// The mode how to insert a window as tab.
+        enum TabInsertionMode {
+            /// Inserts the window before the specified window.
             case before(NSWindow)
+            /// Inserts the window after the specified window.
             case after(NSWindow)
+            /// Inserts the window at the beginning of the tab group.
             case atStart
+            /// Inserts the window at the end of the tab group.
             case atEnd
+            /// Inserts the window after the current tab.
             case afterCurrent
+            /// Inserts the window at the specified index.
             case atIndex(Int)
         }
 
@@ -31,8 +39,15 @@
             }
         }
 
-        func insertWindow(_ window: NSWindow, _ insertionType: TabInsertionType = .atEnd) {
-            switch insertionType {
+        /**
+         Inserts the specified window as tab.
+         
+         - Parameters:
+            - window: The window to insert.
+            - insertionMode: The option how to insert the window. The default value is `afterCurrent`.
+         */
+        func insertWindow(_ window: NSWindow, _ insertionMode: TabInsertionMode = .afterCurrent) {
+            switch insertionMode {
             case .atStart:
                 insertWindow(window, at: 0)
             case .atEnd:
@@ -60,10 +75,12 @@
             }
         }
 
+        /// The tab index of the specified window, or `nil` if the window isn't a tab.
         func indexOfWindow(_ window: NSWindow) -> Int? {
             windows.firstIndex(of: window)
         }
 
+        /// The index of the selected tab, or `nil` if no tab is selected.
         var indexOfSelectedTab: Int? {
             if let selectedWindow = selectedWindow {
                 return indexOfWindow(selectedWindow)

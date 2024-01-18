@@ -127,7 +127,7 @@
 
          Use this property to scale or rotate the view's frame rectangle within its superview's coordinate system. (To change the position of the view, modify the center property instead.). Transformations occur relative to the view's ``anchorPoint``.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().transform`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
 
          The default value is `CGAffineTransformIdentity`, which results in a view with no transformation.
          */
@@ -145,7 +145,7 @@
         /**
          The three-dimensional transform to apply to the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().transform3D`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().transform3D`.
 
          The default value is `CATransform3DIdentity`, which results in a view with no transformation.
          */
@@ -164,7 +164,7 @@
         /**
          The rotation of the view as euler angles in degrees.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().rotation`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().rotation`.
 
          The default value is `0.0`, which results in a view with no rotation.
          */
@@ -180,7 +180,7 @@
         /**
          The rotation of the view as euler angles in radians.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().rotationInRadians`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().rotationInRadians`.
 
          The default value is `0.0`, which results in a view with no rotation.
          */
@@ -196,7 +196,7 @@
         /**
          The scale transform of the view..
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().scale`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().scale`.
 
          The default value is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
          */
@@ -212,7 +212,7 @@
         /**
          The perspective of the view's transform
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().perspective`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().perspective`.
 
          The default value is `zero`, which results in a view with no transformed perspective.
          */
@@ -228,7 +228,7 @@
         /**
          The shearing of the view's transform.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().skew`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().skew`.
 
          The default value is `zero`, which results in a view with no transformed shearing.
          */
@@ -248,7 +248,7 @@
 
          All geometric manipulations to the view occur about the specified point. For example, applying a rotation transform to a view with the default anchor point causes the view to rotate around its center. Changing the anchor point to a different location causes the view to rotate around that new point.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().anchorPoint`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().anchorPoint`.
 
          The default value is `CGPoint(x: 0, y:0)`.
          */
@@ -264,7 +264,7 @@
         /**
          The corner radius of the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().cornerRadius`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().cornerRadius`.
 
          The default value is `0.0`, which results in a view with no rounded corners.
          */
@@ -289,7 +289,7 @@
         /**
          The corner curve of the view.
 
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().cornerCurve`.
          */
         @objc open var cornerCurve: CALayerCornerCurve {
             get { layer?.cornerCurve ?? .circular }
@@ -316,7 +316,7 @@
         /**
          The border of the view.
 
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().border`.
          */
         public var border: BorderConfiguration {
             get {
@@ -332,11 +332,6 @@
             }
         }
 
-        /**
-         The border width of the view.
-
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
-         */
         @objc var borderWidth: CGFloat {
             get { layer?.borderWidth ?? 0.0 }
             set {
@@ -345,18 +340,7 @@
                 layer?.borderWidth = newValue
             }
         }
-        
-        func tttt() {
-if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
-    // use the view without NSProxy
-}
-        }
 
-        /**
-         The border color of the view.
-
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
-         */
         var borderColor: NSColor? {
             get { layer?.borderColor?.nsColor }
             set {
@@ -383,7 +367,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          The shadow of the view (an alternative way of configurating the shadow).
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadow1`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadow1`.
 
          The default value is `none()`, which results in a view with no shadow.
          */
@@ -411,7 +395,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          The shadow color of the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowColor`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowColor`.
 
          The default value is `nil`, which results in a view with no shadow.
          */
@@ -449,7 +433,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          The shadow offset of the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowOffset`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowOffset`.
 
          The default value is `zero`, which results in a view with no shadow offset.
          */
@@ -465,7 +449,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          The shadow radius of the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowRadius`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowRadius`.
 
          The default value is `0.0`, which results in a view with no shadow radius.
          */
@@ -481,7 +465,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          The shadow opacity of the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowOpacity`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowOpacity`.
 
          The default value is `0.0`, which results in a view with no shadow.
          */
@@ -497,7 +481,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          The shadow path of the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().shadowPath`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowPath`.
 
          The default value is `nil`, which results in a view with no shadow path.
          */
@@ -527,7 +511,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          The inner shadow of the view.
 
-         Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().innerShadow`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().innerShadow`.
 
          The default value is `none()`, which results in a view with no inner shadow.
          */
@@ -669,7 +653,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         /**
          Resizes and repositions the view to it's superview using the specified scale.
 
-         - Parameters option: The option for resizing and repositioning the view.
+         - Parameter option: The option for resizing and repositioning the view.
          */
         @objc open func resizeAndRepositionInSuperview(using option: CALayerContentsGravity) {
             guard let superview = superview else { return }
@@ -706,7 +690,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         }
 
         /**
-         Scrolls the view’s closest ancestor `NSClipView object animated so a point in the view lies at the origin of the clip view's bounds rectangle.
+         Scrolls the view’s closest ancestor `NSClipView` object animated so a point in the view lies at the origin of the clip view's bounds rectangle.
 
          - Parameters:
             - point: The point in the view to scroll to.
@@ -728,7 +712,7 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
         }
 
         /**
-         Scrolls the view’s closest ancestor NSClipView object  the minimum distance needed animated so a specified region of the view becomes visible in the clip view.
+         Scrolls the view’s closest ancestor `NSClipView` object  the minimum distance needed animated so a specified region of the view becomes visible in the clip view.
 
          - Parameters:
             - rect: The rectangle to be made visible in the clip view.
@@ -755,6 +739,41 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
                 wantsLayer = true
                 layer?.opacity = Float(newValue)
             }
+        }
+        
+        static func swizzleAnimationForKey() {
+            guard didSwizzleAnimationForKey == false else { return }
+            didSwizzleAnimationForKey = true
+            do {
+                _ = try Swizzle(NSView.self) {
+                    #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
+                }
+            } catch {
+                Swift.debugPrint(error)
+            }
+        }
+
+        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+            if NSViewAnimationKeys.contains(key) {
+                let animation = CABasicAnimation()
+                animation.timingFunction = .default
+                // self.animationManager.add(animation, key: key)
+                return animation
+            }
+            let animation = swizzled_Animation(forKey: key)
+            return animation
+        }
+
+        static var didSwizzleAnimationForKey: Bool {
+            get { getAssociatedValue(key: "NdidSwizzleAnimationForKey", object: self, initialValue: false) }
+            set {
+                set(associatedValue: newValue, key: "NdidSwizzleAnimationForKey", object: self)
+            }
+        }
+        
+        @objc private func realSelf() -> NSView { self }
+        static func toRealSelf(_ v: NSView) -> NSView {
+            v.perform(#selector(realSelf))!.takeUnretainedValue() as! NSView
         }
     }
 
@@ -786,47 +805,6 @@ if self.isProxy(), let view = layer?.delegate as? NSView, view == self {
             }
         }
     }
-
-    extension NSView {
-        /// Swizzles views to support additional properties for animating.
-        static func swizzleAnimationForKey() {
-            guard didSwizzleAnimationForKey == false else { return }
-            didSwizzleAnimationForKey = true
-            do {
-                _ = try Swizzle(NSView.self) {
-                    #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
-                }
-            } catch {
-                Swift.debugPrint(error)
-            }
-        }
-
-        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-            if NSViewAnimationKeys.contains(key) {
-                let animation = CABasicAnimation()
-                animation.timingFunction = .default
-                // self.animationManager.add(animation, key: key)
-                return animation
-            }
-            let animation = swizzled_Animation(forKey: key)
-            return animation
-        }
-
-        /// A Boolean value that indicates whether views are swizzled to support additional properties for animating.
-        static var didSwizzleAnimationForKey: Bool {
-            get { getAssociatedValue(key: "NSView_didSwizzleAnimationForKey", object: self, initialValue: false) }
-            set {
-                set(associatedValue: newValue, key: "NSView_didSwizzleAnimationForKey", object: self)
-            }
-        }
-    }
-
-extension NSView {
-    @objc private func realSelf() -> NSView { self }
-    static func toRealSelf(_ v: NSView) -> NSView {
-        v.perform(#selector(realSelf))!.takeUnretainedValue() as! NSView
-    }
-}
 
     /// The additional `NSView` keys of properties that can be animated.
     private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize"]

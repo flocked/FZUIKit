@@ -38,7 +38,7 @@ public extension AVAsset {
         tracks.compactMap(\.videoCodecString).first
     }
 
-    /// The sample rate of a asset with audio track.
+    /// The sample rate of a asset with an audio track.
     var audioSampleRate: Float64? {
         tracks.compactMap(\.audioSampleRate).first
     }

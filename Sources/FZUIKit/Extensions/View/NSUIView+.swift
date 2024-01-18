@@ -13,7 +13,7 @@
     #endif
 
     public extension NSUIView {
-        internal var optionalLayer: CALayer? {
+        var optionalLayer: CALayer? {
             #if os(macOS)
                 wantsLayer = true
             #endif
@@ -232,7 +232,7 @@
         /**
          An array of all subviews upto the maximum depth.
 
-         - Parameter depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
+         - Parameter depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
          */
         func subviews(depth: Int) -> [NSUIView] {
             if depth > 0 {
@@ -247,7 +247,7 @@
 
           - Parameters:
              - type: The type of subviews.
-             - depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
+             - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
           */
         func subviews<V: NSUIView>(type _: V.Type, depth: Int = 0) -> [V] {
             subviews(depth: depth).compactMap { $0 as? V }
@@ -258,42 +258,10 @@
 
           - Parameters:
              - predicate: The predicate to match.
-             - depth: The maximum depth. A value of 0 will return subviews of the current view. A value of 1 e.g. returns subviews of the current view and all subviews of the view's subviews.
+             - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
           */
         func subviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
             subviews(depth: depth).filter { predicate($0) == true }
-        }
-
-        /**
-         Removes all subviews matching the specified view type.
-
-         - Parameters:
-            - type: The type of subviews to remove.
-            - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
-
-         - Returns: The removed views.
-         */
-        @discardableResult
-        func removeSubviews<V: NSUIView>(type: V.Type, depth: Int = 0) -> [V] {
-            let removed = subviews(type: type, depth: depth)
-            removed.forEach { $0.removeFromSuperview() }
-            return removed
-        }
-
-        /**
-         Removes all subviews matching the specified predicate.
-
-         - Parameters:
-            - predicate: The predicate to match.
-            - depth: The maximum depth. A value of 0 will remove all matching subviews of the current view. A value of 1 e.g. removes all marching subviews of the current view and all marching subviews of the view's subviews.
-
-         - Returns: The removed views.
-         */
-        @discardableResult
-        func removeSubviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
-            let removed = subviews(where: predicate, depth: depth)
-            removed.forEach { $0.removeFromSuperview() }
-            return removed
         }
 
         /// Animates a transition to changes made to the view after calling this.
@@ -313,7 +281,9 @@
 
         #if os(macOS)
             /**
-             The background gradient of the view. Applying a gradient sets the view's `backgroundColor` to `nil`.
+             The background gradient of the view. 
+             
+             Applying a gradient sets the view's `backgroundColor` to `nil`.
 
              Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
              */
@@ -322,9 +292,9 @@
                 set {
                     Self.swizzleAnimationForKey()
                     let newGradient = newValue ?? .init(stops: [])
-
                     var didSetupNewGradientLayer = false
                     if newValue?.stops.isEmpty == false {
+                        backgroundColor = nil
                         didSetupNewGradientLayer = true
                         self.wantsLayer = true
                         if self.optionalLayer?._gradientLayer == nil {
@@ -341,7 +311,7 @@
                         self.layer?.backgroundColor = nil
                     }
                     if didSetupNewGradientLayer == false {
-                        self._gradientLocations = newGradient.stops.compactMap(\.location)
+                        self.gradientLocations = newGradient.stops.compactMap(\.location)
                         self.gradientStartPoint = newGradient.startPoint.point
                         self.gradientEndPoint = newGradient.endPoint.point
                     }
@@ -351,10 +321,15 @@
             }
 
         #elseif canImport(UIKit)
-            /// The background gradient of the view. Applying a gradient sets the view's `backgroundColor` to `nil`.
+            /**
+             The background gradient of the view.
+         
+             Applying a gradient sets the view's `backgroundColor` to `nil`.
+             */
             var gradient: Gradient? {
                 get { optionalLayer?._gradientLayer?.gradient }
-                set { configurate(using: newValue ?? .init(stops: []))
+                set { 
+                    configurate(using: newValue ?? .init(stops: []))
                     if newValue?.stops.isEmpty == false {
                         backgroundColor = nil
                     }
@@ -362,7 +337,7 @@
             }
         #endif
 
-        internal var _gradientLocations: [CGFloat] {
+        internal var gradientLocations: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
             set {
                 var newValue = newValue
@@ -375,11 +350,11 @@
                 } else if diff > 0 {
                     newValue.append(contentsOf: Array(repeating: .zero, count: diff))
                 }
-                gradientLocations = newValue
+                gradientLocationsAnimatable = newValue
             }
         }
 
-        @objc internal var gradientLocations: [CGFloat] {
+        @objc internal var gradientLocationsAnimatable: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
             set { optionalLayer?._gradientLayer?.locations = newValue.compactMap { NSNumber($0) }
             }

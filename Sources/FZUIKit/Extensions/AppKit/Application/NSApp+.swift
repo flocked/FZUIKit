@@ -26,13 +26,13 @@
             return accessEnabled
         }
 
-        /// Relaunches the application (works only for non sandboxed applications).
+        /// Relaunches the application (works only for non-sandboxed applications).
         func relaunch() {
             launchAnotherInstance()
             NSApp.terminate(self)
         }
 
-        /// Launches another instance of the application (works only for non sandboxed applications).
+        /// Launches another instance of the application (works only for-non sandboxed applications).
         func launchAnotherInstance() {
             let path = Bundle.main.bundleURL.path
             Shell.run(.bash, "open", "-n", atPath: path)
