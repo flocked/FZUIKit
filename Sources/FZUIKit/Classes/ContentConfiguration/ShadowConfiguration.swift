@@ -52,8 +52,12 @@
         /// The blur radius of the shadow.
         public var radius: CGFloat = 2.0
 
+        #if os(macOS)
         /// The offset of the shadow.
         public var offset: CGPoint = .init(x: 1.0, y: -1.5)
+        #else
+        public var offset: CGPoint = .init(x: -1.0, y: 1.5)
+        #endif
 
         /// A Boolean value that indicates whether the shadow is invisible (when the color is `nil`, `clear` or the opacity `0`).
         var isInvisible: Bool {
@@ -65,6 +69,7 @@
             _resolvedColor = resolvedColor()
         }
 
+        #if os(macOS)
         /// Initalizes a shadow configuration.
         public init(color: NSUIColor? = .black,
                     opacity: CGFloat = 0.3,
@@ -77,22 +82,48 @@
             self.offset = offset
             updateResolvedColor()
         }
+        #else
+        /// Initalizes a shadow configuration.
+        public init(color: NSUIColor? = .black,
+                    opacity: CGFloat = 0.3,
+                    radius: CGFloat = 2.0,
+                    offset: CGPoint = CGPoint(x: -1.0, y: 1.5))
+        {
+            self.color = color
+            self.opacity = opacity
+            self.radius = radius
+            self.offset = offset
+            updateResolvedColor()
+        }
+        #endif
 
         /// A configuration without shadow.
         public static func none() -> Self { Self(color: nil, opacity: 0.0) }
 
+        #if os(macOS)
+        
         /// A configuration for a black shadow.
         public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
-
-        #if os(macOS)
-            /// A configuration for a accent color shadow.
-            public static func accentColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .controlAccentColor, opacity: opacity, radius: radius, offset: offset) }
-        #endif
-
+        
         /// A configuration for a shadow with the specified color.
         public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
             Self(color: color, opacity: opacity, radius: radius, offset: offset)
         }
+        
+        /// A configuration for a accent color shadow.
+        public static func accentColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .controlAccentColor, opacity: opacity, radius: radius, offset: offset) }
+        
+        #else
+        
+        /// A configuration for a black shadow.
+        public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
+        
+        /// A configuration for a shadow with the specified color.
+        public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self {
+            Self(color: color, opacity: opacity, radius: radius, offset: offset)
+        }
+        
+        #endif
     }
 
     public extension View {
