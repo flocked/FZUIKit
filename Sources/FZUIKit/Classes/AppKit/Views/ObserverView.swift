@@ -71,6 +71,13 @@ extension NSView {
         /// The window is main.
         public var isMain: ((Bool) -> Void)?
         
+        public init(willMoveToWindow: ((NSWindow?) -> Void)? = nil, didMoveToWindow: ((NSWindow) -> Void)? = nil, isKey: ((Bool) -> Void)? = nil, isMain: ((Bool) -> Void)? = nil) {
+            self.willMoveToWindow = willMoveToWindow
+            self.didMoveToWindow = didMoveToWindow
+            self.isKey = isKey
+            self.isMain = isMain
+        }
+        
         var needsObserving: Bool {
             willMoveToWindow != nil || didMoveToWindow != nil || isKey != nil || isMain != nil
         }
@@ -80,6 +87,10 @@ extension NSView {
     public struct ViewHandlers {
         /// The superview changed.
         public var superviewChanged: ((NSView?) -> Void)?
+        
+        public init(superviewChanged: ((NSView?) -> Void)? = nil) {
+            self.superviewChanged = superviewChanged
+        }
 
         var needsObserving: Bool {
             superviewChanged != nil
@@ -138,6 +149,18 @@ extension NSView {
 
         /// Option when the mouse handlers are active. The default value is `inKeyWindow`.
         public var active: ActiveOption = .inKeyWindow
+        
+        public init(moved: ((NSEvent) -> Bool)? = nil, dragged: ((NSEvent) -> Bool)? = nil, entered: ((NSEvent) -> Bool)? = nil, exited: ((NSEvent) -> Bool)? = nil, down: ((NSEvent) -> Bool)? = nil, rightDown: ((NSEvent) -> Bool)? = nil, up: ((NSEvent) -> Bool)? = nil, rightUp: ((NSEvent) -> Bool)? = nil, active: ActiveOption = .inKeyWindow) {
+            self.moved = moved
+            self.dragged = dragged
+            self.entered = entered
+            self.exited = exited
+            self.down = down
+            self.rightDown = rightDown
+            self.up = up
+            self.rightUp = rightUp
+            self.active = active
+        }
 
         var trackingAreaOptions: NSTrackingArea.Options {
             var options: NSTrackingArea.Options = [.inVisibleRect, .mouseEnteredAndExited]
