@@ -34,16 +34,9 @@
         public init(configuration: NSContentUnavailableConfiguration) {
             appliedConfiguration = configuration
             super.init(frame: .zero)
-          //  backgroundConstraints = addSubview(withConstraint: backgroundView)
-            addSubview(hostingView)
+            backgroundConstraints = addSubview(withConstraint: backgroundView)
+            hostingConstraints = addSubview(withConstraint: hostingView)
             updateConfiguration()
-        }
-        
-        public override func layout() {
-            super.layout()
-            hostingView.frame.size = bounds.size
-            hostingView.rootView = ContentView(configuration: appliedConfiguration, size: bounds.size)
-
         }
 
         var backgroundConstraints: [NSLayoutConstraint] = []
@@ -63,29 +56,16 @@
 
         func updateConfiguration() {
             backgroundView.configuration = appliedConfiguration.background
-            hostingView.rootView = ContentView(configuration: appliedConfiguration, size: bounds.size)
-            
+            hostingView.rootView = ContentView(configuration: appliedConfiguration)
+
             backgroundConstraints.constant(appliedConfiguration.directionalLayoutMargins)
             hostingConstraints.constant(appliedConfiguration.directionalLayoutMargins)
-
-/*
-            backgroundConstraints[1].constant = -appliedConfiguration.directionalLayoutMargins.bottom
-            backgroundConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
-            backgroundConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
-            backgroundConstraints[3].constant = -appliedConfiguration.directionalLayoutMargins.height
-
-            hostingConstraints[1].constant = -appliedConfiguration.directionalLayoutMargins.bottom
-            hostingConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
-            hostingConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
-            hostingConstraints[3].constant = -appliedConfiguration.directionalLayoutMargins.height
-       */
         }
 
         lazy var hostingView: NSHostingView<ContentView> = {
-            let contentView = ContentView(configuration: self.appliedConfiguration, size: bounds.size)
+            let contentView = ContentView(configuration: self.appliedConfiguration)
             let hostingView = NSHostingView(rootView: contentView)
-            hostingView.backgroundColor = .clear
-            hostingView.translatesAutoresizingMaskIntoConstraints = false
+            Swift.print("clips", hostingView.clipsToBounds)
             hostingView.clipsToBounds = false
             return hostingView
         }()
@@ -101,7 +81,7 @@
     extension NSContentUnavailableView {
         struct ContentView: View {
             let configuration: NSContentUnavailableConfiguration
-            let size: CGSize
+
             @ViewBuilder
             var buttonItem: some View {
                 if let configuration = configuration.button, configuration.hasContent {
@@ -210,7 +190,7 @@
 
             var body: some View {
                 stack
-                    .frame(width: size.width, height: size.height, alignment: .center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }
         }
 
