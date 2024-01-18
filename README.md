@@ -46,32 +46,32 @@ configuration.secondaryText = "The database is getting loaded."
 let loadingView = NSContentUnavailableView(configuration: configuration)
 ```
 
-### NSView backgroundColor
-The background color of a view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
+### NSView properties
+
+- `backgroundColor`: The background color of a view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
 ```
 view.backgroundColor = .systemRed
 ```
 
-### NSView mask
-Masks a view with another view whose alpha channel is used for masking.
-imageView.mask = textField
-
-### NSView additional properties
-Additional `NSView` properties that can be all animated via the views `animator()`:
-- `cornerRadius: CGFloat`
-- `cornerCurve: CALayerCornerCurve`
-- `roundedCorners: CACornerMask`
-- `borderWidth: CGFloat`
-- `borderColor: NSColor? `
-- `mask: NSView?`
-- `center: CGPoint`
-- `transform: CGAffineTransform`
-- `transform3D: CATransform3D`
-- `anchorPoint: CGPoint`
-- NSTextField: `fontSize: CGFloat`
-
+- `mask`: Masks a view with another view whose alpha channel is used for masking.
 ```
-// Convenience way of animating view properties
+view.mask = roundedView
+```
+
+- Additional `NSView` properties that can be all animated via the views `animator()`:
+    - `cornerRadius: CGFloat`
+    - `cornerCurve: CALayerCornerCurve`
+    - `roundedCorners: CACornerMask`
+    - `borderWidth: CGFloat`
+    - `borderColor: NSColor? `
+    - `center: CGPoint`
+    - `transform: CGAffineTransform`
+    - `transform3D: CATransform3D`
+    - `anchorPoint: CGPoint`
+    - NSTextField: `fontSize: CGFloat`
+
+- Convenience way of animating view properties:
+```
 view.animate(duration: 0.5) {
     $0.cornerRadius = 4.0
     $0.borderWidth = 2.0
