@@ -24,9 +24,8 @@
         private var subscribers: [CombineIdentifier: AnySubscriber<Frame, Never>] = [:] {
             didSet {
                 dispatchPrecondition(condition: .onQueue(.main))
-                Swift.print("didSet", subscribers.isEmpty)
                 platformDisplayLink.isPaused = subscribers.isEmpty
-                Swift.print("didSet", subscribers.isEmpty)
+                Swift.print("didSet", subscribers.isEmpty, platformDisplayLink.isPaused )
 
             }
         }
