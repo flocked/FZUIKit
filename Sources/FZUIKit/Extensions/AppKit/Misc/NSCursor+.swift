@@ -150,7 +150,7 @@ import Combine
                 }
                 guard displayLink == nil else { return }
                 lastFrameTime = CFAbsoluteTimeGetCurrent()
-
+                Swift.print("start")
                 displayLink = DisplayLink.shared.sink { [weak self] frame in
                     guard let self = self else { return }
                     let current = CFAbsoluteTimeGetCurrent()
