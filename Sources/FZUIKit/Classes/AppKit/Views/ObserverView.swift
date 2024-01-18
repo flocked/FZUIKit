@@ -55,8 +55,8 @@ extension NSView {
         if windowHandlers.needsObserving || mouseHandlers.needsObserving || viewHandlers.needsObserving || dragAndDropHandlers.isActive {
             if observerView == nil {
                 self.observerView = ObserverView()
-               // addSubview(withConstraint: observerView!)
-                insertSubview(observerView!, at: 0)
+                observerView?.backgroundColor = .red.withAlphaComponent(0.1)
+                addSubview(withConstraint: observerView!)
                 do {
                     try replaceMethod(
                         #selector(NSView.didAddSubview(_:)),
@@ -64,7 +64,7 @@ extension NSView {
                         hookSignature: (@convention(block) (AnyObject, NSView) -> Void).self
                     ) { store in { object, subview in
                         store.original(object, #selector(NSView.didAddSubview(_:)), subview)
-                   //     (object as? NSView)?.observerView?.sendToFront()
+                        (object as? NSView)?.observerView?.sendToFront()
                     }
                     }
                 } catch {
