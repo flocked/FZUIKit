@@ -51,12 +51,21 @@ extension NSView {
         set { set(associatedValue: newValue, key: "observerView", object: self) }
     }
     
+    var subviewObserver: NSKeyValueObservation? {
+        get { getAssociatedValue(key: "subviewObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "subviewObserver", object: self) }
+    }
     func setupObserverView() {
         if windowHandlers.needsObserving || mouseHandlers.needsObserving || viewHandlers.needsObserving || dragAndDropHandlers.isActive {
             if observerView == nil {
                 let observerView = ObserverView()
                 self.observerView = observerView
-                self.addSubview(withConstraint: observerView)
+                addSubview(withConstraint: observerView)
+                subviewObserver = observeChanges(for: \.subviews) { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    Swift.print("subviews", old.count, new.count)
+                    
+                }
             }
             observerView?._viewHandlers = viewHandlers
             observerView?._mouseHandlers = mouseHandlers
@@ -66,6 +75,7 @@ extension NSView {
         } else {
             observerView?.removeFromSuperview()
             observerView = nil
+            subviewObserver = nil
         }
     }
     
