@@ -17,7 +17,11 @@
         /// Creates a new instance of the content view using this configuration.
         func makeContentView() -> NSView & NSContentView
 
-        /// Generates a configuration for the specified state by applying the configuration’s default values for that state to any properties that you haven’t customized.
+        /**
+         Generates a configuration for the specified state by applying the configuration’s default values for that state to any properties that you haven’t customized.
+         
+         The default implementation returns the configuration unmodified.
+         */
         func updated(for state: NSConfigurationState) -> Self
     }
 

@@ -12,11 +12,12 @@
      The requirements for an object that encapsulates a view’s state.
 
      This protocol provides a blueprint for a configuration state object, which encompasses a trait collection along with all of the common states that affect a view’s appearance. A configuration state encapsulates the inputs that configure a view for any possible state or combination of states. You use a configuration state with background and content configurations to obtain the default appearance for a specific state.
+     
      Typically, you don’t create a configuration state yourself. To obtain a configuration state, override the ``updateConfiguration(using:)`` method in your view subclass and use the state parameter. Outside of this method, you can get a view’s configuration state by using its ``configurationState`` property.
      For more information, see ``NSItemConfigurationState``.
      */
     public protocol NSConfigurationState {
-        subscript(_: NSConfigurationStateCustomKey) -> AnyHashable? { get set }
+        subscript(key: NSConfigurationStateCustomKey) -> AnyHashable? { get set }
     }
 
     /**
@@ -31,14 +32,14 @@
      }
 
      // Declare an extension on the cell state structure to provide a typed property for this custom state.
-     extension UIItemConfigurationState {
+     extension NSItemConfigurationState {
          var isArchived: Bool {
              get { return self[.isArchived] as? Bool ?? false }
              set { self[.isArchived] = newValue }
          }
      }
 
-     class MyCell: NSCollectionViewItem {
+     class MyItem: NSCollectionViewItem {
          // This is an existing custom property of the cell.
          var isArchived: Bool {
              didSet {
@@ -60,26 +61,20 @@
      ```
      */
     public struct NSConfigurationStateCustomKey: Hashable, RawRepresentable {
-        /**
-         Creates a custom state key.
-         */
+        /// Creates a custom state key.
         public init(_ rawValue: String) {
             self.rawValue = rawValue
         }
 
-        /**
-         Creates a custom state key with the specified raw value.
-         */
+        /// Creates a custom state key with the specified raw value.
         public init(rawValue: String) {
             self.rawValue = rawValue
         }
 
-        public var rawValue: String
-        public typealias RawValue = String
+        public let rawValue: String
     }
 
     extension NSConfigurationStateCustomKey: ExpressibleByStringLiteral {
-        public typealias StringLiteralType = String
         public init(stringLiteral value: String) {
             self.init(rawValue: value)
         }

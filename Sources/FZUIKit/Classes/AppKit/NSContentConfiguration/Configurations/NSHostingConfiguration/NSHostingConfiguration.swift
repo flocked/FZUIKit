@@ -49,9 +49,7 @@
         /**
          Creates a hosting configuration with the given contents.
 
-         - Parameters:
-            - content: The contents of the SwiftUI hierarchy to be shown inside the cell.
-            - itemRegistration: A item registration that creates, configurate and returns each of the items for the collection view from the data the diffable data source provides.
+         - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the cell.
          */
         public init(@ViewBuilder content: () -> Content) where Background == EmptyView {
             self.content = content()
@@ -61,23 +59,14 @@
             minHeight = nil
         }
 
-        /**
-         Creates a hosting configuration with the given contents and background.
-
-         - Parameters:
-            - content: The contents of the SwiftUI hierarchy to be shown inside the cell.
-            - background: The background of the SwiftUI hierarchy to be shown inside the cell.
-            - margins: The margins around the content of the configuration.
-            - minWidth: The value to use for the width dimension. A value of nil indicates that the system default should be used.
-            - minHeight: The value to use for the height dimension. A value of nil indicates that the system default should be used.
-         */
-        public init(content: Content, background: Background, margins: NSDirectionalEdgeInsets, minWidth: CGFloat?, minHeight: CGFloat?) {
+        init(content: Content, background: Background, margins: NSDirectionalEdgeInsets, minWidth: CGFloat?, minHeight: CGFloat?) {
             self.content = content
             self.background = background
             self.margins = margins
             self.minWidth = minWidth
             self.minHeight = minHeight
         }
+        
 
         /**
          Sets the background contents for the hosting configuration’s enclosing cell.
@@ -218,16 +207,10 @@
             )
         }
 
-        /**
-         Returns the configuration updated for the specified state, by applying the configuration’s default values for that state to any properties that have not been customized.
-         */
         public func updated(for _: NSConfigurationState) -> NSHostingConfiguration {
             self
         }
 
-        /**
-         Initializes and returns a new instance of the content view using this configuration.
-         */
         public func makeContentView() -> NSView & NSContentView {
             NSHostingContentView<Content, Background>(configuration: self)
         }

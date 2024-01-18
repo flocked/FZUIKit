@@ -11,6 +11,7 @@
 
     /// A view for displaying a background configuration.
     public class NSBackgroundView: NSView, NSContentView {
+        
         /// The background configuration.
         public var configuration: NSContentConfiguration {
             get { appliedConfiguration }
