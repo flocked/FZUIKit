@@ -164,6 +164,7 @@ import Combine
             }
 
             func stop() {
+                Swift.print("stop")
                 displayLink?.cancel()
                 displayLink = nil
                 index = 0
