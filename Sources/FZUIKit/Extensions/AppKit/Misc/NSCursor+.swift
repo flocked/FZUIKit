@@ -11,19 +11,25 @@
     import FZSwiftUtils
 
     public extension NSCursor {
-        /// Returns the resize-diagonal system cursor (from north-west to south-east).
+        /**
+         Returns the resize-diagonal system cursor (from north-west to south-east).
+         
+         Use this cursor for resizing of a bottom right or top left corner.
+         */
         static var resizeDiagonal: NSCursor? {
             if let url = Bundle.module.url(forResource: "resizenorthwestsoutheast", withExtension: "pdf"), let image = NSImage(contentsOf: url) {
-               // image.isTemplate = true
                 return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
             }
             return nil
         }
 
-        /// Returns the resize-diagonal-alernative system cursor (from north-east to south-west).
+        /**
+         Returns the resize-diagonal-alernative system cursor (from north-east to south-west).
+         
+         Use this cursor for resizing of a bottom left or top right corner.
+         */
         static var resizeDiagonalAlt: NSCursor? {
             if let url = Bundle.module.url(forResource: "resizenortheastsouthwest", withExtension: "pdf"), let image = NSImage(contentsOf: url) {
-               // image.isTemplate = true
                 return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
             }
             return nil
