@@ -30,9 +30,9 @@
             
             hostingView.frame.origin.x = appliedConfiguration.directionalLayoutMargins.leading
             hostingView.frame.origin.y = appliedConfiguration.directionalLayoutMargins.bottom
-            hostingView.frame.topRight = bounds.topRight.offset(x: -appliedConfiguration.directionalLayoutMargins.trailing, y: -appliedConfiguration.directionalLayoutMargins.height)
+            hostingView.frame.size.height = bounds.height - appliedConfiguration.directionalLayoutMargins.height
+            hostingView.frame.size.width = bounds.width - appliedConfiguration.directionalLayoutMargins.width
             backgroundView.frame = hostingView.frame
-
         }
 
         /// Determines whether the view is compatible with the provided configuration.
