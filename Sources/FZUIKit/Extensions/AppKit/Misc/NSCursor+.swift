@@ -165,7 +165,6 @@ import Combine
             }
 
             func stop() {
-                Swift.print("stop")
                 displayLink?.cancel()
                 displayLink = nil
                 index = 0
@@ -174,7 +173,8 @@ import Combine
             func advanceImage() {
                 if frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty {
                     stop()
-                    frames = []
+                 //   Swift.print("stop")
+                  //  frames = []
                 } else {
                     index = index + 1
                     if index >= frames.count {
