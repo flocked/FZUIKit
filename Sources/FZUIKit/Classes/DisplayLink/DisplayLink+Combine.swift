@@ -30,7 +30,7 @@
         }
 
         fileprivate init(platformDisplayLink: DisplayLinkProvider) {
-            dispatchPrecondition(condition: .onQueue(.main))
+        //    dispatchPrecondition(condition: .onQueue(.main))
             self.platformDisplayLink = platformDisplayLink
             self.platformDisplayLink.onFrame = { [weak self] frame in
                 self?.send(frame: frame)
@@ -38,7 +38,7 @@
         }
 
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, S.Input == Frame {
-            dispatchPrecondition(condition: .onQueue(.main))
+         //   dispatchPrecondition(condition: .onQueue(.main))
 
             let typeErased = AnySubscriber(subscriber)
             let identifier = typeErased.combineIdentifier
@@ -50,12 +50,12 @@
         }
 
         private func cancelSubscription(for identifier: CombineIdentifier) {
-            dispatchPrecondition(condition: .onQueue(.main))
+          //  dispatchPrecondition(condition: .onQueue(.main))
             subscribers.removeValue(forKey: identifier)
         }
 
         private func send(frame: Frame) {
-            dispatchPrecondition(condition: .onQueue(.main))
+        //    dispatchPrecondition(condition: .onQueue(.main))
             let subscribers = subscribers.values
             subscribers.forEach {
                 _ = $0.receive(frame) // Ignore demand
