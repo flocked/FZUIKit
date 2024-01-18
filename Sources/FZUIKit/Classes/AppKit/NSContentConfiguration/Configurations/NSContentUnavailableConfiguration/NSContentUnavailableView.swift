@@ -42,6 +42,8 @@
         public override func layout() {
             super.layout()
             hostingView.frame.size = bounds.size
+            hostingView.rootView = ContentView(configuration: appliedConfiguration, size: bounds.size)
+
         }
 
         var backgroundConstraints: [NSLayoutConstraint] = []
@@ -61,7 +63,11 @@
 
         func updateConfiguration() {
             backgroundView.configuration = appliedConfiguration.background
-            hostingView.rootView = ContentView(configuration: appliedConfiguration)
+            hostingView.rootView = ContentView(configuration: appliedConfiguration, size: bounds.size)
+            
+            backgroundConstraints.constant(appliedConfiguration.directionalLayoutMargins)
+            hostingConstraints.constant(appliedConfiguration.directionalLayoutMargins)
+
 /*
             backgroundConstraints[1].constant = -appliedConfiguration.directionalLayoutMargins.bottom
             backgroundConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
@@ -76,7 +82,7 @@
         }
 
         lazy var hostingView: NSHostingView<ContentView> = {
-            let contentView = ContentView(configuration: self.appliedConfiguration)
+            let contentView = ContentView(configuration: self.appliedConfiguration, size: bounds.size)
             let hostingView = NSHostingView(rootView: contentView)
             hostingView.backgroundColor = .clear
             hostingView.translatesAutoresizingMaskIntoConstraints = false
@@ -95,7 +101,7 @@
     extension NSContentUnavailableView {
         struct ContentView: View {
             let configuration: NSContentUnavailableConfiguration
-
+            let size: CGSize
             @ViewBuilder
             var buttonItem: some View {
                 if let configuration = configuration.button, configuration.hasContent {
@@ -204,7 +210,7 @@
 
             var body: some View {
                 stack
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .frame(width: size.width, height: size.height, alignment: .center)
             }
         }
 
