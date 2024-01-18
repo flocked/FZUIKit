@@ -134,7 +134,8 @@ import Combine
             
             var displayLink: AnyCancellable? = nil
             var lastFrameTime = CFAbsoluteTimeGetCurrent()
-            var frames: [ImageFrame] = []
+            var frames: [ImageFrame] = [] {
+                willSet {  stop() } }
             var index: Int = 0
             var hotSpot: CGPoint = .zero
 
@@ -170,13 +171,16 @@ import Combine
                 displayLink = nil
                 index = 0
             }
+            
+            func reset() {
+                stop()
+                frames = []
+            }
 
             func advanceImage() {
                 Swift.print("advanceImage")
                 if frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty {
-                    stop()
-                 //   Swift.print("stop")
-                    frames = []
+                   reset()
                 } else {
                     index = index + 1
                     if index >= frames.count {
