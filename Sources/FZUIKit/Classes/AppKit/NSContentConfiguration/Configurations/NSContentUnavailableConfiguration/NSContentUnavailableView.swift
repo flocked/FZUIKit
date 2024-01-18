@@ -195,7 +195,8 @@
                         if let image = configuration.image {
                             Label { Text(atributedTitle) } icon: { 
                                 Image(image)
-                                    .frame(width: configuration.size.size?.width, height: configuration.size.size?.height)
+                                    .resizable()
+                                   // .frame(width: configuration.size.size?.width, height: configuration.size.size?.height)
                             }
                         } else {
                             Text(atributedTitle)
@@ -204,14 +205,16 @@
                         if let image = configuration.image {
                             Label { Text(title) } icon: {
                                 Image(image)
-                                    .frame(width: configuration.size.size?.width, height: configuration.size.size?.height)
+                                    .resizable()
+                                 //   .frame(width: configuration.size.size?.width, height: configuration.size.size?.height)
                             }
                         } else {
                             Text(title)
                         }
                     } else if let image = configuration.image {
                         Image(image)
-                            .frame(width: configuration.size.size?.width, height: configuration.size.size?.height)
+                            .resizable()
+                           // .frame(width: configuration.size.size?.width, height: configuration.size.size?.height)
                     }
                 }.buttonStyling(configuration.style)
                     .foregroundColor(configuration.contentTintColor?.swiftUI)
