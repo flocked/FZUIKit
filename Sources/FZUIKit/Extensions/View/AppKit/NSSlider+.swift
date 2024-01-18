@@ -11,7 +11,7 @@
     import Foundation
 
     public extension NSSlider {
-        /// THe position of the slider knob.
+        /// The position of the slider knob.
         var knobPointPosition: CGFloat {
             let sliderOrigin = frame.origin.x + knobThickness / 2
             let sliderWidth = frame.width - knobThickness

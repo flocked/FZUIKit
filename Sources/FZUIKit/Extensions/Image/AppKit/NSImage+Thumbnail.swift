@@ -14,7 +14,7 @@ import FZSwiftUtils
         /**
           Decodes an image synchronously and provides a new one for display in views and animations.
 
-          The Animation Hitches instrument measures system performance for multiple stages of preparing views for display. It can show you the exact cause of an animation hitch, which appears to the user as an interruption or jump in an animation that should be smooth. If Animation Hitches indicates that decoding an image takes too long and causes hitches, use this method to move the decoding work to the background. For more information on using Instruments, see Instruments Help.
+          The Animation Hitches [instrument](https://help.apple.com/instruments/mac/current/) measures system performance for multiple stages of preparing views for display. It can show you the exact cause of an animation hitch, which appears to the user as an interruption or jump in an animation that should be smooth. If Animation Hitches indicates that decoding an image takes too long and causes hitches, use this method to move the decoding work to the background. For more information on using Instruments, see Instruments Help.
 
           Avoid using this method on the main thread unless you previously started preparing an image with prepareForDisplay(completionHandler:). If you’re decoding many images, such as with a collection view, calling this method from a concurrent queue can degrade performance by demanding too many system threads. Use a serial queue instead.
 
@@ -57,12 +57,14 @@ import FZSwiftUtils
             }
             return nil
         }
-
+        
         /**
          Decodes an image asynchronously and provides a new one for display in views and animations.
 
-         The Animation Hitches instrument measures system performance for multiple stages of preparing views for display. It can show you the exact cause of an animation hitch, which appears to the user as an interruption or jump in an animation that should be smooth. If Animation Hitches indicates that decoding an image takes too long and causes hitches, use this method to move the decoding work to the background.
-         This method creates a new image object and passes it to the completion handler. The new image is ready for efficient display by an image view. Assign the image this method creates to the image property of an image view. If NSImageView can render the image without decoding, this method passes the completion handler a valid image without further processing. If the system can’t decode the image, such as an image created from a CIImage, the method passes nil to the completion handler.
+         The Animation Hitches [instrument](https://help.apple.com/instruments/mac/current/) measures system performance for multiple stages of preparing views for display. It can show you the exact cause of an animation hitch, which appears to the user as an interruption or jump in an animation that should be smooth. If Animation Hitches indicates that decoding an image takes too long and causes hitches, use this method to move the decoding work to the background.
+         
+         This method creates a new image object and passes it to the completion handler. The new image is ready for efficient display by an image view. Assign the `image` this method creates to the image property of an image view. If `NSImageView` can render the image without decoding, this method passes the completion handler a valid image without further processing. If the system can’t decode the image, such as an image created from a `CIImage`, the method passes `nil` to the completion handler.
+         
          AppKit doesn’t associate the prepared image with the original, or with any related variants from an asset catalog. If your app environment dynamically changes display traits, listen for changes in the trait environment and prepare new images when the environment changes.
 
          - Returns: A new version of the image object for display. If the system can’t decode the image, this method returns nil.
@@ -79,13 +81,15 @@ import FZSwiftUtils
         /**
          Decodes an image asynchronously and provides a new one for display in views and animations.
 
-         The Animation Hitches instrument measures system performance for multiple stages of preparing views for display. It can show you the exact cause of an animation hitch, which appears to the user as an interruption or jump in an animation that should be smooth. If Animation Hitches indicates that decoding an image takes too long and causes hitches, use this method to move the decoding work to the background.
-         This method creates a new image object and passes it to the completion handler. The new image is ready for efficient display by an image view. Assign the image this method creates to the image property of an image view. If NSImageView can render the image without decoding, this method passes the completion handler a valid image without further processing. If the system can’t decode the image, such as an image created from a CIImage, the method passes nil to the completion handler.
+         The Animation Hitches [instrument](https://help.apple.com/instruments/mac/current/) measures system performance for multiple stages of preparing views for display. It can show you the exact cause of an animation hitch, which appears to the user as an interruption or jump in an animation that should be smooth. If Animation Hitches indicates that decoding an image takes too long and causes hitches, use this method to move the decoding work to the background.
+         
+         This method creates a new image object and passes it to the completion handler. The new image is ready for efficient display by an image view. Assign the `image this method creates to the image property of an image view. If `NSImageView` can render the image without decoding, this method passes the completion handler a valid image without further processing. If the system can’t decode the image, such as an image created from a `CIImage`, the method passes `nil to the completion handler.
+         
          AppKit doesn’t associate the prepared image with the original, or with any related variants from an asset catalog. If your app environment dynamically changes display traits, listen for changes in the trait environment and prepare new images when the environment changes.
 
          - Parameters:
             - completionHandler: The closure to call when the function finishes preparing the image. This completion handler takes one parameter:
-            -  image: A new version of the image object for display. If the system can’t decode the image, the parameter value is nil.
+                -  image: A new version of the image object for display. If the system can’t decode the image, the parameter value is `nil.
 
          ```swift
          func collectionView( _ collectionView: NSCollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
@@ -103,7 +107,7 @@ import FZSwiftUtils
          }
          ```
          */
-        func preparingForDisplay(completionHandler: @escaping (NSImage?) -> Void) {
+        func prepareForDisplay(completionHandler: @escaping (NSImage?) -> Void) {
             guard let source = ImageSource(image: self) else {
                 completionHandler(nil)
                 return
@@ -123,8 +127,7 @@ import FZSwiftUtils
 
          When the native image size is much larger than the bounds of the view, decoding the full size image creates unnecessary memory overhead. By creating a thumbnail image at a specified size with this method, you avoid the overhead of decoding the image at its full size.
 
-         - Parameters:
-            - size: The desired size of the thumbnail.
+         - Parameter size: The desired size of the thumbnail.
 
          ```swift
          func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath
@@ -151,16 +154,16 @@ import FZSwiftUtils
 
         /**
          Creates a thumbnail image at the specified size asynchronously on a background thread.
-
+         
          When the native image size is much larger than the bounds of the view, decoding the full size image creates unnecessary memory overhead. By creating a thumbnail image at a specified size with this method, you avoid the overhead of decoding the image at its full size.
+         
          This method asynchronously creates the thumbnail image on a background thread and calls the completion handler on that thread. If your app updates the UI in the completion handler, schedule the UI update on the main thread.
 
-         - Parameters:
-            - size: The desired size of the thumbnail.
+         - Parameter size: The desired size of the thumbnail.
 
          - Returns: A new thumbnail image. Returns nil if the original image isn’t backed by a CGImage or if the image data is corrupt or malformed.
          */
-        func preparingThumbnail(for size: CGSize) async -> NSImage? {
+        func prepareThumbnail(for size: CGSize) async -> NSImage? {
             guard let source = ImageSource(image: self) else { return nil }
             let options = thumbnailOptions(for: size)
             if let cgImage = await source.thumbnail(options: options) {
@@ -178,7 +181,7 @@ import FZSwiftUtils
          - Parameters:
             - size: The desired size of the thumbnail.
             - completionHandler: The completion handler to call when the thumbnail is ready. The handler executes on a background thread. The completion handler takes the following parameters:
-            -  thumbnail: A new thumbnail image. This parameter is nil if the original image isn’t backed by a CGImage or if the image data is corrupt or malformed.
+                -  thumbnail: A new thumbnail image. This parameter is nil if the original image isn’t backed by a CGImage or if the image data is corrupt or malformed.
 
          ```swift
          func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath

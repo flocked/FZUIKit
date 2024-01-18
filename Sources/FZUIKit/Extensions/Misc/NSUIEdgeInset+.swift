@@ -104,7 +104,7 @@ public extension NSUIEdgeInsets {
 
 public extension NSDirectionalEdgeInsets {
     #if os(macOS)
-        /// A directional edge insets structure whose top, leading, bottom, and trailing fields all have a value of 0.
+        /// A directional edge insets structure whose top, leading, bottom, and trailing fields all have a value of ´0´.
         static var zero = NSDirectionalEdgeInsets(0)
     #endif
 

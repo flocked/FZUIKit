@@ -367,11 +367,11 @@
         /**
          The shadow of the view (an alternative way of configurating the shadow).
 
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadow1`.
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().outerShadow`.
 
          The default value is `none()`, which results in a view with no shadow.
          */
-       @objc public var shadow1: ShadowConfiguration {
+       @objc public var outerShadow: ShadowConfiguration {
             get {
                 if isProxy(), let proxyShadow = proxyShadow {
                     return proxyShadow

@@ -148,7 +148,7 @@
         }
 
         override public func loadView() {
-            view = ObserverView()
+            view = NSView()
         }
 
         @available(*, unavailable)

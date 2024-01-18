@@ -9,21 +9,25 @@
     import FZSwiftUtils
     import UIKit
 
-    public extension UICollectionView {
+    extension UICollectionView {
         /// Returns the index paths of the currently displayed cells. Unlike `indexPathsForVisibleItems()`  it only returns the cells with visible frame.
-        func displayingIndexPaths() -> [IndexPath] {
+        public func displayingIndexPaths() -> [IndexPath] {
             (displayingCells().compactMap { self.indexPath(for: $0) }).sorted()
         }
 
         /// Returns an array of all displayed cells. Unlike `visibleCells()` it only returns the items with visible frame.
-        func displayingCells() -> [UICollectionViewCell] {
+        public func displayingCells() -> [UICollectionViewCell] {
             let visibleCells = visibleCells
             let visibleRect = frame.intersection(superview?.bounds ?? frame)
             return visibleCells.filter { $0.frame.intersects(visibleRect) }
         }
 
-        /// Handlers that get called whenever the collection view is displaying new items.
-        var displayingItemsHandlers: DisplayingItemsHandlers {
+        /**
+         The handlers for the displaying cells.
+
+         The handlers get called whenever the collection view is displaying new cells (e.g. when the enclosing scrollview gets scrolled to new cells).
+         */
+        public var displayingCellsHandlers: DisplayingItemsHandlers {
             get { getAssociatedValue(key: "displayingItemsHandlers", object: self, initialValue: DisplayingItemsHandlers()) }
             set {
                 set(associatedValue: newValue, key: "displayingItemsHandlers", object: self)
@@ -32,32 +36,32 @@
         }
 
         /**
-         Handlers for the displaying items.
+         Handlers for the displaying cells.
 
-         The handlers get called whenever the collection view is displaying new items.
+         The handlers get called whenever the collection view is displaying new cells.
          */
-        struct DisplayingItemsHandlers {
-            /// Handler that gets called whenever items start getting displayed.
+        public struct DisplayingItemsHandlers {
+            /// Handler that gets called whenever cells start getting displayed.
             var isDisplaying: (([IndexPath]) -> Void)?
-            /// Handler that gets called whenever items end getting displayed.
+            /// Handler that gets called whenever cells end getting displayed.
             var didEndDisplaying: (([IndexPath]) -> Void)?
         }
 
-        internal var previousDisplayingIndexPaths: [IndexPath] {
+        var previousDisplayingIndexPaths: [IndexPath] {
             get { getAssociatedValue(key: "previousDisplayingIndexPaths", object: self, initialValue: []) }
             set {
                 set(associatedValue: newValue, key: "previousDisplayingIndexPaths", object: self)
             }
         }
 
-        internal var contentOffsetObserver: NSKeyValueObservation? {
+        var contentOffsetObserver: NSKeyValueObservation? {
             get { getAssociatedValue(key: "contentOffsetObserver", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "contentOffsetObserver", object: self) }
         }
 
-        @objc internal func didScroll() {
-            let isDisplaying = displayingItemsHandlers.isDisplaying
-            let didEndDisplaying = displayingItemsHandlers.didEndDisplaying
+        @objc func didScroll() {
+            let isDisplaying = displayingCellsHandlers.isDisplaying
+            let didEndDisplaying = displayingCellsHandlers.didEndDisplaying
             guard isDisplaying != nil || didEndDisplaying != nil else { return }
 
             let displayingIndexPaths = displayingIndexPaths()
@@ -80,8 +84,8 @@
             }
         }
 
-        internal func setupDisplayingItemsTracking() {
-            if displayingItemsHandlers.isDisplaying != nil || displayingItemsHandlers.didEndDisplaying != nil {
+        func setupDisplayingItemsTracking() {
+            if displayingCellsHandlers.isDisplaying != nil || displayingCellsHandlers.didEndDisplaying != nil {
                 if contentOffsetObserver == nil {
                     contentOffsetObserver = observeChanges(for: \.contentOffset, handler: { [weak self] old, new in
                         guard let self = self, old != new else { return }

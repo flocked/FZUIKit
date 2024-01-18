@@ -87,7 +87,7 @@
             contentView.visualEffect = appliedConfiguration.visualEffect
             contentView.cornerRadius = appliedConfiguration.cornerRadius
 
-            contentView.shadow1 = appliedConfiguration.shadow
+            contentView.outerShadow = appliedConfiguration.shadow
             contentView.innerShadow = appliedConfiguration.innerShadow
             contentView.border = appliedConfiguration.border
             

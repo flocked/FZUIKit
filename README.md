@@ -52,6 +52,10 @@ The background color of a view that automatically adjusts on light/dark mode cha
 view.backgroundColor = .systemRed
 ```
 
+### NSView mask
+Masks a view with another view whose alpha channel is used for masking.
+imageView.mask = textField
+
 ### NSView additional properties
 Additional `NSView` properties that can be all animated via the views `animator()`:
 - `cornerRadius: CGFloat`
@@ -75,26 +79,24 @@ view.animate(duration: 0.5) {
 }
 ```
 
-### NSImage preparingForDisplay & preparingThumbnail
+### NSImage prepareForDisplay & prepareThumbnail
 An UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
 
 ```
 // prepared decoded image for better performance
-if let preparedImage = await image.preparingForDisplay() {
-    //
-}
+let preparedImage = await image.preparingForDisplay() 
 
 // thumbnail image
 let maxThumbnailSize = CGSize(width: 512, height: 512)
-image.preparingThumbnail(of: maxThumbnailSize) { thumbnailImage in
-    if let thumbnailImage = thumbnailImage {
-    //
-    }
+image.prepareThumbnail(of: maxThumbnailSize) { thumbnailImage in
+    // thumbnailImage…
 }
 ```
 
 ### ContentConfiguration
+
 Configurates several aspects of views, windows, etc. Examples:
+
 - VisualEffect
 ```
 window.visualEffect = .darkAqua()
@@ -103,16 +105,16 @@ view.visualEffect = .vibrantLight(material: .sidebar)
 - Shadow/InnerShadow:
 ```
 let shadow = ShadowConfiguration(color: .controlAccentColor, opacity: 0.5, radius: 2.0)
-view.configurate(using: shadow, type: .outer)
+view.outerShadow = shadow
 // inner shadow
-view.configurate(using: shadow, type: .inner)
+view.innerShadow = shadow
 ```
 - Border
 ```
 let border = BorderConfiguration(color: .black, width: 1.0)
-view.configurate(using: border)
+view.border = border
 let dashedBorder: BorderConfiguration = .dashed(color: .red)
-view.configurate(using: dashedBorder)
+view.border = dashedBorder
 ```
 - SymbolConfiguration: A simplified version of UIImage/NSImage.SymbolConfiguration.
 ```
@@ -121,9 +123,9 @@ imageView.configurate(using: symbolConfiguration)
 ```
 - Text
 ```
-var text = TextConfiguration(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
-text.adjustsFontSizeToFitWidth = true
-textField.configurate(using: text)
+var textConfiguration = TextConfiguration(font: .ystemFont(ofSize: 12), color: .red, numberOfLines: 1)
+textConfiguration.adjustsFontSizeToFitWidth = true
+textField.configurate(using: textConfiguration)
 ```
 
 ### NSSegmentedControl Segments
@@ -239,6 +241,7 @@ imageView.animationPlaybackOption = .mouseDown /// toggle playback via mouse cli
 player.isLooping = true
 ```
 - `state`: The current playback state of the player: .isPlaying, .isPaused, .isStopped, .error(Error)
+- `seek(toPercentage: Double)`
 
 ### DisplayLinkeTimer
 A much more precise `Timer` which time interval can be changed without invalidating the timer.
