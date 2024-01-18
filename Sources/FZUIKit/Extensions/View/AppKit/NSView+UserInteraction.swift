@@ -20,6 +20,7 @@
      var isUserInteractionEnabled: Bool {
          get { getAssociatedValue(key: "isUserInteractionEnabled", object: self, initialValue: true) }
          set {
+             Swift.print("new", newValue, isUserInteractionEnabled)
              guard newValue != isUserInteractionEnabled else { return }
              set(associatedValue: newValue, key: "isUserInteractionEnabled", object: self)
              swizzleUserInteraction()
