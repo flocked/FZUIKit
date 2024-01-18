@@ -157,7 +157,7 @@
                             ProgressView(value: value, total: total)
                                 .progressViewStyle(.linear)
                                 .controlSize(size.swiftUI)
-                                .frame(width: width)
+                                .frame(maxWidth: width)
                         }
                     case .circular(let value, let total, let text, let textStyle, let textColor, let size):
                         if let text = text {
