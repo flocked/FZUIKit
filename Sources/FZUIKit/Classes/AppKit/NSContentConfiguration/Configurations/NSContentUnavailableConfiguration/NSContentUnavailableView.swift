@@ -105,10 +105,12 @@
             var imageItem: some View {
                 if let image = configuration.image {
                     Image(image)
+                        .scaling(configuration.imageProperties.scaling)
                         .frame(maxWidth: configuration.imageProperties.maximumWidth, maxHeight: configuration.imageProperties.maximumHeight)
                         .foregroundColor(configuration.imageProperties.tintColor?.swiftUI)
                         .symbolConfiguration(configuration.imageProperties.symbolConfiguration)
                         .cornerRadius(configuration.imageProperties.cornerRadius)
+                        .shadow(configuration.imageProperties.shadow)
                 }
             }
 
@@ -249,8 +251,9 @@
                     .frame(maxWidth: .infinity, alignment: .center)
                     .multilineTextAlignment(.center)
                     .font(properties.font.swiftUI)
-                    .lineLimit(properties.maxNumberOfLines)
+                    .lineLimit(properties._maxNumberOfLines)
                     .foregroundColor(properties.color.swiftUI)
+                    .minimumScaleFactor(properties.minimumScaleFactor)
             }
         }
     }

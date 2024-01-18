@@ -96,29 +96,47 @@
     }
 
     public extension View {
-        @ViewBuilder
         /**
-         Configurates the shadow of the view.
+         Adds a shadow to the view.
 
-         - Parameters:
-            - configuration:The configuration for configurating the apperance.
+         - Parameter configuration:The configuration for configurating the shadow.
          */
-        func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) -> some View {
-            if type == .outer {
-                if configuration.isInvisible == false, let color = configuration.resolvedColor(withOpacity: true)?.swiftUI {
-                    shadow(color: color, radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y)
-                } else {
-                    self
-                }
+        @ViewBuilder
+        func shadow(_ configuration: ShadowConfiguration)-> some View {
+            if configuration.isInvisible == false, let color = configuration.resolvedColor(withOpacity: true)?.swiftUI {
+                shadow(color: color, radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y)
             } else {
-                if configuration.isInvisible == false, let color = configuration.resolvedColor(withOpacity: true)?.swiftUI {
-                    shadow(color: color, radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y)
-                } else {
-                    self
-                }
+                self
             }
         }
     }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    public extension ShadowStyle {
+        /// Creates a inner shadow style with the specified inner shadow configuration.
+        static func inner(_ configuration: ShadowConfiguration) -> ShadowStyle {
+            .inner(color: configuration.color?.swiftUI ?? .clear, radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y)
+        }
+        
+        /// Creates a inner shadow style with the specified shadow configuration.
+        static func drop(_ configuration: ShadowConfiguration) -> ShadowStyle {
+            .drop(color: configuration.color?.swiftUI ?? .clear, radius: configuration.radius, x: configuration.offset.x, y: configuration.offset.y)
+        }
+    }
+
+@available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+extension ShapeStyle where Self == AnyShapeStyle {
+    /// Returns a shape style that applies the specified shadow configuration to the current style.
+    public static func shadow(_ configuration: ShadowConfiguration) -> some ShapeStyle {
+        .shadow(.drop(configuration))
+    }
+    
+    /// Returns a shape style that applies the specified inner shadow configuration to the current style.
+    public static func innerShadow(_ configuration: ShadowConfiguration) -> some ShapeStyle {
+        .shadow(.inner(configuration))
+    }
+}
+
 
     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     public extension BackgroundStyle {
