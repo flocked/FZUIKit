@@ -30,6 +30,10 @@
      @objc func swizzled_mouseDown(with event: NSEvent) {
          Swift.print("swizzled_mouseDown")
      }
+     
+     @objc func swizzled_mouseUp(with event: NSEvent) {
+         Swift.print("swizzled_mouseUp")
+     }
 
       func swizzleUserInteraction() {
           Swift.debugPrint("swizzleUserInteraction", isUserInteractionEnabled, didSwizzleUserInteraction)
@@ -41,8 +45,11 @@
               do {
                   try Swizzle(NSView.self) {
                       #selector(NSView.mouseDown(with:)) <-> #selector(NSView.swizzled_mouseDown(with:))
+                      #selector(NSView.mouseUp(with:)) <-> #selector(NSView.swizzled_mouseUp(with:))
+
                   }
                   
+                  /*
                   try self.replaceMethod(
                     #selector(NSView.mouseDown(with:)),
                     methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
@@ -171,11 +178,13 @@
                         store.original(object, #selector(NSView.mouseExited(with:)), event)
                     }
                     }
+                   */
               } catch {
                   Swift.debugPrint(error)
               }
           } else if didSwizzleUserInteraction {
               didSwizzleUserInteraction = false
+              /*
               resetMethod(#selector(NSView.mouseDown(with:)))
               resetMethod(#selector(NSView.mouseUp(with:)))
               resetMethod(#selector(NSView.mouseDragged(with:)))
@@ -190,6 +199,7 @@
               resetMethod(#selector(NSView.mouseMoved(with:)))
               resetMethod(#selector(NSView.mouseExited(with:)))
               resetMethod(#selector(NSView.mouseEntered(with:)))
+               */
           }
      }
 
