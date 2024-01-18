@@ -146,7 +146,7 @@ import Combine
                     guard let self = self else { return }
                     let current = CFAbsoluteTimeGetCurrent()
                     Swift.print(self.lastFrameTime - current,  self.frameDurations[self.index])
-                    if self.lastFrameTime - current > self.frameDurations[self.index] {
+                    if current - self.lastFrameTime > self.frameDurations[self.index] {
                         self.lastFrameTime = current
                         self.advanceImage()
                     }
