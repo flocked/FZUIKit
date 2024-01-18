@@ -18,7 +18,12 @@ import SwiftUI
         private var blendingMode: NSVisualEffectView.BlendingMode
         private var emphasized: Bool
         private var state: NSVisualEffectView.State
+        private var appearance: NSAppearance?
 
+        public init(configuration: VisualEffectConfiguration) {
+            self.init(material: configuration.material, blendingMode: configuration.blendingMode, emphasized: configuration.isEmphasized, state: configuration.state)
+        }
+        
         public init(
             _ blendingMode: NSVisualEffectView.BlendingMode = .withinWindow)
         {
@@ -42,12 +47,15 @@ import SwiftUI
         public init(material: NSVisualEffectView.Material,
                     blendingMode: NSVisualEffectView.BlendingMode = .withinWindow,
                     emphasized: Bool = false,
-                    state: NSVisualEffectView.State = .followsWindowActiveState)
+                    state: NSVisualEffectView.State = .followsWindowActiveState,
+                    appearance: NSAppearance? = nil
+        )
         {
             self.material = material
             self.blendingMode = blendingMode
             self.emphasized = emphasized
             self.state = state
+            self.appearance = appearance
         }
 
         public func makeNSView(context _: Context) -> NSVisualEffectView {
@@ -56,6 +64,7 @@ import SwiftUI
             view.blendingMode = blendingMode
             view.isEmphasized = emphasized
             view.state = state
+            view.appearance = appearance
             return view
         }
 
@@ -63,6 +72,8 @@ import SwiftUI
             nsView.material = material
             nsView.blendingMode = blendingMode
             nsView.isEmphasized = emphasized
+            nsView.state = state
+            nsView.appearance = appearance
         }
 
         public func material(_ material: NSVisualEffectView.Material) -> EffectView {
@@ -86,6 +97,12 @@ import SwiftUI
         public func state(_ state: NSVisualEffectView.State) -> EffectView {
             var view = self
             view.state = state
+            return view
+        }
+        
+        public func appearance(_ appearance: NSAppearance?) -> EffectView {
+            var view = self
+            view.appearance = appearance
             return view
         }
     }
