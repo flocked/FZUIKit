@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 24.06.23.
 //
 
+/*
 #if os(macOS)
     import Foundation
 
@@ -24,3 +25,4 @@
         var customStates = [NSConfigurationStateCustomKey: AnyHashable]()
     }
 #endif
+*/
