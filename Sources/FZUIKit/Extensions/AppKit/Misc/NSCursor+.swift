@@ -139,6 +139,7 @@ import Combine
             var hotSpot: CGPoint = .zero
 
             func restart() {
+                Swift.print("restart")
                 stop()
                 start()
             }
@@ -146,12 +147,12 @@ import Combine
             func start() {
                 Swift.print("start")
                 guard frames.count >= 1 else {
+                    Swift.print("frame smaller")
                     stop()
                     return
                 }
                 guard displayLink == nil else { return }
                 lastFrameTime = CFAbsoluteTimeGetCurrent()
-                Swift.print("start1")
                 displayLink = DisplayLink.shared.sink { [weak self] frame in
                     guard let self = self else { return }
                     let current = CFAbsoluteTimeGetCurrent()
@@ -171,10 +172,11 @@ import Combine
             }
 
             func advanceImage() {
+                Swift.print("advanceImage")
                 if frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty {
                     stop()
                  //   Swift.print("stop")
-                  //  frames = []
+                    frames = []
                 } else {
                     index = index + 1
                     if index >= frames.count {
