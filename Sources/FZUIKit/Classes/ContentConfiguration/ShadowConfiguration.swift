@@ -135,7 +135,7 @@
         @ViewBuilder
         func shadow(_ configuration: ShadowConfiguration)-> some View {
             if configuration.isInvisible == false, let color = configuration.resolvedColor(withOpacity: true)?.swiftUI {
-                shadow(color: color, radius: configuration.radius, x: -configuration.offset.x, y: -configuration.offset.y)
+                shadow(color: color, radius: configuration.radius, x: configuration.offset.x, y: -configuration.offset.y)
             } else {
                 self
             }
