@@ -27,10 +27,11 @@
      }
 
       func swizzleUserInteraction() {
+          Swift.debugPrint("swizzleUserInteraction", isUserInteractionEnabled, didSwizzleUserInteraction)
+
           if isUserInteractionEnabled {
               guard didSwizzleUserInteraction == false else { return }
               didSwizzleUserInteraction = true
-              Swift.debugPrint("swizzleUserInteraction")
               do {
                   try self.replaceMethod(
                     #selector(NSView.mouseDown(with:)),
