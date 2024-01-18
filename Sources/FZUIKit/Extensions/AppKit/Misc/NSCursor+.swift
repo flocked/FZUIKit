@@ -111,7 +111,8 @@ import Combine
         }
         
         convenience init(animated frames: [ImageFrame], hotSpot: CGPoint = .zero) {
-            self.init(image: frames.first?.image ?? NSCursor.current.image, hotSpot: frames.isEmpty ? NSCursor.current.hotSpot : hotSpot)
+            self.init(image: frames.first?.image ?? NSCursor.current.image, hotSpot: frames.count >= 1 ? NSCursor.current.hotSpot : hotSpot)
+            guard frames.count > 1 else { return }
             do {
                 try replaceMethod(
                     #selector(NSCursor.set),
@@ -140,15 +141,12 @@ import Combine
             var hotSpot: CGPoint = .zero
 
             func restart() {
-                Swift.print("restart")
                 stop()
                 start()
             }
             
             func start() {
-                Swift.print("start")
                 guard frames.count >= 1 else {
-                    Swift.print("frame smaller")
                     stop()
                     return
                 }
@@ -172,15 +170,10 @@ import Combine
                 index = 0
             }
             
-            func reset() {
-                stop()
-                frames = []
-            }
-
             func advanceImage() {
-                Swift.print("advanceImage")
                 if frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty {
-                   reset()
+                    stop()
+                    frames = []
                 } else {
                     index = index + 1
                     if index >= frames.count {
