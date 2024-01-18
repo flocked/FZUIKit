@@ -34,9 +34,14 @@
         public init(configuration: NSContentUnavailableConfiguration) {
             appliedConfiguration = configuration
             super.init(frame: .zero)
-            backgroundConstraints = addSubview(withConstraint: backgroundView)
-            hostingConstraints = addSubview(withConstraint: hostingView)
+          //  backgroundConstraints = addSubview(withConstraint: backgroundView)
+            addSubview(hostingView)
             updateConfiguration()
+        }
+        
+        public override func layout() {
+            super.layout()
+            hostingView.frame.size = bounds.size
         }
 
         var backgroundConstraints: [NSLayoutConstraint] = []
@@ -44,6 +49,8 @@
 
         lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
 
+        
+        
         var appliedConfiguration: NSContentUnavailableConfiguration {
             didSet {
                 if oldValue != appliedConfiguration {
