@@ -34,6 +34,7 @@
             self.platformDisplayLink.onFrame = { [weak self] frame in
                 self?.send(frame: frame)
             }
+            self.platformDisplayLink.isPaused = false
         }
 
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, S.Input == Frame {
