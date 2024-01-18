@@ -62,7 +62,7 @@
         func updateConfiguration() {
             backgroundView.configuration = appliedConfiguration.background
             hostingView.rootView = ContentView(configuration: appliedConfiguration)
-
+/*
             backgroundConstraints[1].constant = -appliedConfiguration.directionalLayoutMargins.bottom
             backgroundConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
             backgroundConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
@@ -72,6 +72,7 @@
             hostingConstraints[0].constant = appliedConfiguration.directionalLayoutMargins.leading
             hostingConstraints[2].constant = -appliedConfiguration.directionalLayoutMargins.width
             hostingConstraints[3].constant = -appliedConfiguration.directionalLayoutMargins.height
+       */
         }
 
         lazy var hostingView: NSHostingView<ContentView> = {
