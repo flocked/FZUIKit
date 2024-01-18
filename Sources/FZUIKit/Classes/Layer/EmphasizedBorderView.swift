@@ -12,7 +12,7 @@
         import UIKit
     #endif
 
-    /// A view that with a emphasized border.
+    /// A view that with an emphasized border.
     public class EmphasizedBorderView: NSUIView {
         static let Tag = 435_234_364_445
 

@@ -10,7 +10,7 @@
     import AppKit
 
     public extension NSToolbarItemGroup {
-        /// The index values of the selected items in the group. Setting the indexes will deselect all items which indexes aren't included in the new value.
+        /// The indexes of the selected items in the group. Setting the indexes will deselect all items which indexes aren't included in the new value.
         var selectedIndexes: [Int] {
             get {
                 var selectedIndexes: [Int] = []

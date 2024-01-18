@@ -14,7 +14,7 @@
         var onFrame: ((DisplayLink.Frame) -> Void)? { get set }
     }
 
-    // A publisher that emits new values when the system is about to update the display.
+    /// A publisher that emits new values when the system is about to update the display.
     public final class DisplayLink: Publisher {
         public typealias Output = Frame
         public typealias Failure = Never
@@ -39,7 +39,6 @@
 
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, S.Input == Frame {
          //   dispatchPrecondition(condition: .onQueue(.main))
-
             let typeErased = AnySubscriber(subscriber)
             let identifier = typeErased.combineIdentifier
             let subscription = Subscription(onCancel: { [weak self] in
@@ -64,12 +63,12 @@
     }
 
     public extension DisplayLink {
-        // Represents a frame that is about to be drawn
+        /// Represents a frame that is about to be drawn.
         struct Frame {
-            // The system timestamp for the frame to be drawn
+            /// The system timestamp for the frame to be drawn.
             public var timestamp: TimeInterval
 
-            // The duration between each display update
+            /// The duration between each display update.
             public var duration: TimeInterval
         }
     }
@@ -146,10 +145,10 @@
 
         fileprivate extension DisplayLink {
             final class PlatformDisplayLink: DisplayLinkProvider {
-                /// The callback to call for each frame.
+                /// The handler that is called for each new frame on the display.
                 var onFrame: ((Frame) -> Void)?
 
-                /// A Boolean value that indicates the display link is paused or not.
+                /// A Boolean value that indicates whether the display link is paused or not.
                 var isPaused: Bool {
                     get { displayLink.isPaused }
                     set { displayLink.isPaused = newValue }
@@ -161,17 +160,15 @@
                     get { displayLink.preferredFrameRateRange }
                     set { displayLink.preferredFrameRateRange = newValue }
                 }
-
-                /// The CADisplayLink that powers this DisplayLink instance.
-                let displayLink: CADisplayLink
-
-                /// The target for the CADisplayLink (because CADisplayLink retains its target).
-                let target = DisplayLinkTarget()
-
+                
                 /// The frames per second of the displaylink.
                 var framesPerSecond: CGFloat {
                     1 / (displayLink.targetTimestamp - displayLink.timestamp)
                 }
+
+                let displayLink: CADisplayLink
+
+                let target = DisplayLinkTarget()
 
                 @available(iOS 15.0, tvOS 15.0, *)
                 convenience init(preferredFrameRateRange: CAFrameRateRange? = nil) {
@@ -181,7 +178,6 @@
                     }
                 }
 
-                /// Creates a new paused DisplayLink instance.
                 init() {
                     displayLink = CADisplayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
 
@@ -189,7 +185,7 @@
                         let maximumFramesPerSecond = Float(UIScreen.main.maximumFramesPerSecond)
                         let highFPSEnabled = maximumFramesPerSecond > 60
                         let minimumFPS: Float = Swift.min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
-                        displayLink.preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
+                        preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
                     }
 
                     displayLink.isPaused = true
@@ -203,18 +199,14 @@
                     displayLink.invalidate()
                 }
 
-                /// The target for the CADisplayLink (because CADisplayLink retains its target).
                 final class DisplayLinkTarget {
-                    /// The callback to call for each frame.
                     var callback: ((DisplayLink.Frame) -> Void)?
 
-                    /// Called for each frame from the CADisplayLink.
                     @objc dynamic func frame(_ displayLink: CADisplayLink) {
                         let frame = Frame(
                             timestamp: displayLink.timestamp,
                             duration: displayLink.duration
                         )
-
                         callback?(frame)
                     }
                 }
@@ -222,16 +214,16 @@
         }
 
     #elseif os(macOS)
-
         import AppKit
         import CoreVideo
+
         fileprivate extension DisplayLink {
-            /// DisplayLink is used to hook into screen refreshes.
+            /// A timer object that allows your app to synchronize its drawing to the refresh rate of the display.
             final class PlatformDisplayLink: DisplayLinkProvider {
-                /// The callback to call for each frame.
+                /// The handler that is called for each new frame on the display.
                 var onFrame: ((Frame) -> Void)?
 
-                /// A Boolean value that indicates the display link is paused or not.
+                /// A Boolean value that indicates whether the display link is paused or not.
                 var isPaused: Bool = true {
                     didSet {
                         guard isPaused != oldValue else { return }
@@ -243,19 +235,11 @@
                     }
                 }
 
-                /// The CVDisplayLink that powers this DisplayLink instance.
                 var displayLink: CVDisplayLink = {
                     var dl: CVDisplayLink?
                     CVDisplayLinkCreateWithActiveCGDisplays(&dl)
                     return dl!
                 }()
-
-                /*
-                 /// The framesPerSecond of the displaylink.
-                 var framesPerSecond: CGFloat {
-                     1 / (displayLink.targetTimestamp - displayLink.timestamp)
-                 }
-                 */
 
                 init() {
                     CVDisplayLinkSetOutputHandler(displayLink) { [weak self] _, inNow, inOutputTime, _, _ -> CVReturn in
@@ -277,21 +261,20 @@
                     isPaused = true
                 }
 
-                /// Called for each CVDisplayLink frame callback.
                 func handle(frame: Frame) {
                     guard isPaused == false else { return }
                     onFrame?(frame)
                 }
             }
 
-            /// DisplayLink is used to hook into screen refreshes.
+            /// A timer object that allows your app to synchronize its drawing to the refresh rate of the display.
             @available(macOS 14.0, *)
             final class PlatformDisplayLinkMac: DisplayLinkProvider {
-                /// The callback to call for each frame.
-                var onFrame: ((Frame) -> Void)?
+                /// The handler that is called for each new frame on the display.
+                public var onFrame: ((Frame) -> Void)?
 
-                /// A Boolean value that indicates the display link is paused or not.
-                var isPaused: Bool {
+                /// A Boolean value that indicates whether the display link is paused or not.
+                public var isPaused: Bool {
                     get { displayLink.isPaused }
                     set { displayLink.isPaused = newValue }
                 }
@@ -301,17 +284,15 @@
                     get { displayLink.preferredFrameRateRange }
                     set { displayLink.preferredFrameRateRange = newValue }
                 }
-
-                /// The CADisplayLink that powers this DisplayLink instance.
-                let displayLink: CADisplayLink
-
-                /// The target for the CADisplayLink (because CADisplayLink retains its target).
-                let target = DisplayLinkTarget()
-
+                
                 /// The frames per second of the displaylink.
-                var framesPerSecond: CGFloat {
+                public var framesPerSecond: CGFloat {
                     1 / (displayLink.targetTimestamp - displayLink.timestamp)
                 }
+
+                let displayLink: CADisplayLink
+
+                let target = DisplayLinkTarget()
 
                 convenience init?(preferredFrameRateRange: CAFrameRateRange? = nil) {
                     guard let screen = NSScreen.main else {
@@ -357,7 +338,7 @@
                         let maximumFramesPerSecond = Float(screen.maximumFramesPerSecond)
                         let highFPSEnabled = maximumFramesPerSecond > 60
                         let minimumFPS: Float = Swift.min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
-                        displayLink.preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
+                        preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
                     }
                     displayLink.isPaused = true
                     displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)
@@ -371,12 +352,9 @@
                     displayLink.invalidate()
                 }
 
-                /// The target for the CADisplayLink (because CADisplayLink retains its target).
                 final class DisplayLinkTarget {
-                    /// The callback to call for each frame.
                     var callback: ((DisplayLink.Frame) -> Void)?
 
-                    /// Called for each frame from the CADisplayLink.
                     @objc dynamic func frame(_ displayLink: CADisplayLink) {
                         let frame = Frame(
                             timestamp: displayLink.timestamp,

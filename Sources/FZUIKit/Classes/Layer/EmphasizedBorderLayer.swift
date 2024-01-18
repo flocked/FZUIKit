@@ -13,7 +13,7 @@
         import UIKit
     #endif
 
-    /// A layer with a emphasized border.
+    /// A layer with an emphasized border.
     public class EmphasizedBorderLayer: CALayer {
         override public var cornerRadius: CGFloat {
             didSet { emphasizedBorderLayer.cornerRadius = cornerRadius }
