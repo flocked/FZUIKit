@@ -40,7 +40,7 @@
             CGDisplayBounds(displayID)
         }
 
-        /// A Boolean that indicates whether the mouse cursor is visble on the screen.
+        /// A Boolean value that indicates whether the mouse cursor is visble on the screen.
         var containsMouse: Bool {
             Self.withMouse == self
         }
@@ -68,12 +68,12 @@
             NSScreen.screens.first(where: { CGDisplayIsBuiltin($0.displayID) != 0 })
         }
 
-        /// A Boolean that indicates whether the screen is built-in.
+        /// A Boolean value that indicates whether the screen is built-in.
         var isBuiltIn: Bool {
             self == NSScreen.builtIn
         }
 
-        /// A Boolean that indicates whether the screen is virtual (like Sidecar or Airplay screens)
+        /// A Boolean value that indicates whether the screen is virtual (e.g. Sidecar or Airplay screens)
         var isVirtual: Bool {
             var isVirtual = false
             let name = localizedName
@@ -86,10 +86,7 @@
         /**
          Returns the screen that contains a point.
 
-         - Parameters:
-            - point: The point which the screen should contain
-
-         - Returns: The screen which contains the point.
+         - Parameter point: The point which the screen should contain.
          */
         static func screen(at point: NSPoint) -> NSScreen? {
             var returnScreen: NSScreen?
@@ -133,6 +130,7 @@
     }
 
     public extension NSDeviceDescriptionKey {
+        /// The corresponding value is an `UInt32` value that identifies a `NSScreen` object.
         static let screenNumber = NSDeviceDescriptionKey("NSScreenNumber")
     }
 #endif

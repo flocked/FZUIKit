@@ -16,7 +16,7 @@
         /**
          The visual effect background of the view.
 
-         The property adds a visual effect view as background to the view. The default value is `nil`.
+         The property adds a `NSVisualEffectView` as background to the view. The default value is `nil`.
          */
         var visualEffect: VisualEffectConfiguration? {
             get {
