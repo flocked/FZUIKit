@@ -70,13 +70,7 @@ import Combine
          */
         public convenience init(animated image: NSImage, frameDuration: TimeInterval? = nil, hotSpot: CGPoint = .zero) {
             if image.isAnimated, let imageFrames = try? image.frames?.collect() {
-                var frameDurations: [TimeInterval] = []
-                var images: [NSImage] = []
-                for imageFrame in imageFrames {
-                    frameDurations.append(imageFrame.duration ?? 0.12)
-                    images.append(imageFrame.image.nsImage)
-                }
-                self.init(animated: images, frameDurations: frameDurations, hotSpot: hotSpot)
+                self.init(animated: imageFrames.compactMap({ImageFrame($0.image.nsImage, $0.duration ?? 0.12)}), hotSpot: hotSpot)
             } else {
                 self.init(image: image, hotSpot: hotSpot)
             }
@@ -91,11 +85,11 @@ import Combine
             - hotSpot: The point to set as the cursor's hot spot. The default value is `zero`.
          */
         public convenience init(animated images: [NSImage], frameDuration: TimeInterval, hotSpot: CGPoint = .zero) {
-            self.init(animated: images, frameDurations: Array(repeating: frameDuration, count: images.count), hotSpot: hotSpot)
+            self.init(animated: images.compactMap({ImageFrame($0, frameDuration)}), hotSpot: hotSpot)
         }
         
-        convenience init(animated images: [NSImage], frameDurations: [TimeInterval], hotSpot: CGPoint = .zero) {
-            self.init(image: images.first ?? NSCursor.current.image, hotSpot: images.isEmpty ? NSCursor.current.hotSpot : hotSpot)
+        convenience init(animated frames: [ImageFrame], hotSpot: CGPoint = .zero) {
+            self.init(image: frames.first?.image ?? NSCursor.current.image, hotSpot: frames.isEmpty ? NSCursor.current.hotSpot : hotSpot)
             do {
                 try replaceMethod(
                     #selector(NSCursor.set),
@@ -103,9 +97,8 @@ import Combine
                     hookSignature: (@convention(block) (AnyObject) -> Void).self
                 ) { store in { object in
                     store.original(object, #selector(NSCursor.set))
-                    NSCursorAnimator.shared.frameDurations = frameDurations
+                    NSCursorAnimator.shared.frames = frames
                     NSCursorAnimator.shared.hotSpot = hotSpot
-                    NSCursorAnimator.shared.images = images
                     NSCursorAnimator.shared.restart()
                 }
                 }
@@ -116,25 +109,20 @@ import Combine
 
         private class NSCursorAnimator {
             static let shared = NSCursorAnimator()
-            var timer: Timer?
-            var images: [NSImage] = []
-            var frameDuration: TimeInterval = 0.0
-            var frameDurations: [TimeInterval] = []
+            
+            var displayLink: AnyCancellable? = nil
+            var lastFrameTime = CFAbsoluteTimeGetCurrent()
+            var frames: [ImageFrame] = []
             var index: Int = 0
-            var hotSpot: CGPoint = .init(x: 8, y: 8)
+            var hotSpot: CGPoint = .zero
 
             func restart() {
                 stop()
                 start()
             }
-
-            var displayLink: AnyCancellable? = nil
-            var lastFrameTime = CFAbsoluteTimeGetCurrent()
- 
             
             func start() {
-
-                guard images.count > 1 else {
+                guard frames.count >= 1 else {
                     stop()
                     return
                 }
@@ -142,46 +130,31 @@ import Combine
                 lastFrameTime = CFAbsoluteTimeGetCurrent()
 
                 displayLink = DisplayLink.shared.sink { [weak self] frame in
-                    Swift.print("fff")
                     guard let self = self else { return }
                     let current = CFAbsoluteTimeGetCurrent()
-                    Swift.print(self.lastFrameTime - current,  self.frameDurations[self.index])
-                    if current - self.lastFrameTime > self.frameDurations[self.index] {
+                    if current - self.lastFrameTime > self.frames[self.index].duration! {
                         self.lastFrameTime = current
                         self.advanceImage()
                     }
 
                 }
-                
-                /*
-                timer?.invalidate()
-                timer = Timer.scheduledTimer(withTimeInterval: frameDuration, repeats: true, block: { _ in
-                    self.advanceImage()
-                })
-                 */
-                
             }
 
             func stop() {
                 displayLink?.cancel()
                 displayLink = nil
-                
-                /*
-                timer?.invalidate()
-                timer = nil
-                 */
                 index = 0
             }
 
             func advanceImage() {
-                if images.contains(NSCursor.current.image) == false || images.isEmpty {
+                if frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty {
                     stop()
                 } else {
                     index = index + 1
-                    if index >= images.count {
+                    if index >= frames.count {
                         index = 0
                     }
-                    NSCursor(image: images[index], hotSpot: hotSpot).set()
+                    NSCursor(image: frames[index].image, hotSpot: hotSpot).set()
                 }
             }
         }
