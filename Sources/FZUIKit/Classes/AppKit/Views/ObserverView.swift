@@ -55,7 +55,6 @@ extension NSView {
         if windowHandlers.needsObserving || mouseHandlers.needsObserving || viewHandlers.needsObserving || dragAndDropHandlers.isActive {
             if observerView == nil {
                 self.observerView = ObserverView()
-                observerView?.backgroundColor = .red.withAlphaComponent(0.1)
                 addSubview(withConstraint: observerView!)
                 do {
                     try replaceMethod(
