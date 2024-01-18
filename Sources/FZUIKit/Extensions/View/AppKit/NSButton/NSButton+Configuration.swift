@@ -97,24 +97,20 @@
                 }
                 if mouseHandlers.exited == nil {
                     mouseHandlers.exited = { [weak self] _ in
-                        guard let self = self else { return true }
+                        guard let self = self else { return }
                         self.isHovered = false
-                        return true
                     }
                     mouseHandlers.moved = { [weak self] _ in
-                        guard let self = self else { return true }
+                        guard let self = self else { return }
                         self.isHovered = true
-                        return true
                     }
                     mouseHandlers.dragged = { [weak self] _ in
-                        guard let self = self else { return true }
+                        guard let self = self else { return }
                         self.isHovered = true
-                        return true
                     }
                     mouseHandlers.entered = { [weak self] _ in
-                        guard let self = self else { return true }
+                        guard let self = self else { return }
                         self.isHovered = true
-                        return true
                     }
                 }
             } else {
