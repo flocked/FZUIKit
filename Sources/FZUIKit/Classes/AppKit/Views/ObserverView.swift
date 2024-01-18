@@ -177,7 +177,7 @@ extension NSView {
         /// The handlers for drag and drop of files (either images or urls, strings).
         public var dragAndDropHandlers = DragAndDropHandlers() {
             didSet {
-                self.setupDragAndDrop(needsSetup: dragAndDropHandlers.needsSetup)
+                self.setupDragAndDrop(needsSetup: dragAndDropHandlers.isActive)
             }
         }
         
@@ -191,7 +191,7 @@ extension NSView {
         
         func setupDragAndDrop(needsSetup: Bool) {
             if needsSetup {
-                registerForDraggedTypes([.fileURL, .png, .string, .tiff])
+                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color])
             } else {
                 unregisterDraggedTypes()
             }
@@ -265,6 +265,8 @@ extension NSView {
             }
         }
         
+        
+        
         var keyValueObserver: KeyValueObserver<NSView>?
         
         func setupObservation(needsSetup: Bool) {
@@ -282,11 +284,10 @@ extension NSView {
         }
         
         override public func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-            guard let canDrop = dragAndDropHandlers.canDrop else { return false }
-            
-            let items = sender.pasteboardReadWritings()
-            guard items.count > 0 else { return false }
-            return canDrop(items).count > 0
+            guard dragAndDropHandlers.isActive, let canDrop = dragAndDropHandlers.canDrop else { return false }
+            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            guard draggingOperation.isValid else { return false }
+            return canDrop(draggingOperation, sender.draggingLocation)
         }
         
         override public func draggingExited(_ sender: NSDraggingInfo?) {
@@ -308,20 +309,20 @@ extension NSView {
             super.draggingExited(sender)
         }
         
+        var acceptsDrop: Bool = false
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard let canDrop = dragAndDropHandlers.canDrop else { return [] }
-            let items = sender.pasteboardReadWritings()
-            guard items.count > 0 else { return [] }
-            guard canDrop(items).count > 0 else { return [] }
-            
-            return .copy
+            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            guard draggingOperation.isValid else { return [] }
+            acceptsDrop = canDrop(draggingOperation, sender.draggingLocation)
+            return acceptsDrop ? .copy : []
         }
         
         override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-            var items = sender.pasteboardReadWritings()
-            items = dragAndDropHandlers.canDrop?(items) ?? items
-            guard items.count > 0 else { return false }
-            dragAndDropHandlers.didDrop?(items)
+            guard dragAndDropHandlers.isActive, let didDrop = dragAndDropHandlers.didDrop else { return false }
+            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            guard draggingOperation.isValid else { return false }
+            didDrop(draggingOperation, sender.draggingLocation)
             return true
         }
         
@@ -411,14 +412,41 @@ extension NSView {
         }
         
         /// The handlers for file drag and drop.
-        struct DragAndDropHandlers {
-            public var canDrop: (([PasteboardReadWriting]) -> ([PasteboardReadWriting]))?
+        public struct DragAndDropHandlers {
+            public struct DraggingOperation {
+                public var images: [NSImage]?
+                public var string: String?
+                public var color: NSColor?
+                public var fileURLs: [URL]?
+                init(_ draggingInfo: NSDraggingInfo) {
+                    self.images = draggingInfo.images
+                    self.string = draggingInfo.string
+                    self.color = draggingInfo.color
+                    self.fileURLs = draggingInfo.fileURLs
+                }
+                var isValid: Bool {
+                    images?.count ?? 0 >= 1 || fileURLs?.count ?? 0 >= 1 || color != nil || string != nil
+                }
+            }
+            
+            public var canDropImages: ((_ images: [NSImage], _ location: CGPoint) -> (Bool))?
+            public var canDropFileURLs: ((_ urls: [URL], _ location: CGPoint) -> (Bool))?
+            public var canDropString: ((_ string: String, _ location: CGPoint) -> (Bool))?
+            public var canDropColor: ((_ color: NSColor, _ location: CGPoint) -> (Bool))?
 
-            public var didDrop: (([PasteboardReadWriting]) -> Void)?
+            public var didDropImages: ((_ images: [NSImage], _ location: CGPoint) -> ())?
+            public var didDropFileURLs: ((_ urls: [URL], _ location: CGPoint) -> ())?
+            public var didDropString: ((_ string: String, _ location: CGPoint) -> ())?
+            public var didDropColor: ((_ color: NSColor, _ location: CGPoint) -> ())?
+
+            
+            public var canDrop: ((DraggingOperation, _ location: CGPoint) -> (Bool))?
+
+            public var didDrop: ((DraggingOperation, _ location: CGPoint) -> Void)?
 
             public var dropOutside: (() -> ([PasteboardReadWriting]))?
 
-            var needsSetup: Bool {
+            var isActive: Bool {
                 canDrop != nil && didDrop != nil
             }
         }

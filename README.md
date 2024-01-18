@@ -1,6 +1,6 @@
 # FZUIKit
 
-Swift AppKit/UIKit extensions and useful Classes & utilities.
+A framework with Swift AppKit and UIKit extensions, classes & utilities.
 
 **For a full documentation take a look at the included documentation located at */Documentation*. Opening the file launches Xcode's documentation browser.**
 
