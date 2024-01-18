@@ -69,7 +69,8 @@ extension NSView {
                     ) { store in { object, subview in
                         let lastView = (object as? NSView)?.subviews.last
                         store.original(object, #selector(NSView.didAddSubview(_:)), subview)
-                        (object as? NSView)?.addSubview(withConstraint: observerView)
+                        // (object as? NSView)?.addSubview(withConstraint: observerView)
+                        observerView.sendToFront()
                         Swift.print("subview", lastView ?? "nil",  (object as? NSView)?.subviews.last ?? "nil")
                     }
                     }
