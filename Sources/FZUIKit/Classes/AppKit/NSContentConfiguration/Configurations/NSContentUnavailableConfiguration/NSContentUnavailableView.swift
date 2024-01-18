@@ -24,6 +24,16 @@
                 }
             }
         }
+        
+        public override func layout() {
+            super.layout()
+            
+            hostingView.frame.origin.x = appliedConfiguration.directionalLayoutMargins.leading
+            hostingView.frame.origin.y = appliedConfiguration.directionalLayoutMargins.bottom
+            hostingView.frame.topRight = bounds.topRight.offset(x: -appliedConfiguration.directionalLayoutMargins.trailing, y: -appliedConfiguration.directionalLayoutMargins.height)
+            backgroundView.frame = hostingView.frame
+
+        }
 
         /// Determines whether the view is compatible with the provided configuration.
         public func supports(_ configuration: NSContentConfiguration) -> Bool {
@@ -34,8 +44,8 @@
         public init(configuration: NSContentUnavailableConfiguration) {
             appliedConfiguration = configuration
             super.init(frame: .zero)
-            backgroundConstraints = addSubview(withConstraint: backgroundView)
-            hostingConstraints = addSubview(withConstraint: hostingView)
+            addSubview(backgroundView)
+            addSubview(hostingView)
             updateConfiguration()
         }
 
