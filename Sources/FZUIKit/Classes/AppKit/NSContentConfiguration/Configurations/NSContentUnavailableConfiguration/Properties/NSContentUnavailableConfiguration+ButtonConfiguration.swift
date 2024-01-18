@@ -116,8 +116,7 @@
                 - action: The action of the button.
              */
             public static func textButton(_ title: String, image: NSImage? = nil, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
-                var button = Self(title: title, image: image, style: style, action: action)
-                return button
+                Self(title: title, image: image, style: style, action: action)
             }
 
             /**
