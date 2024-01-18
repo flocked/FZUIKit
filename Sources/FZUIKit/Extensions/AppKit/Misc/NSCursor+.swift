@@ -18,11 +18,6 @@
                 Swift.print("hhhhhh")
                 return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
             }
-            
-            if let image = NSImage(byReferencingFile: "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/resizenorthwestsoutheast/cursor.pdf") {
-                return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
-            }
-
             // let path = Bundle.module.path(forResource: "northWestSouthEastResizeCursor", ofType: "png")!
             // let image = NSImage(byReferencingFile: path)!
             // return NSCursor(image: image, hotSpot: NSPoint(x: 8, y: 8))
@@ -37,9 +32,7 @@
                 return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
             }
             
-            if let image = NSImage(byReferencingFile: "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/resizenortheastsouthwest/cursor.pdf") {
-                return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
-            }
+
             // le t path = Bundle.module.path(forResource: "northEastSouthWestResizeCursor", ofType: "png")!
             // let image = NSImage(byReferencingFile: path)!
             // return NSCursor(image: image, hotSpot: NSPoint(x: 8, y: 8))
