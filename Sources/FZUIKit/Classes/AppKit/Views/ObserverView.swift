@@ -30,9 +30,9 @@ extension NSView {
     
     /// The handlers for the view state.
     public var viewHandlers: ViewHandlers {
-        get { getAssociatedValue(key: "mouseHandlers", object: self, initialValue: ViewHandlers()) }
+        get { getAssociatedValue(key: "viewHandlers", object: self, initialValue: ViewHandlers()) }
         set {
-            set(associatedValue: newValue, key: "mouseHandlers", object: self)
+            set(associatedValue: newValue, key: "viewHandlers", object: self)
             setupObserverView()
         }
     }
@@ -279,6 +279,7 @@ class ObserverView: NSView {
     }
 
     override public func mouseMoved(with event: NSEvent) {
+        Swift.print("mouseMoved", _mouseHandlers.moved != nil)
         if _mouseHandlers.moved?(event) ?? true {
             super.mouseMoved(with: event)
         }
