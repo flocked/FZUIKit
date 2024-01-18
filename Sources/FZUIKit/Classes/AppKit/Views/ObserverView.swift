@@ -61,6 +61,20 @@ extension NSView {
                 let observerView = ObserverView()
                 self.observerView = observerView
                 addSubview(withConstraint: observerView)
+                do {
+                    try replaceMethod(
+                        #selector(NSView.didAddSubview(_:)),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSView) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, NSView) -> Void).self
+                    ) { store in { object, subview in
+                        Swift.print("subview", subview)
+                        store.original(object, #selector(NSView.didAddSubview(_:)), subview)
+                    }
+                    }
+                } catch {
+                    Swift.print(error)
+                }
+                
                 subviewObserver = observeChanges(for: \.subviews) { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     Swift.print("subviews", old.count, new.count)
