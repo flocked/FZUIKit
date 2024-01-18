@@ -294,15 +294,18 @@
                 _resolvedForegroundColor = resolvedForegroundColor()
                 _resolvedBackgroundColor = resolvedBackgroundColor()
 
-                if let colorConfiguration = imageSymbolConfiguration?.color {
+                if let colorConfiguration = imageSymbolConfiguration?.color, var configuration = imageSymbolConfiguration {
                     switch colorConfiguration {
                     case let .palette(primary, secondary, ter):
-                        imageSymbolConfiguration?.color = .palette(foregroundColor ?? primary, secondary, ter)
+                        configuration.color = .palette(foregroundColor ?? primary, secondary, ter)
+                        imageSymbolConfiguration = configuration
                     case .monochrome: return
                     case let .multicolor(color):
-                        imageSymbolConfiguration?.color = .multicolor(foregroundColor ?? color)
+                        configuration.color = .multicolor(foregroundColor ?? color)
+                        imageSymbolConfiguration = configuration
                     case let .hierarchical(color):
-                        imageSymbolConfiguration?.color = .hierarchical(foregroundColor ?? color)
+                        configuration.color = .hierarchical(foregroundColor ?? color)
+                        imageSymbolConfiguration = configuration
                     }
                 }
             }
