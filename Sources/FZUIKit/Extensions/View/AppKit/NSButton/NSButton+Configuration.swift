@@ -95,41 +95,31 @@
                      keyValueObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
                      */
                 }
-
-                if observerView == nil {
-                    let observerView = ObserverView(frame: .zero)
-                    observerView.mouseHandlers.exited = { [weak self] _ in
+                if mouseHandlers.exited == nil {
+                    mouseHandlers.exited = { [weak self] _ in
                         guard let self = self else { return true }
                         self.isHovered = false
                         return true
                     }
-
-                    observerView.mouseHandlers.moved = { [weak self] _ in
+                    mouseHandlers.moved = { [weak self] _ in
                         guard let self = self else { return true }
                         self.isHovered = true
                         return true
                     }
-
-                    observerView.mouseHandlers.dragged = { [weak self] _ in
+                    mouseHandlers.dragged = { [weak self] _ in
                         guard let self = self else { return true }
                         self.isHovered = true
                         return true
                     }
-
-                    observerView.mouseHandlers.entered = { [weak self] _ in
+                    mouseHandlers.entered = { [weak self] _ in
                         guard let self = self else { return true }
                         self.isHovered = true
                         return true
                     }
-
-                    self.observerView = observerView
-                    addSubview(withConstraint: observerView)
-                    observerView.sendToBack()
                 }
             } else {
                 keyValueObserver = nil
-                observerView?.removeFromSuperview()
-                observerView = nil
+                mouseHandlers = .init()
             }
         }
 
@@ -234,13 +224,6 @@
             get { getAssociatedValue(key: "NSButton_AdvanceConfigurationButtonView", object: self, initialValue: nil) }
             set {
                 set(associatedValue: newValue, key: "NSButton_AdvanceConfigurationButtonView", object: self)
-            }
-        }
-
-        var observerView: ObserverView? {
-            get { getAssociatedValue(key: "NSButton_observerView", object: self, initialValue: nil) }
-            set {
-                set(associatedValue: newValue, key: "NSButton_observerView", object: self)
             }
         }
 
