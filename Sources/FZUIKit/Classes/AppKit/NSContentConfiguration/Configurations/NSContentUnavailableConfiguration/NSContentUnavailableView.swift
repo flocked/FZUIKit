@@ -42,9 +42,7 @@
         var backgroundConstraints: [NSLayoutConstraint] = []
         var hostingConstraints: [NSLayoutConstraint] = []
 
-        lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
-
-        
+        lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()        
         
         var appliedConfiguration: NSContentUnavailableConfiguration {
             didSet {
@@ -57,20 +55,12 @@
         func updateConfiguration() {
             backgroundView.configuration = appliedConfiguration.background
             hostingView.rootView = ContentView(configuration: appliedConfiguration)
-
             backgroundConstraints.constant(appliedConfiguration.directionalLayoutMargins)
             hostingConstraints.constant(appliedConfiguration.directionalLayoutMargins)
         }
 
-        lazy var hostingView: NSHostingView<ContentView> = {
-            let contentView = ContentView(configuration: self.appliedConfiguration)
-            let hostingView = NSHostingView(rootView: contentView)
-            Swift.print("clips", hostingView.clipsToBounds)
-            hostingView.clipsToBounds = false
-            return hostingView
-        }()
+        lazy var hostingView = NSHostingView(rootView: ContentView(configuration: self.appliedConfiguration))
 
-        /// Creates a view from data in an unarchiver.
         @available(*, unavailable)
         required init?(coder _: NSCoder) {
             fatalError("init(coder:) has not been implemented")
