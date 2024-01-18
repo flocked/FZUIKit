@@ -43,9 +43,9 @@
               guard didSwizzleUserInteraction == false else { return }
               didSwizzleUserInteraction = true
               do {
-                  try Swizzle(NSView.self) {
-                      #selector(NSView.mouseDown(with:)) <-> #selector(NSView.swizzled_mouseDown(with:))
-                      #selector(NSView.mouseUp(with:)) <-> #selector(NSView.swizzled_mouseUp(with:))
+                  try Swizzle(NSControl.self) {
+                      #selector(NSControl.mouseDown(with:)) <-> #selector(NSView.swizzled_mouseDown(with:))
+                      #selector(NSControl.mouseUp(with:)) <-> #selector(NSView.swizzled_mouseUp(with:))
 
                   }
                   
