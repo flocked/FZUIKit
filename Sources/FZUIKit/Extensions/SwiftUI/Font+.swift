@@ -111,22 +111,6 @@ public extension NSUIImage.SymbolWeight {
         default: return .regular
         }
     }
-
-    /// A font representation of the symbol weight.
-    var fontWeight: NSUIFont.Weight {
-        switch self {
-        case .ultraLight: return .ultraLight
-        case .thin: return .thin
-        case .light: return .light
-        case .regular: return .regular
-        case .medium: return .medium
-        case .heavy: return .heavy
-        case .semibold: return .semibold
-        case .bold: return .bold
-        case .black: return .black
-        default: return .regular
-        }
-    }
 }
 
 public extension NSUIFont.Weight {

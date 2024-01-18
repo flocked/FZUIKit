@@ -8,7 +8,7 @@ Swift AppKit/UIKit extensions and useful Classes & utilities.
 
 ### NSContentConfiguration & NSContentView
 
-A port of UIContentConfiguration & UIContentView to AppKit.
+A port of `UIContentConfiguration` & `UIContentView` to AppKit.
 
 #### NSHostingConfiguration
 
@@ -85,7 +85,7 @@ view.animate(duration: 0.5) {
 
 ### NSImage prepareForDisplay & prepareThumbnail
 
-An UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
+An `UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
 
 ```
 // prepared decoded image for better performance

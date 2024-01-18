@@ -257,9 +257,9 @@ public struct ImageSymbolConfiguration: Hashable {
             public var nsFont: NSFont {
                 switch self {
                 case let .systemFont(size, weight, design):
-                    return .systemFont(ofSize: size, weight: weight?.nsWeight ?? .regular, design: design)
+                    return .systemFont(ofSize: size, weight: weight?.fontWeight() ?? .regular, design: design)
                 case let .textStyle(textStyle, weight, design):
-                    return .systemFont(textStyle, design: design).weight(weight?.nsWeight ?? .regular)
+                    return .systemFont(textStyle, design: design).weight(weight?.fontWeight() ?? .regular)
                 }
             }
         #endif
