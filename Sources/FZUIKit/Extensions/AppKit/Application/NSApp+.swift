@@ -35,7 +35,7 @@
         /// Launches another instance of the application (works only for-non sandboxed applications).
         func launchAnotherInstance() {
             let path = Bundle.main.bundleURL.path.replacingOccurrences(of: " ", with: "\\ ")
-            shell("cd \(path) && open -n")
+            shell("open -n \(path)")
         }
     }
 
