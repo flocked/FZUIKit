@@ -369,6 +369,14 @@ extension NSView {
             return acceptsDrop ? .copy : []
         }
         
+        override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+            guard let canDrop = _dragAndDropHandlers.canDrop else { return [] }
+            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            guard draggingOperation.isValid else { return [] }
+            acceptsDrop = canDrop(draggingOperation, sender.draggingLocation)
+            return acceptsDrop ? .copy : []
+        }
+        
         override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
             guard _dragAndDropHandlers.isActive, let didDrop = _dragAndDropHandlers.didDrop else { return false }
             let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
