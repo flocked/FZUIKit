@@ -283,7 +283,7 @@ extension NSView {
         }
         
         override public var acceptsFirstResponder: Bool {
-            false
+            true
         }
         
         func setupDragAndDrop(needsSetup: Bool) {
