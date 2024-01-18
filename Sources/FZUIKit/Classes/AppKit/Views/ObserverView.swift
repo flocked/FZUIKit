@@ -46,25 +46,26 @@ extension NSView {
         }
     }
     
-    var _observerView: ObserverView? {
-        get { getAssociatedValue(key: "_observerView", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "_observerView", object: self) }
+    var observerView: ObserverView? {
+        get { getAssociatedValue(key: "observerView", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "observerView", object: self) }
     }
     
     func setupObserverView() {
         if windowHandlers.needsObserving || mouseHandlers.needsObserving || viewHandlers.needsObserving || dragAndDropHandlers.isActive {
-            if _observerView == nil {
-                _observerView = ObserverView()
-                self.insertSubview(withConstraint: _observerView!, at: 0)
+            if observerView == nil {
+                let observerView = ObserverView()
+                self.observerView = observerView
+                self.addSubview(withConstraint: observerView)
             }
-            _observerView?._viewHandlers = viewHandlers
-            _observerView?._mouseHandlers = mouseHandlers
-            _observerView?._windowHandlers = windowHandlers
-            _observerView?._dragAndDropHandlers = dragAndDropHandlers
+            observerView?._viewHandlers = viewHandlers
+            observerView?._mouseHandlers = mouseHandlers
+            observerView?._windowHandlers = windowHandlers
+            observerView?._dragAndDropHandlers = dragAndDropHandlers
 
         } else {
-            _observerView?.removeFromSuperview()
-            _observerView = nil
+            observerView?.removeFromSuperview()
+            observerView = nil
         }
     }
     
@@ -163,40 +164,69 @@ extension NSView {
         }
     }
     
-    /// The handlers for file drag and drop.
+    /**
+     The handlers dropping items (either file urls, images, colors or strings) from the pasteboard to your view.
+     
+     Provide drag and drop handlers to support the dropping of pasteboard items to your view.
+     
+     The system calls the ``canDrop`` handler to validate if your view accepts dropping the items on the current pasteboard. If `true`, the system calls the ``didDrop`` handler when the user dropped items to your view.
+     
+     ```swift
+     view.dragAndDropHandlers.canDrag = { [weak self] items, location in
+        guard let self = self else { return }
+        // Accepts dropping of images and file urls.
+        if items.images.isEmpty == false || items.fileURLs.isEmpty == false {
+            return true
+        } else {
+            return false
+        }
+     }
+     
+     view.dragAndDropHandlers.didDrop = { [weak self] items, location in
+        guard let self = self else { return }
+        if let images = items.images {
+            // dropped images
+        }
+        if let fileURLs = items.fileURLs {
+            // dropped file urls
+        }
+     }
+  }
+     ```
+     */
     public struct DragAndDropHandlers {
-        public struct DraggingOperation {
-            public var images: [NSImage]?
-            public var string: String?
-            public var color: NSColor?
+        /// The items on the current pasteboard.
+        public struct PasteboardItems {
+            /// The file urls on the pasteboard.
             public var fileURLs: [URL]?
+            /// The images on the pasteboard.
+            public var images: [NSImage]?
+            /// The string on the pasteboard.
+            public var string: String?
+            /// The color on the pasteboard.
+            public var color: NSColor?
+            
             init(_ draggingInfo: NSDraggingInfo) {
                 self.images = draggingInfo.images
                 self.string = draggingInfo.string
                 self.color = draggingInfo.color
                 self.fileURLs = draggingInfo.fileURLs
             }
+            
             var isValid: Bool {
                 images?.count ?? 0 >= 1 || fileURLs?.count ?? 0 >= 1 || color != nil || string != nil
             }
         }
         
-        public var canDropImages: ((_ images: [NSImage], _ location: CGPoint) -> (Bool))?
-        public var canDropFileURLs: ((_ urls: [URL], _ location: CGPoint) -> (Bool))?
-        public var canDropString: ((_ string: String, _ location: CGPoint) -> (Bool))?
-        public var canDropColor: ((_ color: NSColor, _ location: CGPoint) -> (Bool))?
+        /**
+         The handler that determines whether the user can drop items from the pasteboard to your view.
+         
+         Provide the handler and return `true`, if the pasteboard contains items that your view accepts dropping.
+         */
+        public var canDrop: ((_ items: PasteboardItems, _ location: CGPoint) -> (Bool))?
 
-        public var didDropImages: ((_ images: [NSImage], _ location: CGPoint) -> ())?
-        public var didDropFileURLs: ((_ urls: [URL], _ location: CGPoint) -> ())?
-        public var didDropString: ((_ string: String, _ location: CGPoint) -> ())?
-        public var didDropColor: ((_ color: NSColor, _ location: CGPoint) -> ())?
-
-        
-        public var canDrop: ((DraggingOperation, _ location: CGPoint) -> (Bool))?
-
-        public var didDrop: ((DraggingOperation, _ location: CGPoint) -> Void)?
-
-        public var dropOutside: (() -> ([PasteboardReadWriting]))?
+        /// The handler that gets called when items did drop items from the pasteboard to your view.
+        public var didDrop: ((_ items: PasteboardItems, _ location: CGPoint) -> Void)?
 
         var isActive: Bool {
             canDrop != nil && didDrop != nil
@@ -336,11 +366,12 @@ extension NSView {
         
         override public func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
             guard _dragAndDropHandlers.isActive, let canDrop = _dragAndDropHandlers.canDrop else { return false }
-            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
             guard draggingOperation.isValid else { return false }
             return canDrop(draggingOperation, sender.draggingLocation)
         }
         
+        /*
         override public func draggingExited(_ sender: NSDraggingInfo?) {
             if let dropOutside = _dragAndDropHandlers.dropOutside?() {
                 let pasteboard = NSPasteboard.general
@@ -359,11 +390,12 @@ extension NSView {
             }
             super.draggingExited(sender)
         }
+         */
         
         var acceptsDrop: Bool = false
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard let canDrop = _dragAndDropHandlers.canDrop else { return [] }
-            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
             guard draggingOperation.isValid else { return [] }
             acceptsDrop = canDrop(draggingOperation, sender.draggingLocation)
             return acceptsDrop ? .copy : []
@@ -371,7 +403,7 @@ extension NSView {
         
         override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard let canDrop = _dragAndDropHandlers.canDrop else { return [] }
-            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
             guard draggingOperation.isValid else { return [] }
             acceptsDrop = canDrop(draggingOperation, sender.draggingLocation)
             return acceptsDrop ? .copy : []
@@ -379,7 +411,7 @@ extension NSView {
         
         override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
             guard _dragAndDropHandlers.isActive, let didDrop = _dragAndDropHandlers.didDrop else { return false }
-            let draggingOperation = DragAndDropHandlers.DraggingOperation(sender)
+            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
             guard draggingOperation.isValid else { return false }
             didDrop(draggingOperation, sender.draggingLocation)
             return true
