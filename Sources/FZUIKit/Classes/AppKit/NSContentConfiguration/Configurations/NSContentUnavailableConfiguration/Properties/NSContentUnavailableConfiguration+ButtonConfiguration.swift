@@ -28,7 +28,7 @@
             }
             
             /// The size of the button
-            public enum Size: Int, Hashable {
+            public enum Size: Hashable {
                 /// A button that is minimally sized.
                 case mini
                 /// A button that is proportionally smaller size for space-constrained views.
@@ -37,20 +37,28 @@
                 case regular
                 /// A button that is prominently sized.
                 case large
+                /// A button with a fixed size (only valid for borderless buttons with an image)
+                case fixed(CGSize)
                 @available(macOS 14.0, *)
                 /// A button that is sized extra large.
                 case extraLarge
+                var size: CGSize? {
+                    switch self {
+                    case .fixed(let size): return size
+                    default: return nil
+                    }
+                }
                 var swiftUI: SwiftUI.ControlSize {
                     switch self {
                     case .mini: return .mini
                     case .small: return .small
-                    case .regular: return .regular
                     case .large: return .large
                     case .extraLarge: if #available(macOS 14.0, *) {
                         return .extraLarge
                     } else {
                         return .regular
                     }
+                    default: return .regular
                     }
                 }
             }
@@ -65,7 +73,7 @@
             public var image: NSImage?
 
             /// The action of the button.
-            public var action: () -> Void
+            public var action: (() -> Void)?
             
             /// A Boolean value that indicates whether the button is enabled.
             public var isEnabled: Bool = true
@@ -85,6 +93,19 @@
             var hasContent: Bool {
                 title != nil || atributedTitle != nil || image != nil
             }
+            
+            /// Creates a button configuration.
+            public init(title: String? = nil, atributedTitle: AttributedString? = nil, image: NSImage? = nil,  isEnabled: Bool = true, contentTintColor: NSColor? = nil, style: Style = .bordered, size: Size = .regular, symbolConfiguration: ImageSymbolConfiguration? = nil, action: (() -> Void)? = nil) {
+                self.title = title
+                self.atributedTitle = atributedTitle
+                self.image = image
+                self.action = action
+                self.isEnabled = isEnabled
+                self.contentTintColor = contentTintColor
+                self.style = style
+                self.size = size
+                self.symbolConfiguration = symbolConfiguration
+            }
 
             /**
              A text button.
@@ -94,8 +115,8 @@
                 - style: The style of the button.
                 - action: The action of the button.
              */
-            public static func textButton(_ title: String, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
-                var button = Self(title: title, action: action, style: style)
+            public static func textButton(_ title: String, image: NSImage? = nil, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
+                var button = Self(title: title, image: image, style: style, action: action)
                 return button
             }
 
@@ -108,12 +129,20 @@
                 - action: The action of the button.
              */
             public static func imageButton(_ image: NSImage, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
-                Self(image: image, action: action, style: style)
+                Self(image: image, style: style, action: action)
             }
             
-            /// A symbol image button.
+            /**
+             A symbol image button.
+             
+             - Parameters:
+                - symbolName: The name of the symbol image.
+                - symbolConfiguration: The image symbol configuration.
+                - style: The style of the button.
+                - action: The action of the button.
+             */
             public static func symbolImageButton(_ symbolName: String, symbolConfiguration: ImageSymbolConfiguration? = nil, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
-                Self(image: NSImage(systemSymbolName: symbolName), action: action, style: style, symbolConfiguration: symbolConfiguration)
+                Self(image: NSImage(systemSymbolName: symbolName), style: style, symbolConfiguration: symbolConfiguration, action: action)
             }
         }
     }

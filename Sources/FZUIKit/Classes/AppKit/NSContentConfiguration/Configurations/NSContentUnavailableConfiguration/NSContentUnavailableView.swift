@@ -189,7 +189,7 @@
 
             var body: some View {
                 Button {
-                    configuration.action()
+                    configuration.action?()
                 } label: {
                     if let atributedTitle = configuration.atributedTitle {
                         if let image = configuration.image {
@@ -210,6 +210,7 @@
                     .foregroundColor(configuration.contentTintColor?.swiftUI)
                     .symbolConfiguration(configuration.symbolConfiguration)
                     .controlSize(configuration.size.swiftUI)
+                    .frame(width: configuration.image != nil && configuration.style == .borderless ? configuration.size.size?.width : nil, height: configuration.image != nil && configuration.style == .borderless ? configuration.size.size?.height : nil)
             }
         }
 
