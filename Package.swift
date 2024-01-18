@@ -18,7 +18,10 @@ let package = Package(
     targets: [
         .target(
             name: "FZUIKit",
-            dependencies: ["FZSwiftUtils"]
+            dependencies: ["FZSwiftUtils"],
+            resources: [
+                .process("Resources"),
+            ]            
         ),
     ]
 )
