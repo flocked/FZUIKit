@@ -33,41 +33,41 @@
             super.init(frame: .zero)
             clipsToBounds = false
             contentView.clipsToBounds = false
-            contentViewConstraints = addSubview(withConstraint: contentView)
+            addSubview(contentView)
+            contentView.addSubview(imageView)
             updateConfiguration()
+        }
+        
+        public override func layout() {
+            super.layout()
+            contentView.frame.size.width = appliedConfiguration.insets.width
+            contentView.frame.size.height = appliedConfiguration.insets.height
+            view?.frame.size = contentView.bounds.size
+            imageView.frame.size = contentView.bounds.size
+            imageView.clipsToBounds = true
         }
 
         let contentView = NSView()
-        var contentViewConstraints: [NSLayoutConstraint] = []
 
         var view: NSView? {
             didSet {
                 if oldValue != view {
                     oldValue?.removeFromSuperview()
                     if let view = view {
-                        contentView.addSubview(withConstraint: view)
+                        view.frame.size = contentView.bounds.size
+                        view.clipsToBounds = true
+                        contentView.addSubview(view)
                     }
                 }
             }
         }
 
-        var imageView: ImageView?
+        let imageView = ImageView()
         var image: NSImage? {
-            get { imageView?.image }
+            get { imageView.image }
             set {
-                guard newValue != imageView?.image else { return }
-                if let image = newValue {
-                    if imageView == nil {
-                        let imageView = ImageView()
-                        self.imageView = imageView
-                        contentView.addSubview(withConstraint: imageView)
-                    }
-                    imageView?.image = image
-                    imageView?.imageScaling = appliedConfiguration.imageScaling
-                } else {
-                    imageView?.removeFromSuperview()
-                    imageView = nil
-                }
+                imageView.image = newValue
+                imageView.isHidden = newValue == nil
             }
         }
 
@@ -81,17 +81,21 @@
             view = appliedConfiguration.view
             image = appliedConfiguration.image
 
-            imageView?.imageScaling = appliedConfiguration.imageScaling
+            imageView.imageScaling = appliedConfiguration.imageScaling
 
             contentView.backgroundColor = appliedConfiguration._resolvedColor
             contentView.visualEffect = appliedConfiguration.visualEffect
             contentView.cornerRadius = appliedConfiguration.cornerRadius
 
-            contentView.configurate(using: appliedConfiguration.shadow, type: .outer)
-            contentView.configurate(using: appliedConfiguration.innerShadow, type: .inner)
-            contentView.configurate(using: appliedConfiguration.border)
-
-            contentViewConstraints.constant(appliedConfiguration.insets)
+            contentView.shadow1 = appliedConfiguration.shadow
+            contentView.innerShadow = appliedConfiguration.innerShadow
+            contentView.border = appliedConfiguration.border
+            
+            contentView.frame.origin.x = appliedConfiguration.insets.leading
+            contentView.frame.origin.y = appliedConfiguration.insets.bottom
+            contentView.frame.size.width = appliedConfiguration.insets.width
+            contentView.frame.size.height = appliedConfiguration.insets.height
+            view?.frame.size = contentView.bounds.size
         }
 
         @available(*, unavailable)

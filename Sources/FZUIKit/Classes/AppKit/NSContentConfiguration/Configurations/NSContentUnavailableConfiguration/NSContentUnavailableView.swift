@@ -28,8 +28,6 @@
         public override func layout() {
             super.layout()
             
-            hostingView.frame.origin.x = appliedConfiguration.directionalLayoutMargins.leading
-            hostingView.frame.origin.y = appliedConfiguration.directionalLayoutMargins.bottom
             hostingView.frame.size.height = bounds.height - appliedConfiguration.directionalLayoutMargins.height
             hostingView.frame.size.width = bounds.width - appliedConfiguration.directionalLayoutMargins.width
             backgroundView.frame = hostingView.frame
@@ -49,9 +47,6 @@
             updateConfiguration()
         }
 
-        var backgroundConstraints: [NSLayoutConstraint] = []
-        var hostingConstraints: [NSLayoutConstraint] = []
-
         lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()        
         
         var appliedConfiguration: NSContentUnavailableConfiguration {
@@ -65,8 +60,12 @@
         func updateConfiguration() {
             backgroundView.configuration = appliedConfiguration.background
             hostingView.rootView = ContentView(configuration: appliedConfiguration)
-            backgroundConstraints.constant(appliedConfiguration.directionalLayoutMargins)
-            hostingConstraints.constant(appliedConfiguration.directionalLayoutMargins)
+            
+            hostingView.frame.origin.x = appliedConfiguration.directionalLayoutMargins.leading
+            hostingView.frame.origin.y = appliedConfiguration.directionalLayoutMargins.bottom
+            hostingView.frame.size.height = bounds.height - appliedConfiguration.directionalLayoutMargins.height
+            hostingView.frame.size.width = bounds.width - appliedConfiguration.directionalLayoutMargins.width
+            backgroundView.frame = hostingView.frame
         }
 
         lazy var hostingView = NSHostingView(rootView: ContentView(configuration: self.appliedConfiguration))
