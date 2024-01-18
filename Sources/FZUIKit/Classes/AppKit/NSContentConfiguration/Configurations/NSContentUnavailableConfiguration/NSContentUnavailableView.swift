@@ -9,9 +9,14 @@
     import AppKit
     import SwiftUI
 
+    /**
+     A view that indicates there’s no content to display.
+ 
+     Use a content-unavailable view to indicate that your app can’t display content. For example, content may not be available if a search returns no results or your app is loading data over the network.
+     */
     @available(macOS 12.0, *)
     public class NSContentUnavailableView: NSView, NSContentView {
-        /// The current configuration of the view.
+        /// The content-unavailable configuration.
         public var configuration: NSContentConfiguration {
             get { appliedConfiguration }
             set {
@@ -26,7 +31,7 @@
             configuration is NSContentUnavailableConfiguration
         }
 
-        /// Creates a item content view with the specified content configuration.
+        /// Creates a new content-unavailable view with the specified configuration.
         public init(configuration: NSContentUnavailableConfiguration) {
             appliedConfiguration = configuration
             super.init(frame: .zero)
@@ -72,6 +77,7 @@
             return hostingView
         }()
 
+        /// Creates a view from data in an unarchiver.
         @available(*, unavailable)
         required init?(coder _: NSCoder) {
             fatalError("init(coder:) has not been implemented")
@@ -133,10 +139,26 @@
 
             @ViewBuilder
             var loadingIndicatorItem: some View {
-                if configuration.displayLoadingIndicator {
-                    ProgressView()
-                        .controlSize(.small)
-                        .progressViewStyle(CircularProgressViewStyle())
+                if let loadingIndicator = configuration.loadingIndicator {
+                    switch loadingIndicator {
+                    case .spinning(let size):
+                        ProgressView()
+                            .controlSize(size.swiftUI)
+                    case .bar(let value, let total, let text, let textStyle, let textColor, let size), .circular(let value, let total, let text, let textStyle, let textColor, let size):
+                        if let text = text {
+                            ProgressView(value: value, total: total) {
+                                Text(text)
+                                    .font(.system(textStyle.swiftUI))
+                                    .foregroundStyle(Color(textColor))
+                            }
+                            .progressViewStyle(isLinear: loadingIndicator.isLinear)
+                                .controlSize(size.swiftUI)
+                        } else {
+                            ProgressView(value: value, total: total)
+                                .progressViewStyle(isLinear: loadingIndicator.isLinear)
+                                .controlSize(size.swiftUI)
+                        }
+                    }
                 }
             }
 
@@ -188,6 +210,7 @@
                 }.buttonStyling(configuration.style)
                     .foregroundColor(configuration.contentTintColor?.swiftUI)
                     .symbolConfiguration(configuration.symbolConfiguration)
+                    .controlSize(configuration.size.swiftUI)
             }
         }
 
@@ -221,4 +244,17 @@
             }
         }
     }
+
+@available(macOS 12.0, *)
+extension View {
+    @ViewBuilder
+    func progressViewStyle(isLinear: Bool) -> some View {
+        if isLinear {
+            self.progressViewStyle(.linear)
+        } else {
+            self.progressViewStyle(.circular)
+        }
+ 
+    }
+}
 #endif

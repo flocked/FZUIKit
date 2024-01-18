@@ -7,6 +7,7 @@
 
 #if os(macOS)
     import AppKit
+    import SwiftUI
 
     /**
      A content configuration for a content-unavailable view.
@@ -69,14 +70,52 @@
          If `vertical` the secondary button is placed  next to the primary button, if `horizontal` it's placed below the primary button.
          */
         public var buttonOrientation: NSUIUserInterfaceLayoutOrientation = .vertical
-
-        var displayLoadingIndicator: Bool = false
+        
+        /// The loading indicator.
+        public var loadingIndicator: LoadingIndicator? = nil
+        
+        /// The loading indicator type.
+        public enum LoadingIndicator: Hashable {
+            /// A spinning loading indicator.
+            case spinning(size: Size = .regular)
+            /// A bar progress indicator.
+            case bar(value: Double = 0.0, total: Double = 0.0, text: String? = nil, textStyle: NSFont.TextStyle = .body, textColor: NSColor = .labelColor, size: Size = .regular)
+            /// A circular progress indicator.
+            case circular(value: Double = 0.0, total: Double = 0.0, text: String? = nil, textStyle: NSFont.TextStyle = .body, textColor: NSColor = .labelColor, size: Size = .regular)
+            
+            var isLinear: Bool {
+                switch self {
+                case .bar: return true
+                default: return false
+                }
+            }
+            
+            /// The size of the loading indicator.
+            public enum Size: Hashable {
+                /// A loading indicator that is minimally sized.
+                case mini
+                /// A loading indicator that is proportionally smaller size for space-constrained views.
+                case small
+                /// A loading indicator that is the default size.
+                case regular
+                /// A loading indicator that is prominently sized.
+                case large
+                var swiftUI: SwiftUI.ControlSize {
+                    switch self {
+                    case .mini: return .mini
+                    case .small: return .small
+                    case .regular: return .regular
+                    case .large: return .large
+                    }
+                }
+            }
+        }
 
         public func makeContentView() -> NSView & NSContentView {
             NSContentUnavailableView(configuration: self)
         }
 
-        public func updated(for _: FZUIKit.NSConfigurationState) -> NSContentUnavailableConfiguration {
+        public func updated(for state: NSConfigurationState) -> NSContentUnavailableConfiguration {
             self
         }
 
@@ -101,7 +140,7 @@
             var configuration = NSContentUnavailableConfiguration()
             configuration.textProperties = .body()
             configuration.secondaryTextProperties = configuration.textProperties
-            configuration.displayLoadingIndicator = true
+            configuration.loadingIndicator = .spinning()
             return configuration
         }
 
@@ -138,20 +177,3 @@
     }
 
 #endif
-
-/*
- /// The configuration for the primary button.
- public var button: UIButton.Configuration
-
- /// Additional configuration for the primary button.
- public var buttonProperties: UIContentUnavailableConfiguration.ButtonProperties
-
-  /// The configuration for the secondary button.
-  public var secondaryButton: UIButton.Configuration
-
-  /// Additional configuration for the secondary button.
-  public var secondaryButtonProperties: UIContentUnavailableConfiguration.ButtonProperties
- */
-
-///// Configures which margins use the layout margins inherited from the superview.
-//  public var axesPreservingSuperviewLayoutMargins: NSAxis

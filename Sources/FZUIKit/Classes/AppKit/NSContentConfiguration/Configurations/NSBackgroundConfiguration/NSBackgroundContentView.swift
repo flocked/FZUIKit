@@ -9,8 +9,9 @@
     import AppKit
     import FZSwiftUtils
 
+    /// A view for displaying a background configuration.
     public class NSBackgroundView: NSView, NSContentView {
-        /// The current configuration of the view.
+        /// The background configuration.
         public var configuration: NSContentConfiguration {
             get { appliedConfiguration }
             set {
