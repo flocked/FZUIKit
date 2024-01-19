@@ -266,32 +266,20 @@ extension NSView {
         var windowDidBecomeMainObserver: NotificationToken?
         var windowDidResignMainObserver: NotificationToken?
         
-        /// The handlers for the window state.
-        public var _windowHandlers = WindowHandlers() {
-            didSet {
-                updateWindowObserver()
-            }
+        var _windowHandlers = WindowHandlers() {
+            didSet { updateWindowObserver() }
         }
         
-        /// The handlers for the view state.
-        public var _viewHandlers = ViewHandlers() {
-            didSet {
-                setupObservation(needsSetup: _viewHandlers.needsObserving)
-            }
+        var _viewHandlers = ViewHandlers() {
+            didSet { setupObservation(needsSetup: _viewHandlers.needsObserving) }
         }
         
-        /// The handlers for mouse events.
-        public var _mouseHandlers = MouseHandlers() {
-            didSet {
-                _trackingArea.options = _mouseHandlers.trackingAreaOptions
-            }
+        var _mouseHandlers = MouseHandlers() {
+            didSet { _trackingArea.options = _mouseHandlers.trackingAreaOptions }
         }
         
-        /// The handlers for drag and drop of files (either images or urls, strings).
-        public var _dragAndDropHandlers = DragAndDropHandlers() {
-            didSet {
-                self.setupDragAndDrop(needsSetup: _dragAndDropHandlers.isActive)
-            }
+        var _dragAndDropHandlers = DragAndDropHandlers() {
+            didSet { self.setupDragAndDrop(needsSetup: _dragAndDropHandlers.isActive) }
         }
         
         override public func hitTest(_: NSPoint) -> NSView? {

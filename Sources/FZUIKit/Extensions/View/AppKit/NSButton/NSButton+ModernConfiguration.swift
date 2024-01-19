@@ -291,6 +291,14 @@
             var _resolvedBorderColor: NSColor?
             var _resolvedForegroundColor: NSColor?
             var _resolvedBackgroundColor: NSColor?
+            
+            var hasTitle: Bool {
+                title != nil || attributedTitle != nil
+            }
+            
+            var hasSubtitle: Bool {
+                subtitle != nil || attributedSubtitle != nil
+            }
 
             mutating func updateResolvedValues() {
                 _resolvedTitleAlignment = resolvedTitleAlignment()
@@ -358,15 +366,13 @@
             func resolvedTitleAlignment() -> TitleAlignment {
                 if titleAlignment == .automatic {
                     if image != nil {
-                        if imagePlacement == .leading {
-                            return .leading
-                        } else if imagePlacement == .trailing {
-                            return .trailing
-                        } else {
-                            return .center
+                        switch imagePlacement {
+                        case .leading: return .leading
+                        case .trailing: return .trailing
+                        default: return .center
                         }
                     }
-                    return .leading
+                    return hasTitle && hasSubtitle ? .leading : .center
                 }
                 return titleAlignment
             }
