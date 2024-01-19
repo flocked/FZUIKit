@@ -157,7 +157,7 @@
 
             /// Creates a item content view with the specified content configuration.
             public init(configuration: NSButton.AdvanceButtonConfiguration) {
-                self.configuration = configuration
+                self.appliedConfiguration = configuration
                 super.init(frame: .zero)
                 hostingViewConstraints = addSubview(withConstraint: hostingController.view)
                 updateConfiguration()

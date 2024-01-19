@@ -36,13 +36,13 @@
             set {
                 let oldValue = self.configuration
                 set(associatedValue: newValue, key: "NSButton_Configuration", object: self)
-                if newValue is NSButton.AdvanceConfiguration == false {
+                if newValue is NSButton.AdvanceButtonConfiguration == false {
                     AdvanceConfigurationButtonView?.removeFromSuperview()
                     AdvanceConfigurationButtonView = nil
                 }
                 guard newValue != nil else { return }
 
-                if let oldValue = oldValue as? NSButton.AdvanceConfiguration, let newValue = newValue as? NSButton.AdvanceConfiguration, newValue == oldValue {
+                if let oldValue = oldValue as? NSButton.AdvanceButtonConfiguration, let newValue = newValue as? NSButton.AdvanceButtonConfiguration, newValue == oldValue {
                     return
                 } else if let oldValue = oldValue as? NSButton.Configuration, let newValue = newValue as? NSButton.Configuration, newValue == oldValue {
                     return
@@ -170,7 +170,7 @@
                 contentTintColor = configuration._resolvedContentTintColor
                 sound = configuration.sound
                 sizeToFit()
-            } else if var configuration = configuration as? NSButton.AdvanceConfiguration {
+            } else if var configuration = configuration as? NSButton.AdvanceButtonConfiguration {
                 bezelStyle = .rounded
                 isBordered = false
                 title = ""
@@ -186,7 +186,7 @@
                 if let AdvanceConfigurationButtonView = AdvanceConfigurationButtonView {
                     AdvanceConfigurationButtonView.configuration = configuration
                 } else {
-                    let buttonView = NSButton.AdvanceConfiguration.ButtonView(configuration: configuration)
+                    let buttonView = NSButton.AdvanceButtonConfiguration.AdvanceButtonView(configuration: configuration)
                     AdvanceConfigurationButtonView = buttonView
                     addSubview(withConstraint: buttonView)
                 }
@@ -216,7 +216,7 @@
          */
         public typealias ConfigurationUpdateHandler = (_ state: ConfigurationState) -> Void
 
-        var AdvanceConfigurationButtonView: NSButton.AdvanceConfiguration.ButtonView? {
+        var AdvanceConfigurationButtonView: NSButton.AdvanceButtonConfiguration.AdvanceButtonView? {
             get { getAssociatedValue(key: "NSButton_AdvanceConfigurationButtonView", object: self, initialValue: nil) }
             set {
                 set(associatedValue: newValue, key: "NSButton_AdvanceConfigurationButtonView", object: self)
