@@ -547,6 +547,10 @@
          The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `initclipsToBounds` property.
          */
         public let overlayContentView = NSView()
+        
+        public override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            !ignoreMouseDown
+        }
 
         override public var videoGravity: AVLayerVideoGravity {
             didSet {
