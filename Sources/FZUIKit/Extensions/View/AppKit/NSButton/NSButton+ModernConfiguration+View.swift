@@ -12,11 +12,11 @@
     import SwiftUI
 
     @available(macOS 13.0, *)
-    extension NSButton.AdvanceConfiguration.ButtonView {
+    extension NSButton.AdvanceButtonConfiguration.AdvanceButtonView {
         struct ContentView: View {
-            let configuration: NSButton.AdvanceConfiguration
+            let configuration: NSButton.AdvanceButtonConfiguration
 
-            public init(configuration: NSButton.AdvanceConfiguration) {
+            public init(configuration: NSButton.AdvanceButtonConfiguration) {
                 self.configuration = configuration
             }
 
@@ -118,12 +118,23 @@
     }
 
     @available(macOS 13, *)
-    extension NSButton.AdvanceConfiguration {
-        class ButtonView: NSView {
+    extension NSButton.AdvanceButtonConfiguration {
+        class AdvanceButtonView: NSView, NSContentView {
+            var configuration: NSContentConfiguration {
+                get { appliedConfiguration }
+                set { 
+                    guard let configuration = newValue as? NSButton.AdvanceButtonConfiguration else { return }
+                    appliedConfiguration = configuration
+                }
+            }
+            
+            
+            
+            
             /// The current configuration of the view.
-            public var configuration: NSButton.AdvanceConfiguration {
+            public var appliedConfiguration: NSButton.AdvanceButtonConfiguration {
                 didSet {
-                    if oldValue != configuration {
+                    if oldValue != appliedConfiguration {
                         updateConfiguration()
                     }
                 }
@@ -145,7 +156,7 @@
             }
 
             /// Creates a item content view with the specified content configuration.
-            public init(configuration: NSButton.AdvanceConfiguration) {
+            public init(configuration: NSButton.AdvanceButtonConfiguration) {
                 self.configuration = configuration
                 super.init(frame: .zero)
                 hostingViewConstraints = addSubview(withConstraint: hostingController.view)
@@ -155,7 +166,7 @@
             var hostingViewConstraints: [NSLayoutConstraint] = []
 
             func updateConfiguration() {
-                hostingController.rootView = ContentView(configuration: configuration)
+                hostingController.rootView = ContentView(configuration: appliedConfiguration)
                 sizeToFit()
             }
 
@@ -175,7 +186,7 @@
             }
 
             lazy var hostingController: NSHostingController<ContentView> = {
-                let contentView = ContentView(configuration: self.configuration)
+                let contentView = ContentView(configuration: self.appliedConfiguration)
                 let hostingController = NSHostingController(rootView: contentView)
                 hostingController.view.backgroundColor = .clear
                 hostingController.view.translatesAutoresizingMaskIntoConstraints = false

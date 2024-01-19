@@ -12,8 +12,9 @@
 
     @available(macOS 13.0, *)
     public extension NSButton {
+        
         /// A configuration that specifies the appearance and behavior of a button and its contents.
-        struct AdvanceConfiguration: NSButtonConfiguration, Hashable {
+        struct AdvanceButtonConfiguration: NSButtonConfiguration, Hashable, NSContentConfiguration {
             /**
              Specifies how to align a button’s title and subtitle.
 
@@ -56,6 +57,7 @@
                 case medium
                 /// A style that ignores the background corner radius and uses a small system-defined corner radius.
                 case small
+                case cirle
 
                 var shape: some Shape {
                     switch self {
@@ -65,6 +67,7 @@
                     case .large: return RoundedRectangle(cornerRadius: 10.0).asAnyShape()
                     case .medium: return RoundedRectangle(cornerRadius: 6.0).asAnyShape()
                     case .small: return RoundedRectangle(cornerRadius: 2.0).asAnyShape()
+                    case .cirle: return Circle().asAnyShape()
                     }
                 }
             }
@@ -245,39 +248,39 @@
             }
 
             ///  Creates a configuration for a button with a transparent background.
-            public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
-                var configuration = NSButton.AdvanceConfiguration()
+            public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
+                var configuration = NSButton.AdvanceButtonConfiguration()
                 configuration.foregroundColor = color
                 return configuration
             }
 
             /// Creates a configuration for a button with a gray background.
-            public static func gray() -> NSButton.AdvanceConfiguration {
-                var configuration = NSButton.AdvanceConfiguration()
+            public static func gray() -> NSButton.AdvanceButtonConfiguration {
+                var configuration = NSButton.AdvanceButtonConfiguration()
                 configuration.backgroundColor = .gray.withAlphaComponent(0.5)
                 configuration.foregroundColor = .controlAccentColor
                 return configuration
             }
 
             /// Creates a configuration for a button with a tinted background color.
-            public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
-                var configuration = NSButton.AdvanceConfiguration()
+            public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
+                var configuration = NSButton.AdvanceButtonConfiguration()
                 configuration.backgroundColor = color.tinted().withAlphaComponent(0.5)
                 configuration.foregroundColor = color
                 return configuration
             }
 
             /// Creates a configuration for a button with a background filled with the button’s tint color.
-            public static func filled(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
-                var configuration = NSButton.AdvanceConfiguration()
+            public static func filled(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
+                var configuration = NSButton.AdvanceButtonConfiguration()
                 configuration.foregroundColor = .white
                 configuration.backgroundColor = color
                 return configuration
             }
 
             /// Creates a configuration for a button that has a bordered style.
-            public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
-                var configuration = NSButton.AdvanceConfiguration()
+            public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
+                var configuration = NSButton.AdvanceButtonConfiguration()
                 configuration.foregroundColor = color
                 configuration.borderWidth = 1.0
                 return configuration
@@ -308,6 +311,10 @@
                         imageSymbolConfiguration = configuration
                     }
                 }
+            }
+            
+            public func makeContentView() -> NSView & NSContentView {
+                AdvanceButtonView(configuration: self)
             }
 
             /**
