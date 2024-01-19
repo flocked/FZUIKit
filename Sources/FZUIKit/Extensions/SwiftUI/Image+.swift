@@ -22,7 +22,7 @@ public extension Image {
 extension Image {
     
     /// The image scaling.
-    public enum ImageScaling {
+    public enum ImageScaling: Int, Hashable {
         /// The image is resized to fit the bounds rectangle, preserving the aspect of the image. If the image does not completely fill the bounds rectangle, the image is centered in the partial axis.
         case scaleToFit
         /// The image is resized to completely fill the bounds rectangle, while still preserving the aspect of the image.
