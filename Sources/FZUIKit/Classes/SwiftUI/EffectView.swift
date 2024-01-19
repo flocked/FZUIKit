@@ -8,104 +8,89 @@
 import SwiftUI
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    @available(macOS 11, *)
-    public struct EffectView: NSViewRepresentable {
-        public typealias NSViewType = NSVisualEffectView
-
-        private var material: NSVisualEffectView.Material
-        private var blendingMode: NSVisualEffectView.BlendingMode
-        private var emphasized: Bool
-        private var state: NSVisualEffectView.State
-        private var appearance: NSAppearance?
-
-        public init(configuration: VisualEffectConfiguration) {
-            self.init(material: configuration.material, blendingMode: configuration.blendingMode, emphasized: configuration.isEmphasized, state: configuration.state)
-        }
-        
-        public init(
-            _ blendingMode: NSVisualEffectView.BlendingMode = .withinWindow)
-        {
-            self.init(material: NSVisualEffectView.Material(rawValue: 0)!, blendingMode: blendingMode, emphasized: false)
-        }
-
-        public init(
-            _ blendingMode: NSVisualEffectView.BlendingMode = .withinWindow,
-            emphasized: Bool = false
-        ) {
-            self.init(material: NSVisualEffectView.Material(rawValue: 0)!, blendingMode: blendingMode, emphasized: emphasized)
-        }
-
-        public init(material: NSVisualEffectView.Material,
-                    blendingMode: NSVisualEffectView.BlendingMode = .withinWindow,
-                    emphasized: Bool = false)
-        {
-            self.init(material: material, blendingMode: blendingMode, emphasized: emphasized, state: .followsWindowActiveState)
-        }
-
-        public init(material: NSVisualEffectView.Material,
-                    blendingMode: NSVisualEffectView.BlendingMode = .withinWindow,
-                    emphasized: Bool = false,
-                    state: NSVisualEffectView.State = .followsWindowActiveState,
-                    appearance: NSAppearance? = nil
-        )
-        {
-            self.material = material
-            self.blendingMode = blendingMode
-            self.emphasized = emphasized
-            self.state = state
-            self.appearance = appearance
-        }
-
-        public func makeNSView(context _: Context) -> NSVisualEffectView {
-            let view = NSVisualEffectView()
-            view.material = material
-            view.blendingMode = blendingMode
-            view.isEmphasized = emphasized
-            view.state = state
-            view.appearance = appearance
-            return view
-        }
-
-        public func updateNSView(_ nsView: NSVisualEffectView, context _: Context) {
-            nsView.material = material
-            nsView.blendingMode = blendingMode
-            nsView.isEmphasized = emphasized
-            nsView.state = state
-            nsView.appearance = appearance
-        }
-
-        public func material(_ material: NSVisualEffectView.Material) -> EffectView {
-            var view = self
-            view.material = material
-            return view
-        }
-
-        public func blendingMode(_ blendingMode: NSVisualEffectView.BlendingMode) -> EffectView {
-            var view = self
-            view.blendingMode = blendingMode
-            return view
-        }
-
-        public func emphasized(_ isEmphasized: Bool) -> EffectView {
-            var view = self
-            view.emphasized = isEmphasized
-            return view
-        }
-
-        public func state(_ state: NSVisualEffectView.State) -> EffectView {
-            var view = self
-            view.state = state
-            return view
-        }
-        
-        public func appearance(_ appearance: NSAppearance?) -> EffectView {
-            var view = self
-            view.appearance = appearance
-            return view
-        }
+struct VisualEffectBackground: NSViewRepresentable {
+    private let material: NSVisualEffectView.Material
+    private let blendingMode: NSVisualEffectView.BlendingMode
+    private let isEmphasized: Bool
+    private let appearance: NSAppearance?
+    private let state: NSVisualEffectView.State
+    
+    init(_ configuration: VisualEffectConfiguration) {
+        self.material = configuration.material
+        self.blendingMode = configuration.blendingMode
+        self.isEmphasized = configuration.isEmphasized
+        self.appearance = configuration.appearance
+        self.state = configuration.state
     }
+        
+    init(
+        material: NSVisualEffectView.Material,
+        blendingMode: NSVisualEffectView.BlendingMode,
+        emphasized: Bool,
+        state: NSVisualEffectView.State,
+        appearance: NSAppearance?
+    ) {
+        self.material = material
+        self.blendingMode = blendingMode
+        self.isEmphasized = emphasized
+        self.appearance = appearance
+        self.state = state
+    }
+    
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        
+        // Not certain how necessary this is
+        view.autoresizingMask = [.width, .height]
+        view.material = material
+        view.appearance = appearance
+        view.blendingMode = blendingMode
+        view.state = state
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+     //   nsView.material = context.environment.visualEffectMaterial ?? material
+      //  nsView.blendingMode = context.environment.visualEffectBlending ?? blendingMode
+    //    nsView.isEmphasized = context.environment.visualEffectEmphasized ?? isEmphasized
+    }
+}
+
+extension View {
+    /// Adds a visual effect to the background for the specified configuration.
+    public func visualEffect(_ configuration: VisualEffectConfiguration) -> some View  {
+        background(
+            VisualEffectBackground(
+                material: configuration.material,
+                blendingMode: configuration.blendingMode,
+                emphasized: configuration.isEmphasized,
+                state: configuration.state,
+                appearance: configuration.appearance
+            )
+        )
+    }
+    
+    /// Adds a visual effect to the background.
+    public func visualEffect(
+        material: NSVisualEffectView.Material,
+        blendingMode: NSVisualEffectView.BlendingMode = .behindWindow,
+        emphasized: Bool = false,
+        state: NSVisualEffectView.State = .followsWindowActiveState,
+        appearance: NSAppearance? = nil
+    ) -> some View {
+        background(
+            VisualEffectBackground(
+                material: material,
+                blendingMode: blendingMode,
+                emphasized: emphasized,
+                state: state,
+                appearance: appearance
+            )
+        )
+    }
+}
 
 #elseif os(iOS) || os(tvOS)
     import UIKit
