@@ -177,17 +177,18 @@ extension NSView {
     }
     
     /**
-     The handlers dropping items (either file urls, images, colors or strings) from the pasteboard to your view.
+     The handlers dropping items (file urls, images, colors or strings) from the pasteboard to your view.
      
-     Provide drag and drop handlers to support the dropping of pasteboard items to your view.
+     Provide ``canDrop`` and ``didDrop`` to support dropping of pasteboard items to your view.
      
-     The system calls the ``canDrop`` handler to validate if your view accepts dropping the items on the current pasteboard. If `true`, the system calls the ``didDrop`` handler when the user dropped items to your view.
+     The system calls the ``canDrop`` handler to validate if your view accepts dropping the items on the current pasteboard. If it returns `true`, the system calls the ``didDrop`` handler when the user drops items to your view.
+     
+     In the following example the view accepts dropping of images and file urls:
      
      ```swift
      view.dragAndDropHandlers.canDrag = { [weak self] items, location in
         guard let self = self else { return }
-        // Accepts dropping of images and file urls.
-        if items.images.isEmpty == false || items.fileURLs.isEmpty == false {
+        if items.images?.isEmpty == false || items.fileURLs?.isEmpty == false {
             return true
         } else {
             return false
@@ -230,22 +231,41 @@ extension NSView {
             }
         }
         
+        /// The handler that gets called when a pasteboard dragging enters the view’s bounds rectangle.
+        public var draggingEntered: ((_ items: PasteboardItems, _ location: CGPoint) -> Void)?
+        
         /**
          The handler that determines whether the user can drop items from the pasteboard to your view.
          
-         Provide the handler and return `true`, if the pasteboard contains items that your view accepts dropping.
+         Implement the handler and return `true`, if the pasteboard contains items that your view accepts dropping.
+         
+         The handler gets called repeatedly on every mouse dragging on the view’s bounds rectangle.
          */
         public var canDrop: ((_ items: PasteboardItems, _ location: CGPoint) -> (Bool))?
 
         /// The handler that gets called when items did drop items from the pasteboard to your view.
         public var didDrop: ((_ items: PasteboardItems, _ location: CGPoint) -> Void)?
+        
+        /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
+        public var draggingExited: (()->())?
 
+        
+        //public var drag
+        
         var isActive: Bool {
             canDrop != nil && didDrop != nil
         }
     }
     
     class ObserverView: NSView {
+        
+        var keyValueObserver: KeyValueObserver<NSView>?
+        lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
+        var windowDidBecomeKeyObserver: NotificationToken?
+        var windowDidResignKeyObserver: NotificationToken?
+        var windowDidBecomeMainObserver: NotificationToken?
+        var windowDidResignMainObserver: NotificationToken?
+        
         /// The handlers for the window state.
         public var _windowHandlers = WindowHandlers() {
             didSet {
@@ -349,10 +369,7 @@ extension NSView {
             _mouseHandlers.dragged?(event)
             super.mouseDragged(with: event)
         }
-        
-        
-        var keyValueObserver: KeyValueObserver<NSView>?
-        
+                
         func setupObservation(needsSetup: Bool) {
             if needsSetup {
                 if keyValueObserver == nil {
@@ -366,6 +383,21 @@ extension NSView {
                 keyValueObserver = nil
             }
         }
+                
+        override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+            guard  _dragAndDropHandlers.draggingEntered != nil || _dragAndDropHandlers.canDrop != nil else { return [] }
+            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
+            guard draggingOperation.isValid else { return [] }
+            _dragAndDropHandlers.draggingEntered?(draggingOperation, sender.draggingLocation)
+            return _dragAndDropHandlers.canDrop?(draggingOperation, sender.draggingLocation) == true ? .copy : []
+        }
+        
+        override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+            guard let canDrop = _dragAndDropHandlers.canDrop else { return [] }
+            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
+            guard draggingOperation.isValid else { return [] }
+            return canDrop(draggingOperation, sender.draggingLocation) ? .copy : []
+        }
         
         override public func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
             guard _dragAndDropHandlers.isActive, let canDrop = _dragAndDropHandlers.canDrop else { return false }
@@ -374,50 +406,17 @@ extension NSView {
             return canDrop(draggingOperation, sender.draggingLocation)
         }
         
-        /*
-        override public func draggingExited(_ sender: NSDraggingInfo?) {
-            if let dropOutside = _dragAndDropHandlers.dropOutside?() {
-                let pasteboard = NSPasteboard.general
-                pasteboard.clearContents()
-                if let string = dropOutside.compactMap({ $0 as? String }).first {
-                    pasteboard.setString(string, forType: .string)
-                }
-                var items: [NSPasteboardWriting] = []
-                let inages = dropOutside.compactMap { $0 as? NSImage }
-                items.append(contentsOf: inages)
-                let urls = dropOutside.compactMap { $0 as? NSURL }
-                items.append(contentsOf: urls)
-                if items.isEmpty == false {
-                    pasteboard.writeObjects(items)
-                }
-            }
-            super.draggingExited(sender)
-        }
-         */
-        
-        var acceptsDrop: Bool = false
-        override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-            guard let canDrop = _dragAndDropHandlers.canDrop else { return [] }
-            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
-            guard draggingOperation.isValid else { return [] }
-            acceptsDrop = canDrop(draggingOperation, sender.draggingLocation)
-            return acceptsDrop ? .copy : []
-        }
-        
-        override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-            guard let canDrop = _dragAndDropHandlers.canDrop else { return [] }
-            let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
-            guard draggingOperation.isValid else { return [] }
-            acceptsDrop = canDrop(draggingOperation, sender.draggingLocation)
-            return acceptsDrop ? .copy : []
-        }
-        
         override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
             guard _dragAndDropHandlers.isActive, let didDrop = _dragAndDropHandlers.didDrop else { return false }
             let draggingOperation = DragAndDropHandlers.PasteboardItems(sender)
             guard draggingOperation.isValid else { return false }
             didDrop(draggingOperation, sender.draggingLocation)
             return true
+        }
+        
+        override func draggingExited(_ sender: NSDraggingInfo?) {
+            dragAndDropHandlers.draggingExited?()
+            super.draggingExited(sender)
         }
         
         override public func viewDidMoveToWindow() {
@@ -452,9 +451,7 @@ extension NSView {
                 observeWindowState(for: window)
             }
         }
-        
-        lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
-        
+                
         func removeWindowKeyObserver() {
             windowDidBecomeKeyObserver = nil
             windowDidResignKeyObserver = nil
@@ -504,11 +501,6 @@ extension NSView {
                 }
             }
         }
-        
-        var windowDidBecomeKeyObserver: NotificationToken?
-        var windowDidResignKeyObserver: NotificationToken?
-        var windowDidBecomeMainObserver: NotificationToken?
-        var windowDidResignMainObserver: NotificationToken?
         
         lazy var _superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self] _, new in
             guard let self = self else { return }

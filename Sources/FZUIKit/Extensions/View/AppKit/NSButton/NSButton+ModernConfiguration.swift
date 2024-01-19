@@ -346,7 +346,7 @@
                         configuration.backgroundColorTransformer = transformer + .systemEffect(.pressed)
                     } else {
                         if configuration.backgroundColor == nil {
-                            configuration.backgroundColor = configuration.foregroundColor?.withAlphaComponent(0.17)
+                            configuration.backgroundColor = configuration.foregroundColor?.withAlphaComponent(0.175)
                         } else {
                             configuration.backgroundColorTransformer = .systemEffect(.pressed)
                         }
