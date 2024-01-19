@@ -145,12 +145,20 @@
                 superview as? NSButton
             }
 
+            var isPressed: Bool = false
             public override func mouseDown(with _: NSEvent) {
-                button?.isPressed = true
+                isPressed = true
+                if button?.automaticallyUpdatesConfiguration == true {
+                    button?.updateConfiguration()
+                }
             }
 
             public override func mouseUp(with event: NSEvent) {
-                button?.isPressed = false
+                isPressed = false
+                if button?.automaticallyUpdatesConfiguration == true {
+                    button?.updateConfiguration()
+                }
+                
                 if frame.contains(event.location(in: self)) {
                     button?.sendAction()
                     action?()

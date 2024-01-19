@@ -37,8 +37,8 @@
                 let oldValue = self.configuration
                 set(associatedValue: newValue, key: "NSButton_Configuration", object: self)
                 if newValue is NSButton.AdvanceButtonConfiguration == false {
-                    AdvanceConfigurationButtonView?.removeFromSuperview()
-                    AdvanceConfigurationButtonView = nil
+                    contentView?.removeFromSuperview()
+                    contentView = nil
                 }
                 guard newValue != nil else { return }
 
@@ -183,14 +183,14 @@
                     configuration = configuration.updated(for: configurationState)
                 }
 
-                if let AdvanceConfigurationButtonView = AdvanceConfigurationButtonView {
-                    AdvanceConfigurationButtonView.configuration = configuration
+                if let contentView = contentView {
+                    contentView.configuration = configuration
                 } else {
                     let buttonView = NSButton.AdvanceButtonView(configuration: configuration)
-                    AdvanceConfigurationButtonView = buttonView
+                    contentView = buttonView
                     addSubview(withConstraint: buttonView)
                 }
-                frame.size = AdvanceConfigurationButtonView?.fittingSize ?? .zero
+                frame.size = contentView?.fittingSize ?? .zero
             }
             configurationUpdateHandler?(configurationState)
         }
@@ -216,22 +216,13 @@
          */
         public typealias ConfigurationUpdateHandler = (_ state: ConfigurationState) -> Void
 
-        var AdvanceConfigurationButtonView: NSButton.AdvanceButtonView? {
-            get { getAssociatedValue(key: "NSButton_AdvanceConfigurationButtonView", object: self, initialValue: nil) }
-            set {
-                set(associatedValue: newValue, key: "NSButton_AdvanceConfigurationButtonView", object: self)
-            }
+        var contentView: NSButton.AdvanceButtonView? {
+            get { getAssociatedValue(key: "NSButton_contentView", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "NSButton_contentView", object: self) }
         }
 
         var isPressed: Bool {
-            get { getAssociatedValue(key: "isPressed", object: self, initialValue: false) }
-            set {
-                guard newValue != self.isPressed else { return }
-                set(associatedValue: newValue, key: "isPressed", object: self)
-                if automaticallyUpdatesConfiguration {
-                    updateConfiguration()
-                }
-            }
+            contentView?.isPressed ?? false
         }
 
         func sendAction() {

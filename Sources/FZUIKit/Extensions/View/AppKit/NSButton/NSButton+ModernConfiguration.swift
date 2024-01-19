@@ -29,6 +29,7 @@
                 case leading
                 /// Aligns the title and subtitle on their trailing edges.
                 case trailing
+                
                 var alignment: HorizontalAlignment {
                     switch self {
                     case .automatic: return .center
@@ -40,9 +41,9 @@
             }
 
             /**
-             Settings that determine the appearance of the background corner radius.
+             Settings that determine the appearance of the button.
 
-             Use this property to control how the button uses the `cornerRadius` property of the button’s background`.
+             Use this property to control how the button uses the `cornerRadius`.
              */
             public enum CornerStyle: Hashable {
                 /// A shape that uses a large system-defined corner radius.
@@ -103,6 +104,7 @@
             /// The width of the stroke.
             public var borderWidth: CGFloat = 0.0
 
+            /*
             /// The outset (or inset, if negative) for the stroke.
             public var borderOutset: CGFloat = 0.0
 
@@ -127,6 +129,7 @@
                 }
                 return nil
             }
+             */
 
             /// The untransformed color for foreground views.
             public var foregroundColor: NSColor? { didSet {
@@ -208,9 +211,11 @@
                         imageSymbolConfiguration: ImageSymbolConfiguration? = nil,
                         sound: NSSound? = nil,
                         borderWidth: CGFloat = 0.0,
+                        /*
                         borderOutset: CGFloat = 0.0,
                         borderColor: NSColor? = nil,
                         borderColorTransformer: ColorTransformer? = nil,
+                         */
                         foregroundColor: NSColor? = nil,
                         backgroundColor: NSColor? = nil,
                         titlePadding: CGFloat = 2.0,
@@ -233,9 +238,11 @@
                 self.imageSymbolConfiguration = imageSymbolConfiguration
                 self.sound = sound
                 self.borderWidth = borderWidth
+                /*
                 self.borderOutset = borderOutset
                 self.borderColor = borderColor
                 self.borderColorTransformer = borderColorTransformer
+                 */
                 self.foregroundColor = foregroundColor
                 self.backgroundColor = backgroundColor
                 self.titlePadding = titlePadding
@@ -288,7 +295,7 @@
             }
 
             var _resolvedTitleAlignment: TitleAlignment = .automatic
-            var _resolvedBorderColor: NSColor?
+        //    var _resolvedBorderColor: NSColor?
             var _resolvedForegroundColor: NSColor?
             var _resolvedBackgroundColor: NSColor?
             
@@ -302,7 +309,7 @@
 
             mutating func updateResolvedValues() {
                 _resolvedTitleAlignment = resolvedTitleAlignment()
-                _resolvedBorderColor = resolvedBorderColor()
+             //   _resolvedBorderColor = resolvedBorderColor()
                 _resolvedForegroundColor = resolvedForegroundColor()
                 _resolvedBackgroundColor = resolvedBackgroundColor()
 
