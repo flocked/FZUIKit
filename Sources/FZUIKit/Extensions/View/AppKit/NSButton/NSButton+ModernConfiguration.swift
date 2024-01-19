@@ -345,7 +345,10 @@
                     if let transformer = configuration.backgroundColorTransformer {
                         configuration.backgroundColorTransformer = transformer + .systemEffect(.pressed)
                     } else {
-                        configuration.backgroundColorTransformer = .systemEffect(.pressed)
+                        if configuration.backgroundColor == nil {
+                            configuration.backgroundColor = configuration.foregroundColor?.withAlphaComponent(0.2)
+                        }
+                     //   configuration.backgroundColorTransformer = .systemEffect(.pressed)
                     }
                 }
                 return configuration
