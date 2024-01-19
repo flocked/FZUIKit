@@ -23,14 +23,14 @@
 
         private var subscribers: [CombineIdentifier: AnySubscriber<Frame, Never>] = [:] {
             didSet {
-                dispatchPrecondition(condition: .onQueue(.main))
+              //  dispatchPrecondition(condition: .onQueue(.main))
                 platformDisplayLink.isPaused = subscribers.isEmpty
            //     Swift.print("didSet", subscribers.isEmpty, platformDisplayLink.isPaused )
             }
         }
 
         fileprivate init(platformDisplayLink: DisplayLinkProvider) {
-            dispatchPrecondition(condition: .onQueue(.main))
+        //    dispatchPrecondition(condition: .onQueue(.main))
             self.platformDisplayLink = platformDisplayLink
             self.platformDisplayLink.onFrame = { [weak self] frame in
                 self?.send(frame: frame)
@@ -38,7 +38,7 @@
         }
 
         public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Never, S.Input == Frame {
-            dispatchPrecondition(condition: .onQueue(.main))
+         //   dispatchPrecondition(condition: .onQueue(.main))
             let typeErased = AnySubscriber(subscriber)
             let identifier = typeErased.combineIdentifier
             let subscription = Subscription(onCancel: { [weak self] in
@@ -54,7 +54,7 @@
         }
 
         private func send(frame: Frame) {
-            dispatchPrecondition(condition: .onQueue(.main))
+        //    dispatchPrecondition(condition: .onQueue(.main))
             let subscribers = subscribers.values
             subscribers.forEach {
                 _ = $0.receive(frame) // Ignore demand
