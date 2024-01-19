@@ -45,29 +45,30 @@
              Use this property to control how the button uses the `cornerRadius` property of the button’s background`.
              */
             public enum CornerStyle: Hashable {
-                /// A style that adjusts the background corner radius for dynamic type.
-                case dynamic
-                /// A style that uses the background corner radius without modification.
-                case fixed
-                /// A style that ignores the background corner radius and uses a corner radius that generates a capsule.
-                case capsule
-                /// A style that ignores the background corner radius and uses a large system-defined corner radius.
+                /// A shape that uses a large system-defined corner radius.
                 case large
-                /// A style that ignores the background corner radius and uses a medium system-defined corner radius.
+                /// A shape that uses a medium system-defined corner radius.
                 case medium
-                /// A style that ignores the background corner radius and uses a small system-defined corner radius.
+                /// A shape that uses a small system-defined corner radius.
                 case small
-                case cirle
+                /// A shape that uses the specified corner radius.
+                case cornerRadius(CGFloat)
+                /// A shape that uses a corner radius that generates a capsule.
+                case capsule
+                /// A rectangle button shape
+                case rectangle
+                /// A circular button shape.
+                case circular
 
                 var shape: some Shape {
                     switch self {
-                    case .dynamic: return Rectangle().asAnyShape()
-                    case .fixed: return Rectangle().asAnyShape()
                     case .capsule: return Capsule().asAnyShape()
                     case .large: return RoundedRectangle(cornerRadius: 10.0).asAnyShape()
                     case .medium: return RoundedRectangle(cornerRadius: 6.0).asAnyShape()
                     case .small: return RoundedRectangle(cornerRadius: 2.0).asAnyShape()
-                    case .cirle: return Circle().asAnyShape()
+                    case .cornerRadius(let radius): return RoundedRectangle(cornerRadius: radius).asAnyShape()
+                    case .circular: return Circle().asAnyShape()
+                    case .rectangle: return Rectangle().asAnyShape()
                     }
                 }
             }

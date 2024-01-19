@@ -12,7 +12,7 @@
     import SwiftUI
 
     @available(macOS 13.0, *)
-    extension NSButton.AdvanceButtonConfiguration.AdvanceButtonView {
+    extension NSButton.AdvanceButtonView {
         struct ContentView: View {
             let configuration: NSButton.AdvanceButtonConfiguration
 
@@ -118,9 +118,10 @@
     }
 
     @available(macOS 13, *)
-    extension NSButton.AdvanceButtonConfiguration {
-        class AdvanceButtonView: NSView, NSContentView {
-            var configuration: NSContentConfiguration {
+    extension NSButton {
+        public class AdvanceButtonView: NSView, NSContentView {
+            
+            public var configuration: NSContentConfiguration {
                 get { appliedConfiguration }
                 set { 
                     guard let configuration = newValue as? NSButton.AdvanceButtonConfiguration else { return }
@@ -128,11 +129,11 @@
                 }
             }
             
-            
-            
+            /// The handler that is called when the button is pressed.
+            public var action: (()->())? = nil
             
             /// The current configuration of the view.
-            public var appliedConfiguration: NSButton.AdvanceButtonConfiguration {
+            var appliedConfiguration: NSButton.AdvanceButtonConfiguration {
                 didSet {
                     if oldValue != appliedConfiguration {
                         updateConfiguration()
@@ -144,14 +145,15 @@
                 superview as? NSButton
             }
 
-            override func mouseDown(with _: NSEvent) {
+            public override func mouseDown(with _: NSEvent) {
                 button?.isPressed = true
             }
 
-            override func mouseUp(with event: NSEvent) {
+            public override func mouseUp(with event: NSEvent) {
                 button?.isPressed = false
                 if frame.contains(event.location(in: self)) {
                     button?.sendAction()
+                    action?()
                 }
             }
 
