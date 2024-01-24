@@ -156,6 +156,7 @@ let segmentedControl = NSSegmentedControl() {
     Segment(symbolName: "photo")
 }
 ```
+
 ### NSTextField
 
 - `adjustsFontSizeToFitWidth` & `minimumScaleFactor` (Port of UILabel)
@@ -280,6 +281,10 @@ player.isLooping = true
 
 - `state`: The current playback state of the player: .isPlaying, .isPaused, .isStopped, .error(Error)
 - `seek(toPercentage: Double)`
+
+### NSMagnificationGestureRecognizer extension
+
+- Velocity: The velocity of the magnification in scale factor per second.
 
 ### DisplayLinkeTimer
 
