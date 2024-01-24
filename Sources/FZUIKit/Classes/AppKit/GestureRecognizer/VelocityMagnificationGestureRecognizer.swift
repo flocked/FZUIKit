@@ -21,10 +21,7 @@ extension NSMagnificationGestureRecognizer {
             willChangeValue(for: \.velocity)
             set(associatedValue: newValue, key: "velocity", object: self)
             didChangeValue(for: \.velocity)
-
         }
-     //   didChangeValue(forKey: self.)
-
     }
     
     var prevMagnification: CGFloat {
