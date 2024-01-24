@@ -33,7 +33,9 @@ extension NSMagnificationGestureRecognizer {
                 methodSignature: (@convention(c)  (AnyObject, Selector, State) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, State) -> ()).self) { store in {
                    object, state in
+                    Swift.print("hhh")
                     if let gestureRecognizer = object as? NSMagnificationGestureRecognizer {
+                        Swift.print("bbb")
                         let previousTime = gestureRecognizer.time
                         gestureRecognizer.time = CACurrentMediaTime()
                         switch state {
