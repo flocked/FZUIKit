@@ -9,35 +9,6 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSObjectProtocol where Self: NSObject {
-    /**
-     Informs the observed object that the value of a given property is about to change.
-     
-     Use this method when implementing key-value observer compliance manually to inform the observed object that the value at key is about to change.
-     The change type of this method is `NSKeyValueChangeSetting`.
-     
-     - Note: After the values have been changed, a corresponding ``didChangeValue(for:)`` must be invoked with the same parameter.
-     
-     - Parameter keyPath:The keypath of the property that will change.
-     */
-    public func willChangeValue(for keyPath: PartialKeyPath<Self>) {
-        guard let key = keyPath._kvcKeyPathString else { return }
-        willChangeValue(forKey: key)
-    }
-    
-    /**
-     Informs the observed object that the value of a given property has changed.
-     
-     Use this method when implementing key-value observer compliance manually to inform the observed object that the value at key has just changed. Calls to this method are always paired with a matching call to ``willChangeValue(for:)``.
-     
-     - Parameter keyPath:The keypath of the property that changed.
-     */
-    public func didChangeValue(for keyPath: PartialKeyPath<Self>) {
-        guard let key = keyPath._kvcKeyPathString else { return }
-        didChangeValue(forKey: key)
-    }
-}
-
 extension NSMagnificationGestureRecognizer {
     
     /// The velocity of the magnification in scale factor per second.
@@ -47,12 +18,9 @@ extension NSMagnificationGestureRecognizer {
             return getAssociatedValue(key: "velocity", object: self, initialValue: 1.0)
         }
         set{
-            let keyPath: PartialKeyPath<Self> = \.velocity
-
             willChangeValue(for: \.velocity)
-            willChangeValue(forKey: keyPath._kvcKeyPathString!)
-            
             set(associatedValue: newValue, key: "velocity", object: self)
+            didChangeValue(for: \.velocity)
 
         }
      //   didChangeValue(forKey: self.)
