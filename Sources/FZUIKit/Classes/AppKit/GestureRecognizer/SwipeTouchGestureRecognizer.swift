@@ -35,6 +35,15 @@
          The default direction is right. See descriptions of `SwipeTouchGestureRecognizer.Direction` constants for more information.
          */
         open var direction: Direction = .right
+        
+        /// The velocity of the swipe in swipe distance per second.
+        open private(set) var velocity: CFTimeInterval = 0.0
+        
+        /// The internal raw time when the touch event was received.
+        private var time = CACurrentMediaTime() {
+            didSet { velocity = time - oldValue }
+        }
+        
 
         /// The number of swipes required to detect the swipe.
         open var numberOfTouchesRequired: Int = 2
@@ -54,6 +63,8 @@
         override open func touchesBegan(with event: NSEvent) {
             super.touchesBegan(with: event)
             previousDirection = []
+            time = CACurrentMediaTime()
+            velocity = 1.0
 
             if event.type == .gesture {
                 let touches = event.touches(matching: .any, in: view)
@@ -69,6 +80,7 @@
         var previousDirection: Direction = []
         override open func touchesMoved(with event: NSEvent) {
             super.touchesMoved(with: event)
+            time = CACurrentMediaTime()
             let touches = event.touches(matching: .moved, in: view)
             guard touches.count == numberOfTouchesRequired else { return }
             guard let beginTouches = twoFingersTouches else { return }
@@ -128,6 +140,11 @@
         
         open override func touchesEnded(with event: NSEvent) {
             previousDirection = []
+        }
+        
+        open override func touchesCancelled(with event: NSEvent) {
+            previousDirection = []
+            velocity = 0.0
         }
         
         func sendAction() {
