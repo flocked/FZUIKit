@@ -38,6 +38,15 @@
                     case .trailing: return .trailing
                     }
                 }
+                
+                var multiAlignment: TextAlignment {
+                    switch self {
+                    case .automatic: return .center
+                    case .center: return .center
+                    case .leading: return .leading
+                    case .trailing: return .trailing
+                    }
+                }
             }
 
             /**
@@ -295,6 +304,8 @@
             }
 
             var _resolvedTitleAlignment: TitleAlignment = .automatic
+            var _resolvedTextAlignment: SwiftUI.TextAlignment = .center
+
         //    var _resolvedBorderColor: NSColor?
             var _resolvedForegroundColor: NSColor?
             var _resolvedBackgroundColor: NSColor?
@@ -309,6 +320,14 @@
 
             mutating func updateResolvedValues() {
                 _resolvedTitleAlignment = resolvedTitleAlignment()
+                switch _resolvedTitleAlignment.alignment {
+                case .leading:
+                    _resolvedTextAlignment = .leading
+                case .trailing:
+                    _resolvedTextAlignment = .trailing
+                default:
+                    _resolvedTextAlignment = .center
+                }
              //   _resolvedBorderColor = resolvedBorderColor()
                 _resolvedForegroundColor = resolvedForegroundColor()
                 _resolvedBackgroundColor = resolvedBackgroundColor()
@@ -369,6 +388,8 @@
                 }
                 return configuration
             }
+            
+            
 
             func resolvedTitleAlignment() -> TitleAlignment {
                 if titleAlignment == .automatic {

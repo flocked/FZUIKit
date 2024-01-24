@@ -45,9 +45,11 @@
                 VStack(alignment: configuration._resolvedTitleAlignment.alignment, spacing: configuration.titlePadding) {
                     titleItem
                         .font(titleFont)
+                        .multilineTextAlignment(configuration._resolvedTextAlignment)
                         .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
                     subtitleItem
                         .font(subtitleFont)
+                        .multilineTextAlignment(configuration._resolvedTextAlignment)
                         .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
                 }
             }
