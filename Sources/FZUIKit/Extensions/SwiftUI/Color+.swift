@@ -21,7 +21,7 @@ public extension NSUIColor {
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    public extension Color {
+    extension Color {
         /**
          Creates a color object that uses the specified block to generate its color data dynamically.
 
@@ -30,7 +30,7 @@ public extension NSUIColor {
             - dark: The dark color.
          */
         @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
-        init(light lightModeColor: @escaping @autoclosure () -> Color,
+        public init(light lightModeColor: @escaping @autoclosure () -> Color,
              dark darkModeColor: @escaping @autoclosure () -> Color)
         {
             self.init(NSUIColor(
@@ -42,14 +42,14 @@ public extension NSUIColor {
 #endif
 
 @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
-public extension Color {
+extension Color {
     /// A random color.
-    static func random() -> Color {
+    public static func random() -> Color {
         Color(NSUIColor.random())
     }
 
     /// A random pastel color.
-    static func randomPastel() -> Color {
+    public static func randomPastel() -> Color {
         Color(NSUIColor.randomPastel())
     }
 
@@ -62,7 +62,7 @@ public extension Color {
 
      - Returns: The new mixed color.
      */
-    func mixed(with color: Color, by amount: CGFloat = 0.5) -> Color {
+    public func mixed(with color: Color, by amount: CGFloat = 0.5) -> Color {
         let amount = amount.clamped(max: 1.0)
         let nsUIColor = NSUIColor(self)
         #if os(macOS)
@@ -71,6 +71,25 @@ public extension Color {
             return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)))
         #endif
     }
+    
+    /**
+     Tints the color by the specified amount.
+     
+     - Parameter amount: The amount of tint.
+     - Returns: The tinted color object.
+     */
+    public func tinted(by amount: CGFloat = 0.2) -> Color {
+        return mixed(with: .white, by: amount)
+    }
+    
+    /**
+     Shades the color by the specified amount.
+     - Parameter amount: The amount of shade.
+     - Returns: The shaded color object.
+     */
+    public func shaded(by amount: CGFloat = 0.2) -> Color {
+        return mixed(with: .black, by: amount)
+    }
 
     /**
      Brightens the color by the specified amount.
@@ -78,7 +97,7 @@ public extension Color {
      - Parameter amount: The amount of brightness.
      - Returns: The brightened color.
      */
-    func lighter(by amount: CGFloat = 0.2) -> Color {
+    public func lighter(by amount: CGFloat = 0.2) -> Color {
         let amount = amount.clamped(max: 1.0)
         return brightness(1.0 + amount)
     }
@@ -89,12 +108,12 @@ public extension Color {
      - Parameter amount: The amount of darken.
      - Returns: The darkened color.
      */
-    func darkened(by amount: CGFloat = 0.2) -> Color {
+    public func darkened(by amount: CGFloat = 0.2) -> Color {
         let amount = amount.clamped(max: 1.0)
         return brightness(1.0 - amount)
     }
 
-    internal func brightness(_ amount: CGFloat) -> Color {
+    func brightness(_ amount: CGFloat) -> Color {
         var amount = amount
         if amount > 1.0 {
             amount = amount - 1.0
@@ -105,5 +124,92 @@ public extension Color {
             return mixed(with: .black, by: amount)
         }
         return self
+    }
+    
+    
+    /**
+     Saturates the color by the specified amount.
+     - Parameter amount: The amount of saturation.
+     - Returns: The saturated color object.
+     */
+    public func saturated(by amount: CGFloat = 0.2) -> Color {
+        var hsla = nsUIColor.hslaComponents()
+        hsla.saturation = (hsla.saturation + amount).clamped(max: 1.0)
+        return Color(NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha))
+    }
+    
+    /**
+     Desaturates the color by the specified amount.
+     - Parameter amount: The amount of desaturation.
+     - Returns: The desaturated color object.
+     */
+    public func desaturated(by amount: CGFloat = 0.2) -> Color {
+        saturated(by: amount * -1.0)
+    }
+    
+    #if os(macOS)
+    /// A `NSColor` representation of the color.
+    public var nsColor: NSColor {
+        NSColor(self)
+    }
+    #else
+    /// A `UIColor` representation of the color.
+    public var uiColor: UIColor {
+        UIColor(self)
+    }
+    #endif
+    
+    var nsUIColor: NSUIColor {
+        NSUIColor(self)
+    }
+    
+    /// The mode of grayscaling a color.
+    public enum GrayscalingMode: String, Hashable {
+        /// XYZ luminance
+        case luminance = "Luminance"
+        /// HSL lightness
+        case lightness = "Lightness"
+        /// RGB average
+        case average = "Average"
+        /// HSV value
+        case value = "Value"
+    }
+    
+    /**
+     A grayscaled representation of the color.
+     - Parameter mode: The grayscale mode.
+     - Returns: The grayscaled color.
+     */
+    public func grayscaled(mode: GrayscalingMode = .lightness) -> Color {
+        let rgba = nsUIColor.rgbaComponents()
+        let (r, g, b, a) = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
+
+        let l: CGFloat
+        switch mode {
+        case .luminance:
+            l = (0.299 * r) + (0.587 * g) + (0.114 * b)
+        case .lightness:
+            l = 0.5 * (max(r, g, b) + min(r, g, b))
+        case .average:
+            l = (1.0 / 3.0) * (r + g + b)
+        case .value:
+            l = max(r, g, b)
+        }
+        return Color(NSUIColor(hue: 0.0, saturation: 0.0, lightness: l, alpha: a))
+    }
+    
+    /**
+     Creates and return a color object where the red, green, and blue values are inverted, while the alpha channel is left alone.
+
+     - returns: An inverse (negative) of the original color.
+     */
+    public func inverted() -> Color {
+        let rgba = nsUIColor.rgbaComponents()
+
+        let invertedRed = 1.0 - rgba.red
+        let invertedGreen = 1.0 - rgba.green
+        let invertedBlue = 1.0 - rgba.blue
+
+        return Color(NSUIColor(red: invertedRed, green: invertedGreen, blue: invertedBlue, alpha: rgba.alpha))
     }
 }

@@ -131,6 +131,7 @@ public extension NSUIColor {
         return NSUIColor(hue: 0.0, saturation: 0.0, lightness: l, alpha: a)
     }
 
+    /// The mode of grayscaling a color.
     enum GrayscalingMode: String, Hashable {
         /// XYZ luminance
         case luminance = "Luminance"
