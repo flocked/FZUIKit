@@ -8,9 +8,10 @@
 #if os(macOS)
     import AppKit
     /// A continuous gesture recognizer that tracks a pinch gesture that magnifies content including the velocity of the magnification gesture.
-    public class VelocityMagnificationGestureRecognizer: NSMagnificationGestureRecognizer {
-        /// Interprets the velocity of the magnification gesture in the coordinate system of the specified view.
-        public var velocity: CGFloat = 1.0
+    open class VelocityMagnificationGestureRecognizer: NSMagnificationGestureRecognizer {
+        /// The velocity of the magnification in scale factor per second.
+        open var velocity: CGFloat = 1.0
+        
         var prevDate: Date = .init()
         var prevMagnification = 1.0
 

@@ -9,7 +9,8 @@
     import AppKit
 
     /// A discrete gesture recognizer that interprets swiping gestures in one or more directions.
-    public class SwipeTouchGestureRecognizer: NSGestureRecognizer {
+    open class SwipeTouchGestureRecognizer: NSGestureRecognizer {
+        
         /// The permitted direction of the swipe for this gesture recognizer.
         public struct Direction: OptionSet {
             public let rawValue: UInt
@@ -33,23 +34,24 @@
 
          The default direction is right. See descriptions of `SwipeTouchGestureRecognizer.Direction` constants for more information.
          */
-        public var direction: Direction = .right
+        open var direction: Direction = .right
 
         /// The number of swipes required to detect the swipe.
-        public var numberOfTouchesRequired: Int = 2
+        open var numberOfTouchesRequired: Int = 2
 
         var twoFingersTouches: [String: NSTouch]?
+        let kSwipeMinimumLength: Float = 0.12
 
         override public init(target: Any?, action: Selector?) {
             super.init(target: target, action: action)
         }
 
         @available(*, unavailable)
-        required init?(coder _: NSCoder) {
+        required public init?(coder _: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
 
-        override public func touchesBegan(with event: NSEvent) {
+        override open func touchesBegan(with event: NSEvent) {
             super.touchesBegan(with: event)
             if event.type == .gesture {
                 let touches = event.touches(matching: .any, in: view)
@@ -62,9 +64,7 @@
             }
         }
 
-        let kSwipeMinimumLength: Float = 0.12
-
-        override public func touchesMoved(with event: NSEvent) {
+        override open func touchesMoved(with event: NSEvent) {
             super.touchesMoved(with: event)
             let touches = event.touches(matching: .moved, in: view)
             guard touches.count == numberOfTouchesRequired else { return }
@@ -88,48 +88,39 @@
             let yAbsoluteSum = fabsf(ySum)
 
             var happened = false
+            
+            let previousDirection = direction
+            self.direction = []
 
             // Handle the actual swipe
             if xAbsoluteSum >= kSwipeMinimumLength {
                 happened = true
                 // This might need to be > (i am using flipped coordinates)
                 if xSum > 0 {
-                    happenedRight()
+                    self.direction.insert(.right)
                 } else {
-                    happenedLeft()
+                    self.direction.insert(.left)
                 }
             }
             if yAbsoluteSum >= kSwipeMinimumLength {
                 happened = true
                 if ySum > 0 {
-                    happenedUp()
+                    self.direction.insert(.up)
                 } else {
-                    happenedDown()
+                    self.direction.insert(.down)
                 }
             }
             if happened {
                 twoFingersTouches = nil
             }
+            if previousDirection != direction {
+                sendAction()
+            }
         }
-
-        func happenedLeft() {
-            guard direction.contains(.left), let action = action else { return }
-            _ = target?.perform(action, with: self)
-        }
-
-        func happenedRight() {
-            guard direction.contains(.right), let action = action else { return }
-            _ = target?.perform(action, with: self)
-        }
-
-        func happenedUp() {
-            guard direction.contains(.up), let action = action else { return }
-            _ = target?.perform(action, with: self)
-        }
-
-        func happenedDown() {
-            guard direction.contains(.down), let action = action else { return }
-            _ = target?.perform(action, with: self)
+        
+        func sendAction() {
+            guard let action = action, let target = target else { return }
+            _ = target.perform(action, with: self)
         }
     }
 
