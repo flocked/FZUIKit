@@ -53,6 +53,8 @@
 
         override open func touchesBegan(with event: NSEvent) {
             super.touchesBegan(with: event)
+            previousDirection = []
+
             if event.type == .gesture {
                 let touches = event.touches(matching: .any, in: view)
                 if touches.count == numberOfTouchesRequired {
@@ -64,6 +66,7 @@
             }
         }
 
+        var previousDirection: Direction = []
         override open func touchesMoved(with event: NSEvent) {
             super.touchesMoved(with: event)
             let touches = event.touches(matching: .moved, in: view)
@@ -88,26 +91,31 @@
             let yAbsoluteSum = fabsf(ySum)
 
             var happened = false
-            
-            let previousDirection = direction
-            self.direction = []
 
             // Handle the actual swipe
             if xAbsoluteSum >= kSwipeMinimumLength {
                 happened = true
                 // This might need to be > (i am using flipped coordinates)
                 if xSum > 0 {
-                    self.direction.insert(.right)
-                } else {
-                    self.direction.insert(.left)
+                    if self.direction.contains(.right), previousDirection.isEmpty, !previousDirection.contains(.right) {
+                        previousDirection = [.right]
+                        sendAction()
+                    }
+                } else if self.direction.contains(.left), previousDirection.isEmpty, !previousDirection.contains(.left) {
+                    previousDirection = [.left]
+                    sendAction()
                 }
             }
             if yAbsoluteSum >= kSwipeMinimumLength {
                 happened = true
                 if ySum > 0 {
-                    self.direction.insert(.up)
-                } else {
-                    self.direction.insert(.down)
+                    if self.direction.contains(.up), previousDirection.isEmpty, !previousDirection.contains(.up) {
+                        previousDirection = [.up]
+                        sendAction()
+                    }
+                } else if self.direction.contains(.down), previousDirection.isEmpty, !previousDirection.contains(.down) {
+                    previousDirection = [.down]
+                    sendAction()
                 }
             }
             if happened {
@@ -116,6 +124,10 @@
             if previousDirection != direction {
                 sendAction()
             }
+        }
+        
+        open override func touchesEnded(with event: NSEvent) {
+            previousDirection = []
         }
         
         func sendAction() {
