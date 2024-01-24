@@ -28,17 +28,13 @@ import FZSwiftUtils
                 case .ended:
                     break
                 default:
-                    velocity = _calculateVelocity(previousTime: previousTime)
+                    let timeInterval = time - previousTime
+                    let velocityDiff = magnification - prevMagnification
+                    let velocity = (velocityDiff / timeInterval)
+                    self.velocity = (velocity < -0) ? -velocity : velocity
                 }
                 prevMagnification = magnification
             }
-        }
-        
-        func _calculateVelocity(previousTime: CFTimeInterval) -> CGFloat {
-            let timeInterval = time - previousTime
-            let velocityDiff = magnification - prevMagnification
-            let velocity = (velocityDiff / timeInterval)
-            return (velocity < -0) ? -velocity : velocity
         }
     }
 #endif
