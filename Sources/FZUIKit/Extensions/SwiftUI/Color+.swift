@@ -14,7 +14,7 @@ import SwiftUI
 #endif
 
 public extension NSUIColor {
-    /// A SwiftUI representation of the color.
+    /// A `SwiftUI` representation of the color.
     var swiftUI: Color {
         Color(self)
     }
