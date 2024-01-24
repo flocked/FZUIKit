@@ -52,6 +52,7 @@ extension NSMagnificationGestureRecognizer {
                 }
            }
         } catch {
+            Swift.print(error)
         // handle error
         }
     }
