@@ -9,8 +9,8 @@
     import AppKit
 
     /// A `NSClipView` that is centered.
-    public class CenteredClipView: NSClipView {
-        override public func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
+    open class CenteredClipView: NSClipView {
+        override open func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
             var rect = super.constrainBoundsRect(proposedBounds)
 
             if let containerView = documentView {

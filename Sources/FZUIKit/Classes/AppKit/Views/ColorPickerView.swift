@@ -10,36 +10,53 @@
 #if os(macOS)
     import AppKit
 
-    public class ColorPickerView: NSView {
-        public var itemSize: CGFloat = 24 {
+/// A color picker view.
+    open class ColorPickerView: NSView {
+        open var itemSize: CGFloat = 24 {
+            didSet { setNeedsDisplay(bounds) }
+        }
+        
+        /// The shape of the color items.
+        public enum ItemShape: Hashable {
+            /// The color items are circular.
+            case circular
+            /// The color items are rounded rectangles with the specified corner radius.
+            case roundedRect(cornerRadius: CGFloat)
+        }
+        
+        /// The shape of the color items.
+        public var itemShape: ItemShape = .circular {
+            didSet {
+                guard oldValue != itemShape else { return }
+                setNeedsDisplay(bounds)
+            }
+        }
+
+        open var selectionDotSize: CGFloat = 6 {
             didSet { setNeedsDisplay(bounds) }
         }
 
-        public var selectionDotSize: CGFloat = 6 {
+        open var mouseOverExpansion: CGFloat = 2 {
             didSet { setNeedsDisplay(bounds) }
         }
 
-        public var mouseOverExpansion: CGFloat = 2 {
+        open var padding: CGFloat = 4 {
             didSet { setNeedsDisplay(bounds) }
         }
 
-        public var padding: CGFloat = 4 {
-            didSet { setNeedsDisplay(bounds) }
-        }
-
-        public var systemPadding: CGFloat = 10 {
+        open var systemPadding: CGFloat = 10 {
             didSet { setNeedsDisplay(bounds) }
         }
 
         // MARK: -
 
-        public var selectedColorIndexes: [Int] = []
-        public var selectedColors: [(color: NSColor, name: String)] {
+        open var selectedColorIndexes: [Int] = []
+        open var selectedColors: [(color: NSColor, name: String)] {
             selectedColorIndexes.compactMap { self.colors[$0] }
         }
 
-        public var allowsMultipleSelection: Bool = true
-        public var allowsEmptySelection: Bool = true {
+        open var allowsMultipleSelection: Bool = true
+        open var allowsEmptySelection: Bool = true {
             didSet {
                 if allowsEmptySelection == false, selectedColorIndexes.isEmpty, colors.isEmpty == false {
                     selectedColorIndexes = [0]
@@ -48,7 +65,7 @@
             }
         }
 
-        @IBOutlet public var nameTextField: NSTextField?
+        @IBOutlet open var nameTextField: NSTextField?
 
         var mouseLocation = CGPoint.zero
         var hooveringColorIbdex = -1
@@ -56,7 +73,7 @@
 
         // MARK: -
 
-        public var colors: [(color: NSColor, name: String)] = [
+        open var colors: [(color: NSColor, name: String)] = [
             (#colorLiteral(red: 0.898, green: 0.306, blue: 0.647, alpha: 1.000), "Pink"),
             (#colorLiteral(red: 0.643, green: 0.522, blue: 0.957, alpha: 1.000), "Purple"),
             (#colorLiteral(red: 0.647, green: 0.765, blue: 0.945, alpha: 1.000), "Light Blue"),
@@ -76,13 +93,13 @@
             addTrackingArea(trackingArea2)
         }
 
-        override public func mouseDragged(with event: NSEvent) {
+        override open func mouseDragged(with event: NSEvent) {
             super.mouseDragged(with: event)
 
             mouseMoved(with: event)
         }
 
-        override public func mouseMoved(with event: NSEvent) {
+        override open func mouseMoved(with event: NSEvent) {
             super.mouseMoved(with: event)
 
             mouseLocation = event.location(in: self)
@@ -90,7 +107,7 @@
             setNeedsDisplay(bounds)
         }
 
-        override public func mouseExited(with event: NSEvent) {
+        override open func mouseExited(with event: NSEvent) {
             super.mouseExited(with: event)
 
             mouseLocation = .zero
@@ -109,7 +126,7 @@
             }
         }
 
-        override public func mouseUp(with event: NSEvent) {
+        override open func mouseUp(with event: NSEvent) {
             super.mouseUp(with: event)
 
             mouseLocation = event.location(in: self)
@@ -139,7 +156,7 @@
 
         // MARK: - Drawing
 
-        override public func draw(_: NSRect) {
+        override open func draw(_: NSRect) {
             hooveringColorIbdex = -1
             for i in 0 ..< colors.count {
                 let subRect = CGRect(x: systemPadding + CGFloat(i) * itemSize, y: 0, width: itemSize, height: itemSize)
@@ -153,8 +170,14 @@
                     circleRect = circleRect.insetBy(dx: -mouseOverExpansion, dy: -mouseOverExpansion)
                 }
 
-                let circle = NSBezierPath(ovalIn: circleRect)
-                circle.fill()
+                let bezier: NSBezierPath
+                switch itemShape {
+                case .circular:
+                    bezier = NSBezierPath(ovalIn: circleRect)
+                case .roundedRect(let cornerRadius):
+                    bezier = NSBezierPath(roundedRect: circleRect, cornerRadius: cornerRadius)
+                }
+                bezier.fill()
 
                 /* Border */
                 let strokeColor = colors[i].color.blended(withFraction: 0.3, of: .black) ?? .black
@@ -162,7 +185,14 @@
 
                 let lineWidth = CGFloat(1)
 
-                let ring = NSBezierPath(ovalIn: circleRect)
+                
+                let ring: NSBezierPath
+                switch itemShape {
+                case .circular:
+                    ring = NSBezierPath(ovalIn: circleRect)
+                case .roundedRect(let cornerRadius):
+                    ring = NSBezierPath(roundedRect: circleRect, cornerRadius: cornerRadius)
+                }
                 ring.lineWidth = lineWidth
                 ring.stroke()
 
@@ -170,7 +200,13 @@
                     let selectionColor = colors[i].color.blended(withFraction: 0.5, of: .black) ?? .black
                     selectionColor.setFill()
 
-                    let dot = NSBezierPath(ovalIn: CGRect(origin: CGPoint(x: subRect.midX - selectionDotSize / 2, y: subRect.midY - selectionDotSize / 2), size: CGSize(width: selectionDotSize, height: selectionDotSize)))
+                    let dot: NSBezierPath
+                    switch itemShape {
+                    case .circular:
+                        dot =  NSBezierPath(ovalIn: CGRect(origin: CGPoint(x: subRect.midX - selectionDotSize / 2, y: subRect.midY - selectionDotSize / 2), size: CGSize(width: selectionDotSize, height: selectionDotSize)))
+                    case .roundedRect(let cornerRadius):
+                        dot = NSBezierPath(roundedRect: CGRect(origin: CGPoint(x: subRect.midX - selectionDotSize / 2, y: subRect.midY - selectionDotSize / 2), size: CGSize(width: selectionDotSize, height: selectionDotSize)), cornerRadius: cornerRadius)
+                    }
                     dot.fill()
                 }
             }
@@ -188,16 +224,16 @@
 
         // MARK: -
 
-        override public var intrinsicContentSize: NSSize {
+        override open var intrinsicContentSize: NSSize {
             CGSize(width: systemPadding + (CGFloat(colors.count) * itemSize) + systemPadding, height: itemSize)
         }
 
-        override public func viewDidMoveToSuperview() {
+        override open func viewDidMoveToSuperview() {
             super.viewDidMoveToSuperview()
             beginMouseTracking()
         }
 
-        override public func viewDidMoveToWindow() {
+        override open func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
             beginMouseTracking()
         }
