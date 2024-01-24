@@ -38,15 +38,6 @@
                     case .trailing: return .trailing
                     }
                 }
-                
-                var multiAlignment: TextAlignment {
-                    switch self {
-                    case .automatic: return .center
-                    case .center: return .center
-                    case .leading: return .leading
-                    case .trailing: return .trailing
-                    }
-                }
             }
 
             /**
