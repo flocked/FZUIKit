@@ -17,11 +17,7 @@ extension NSMagnificationGestureRecognizer {
             swizzleGestureState()
             return getAssociatedValue(key: "velocity", object: self, initialValue: 1.0)
         }
-        set{
-            willChangeValue(for: \.velocity)
-            set(associatedValue: newValue, key: "velocity", object: self)
-            didChangeValue(for: \.velocity)
-        }
+        set{ set(associatedValue: newValue, key: "velocity", object: self) }
     }
     
     var prevMagnification: CGFloat {
