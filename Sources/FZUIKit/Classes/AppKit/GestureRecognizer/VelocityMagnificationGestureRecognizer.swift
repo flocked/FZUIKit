@@ -34,9 +34,9 @@ extension NSMagnificationGestureRecognizer {
         let previousTime = time
         time = CACurrentMediaTime()
         switch state {
-        case .began, .cancelled:
+        case .began:
             velocity = 1.0
-        case .ended:
+        case .ended, .cancelled:
             break
         default:
             let timeInterval = time - previousTime
