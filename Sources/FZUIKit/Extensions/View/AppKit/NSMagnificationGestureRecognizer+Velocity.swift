@@ -1,5 +1,5 @@
 //
-//  VelocityMagnificationGestureRecognizer.swift
+//  NSMagnificationGestureRecognizer+Velocity.swift
 //
 //
 //  Created by Florian Zand on 22.09.22.
@@ -41,8 +41,7 @@ extension NSMagnificationGestureRecognizer {
         default:
             let timeInterval = time - previousTime
             let velocityDiff = magnification - prevMagnification
-            let velocity = (velocityDiff / timeInterval)
-            self.velocity = (velocity < -0) ? -velocity : velocity
+            self.velocity = (velocityDiff / timeInterval)
         }
         prevMagnification = magnification
     }
