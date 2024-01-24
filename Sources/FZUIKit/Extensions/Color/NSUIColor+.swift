@@ -41,14 +41,14 @@ public extension NSUIColor {
 
      It is useful when you need to know whether you should display the text in black or white.
      */
-    func isLight() -> Bool {
+    var isLight: Bool {
         let components = rgbaComponents()
         let brightness = ((components.red * 299.0) + (components.green * 587.0) + (components.blue * 114.0)) / 1000.0
 
         return brightness >= 0.5
     }
 
-    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't `zero`).
+    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't `0`).
     var isVisible: Bool {
         alphaComponent != 0.0
     }

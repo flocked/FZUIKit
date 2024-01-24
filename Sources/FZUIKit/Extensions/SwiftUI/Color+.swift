@@ -14,13 +14,14 @@ import SwiftUI
 #endif
 
 public extension NSUIColor {
-    /// A `SwiftUI` representation of the color.
+    /// A `SwiftUI representation of the color.
     var swiftUI: Color {
         Color(self)
     }
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
+    @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
     extension Color {
         /**
          Creates a color object that uses the specified block to generate its color data dynamically.
@@ -29,7 +30,6 @@ public extension NSUIColor {
             - light: The light color.
             - dark: The dark color.
          */
-        @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
         public init(light lightModeColor: @escaping @autoclosure () -> Color,
              dark darkModeColor: @escaping @autoclosure () -> Color)
         {
@@ -38,11 +38,7 @@ public extension NSUIColor {
                 dark: NSUIColor(darkModeColor())
             ))
         }
-    }
-#endif
 
-@available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
-extension Color {
     /// A random color.
     public static func random() -> Color {
         Color(NSUIColor.random())
@@ -212,4 +208,17 @@ extension Color {
 
         return Color(NSUIColor(red: invertedRed, green: invertedGreen, blue: invertedBlue, alpha: rgba.alpha))
     }
+        
+        /**
+         A Boolean value that indicates whether the color is light or dark.
+
+         It is useful when you need to know whether you should display the text in black or white.
+         */
+        var isLight: Bool {
+            let components = nsUIColor.rgbaComponents()
+            let brightness = ((components.red * 299.0) + (components.green * 587.0) + (components.blue * 114.0)) / 1000.0
+
+            return brightness >= 0.5
+        }
 }
+#endif
