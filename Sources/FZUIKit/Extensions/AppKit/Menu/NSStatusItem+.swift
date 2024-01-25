@@ -38,6 +38,7 @@
             }
         }
         
+        /// The menu that is displayed when the item is right clicked.
         public var rightClickMenu: NSMenu? {
             get { getAssociatedValue(key: "rightClickMenu", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "rightClickMenu", object: self)
