@@ -43,8 +43,8 @@
 
          - Parameters:
             - magnification: The amount by which to magnify the content.
-            - point: The point (in content view space) on which to center magnification, or nil if the magnification shouldn't be centered.
-            - animationDuration: The animation duration of the magnification, or nil if the magnification shouldn't be animated.
+            - point: The point (in content view space) on which to center magnification, or `nil` if the magnification shouldn't be centered.
+            - animationDuration: The animation duration of the magnification, or `nil` if the magnification shouldn't be animated.
 
          */
         func setMagnification(_ magnification: CGFloat, centeredAt point: CGPoint? = nil, animationDuration: TimeInterval?) {

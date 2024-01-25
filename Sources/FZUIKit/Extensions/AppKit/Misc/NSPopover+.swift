@@ -94,8 +94,8 @@
          Shows the popover anchored to the specified view.
 
          - Parameters:
-            - positioningRect: The rectangle within positioningView relative to which the popover should be positioned. Normally set to the bounds of positioningView. May be an empty rectangle, which will default to the bounds of positioningView.
-            - positioningView: The view relative to which the popover should be positioned. Causes the method to raise invalidArgumentException if nil.
+            - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned. Normally set to the bounds of `positioningView`. May be an empty rectangle, which will default to the bounds of positioningView.
+            - positioningView: The view relative to which the popover should be positioned. Causes the method to raise `invalidArgumentException if `nil`.
             - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
             - trackViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the view frame changes.
          */
@@ -107,8 +107,8 @@
          Shows the popover anchored to the specified view.
 
          - Parameters:
-            - positioningRect: The rectangle within positioningView relative to which the popover should be positioned. Normally set to the bounds of positioningView. May be an empty rectangle, which will default to the bounds of positioningView.
-            - positioningView: The view relative to which the popover should be positioned. Causes the method to raise invalidArgumentException if nil.
+            - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned. Normally set to the bounds of `positioningView`. May be an empty rectangle, which will default to the bounds of `positioningView`.
+            - positioningView: The view relative to which the popover should be positioned. Causes the method to raise `invalidArgumentException` if `nil`.
             - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
             - hideArrow: A Boolean value that indicates whether to hide the arrow of the popover.
             - trackViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the view frame changes.

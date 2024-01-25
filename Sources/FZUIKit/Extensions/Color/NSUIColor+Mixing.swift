@@ -23,7 +23,7 @@ public extension NSUIColor {
         - color: The color to blend with the receiver's color.
         - mode: The color space mode used mixing the colors. The default uses the RBG color space.
 
-     - Returns: The resulting color object or nil if the colors can’t be converted.
+     - Returns: The resulting color object or `nil` if the colors can’t be converted.
      */
     func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: ColorBlendMode = .rgb) -> NSUIColor {
         let fraction = fraction.clamped(max: 1.0)

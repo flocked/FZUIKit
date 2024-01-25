@@ -204,7 +204,7 @@
          - Parameters:
          - systemSymbolName: The name of the system symbol image.
 
-         - Returns: A `NSSegmentedControl.Segment` object with a image based on the name you specify,  otherwise nil if the method couldn’t find a suitable image with the system symbol name.
+         - Returns: A `NSSegmentedControl.Segment` object with a image based on the name you specify,  otherwise `nil if the method couldn’t find a suitable image with the system symbol name.
          */
         public init?(symbolName: String) {
             guard let image = NSImage(systemSymbolName: symbolName) else {

@@ -24,7 +24,7 @@
         /**
          Returns the animation object with the specified key path.
          - Parameter keyPath: The key path of the property.
-         - Returns: The property animation object matching the key path, or nil if no such animation exists.
+         - Returns: The property animation object matching the key path, or `nil` if no such animation exists.
          */
         func propertyAnimation<Value>(for keyPath: WritableKeyPath<CALayer, Value>) -> CAPropertyAnimation? {
             let keyPathString = NSExpression(forKeyPath: keyPath).keyPath

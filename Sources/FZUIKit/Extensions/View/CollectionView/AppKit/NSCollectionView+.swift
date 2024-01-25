@@ -15,7 +15,7 @@
         /**
          The frame of the item at the specified index path.
          - Parameter indexPath: The index path of the item.
-         - Returns: The frame of the item or nil if no item exists at the specified path.
+         - Returns: The frame of the item or `nil` if no item exists at the specified path.
          */
         func frameForItem(at indexPath: IndexPath) -> CGRect? {
             layoutAttributesForItem(at: indexPath)?.frame
@@ -24,7 +24,7 @@
         /**
          The item item at the specified location.
          - Parameter location: The location of the item.
-         - Returns: The item or nil if no item exists at the specified location.
+         - Returns: The item or `nil` if no item exists at the specified location.
          */
         func item(at location: CGPoint) -> NSCollectionViewItem? {
             if let indexPath = indexPathForItem(at: location) {

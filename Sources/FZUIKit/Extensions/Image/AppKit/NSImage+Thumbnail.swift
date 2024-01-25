@@ -18,7 +18,7 @@ import FZSwiftUtils
 
           Avoid using this method on the main thread unless you previously started preparing an image with prepareForDisplay(completionHandler:). If you’re decoding many images, such as with a collection view, calling this method from a concurrent queue can degrade performance by demanding too many system threads. Use a serial queue instead.
 
-          This method returns a new image object for efficient display by an image view. Assign the image object created by this method to the image property of the image view. If NSImageView can render the image without decoding, this method returns a valid image without further processing. If the system can’t decode the image, such as an image created from a CIImage, the method returns nil.
+          This method returns a new image object for efficient display by an image view. Assign the image object created by this method to the image property of the image view. If NSImageView can render the image without decoding, this method returns a valid image without further processing. If the system can’t decode the image, such as an image created from a CIImage, the method returns `nil`.
 
           AppKit doesn’t associate the prepared image with the original, or with any related variants from an asset catalog. If your app environment dynamically changes display traits, listen for changes in the trait environment and prepare new images when the environment changes.
 
@@ -47,7 +47,7 @@ import FZSwiftUtils
           }
           ```
 
-          - Returns: A new version of the image object for display. If the system can’t decode the image, this method returns nil.
+          - Returns: A new version of the image object for display. If the system can’t decode the image, this method returns `nil`.
           */
         func preparingForDisplay() -> NSImage? {
             guard let source = ImageSource(image: self) else { return nil }
@@ -67,7 +67,7 @@ import FZSwiftUtils
          
          AppKit doesn’t associate the prepared image with the original, or with any related variants from an asset catalog. If your app environment dynamically changes display traits, listen for changes in the trait environment and prepare new images when the environment changes.
 
-         - Returns: A new version of the image object for display. If the system can’t decode the image, this method returns nil.
+         - Returns: A new version of the image object for display. If the system can’t decode the image, this method returns `nil.
          */
         func byPreparingForDisplay() async -> NSImage? {
             guard let source = ImageSource(image: self) else { return nil }
@@ -83,7 +83,7 @@ import FZSwiftUtils
 
          The Animation Hitches [instrument](https://help.apple.com/instruments/mac/current/) measures system performance for multiple stages of preparing views for display. It can show you the exact cause of an animation hitch, which appears to the user as an interruption or jump in an animation that should be smooth. If Animation Hitches indicates that decoding an image takes too long and causes hitches, use this method to move the decoding work to the background.
          
-         This method creates a new image object and passes it to the completion handler. The new image is ready for efficient display by an image view. Assign the `image this method creates to the image property of an image view. If `NSImageView` can render the image without decoding, this method passes the completion handler a valid image without further processing. If the system can’t decode the image, such as an image created from a `CIImage`, the method passes `nil to the completion handler.
+         This method creates a new image object and passes it to the completion handler. The new image is ready for efficient display by an image view. Assign the `image` this method creates to the image property of an image view. If `NSImageView` can render the image without decoding, this method passes the completion handler a valid image without further processing. If the system can’t decode the image, such as an image created from a `CIImage`, the method passes `nil to the completion handler.
          
          AppKit doesn’t associate the prepared image with the original, or with any related variants from an asset catalog. If your app environment dynamically changes display traits, listen for changes in the trait environment and prepare new images when the environment changes.
 
@@ -141,7 +141,7 @@ import FZSwiftUtils
             return item
          }
          ```
-         - Returns: A new thumbnail image. Returns nil if the original image isn’t backed by a CGImage or if the image data is corrupt or malformed.
+         - Returns: A new thumbnail image. Returns `nil` if the original image isn’t backed by a `CGImage` or if the image data is corrupt or malformed.
          */
         func preparingThumbnail(of size: CGSize) -> NSImage? {
             guard let source = ImageSource(image: self) else { return nil }
@@ -161,7 +161,7 @@ import FZSwiftUtils
 
          - Parameter size: The desired size of the thumbnail.
 
-         - Returns: A new thumbnail image. Returns nil if the original image isn’t backed by a CGImage or if the image data is corrupt or malformed.
+         - Returns: A new thumbnail image. Returns `nil` if the original image isn’t backed by a `CGImage` or if the image data is corrupt or malformed.
          */
         func prepareThumbnail(for size: CGSize) async -> NSImage? {
             guard let source = ImageSource(image: self) else { return nil }
@@ -181,7 +181,7 @@ import FZSwiftUtils
          - Parameters:
             - size: The desired size of the thumbnail.
             - completionHandler: The completion handler to call when the thumbnail is ready. The handler executes on a background thread. The completion handler takes the following parameters:
-                -  thumbnail: A new thumbnail image. This parameter is nil if the original image isn’t backed by a CGImage or if the image data is corrupt or malformed.
+                -  thumbnail: A new thumbnail image. This parameter is `nil` if the original image isn’t backed by a `CGImage` or if the image data is corrupt or malformed.
 
          ```swift
          func collectionView(collectionView: NSCollectionView, itemForRepresentedObjectAtIndexPath
