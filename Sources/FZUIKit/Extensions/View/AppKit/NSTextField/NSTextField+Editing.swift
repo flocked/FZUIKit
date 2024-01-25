@@ -14,10 +14,14 @@
         struct EditingHandler {
             /// Handler that gets called whenever editing the text did begin.
             public var didBegin: (() -> Void)?
-            /// Handler that determines whether the text should change. If provided ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` and ``AppKit/NSTextField/allowedCharacters-swift.property`` will be ignored.
+            /// Handler that determines whether the text should change. If you provide ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` or ``AppKit/NSTextField/allowedCharacters-swift.property`` the handler is called after checking the string against the specified property conditions.
             public var shouldEdit: ((String) -> (Bool))?
             /// Handler that gets called whenever the text did change.
             public var didEdit: (() -> Void)?
+            /*
+            /// Handler that determines whether editing the text can end.
+            public var shouldEnd: ((String) -> (Bool))?
+             */
             /// Handler that gets called whenever editing the text did end.
             public var didEnd: (() -> Void)?
             /// Handler that determines whether a command should be performed (e.g. cancel, enter).
@@ -27,22 +31,22 @@
             }
         }
 
-        /// The action to perform when the user pressed the escape key.
+        /// The action to perform when the user presses the escape key.
         enum EscapeKeyAction {
             /// No action.
             case none
-            /// Ends editing the text and optionally calls the specified handler.
-            case endEditing(handler: (() -> Void)? = nil)
-            /// Ends editing the text, resets it to the the state before editing and optionally calls the specified handler.
-            case endEditingAndReset(handler: (() -> Void)? = nil)
+            /// Ends editing the text.
+            case endEditing
+            /// Ends editing the text and resets it to the the state before editing.
+            case endEditingAndReset
         }
 
-        /// The action to perform when the user pressed the enter key.
+        /// The action to perform when the user presses the enter key.
         enum EnterKeyAction {
             /// No action.
             case none
-            /// Ends editing the text and optionally calls the specified handler.
-            case endEditing(handler: (() -> Void)? = nil)
+            /// Ends editing the text.
+            case endEditing
         }
 
         /// The allowed characters the user can enter when editing.
@@ -80,7 +84,7 @@
                 return string
             }
 
-            /// Creates a swipe direction structure with the specified raw value.
+            /// Creates a allowed characters structure with the specified raw value.
             public init(rawValue: UInt) {
                 self.rawValue = rawValue
             }
@@ -106,24 +110,25 @@
             }
         }
 
-        /// The action to perform when the user pressed the enter key.
+        /// The action to perform when the user presses the enter key.
         var actionOnEnterKeyDown: EnterKeyAction {
-            get { getAssociatedValue(key: "NSTextField_actionOnEnterKeyDown", object: self, initialValue: .none) }
+            get { getAssociatedValue(key: "actionOnEnterKeyDown", object: self, initialValue: .none) }
             set {
-                set(associatedValue: newValue, key: "NSTextField_actionOnEnterKeyDown", object: self)
+                guard actionOnEnterKeyDown != newValue else { return }
+                set(associatedValue: newValue, key: "actionOnEnterKeyDown", object: self)
                 switch newValue {
-                case .endEditing:
-                    swizzleTextField()
                 case .none: break
+                default: swizzleTextField()
                 }
             }
         }
 
-        /// The action to perform when the user pressed the escape key.
+        /// The action to perform when the user presses the escape key.
         var actionOnEscapeKeyDown: EscapeKeyAction {
-            get { getAssociatedValue(key: "NSTextFIeld_actionOnEscapeKeyDown", object: self, initialValue: .none) }
+            get { getAssociatedValue(key: "actionOnEscapeKeyDown", object: self, initialValue: .none) }
             set {
-                set(associatedValue: newValue, key: "NSTextFIeld_actionOnEscapeKeyDown", object: self)
+                guard actionOnEscapeKeyDown != newValue else { return }
+                set(associatedValue: newValue, key: "actionOnEscapeKeyDown", object: self)
                 switch newValue {
                 case .none: break
                 default: swizzleTextField()
@@ -150,9 +155,9 @@
 
         /// The maximum numbers of characters allowed when the user edits the string value.
         var maximumNumberOfCharacters: Int? {
-            get { getAssociatedValue(key: "NSTextField_maximumNumberOfCharacters", object: self, initialValue: nil) }
+            get { getAssociatedValue(key: "maximumNumberOfCharacters", object: self, initialValue: nil) }
             set {
-                set(associatedValue: newValue, key: "NSTextField_maximumNumberOfCharacters", object: self)
+                set(associatedValue: newValue, key: "maximumNumberOfCharacters", object: self)
                 if let newValue = newValue {
                     if let minimumNumberOfCharacters = minimumNumberOfCharacters, newValue < minimumNumberOfCharacters {
                         self.minimumNumberOfCharacters = newValue

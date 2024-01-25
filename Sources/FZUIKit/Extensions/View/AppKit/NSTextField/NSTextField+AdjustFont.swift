@@ -49,6 +49,26 @@
             }
             return isFitting
         }
+        
+        /// The font size that can fit the string in the text field's bounds, or `nil` if no font size fits.
+        public var fittingFontSize: CGFloat? {
+            guard let _font = _font ?? font else { return nil }
+            isAdjustingFontSize = true
+            cell?.font = _font
+            stringValue = stringValue
+            var scaleFactor =  1.0
+            var needsUpdate = !isFittingCurrentText
+            var pointSize = _font.pointSize
+            while needsUpdate, scaleFactor >= 0.005 {
+                scaleFactor = scaleFactor - 0.005
+                pointSize = _font.pointSize * scaleFactor
+                let adjustedFont = _font.withSize(pointSize)
+                cell?.font = adjustedFont
+                needsUpdate = !isFittingCurrentText
+            }
+            cell?.font = _font
+            return needsUpdate ? nil : pointSize
+        }
 
         func adjustFontSize(requiresSmallerScale: Bool = false) {
             guard let _font = _font else { return }
@@ -135,13 +155,8 @@
 
         func updateString() {
             let newString = allowedCharacters.trimString(stringValue)
-            if let shouldEdit = editingHandlers.shouldEdit {
-                if shouldEdit(stringValue) == false {
-                    stringValue = previousString
-                } else {
-                    editingHandlers.didEdit?()
-                }
-            } else if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
+
+            if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
                 if previousString.count <= maxCharCount {
                     stringValue = previousString
                     currentEditor()?.selectedRange = editingRange
@@ -154,6 +169,10 @@
                     stringValue = previousString
                     currentEditor()?.selectedRange = editingRange
                 }
+                
+            } else if editingHandlers.shouldEdit?(stringValue) == false {
+                stringValue = previousString
+                currentEditor()?.selectedRange = editingRange
             } else {
                 stringValue = newString
                 if previousString == newString {
@@ -179,10 +198,10 @@
                     methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
                     hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
                 ) { _ in { object, font in
-                    let textField = (object as? NSTextField)
-                    textField?._font = font
-                    textField?.adjustFontSize()
-                }
+                    guard let textField = (object as? NSTextField), textField._font != font else { return }
+                        textField._font = font
+                        textField.adjustFontSize()
+                    }
                 }
 
                 try replaceMethod(
@@ -190,7 +209,7 @@
                     methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
                     hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
                 ) { _ in { object in
-                    (object as! NSTextField)._font
+                    return (object as? NSTextField)?._font ?? nil
                 }
                 }
 
@@ -200,11 +219,10 @@
                     hookSignature: (@convention(block) (AnyObject) -> Void).self
                 ) { store in { object in
                     store.original(object, #selector(NSView.layout))
-                    if let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size {
+                    guard let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size else { return }
                         textField.adjustFontSize()
                         textField._bounds = textField.bounds
                     }
-                }
                 }
 
                 try replaceMethod(
@@ -219,25 +237,30 @@
                         switch selector {
                         case #selector(NSControl.cancelOperation(_:)):
                             switch textField.actionOnEscapeKeyDown {
-                            case let .endEditingAndReset(handler: handler):
+                            case .endEditingAndReset:
                                 textField.stringValue = textField.editStartString
                                 textField.adjustFontSize()
                                 textField.window?.makeFirstResponder(nil)
-                                handler?()
                                 return true
-                            case let .endEditing(handler: handler):
-                                textField.window?.makeFirstResponder(nil)
-                                handler?()
-                                return true
+                            case .endEditing:
+                                if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                    return false
+                                } else {
+                                    textField.window?.makeFirstResponder(nil)
+                                    return true
+                                }
                             case .none:
                                 break
                             }
                         case #selector(NSControl.insertNewline(_:)):
                             switch textField.actionOnEnterKeyDown {
-                            case let .endEditing(handler: handler):
-                                textField.window?.makeFirstResponder(nil)
-                                handler?()
-                                return true
+                            case .endEditing:
+                                if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                    return false
+                                } else {
+                                    textField.window?.makeFirstResponder(nil)
+                                    return true
+                                }
                             case .none: break
                             }
                         default: break
@@ -252,10 +275,11 @@
                     methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
                     hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                 ) { store in { object, notification in
-                    let textField = (object as? NSTextField)
-                    //  textField?.editingState = .didEnd
-                    textField?.adjustFontSize()
-                    textField?.editingHandlers.didEnd?()
+                    if let textField = (object as? NSTextField) {
+                        //  textField.editingState = .didEnd
+                        textField.adjustFontSize()
+                        textField.editingHandlers.didEnd?()
+                    }
                     store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                 }
                 }
