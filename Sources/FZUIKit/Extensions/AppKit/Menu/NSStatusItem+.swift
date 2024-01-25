@@ -110,6 +110,18 @@
                 button?.actionBlock = nil
             }
         }
+        
+        /// The title of the item's button.
+        public var title: String? {
+            get { button?.title }
+            set { button?.title = newValue ?? "" }
+        }
+        
+        /// The image of the item's button.
+        public var image: NSImage? {
+            get { button?.image }
+            set { button?.image = newValue }
+        }
 
         /**
          Creates a status item with the specified title and menu.
