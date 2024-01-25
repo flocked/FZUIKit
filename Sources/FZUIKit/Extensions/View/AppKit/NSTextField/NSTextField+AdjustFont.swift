@@ -82,7 +82,31 @@
             isAdjustingFontSize = true
             cell?.font = _font
             stringValue = stringValue
+            
+            var pointSize = _font.pointSize
+            var minPointSize = pointSize * minimumScaleFactor
+            var fittingPointSize: CGFloat? = nil
+            
             if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
+                
+                var scaleFactor = requiresSmallerScale ? lastFontScaleFactor : 1.0
+                var needsUpdate = !isFittingCurrentText
+                while needsUpdate, scaleFactor >= minimumScaleFactor {
+                    let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
+                    let adjustedFont = _font.withSize(currentPointSize)
+                    scaleFactor = currentPointSize / _font.pointSize
+                    cell?.font = adjustedFont
+                    if isFittingCurrentText {
+                        minPointSize = currentPointSize
+                        fittingPointSize = currentPointSize
+                    } else {
+                        pointSize = currentPointSize
+                    }
+                    needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.001)
+                }
+                
+                
+                /*
                 var scaleFactor = requiresSmallerScale ? lastFontScaleFactor : 1.0
                 var needsUpdate = !isFittingCurrentText
                 while needsUpdate, scaleFactor >= minimumScaleFactor {
@@ -95,6 +119,7 @@
                 if needsUpdate, allowsDefaultTighteningForTruncation {
                     adjustFontKerning()
                 }
+                */
             } else if allowsDefaultTighteningForTruncation {
                 adjustFontKerning()
             }
