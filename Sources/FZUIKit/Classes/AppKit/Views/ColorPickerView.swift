@@ -184,7 +184,7 @@
                         hooveringColorIbdex = i
                     }
                     
-                    circleRect = circleRect.insetBy(dx: itemSize-(itemSpacing*mouseHoverScaleFactor), dy: itemSize-(itemSpacing*mouseHoverScaleFactor))
+                    circleRect = circleRect.insetBy(dx: itemSize-(itemSize*mouseHoverScaleFactor), dy: itemSize-(itemSize*mouseHoverScaleFactor))
                 }
 
                 let bezier: NSBezierPath
