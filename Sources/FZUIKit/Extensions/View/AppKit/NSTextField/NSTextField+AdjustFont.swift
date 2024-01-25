@@ -50,9 +50,9 @@
             return isFitting
         }
         
-        /// The font size that can fit the string in the text field's bounds, or `nil` if no font size fits.
-        public var fittingFontSize: CGFloat? {
-            guard let _font = _font ?? font else { return nil }
+        /// Returns the font size that fits the current string value in the text field's bounds, or `0` if no font size fits.
+        public var fittingFontSize: CGFloat {
+            guard let _font = _font ?? font else { return 0.0 }
             isAdjustingFontSize = true
             cell?.font = _font
             stringValue = stringValue
@@ -74,7 +74,7 @@
             }
             cell?.font = _font
             isAdjustingFontSize = false
-            return fittingPointSize
+            return fittingPointSize ?? 0.0
         }
 
         func adjustFontSize(requiresSmallerScale: Bool = false) {
