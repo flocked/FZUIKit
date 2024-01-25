@@ -14,6 +14,13 @@
     #endif
 
     public extension NSUICollectionViewLayout {
+        /**
+         A collection view layout that displays the items as a list.
+         
+         - Parameters:
+            - rowHeight: The height of each row.
+            - seperatorLine: A Boolean value that indicates whether the layout displays seperator lines.
+         */
         static func list(rowHeight: CGFloat, seperatorLine: Bool) -> NSUICollectionViewLayout {
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                   heightDimension: .fractionalHeight(1.0))
@@ -27,14 +34,22 @@
                                                    heightDimension: .absolute(rowHeight))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
                                                            subitems: [item])
-
             let section = NSCollectionLayoutSection(group: group)
 
             let layout = NSUICollectionViewCompositionalLayout(section: section)
             return layout
         }
 
-        static func fullSize(paging: Bool, direction: NSUICollectionView.ScrollDirection) -> NSUICollectionViewLayout {
+        /**
+         A collection view layout that displays each item full size.
+         
+         - Parameters:
+            - direction: The item direction of the layout.
+            - paging: A Boolean value that indicates whether the items are paging.
+            - itemSpacing: The spacing between the items.
+            - insets: The insets of the layout.
+         */
+        static func fullSize(direction: NSUICollectionView.ScrollDirection, paging: Bool, itemSpacing: CGFloat = 0.0, insets: NSDirectionalEdgeInsets = .zero) -> NSUICollectionViewLayout {
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
                 heightDimension: .fractionalHeight(1.0)
@@ -49,7 +64,13 @@
                 layoutSize: groupSize,
                 subitems: [layoutItem]
             )
+            
+            if itemSpacing != 0.0 {
+                layoutGroup.interItemSpacing = .fixed(itemSpacing)
+            }
+
             let layoutSection = NSCollectionLayoutSection(group: layoutGroup)
+            layoutSection.contentInsets = insets
             layoutSection.orthogonalScrollingBehavior = paging ? .paging : .continuous
             let config = NSUICollectionViewCompositionalLayoutConfiguration()
             config.scrollDirection = direction
@@ -57,6 +78,17 @@
             return layout
         }
 
+        /**
+         A collection view layout that displays the items in a grid.
+         
+         - Parameters:
+            - columns: The amount o columns for the grid.
+            - itemAspectRatio: The aspect ratio of the items.
+            - spacing: The spacing between the items.
+            - insets: The insets of the layout.
+            - header: The layout's supplementary header type.
+            - footer: The layout's supplementary footer type.
+         */
         static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
             NSUICollectionViewCompositionalLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
 

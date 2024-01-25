@@ -10,8 +10,61 @@
 #if os(macOS)
     import AppKit
 
+class ColorPickerItemView: NSView {
+    var color: NSColor? = nil
+    var colorName: String? = nil
+}
+
+class ColorCollectionItem: NSCollectionViewItem {
+    
+    var color: NSColor? = nil {
+        didSet { view.backgroundColor = color } }
+    
+    var colorName: String? = nil
+    var shape: ColorPickerView.ItemShape = .circular
+    
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        switch shape {
+        case .circular:
+            view.cornerRadius = view.bounds.height / 2.0
+        case .roundedRect(let cornerRadius):
+            view.cornerRadius = cornerRadius
+        }
+    }
+    
+    override func loadView() {
+        view = NSView()
+    }
+}
+
 /// A color picker view.
     open class ColorPickerView: NSView {
+        enum ColorSection: Hashable {
+            case main
+        }
+        struct ColorItem: Hashable {
+            let color: NSColor
+            let name: String
+        }
+        typealias DataSource = NSCollectionViewDiffableDataSource<ColorSection, ColorItem>
+        
+        let collectionView = NSCollectionView()
+        var dataSouze: DataSource!
+        func updateCollectionViewLayout() {
+            collectionView.collectionViewLayout = .fullSize(paging: false, direction: .horizontal, itemSpacing: itemSpacing)
+        }
+        func setupCollectionView() {
+            updateCollectionViewLayout()
+            dataSouze = DataSource(collectionView: collectionView) { collectionView, indexPath, colorItem in
+                let item = collectionView.makeItem(withIdentifier: "", for: indexPath) as! ColorCollectionItem
+                item.color = colorItem.color
+                item.colorName = colorItem.name
+                item.shape = self.itemShape
+                return item
+                
+            }
+        }
         
         /// The handler that gets called when the selection changes.
         open var selectionAction: (()->())? = nil
@@ -49,7 +102,11 @@
 
         /// The item spacing.
         open var itemSpacing: CGFloat = 4 {
-            didSet { setNeedsDisplay(bounds) }
+            didSet { 
+                guard oldValue != itemSpacing else { return }
+                updateCollectionViewLayout()
+                setNeedsDisplay(bounds)
+            }
         }
 
         open var padding: CGFloat = 10 {
