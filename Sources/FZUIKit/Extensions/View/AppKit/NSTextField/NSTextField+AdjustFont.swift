@@ -62,7 +62,6 @@
             var fittingPointSize: CGFloat? = nil
             while needsUpdate {
                 let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
-                Swift.print("current", currentPointSize)
                 let adjustedFont = _font.withSize(currentPointSize)
                 cell?.font = adjustedFont
                 if isFittingCurrentText {
@@ -71,7 +70,8 @@
                 } else {
                     pointSize = currentPointSize
                 }
-                needsUpdate = minPointSize.isApproximatelyEqual(to: currentPointSize, epsilon: 0.001)
+                needsUpdate = minPointSize.isApproximatelyEqual(to: currentPointSize, epsilon: 0.00001)
+                Swift.print("current", currentPointSize, needsUpdate)
             }
             cell?.font = _font
             isAdjustingFontSize = false
