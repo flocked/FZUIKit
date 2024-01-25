@@ -10,7 +10,7 @@
     import AppKit
     import Foundation
 
-    public protocol TargetActionProtocol: AnyObject {
+    public protocol TargetActionProtocol: NSObjectProtocol {
         typealias ActionBlock = (Self) -> Void
         var target: AnyObject? { get set }
         var action: Selector? { get set }

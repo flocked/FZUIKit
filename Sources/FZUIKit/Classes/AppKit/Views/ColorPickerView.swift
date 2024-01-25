@@ -10,34 +10,6 @@
 #if os(macOS)
     import AppKit
 
-class ColorPickerItemView: NSView {
-    var color: NSColor? = nil
-    var colorName: String? = nil
-}
-
-class ColorCollectionItem: NSCollectionViewItem {
-    
-    var color: NSColor? = nil {
-        didSet { view.backgroundColor = color } }
-    
-    var colorName: String? = nil
-    var shape: ColorPickerView.ItemShape = .circular
-    
-    override func viewDidLayout() {
-        super.viewDidLayout()
-        switch shape {
-        case .circular:
-            view.cornerRadius = view.bounds.height / 2.0
-        case .roundedRect(let cornerRadius):
-            view.cornerRadius = cornerRadius
-        }
-    }
-    
-    override func loadView() {
-        view = NSView()
-    }
-}
-
 /// A color picker view.
     open class ColorPickerView: NSView {
         enum ColorSection: Hashable {
@@ -312,4 +284,29 @@ class ColorCollectionItem: NSCollectionViewItem {
             beginMouseTracking()
         }
     }
+
+extension ColorPickerView {
+    class ColorCollectionItem: NSCollectionViewItem {
+        
+        var color: NSColor? = nil {
+            didSet { view.backgroundColor = color } }
+        
+        var colorName: String? = nil
+        var shape: ColorPickerView.ItemShape = .circular
+        
+        override func viewDidLayout() {
+            super.viewDidLayout()
+            switch shape {
+            case .circular:
+                view.cornerRadius = view.bounds.height / 2.0
+            case .roundedRect(let cornerRadius):
+                view.cornerRadius = cornerRadius
+            }
+        }
+        
+        override func loadView() {
+            view = NSView()
+        }
+    }
+}
 #endif
