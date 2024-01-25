@@ -52,8 +52,9 @@ class ColorCollectionItem: NSCollectionViewItem {
         let collectionView = NSCollectionView()
         var dataSouze: DataSource!
         func updateCollectionViewLayout() {
-            collectionView.collectionViewLayout = .fullSize(paging: false, direction: .horizontal, itemSpacing: itemSpacing)
+            collectionView.collectionViewLayout = .grid()
         }
+            
         func setupCollectionView() {
             updateCollectionViewLayout()
             dataSouze = DataSource(collectionView: collectionView) { collectionView, indexPath, colorItem in
