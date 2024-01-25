@@ -28,7 +28,7 @@
         /**
          The minimum scale factor for the text field’s text.
 
-         If the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is `true, use this property to specify the smallest multiplier for the current font size that yields an acceptable font size for the text field’s text. If you specify a value of 0 for this property, the text field doesn’t scale the text down. The default value of this property is 0.
+         If the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is `true`, use this property to specify the smallest multiplier for the current font size that yields an acceptable font size for the text field’s text. If you specify a value of `0` for this property, the text field doesn’t scale the text down. The default value of this property is `0`.
          */
         public var minimumScaleFactor: CGFloat {
             get { getAssociatedValue(key: "minimumScaleFactor", object: self, initialValue: 0.0) }
@@ -81,16 +81,12 @@
             guard let _font = _font else { return }
             isAdjustingFontSize = true
             cell?.font = _font
-            stringValue = stringValue
-            
-            var pointSize = _font.pointSize
-            var minPointSize = pointSize * minimumScaleFactor
-            var fittingPointSize: CGFloat? = nil
-            
+                        
             if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
-                
                 var scaleFactor = requiresSmallerScale ? lastFontScaleFactor : 1.0
                 var needsUpdate = !isFittingCurrentText
+                var pointSize = _font.pointSize
+                var minPointSize = pointSize * minimumScaleFactor
                 while needsUpdate, scaleFactor >= minimumScaleFactor {
                     let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
                     let adjustedFont = _font.withSize(currentPointSize)
@@ -98,28 +94,12 @@
                     cell?.font = adjustedFont
                     if isFittingCurrentText {
                         minPointSize = currentPointSize
-                        fittingPointSize = currentPointSize
                     } else {
                         pointSize = currentPointSize
                     }
                     needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.001)
                 }
                 
-                
-                /*
-                var scaleFactor = requiresSmallerScale ? lastFontScaleFactor : 1.0
-                var needsUpdate = !isFittingCurrentText
-                while needsUpdate, scaleFactor >= minimumScaleFactor {
-                    scaleFactor = scaleFactor - 0.005
-                    let adjustedFont = _font.withSize(_font.pointSize * scaleFactor)
-                    cell?.font = adjustedFont
-                    needsUpdate = !isFittingCurrentText
-                }
-                lastFontScaleFactor = scaleFactor
-                if needsUpdate, allowsDefaultTighteningForTruncation {
-                    adjustFontKerning()
-                }
-                */
             } else if allowsDefaultTighteningForTruncation {
                 adjustFontKerning()
             }
@@ -448,95 +428,3 @@
     }
 
 #endif
-
-/*
- internal func swizzleTextField() {
- guard didSwizzleTextField == false else { return }
- didSwizzleTextField = true
- _font = self.font
- keyDownMonitor = NSEvent.localMonitor(for: .keyDown) {event in
- if self.hasKeyboardFocus, self.editingState != .didEnd {
- if event.keyCode == 36, self.actionOnEnterKeyDown == .endEditing {
- self.window?.makeFirstResponder(nil)
- return nil
- }
- if event.keyCode == 53 {
- if self.actionOnEscapeKeyDown == .endEditingAndReset {
- self.stringValue = self.editStartString
- self.adjustFontSize()
- }
- if self.actionOnEscapeKeyDown != .none {
- self.window?.makeFirstResponder(nil)
- return nil
- }
- }
- }
- return event
- }
- guard let viewClass = object_getClass(self) else { return }
- let viewSubclassName = String(cString: class_getName(viewClass)).appending("_animatable")
- if let viewSubclass = NSClassFromString(viewSubclassName) {
- object_setClass(self, viewSubclass)
- } else {
- guard let viewClassNameUtf8 = (viewSubclassName as NSString).utf8String else { return }
- guard let viewSubclass = objc_allocateClassPair(viewClass, viewClassNameUtf8, 0) else { return }
- if let getFontMethod = class_getInstanceMethod(viewClass, #selector(getter: NSTextField.font)),
- let setFontMethod = class_getInstanceMethod(viewClass, #selector(setter: NSTextField.font)),
- let textDidChangeMethod = class_getInstanceMethod(viewClass, #selector(textDidChange)),
- let textDidEndEditingMethod = class_getInstanceMethod(viewClass, #selector(textDidEndEditing)),
- let textDidBeginEditingMethod = class_getInstanceMethod(viewClass, #selector(textDidBeginEditing))
- {
- let setFont: @convention(block) (AnyObject, NSFont?) -> Void = { _, font in
- self._font = font
- self.adjustFontSize()
- }
- let getFont: @convention(block) (AnyObject) -> NSFont? = { _ in
- return self._font
- }
-
- let beginEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
- guard let self = self else { return }
- self.editingState = .didBegin
- self.editStartString = self.stringValue
- self.previousString = self.stringValue
- }
-
- let endEditing: @convention(block) (AnyObject) -> Void = { [weak self] _ in
- guard let self = self else { return }
- self.editingState = .didEnd
- self.adjustFontSize()
- }
-
- let textEdit: @convention(block) (AnyObject) -> Void = { [weak self] _ in
- guard let self = self else { return }
- if let maxCharCount = self.maximumNumberOfCharacters, self.stringValue.count > maxCharCount {
- if self.previousString.count == self.maximumNumberOfCharacters {
- self.stringValue = self.previousString
- if let editor = self.currentEditor(), editor.selectedRange.location > 0 {
- editor.selectedRange.location -= 1
- }
- } else {
- self.stringValue = String(self.stringValue.prefix(maxCharCount))
- }
- }
- self.editingState = .isEditing
- self.previousString = self.stringValue
- self.adjustFontSize()
- }
-
- class_addMethod(viewSubclass, #selector(getter: NSTextField.font),
- imp_implementationWithBlock(getFont), method_getTypeEncoding(getFontMethod))
- class_addMethod(viewSubclass, #selector(setter: NSTextField.font),
- imp_implementationWithBlock(setFont), method_getTypeEncoding(setFontMethod))
- class_addMethod(viewSubclass, #selector(textDidChange),
- imp_implementationWithBlock(textEdit), method_getTypeEncoding(textDidChangeMethod))
- class_addMethod(viewSubclass, #selector(textDidBeginEditing),
- imp_implementationWithBlock(beginEditing), method_getTypeEncoding(textDidBeginEditingMethod))
- class_addMethod(viewSubclass, #selector(textDidEndEditing),
- imp_implementationWithBlock(endEditing), method_getTypeEncoding(textDidEndEditingMethod))
- }
- objc_registerClassPair(viewSubclass)
- object_setClass(self, viewSubclass)
- }
- }
- */
