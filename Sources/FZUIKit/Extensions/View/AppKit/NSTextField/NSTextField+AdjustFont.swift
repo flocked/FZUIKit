@@ -56,18 +56,25 @@
             isAdjustingFontSize = true
             cell?.font = _font
             stringValue = stringValue
-            var scaleFactor =  1.0
             var needsUpdate = !isFittingCurrentText
             var pointSize = _font.pointSize
-            while needsUpdate, scaleFactor >= 0.005 {
-                scaleFactor = scaleFactor - 0.005
-                pointSize = _font.pointSize * scaleFactor
-                let adjustedFont = _font.withSize(pointSize)
+            var minPointSize = 0.1
+            var fittingPointSize: CGFloat? = nil
+            while needsUpdate {
+                let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
+                let adjustedFont = _font.withSize(currentPointSize)
                 cell?.font = adjustedFont
-                needsUpdate = !isFittingCurrentText
+                if isFittingCurrentText {
+                    minPointSize = currentPointSize
+                    fittingPointSize = currentPointSize
+                } else {
+                    pointSize = currentPointSize
+                }
+                needsUpdate = minPointSize.isApproximatelyEqual(to: currentPointSize, epsilon: 0.001)
             }
             cell?.font = _font
-            return needsUpdate ? nil : pointSize
+            isAdjustingFontSize = false
+            return fittingPointSize
         }
 
         func adjustFontSize(requiresSmallerScale: Bool = false) {
