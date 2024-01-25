@@ -38,6 +38,15 @@
             }
         }
         
+        public var rightClickMenu: NSMenu? {
+            get { getAssociatedValue(key: "rightClickMenu", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "rightClickMenu", object: self)
+                updateAction()
+            }
+        }
+        
+        
+        
         /// The mouse holding state.
         public enum MouseClickState: Int, Hashable {
             /// The mouse started clicking the item.
@@ -76,7 +85,7 @@
                 mask.insert(.leftMouseUp)
             }
 
-            if onRightClick != nil {
+            if onRightClick != nil || rightClickMenu != nil {
                 mask.insert(.rightMouseUp)
             }
             
@@ -89,7 +98,7 @@
             }
 
             button?.sendAction(on: mask)
-            if onClick != nil || onRightClick != nil || onMouseHold != nil || onRightMouseHold != nil {
+            if onClick != nil || onRightClick != nil || onMouseHold != nil || onRightMouseHold != nil || rightClickMenu != nil {
                 button?.actionBlock = { [weak self] button in
                     guard let self = self, let event = NSApp.currentEvent else { return }
                     switch event.type {
@@ -103,6 +112,9 @@
                     case .rightMouseUp:
                         self.onRightMouseHold?(.ended)
                         self.onRightClick?()
+                        if let rightClickMenu = self.rightClickMenu {
+                            self.perform(NSSelectorFromString("popUpStatusItemMenu:"), with: rightClickMenu)
+                        }
                     default: break
                     }
                 }
