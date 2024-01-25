@@ -222,6 +222,7 @@
                             case let .endEditingAndReset(handler: handler):
                                 textField.stringValue = textField.editStartString
                                 textField.adjustFontSize()
+                                textField.window?.makeFirstResponder(nil)
                                 handler?()
                                 return true
                             case let .endEditing(handler: handler):
@@ -234,6 +235,7 @@
                         case #selector(NSControl.insertNewline(_:)):
                             switch textField.actionOnEnterKeyDown {
                             case let .endEditing(handler: handler):
+                                textField.window?.makeFirstResponder(nil)
                                 handler?()
                                 return true
                             case .none: break
