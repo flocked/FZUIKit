@@ -70,8 +70,8 @@
                 } else {
                     pointSize = currentPointSize
                 }
-                needsUpdate = !minPointSize.isApproximatelyEqual(to: currentPointSize, epsilon: 0.000000001)
-                Swift.print("current", currentPointSize, needsUpdate)
+                needsUpdate =  minPointSize.rounded(.toPlaces(1)) != currentPointSize.rounded(.toPlaces(1))
+                Swift.print("current", currentPointSize, needsUpdate, minPointSize.rounded(.toPlaces(1)), currentPointSize.rounded(.toPlaces(1)))
             }
             cell?.font = _font
             isAdjustingFontSize = false
