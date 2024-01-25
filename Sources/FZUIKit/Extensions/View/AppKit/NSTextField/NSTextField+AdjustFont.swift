@@ -66,12 +66,11 @@
                 cell?.font = adjustedFont
                 if isFittingCurrentText {
                     minPointSize = currentPointSize
-                    fittingPointSize = currentPointSize
+                    fittingPointSize = currentPointSize.rounded(.toPlacesTowardZero(1))
                 } else {
                     pointSize = currentPointSize
                 }
                 needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.1)
-                Swift.print("current", currentPointSize, currentPointSize.rounded(.toPlacesTowardZero(1)), needsUpdate)
             }
             cell?.font = _font
             isAdjustingFontSize = false
