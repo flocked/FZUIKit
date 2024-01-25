@@ -12,6 +12,11 @@
 
 /// A color picker view.
     open class ColorPickerView: NSView {
+        
+        /// The handler that gets called when the selection changes.
+        open var selectionAction: (()->())? = nil
+        
+        /// The size of the color items.
         open var itemSize: CGFloat = 24 {
             didSet { setNeedsDisplay(bounds) }
         }
@@ -32,30 +37,39 @@
             }
         }
 
+        /// The selection dot size.
         open var selectionDotSize: CGFloat = 6 {
             didSet { setNeedsDisplay(bounds) }
         }
 
-        open var mouseOverExpansion: CGFloat = 2 {
+        /// The item scale factor when the mouse is hovering an item.
+        open var mouseHoverScaleFactor: CGFloat = 1.1 {
             didSet { setNeedsDisplay(bounds) }
         }
 
-        open var padding: CGFloat = 4 {
+        /// The item spacing.
+        open var itemSpacing: CGFloat = 4 {
             didSet { setNeedsDisplay(bounds) }
         }
 
-        open var systemPadding: CGFloat = 10 {
+        open var padding: CGFloat = 10 {
             didSet { setNeedsDisplay(bounds) }
         }
 
         // MARK: -
 
-        open var selectedColorIndexes: [Int] = []
+        /// The selected color indexes.
+        @objc dynamic open var selectedColorIndexes: [Int] = []
+        
+        /// The selected colors.
         open var selectedColors: [(color: NSColor, name: String)] {
             selectedColorIndexes.compactMap { self.colors[$0] }
         }
 
+        /// A Boolean value that determines whether users can select more than one color.
         open var allowsMultipleSelection: Bool = true
+        
+        /// A Boolean value that determines whether users can select no color.
         open var allowsEmptySelection: Bool = true {
             didSet {
                 if allowsEmptySelection == false, selectedColorIndexes.isEmpty, colors.isEmpty == false {
@@ -65,6 +79,7 @@
             }
         }
 
+        /// The text field that displays the name of the colors.
         @IBOutlet open var nameTextField: NSTextField?
 
         var mouseLocation = CGPoint.zero
@@ -73,6 +88,7 @@
 
         // MARK: -
 
+        /// The color items.
         open var colors: [(color: NSColor, name: String)] = [
             (#colorLiteral(red: 0.898, green: 0.306, blue: 0.647, alpha: 1.000), "Pink"),
             (#colorLiteral(red: 0.643, green: 0.522, blue: 0.957, alpha: 1.000), "Purple"),
@@ -131,7 +147,7 @@
 
             mouseLocation = event.location(in: self)
             for i in 0 ..< colors.count {
-                let subRect = CGRect(x: systemPadding + CGFloat(i) * itemSize, y: 0, width: itemSize, height: itemSize)
+                let subRect = CGRect(x: padding + CGFloat(i) * itemSize, y: 0, width: itemSize, height: itemSize)
                 if subRect.contains(mouseLocation) {
                     if allowsEmptySelection, let idx = selectedColorIndexes.firstIndex(of: i) {
                         selectedColorIndexes.remove(at: idx)
@@ -159,15 +175,16 @@
         override open func draw(_: NSRect) {
             hooveringColorIbdex = -1
             for i in 0 ..< colors.count {
-                let subRect = CGRect(x: systemPadding + CGFloat(i) * itemSize, y: 0, width: itemSize, height: itemSize)
+                let subRect = CGRect(x: padding + CGFloat(i) * itemSize, y: 0, width: itemSize, height: itemSize)
                 colors[i].color.setFill()
-                var circleRect = subRect.insetBy(dx: padding, dy: padding)
+                var circleRect = subRect.insetBy(dx: itemSpacing, dy: itemSpacing)
 
                 if subRect.contains(mouseLocation) {
                     if mouseMoved, hooveringColorIbdex == -1 {
                         hooveringColorIbdex = i
                     }
-                    circleRect = circleRect.insetBy(dx: -mouseOverExpansion, dy: -mouseOverExpansion)
+                    
+                    circleRect = circleRect.insetBy(dx: itemSize-(itemSpacing*mouseHoverScaleFactor), dy: itemSize-(itemSpacing*mouseHoverScaleFactor))
                 }
 
                 let bezier: NSBezierPath
@@ -217,15 +234,14 @@
 
         func didSelectItem() {
             guard selectedColorIndexes.isEmpty == false else { return }
-
             let colors = selectedColors
-            NotificationCenter.default.post(name: NSNotification.Name("ColorPickerViewDidPick"), object: colors)
+            selectionAction?()
         }
 
         // MARK: -
 
         override open var intrinsicContentSize: NSSize {
-            CGSize(width: systemPadding + (CGFloat(colors.count) * itemSize) + systemPadding, height: itemSize)
+            CGSize(width: padding + (CGFloat(colors.count) * itemSize) + padding, height: itemSize)
         }
 
         override open func viewDidMoveToSuperview() {
