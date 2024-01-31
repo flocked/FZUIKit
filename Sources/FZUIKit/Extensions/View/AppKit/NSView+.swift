@@ -320,7 +320,8 @@
          */
         public var border: BorderConfiguration {
             get {
-                NSView.toRealSelf(self).dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth)
+                let view = NSView.toRealSelf(self)
+                return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
             }
             set {
                 if newValue.needsDashedBordlerLayer {
@@ -365,18 +366,16 @@
         }
 
         /**
-         The shadow of the view (an alternative way of configurating the shadow).
+         The outer shadow of the view.
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().outerShadow`.
 
-         The default value is `none()`, which results in a view with no shadow.
+         The default value is `none()`, which results in a view with no outer shadow.
          */
        @objc public var outerShadow: ShadowConfiguration {
             get {
-                if isProxy(), let proxyShadow = proxyShadow {
-                    return proxyShadow
-                }
-                return ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset)
+                let view = NSView.toRealSelf(self)
+                return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
             }
             set {
                 proxyShadow = newValue
@@ -412,11 +411,7 @@
                 if layer?.shadowColor?.isVisible == false || layer?.shadowColor == nil {
                     layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
-
                 shadowColorAnimatable = animatableColor
-                
-                
-                
             }
         }
 

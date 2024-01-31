@@ -99,8 +99,9 @@
                             #selector(updateTrackingAreas),
                             methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
                             hookSignature: (@convention(block) (AnyObject) -> Void).self
-                        ) { _ in { object in
+                        ) { store in { object in
                             (object as? NSView)?.trackingArea.update()
+                            store.original(object, #selector(NSView.updateTrackingAreas))
                         }
                         }
                         didReplaceUpdateTrackingAreas = true
