@@ -28,12 +28,12 @@
             didSet { updateDateString() }
         }
 
-        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed by calling ``refreshDate()``.
         public var refreshDateInterval: TimeInterval? = 5 {
             didSet { configurateDateString() }
         }
 
-        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+        /// Refreshes the date string.
         public func refreshDate() {
             configurateDateString()
         }
@@ -180,12 +180,12 @@
             didSet { updateDateString() }
         }
 
-        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed by calling ``refreshDate()``.
         public var refreshDateInterval: TimeInterval? = 5 {
             didSet { configurateDateString() }
         }
 
-        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+        /// Refreshes the date text.
         public func refreshDate() {
             configurateDateString()
         }
@@ -308,12 +308,12 @@
             didSet { updateDateString() }
         }
 
-        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed by calling ``refreshDate()``.
         public var refreshDateInterval: TimeInterval? = 5 {
             didSet { configurateDateString() }
         }
 
-        /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed via ``refreshDate()``.
+        /// Refreshes the date text.
         public func refreshDate() {
             configurateDateString()
         }
