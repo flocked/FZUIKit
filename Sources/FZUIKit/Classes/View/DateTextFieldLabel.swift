@@ -38,7 +38,7 @@
             configurateDateString()
         }
 
-        /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
+        /// The date style of the displayed date for if ``dateDisplayMode-swift.property`` is set to `absolute`.
         public var dateStyle: DateFormatter.Style = .medium {
             didSet {
                 dateFormatter.dateStyle = dateStyle
@@ -46,7 +46,7 @@
             }
         }
 
-        /// the time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
+        /// The time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to `absolute`.
         public var timeStyle: DateFormatter.Style = .medium {
             didSet {
                 dateFormatter.timeStyle = timeStyle
@@ -190,7 +190,7 @@
             configurateDateString()
         }
 
-        /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
+        /// The date style of the displayed date for if ``dateDisplayMode-swift.property`` is set to `absolute`.
         public var dateStyle: DateFormatter.Style = .medium {
             didSet {
                 dateFormatter.dateStyle = dateStyle
@@ -198,7 +198,7 @@
             }
         }
 
-        /// the time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
+        /// The time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to `absolute`.
         public var timeStyle: DateFormatter.Style = .medium {
             didSet {
                 dateFormatter.timeStyle = timeStyle
@@ -318,7 +318,7 @@
             configurateDateString()
         }
 
-        /// the date style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
+        /// The date style of the displayed date for if ``dateDisplayMode-swift.property`` is set to `absolute`.
         public var dateStyle: DateFormatter.Style = .medium {
             didSet {
                 dateFormatter.dateStyle = dateStyle
@@ -326,7 +326,7 @@
             }
         }
 
-        /// the time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to ``DateDisplayMode-swift.enum/absolute``.
+        /// The time style of the displayed date, if ``dateDisplayMode-swift.property`` is set to `absolute`.
         public var timeStyle: DateFormatter.Style = .medium {
             didSet {
                 dateFormatter.timeStyle = timeStyle
