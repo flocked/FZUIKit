@@ -24,8 +24,7 @@
         public init(
             _ identifier: NSToolbar.Identifier? = nil,
             allowsUserCustomization: Bool = true,
-            items: [ToolbarItem]
-        ) {
+            items: [ToolbarItem]) {
             self.identifier = identifier ?? UUID().uuidString
             _items = items
             super.init()
@@ -51,8 +50,7 @@
         public convenience init(
             _ identifier: NSToolbar.Identifier? = nil,
             allowsUserCustomization: Bool = true,
-            @Builder items: () -> [ToolbarItem]
-        ) {
+            @Builder items: () -> [ToolbarItem]) {
             self.init(identifier, allowsUserCustomization: allowsUserCustomization, items: items())
         }
 
@@ -81,6 +79,13 @@
             get { toolbar.isVisible }
             set { toolbar.isVisible = newValue }
         }
+        
+        /// A Boolean value that indicates whether the toolbar is visible.
+        @discardableResult
+        func isVisible(_ isVisible: Bool) -> Self {
+            self.isVisible = isVisible
+            return self
+        }
 
         @available(macOS 11.0, *)
         /// The style that determines the appearance and location of the toolbar in relation to the title bar.
@@ -105,11 +110,25 @@
             get { toolbar.displayMode }
             set { toolbar.displayMode = newValue }
         }
+        
+        /// A value that indicates whether the toolbar displays items using a name, icon, or combination of elements.
+        @discardableResult
+        func displayMode(_ mode: NSToolbar.DisplayMode) -> Self {
+            displayMode = mode
+            return self
+        }
 
         /// A Boolean value that indicates whether the toolbar shows the separator between the toolbar and the main window contents.
         public var showsBaselineSeparator: Bool {
             get { toolbar.showsBaselineSeparator }
             set { toolbar.showsBaselineSeparator = newValue }
+        }
+        
+        /// A Boolean value that indicates whether the toolbar shows the separator between the toolbar and the main window contents.
+        @discardableResult
+        func showsBaselineSeparator(_ shows: Bool) -> Self {
+            showsBaselineSeparator = shows
+            return self
         }
 
         /// A Boolean value that indicates whether users can modify the contents of the toolbar.
@@ -117,11 +136,25 @@
             get { toolbar.allowsUserCustomization }
             set { toolbar.allowsUserCustomization = newValue }
         }
+        
+        /// A Boolean value that indicates whether users can modify the contents of the toolbar.
+        @discardableResult
+        func allowsUserCustomization(_ allows: Bool) -> Self {
+            allowsUserCustomization = allows
+            return self
+        }
 
         /// A Boolean value that indicates whether the toolbar can add items for Action extensions.
         public var allowsExtensionItems: Bool {
             get { toolbar.allowsExtensionItems }
             set { toolbar.allowsExtensionItems = newValue }
+        }
+        
+        /// A Boolean value that indicates whether the toolbar can add items for Action extensions.
+        @discardableResult
+        func allowsExtensionItems(_ allows: Bool) -> Self {
+            allowsExtensionItems = allows
+            return self
         }
 
         /// An array containing the toolbar’s current items, in order.
@@ -153,6 +186,13 @@
             get { toolbar.autosavesConfiguration }
             set { toolbar.autosavesConfiguration = newValue }
         }
+        
+        /// A Boolean value that indicates whether the toolbar autosaves its configuration.
+        @discardableResult
+        func autosavesConfiguration(_ autosaves: Bool) -> Self {
+            autosavesConfiguration = autosaves
+            return self
+        }
 
         /// Displays the toolbar’s customization palette and handles any user-initiated customizations.
         public func runCustomizationPalette(_ sender: Any?) {
@@ -164,7 +204,7 @@
 
         /// Toolbar item handlers.
         public var itemHandlers = ItemHandlers() {
-            didSet {}
+            didSet { }
         }
 
         /**
