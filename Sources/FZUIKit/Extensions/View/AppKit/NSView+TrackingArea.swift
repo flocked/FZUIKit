@@ -73,7 +73,7 @@
         /**
          The options for creating a tracking area for the view.  The default value is `nil`.
 
-         Providing a non `nil` option will add a tracking area that tracks the view with the options and adds a default implementation for `updateTrackingAreas()`.
+         Providing a non `nil` option will add a tracking area that tracks the view with the options.
          */
         public var trackingAreaOptions: NSTrackingArea.Options? {
             get { getAssociatedValue(key: "trackingAreaOptions", object: self, initialValue: nil) }
