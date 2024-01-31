@@ -54,7 +54,8 @@
             }
         }
 
-        public convenience init(date: Date, displayMode _: DateDisplayMode) {
+        /// Creates a date textfield with the specified date and display mode.
+        public convenience init(date: Date, displayMode: DateDisplayMode) {
             self.init(frame: .zero)
             textLayout = .wraps
             drawsBackground = false
@@ -62,11 +63,13 @@
             isBezeled = false
             isBordered = false
             self.date = date
+            dateDisplayMode = displayMode
             configurateDateString()
             sizeToFit()
         }
 
-        public convenience init(date: Date, displayMode _: DateDisplayMode, frame: CGRect) {
+        /// Creates a date textfield with the specified date, display mode and frame.
+        public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
             self.init(frame: frame)
             textLayout = .wraps
             drawsBackground = false
@@ -74,6 +77,7 @@
             isBezeled = false
             isBordered = false
             self.date = date
+            dateDisplayMode = displayMode
             configurateDateString()
             sizeToFit()
         }
@@ -202,16 +206,20 @@
             }
         }
 
-        public convenience init(date: Date, displayMode _: DateDisplayMode) {
+        /// Creates a date label with the specified date and display mode.
+        public convenience init(date: Date, displayMode: DateDisplayMode) {
             self.init(frame: .zero)
             self.date = date
+            dateDisplayMode = displayMode
             configurateDateString()
             sizeToFit()
         }
 
-        public convenience init(date: Date, displayMode _: DateDisplayMode, frame: CGRect) {
+        /// Creates a date label with the specified date, display mode and frame.
+        public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
             self.init(frame: frame)
             self.date = date
+            dateDisplayMode = displayMode
             configurateDateString()
             sizeToFit()
         }
@@ -326,18 +334,22 @@
             }
         }
 
-        public convenience init(date: Date, displayMode _: DateDisplayMode) {
+        /// Creates a date textfield with the specified date and display mode.
+        public convenience init(date: Date, displayMode: DateDisplayMode) {
             self.init(frame: .zero)
             self.date = date
+            dateDisplayMode = displayMode
             configurateDateString()
             borderStyle = .none
             backgroundColor = nil
             sizeToFit()
         }
 
-        public convenience init(date: Date, displayMode _: DateDisplayMode, frame: CGRect) {
+        /// Creates a date textfield with the specified date, display mode and frame.
+        public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
             self.init(frame: frame)
             self.date = date
+            dateDisplayMode = displayMode
             configurateDateString()
             borderStyle = .none
             backgroundColor = nil
