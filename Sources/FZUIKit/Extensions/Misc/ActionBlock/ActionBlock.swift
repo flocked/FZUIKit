@@ -103,7 +103,6 @@
         extension UIPinchGestureRecognizer: TargetActionProtocol {}
         extension UIRotationGestureRecognizer: TargetActionProtocol {}
         extension UIHoverGestureRecognizer: TargetActionProtocol {}
-        extension UIScreenEdgePanGestureRecognizer: TargetActionProtocol {}
     #endif
 
     class ActionTrampoline<T: TargetActionProtocol>: NSObject {

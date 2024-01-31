@@ -125,15 +125,7 @@
                 self.init()
                 actionBlock = action
             }
-        }
-
-        public extension UIScreenEdgePanGestureRecognizer {
-            /// Initializes the gesture recognizer with the specified action handler.
-            convenience init(action: @escaping ActionBlock) {
-                self.init()
-                actionBlock = action
-            }
-        }
+        } 
     #endif
 
 #endif
