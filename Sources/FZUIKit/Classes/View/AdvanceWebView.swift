@@ -14,7 +14,7 @@
 
      */
     @available(macOS 11.3, iOS 14.5, *)
-    public class AdvanceWebView: WKWebView {
+    open class AdvanceWebView: WKWebView {
         /// The handlers for downloading files.
         public struct DownloadHandlers {
             /// The handler that determines whether a url request should be downloaded.
@@ -42,10 +42,10 @@
         }
 
         /// The handlers for downloading files.
-        public var downloadHandlers = DownloadHandlers()
+        open var downloadHandlers = DownloadHandlers()
 
         /// The download strategy.
-        public var downloadStrategy: DownloadStrategy = .resume
+        open var downloadStrategy: DownloadStrategy = .resume
 
         /// The progress of all downloads.
         public let downloadProgress = DownloadProgress()
@@ -54,19 +54,19 @@
         public let downloads = SynchronizedArray<WKDownload>()
 
         /// The handler that returns the current url request when the web view finishes loading a website.
-        public var requestHandler: ((URLRequest?) -> Void)?
+        open var requestHandler: ((URLRequest?) -> Void)?
 
         /// The handlers that get called when the webview requests a specific url.
-        public var urlHandlers = SynchronizedDictionary<URL, () -> Void>()
+        open var urlHandlers = SynchronizedDictionary<URL, () -> Void>()
 
         /// The handler that returns the current HTTP cookies when the web view finishes loading a website.
-        public var cookiesHandler: (([HTTPCookie]) -> Void)?
+        open var cookiesHandler: (([HTTPCookie]) -> Void)?
 
         /// The current url request.
-        public var currentRequest: URLRequest?
+        open var currentRequest: URLRequest?
 
         /// All HTTP cookies of the current url request.
-        @objc public fileprivate(set) dynamic var currentHTTPCookies: [HTTPCookie] {
+        @objc open fileprivate(set) dynamic var currentHTTPCookies: [HTTPCookie] {
             get { _currentHTTPCookies.synchronized }
             set {}
         }
@@ -98,7 +98,7 @@
             delegate = Delegate(webview: self)
         }
 
-        override public func load(_ request: URLRequest) -> WKNavigation? {
+        override open func load(_ request: URLRequest) -> WKNavigation? {
             if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
                 awaitingRequests.append(request)
                 sequentialOperationQueue.addOperation {
@@ -123,7 +123,7 @@
 
          - Parameter url: The URL to download a resource from a webpage.
          */
-        public func startDownload(_ url: URL, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
+        open func startDownload(_ url: URL, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
             startDownload(URLRequest(url: url), fileURLHandler: fileURLHandler, completionHandler: completionHandler)
         }
 
@@ -132,7 +132,7 @@
 
          - Parameter request: An object that encapsulates a URL and other parameters that you need to download a resource from a webpage.
          */
-        public func startDownload(_ request: URLRequest, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
+        open func startDownload(_ request: URLRequest, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
             downloadFileURLHandlers[request] = fileURLHandler
             startDownload(using: request, completionHandler: { download in
                 self.downloadFileURLHandlers[request] = nil
@@ -142,7 +142,7 @@
 
         let downloadFileURLHandlers = SynchronizedDictionary<URLRequest, (URLResponse, String) -> (URL)>()
 
-        override public func startDownload(using request: URLRequest, completionHandler: @escaping (WKDownload) -> Void) {
+        override open func startDownload(using request: URLRequest, completionHandler: @escaping (WKDownload) -> Void) {
             if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
                 awaitingDownloadRequests.append(request)
                 sequentialOperationQueue.addOperation {
@@ -165,7 +165,7 @@
             }
         }
 
-        override public func resumeDownload(fromResumeData resumeData: Data, completionHandler: @escaping (WKDownload) -> Void) {
+        override open func resumeDownload(fromResumeData resumeData: Data, completionHandler: @escaping (WKDownload) -> Void) {
             if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
                 awaitingResumeDatas.append(resumeData)
                 sequentialOperationQueue.addOperation {
