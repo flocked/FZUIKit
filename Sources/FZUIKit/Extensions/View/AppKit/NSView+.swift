@@ -520,7 +520,7 @@
                     let innerShadowLayer = InnerShadowLayer()
                     layer?.addSublayer(withConstraint: innerShadowLayer)
                     innerShadowLayer.sendToBack()
-                    innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+                    innerShadowLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude) + 1
                     innerShadowLayer.shadowOpacity = 0.0
                     innerShadowLayer.shadowRadius = 0.0
                 }
@@ -535,6 +535,14 @@
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
+            }
+        }
+        
+        class InnerShadowView: NSView {
+            var configuration: ShadowConfiguration = .none() {
+                didSet {
+                    guard oldValue != configuration else { return }
+                }
             }
         }
 
