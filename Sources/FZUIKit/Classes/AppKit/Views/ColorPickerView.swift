@@ -264,7 +264,7 @@
 
         func didSelectItem() {
             guard selectedColorIndexes.isEmpty == false else { return }
-            let colors = selectedColors
+            // let colors = selectedColors
             selectionAction?()
         }
 

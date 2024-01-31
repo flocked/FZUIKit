@@ -9,7 +9,7 @@
     import AppKit
 
     /// A `NSTextField` that displays a date either absolute or relative.
-    public class DateTextField: NSTextField {
+    open class DateTextField: NSTextField {
         /// The mode a date gets displayed.
         public enum DateDisplayMode: Int {
             /// The textfield displays a relative date or time (e.g. "2 mins ago").
@@ -19,27 +19,27 @@
         }
 
         /// The date to display.
-        public var date: Date? {
+        open var date: Date? {
             didSet { configurateDateString() }
         }
 
         /// The mode a date gets displayed.
-        public var dateDisplayMode: DateDisplayMode = .relative {
+        open var dateDisplayMode: DateDisplayMode = .relative {
             didSet { updateDateString() }
         }
 
         /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed by calling ``refreshDate()``.
-        public var refreshDateInterval: TimeInterval? = 5 {
+        open var refreshDateInterval: TimeInterval? = 5 {
             didSet { configurateDateString() }
         }
 
         /// Refreshes the date string.
-        public func refreshDate() {
+        open func refreshDate() {
             configurateDateString()
         }
 
         /// The date string style to use when ``dateDisplayMode-6bulg`` is set to `absolute`. The default value is `medium`.
-        public var absoluteDateStyle: DateFormatter.Style {
+        open var absoluteDateStyle: DateFormatter.Style {
             get { absoluteDateFormatter.dateStyle }
             set {
                 absoluteDateFormatter.dateStyle = newValue
@@ -50,7 +50,7 @@
         }
 
         /// The date string time style to use when ``dateDisplayMode-6bulg`` is set to `absolute`. The default value is `medium`.
-        public var absoluteTimeStyle: DateFormatter.Style {
+        open var absoluteTimeStyle: DateFormatter.Style {
             get { absoluteDateFormatter.timeStyle }
             set {
                 absoluteDateFormatter.timeStyle = newValue
@@ -61,7 +61,7 @@
         }
         
         /// The date string style to use when ``dateDisplayMode-6bulg`` is set to `relative`. For example “yesterday” or “1 day ago”. The default value is `numeric`.
-        public var relativeTimeStyle: RelativeDateTimeFormatter.DateTimeStyle {
+        open var relativeTimeStyle: RelativeDateTimeFormatter.DateTimeStyle {
             get { relativeDateFormatter.dateTimeStyle }
             set {
                 relativeDateFormatter.dateTimeStyle = newValue
@@ -98,7 +98,7 @@
         static let buffer: TimeInterval = 2
         var liveUpdateTimer: Timer?
 
-        override public var intrinsicContentSize: NSSize {
+        override open var intrinsicContentSize: NSSize {
             var intrinsicContentSize = super.intrinsicContentSize
             if intrinsicContentSize.width == NSView.noIntrinsicMetric, let cell = cell {
                 intrinsicContentSize.width = cell.cellSize(forBounds: CGRect(.zero, CGSize(CGFloat.greatestFiniteMagnitude, intrinsicContentSize.height))).rounded(.up).width
@@ -134,7 +134,7 @@
             }
         }
 
-        override public var stringValue: String {
+        override open var stringValue: String {
             didSet {
                 if stringValue != dateString {
                     self.date = nil
@@ -142,7 +142,7 @@
             }
         }
 
-        override public var attributedStringValue: NSAttributedString {
+        override open var attributedStringValue: NSAttributedString {
             didSet {
                 date = nil
             }
@@ -171,7 +171,7 @@
 #elseif os(iOS) || os(tvOS)
     import UIKit
     /// A `UILabel` that displays a date either absolute or relative.
-    public class DateLabel: UILabel {
+    open class DateLabel: UILabel {
         /// The mode a date gets displayed.
         public enum DateDisplayMode {
             /// The textfield displays a relative date or time (e.g. "2 mins ago").
@@ -181,27 +181,27 @@
         }
 
         /// The date to display.
-        public var date: Date? {
+        open var date: Date? {
             didSet { configurateDateString() }
         }
 
         /// The mode a date gets displayed.
-        public var dateDisplayMode: DateDisplayMode = .relative {
+        open var dateDisplayMode: DateDisplayMode = .relative {
             didSet { updateDateString() }
         }
 
         /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed by calling ``refreshDate()``.
-        public var refreshDateInterval: TimeInterval? = 5 {
+        open var refreshDateInterval: TimeInterval? = 5 {
             didSet { configurateDateString() }
         }
 
         /// Refreshes the date text.
-        public func refreshDate() {
+        open func refreshDate() {
             configurateDateString()
         }
 
         /// The date text style to use when ``dateDisplayMode-6bulg`` is set to `absolute`. The default value is `medium`.
-        public var absoluteDateStyle: DateFormatter.Style {
+        open var absoluteDateStyle: DateFormatter.Style {
             get { absoluteDateFormatter.dateStyle }
             set {
                 absoluteDateFormatter.dateStyle = newValue
@@ -212,7 +212,7 @@
         }
 
         /// The date text time style to use when ``dateDisplayMode-6bulg`` is set to `absolute`. The default value is `medium`.
-        public var absoluteTimeStyle: DateFormatter.Style {
+        open var absoluteTimeStyle: DateFormatter.Style {
             get { absoluteDateFormatter.timeStyle }
             set {
                 absoluteDateFormatter.timeStyle = newValue
@@ -223,7 +223,7 @@
         }
         
         /// The date text style to use when ``dateDisplayMode-6bulg`` is set to `relative`. For example “yesterday” or “1 day ago”. The default value is `numeric`.
-        public var relativeTimeStyle: RelativeDateTimeFormatter.DateTimeStyle {
+        open var relativeTimeStyle: RelativeDateTimeFormatter.DateTimeStyle {
             get { relativeDateFormatter.dateTimeStyle }
             set {
                 relativeDateFormatter.dateTimeStyle = newValue
@@ -282,7 +282,7 @@
             }
         }
 
-        override public var text: String? {
+        override open var text: String? {
             didSet {
                 if text != dateString {
                     self.date = nil
@@ -290,7 +290,7 @@
             }
         }
 
-        override public var attributedText: NSAttributedString? {
+        override open var attributedText: NSAttributedString? {
             didSet {
                 date = nil
             }
@@ -314,7 +314,7 @@
     }
 
     /// A `UITextField` that displays a date either absolute or relative.
-    public class DateTextField: UITextField {
+    open class DateTextField: UITextField {
         /// The mode a date gets displayed.
         public enum DateDisplayMode {
             /// The textfield displays a relative date or time (e.g. "2 mins ago").
@@ -324,27 +324,27 @@
         }
 
         /// The date to display.
-        public var date: Date? {
+        open var date: Date? {
             didSet { configurateDateString() }
         }
 
         /// The mode a date gets displayed.
-        public var dateDisplayMode: DateDisplayMode = .relative {
+        open var dateDisplayMode: DateDisplayMode = .relative {
             didSet { updateDateString() }
         }
 
         /// The interval the displayed date gets refreshed. If `nil` the date gets only refreshed by calling ``refreshDate()``.
-        public var refreshDateInterval: TimeInterval? = 5 {
+        open var refreshDateInterval: TimeInterval? = 5 {
             didSet { configurateDateString() }
         }
 
         /// Refreshes the date text.
-        public func refreshDate() {
+        open func refreshDate() {
             configurateDateString()
         }
 
         /// The date text style to use when ``dateDisplayMode-6bulg`` is set to `absolute`. The default value is `medium`.
-        public var absoluteDateStyle: DateFormatter.Style {
+        open var absoluteDateStyle: DateFormatter.Style {
             get { absoluteDateFormatter.dateStyle }
             set {
                 absoluteDateFormatter.dateStyle = newValue
@@ -355,7 +355,7 @@
         }
 
         /// The date text time style to use when ``dateDisplayMode-6bulg`` is set to `absolute`. The default value is `medium`.
-        public var absoluteTimeStyle: DateFormatter.Style {
+        open var absoluteTimeStyle: DateFormatter.Style {
             get { absoluteDateFormatter.timeStyle }
             set {
                 absoluteDateFormatter.timeStyle = newValue
@@ -366,7 +366,7 @@
         }
         
         /// The date text style to use when ``dateDisplayMode-6bulg`` is set to `relative`. For example “yesterday” or “1 day ago”. The default value is `numeric`.
-        public var relativeTimeStyle: RelativeDateTimeFormatter.DateTimeStyle {
+        open var relativeTimeStyle: RelativeDateTimeFormatter.DateTimeStyle {
             get { relativeDateFormatter.dateTimeStyle }
             set {
                 relativeDateFormatter.dateTimeStyle = newValue
@@ -427,7 +427,7 @@
             }
         }
 
-        override public var text: String? {
+        override open var text: String? {
             didSet {
                 if text != dateString {
                     self.date = nil
@@ -435,7 +435,7 @@
             }
         }
 
-        override public var attributedText: NSAttributedString? {
+        override open var attributedText: NSAttributedString? {
             didSet {
                 date = nil
             }
