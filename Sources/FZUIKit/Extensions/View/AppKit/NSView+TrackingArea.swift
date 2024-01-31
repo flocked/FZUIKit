@@ -14,16 +14,16 @@
 
     extension NSView {
         /// A tracking area that tracks a view
-        public class TrackingArea {
+        open class TrackingArea {
             /// One or more constants that specify the type of tracking area, the situations when the area is active, and special behaviors of the tracking area.
-            public var options: NSTrackingArea.Options {
+            open var options: NSTrackingArea.Options {
                 didSet {
                     update()
                 }
             }
 
             /// A rectangle that defines a region of the tracked view for tracking events related to mouse tracking and cursor updating. The specified rectangle should not exceed the view’s bounds rectangle.
-            public var trackingRect: CGRect? {
+            open var trackingRect: CGRect? {
                 didSet {
                     update()
                 }
@@ -48,7 +48,7 @@
 
              - Note: This should be called in your `updateTrackingAreas()` method.
              */
-            public func update() {
+            open func update() {
                 if let trackingArea = trackingArea {
                     view?.removeTrackingArea(trackingArea)
                 }

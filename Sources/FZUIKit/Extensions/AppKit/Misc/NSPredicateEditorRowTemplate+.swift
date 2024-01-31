@@ -10,8 +10,13 @@ import AppKit
 import FZSwiftUtils
 
 extension NSPredicateEditorRowTemplate {
+    /// A row template that displays a seperator.
+    public static func seperator() -> NSPredicateEditorRowTemplate {
+        return SeparatorPredicateEditorRowTemplate()
+    }
+    
     /// The predicate of the row template.
-    public var predicate: NSPredicate {
+    @objc open var predicate: NSPredicate {
         predicate(withSubpredicates: nil)
     }
     
@@ -293,6 +298,31 @@ extension NSPredicateEditorRowTemplate {
                    operators: operators,
                   options: options)
         self.initialValue = initialValue
+    }
+    
+    var allSubRowTemplates: [NSPredicateEditorRowTemplate] {
+        if let rowTemplate = self as? CompoundPredicateEditorRowTemplate {
+            return rowTemplate.subRowTemplates + rowTemplate.subRowTemplates.flatMap({$0.allSubRowTemplates})
+        }
+        return [self]
+    }
+}
+
+/// A row template that displays a seperator.
+open class SeparatorPredicateEditorRowTemplate: NSPredicateEditorRowTemplate {
+    
+    private let separatorPopUpButton = {
+        let popUpButton = NSPopUpButton()
+        popUpButton.menu?.addItem(.separator())
+        return popUpButton
+    }()
+
+    open override var templateViews: [NSView] {
+        return [separatorPopUpButton]
+    }
+
+    open override func match(for predicate: NSPredicate) -> Double {
+        return 0.0
     }
 }
 

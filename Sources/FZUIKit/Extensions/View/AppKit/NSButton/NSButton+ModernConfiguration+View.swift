@@ -15,9 +15,11 @@
     extension NSButton.AdvanceButtonView {
         struct ContentView: View {
             let configuration: NSButton.AdvanceButtonConfiguration
+            let showBorder: Bool
 
-            public init(configuration: NSButton.AdvanceButtonConfiguration) {
+            public init(configuration: NSButton.AdvanceButtonConfiguration, showBorder: Bool) {
                 self.configuration = configuration
+                self.showBorder = showBorder
             }
 
             var titleFont: Font {
@@ -113,7 +115,7 @@
                     .scaleEffect(configuration.scaleTransform)
                     .background(configuration._resolvedBackgroundColor?.swiftUI)
                     .clipShape(configuration.cornerStyle.shape)
-                    .overlay(configuration.cornerStyle.shape.stroke(lineWidth: configuration.borderWidth).foregroundColor(configuration._resolvedForegroundColor?.swiftUI))
+                    .overlay(configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration._resolvedForegroundColor?.swiftUI))
                     .opacity(configuration.opacity)
             }
         }
@@ -122,6 +124,19 @@
     @available(macOS 13, *)
     extension NSButton {
         public class AdvanceButtonView: NSView, NSContentView {
+            
+            lazy var _trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect])
+            
+            var showsBorderOnlyWhileMouseInside: Bool {
+                appliedConfiguration.borderWidth > 0.0 && appliedConfiguration.showsBorderOnlyWhileMouseInside
+            }
+            
+            var showBorder: Bool = false
+            
+            public override func updateTrackingAreas() {
+                super.updateTrackingAreas()
+                _trackingArea.update()
+            }
             
             public var configuration: NSContentConfiguration {
                 get { appliedConfiguration }
@@ -141,6 +156,22 @@
                         updateConfiguration()
                     }
                 }
+            }
+            
+            public override func mouseEntered(with event: NSEvent) {
+                showBorder = true
+                if showsBorderOnlyWhileMouseInside {
+                    updateConfiguration()
+                }
+                super.mouseEntered(with: event)
+            }
+            
+            public override func mouseExited(with event: NSEvent) {
+                showBorder = false
+                if showsBorderOnlyWhileMouseInside {
+                    updateConfiguration()
+                }
+                super.mouseExited(with: event)
             }
 
             var button: NSButton? {
@@ -172,13 +203,14 @@
                 self.appliedConfiguration = configuration
                 super.init(frame: .zero)
                 hostingViewConstraints = addSubview(withConstraint: hostingController.view)
+                updateTrackingAreas()
                 updateConfiguration()
             }
 
             var hostingViewConstraints: [NSLayoutConstraint] = []
 
             func updateConfiguration() {
-                hostingController.rootView = ContentView(configuration: appliedConfiguration)
+                hostingController.rootView = ContentView(configuration: appliedConfiguration, showBorder: showBorder)
                 sizeToFit()
             }
 
@@ -198,7 +230,7 @@
             }
 
             lazy var hostingController: NSHostingController<ContentView> = {
-                let contentView = ContentView(configuration: self.appliedConfiguration)
+                let contentView = ContentView(configuration: self.appliedConfiguration, showBorder: showBorder)
                 let hostingController = NSHostingController(rootView: contentView)
                 hostingController.view.backgroundColor = .clear
                 hostingController.view.translatesAutoresizingMaskIntoConstraints = false

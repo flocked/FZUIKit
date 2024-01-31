@@ -103,6 +103,9 @@
 
             /// The width of the stroke.
             public var borderWidth: CGFloat = 0.0
+            
+            /// A Boolean value that determines whether the button displays its border only when the pointer is over it.
+            public var showsBorderOnlyWhileMouseInside: Bool = false
 
             /*
             /// The outset (or inset, if negative) for the stroke.

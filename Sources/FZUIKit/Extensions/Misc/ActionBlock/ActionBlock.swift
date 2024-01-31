@@ -51,6 +51,14 @@
     }
 
     public extension TargetActionProtocol {
+        /// The action of the control.
+        @discardableResult
+        func action(_ action: ActionBlock?) -> Self {
+            actionBlock = action
+            return self
+        }
+        
+        /// The action of the control.
         var actionBlock: ActionBlock? {
             set {
                 guard let action = newValue else {

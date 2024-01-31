@@ -75,5 +75,39 @@
                 }
             }
         }
+        
+        /// A Boolean value indicating whether the button displays a pull-down or pop-up menu.
+        @discardableResult
+        func pullsDown(_ pullsDown: Bool) -> Self {
+            self.pullsDown = pullsDown
+            return self
+        }
+        
+        /// A Boolean value indicating whether the button displays a pull-down or pop-up menu.
+        @discardableResult
+        func autoenablesItems(_ autoenables: Bool) -> Self {
+            autoenablesItems = autoenables
+            return self
+        }
+        
+        /// The menu associated with the pop-up button.
+        @discardableResult
+        func menu(_ menu: NSMenu?) -> Self {
+            self.menu = menu
+            return self
+        }
+        
+        /// The menu associated with the pop-up button.
+        func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
+            menu = NSMenu(items: items())
+            return self
+        }
+        
+        /// The edge of the button on which to display the menu when screen space is constrained.
+        @discardableResult
+        func preferredEdge(_ preferredEdge: NSRectEdge) -> Self {
+            self.preferredEdge = preferredEdge
+            return self
+        }
     }
 #endif
