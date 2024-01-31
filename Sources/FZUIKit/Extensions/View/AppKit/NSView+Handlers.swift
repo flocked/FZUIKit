@@ -74,7 +74,7 @@ extension NSView {
             observerView?._mouseHandlers = mouseHandlers
             observerView?._windowHandlers = windowHandlers
             observerView?._dropHandlers = dropHandlers
-        } else {
+        } else if observerView != nil {
             observerView?.removeFromSuperview()
             observerView = nil
             resetMethod(#selector(NSView.didAddSubview(_:)))

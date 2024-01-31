@@ -83,7 +83,10 @@
             }
         }
 
-        var trackingArea: TrackingArea { getAssociatedValue(key: "trackingArea", object: self, initialValue: TrackingArea(for: self, options: trackingAreaOptions ?? [])) }
+        var trackingArea: TrackingArea? {
+            get {getAssociatedValue(key: "trackingArea", object: self, initialValue: TrackingArea(for: self, options: trackingAreaOptions ?? [])) }
+            set { set(associatedValue: newValue, key: "trackingArea", object: self) }
+        }
 
         var didReplaceUpdateTrackingAreas: Bool {
             get { getAssociatedValue(key: "didReplaceUpdateTrackingAreas", object: self, initialValue: false) }
@@ -92,7 +95,10 @@
 
         func updateTrackingArea() {
             if let trackingAreaOptions = trackingAreaOptions {
-                trackingArea.options = trackingAreaOptions
+                if trackingArea == nil {
+                    trackingArea = TrackingArea(for: self, options: trackingAreaOptions)
+                }
+                trackingArea?.options = trackingAreaOptions
                 if didReplaceUpdateTrackingAreas == false {
                     do {
                         try replaceMethod(
@@ -100,7 +106,7 @@
                             methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
                             hookSignature: (@convention(block) (AnyObject) -> Void).self
                         ) { store in { object in
-                            (object as? NSView)?.trackingArea.update()
+                            (object as? NSView)?.trackingArea?.update()
                             store.original(object, #selector(NSView.updateTrackingAreas))
                         }
                         }
@@ -111,31 +117,9 @@
                 }
             } else if didReplaceUpdateTrackingAreas {
                 didReplaceUpdateTrackingAreas = false
+                trackingArea = nil
                 resetMethod(#selector(updateTrackingAreas))
             }
-        }
-
-        func trackingArea(_ options: NSTrackingArea.Options) -> TrackingArea {
-            let trackingArea = getAssociatedValue(key: "TrackingArea", object: self, initialValue: TrackingArea(for: self, options: options))
-            trackingArea.options = options
-            trackingArea.update()
-
-            do {
-                try replaceMethod(
-                    #selector(updateTrackingAreas),
-                    methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
-                    hookSignature: (@convention(block) (AnyObject) -> Void).self
-                ) { _ in { object in
-                    guard let view = (object as? NSView) else { return }
-                    let trackingArea = getAssociatedValue(key: "TrackingArea", object: view, initialValue: TrackingArea(for: view, options: options))
-                    trackingArea.update()
-                }
-                }
-            } catch {
-                Swift.debugPrint(error)
-            }
-
-            return trackingArea
         }
     }
 

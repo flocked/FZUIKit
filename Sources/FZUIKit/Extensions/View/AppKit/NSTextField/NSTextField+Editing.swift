@@ -39,6 +39,13 @@
             case endEditing
             /// Ends editing the text and resets it to the the state before editing.
             case endEditingAndReset
+            
+            var needsSwizzling: Bool {
+                switch self {
+                case .none: return false
+                default: return true
+                }
+            }
         }
 
         /// The action to perform when the user presses the enter key.
@@ -47,6 +54,13 @@
             case none
             /// Ends editing the text.
             case endEditing
+            
+            var needsSwizzling: Bool {
+                switch self {
+                case .none: return false
+                case .endEditing: return true
+                }
+            }
         }
 
         /// The allowed characters the user can enter when editing.
@@ -72,6 +86,10 @@
             public static let newLines = AllowedCharacters(rawValue: 1 << 6)
             /// Allows all characters.
             public static let all: AllowedCharacters = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines]
+            
+            var needsSwizzling: Bool {
+                self != AllowedCharacters.all
+            }
 
             func trimString<S: StringProtocol>(_ string: S) -> String {
                 var string = String(string)
@@ -93,20 +111,19 @@
         /// The allowed characters the user can enter when editing.
         var allowedCharacters: AllowedCharacters {
             get { getAssociatedValue(key: "allowedCharacters", object: self, initialValue: .all) }
-            set { set(associatedValue: newValue, key: "allowedCharacters", object: self)
-                if newValue != .all {
-                    swizzleTextField()
-                }
+            set { 
+                guard newValue != allowedCharacters else { return }
+                set(associatedValue: newValue, key: "allowedCharacters", object: self)
+                swizzleTextField(shouldSwizzle: needsSwizzling)
             }
         }
 
         /// The handlers for editing the text.
         var editingHandlers: EditingHandler {
             get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: EditingHandler()) }
-            set { set(associatedValue: newValue, key: "editingHandlers", object: self)
-                if newValue.needsSwizzle {
-                    swizzleTextField()
-                }
+            set { 
+                set(associatedValue: newValue, key: "editingHandlers", object: self)
+                swizzleTextField(shouldSwizzle: needsSwizzling)
             }
         }
 
@@ -116,10 +133,7 @@
             set {
                 guard actionOnEnterKeyDown != newValue else { return }
                 set(associatedValue: newValue, key: "actionOnEnterKeyDown", object: self)
-                switch newValue {
-                case .none: break
-                default: swizzleTextField()
-                }
+                swizzleTextField(shouldSwizzle: needsSwizzling)
             }
         }
 
@@ -129,10 +143,7 @@
             set {
                 guard actionOnEscapeKeyDown != newValue else { return }
                 set(associatedValue: newValue, key: "actionOnEscapeKeyDown", object: self)
-                switch newValue {
-                case .none: break
-                default: swizzleTextField()
-                }
+                swizzleTextField(shouldSwizzle: needsSwizzling)
             }
         }
 
@@ -149,7 +160,7 @@
                 if let maxCharCount = newValue, stringValue.count > maxCharCount {
                     stringValue = String(stringValue.prefix(maxCharCount))
                 }
-                swizzleTextField()
+                swizzleTextField(shouldSwizzle: needsSwizzling)
             }
         }
 
@@ -166,7 +177,7 @@
                 if let maxCharCount = newValue, stringValue.count > maxCharCount {
                     stringValue = String(stringValue.prefix(maxCharCount))
                 }
-                swizzleTextField()
+                swizzleTextField(shouldSwizzle: needsSwizzling)
             }
         }
 

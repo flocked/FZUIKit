@@ -201,7 +201,6 @@
                     hookSignature: (@convention(block) (AnyObject) -> (NSPopoverDelegate?)).self
                 ) { _ in { object in
                     (object as? NSPopover)?.popoverProxy.delegate
-                    // store.original(object, #selector(getter: delegate))
                 }
                 }
 
@@ -211,8 +210,6 @@
                     hookSignature: (@convention(block) (AnyObject, NSPopoverDelegate?) -> Void).self
                 ) { _ in { object, delegate in
                     (object as? NSPopover)?.popoverProxy.delegate = delegate
-                    //  return (object as? NSPopover)?.popoverProxy.delegate
-                    // store.original(object, #selector(getter: delegate))
                 }
                 }
             } catch {

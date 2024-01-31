@@ -124,10 +124,14 @@
                 needsUpdate = !isFittingCurrentText
             }
         }
+        
+        var needsSwizzling: Bool {
+            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil
+        }
 
         func setupTextFieldObserver() {
             if (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation {
-                swizzleTextField()
+                swizzleTextField(shouldSwizzle: true)
                 if observer == nil {
                     observer = KeyValueObserver(self)
                     observer?.add(\.stringValue, handler: { [weak self] old, new in
@@ -161,6 +165,7 @@
                 }
             } else {
                 observer = nil
+                swizzleTextField(shouldSwizzle: needsSwizzling)
             }
             adjustFontSize()
         }
@@ -199,182 +204,144 @@
             adjustFontSize()
         }
 
-        func swizzleTextField() {
-            guard didSwizzleTextField == false else { return }
-            didSwizzleTextField = true
-            _font = font
-
-            do {
-                try replaceMethod(
-                    #selector(setter: font),
-                    methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
-                    hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
-                ) { _ in { object, font in
-                    guard let textField = (object as? NSTextField), textField._font != font else { return }
+        func swizzleTextField(shouldSwizzle: Bool) {
+            if shouldSwizzle {
+                guard didSwizzleTextField == false else { return }
+                didSwizzleTextField = true
+                _font = font
+                
+                do {
+                    try replaceMethod(
+                        #selector(setter: font),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
+                    ) { _ in { object, font in
+                        guard let textField = (object as? NSTextField), textField._font != font else { return }
                         textField._font = font
                         textField.adjustFontSize()
                     }
-                }
-
-                try replaceMethod(
-                    #selector(getter: font),
-                    methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
-                    hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
-                ) { _ in { object in
-                    return (object as? NSTextField)?._font ?? nil
-                }
-                }
-
-                try replaceMethod(
-                    #selector(layout),
-                    methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
-                    hookSignature: (@convention(block) (AnyObject) -> Void).self
-                ) { store in { object in
-                    store.original(object, #selector(NSView.layout))
-                    guard let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size else { return }
+                    }
+                    
+                    try replaceMethod(
+                        #selector(getter: font),
+                        methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
+                        hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
+                    ) { _ in { object in
+                        return (object as? NSTextField)?._font ?? nil
+                    }
+                    }
+                    
+                    try replaceMethod(
+                        #selector(layout),
+                        methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject) -> Void).self
+                    ) { store in { object in
+                        store.original(object, #selector(NSView.layout))
+                        guard let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size else { return }
                         textField.adjustFontSize()
                         textField._bounds = textField.bounds
                     }
-                }
-
-                try replaceMethod(
-                    #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
-                    methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
-                    hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
-                ) { store in { object, textView, selector in
-                    if let doCommand = (object as? NSTextField)?.editingHandlers.doCommand {
-                        return doCommand(selector)
                     }
-                    if let textField = object as? NSTextField {
-                        switch selector {
-                        case #selector(NSControl.cancelOperation(_:)):
-                            switch textField.actionOnEscapeKeyDown {
-                            case .endEditingAndReset:
-                                textField.stringValue = textField.editStartString
-                                textField.adjustFontSize()
-                                textField.window?.makeFirstResponder(nil)
-                                return true
-                            case .endEditing:
-                                if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                    return false
-                                } else {
+                    
+                    try replaceMethod(
+                        #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
+                        hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
+                    ) { store in { object, textView, selector in
+                        if let doCommand = (object as? NSTextField)?.editingHandlers.doCommand {
+                            return doCommand(selector)
+                        }
+                        if let textField = object as? NSTextField {
+                            switch selector {
+                            case #selector(NSControl.cancelOperation(_:)):
+                                switch textField.actionOnEscapeKeyDown {
+                                case .endEditingAndReset:
+                                    textField.stringValue = textField.editStartString
+                                    textField.adjustFontSize()
                                     textField.window?.makeFirstResponder(nil)
                                     return true
+                                case .endEditing:
+                                    if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                        return false
+                                    } else {
+                                        textField.window?.makeFirstResponder(nil)
+                                        return true
+                                    }
+                                case .none:
+                                    break
                                 }
-                            case .none:
-                                break
-                            }
-                        case #selector(NSControl.insertNewline(_:)):
-                            switch textField.actionOnEnterKeyDown {
-                            case .endEditing:
-                                if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                    return false
-                                } else {
-                                    textField.window?.makeFirstResponder(nil)
-                                    return true
+                            case #selector(NSControl.insertNewline(_:)):
+                                switch textField.actionOnEnterKeyDown {
+                                case .endEditing:
+                                    if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                        return false
+                                    } else {
+                                        textField.window?.makeFirstResponder(nil)
+                                        return true
+                                    }
+                                case .none: break
                                 }
-                            case .none: break
+                            default: break
                             }
-                        default: break
+                        }
+                        return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
+                    }
+                    }
+                    
+                    try replaceMethod(
+                        #selector(textDidEndEditing),
+                        methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
+                    ) { store in { object, notification in
+                        if let textField = (object as? NSTextField) {
+                            //  textField.editingState = .didEnd
+                            textField.adjustFontSize()
+                            textField.editingHandlers.didEnd?()
+                        }
+                        store.original(object, #selector(NSTextField.textDidEndEditing), notification)
+                    }
+                    }
+                    
+                    try replaceMethod(
+                        #selector(textDidBeginEditing),
+                        methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
+                    ) { store in { object, notification in
+                        store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
+                        if let textField = (object as? NSTextField) {
+                            textField.editStartString = textField.stringValue
+                            textField.previousString = textField.stringValue
+                            textField.editingHandlers.didBegin?()
+                            if let editingRange = textField.currentEditor()?.selectedRange {
+                                textField.editingRange = editingRange
+                            }
                         }
                     }
-                    return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
-                }
-                }
-
-                try replaceMethod(
-                    #selector(textDidEndEditing),
-                    methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
-                    hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
-                ) { store in { object, notification in
-                    if let textField = (object as? NSTextField) {
-                        //  textField.editingState = .didEnd
-                        textField.adjustFontSize()
-                        textField.editingHandlers.didEnd?()
                     }
-                    store.original(object, #selector(NSTextField.textDidEndEditing), notification)
-                }
-                }
-
-                try replaceMethod(
-                    #selector(textDidBeginEditing),
-                    methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
-                    hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
-                ) { store in { object, notification in
-                    store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
-                    if let textField = (object as? NSTextField) {
-                        textField.editStartString = textField.stringValue
-                        textField.previousString = textField.stringValue
-                        textField.editingHandlers.didBegin?()
-                        if let editingRange = textField.currentEditor()?.selectedRange {
-                            textField.editingRange = editingRange
+                    
+                    try replaceMethod(
+                        #selector(textDidChange),
+                        methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
+                    ) { store in { object, notification in
+                        if let textField = (object as? NSTextField) {
+                            textField.updateString()
                         }
+                        store.original(object, #selector(NSTextField.textDidChange), notification)
                     }
-                }
-                }
-
-                try replaceMethod(
-                    #selector(textDidChange),
-                    methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
-                    hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
-                ) { store in { object, notification in
-                    if let textField = (object as? NSTextField) {
-                        textField.updateString()
-                        /*
-                         let newStr = textField.conformingString()
-                         if textField.stringValue != newStr {
-                             textField.stringValue = newStr
-                             if textField.previousString != newStr {
-                                 textField.editingHandlers.didEdit?()
-                                 textField.adjustFontSize()
-                                 textField.previousString = textField.stringValue
-                                 if let editingRange = textField.currentEditor()?.selectedRange {
-                                     textField.editingRange = editingRange
-                                 }
-                             } else {
-                                 textField.currentEditor()?.selectedRange = textField.editingRange
-                             }
-                         }
-
-                         let newString = textField.allowedCharacters.trimString(textField.stringValue)
-                         if let shouldEdit = textField.editingHandlers.shouldEdit {
-                             if shouldEdit(textField.stringValue) == false {
-                                 textField.stringValue = textField.previousString
-                             } else {
-                                 textField.editingHandlers.didEdit?()
-                             }
-                         } else if let maxCharCount = textField.maximumNumberOfCharacters, newString.count > maxCharCount {
-                             if textField.previousString.count <= maxCharCount {
-                                 textField.stringValue = textField.previousString
-                                 textField.currentEditor()?.selectedRange = textField.editingRange
-                             } else {
-                                 textField.stringValue = String(newString.prefix(maxCharCount))
-                             }
-                             textField.editingHandlers.didEdit?()
-                         } else if let minCharCount = textField.minimumNumberOfCharacters, newString.count < minCharCount  {
-                             if textField.previousString.count >= minCharCount {
-                                 textField.stringValue = textField.previousString
-                                 textField.currentEditor()?.selectedRange = textField.editingRange
-                             }
-                         } else {
-                             textField.stringValue = newString
-                             if textField.previousString == newString {
-                                 textField.currentEditor()?.selectedRange = textField.editingRange
-                             }
-                             textField.editingHandlers.didEdit?()
-                         }
-                         textField.previousString = textField.stringValue
-                         if let editingRange = textField.currentEditor()?.selectedRange {
-                             textField.editingRange = editingRange
-                         }
-                         textField.adjustFontSize()
-                         */
                     }
-                    store.original(object, #selector(NSTextField.textDidChange), notification)
+                } catch {
+                    Swift.debugPrint(error)
                 }
-                }
-            } catch {
-                Swift.debugPrint(error)
+            } else if didSwizzleTextField {
+                didSwizzleTextField = false
+                resetMethod(#selector(setter: font))
+                resetMethod(#selector(getter: font))
+                resetMethod(#selector(layout))
+                resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
+                resetMethod(#selector(textDidEndEditing))
+                resetMethod(#selector(textDidBeginEditing))
+                resetMethod(#selector(textDidChange))
             }
         }
 
