@@ -51,14 +51,14 @@
     }
 
     public extension TargetActionProtocol {
-        /// The action of the control.
+        /// The action handler of the control.
         @discardableResult
         func action(_ action: ActionBlock?) -> Self {
             actionBlock = action
             return self
         }
         
-        /// The action of the control.
+        /// The action handler of the control.
         var actionBlock: ActionBlock? {
             set {
                 guard let action = newValue else {
@@ -97,11 +97,13 @@
     extension UISwipeGestureRecognizer: TargetActionProtocol {}
     extension UIPanGestureRecognizer: TargetActionProtocol {}
     extension UILongPressGestureRecognizer: TargetActionProtocol {}
+    extension UITapGestureRecognizer: TargetActionProtocol {}
 
     #if os(iOS)
         extension UIPinchGestureRecognizer: TargetActionProtocol {}
         extension UIRotationGestureRecognizer: TargetActionProtocol {}
         extension UIHoverGestureRecognizer: TargetActionProtocol {}
+        extension UIScreenEdgePanGestureRecognizer: TargetActionProtocol {}
     #endif
 
     class ActionTrampoline<T: TargetActionProtocol>: NSObject {
