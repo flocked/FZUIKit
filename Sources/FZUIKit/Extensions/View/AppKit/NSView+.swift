@@ -520,7 +520,7 @@
                     let innerShadowLayer = InnerShadowLayer()
                     layer?.addSublayer(withConstraint: innerShadowLayer)
                     innerShadowLayer.sendToBack()
-                    innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                    innerShadowLayer.zPosition = 0
                     innerShadowLayer.shadowOpacity = 0.0
                     innerShadowLayer.shadowRadius = 0.0
                 }
