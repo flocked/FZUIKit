@@ -82,7 +82,7 @@
         
         /// A Boolean value that indicates whether the toolbar is visible.
         @discardableResult
-        func isVisible(_ isVisible: Bool) -> Self {
+        public func isVisible(_ isVisible: Bool) -> Self {
             self.isVisible = isVisible
             return self
         }
@@ -100,7 +100,8 @@
 
         @available(macOS 11.0, *)
         /// The style that determines the appearance and location of the toolbar in relation to the title bar.
-        @discardableResult public func style(_ style: NSWindow.ToolbarStyle) -> Self {
+        @discardableResult 
+        public func style(_ style: NSWindow.ToolbarStyle) -> Self {
             self.style = style
             return self
         }
@@ -113,7 +114,7 @@
         
         /// A value that indicates whether the toolbar displays items using a name, icon, or combination of elements.
         @discardableResult
-        func displayMode(_ mode: NSToolbar.DisplayMode) -> Self {
+        public func displayMode(_ mode: NSToolbar.DisplayMode) -> Self {
             displayMode = mode
             return self
         }
@@ -126,7 +127,7 @@
         
         /// A Boolean value that indicates whether the toolbar shows the separator between the toolbar and the main window contents.
         @discardableResult
-        func showsBaselineSeparator(_ shows: Bool) -> Self {
+        public func showsBaselineSeparator(_ shows: Bool) -> Self {
             showsBaselineSeparator = shows
             return self
         }
@@ -139,7 +140,7 @@
         
         /// A Boolean value that indicates whether users can modify the contents of the toolbar.
         @discardableResult
-        func allowsUserCustomization(_ allows: Bool) -> Self {
+        public func allowsUserCustomization(_ allows: Bool) -> Self {
             allowsUserCustomization = allows
             return self
         }
@@ -152,7 +153,7 @@
         
         /// A Boolean value that indicates whether the toolbar can add items for Action extensions.
         @discardableResult
-        func allowsExtensionItems(_ allows: Bool) -> Self {
+        public func allowsExtensionItems(_ allows: Bool) -> Self {
             allowsExtensionItems = allows
             return self
         }
@@ -189,7 +190,7 @@
         
         /// A Boolean value that indicates whether the toolbar autosaves its configuration.
         @discardableResult
-        func autosavesConfiguration(_ autosaves: Bool) -> Self {
+        public func autosavesConfiguration(_ autosaves: Bool) -> Self {
             autosavesConfiguration = autosaves
             return self
         }
