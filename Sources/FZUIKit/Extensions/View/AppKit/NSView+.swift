@@ -409,11 +409,6 @@
             }
         }
 
-        var shadowColorDynamic: NSColor? {
-            get { getAssociatedValue(key: "shadowColorDynamic", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "shadowColorDynamic", object: self) }
-        }
-
         @objc var shadowColorAnimatable: NSColor? {
             get { layer?.shadowColor?.nsColor }
             set { layer?.shadowColor = newValue?.cgColor }
