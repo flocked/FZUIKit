@@ -62,10 +62,10 @@
             }
             let group: NSCollectionLayoutGroup
             if orientation == .horizontal {
-                group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
                                                                subitems: [item])
             } else {
-                group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
+                group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
                                                                subitems: [item])
             }
             let section = NSCollectionLayoutSection(group: group)
