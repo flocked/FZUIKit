@@ -39,7 +39,7 @@
 
          - Parameters:
             - mask: An event mask specifying which events you wish to monitor. See `NSEvent.EventTypeMask` for possible values.
-            - handler: The event handler block object. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return `nil to stop the dispatching of the event.
+            - handler: The event handler block object. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return `nil` to stop the dispatching of the event.
 
          - Returns: The event monitor object.
          */
