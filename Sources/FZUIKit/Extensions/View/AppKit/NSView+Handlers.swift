@@ -409,7 +409,7 @@ extension NSView {
         
         func observeSuperviewProperty<Value>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
             if let handler = handler {
-                superviewObserver?.add(keyPath) { old, new in
+                superviewObserver?.add(keyPath, sendInitalValue: true) { old, new in
                     handler(new)
                 }
             } else {
