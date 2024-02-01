@@ -41,12 +41,22 @@
         }
 
         /**
-         The file urls of the pasteboard or `nil` if no urls are available.
+         The file urls of the pasteboard or `nil` if no file urls are available.
          
          Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
          */
         public var fileURLs: [URL]? {
-            get { read(for: NSURL.self)?.compactMap { $0 as URL } }
+            get { read(for: NSURL.self)?.compactMap { $0 as URL }.filter({$0.absoluteString.contains("file://")}) }
+            set { write(newValue ?? []) }
+        }
+        
+        /**
+         The urls of the pasteboard or `nil` if no urls are available.
+         
+         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         */
+        public var urls: [URL]? {
+            get { read(for: NSURL.self)?.compactMap { $0 as URL }.filter({$0.absoluteString.contains("file://") == false }) }
             set { write(newValue ?? []) }
         }
 
@@ -103,13 +113,23 @@
         }
 
         /**
-         The file urls of the dragging info or `nil` if no urls are available.
+         The file urls of the dragging info or `nil` if no file urls are available.
          
          Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
          */
         public var fileURLs: [URL]? {
             get { draggingPasteboard.fileURLs }
             set { draggingPasteboard.fileURLs = newValue }
+        }
+        
+        /**
+         The urls of the dragging info or `nil` if no urls are available.
+         
+         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         */
+        public var urls: [URL]? {
+            get { draggingPasteboard.urls }
+            set { draggingPasteboard.urls = newValue }
         }
         
         /**
