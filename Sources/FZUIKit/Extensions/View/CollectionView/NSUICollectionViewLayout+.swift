@@ -61,8 +61,14 @@
                 groupSize = NSCollectionLayoutSize(widthDimension: .absolute(size),
                                                    heightDimension: .fractionalHeight(1.0))
             }
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
-                                                           subitems: [item])
+            let group: NSCollectionLayoutGroup
+            if orientation == .horizontal {
+                group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                                                               subitems: [item])
+            } else {
+                group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
+                                                               subitems: [item])
+            }
             let section = NSCollectionLayoutSection(group: group)
 
             let layout = NSUICollectionViewCompositionalLayout(section: section)
