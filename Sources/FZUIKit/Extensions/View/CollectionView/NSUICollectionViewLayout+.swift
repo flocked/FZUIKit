@@ -51,10 +51,9 @@
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                   heightDimension: .fractionalHeight(1.0))
 
-            var itemSupplementaryItems = [NSCollectionLayoutBoundarySupplementaryItem]()
-            let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: itemSupplementaryItems)
+            let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: [])
             let groupSize: NSCollectionLayoutSize
-            if orientation == .vertical {
+            if orientation == .horizontal {
                 groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                        heightDimension: .absolute(size))
             } else {
