@@ -378,17 +378,11 @@
                 return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
             }
             set {
-                proxyShadow = newValue
                 shadowOffset = newValue.offset
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
                 shadowColor = newValue._resolvedColor
             }
-        }
-
-        var proxyShadow: ShadowConfiguration? {
-            get { getAssociatedValue(key: "proxyShadow", object: self, initialValue: .none()) }
-            set { set(associatedValue: newValue, key: "proxyShadow", object: self) }
         }
 
         /**
