@@ -47,9 +47,10 @@
             - orientation: The orientation of the items.
             - itemSize: The fixed width or height of the items.
             - spacing: The spacing between the items. The default value is `0`.
+            - scrollingBehavior: The scrolling behavior of the items. The default value is `continuous`.
             - insets: The insets of the layout. The default value is `zero`.
          */
-        static func fixed(orientation: NSUIUserInterfaceLayoutOrientation, itemSize: CGFloat, spacing: CGFloat = 0.0, insets: NSDirectionalEdgeInsets = .zero) -> NSUICollectionViewLayout {
+        static func fixed(orientation: NSUIUserInterfaceLayoutOrientation, itemSize: CGFloat, spacing: CGFloat = 0.0, scrollingBehavior: NSUICollectionLayoutSectionOrthogonalScrollingBehavior = .continuous, insets: NSDirectionalEdgeInsets = .zero) -> NSUICollectionViewLayout {
             let layoutItemSize: NSCollectionLayoutSize
             if orientation == .horizontal {
                 layoutItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
@@ -80,7 +81,7 @@
             group.contentInsets = insets
             
             let section = NSCollectionLayoutSection(group: group)
-            section.orthogonalScrollingBehavior = .continuous
+            section.orthogonalScrollingBehavior = scrollingBehavior
             
             let layout = NSUICollectionViewCompositionalLayout(section: section)
             return layout

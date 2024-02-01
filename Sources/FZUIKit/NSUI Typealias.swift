@@ -16,6 +16,7 @@ import SwiftUI
     public typealias NSUICollectionViewDelegate = NSCollectionViewDelegate
     public typealias NSUICollectionViewLayout = NSCollectionViewLayout
     public typealias NSUICollectionViewLayoutAttributes = NSCollectionViewLayoutAttributes
+    public typealias NSUICollectionLayoutSectionOrthogonalScrollingBehavior = NSCollectionLayoutSectionOrthogonalScrollingBehavior
     public typealias NSUIColor = NSColor
     public typealias NSUIEdgeInsets = NSEdgeInsets
     public typealias NSUIFont = NSFont
@@ -70,6 +71,7 @@ import SwiftUI
     public typealias NSUICollectionViewDelegate = UICollectionViewDelegate
     public typealias NSUICollectionViewLayout = UICollectionViewLayout
     public typealias NSUICollectionViewLayoutAttributes = UICollectionViewLayoutAttributes
+    public typealias NSUICollectionLayoutSectionOrthogonalScrollingBehavior = UICollectionLayoutSectionOrthogonalScrollingBehavior
     public typealias NSUIView = UIView
     public typealias NSUISegmentedControl = UISegmentedControl
     public typealias NSUIStoryboard = UIStoryboard
