@@ -39,6 +39,35 @@
             let layout = NSUICollectionViewCompositionalLayout(section: section)
             return layout
         }
+        
+        /**
+         A collection view layout that displays the items with a fixed size.
+         
+         - Parameters:
+            - orientation: The orientation of the items.
+            - size: The fixed size of the items.
+         */
+        static func fixed(orientation: NSUIUserInterfaceLayoutOrientation, size: CGFloat) -> NSUICollectionViewLayout {
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .fractionalHeight(1.0))
+
+            var itemSupplementaryItems = [NSCollectionLayoutBoundarySupplementaryItem]()
+            let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: itemSupplementaryItems)
+            let groupSize: NSCollectionLayoutSize
+            if orientation == .vertical {
+                groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                       heightDimension: .absolute(size))
+            } else {
+                groupSize = NSCollectionLayoutSize(widthDimension: .absolute(size),
+                                                   heightDimension: .fractionalHeight(1.0))
+            }
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                                                           subitems: [item])
+            let section = NSCollectionLayoutSection(group: group)
+
+            let layout = NSUICollectionViewCompositionalLayout(section: section)
+            return layout
+        }
 
         /**
          A collection view layout that displays each item full size.
