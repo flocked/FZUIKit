@@ -227,6 +227,8 @@ extension NSView {
         public struct PasteboardContent {
             /// The file urls on the pasteboard.
             public var fileURLs: [URL]?
+            /// The urls on the pasteboard.
+            public var urls: [URL]?
             /// The images on the pasteboard.
             public var images: [NSImage]?
             /// The strings on the pasteboard.
@@ -241,11 +243,12 @@ extension NSView {
                 self.strings = draggingInfo.strings
                 self.colors = draggingInfo.colors
                 self.fileURLs = draggingInfo.fileURLs
+                self.urls = draggingInfo.urls
                 self.sounds = draggingInfo.sounds
             }
             
             var isValid: Bool {
-                images?.count ?? 0 >= 1 || fileURLs?.count ?? 0 >= 1 || colors?.count ?? 0 >= 1 || strings?.count ?? 0 >= 1 || sounds?.count ?? 0 >= 1
+                images?.count ?? 0 >= 1 || fileURLs?.count ?? 0 >= 1 || colors?.count ?? 0 >= 1 || strings?.count ?? 0 >= 1 || sounds?.count ?? 0 >= 1 || urls?.count ?? 0 >= 1
             }
         }
         
