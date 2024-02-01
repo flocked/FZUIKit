@@ -248,7 +248,7 @@ extension NSView {
             }
             
             var isValid: Bool {
-                images?.count ?? 0 >= 1 || fileURLs?.count ?? 0 >= 1 || colors?.count ?? 0 >= 1 || strings?.count ?? 0 >= 1 || sounds?.count ?? 0 >= 1 || urls?.count ?? 0 >= 1
+                images?.isEmpty == false || strings?.isEmpty == false || fileURLs?.isEmpty == false || urls?.isEmpty == false || colors?.isEmpty == false || sounds?.isEmpty == false
             }
         }
         
