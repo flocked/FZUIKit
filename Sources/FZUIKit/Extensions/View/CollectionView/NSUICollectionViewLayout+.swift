@@ -48,24 +48,30 @@
             - size: The fixed size of the items.
          */
         static func fixed(orientation: NSUIUserInterfaceLayoutOrientation, size: CGFloat) -> NSUICollectionViewLayout {
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+            let itemSize: NSCollectionLayoutSize
+            if orientation == .horizontal {
+                itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .absolute(size))
+            } else {
+                itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size),
                                                   heightDimension: .fractionalHeight(1.0))
+            }
 
             let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: [])
             let groupSize: NSCollectionLayoutSize
             if orientation == .horizontal {
                 groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                       heightDimension: .absolute(size))
+                                                       heightDimension: .fractionalHeight(1.0))
             } else {
-                groupSize = NSCollectionLayoutSize(widthDimension: .absolute(size),
+                groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                    heightDimension: .fractionalHeight(1.0))
             }
             let group: NSCollectionLayoutGroup
             if orientation == .horizontal {
-                group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
+                group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
                                                                subitems: [item])
             } else {
-                group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
                                                                subitems: [item])
             }
             let section = NSCollectionLayoutSection(group: group)
