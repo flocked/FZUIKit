@@ -274,7 +274,6 @@ extension NSView {
     
     class ObserverView: NSView {
         
-        var keyValueObserver: KeyValueObserver<NSView>?
         var superviewObserver: KeyValueObserver<NSView>?
         lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
         var windowDidBecomeKeyObserver: NotificationToken?
@@ -416,23 +415,6 @@ extension NSView {
                 superviewObserver?.remove(keyPath)
             }
         }
-                
-        /*
-        func setupObservation(needsSetup: Bool) {
-            if needsSetup {
-                if keyValueObserver == nil {
-                    keyValueObserver = KeyValueObserver(self)
-                    keyValueObserver?.add(\.superview?.superview, sendInitalValue: true, handler: { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self._viewHandlers.superview?(new)
-                        self.observeSuperview()
-                    })
-                }
-            } else {
-                keyValueObserver = nil
-            }
-        }
-        */
                 
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard  _dropHandlers.draggingEntered != nil || _dropHandlers.canDrop != nil else { return [] }
