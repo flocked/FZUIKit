@@ -83,16 +83,16 @@ extension NSView {
     
     /// The handlers for the window state.
     public struct WindowHandlers {
-        /// The view will move to a window.
+        /// The handler that gets called when when the view will move to a new window.
         public var willMoveToWindow: ((NSWindow?) -> Void)?
         
-        /// The view did move to a window.
+        /// The handler that gets called when when the view did move to a new window.
         public var didMoveToWindow: ((NSWindow) -> Void)?
         
-        /// The window is key.
+        /// The handler that gets called when `isKey` changed.
         public var isKey: ((Bool) -> Void)?
         
-        /// The window is main.
+        /// The handler that gets called when `isMain` changed.
         public var isMain: ((Bool) -> Void)?
         
         var needsObserving: Bool {
@@ -102,11 +102,26 @@ extension NSView {
     
     /// The handlers for the view.
     public struct ViewHandlers {
-        /// The superview changed.
-        public var superviewChanged: ((NSView?) -> Void)?
-        
+        /// The handler that gets called when the superview changed.
+        public var superview: ((NSView?) -> Void)?
+        /// The handler that gets called when the bounds rectangle changed.
+        public var bounds: ((CGRect)->())?
+        /// The handler that gets called when the frame rectangle changed.
+        public var frame: ((CGRect)->())?
+        /// The handler that gets called when `isHidden` changed.
+        public var isHidden: ((Bool)->())?
+        /// The handler that gets called when the alpha value changed.
+        public var alphaValue: ((CGFloat)->())?
+        /// The handler that gets called when the effective appearance changed.
+        public var effectiveAppearance: ((NSAppearance)->())?
+
         var needsObserving: Bool {
-            superviewChanged != nil
+            superview != nil ||
+            isHidden != nil ||
+            alphaValue != nil ||
+            bounds != nil ||
+            frame != nil ||
+            effectiveAppearance != nil
         }
     }
     
@@ -132,36 +147,36 @@ extension NSView {
             }
         }
         
-        /// The mouse moved.
+        /// Option when the mouse handlers are active. The default value is `inKeyWindow`.
+        public var active: ActiveOption = .inKeyWindow
+        
+        /// The handler that gets called when when the mouse inside the view moved.
         public var moved: ((NSEvent) -> ())?
         
-        /// The mouse dragged.
+        /// The handler that gets called when when the mouse inside the view dragged.
         public var dragged: ((NSEvent) -> ())?
         
-        /// The mouse entered.
+        /// The handler that gets called when when the mouse entered the view.
         public var entered: ((NSEvent) -> ())?
         
-        /// The mouse entered.
+        /// The handler that gets called when when the mouse exited the view.
         public var exited: ((NSEvent) -> ())?
         
-        /// The mouse did left click.
+        /// The handler that gets called when when the mouse did left-click the view.
         public var down: ((NSEvent) -> ())?
         
-        /// The mouse did right click.
+        /// The handler that gets called when when the mouse did right-click the view.
         public var rightDown: ((NSEvent) -> ())?
         
-        /// The mouse did left click up.
+        /// The handler that gets called when when the mouse did left-click up the view.
         public var up: ((NSEvent) -> ())?
         
-        /// The mouse did right click up.
+        /// The handler that gets called when when the mouse did right-click up the view.
         public var rightUp: ((NSEvent) -> ())?
         
         var needsObserving: Bool {
             moved != nil || dragged != nil || entered != nil || exited != nil || down != nil || rightDown != nil || up != nil || rightUp != nil
         }
-        
-        /// Option when the mouse handlers are active. The default value is `inKeyWindow`.
-        public var active: ActiveOption = .inKeyWindow
         
         var trackingAreaOptions: NSTrackingArea.Options {
             var options: NSTrackingArea.Options = [.inVisibleRect, .mouseEnteredAndExited]
@@ -260,6 +275,7 @@ extension NSView {
     class ObserverView: NSView {
         
         var keyValueObserver: KeyValueObserver<NSView>?
+        var superviewObserver: KeyValueObserver<NSView>?
         lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
         var windowDidBecomeKeyObserver: NotificationToken?
         var windowDidResignKeyObserver: NotificationToken?
@@ -271,7 +287,9 @@ extension NSView {
         }
         
         var _viewHandlers = ViewHandlers() {
-            didSet { setupObservation(needsSetup: _viewHandlers.needsObserving) }
+            didSet { 
+                setupSuperviewObservation(superview: superview)
+            }
         }
         
         var _mouseHandlers = MouseHandlers() {
@@ -357,20 +375,64 @@ extension NSView {
             _mouseHandlers.dragged?(event)
             super.mouseDragged(with: event)
         }
+        
+        override func viewWillMove(toSuperview newSuperview: NSView?) {
+            setupSuperviewObservation(superview: newSuperview)
+        }
+        
+        func setupSuperviewObservation(superview: NSView?) {
+            if _viewHandlers.needsObserving, let superview = superview {
+                if superviewObserver?.observedObject != superview {
+                    superviewObserver = .init(superview)
+                }
+                observeSuperviewProperty(\.effectiveAppearance, handler: _viewHandlers.effectiveAppearance)
+                observeSuperviewProperty(\.alphaValue, handler: _viewHandlers.alphaValue)
+                observeSuperviewProperty(\.isHidden, handler: _viewHandlers.isHidden)
+                observeSuperviewProperty(\.bounds, handler: _viewHandlers.bounds)
+                observeSuperviewProperty(\.frame, handler: _viewHandlers.frame)
+                observeSuperviewProperty(\.superview, handler: _viewHandlers.superview)
+            } else {
+                superviewObserver = nil
+            }
+        }
+        
+        func observeSuperviewProperty<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
+            if let handler = handler {
+                superviewObserver?.add(keyPath) { old, new in
+                    guard old != new else { return }
+                    handler(new)
+                }
+            } else {
+                superviewObserver?.remove(keyPath)
+            }
+        }
+        
+        func observeSuperviewProperty<Value>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
+            if let handler = handler {
+                superviewObserver?.add(keyPath) { old, new in
+                    handler(new)
+                }
+            } else {
+                superviewObserver?.remove(keyPath)
+            }
+        }
                 
+        /*
         func setupObservation(needsSetup: Bool) {
             if needsSetup {
                 if keyValueObserver == nil {
                     keyValueObserver = KeyValueObserver(self)
                     keyValueObserver?.add(\.superview?.superview, sendInitalValue: true, handler: { [weak self] old, new in
                         guard let self = self, old != new else { return }
-                        self._viewHandlers.superviewChanged?(new)
+                        self._viewHandlers.superview?(new)
+                        self.observeSuperview()
                     })
                 }
             } else {
                 keyValueObserver = nil
             }
         }
+        */
                 
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard  _dropHandlers.draggingEntered != nil || _dropHandlers.canDrop != nil else { return [] }
@@ -492,7 +554,7 @@ extension NSView {
         
         lazy var _superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self] _, new in
             guard let self = self else { return }
-            self._viewHandlers.superviewChanged?(new)
+            self._viewHandlers.superview?(new)
         }
         
         deinit {
