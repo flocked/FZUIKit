@@ -555,25 +555,6 @@
             set { layer?.innerShadowLayer?.configuration.offset = newValue }
         }
 
-        /**
-         Adds a tracking area to the view.
-
-         - Parameters:
-            - rect: A rectangle that defines a region of the view for tracking events related to mouse tracking and cursor updating. The specified rectangle should not exceed the view’s bounds rectangle.
-            - options: One or more constants that specify the type of tracking area, the situations when the area is active, and special behaviors of the tracking area. See the description of NSTrackingArea.Options and related constants for details. You must specify one or more options for the initialized object for the type of tracking area and for when the tracking area is active; zero is not a valid value.
-         */
-        public func addTrackingArea(rect: NSRect? = nil, options: NSTrackingArea.Options = [
-            .mouseMoved,
-            .mouseEnteredAndExited,
-            .activeInKeyWindow,
-        ]) {
-            addTrackingArea(NSTrackingArea(
-                rect: rect ?? bounds,
-                options: options,
-                owner: self
-            ))
-        }
-
         /// Removes all tracking areas.
         public func removeAllTrackingAreas() {
             for trackingArea in trackingAreas {
