@@ -65,16 +65,16 @@
                 items.append(contentsOf: fileURLs)
             }
 
-            if let color = color {
-                items.append(color)
+            if let colors = colors {
+                items.append(contentsOf: colors)
             }
 
-            if let string = string {
-                items.append(string)
+            if let strings = strings {
+                items.append(contentsOf: strings)
             }
 
-            if let sound = sound {
-                items.append(sound)
+            if let sounds = sounds {
+                items.append(contentsOf: sounds)
             }
 
             if let images = images {

@@ -229,20 +229,23 @@ extension NSView {
             public var fileURLs: [URL]?
             /// The images on the pasteboard.
             public var images: [NSImage]?
-            /// The string on the pasteboard.
-            public var string: String?
-            /// The color on the pasteboard.
-            public var color: NSColor?
+            /// The strings on the pasteboard.
+            public var strings: [String]?
+            /// The colors on the pasteboard.
+            public var colors: [NSColor]?
+            /// The sounds on the pasteboard.
+            public var sounds: [NSSound]?
             
             init(_ draggingInfo: NSDraggingInfo) {
                 self.images = draggingInfo.images
-                self.string = draggingInfo.string
-                self.color = draggingInfo.color
+                self.strings = draggingInfo.strings
+                self.colors = draggingInfo.colors
                 self.fileURLs = draggingInfo.fileURLs
+                self.sounds = draggingInfo.sounds
             }
             
             var isValid: Bool {
-                images?.count ?? 0 >= 1 || fileURLs?.count ?? 0 >= 1 || color != nil || string != nil
+                images?.count ?? 0 >= 1 || fileURLs?.count ?? 0 >= 1 || colors?.count ?? 0 >= 1 || strings?.count ?? 0 >= 1 || sounds?.count ?? 0 >= 1
             }
         }
         
