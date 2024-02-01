@@ -1,5 +1,5 @@
 //
-//  NSStoryboard+.swift
+//  NSUIStoryboard+.swift
 //
 //
 //  Created by Florian Zand on 04.05.23.
