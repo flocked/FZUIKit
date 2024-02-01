@@ -80,7 +80,8 @@
             group.contentInsets = insets
             
             let section = NSCollectionLayoutSection(group: group)
-
+            section.orthogonalScrollingBehavior = .continuous
+            
             let layout = NSUICollectionViewCompositionalLayout(section: section)
             return layout
         }
