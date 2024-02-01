@@ -565,7 +565,7 @@
         /**
          Marks the receiver’s entire bounds rectangle as needing to be redrawn.
 
-         A convinient way of setting `needsDisplay` to `true`.
+         It's a convinient way of setting `needsDisplay` to `true`.
          */
         @discardableResult
         public func setNeedsDisplay() -> Self {
@@ -576,7 +576,7 @@
         /**
          Invalidates the current layout of the receiver and triggers a layout update during the next update cycle.
 
-         A convinient way of setting `needsLayout` to `true`.
+         It's a convinient way of setting `needsLayout` to `true`.
          */
         @discardableResult
         public func setNeedsLayout() -> Self {
@@ -587,7 +587,7 @@
         /**
          Controls whether the view’s constraints need updating.
 
-         A convinient way of setting `needsUpdateConstraints` to `true`.
+         It's a convinient way of setting `needsUpdateConstraints` to `true`.
          */
         @discardableResult
         public func setNeedsUpdateConstraints() -> Self {
@@ -598,7 +598,7 @@
         /**
          Turns the view into a layer-backed view
 
-         A convinient way of setting `wantsLayer` to `true`.
+         It's a convinient way of setting `wantsLayer` to `true`.
          */
         @discardableResult
         public func setWantsLayer() -> Self {
