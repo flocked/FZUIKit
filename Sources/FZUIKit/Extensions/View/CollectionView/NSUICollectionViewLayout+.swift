@@ -41,23 +41,25 @@
         }
         
         /**
-         A collection view layout that displays the items with a fixed size.
+         A collection view layout that displays the items with a fixed width or height.
          
          - Parameters:
             - orientation: The orientation of the items.
-            - size: The fixed size of the items.
+            - itemSize: The fixed width or height of the items.
+            - spacing: The spacing between the items. The default value is `0`.
+            - insets: The insets of the layout. The default value is `zero`.
          */
-        static func fixed(orientation: NSUIUserInterfaceLayoutOrientation, size: CGFloat) -> NSUICollectionViewLayout {
-            let itemSize: NSCollectionLayoutSize
+        static func fixed(orientation: NSUIUserInterfaceLayoutOrientation, itemSize: CGFloat, spacing: CGFloat = 0.0, insets: NSDirectionalEdgeInsets = .zero) -> NSUICollectionViewLayout {
+            let layoutItemSize: NSCollectionLayoutSize
             if orientation == .horizontal {
-                itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                  heightDimension: .absolute(size))
+                layoutItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                  heightDimension: .absolute(itemSize))
             } else {
-                itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size),
+                layoutItemSize = NSCollectionLayoutSize(widthDimension: .absolute(itemSize),
                                                   heightDimension: .fractionalHeight(1.0))
             }
 
-            let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: [])
+            let item = NSCollectionLayoutItem(layoutSize: layoutItemSize, supplementaryItems: [])
             let groupSize: NSCollectionLayoutSize
             if orientation == .horizontal {
                 groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
@@ -68,12 +70,15 @@
             }
             let group: NSCollectionLayoutGroup
             if orientation == .horizontal {
-                group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
-                                                               subitems: [item])
-            } else {
                 group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
                                                                subitems: [item])
+            } else {
+                group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                                                               subitems: [item])
             }
+            group.interItemSpacing = .fixed(spacing)
+            group.contentInsets = insets
+            
             let section = NSCollectionLayoutSection(group: group)
 
             let layout = NSUICollectionViewCompositionalLayout(section: section)
