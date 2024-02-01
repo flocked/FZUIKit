@@ -25,6 +25,16 @@ extension NSPasteboardItem {
         }
     }
     
+    /// The string of the pasteboard item.
+    public var string: String? {
+        get { string(forType: .string) }
+        set {
+            if let newValue = newValue {
+                setString(newValue, forType: .string)
+            }
+        }
+    }
+    
     /// The png image of the pasteboard item.
     public var pngImage: NSImage? {
         get {
