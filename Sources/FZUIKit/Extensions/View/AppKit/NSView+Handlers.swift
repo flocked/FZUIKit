@@ -405,16 +405,6 @@ extension NSView {
                 superviewObserver?.remove(keyPath)
             }
         }
-        
-        func observeSuperviewProperty<Value>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
-            if let handler = handler {
-                superviewObserver?.add(keyPath, sendInitalValue: true) { old, new in
-                    handler(new)
-                }
-            } else {
-                superviewObserver?.remove(keyPath)
-            }
-        }
                 
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard  _dropHandlers.draggingEntered != nil || _dropHandlers.canDrop != nil else { return [] }
