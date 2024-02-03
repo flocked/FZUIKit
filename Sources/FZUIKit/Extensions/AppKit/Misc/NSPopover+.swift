@@ -78,94 +78,6 @@
                 }
             }
         }
-        
-        var positioningView: NSView? {
-            value(forKey: "positioningView") as? NSView
-        }
-        
-        var preferredEdge: NSRectEdge {
-            if let rawValue = value(forKey: "preferredEdge") as? UInt, let preferredEdge = NSRectEdge(rawValue: rawValue){
-                return preferredEdge
-            }
-            return .minX
-        }
-        
-        public var hideArrow: Bool {
-            get { getAssociatedValue(key: "hideArrow", object: self, initialValue: false) }
-            set { 
-                guard newValue != hideArrow else { return }
-                set(associatedValue: newValue, key: "hideArrow", object: self)
-                swizzleShow(shouldSwizzle: newValue)
-                if isShown, let positioningView = self.positioningView {
-                    if newValue == true {
-                        setupNoArrowView(for: positioningView, positioningRect: positioningRect, preferredEdge: preferredEdge)
-                    } else {
-                        show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
-                    }
-                }
-            }
-        }
-        
-        func swizzleShow(shouldSwizzle: Bool) {
-            if shouldSwizzle {
-                guard didSwizzleShow == false else { return }
-                do {
-                    try replaceMethod(
-                        #selector(self.show(relativeTo:of:preferredEdge:)),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, CGRect, NSView, NSRectEdge) -> ()).self,
-                        hookSignature: (@convention(block)  (AnyObject, CGRect, NSView, NSRectEdge) -> ()).self) { store in {
-                            object, positioningRect, positioningView, preferredEdge in
-                            if let popover = object as? NSPopover, popover.hideArrow == true, popover.isHiddingArrow == false {
-                                popover.setupNoArrowView(for: positioningView, positioningRect: positioningRect, preferredEdge: preferredEdge)
-                            } else {
-                                store.original(object, #selector(self.show(relativeTo:of:preferredEdge:)), positioningRect, positioningView, preferredEdge)
-                            }
-                        }
-                        }
-                    didSwizzleShow = true
-                } catch {
-                    Swift.debugPrint(error)
-                    // handle error
-                }
-            } else if didSwizzleShow {
-                didSwizzleShow = false
-                resetMethod(#selector(self.show(relativeTo:of:preferredEdge:)))
-            }
-        }
-        
-        var didSwizzleShow: Bool {
-            get { getAssociatedValue(key: "didSwizzleShow", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "didSwizzleShow", object: self) }
-        }
-        
-        var isHiddingArrow: Bool {
-            get { getAssociatedValue(key: "isHiddingArrow", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "isHiddingArrow", object: self) }
-        }
-        
-        func setupNoArrowView(for positioningView: NSView, positioningRect: CGRect, preferredEdge: NSRectEdge) {
-            isHiddingArrow = true
-            let noArrowView = NSView(frame: positioningView.frame)
-            switch preferredEdge {
-            case .minX:
-                noArrowView.frame.origin.x += 10
-            case .maxX:
-                noArrowView.frame.origin.x -= 10
-            case .minY:
-                noArrowView.frame.origin.y += 10
-            case .maxY:
-                noArrowView.frame.origin.y -= 10
-            default: break
-            }
-            self.noArrowView = noArrowView
-            positioningView.superview?.addSubview(noArrowView)
-            show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
-            noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
-            willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
-                (notification.object as? NSPopover)?.dismissNoArrow()
-            })
-            isHiddingArrow = false
-        }
 
         /// Detaches the popover.
         public func detach() {
@@ -176,6 +88,17 @@
                 }
                 closeButton?.isHidden = hideDetachedCloseButton
             }
+        }
+        
+        var positioningView: NSView? {
+            value(forKey: "positioningView") as? NSView
+        }
+        
+        var preferredEdge: NSRectEdge {
+            if let rawValue = value(forKey: "preferredEdge") as? UInt, let preferredEdge = NSRectEdge(rawValue: rawValue){
+                return preferredEdge
+            }
+            return .minX
         }
 
         /**
@@ -207,7 +130,25 @@
             if hideArrow == false {
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
             } else {
-                setupNoArrowView(for: positioningView, positioningRect: positioningRect, preferredEdge: preferredEdge)
+                let noArrowView = NSView(frame: positioningView.frame)
+                switch preferredEdge {
+                case .minX:
+                    noArrowView.frame.origin.x += 10
+                case .maxX:
+                    noArrowView.frame.origin.x -= 10
+                case .minY:
+                    noArrowView.frame.origin.y += 10
+                case .maxY:
+                    noArrowView.frame.origin.y -= 10
+                default: break
+                }
+                self.noArrowView = noArrowView
+                positioningView.superview?.addSubview(noArrowView, positioned: .below, relativeTo: positioningView)
+                show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
+                noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
+                willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
+                    (notification.object as? NSPopover)?.dismissNoArrow()
+                })
             }
             if trackViewFrame {
                 positioningViewFrameObserver = positioningView.observeChanges(for: \.frame, handler: { [weak self] old, new in
