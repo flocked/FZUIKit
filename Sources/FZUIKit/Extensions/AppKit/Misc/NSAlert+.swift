@@ -70,7 +70,7 @@ extension NSAlert {
     }
     
     /**
-     The key for suppressing the alert.
+     The key for supression of the alert.
      
      Provide this key to allow the user to opt out of showing the alert again. The alert shows a suppression checkbox.
      
@@ -87,7 +87,7 @@ extension NSAlert {
      
      ### Reset the supression key
 
-     To reset the supression of the alert and to show it again regardless if the user already did opt out, use ``resetSupression(for:)``
+     To reset the supression of the alert and to show it again regardless if the user already did opt out showing it, use ``resetSupression(for:)``
      
      ```swift
      NSAlert.resetSupression(for: "mySuppressionKey")
@@ -101,9 +101,21 @@ extension NSAlert {
         }
     }
     
-    /// Resets the supression for alerts with the specified key. It allows showing the alerts again, regardless if the user already did opt out of showing them.
+    /**
+     Resets the supression for alerts with the specified key. It lets you show them again, regardless if the user already did opt out of showing them.
+     
+     - Parameter suppressionKey: The supression key.
+     */
     public static func resetSupression(for suppressionKey: String) {
-        UserDefaults.standard.set(nil, forKey: suppressionKey)
+        if var supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(suppressionKey) {
+            supressionKeys.remove(suppressionKey)
+            Defaults.shared["supressionKeys"] = supressionKeys.uniqued()
+        }
+    }
+    
+    /// Resets the supression for all alerts.
+    public static func resetAllSupressions() {
+        Defaults.shared["supressionKeys"] = nil
     }
     
     func swizzleRunModal() {
@@ -117,13 +129,13 @@ extension NSAlert {
                 guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
                     return store.original(object, #selector(self.runModal))
                 }
-                if UserDefaults.standard.bool(forKey: suppressionKey) {
+                if let supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(suppressionKey) {
                     return .suppress
                 }
                 alert.showsSuppressionButton = true
                 let runModal = store.original(object, #selector(self.runModal))
                 if alert.suppressionButton?.state == .on {
-                    UserDefaults.standard.set(true, forKey: suppressionKey)
+                    Self.saveSupressionKey(suppressionKey)
                 }
                 return runModal
             }
@@ -138,13 +150,13 @@ extension NSAlert {
                     store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, handler)
                     return
                 }
-                if UserDefaults.standard.bool(forKey: suppressionKey) {
+                if let supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(suppressionKey) {
                     handler?(.suppress)
                 } else {
                     alert.showsSuppressionButton = true
                     let wrappedHandler: ((NSApplication.ModalResponse) -> Void) = { response in
                         if alert.suppressionButton?.state == .on {
-                            UserDefaults.standard.set(true, forKey: suppressionKey)
+                            Self.saveSupressionKey(suppressionKey)
                         }
                         handler?(response)
                     }
@@ -155,6 +167,15 @@ extension NSAlert {
             didSwizzleRunModal = true
         } catch {
             Swift.debugPrint()
+        }
+    }
+    
+    static func saveSupressionKey(_ key: String) {
+        if var supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(key) {
+            supressionKeys.append(key)
+            Defaults.shared["supressionKeys"] = supressionKeys.uniqued()
+        } else {
+            Defaults.shared["supressionKeys"] = [key]
         }
     }
     
