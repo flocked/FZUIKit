@@ -126,15 +126,15 @@
                 case .maxX:
                     noArrowView.frame.origin.x -= 10
                 case .minY:
-                    noArrowView.frame.origin.y -= 10
-                case .maxY:
                     noArrowView.frame.origin.y += 10
+                case .maxY:
+                    noArrowView.frame.origin.y -= 10
                 default: break
                 }
                 self.noArrowView = noArrowView
                 positioningView.superview?.addSubview(noArrowView, positioned: .below, relativeTo: positioningView)
                 show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
-                noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
+                // noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
                 willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
                     (notification.object as? NSPopover)?.dismissNoArrow()
                 })
