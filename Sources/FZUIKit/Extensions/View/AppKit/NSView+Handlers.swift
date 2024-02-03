@@ -397,10 +397,9 @@ extension NSView {
                 observeSuperviewProperty(\.bounds, handler: _viewHandlers.bounds)
                 observeSuperviewProperty(\.frame, handler: _viewHandlers.frame)
                 observeSuperviewProperty(\.superview, handler: _viewHandlers.superview)
-                if let firstResponderHandler = _viewHandlers.isFirstResponder {
-                    superviewObserver?.add(\.window?.firstResponder, sendInitalValue: true) { old, new in
-                        guard old != new else { return }
-                        firstResponderHandler(superview == new)
+                if let isFirstResponderHandler = _viewHandlers.isFirstResponder {
+                    superviewObserver?.add(\.window?.firstResponder) { _, firstResponder in
+                        isFirstResponderHandler(superview == firstResponder)
                     }
                 } else {
                     superviewObserver?.remove(\.window?.firstResponder)
@@ -413,7 +412,6 @@ extension NSView {
         func observeSuperviewProperty<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
             if let handler = handler {
                 superviewObserver?.add(keyPath) { old, new in
-                    guard old != new else { return }
                     handler(new)
                 }
             } else {
@@ -548,15 +546,17 @@ extension NSView {
             }
         }
         
+        /*
         lazy var _superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self] _, new in
             guard let self = self else { return }
             self._viewHandlers.superview?(new)
         }
+         */
         
         deinit {
             self.removeWindowKeyObserver()
             self.removeWindowMainObserver()
-            self._superviewObserver?.invalidate()
+          //  self._superviewObserver?.invalidate()
         }
     }
 }
