@@ -84,7 +84,10 @@
         }
         
         var preferredEdge: NSRectEdge {
-            value(forKey: "preferredEdge") as? NSRectEdge ?? .minX
+            if let rawValue = value(forKey: "preferredEdge") as? UInt, let preferredEdge = NSRectEdge(rawValue: rawValue){
+                return preferredEdge
+            }
+            return .minX
         }
         
         public var hideArrow: Bool {
