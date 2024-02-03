@@ -69,6 +69,13 @@ extension NSAlert {
         return alert
     }
     
+    /**
+     The handler that gets called when the user clicks the help button.
+     
+     To show the help button, set `showsHelp` to `true`.
+     
+     This is an alternative way to using the alert's delegate.
+     */
     public var helpHandler: (()->())? {
         get { getAssociatedValue(key: "helpHandler", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "helpHandler", object: self)
