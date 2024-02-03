@@ -19,7 +19,7 @@
          - Parameter name: The name of the storyboard file, without the filename extension.
          - Returns: A new storyboard object.
          */
-        convenience init(name: NSStoryboard.Name) {
+        convenience init(name: String) {
             self.init(name: name, bundle: nil)
         }
         
@@ -29,7 +29,7 @@
          - Parameter name: The name of the storyboard file, without the filename extension.
          - Returns: A new storyboard object.
          */
-        convenience init(_ name: NSStoryboard.Name) {
+        convenience init(_ name: String) {
             self.init(name: name, bundle: nil)
         }
     }
