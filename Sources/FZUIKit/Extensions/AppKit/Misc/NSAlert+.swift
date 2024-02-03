@@ -69,6 +69,35 @@ extension NSAlert {
         return alert
     }
     
+    public var helpHandler: (()->(Bool))? {
+        get { getAssociatedValue(key: "helpHandler", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "helpHandler", object: self)
+            if newValue == nil {
+                if delegate === helpDelegate {
+                    delegate = nil
+                }
+                helpDelegate = nil
+            } else {
+                if helpDelegate == nil {
+                    helpDelegate = HelpDelegate()
+                }
+                delegate = helpDelegate
+            }
+        }
+    }
+    
+    var helpDelegate: HelpDelegate? {
+        get { getAssociatedValue(key: "helpDelegate", object: self, initialValue: nil) }
+        set { set(weakAssociatedValue: newValue, key: "helpDelegate", object: self) }
+    }
+    
+    
+    class HelpDelegate: NSObject, NSAlertDelegate {
+        func alertShowHelp(_ alert: NSAlert) -> Bool {
+            alert.helpHandler?() ?? (alert.helpAnchor != nil) ? false : true
+        }
+    }
+    
     /**
      The key for supression of the alert.
      
@@ -87,7 +116,9 @@ extension NSAlert {
      
      ### Reset the supression key
 
-     To reset the supression of the alert and to show it again regardless if the user already did opt out showing it, use ``resetSupression(for:)``
+     To reset the supression of the alert and to show it again regardless if the user already did opt out showing it, use ``resetSupression(for:)``. 
+     
+     You  can also use ``resetAllSupressions()`` to reset all supressions.
      
      ```swift
      NSAlert.resetSupression(for: "mySuppressionKey")
@@ -102,20 +133,33 @@ extension NSAlert {
     }
     
     /**
-     Resets the supression for alerts with the specified key. It lets you show them again, regardless if the user already did opt out of showing them.
+     Resets the supression for alerts with the specified key.
      
-     - Parameter suppressionKey: The supression key.
+     It lets you show them again, regardless if the user already did opt out of showing them.
      */
     public static func resetSupression(for suppressionKey: String) {
-        if var supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(suppressionKey) {
+        if var supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
             supressionKeys.remove(suppressionKey)
-            Defaults.shared["supressionKeys"] = supressionKeys.uniqued()
+            Defaults.shared["AlertSupressions"] = supressionKeys.uniqued()
         }
     }
     
-    /// Resets the supression for all alerts.
+    /**
+     Resets the supression for all alerts.
+     
+     It lets you show them again, regardless if the user already did opt out of showing them.
+     */
     public static func resetAllSupressions() {
-        Defaults.shared["supressionKeys"] = nil
+        Defaults.shared["AlertSupressions"] = nil
+    }
+    
+    static func saveSupressionKey(_ key: String) {
+        if var supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(key) {
+            supressionKeys.append(key)
+            Defaults.shared["AlertSupressions"] = supressionKeys.uniqued()
+        } else {
+            Defaults.shared["AlertSupressions"] = [key]
+        }
     }
     
     func swizzleRunModal() {
@@ -129,7 +173,7 @@ extension NSAlert {
                 guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
                     return store.original(object, #selector(self.runModal))
                 }
-                if let supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(suppressionKey) {
+                if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
                     return .suppress
                 }
                 alert.showsSuppressionButton = true
@@ -150,7 +194,7 @@ extension NSAlert {
                     store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, handler)
                     return
                 }
-                if let supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(suppressionKey) {
+                if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
                     handler?(.suppress)
                 } else {
                     alert.showsSuppressionButton = true
@@ -167,15 +211,6 @@ extension NSAlert {
             didSwizzleRunModal = true
         } catch {
             Swift.debugPrint()
-        }
-    }
-    
-    static func saveSupressionKey(_ key: String) {
-        if var supressionKeys: [String] = Defaults.shared["supressionKeys"], supressionKeys.contains(key) {
-            supressionKeys.append(key)
-            Defaults.shared["supressionKeys"] = supressionKeys.uniqued()
-        } else {
-            Defaults.shared["supressionKeys"] = [key]
         }
     }
     
