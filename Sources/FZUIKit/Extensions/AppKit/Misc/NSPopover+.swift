@@ -120,7 +120,6 @@
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
             } else {
                 let noArrowView = NSView(frame: positioningView.frame)
-                /*
                 switch preferredEdge {
                 case .minX:
                     noArrowView.frame.origin.x += 10
@@ -132,11 +131,10 @@
                     noArrowView.frame.origin.y -= 10
                 default: break
                 }
-                 */
                 self.noArrowView = noArrowView
                 positioningView.superview?.addSubview(noArrowView)
                 show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
-                // noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
+                noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
                 willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
                     (notification.object as? NSPopover)?.dismissNoArrow()
                 })
