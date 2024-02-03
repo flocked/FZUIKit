@@ -111,6 +111,8 @@ extension NSView {
         public var alphaValue: ((CGFloat)->())?
         /// The handler that gets called when the effective appearance changed.
         public var effectiveAppearance: ((NSAppearance)->())?
+        /// The handler that gets called when the view is the first responder.
+        public var isFirstResponder: ((Bool)->())?
 
         var needsObserving: Bool {
             superview != nil ||
@@ -118,7 +120,8 @@ extension NSView {
             alphaValue != nil ||
             bounds != nil ||
             frame != nil ||
-            effectiveAppearance != nil
+            effectiveAppearance != nil ||
+            isFirstResponder != nil
         }
     }
     
@@ -394,6 +397,14 @@ extension NSView {
                 observeSuperviewProperty(\.bounds, handler: _viewHandlers.bounds)
                 observeSuperviewProperty(\.frame, handler: _viewHandlers.frame)
                 observeSuperviewProperty(\.superview, handler: _viewHandlers.superview)
+                if let firstResponderHandler = _viewHandlers.isFirstResponder {
+                    superviewObserver?.add(\.window?.firstResponder, sendInitalValue: true) { old, new in
+                        guard old != new else { return }
+                        firstResponderHandler(superview == new)
+                    }
+                } else {
+                    superviewObserver?.remove(\.window?.firstResponder)
+                }
             } else {
                 superviewObserver = nil
             }
