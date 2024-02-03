@@ -78,6 +78,51 @@
                 }
             }
         }
+        
+        var positioningView: NSView? {
+            value(forKey: "positioningView") as? NSView
+        }
+        
+        var preferredEdge: NSRectEdge {
+            value(forKey: "preferredEdge") as? NSRectEdge ?? .minX
+        }
+        
+        public var hideArrow: Bool {
+            get { getAssociatedValue(key: "hideArrow", object: self, initialValue: false) }
+            set { 
+                guard newValue != hideArrow else { return }
+                set(associatedValue: newValue, key: "hideArrow", object: self)
+                if isShown, let positioningView = self.positioningView {
+                    if newValue == true {
+                        setupNoArrowView(for: positioningView, positioningRect: positioningRect, preferredEdge: preferredEdge)
+                    } else {
+                        show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
+                    }
+                }
+            }
+        }
+        
+        func setupNoArrowView(for positioningView: NSView, positioningRect: CGRect, preferredEdge: NSRectEdge) {
+            let noArrowView = NSView(frame: positioningView.frame)
+            switch preferredEdge {
+            case .minX:
+                noArrowView.frame.origin.x += 10
+            case .maxX:
+                noArrowView.frame.origin.x -= 10
+            case .minY:
+                noArrowView.frame.origin.y += 10
+            case .maxY:
+                noArrowView.frame.origin.y -= 10
+            default: break
+            }
+            self.noArrowView = noArrowView
+            positioningView.superview?.addSubview(noArrowView)
+            show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
+            noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
+            willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
+                (notification.object as? NSPopover)?.dismissNoArrow()
+            })
+        }
 
         /// Detaches the popover.
         public func detach() {
@@ -119,25 +164,7 @@
             if hideArrow == false {
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
             } else {
-                let noArrowView = NSView(frame: positioningView.frame)
-                switch preferredEdge {
-                case .minX:
-                    noArrowView.frame.origin.x += 10
-                case .maxX:
-                    noArrowView.frame.origin.x -= 10
-                case .minY:
-                    noArrowView.frame.origin.y += 10
-                case .maxY:
-                    noArrowView.frame.origin.y -= 10
-                default: break
-                }
-                self.noArrowView = noArrowView
-                positioningView.superview?.addSubview(noArrowView)
-                show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
-                noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
-                willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
-                    (notification.object as? NSPopover)?.dismissNoArrow()
-                })
+                setupNoArrowView(for: positioningView, positioningRect: positioningRect, preferredEdge: preferredEdge)
             }
             if trackViewFrame {
                 positioningViewFrameObserver = positioningView.observeChanges(for: \.frame, handler: { [weak self] old, new in
