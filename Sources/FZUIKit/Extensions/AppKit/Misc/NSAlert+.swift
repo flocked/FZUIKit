@@ -60,16 +60,15 @@ extension NSAlert {
                 methodSignature: (@convention(c) (AnyObject, Selector) -> (NSApplication.ModalResponse)).self,
                 hookSignature: (@convention(block) (AnyObject) -> (NSApplication.ModalResponse)).self
             ) { store in { object in
-                guard let object = object as? NSAlert, let suppressionKey = object.suppressionKey else {
+                guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
                     return store.original(object, #selector(self.runModal))
                 }
                 if UserDefaults.standard.bool(forKey: suppressionKey) {
                     return .suppress
                 }
-                
-                object.showsSuppressionButton = true
+                alert.showsSuppressionButton = true
                 let runModal = store.original(object, #selector(self.runModal))
-                if let checkbox = object.suppressionButton, checkbox.state == .on {
+                if alert.suppressionButton?.state == .on {
                     UserDefaults.standard.set(true, forKey: suppressionKey)
                 }
                 return runModal
@@ -81,17 +80,16 @@ extension NSAlert {
                 methodSignature: (@convention(c) (AnyObject, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> ()).self,
                 hookSignature: (@convention(block) (AnyObject, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> ()).self
             ) { store in { object, window, handler in
-                guard let object = object as? NSAlert, let suppressionKey = object.suppressionKey else {
+                guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
                     store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, handler)
                     return
                 }
-                
                 if UserDefaults.standard.bool(forKey: suppressionKey) {
                     handler?(.suppress)
                 } else {
-                    object.showsSuppressionButton = true
+                    alert.showsSuppressionButton = true
                     let wrappedHandler: ((NSApplication.ModalResponse) -> Void) = { response in
-                        if let checkbox = object.suppressionButton, checkbox.state == .on {
+                        if alert.suppressionButton?.state == .on {
                             UserDefaults.standard.set(true, forKey: suppressionKey)
                         }
                         handler?(response)
