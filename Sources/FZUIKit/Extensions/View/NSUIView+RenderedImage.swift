@@ -14,10 +14,6 @@
 
     #if os(macOS)
         public extension NSView {
-            internal static var currentContext: CGContext? {
-                NSGraphicsContext.current?.cgContext
-            }
-
             /// A rendered image of the view.
             var renderedImage: NSImage {
                 let rep = bitmapImageRepForCachingDisplay(in: bounds)!
@@ -31,12 +27,9 @@
 
             /// Renders a compound image from multiple views.
             static func renderedImage(from views: [NSView]) -> NSImage {
-                var frame = CGRect.zero
-                for view in views {
-                    frame = frame.union(view.frame)
-                }
+                let unionRect = views.compactMap({$0.frame}).union()
 
-                let image = NSImage(size: frame.size)
+                let image = NSImage(size: unionRect.size)
                 image.lockFocus()
 
                 for view in views {
@@ -49,7 +42,7 @@
         }
 
     #elseif os(iOS) || os(tvOS)
-        public extension UIView {
+        public extension UIView {            
             /// Renders an image of this view.
             var renderedImage: UIImage {
                 let renderer = UIGraphicsImageRenderer(size: bounds.size)
