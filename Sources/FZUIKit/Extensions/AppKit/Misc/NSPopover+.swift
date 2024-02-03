@@ -66,7 +66,7 @@
                 }
             }
         }
-
+        
         /// A Boolean value that indicates whether the popover's close button is hidden when deteched.
         public var hideDetachedCloseButton: Bool {
             get { getAssociatedValue(key: "hideDetachedCloseButton", object: self, initialValue: false) }
@@ -126,9 +126,9 @@
                 case .maxX:
                     noArrowView.frame.origin.x -= 10
                 case .minY:
-                    noArrowView.frame.origin.y += 10
-                case .maxY:
                     noArrowView.frame.origin.y -= 10
+                case .maxY:
+                    noArrowView.frame.origin.y += 10
                 default: break
                 }
                 self.noArrowView = noArrowView
