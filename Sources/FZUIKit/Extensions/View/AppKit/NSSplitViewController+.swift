@@ -9,7 +9,11 @@
     import AppKit
 
     public extension NSSplitViewController {
-        /// A Boolean value that indicates whether the sidebar is visible. If the split view doesn't contain a sidebar, it returns `false`.
+        /**
+         A Boolean value that indicates whether the sidebar is visible.
+         
+         If the split view doesn't contain a sidebar, it returns `false`.
+         */
         var isSidebarVisible: Bool {
             get {
                 guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first else { return false }

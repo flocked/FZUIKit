@@ -19,7 +19,7 @@
             }
         }
 
-        /// the index of the window tab or `nil` if the window isn't a tab.
+        /// The index of the window tab, or `nil` if the window isn't a tab.
         public var tabIndex: Int? {
             tabbedWindows?.firstIndex(of: self)
         }
@@ -93,20 +93,13 @@
             return frameHeight - contentLayoutRectHeight
         }
 
-        /// A Boolean value that indicates whether the tab bar is visible.
+        /// A Boolean value that indicates whether window currently displays a tab bar.
         public var isTabBarVisible: Bool {
             get {
-                if #available(OSX 10.13, *) {
-                    // be extremely careful here. Just *accessing* the tabGroup property can
-                    // affect NSWindow's tabbing behavior
-                    if tabbedWindows == nil {
-                        return false
-                    }
-
-                    return tabGroup?.isTabBarVisible ?? false
-                } else {
+                if tabbedWindows == nil {
                     return false
                 }
+                return tabGroup?.isTabBarVisible ?? false
             }
             set {
                 guard let tabbedWindows = tabbedWindows, tabbedWindows.count > 1, let tabGroup = tabGroup, tabGroup.isTabBarVisible != newValue else { return }
@@ -126,11 +119,8 @@
          */
         public func runNonAnimated(block: () -> Void) {
             let currentBehavior = animationBehavior
-
             animationBehavior = .none
-
             block()
-
             OperationQueue.main.addOperation {
                 self.animationBehavior = currentBehavior
             }
@@ -149,6 +139,16 @@
                 contentView?.visualEffect = newValue
                 appearance = visualEffect?.appearance ?? appearance
             }
+        }
+        
+        /**
+         A Boolean value that indicates whether the sidebar is visible.
+              
+         If the window's content view controller isn't a split view controller or the split view doesn't contain a sidebar, it returns `false`.
+         */
+        public var isSidebarVisible: Bool {
+            get { (contentViewController as? NSSplitViewController)?.isSidebarVisible ?? false }
+            set { (contentViewController as? NSSplitViewController)?.isSidebarVisible = newValue }
         }
 
         @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {

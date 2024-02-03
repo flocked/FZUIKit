@@ -25,5 +25,4 @@
             self.init(String(describing: anyClass))
         }
     }
-
 #endif

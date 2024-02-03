@@ -6,8 +6,45 @@
 //
 
 #if os(macOS)
-    import AppKit
-    import FZSwiftUtils
+import AppKit
+import FZSwiftUtils
+import SwiftUI
+
+/// A popover that presents a `SwiftUI` view.
+public class HostingPopover<Content: View>: NSPopover {
+    let hostingController: NSHostingController<Content>
+    
+    /**
+     Creates and returns a popover with the specified `SwiftUI` view.
+     
+     - Parameter rootView: The `SwiftUI` view of the popover.
+     */
+    public init(rootView: Content) {
+        self.hostingController = NSHostingController(rootView: rootView)
+        super.init()
+        contentViewController = hostingController
+        if #available(macOS 13.0, *) {
+            hostingController.sizingOptions = .preferredContentSize
+        }
+        contentSize = hostingController.preferredContentSize
+    }
+    
+    /// The `SwiftUI` view of the popover.
+    public var rootView: Content {
+        get { hostingController.rootView }
+        set { 
+            let shouldChangeContentSize = contentSize == hostingController.preferredContentSize
+            hostingController.rootView = newValue
+            if shouldChangeContentSize {
+                contentSize = hostingController.preferredContentSize
+            }
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
 
     extension NSPopover {
         /// Handlers for a popover.
@@ -73,7 +110,8 @@
             set { set(associatedValue: newValue, key: "hideDetachedCloseButton", object: self)
                 if isDetached {
                     closeButton?.isHidden = newValue
-                } else if newValue == true {
+                }
+                if newValue == true {
                     swizzlePopover()
                 }
             }
@@ -88,17 +126,6 @@
                 }
                 closeButton?.isHidden = hideDetachedCloseButton
             }
-        }
-        
-        var positioningView: NSView? {
-            value(forKey: "positioningView") as? NSView
-        }
-        
-        var preferredEdge: NSRectEdge {
-            if let rawValue = value(forKey: "preferredEdge") as? UInt, let preferredEdge = NSRectEdge(rawValue: rawValue){
-                return preferredEdge
-            }
-            return .minX
         }
 
         /**
@@ -194,37 +221,41 @@
             set { set(associatedValue: newValue, key: "isOpeningPopover", object: self) }
         }
 
-        var didSwizzlePopover: Bool {
-            get { FZSwiftUtils.getAssociatedValue(key: "didSwizzlePopover", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "didSwizzlePopover", object: self) }
+        private var popoverProxy: DelegateProxy? {
+            get { getAssociatedValue(key: "popoverProxy", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "popoverProxy", object: self) }
         }
 
-        private var popoverProxy: DelegateProxy { getAssociatedValue(key: "popoverProxy", object: self, initialValue: DelegateProxy(delegate: delegate, popover: self)) }
-
         func swizzlePopover() {
-            guard didSwizzlePopover == false else { return }
-            didSwizzlePopover = true
-            delegate = popoverProxy
-            do {
-                try replaceMethod(
-                    #selector(getter: delegate),
-                    methodSignature: (@convention(c) (AnyObject, Selector) -> (NSPopoverDelegate?)).self,
-                    hookSignature: (@convention(block) (AnyObject) -> (NSPopoverDelegate?)).self
-                ) { _ in { object in
-                    (object as? NSPopover)?.popoverProxy.delegate
+            if handlers.needsSwizzle || hideDetachedCloseButton {
+                guard popoverProxy == nil else { return }
+                popoverProxy = DelegateProxy(delegate: delegate, popover: self)
+                delegate = popoverProxy
+                do {
+                    try replaceMethod(
+                        #selector(getter: delegate),
+                        methodSignature: (@convention(c) (AnyObject, Selector) -> (NSPopoverDelegate?)).self,
+                        hookSignature: (@convention(block) (AnyObject) -> (NSPopoverDelegate?)).self
+                    ) { _ in { object in
+                        (object as? NSPopover)?.popoverProxy?.delegate
+                    }
+                    }
+                    
+                    try replaceMethod(
+                        #selector(setter: delegate),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSPopoverDelegate?) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, NSPopoverDelegate?) -> Void).self
+                    ) { _ in { object, delegate in
+                        (object as? NSPopover)?.popoverProxy?.delegate = delegate
+                    }
+                    }
+                } catch {
+                    Swift.debugPrint()
                 }
-                }
-
-                try replaceMethod(
-                    #selector(setter: delegate),
-                    methodSignature: (@convention(c) (AnyObject, Selector, NSPopoverDelegate?) -> Void).self,
-                    hookSignature: (@convention(block) (AnyObject, NSPopoverDelegate?) -> Void).self
-                ) { _ in { object, delegate in
-                    (object as? NSPopover)?.popoverProxy.delegate = delegate
-                }
-                }
-            } catch {
-                Swift.debugPrint()
+            } else {
+                resetMethod(#selector(getter: delegate))
+                resetMethod(#selector(setter: delegate))
+                popoverProxy = nil
             }
         }
 

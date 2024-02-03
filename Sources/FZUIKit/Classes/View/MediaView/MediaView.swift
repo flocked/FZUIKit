@@ -355,8 +355,8 @@
             return imageView
         }()
 
-        lazy var videoView: NoKeyDownPlayerView = {
-            let videoView = NoKeyDownPlayerView()
+        lazy var videoView: NoPlayerView = {
+            let videoView = NoPlayerView()
             videoView.isHidden = true
             videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: self.contentScaling) ?? .resizeAspectFill
             return videoView
@@ -522,6 +522,47 @@
         /// Handlers for the media view.
         public var handlers: Handlers = .init()
     }
+
+public class NoPlayerView: AVPlayerView {
+    public override var acceptsFirstResponder: Bool {
+        false
+    }
+    
+    public override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        false
+    }
+    
+    public override var menu: NSMenu? {
+        get {
+            Swift.print("video menu")
+            return nil
+        }
+        set { 
+            
+        }
+    }
+    
+    public override func rightMouseDown(with event: NSEvent) {
+        Swift.print("video rightMouseDown")
+        super.rightMouseDown(with: event)
+    }
+    
+    public override func rightMouseUp(with event: NSEvent) {
+        Swift.print("video rightMouseUp")
+        super.rightMouseUp(with: event)
+    }
+    
+    public override func mouseDown(with event: NSEvent) {
+        Swift.print("video mouseDown")
+        super.mouseDown(with: event)
+    }
+    
+    public override func mouseUp(with event: NSEvent) {
+        Swift.print("video mouseUp")
+        super.mouseUp(with: event)
+    }
+    
+}
 
     public class NoKeyDownPlayerView: AVPlayerView {
         public init() {
