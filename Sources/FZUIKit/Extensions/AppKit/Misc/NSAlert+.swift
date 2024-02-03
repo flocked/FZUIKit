@@ -69,7 +69,7 @@ extension NSAlert {
         return alert
     }
     
-    public var helpHandler: (()->(Bool))? {
+    public var helpHandler: (()->())? {
         get { getAssociatedValue(key: "helpHandler", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "helpHandler", object: self)
             if newValue == nil {
@@ -82,7 +82,6 @@ extension NSAlert {
                     helpDelegate = HelpDelegate()
                 }
                 delegate = helpDelegate
-                Swift.print("add help handler", helpDelegate ?? "nil", delegate ?? "nil")
             }
         }
     }
@@ -95,8 +94,8 @@ extension NSAlert {
     
     class HelpDelegate: NSObject, NSAlertDelegate {
         func alertShowHelp(_ alert: NSAlert) -> Bool {
-            Swift.print("alert press")
-            return alert.helpHandler?() ?? (alert.helpAnchor != nil) ? false : true
+            alert.helpHandler?()
+            return alert.helpAnchor != nil ? false : true
         }
     }
     
