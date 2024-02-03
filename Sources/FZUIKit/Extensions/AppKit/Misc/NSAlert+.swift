@@ -10,6 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSApplication.ModalResponse {
+    /// The presentation or dismissal of the sheet/alert has been suppressed, because the user already did opt of showing it again  (see `NSAlert/supressionKey` for more information).
     static let suppress: NSApplication.ModalResponse = .init((1 << 14))
 }
 
@@ -17,10 +18,26 @@ extension NSAlert {
     /**
      The key for suppressing the alert.
      
-     When the value isn't `nil`, running the alert using `runModal()` or `beginSheetModal(for:completionHandler:)` checks first if the user supressed the alert:
+     Provide this key to allow the user to opt out of showing the alert again. The alert shows a suppression checkbox.
      
-     - If the user didn't supress the key, the alerts shows the suppresion key by setting  `showsSuppressionButton` to `true`.
-     - If the user did supress the key, the modal returns as `NSApplication.ModalResponse` response ``supress``.
+     If the user opts out, the alert won't be shown again and will instead return as response `suppress`.
+     
+     ```swift
+     let response = myAlert.runModal()
+     
+     // Handle supression if needed
+     if response == .suppress {
+     
+     }
+     ```
+     
+     ### Reset the supression key
+
+     To reset the supression of the alert and to show it again regardless if the user already did opt out, use ``resetSupression(for:)``
+     
+     ```swift
+     NSAlert.resetSupression(for: "mySuppressionKey")
+     ```
      */
     public var suppressionKey: String? {
         get { getAssociatedValue(key: "suppressionKey", object: self, initialValue: nil) }
@@ -28,6 +45,11 @@ extension NSAlert {
             self.swizzleRunModal()
             set(associatedValue: newValue, key: "suppressionKey", object: self)
         }
+    }
+    
+    /// Resets the supression for alerts with the specified key. It allows showing the alerts again, regardless if the user already did opt out of showing them.
+    public static func resetSupression(for suppressionKey: String) {
+        UserDefaults.standard.set(nil, forKey: suppressionKey)
     }
     
     func swizzleRunModal() {
