@@ -83,11 +83,8 @@ extension NSView {
     
     /// The handlers for the window state.
     public struct WindowHandlers {
-        /// The handler that gets called when when the view will move to a new window.
-        public var willMoveToWindow: ((NSWindow?) -> Void)?
-        
-        /// The handler that gets called when when the view did move to a new window.
-        public var didMoveToWindow: ((NSWindow) -> Void)?
+        /// The handler that gets called when the window of the view changes.
+        public var window: ((NSWindow?) -> Void)?
         
         /// The handler that gets called when `isKey` changed.
         public var isKey: ((Bool) -> Void)?
@@ -96,7 +93,7 @@ extension NSView {
         public var isMain: ((Bool) -> Void)?
         
         var needsObserving: Bool {
-            willMoveToWindow != nil || didMoveToWindow != nil || isKey != nil || isMain != nil
+            window != nil || isKey != nil || isMain != nil
         }
     }
     
@@ -280,6 +277,7 @@ extension NSView {
     
     class ObserverView: NSView {
         
+        var windowObserver: NSKeyValueObservation?
         var superviewObserver: KeyValueObserver<NSView>?
         lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
         var windowDidBecomeKeyObserver: NotificationToken?
@@ -447,12 +445,14 @@ extension NSView {
             super.draggingExited(sender)
         }
         
+        /*
         override public func viewDidMoveToWindow() {
             if let window = window {
                 _windowHandlers.didMoveToWindow?(window)
             }
             super.viewDidMoveToWindow()
         }
+        */
         
         override public func viewWillMove(toWindow newWindow: NSWindow?) {
             if newWindow != window {
@@ -462,7 +462,6 @@ extension NSView {
                     observeWindowState(for: newWindow)
                 }
             }
-            _windowHandlers.willMoveToWindow?(newWindow)
             super.viewWillMove(toWindow: newWindow)
         }
         
@@ -473,6 +472,14 @@ extension NSView {
             
             if _windowHandlers.isMain == nil {
                 removeWindowMainObserver()
+            }
+            
+            if let windowHandler = _windowHandlers.window {
+                windowObserver = observeChanges(for: \.window, sendInitalValue: true, handler: {_, window in
+                    windowHandler(window)
+                })
+            } else {
+                windowObserver = nil
             }
             
             if let window = window {
