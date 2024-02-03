@@ -10,11 +10,65 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSApplication.ModalResponse {
-    /// The presentation or dismissal of the sheet/alert has been suppressed, because the user already did opt of showing it again  (see `NSAlert/supressionKey` for more information).
-    static let suppress: NSApplication.ModalResponse = .init((1 << 14))
+    /**
+     The presentation or dismissal of the dialog or has been suppressed, because the user already opted out of showing it again.
+     
+     See `NSAlert/supressionKey` for more information.
+     */
+    static let suppress = NSApplication.ModalResponse((1 << 14))
+    
+    /// The user clicked the button at the specified index on the dialog or sheet.
+    static func button(at index: Int) -> NSApplication.ModalResponse {
+        return NSApplication.ModalResponse(1000+index)
+    }
 }
 
 extension NSAlert {
+    /**
+     Creates a critical alert with the specified title and message.
+     
+     - Parameters:
+        - title: The title of the alert.
+        - message: The message of the alert.
+     */
+    public static func critical(_ title: String, message: String) -> NSAlert {
+        let alert = NSAlert()
+        alert.alertStyle = .critical
+        alert.messageText = title
+        alert.informativeText = message
+        return alert
+    }
+    
+    /**
+     Creates an informational alert with the specified title and message.
+     
+     - Parameters:
+        - title: The title of the alert.
+        - message: The message of the alert.
+     */
+    public static func informational(_ title: String, message: String) -> NSAlert {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = title
+        alert.informativeText = message
+        return alert
+    }
+    
+    /**
+     Creates a warning alert with the specified title and message.
+          
+     - Parameters:
+        - title: The title of the alert.
+        - message: The message of the alert.
+     */
+    public static func warning(_ title: String, message: String) -> NSAlert {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = title
+        alert.informativeText = message
+        return alert
+    }
+    
     /**
      The key for suppressing the alert.
      
