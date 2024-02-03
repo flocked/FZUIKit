@@ -268,7 +268,7 @@
 
          The default value is `0.0`, which results in a view with no rounded corners.
          */
-        @objc dynamic public var cornerRadius: CGFloat {
+        @objc public var cornerRadius: CGFloat {
             get { _cornerRadius }
             set { 
                 willChangeValue(for: \.cornerRadius)
@@ -322,7 +322,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().border`.
          */
-        @objc dynamic public var border: BorderConfiguration {
+        @objc public var border: BorderConfiguration {
             get {
                 let view = NSView.toRealSelf(self)
                 return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
@@ -376,7 +376,7 @@
 
          The default value is `none()`, which results in a view with no outer shadow.
          */
-       @objc public var outerShadow: ShadowConfiguration {
+        @objc public var outerShadow: ShadowConfiguration {
             get {
                 let view = NSView.toRealSelf(self)
                 return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
@@ -503,7 +503,7 @@
 
          The default value is `none()`, which results in a view with no inner shadow.
          */
-        public var innerShadow: ShadowConfiguration {
+        @objc public var innerShadow: ShadowConfiguration {
             get { NSView.toRealSelf(self).layer?.innerShadowLayer?.configuration ?? .none() }
             set {
                 wantsLayer = true
@@ -528,14 +528,6 @@
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
-            }
-        }
-        
-        class InnerShadowView: NSView {
-            var configuration: ShadowConfiguration = .none() {
-                didSet {
-                    guard oldValue != configuration else { return }
-                }
             }
         }
 
