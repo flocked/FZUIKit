@@ -134,7 +134,7 @@
                 }
                  */
                 self.noArrowView = noArrowView
-                positioningView.superview?.addSubview(noArrowView, positioned: .below, relativeTo: positioningView)
+                positioningView.superview?.addSubview(noArrowView)
                 show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
                 // noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
                 willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
