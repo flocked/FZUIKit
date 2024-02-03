@@ -90,13 +90,13 @@ extension NSAlert {
                     handler?(.suppress)
                 } else {
                     object.showsSuppressionButton = true
-                    let newHandler: ((NSApplication.ModalResponse) -> Void) = { response in
+                    let wrappedHandler: ((NSApplication.ModalResponse) -> Void) = { response in
                         if let checkbox = object.suppressionButton, checkbox.state == .on {
                             UserDefaults.standard.set(true, forKey: suppressionKey)
                         }
                         handler?(response)
                     }
-                    store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, newHandler)
+                    store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, wrappedHandler)
                 }
             }
             }
