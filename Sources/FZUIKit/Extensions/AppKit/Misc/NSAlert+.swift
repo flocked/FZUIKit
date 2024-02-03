@@ -74,6 +74,7 @@ extension NSAlert {
                         }
                         handler?(response)
                     }
+                    store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, newHandler)
                 }
             }
             }
