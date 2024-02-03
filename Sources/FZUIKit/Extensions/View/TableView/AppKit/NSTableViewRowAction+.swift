@@ -14,7 +14,7 @@
 
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
-            - backgroundColor: The background color of the action button. The default value is `systemBlue`.
+            - color: The background color of the action button. The default value is `systemBlue`.
             - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
@@ -30,7 +30,7 @@
 
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
-            - backgroundColor: The background color of the action button. The default value is `systemRed`.
+            - color: The background color of the action button. The default value is `systemRed`.
             - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
@@ -47,7 +47,7 @@
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
             - symbolName: The system symbol name for a system image.
-            - backgroundColor: The background color of the action button. The default value is `systemBlue`.
+            - color: The background color of the action button. The default value is `systemBlue`.
             - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
@@ -66,7 +66,7 @@
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
             - symbolName: The system symbol name for a system image.
-            - backgroundColor: The background color of the action button. The default value is `systemRed`.
+            - color: The background color of the action button. The default value is `systemRed`.
             - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
@@ -85,15 +85,15 @@
          - Parameters:
             - style: The style characteristics to apply to the button. Use this value to apply default appearance characteristics to the button. These characteristics visually communicate, such as by color, information about what the button does. For example, specify a style of `destructive` to indicate an action is destructive to the underlying data. For a list of possible style values, see `NSTableViewRowAction.Style`.
             - title: The string to display in the button. Specify a string localized for the user’s current language.
-            - backgroundColor: The background color of the action button.
+            - color: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
             - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
-        convenience init(style: NSTableViewRowAction.Style, title: String, color: NSColor, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
+        convenience init(style: NSTableViewRowAction.Style, title: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
             self.init(style: style, title: title, handler: handler)
             image = image
-            backgroundColor = color
+            backgroundColor = color ?? (style == .regular ? .systemBlue : .systemRed)
         }
 
         /**
@@ -101,15 +101,15 @@
 
          - Parameters:
             - style: The style characteristics to apply to the button. Use this value to apply default appearance characteristics to the button. These characteristics visually communicate, such as by color, information about what the button does. For example, specify a style of `destructive` to indicate an action is destructive to the underlying data. For a list of possible style values, see `NSTableViewRowAction.Style`.
-            - title: The string to display in the button. Specify a string localized for the user’s current language.
+            - title: The string to display in the button. Specify a string localized for the user’s current language. The default value is `nil` to only show the specified image.
             - image: The image to display in the button.
-            - backgroundColor: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
+            - color: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
             - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
-        convenience init(style: NSTableViewRowAction.Style, title: String, image: NSImage, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
-            self.init(style: style, title: title, handler: handler)
+        convenience init(style: NSTableViewRowAction.Style, title: String? = nil, image: NSImage, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
+            self.init(style: style, title: title ?? "", handler: handler)
             self.image = image
             backgroundColor = color ?? (style == .regular ? .systemBlue : .systemRed)
         }
@@ -119,16 +119,16 @@
 
          - Parameters:
             - style: The style characteristics to apply to the button. Use this value to apply default appearance characteristics to the button. These characteristics visually communicate, such as by color, information about what the button does. For example, specify a style of `destructive` to indicate an action is destructive to the underlying data. For a list of possible style values, see `NSTableViewRowAction.Style`.
-            - title: The string to display in the button. Specify a string localized for the user’s current language.
-            - symbolName: The system symbol name for a system image.
-            - backgroundColor: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
+            - title: The string to display in the button. Specify a string localized for the user’s current language. The default value is `nil` to only shows the specified symbol image.
+            - symbolName: The name of the system symbol image.
+            - color: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
             - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
         @available(macOS 11.0, *)
-        convenience init(style: NSTableViewRowAction.Style, title: String, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
-            self.init(style: style, title: title, handler: handler)
+        convenience init(style: NSTableViewRowAction.Style, title: String? = nil, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
+            self.init(style: style, title: title ?? "", handler: handler)
             image = NSImage(systemSymbolName: symbolName)
             backgroundColor = color ?? (style == .regular ? .systemBlue : .systemRed)
         }
