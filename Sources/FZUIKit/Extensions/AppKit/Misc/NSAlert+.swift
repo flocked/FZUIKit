@@ -82,6 +82,7 @@ extension NSAlert {
                     helpDelegate = HelpDelegate()
                 }
                 delegate = helpDelegate
+                Swift.print("add help handler", helpDelegate ?? "nil", delegate ?? "nil")
             }
         }
     }
@@ -94,7 +95,8 @@ extension NSAlert {
     
     class HelpDelegate: NSObject, NSAlertDelegate {
         func alertShowHelp(_ alert: NSAlert) -> Bool {
-            alert.helpHandler?() ?? (alert.helpAnchor != nil) ? false : true
+            Swift.print("alert press")
+            return alert.helpHandler?() ?? (alert.helpAnchor != nil) ? false : true
         }
     }
     
