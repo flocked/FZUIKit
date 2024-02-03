@@ -270,7 +270,11 @@
          */
         @objc dynamic public var cornerRadius: CGFloat {
             get { _cornerRadius }
-            set { _cornerRadius = newValue }
+            set { 
+                willChangeValue(for: \.cornerRadius)
+                _cornerRadius = newValue
+                didChangeValue(for: \.cornerRadius)
+            }
         }
 
         // fix for macOS 14.0 bug
