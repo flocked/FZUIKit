@@ -89,7 +89,7 @@ extension NSAlert {
     
     var helpDelegate: HelpDelegate? {
         get { getAssociatedValue(key: "helpDelegate", object: self, initialValue: nil) }
-        set { set(weakAssociatedValue: newValue, key: "helpDelegate", object: self) }
+        set { set(associatedValue: newValue, key: "helpDelegate", object: self) }
     }
     
     
