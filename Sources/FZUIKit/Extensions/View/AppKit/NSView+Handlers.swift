@@ -454,15 +454,6 @@ extension NSView {
             super.draggingExited(sender)
         }
         
-        /*
-        override public func viewDidMoveToWindow() {
-            if let window = window {
-                _windowHandlers.didMoveToWindow?(window)
-            }
-            super.viewDidMoveToWindow()
-        }
-        */
-        
         override public func viewWillMove(toWindow newWindow: NSWindow?) {
             if newWindow != window {
                 removeWindowKeyObserver()
@@ -546,17 +537,9 @@ extension NSView {
             }
         }
         
-        /*
-        lazy var _superviewObserver: NSKeyValueObservation? = self.observeChanges(for: \.superview) { [weak self] _, new in
-            guard let self = self else { return }
-            self._viewHandlers.superview?(new)
-        }
-         */
-        
         deinit {
             self.removeWindowKeyObserver()
             self.removeWindowMainObserver()
-          //  self._superviewObserver?.invalidate()
         }
     }
 }

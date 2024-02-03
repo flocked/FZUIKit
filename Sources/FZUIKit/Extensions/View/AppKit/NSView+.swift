@@ -268,7 +268,7 @@
 
          The default value is `0.0`, which results in a view with no rounded corners.
          */
-        public var cornerRadius: CGFloat {
+        @objc dynamic public var cornerRadius: CGFloat {
             get { _cornerRadius }
             set { _cornerRadius = newValue }
         }
@@ -318,7 +318,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().border`.
          */
-        public var border: BorderConfiguration {
+        @objc dynamic public var border: BorderConfiguration {
             get {
                 let view = NSView.toRealSelf(self)
                 return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
