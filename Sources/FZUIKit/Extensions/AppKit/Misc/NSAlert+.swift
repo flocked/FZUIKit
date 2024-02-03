@@ -80,9 +80,6 @@ extension NSAlert {
         get { getAssociatedValue(key: "helpHandler", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "helpHandler", object: self)
             if newValue == nil {
-                if delegate === helpDelegate {
-                    delegate = nil
-                }
                 helpDelegate = nil
             } else {
                 if helpDelegate == nil {
