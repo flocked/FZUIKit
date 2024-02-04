@@ -8,20 +8,20 @@
 #if os(macOS)
     import AppKit
 
-    public extension NSTableViewRowAction {
+    extension NSTableViewRowAction {
         /**
          Creates a regular row action with a text.
 
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
-            - color: The background color of the action button. The default value is `systemBlue`.
-            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
+            - color: The background color of the action button. The default value is `nil`, which uses the default color for a regular row action.
+            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread.
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
-        static func regular(_ title: String, color: NSColor? = .systemBlue, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
+        public static func regular(_ title: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
             let action = NSTableViewRowAction(style: .destructive, title: title, handler: handler)
-            action.backgroundColor = color
+            action.backgroundColor = color ?? action.backgroundColor
             return action
         }
 
@@ -30,14 +30,14 @@
 
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
-            - color: The background color of the action button. The default value is `systemRed`.
-            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
+            - color: The background color of the action button. The default value is `nil`, which uses the default color for a destructive row action.
+            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread.
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
-        static func destructive(_ title: String, color: NSColor? = .systemRed, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
+        public static func destructive(_ title: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
             let action = NSTableViewRowAction(style: .destructive, title: title, handler: handler)
-            action.backgroundColor = color
+            action.backgroundColor = color ?? action.backgroundColor
             return action
         }
 
@@ -47,15 +47,15 @@
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
             - symbolName: The system symbol name for a system image.
-            - color: The background color of the action button. The default value is `systemBlue`.
-            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
+            - color: The background color of the action button. The default value is `nil`, which uses the default color for a regular row action.
+            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread.
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
         @available(macOS 11.0, *)
-        static func regular(_ title: String? = nil, symbolName: String, color: NSColor? = .systemBlue, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
+        public static func regular(_ title: String? = nil, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
             let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
-            action.backgroundColor = color
+            action.backgroundColor = color ?? action.backgroundColor
             action.image = NSImage(systemSymbolName: symbolName)
             return action
         }
@@ -66,71 +66,53 @@
          - Parameters:
             - title: The string to display in the button. The default value is `nil`.
             - symbolName: The system symbol name for a system image.
-            - color: The background color of the action button. The default value is `systemRed`.
-            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
+            - color: The background color of the action button. The default value is `nil`, which uses the default color for a destructive row action.
+            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread.
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
         @available(macOS 11.0, *)
-        static func destructive(_ title: String? = nil, symbolName: String, color: NSColor = .systemRed, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
+        public static func destructive(_ title: String? = nil, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
             let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
-            action.backgroundColor = color
+            action.backgroundColor = color ?? action.backgroundColor
             action.image = NSImage(systemSymbolName: symbolName)
             return action
         }
-
+        
         /**
-         Creates and returns a new table view row action object.
+         Creates a regular row action with an image.
 
          - Parameters:
-            - style: The style characteristics to apply to the button. Use this value to apply default appearance characteristics to the button. These characteristics visually communicate, such as by color, information about what the button does. For example, specify a style of `destructive` to indicate an action is destructive to the underlying data. For a list of possible style values, see `NSTableViewRowAction.Style`.
-            - title: The string to display in the button. Specify a string localized for the user’s current language.
-            - color: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
-            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
+            - title: The string to display in the button. The default value is `nil`.
+            - image: The image of the row action.
+            - color: The background color of the action button. The default value is `nil`, which uses the default color for a regular row action.
+            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread.
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
-        convenience init(style: NSTableViewRowAction.Style, title: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
-            self.init(style: style, title: title, handler: handler)
-            image = image
-            backgroundColor = color ?? (style == .regular ? .systemBlue : .systemRed)
+        public static func regular(_ title: String? = nil, image: NSImage, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
+            let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
+            action.backgroundColor = color ?? action.backgroundColor
+            action.image = image
+            return action
         }
-
+        
         /**
-         Creates and returns a new table view row action object.
+         Creates a destructive row action with an image.
 
          - Parameters:
-            - style: The style characteristics to apply to the button. Use this value to apply default appearance characteristics to the button. These characteristics visually communicate, such as by color, information about what the button does. For example, specify a style of `destructive` to indicate an action is destructive to the underlying data. For a list of possible style values, see `NSTableViewRowAction.Style`.
-            - title: The string to display in the button. Specify a string localized for the user’s current language. The default value is `nil` to only show the specified image.
-            - image: The image to display in the button.
-            - color: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
-            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
+            - title: The string to display in the button. The default value is `nil`.
+            - image: The image of the row action.
+            - color: The background color of the action button. The default value is `nil`, which uses the default color for a destructive row action.
+            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread.
                 - action: The action object representing the action that the user selected.
                 - rowIndex: The table row that the user acted on.
          */
-        convenience init(style: NSTableViewRowAction.Style, title: String? = nil, image: NSImage, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
-            self.init(style: style, title: title ?? "", handler: handler)
-            self.image = image
-            backgroundColor = color ?? (style == .regular ? .systemBlue : .systemRed)
-        }
-
-        /**
-         Creates and returns a new table view row action object.
-
-         - Parameters:
-            - style: The style characteristics to apply to the button. Use this value to apply default appearance characteristics to the button. These characteristics visually communicate, such as by color, information about what the button does. For example, specify a style of `destructive` to indicate an action is destructive to the underlying data. For a list of possible style values, see `NSTableViewRowAction.Style`.
-            - title: The string to display in the button. Specify a string localized for the user’s current language. The default value is `nil` to only shows the specified symbol image.
-            - symbolName: The name of the system symbol image.
-            - color: The background color of the action button. The default value is `nil`, which uses a background color for the specified style.
-            - handler: The block to execute when the user clicks the button associated with this action. AppKit makes a copy of the block you provide. When the user selects the action represented by this object, AppKit executes your handler block on the app’s main thread. This parameter must not be `nil`. This block has no return value and takes the following parameters:
-                - action: The action object representing the action that the user selected.
-                - rowIndex: The table row that the user acted on.
-         */
-        @available(macOS 11.0, *)
-        convenience init(style: NSTableViewRowAction.Style, title: String? = nil, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) {
-            self.init(style: style, title: title ?? "", handler: handler)
-            image = NSImage(systemSymbolName: symbolName)
-            backgroundColor = color ?? (style == .regular ? .systemBlue : .systemRed)
+        public static func destructive(_ title: String? = nil, image: NSImage, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
+            let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
+            action.backgroundColor = color ?? action.backgroundColor
+            action.image = image
+            return action
         }
     }
 

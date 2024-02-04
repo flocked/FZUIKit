@@ -268,13 +268,9 @@
 
          The default value is `0.0`, which results in a view with no rounded corners.
          */
-        @objc public var cornerRadius: CGFloat {
+        public var cornerRadius: CGFloat {
             get { _cornerRadius }
-            set { 
-                willChangeValue(for: \.cornerRadius)
-                _cornerRadius = newValue
-                didChangeValue(for: \.cornerRadius)
-            }
+            set { _cornerRadius = newValue }
         }
 
         // fix for macOS 14.0 bug
@@ -322,7 +318,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().border`.
          */
-        @objc public var border: BorderConfiguration {
+        public var border: BorderConfiguration {
             get {
                 let view = NSView.toRealSelf(self)
                 return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
@@ -503,7 +499,7 @@
 
          The default value is `none()`, which results in a view with no inner shadow.
          */
-        @objc public var innerShadow: ShadowConfiguration {
+        public var innerShadow: ShadowConfiguration {
             get { NSView.toRealSelf(self).layer?.innerShadowLayer?.configuration ?? .none() }
             set {
                 wantsLayer = true
