@@ -308,10 +308,10 @@ extension NSView {
         var eventMonitors: [UInt64: NSEvent.Monitor] = [:]
         
         func setupEventMonitors() {
-            setupEventMonitor(for: .leftMouseDown, handler: mouseHandlers.down)
-            setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
-            setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
-            setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
+            setupEventMonitor(for: .leftMouseDown, handler: _mouseHandlers.down)
+            setupEventMonitor(for: .leftMouseUp, handler: _mouseHandlers.up)
+            setupEventMonitor(for: .rightMouseDown, handler: _mouseHandlers.rightDown)
+            setupEventMonitor(for: .rightMouseUp, handler: _mouseHandlers.rightUp)
         }
         
         func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
