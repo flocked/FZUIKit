@@ -255,4 +255,90 @@
             return self
         }
     }
+
+@available(macOS 14.0, *)
+public extension NSMenuItem {
+    static func palette(
+        images: [NSImage],
+        titles: [String] = [],
+        selectionMode: NSMenu.SelectionMode = .selectAny,
+        onSelectionChange: ((IndexSet) -> Void)? = nil
+    ) -> NSMenuItem {
+        let paletteItem = NSMenuItem()
+        let menu = NSMenu()
+        menu.presentationStyle = .palette
+        for (index, image) in images.enumerated() {
+            let item = NSMenuItem(image: image)
+            item.title = titles[safe: index] ?? ""
+            item.image = image
+            menu.addItem(item)
+        }
+        Swift.print("mmm", menu.items)
+        paletteItem.submenu = menu
+        return paletteItem
+    }
+    
+    static func palette(
+        symbolImages: [String],
+        titles: [String] = [],
+        selectionMode: NSMenu.SelectionMode = .selectAny,
+        onSelectionChange: ((IndexSet) -> Void)? = nil
+    ) -> NSMenuItem {
+        let paletteItem = NSMenuItem()
+        let menu = NSMenu()
+        menu.presentationStyle = .palette
+        let images = symbolImages.compactMap({NSImage(systemSymbolName: $0)})
+        for (index, image) in images.enumerated() {
+            let item = NSMenuItem(image: image)
+            item.title = titles[safe: index] ?? ""
+            menu.addItem(item)
+        }
+        paletteItem.submenu = menu
+        return paletteItem
+    }
+    
+    /**
+     Creates a palette style menu item displaying user-selectable color tags that tint using the specified array of colors.
+     
+     - Parameters:
+        - colors: The display colors for the menu items.
+        - titles: The menu item titles.
+        - template: The image the system displays for the menu items.
+        - selectionMode:
+        - onSelectionChange: The closure to invoke when someone selects the menu item.
+     
+     - Returns: A menu item that presents with a palette.
+     */
+    static func palette(
+        colors: [NSColor],
+        titles: [String] = [],
+        template: NSImage? = nil,
+        offStateTemplate: NSImage? = nil,
+        selectionMode: NSMenu.SelectionMode = .selectAny,
+        onSelectionChange: (([NSColor]) -> Void)? = nil
+    ) -> NSMenuItem {
+        let paletteItem = NSMenuItem()
+        let menu: NSMenu
+        if let offStateTemplate = offStateTemplate {
+            menu = .palette(colors: colors, titles: titles) { menu in
+                guard let onSelectionChange = onSelectionChange else { return }
+                let indexes = menu.selectedItems.compactMap({menu.items.firstIndex(of:$0)})
+                let colors = indexes.compactMap({colors[safe: $0]})
+                onSelectionChange(colors)
+            }
+            menu.items.forEach({$0.onStateImage = template})
+            menu.items.forEach({$0.offStateImage = offStateTemplate})
+        } else {
+            menu = .palette(colors: colors, titles: titles, template: template) { menu in
+                guard let onSelectionChange = onSelectionChange else { return }
+                let indexes = menu.selectedItems.compactMap({menu.items.firstIndex(of:$0)})
+                let colors = indexes.compactMap({colors[safe: $0]})
+                onSelectionChange(colors)
+            }
+        }
+        menu.selectionMode = selectionMode
+        paletteItem.submenu = menu
+        return paletteItem
+    }
+}
 #endif

@@ -50,7 +50,7 @@ extension NSView {
         get { getAssociatedValue(key: "observerView", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "observerView", object: self) }
     }
-    
+        
     func setupObserverView() {
         if windowHandlers.needsObserving || mouseHandlers.needsObserving || viewHandlers.needsObserving || dropHandlers.isActive {
             if observerView == nil {
@@ -299,7 +299,39 @@ extension NSView {
         }
         
         var _mouseHandlers = MouseHandlers() {
-            didSet { _trackingArea.options = _mouseHandlers.trackingAreaOptions }
+            didSet { 
+                _trackingArea.options = _mouseHandlers.trackingAreaOptions
+                setupEventMonitors()
+            }
+        }
+        
+        var eventMonitors: [UInt64: NSEvent.Monitor] = [:]
+        
+        func setupEventMonitors() {
+            setupEventMonitor(for: .leftMouseDown, handler: mouseHandlers.down)
+            setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
+            setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
+            setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
+        }
+        
+        func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
+            if let handler = handler {
+                eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
+                    guard let self = self else { return event }
+                    if let contentView = self.window?.contentView {
+                        let location = event.location(in: contentView)
+                        if let view = contentView.hitTest(location), view.isDescendant(of: self) {
+                            let location = event.location(in: self)
+                            if self.bounds.contains(location) {
+                                handler(event)
+                            }
+                        }
+                    }
+                    return event
+                }
+            } else {
+                eventMonitors[event.rawValue] = nil
+            }
         }
         
         var _dropHandlers = DropHandlers() {
@@ -352,6 +384,7 @@ extension NSView {
             super.mouseExited(with: event)
         }
         
+        /*
         override public func mouseDown(with event: NSEvent) {
             _mouseHandlers.down?(event)
             super.mouseDown(with: event)
@@ -371,6 +404,7 @@ extension NSView {
             _mouseHandlers.rightUp?(event)
             super.rightMouseUp(with: event)
         }
+         */
         
         override public func mouseMoved(with event: NSEvent) {
             _mouseHandlers.moved?(event)
