@@ -316,15 +316,18 @@ extension NSView {
         
         func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
             if let handler = handler {
-                Swift.print("setup", event.rawValue)
                 eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
-                    Swift.print("event", event.type.rawValue)
+                    Swift.print("event -1")
                     guard let self = self else { return event }
+                    Swift.print("event 0")
                     if let contentView = self.window?.contentView {
+                        Swift.print("event 1")
                         let location = event.location(in: contentView)
                         if let view = contentView.hitTest(location), view.isDescendant(of: self) {
+                            Swift.print("event 2")
                             let location = event.location(in: self)
                             if self.bounds.contains(location) {
+                                Swift.print("event 3")
                                 handler(event)
                             }
                         }
