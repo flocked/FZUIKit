@@ -63,7 +63,14 @@
                             self.movableViewVelocity?(gesture.velocity(in: self))
                         case .changed:
                             let translation = gesture.translation(in: self)
-                            self.frame.origin = self.dragPoint.offset(by: translation)
+                            var dragPoint = self.dragPoint
+                            dragPoint.x += translation.x
+                            #if os(macOS)
+                            dragPoint.y -= translation.y
+                            #else
+                            dragPoint.y += translation.y
+                            #endif
+                            self.frame.origin = dragPoint
                             if let margins = self.isMovableByViewBackground.margins {
                                 if self.frame.origin.x < 0 + margins.leading {
                                     self.frame.origin.x = 0 + margins.leading
