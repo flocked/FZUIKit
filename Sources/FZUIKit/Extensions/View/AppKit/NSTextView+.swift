@@ -28,6 +28,33 @@
             get { selectedRanges.compactMap({$0.rangeValue}).compactMap({ Range($0, in: string) }) }
             set { selectedRanges = newValue.compactMap({NSRange($0, in: string).nsValue}) }
         }
+        
+        /// Deselects all text.
+        func deselectAll() {
+            selectedStringRanges = []
+        }
+        
+        /// Selects all text.
+        func selectAll() {
+            select(string)
+        }
+        
+        /// Selects the specified string.
+        func select(_ string: String) {
+            guard let range = string.range(of: string), !selectedStringRanges.contains(range) else { return }
+            selectedStringRanges.append(range)
+        }
+        
+        /// Selects the specified range.
+        func select(_ range: Range<String.Index>) {
+            guard !selectedStringRanges.contains(range) else { return }
+            selectedStringRanges.append(range)
+        }
+        
+        /// Selects the specified range.
+        func select(_ range: ClosedRange<String.Index>) {
+            select(range.lowerBound..<range.upperBound)
+        }
     }
 
 #endif

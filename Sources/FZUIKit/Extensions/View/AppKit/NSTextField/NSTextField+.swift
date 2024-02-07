@@ -16,6 +16,11 @@
             currentEditor()?.selectedRange = NSRange(location: 0, length: 0)
         }
         
+        /// Selects all text.
+        func selectAll() {
+            select(stringValue)
+        }
+        
         /// Selects the specified string.
         func select(_ string: String) {
             let range = (stringValue as NSString).range(of: string)
