@@ -24,6 +24,7 @@ extension NSView {
         get { getAssociatedValue(key: "mouseHandlers", object: self, initialValue: MouseHandlers()) }
         set {
             set(associatedValue: newValue, key: "mouseHandlers", object: self)
+            setupEventMonitors()
             setupObserverView()
         }
     }
@@ -33,7 +34,7 @@ extension NSView {
         get { getAssociatedValue(key: "viewHandlers", object: self, initialValue: ViewHandlers()) }
         set {
             set(associatedValue: newValue, key: "viewHandlers", object: self)
-            setupObserverView()
+            setupViewObservation()
         }
     }
     
@@ -46,38 +47,94 @@ extension NSView {
         }
     }
     
+    func setupEventMonitors() {
+        setupEventMonitor(for: .leftMouseDown, handler: mouseHandlers.down)
+        setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
+        setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
+        setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
+    }
+        
+    func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
+        if let handler = handler {
+            eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
+                guard let self = self else { return event }
+                if let contentView = self.window?.contentView {
+                    let location = event.location(in: contentView)
+                    if let view = contentView.hitTest(location), view.isDescendant(of: self) {
+                        let location = event.location(in: self)
+                        if self.bounds.contains(location) {
+                            handler(event)
+                        }
+                    }
+                }
+                return event
+            }
+        } else {
+            eventMonitors[event.rawValue] = nil
+        }
+    }
+        
+    var eventMonitors: [UInt64: NSEvent.Monitor] {
+        get { getAssociatedValue(key: "eventMonitors", object: self, initialValue: [:]) }
+        set { set(associatedValue: newValue, key: "eventMonitors", object: self) }
+    }
+        
+    func setupViewObservation() {
+        if viewHandlers.needsObserving || windowHandlers.window != nil {
+            if viewObserver == nil {
+                viewObserver = .init(self)
+            }
+            observe(\.window, handler: windowHandlers.window)
+            observe(\.effectiveAppearance, handler: viewHandlers.effectiveAppearance)
+            observe(\.alphaValue, handler: viewHandlers.alphaValue)
+            observe(\.isHidden, handler: viewHandlers.isHidden)
+            observe(\.bounds, handler: viewHandlers.bounds)
+            observe(\.frame, handler: viewHandlers.frame)
+            observe(\.superview, handler: viewHandlers.superview)
+            if let isFirstResponderHandler = viewHandlers.isFirstResponder {
+                viewObserver?.add(\.window?.firstResponder) { _, firstResponder in
+                    isFirstResponderHandler(self == firstResponder)
+                }
+            } else {
+                viewObserver?.remove(\.window?.firstResponder)
+            }
+        } else {
+            viewObserver = nil
+        }
+    }
+    
+    var viewObserver: KeyValueObserver<NSView>? {
+        get { getAssociatedValue(key: "viewObserver", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "viewObserver", object: self) }
+    }
+    
+    func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
+        if let handler = handler {
+            viewObserver?.add(keyPath) { old, new in
+                handler(new)
+            }
+        } else {
+            viewObserver?.remove(keyPath)
+        }
+    }
+        
     var observerView: ObserverView? {
         get { getAssociatedValue(key: "observerView", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "observerView", object: self) }
     }
         
     func setupObserverView() {
-        if windowHandlers.needsObserving || mouseHandlers.needsObserving || viewHandlers.needsObserving || dropHandlers.isActive {
+        if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive {
             if observerView == nil {
                 self.observerView = ObserverView()
                 addSubview(withConstraint: observerView!)
-                do {
-                    try replaceMethod(
-                        #selector(NSView.didAddSubview(_:)),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSView) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, NSView) -> Void).self
-                    ) { store in { object, subview in
-                        store.original(object, #selector(NSView.didAddSubview(_:)), subview)
-                        (object as? NSView)?.observerView?.sendToFront()
-                    }
-                    }
-                } catch {
-                    Swift.print(error)
-                }
             }
-            observerView?._viewHandlers = viewHandlers
             observerView?._mouseHandlers = mouseHandlers
             observerView?._windowHandlers = windowHandlers
             observerView?._dropHandlers = dropHandlers
         } else if observerView != nil {
             observerView?.removeFromSuperview()
             observerView = nil
-            resetMethod(#selector(NSView.didAddSubview(_:)))
         }
     }
     
@@ -93,7 +150,7 @@ extension NSView {
         public var isMain: ((Bool) -> Void)?
         
         var needsObserving: Bool {
-            window != nil || isKey != nil || isMain != nil
+            isKey != nil || isMain != nil
         }
     }
     
@@ -175,7 +232,7 @@ extension NSView {
         public var rightUp: ((NSEvent) -> ())?
         
         var needsObserving: Bool {
-            moved != nil || dragged != nil || entered != nil || exited != nil || down != nil || rightDown != nil || up != nil || rightUp != nil
+            moved != nil || dragged != nil || entered != nil || exited != nil
         }
         
         var trackingAreaOptions: NSTrackingArea.Options {
@@ -270,9 +327,6 @@ extension NSView {
         /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
         public var draggingExited: (()->())?
 
-        
-        //public var drag
-        
         var isActive: Bool {
             canDrop != nil && didDrop != nil
         }
@@ -280,8 +334,6 @@ extension NSView {
     
     class ObserverView: NSView {
         
-        var windowObserver: NSKeyValueObservation?
-        var superviewObserver: KeyValueObserver<NSView>?
         lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
         var windowDidBecomeKeyObserver: NotificationToken?
         var windowDidResignKeyObserver: NotificationToken?
@@ -292,48 +344,10 @@ extension NSView {
             didSet { updateWindowObserver() }
         }
         
-        var _viewHandlers = ViewHandlers() {
-            didSet { 
-                setupSuperviewObservation(superview: superview)
-            }
-        }
-        
         var _mouseHandlers = MouseHandlers() {
-            didSet { 
-                _trackingArea.options = _mouseHandlers.trackingAreaOptions
-                setupEventMonitors()
-            }
+            didSet {  _trackingArea.options = _mouseHandlers.trackingAreaOptions }
         }
-        
-        var eventMonitors: [UInt64: NSEvent.Monitor] = [:]
-        
-        func setupEventMonitors() {
-            setupEventMonitor(for: .leftMouseDown, handler: _mouseHandlers.down)
-            setupEventMonitor(for: .leftMouseUp, handler: _mouseHandlers.up)
-            setupEventMonitor(for: .rightMouseDown, handler: _mouseHandlers.rightDown)
-            setupEventMonitor(for: .rightMouseUp, handler: _mouseHandlers.rightUp)
-        }
-        
-        func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
-            if let handler = handler {
-                eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
-                    guard let self = self else { return event }
-                    if let contentView = self.window?.contentView, let superview = self.superview {
-                        let location = event.location(in: contentView)
-                        if let view = contentView.hitTest(location), view.isDescendant(of: superview) {
-                            let location = event.location(in: superview)
-                            if superview.bounds.contains(location) {
-                                handler(event)
-                            }
-                        }
-                    }
-                    return event
-                }
-            } else {
-                eventMonitors[event.rawValue] = nil
-            }
-        }
-        
+                        
         var _dropHandlers = DropHandlers() {
             didSet { self.setupDragAndDrop(needsSetup: _dropHandlers.isActive) }
         }
@@ -384,28 +398,6 @@ extension NSView {
             super.mouseExited(with: event)
         }
         
-        /*
-        override public func mouseDown(with event: NSEvent) {
-            _mouseHandlers.down?(event)
-            super.mouseDown(with: event)
-        }
-        
-        override public func rightMouseDown(with event: NSEvent) {
-            _mouseHandlers.rightDown?(event)
-            super.rightMouseDown(with: event)
-        }
-        
-        override public func mouseUp(with event: NSEvent) {
-            _mouseHandlers.up?(event)
-            super.mouseUp(with: event)
-        }
-        
-        override public func rightMouseUp(with event: NSEvent) {
-            _mouseHandlers.rightUp?(event)
-            super.rightMouseUp(with: event)
-        }
-         */
-        
         override public func mouseMoved(with event: NSEvent) {
             _mouseHandlers.moved?(event)
             super.mouseMoved(with: event)
@@ -414,43 +406,6 @@ extension NSView {
         override public func mouseDragged(with event: NSEvent) {
             _mouseHandlers.dragged?(event)
             super.mouseDragged(with: event)
-        }
-        
-        override func viewWillMove(toSuperview newSuperview: NSView?) {
-            setupSuperviewObservation(superview: newSuperview)
-        }
-        
-        func setupSuperviewObservation(superview: NSView?) {
-            if _viewHandlers.needsObserving, let superview = superview {
-                if superviewObserver?.observedObject != superview {
-                    superviewObserver = .init(superview)
-                }
-                observeSuperviewProperty(\.effectiveAppearance, handler: _viewHandlers.effectiveAppearance)
-                observeSuperviewProperty(\.alphaValue, handler: _viewHandlers.alphaValue)
-                observeSuperviewProperty(\.isHidden, handler: _viewHandlers.isHidden)
-                observeSuperviewProperty(\.bounds, handler: _viewHandlers.bounds)
-                observeSuperviewProperty(\.frame, handler: _viewHandlers.frame)
-                observeSuperviewProperty(\.superview, handler: _viewHandlers.superview)
-                if let isFirstResponderHandler = _viewHandlers.isFirstResponder {
-                    superviewObserver?.add(\.window?.firstResponder) { _, firstResponder in
-                        isFirstResponderHandler(superview == firstResponder)
-                    }
-                } else {
-                    superviewObserver?.remove(\.window?.firstResponder)
-                }
-            } else {
-                superviewObserver = nil
-            }
-        }
-        
-        func observeSuperviewProperty<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
-            if let handler = handler {
-                superviewObserver?.add(keyPath) { old, new in
-                    handler(new)
-                }
-            } else {
-                superviewObserver?.remove(keyPath)
-            }
         }
                 
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
@@ -506,14 +461,6 @@ extension NSView {
             
             if _windowHandlers.isMain == nil {
                 removeWindowMainObserver()
-            }
-            
-            if let windowHandler = _windowHandlers.window {
-                windowObserver = observeChanges(for: \.window, sendInitalValue: true, handler: {_, window in
-                    windowHandler(window)
-                })
-            } else {
-                windowObserver = nil
             }
             
             if let window = window {
