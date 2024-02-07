@@ -11,6 +11,32 @@
     import FZSwiftUtils
 
     public extension NSTextField {
+        /// Deselects all text.
+        func deselectAll() {
+            currentEditor()?.selectedRange = NSRange(location: 0, length: 0)
+        }
+        
+        /// Selects the specified string.
+        func select(_ string: String) {
+            let range = (stringValue as NSString).range(of: string)
+            guard range != .notFound else { return }
+            currentEditor()?.selectedRange = range
+        }
+        
+        /// Selects the specified range.
+        func select(_ range: Range<String.Index>) {
+            let range = NSRange(range, in: stringValue)
+            guard range != .notFound else { return }
+            currentEditor()?.selectedRange = range
+        }
+        
+        /// Selects the specified range.
+        func select(_ range: ClosedRange<String.Index>) {
+            let range = NSRange(range, in: stringValue)
+            guard range != .notFound else { return }
+            currentEditor()?.selectedRange = range
+        }
+        
         /// The y-coordinate of the baseline for the topmost line of the text.
         var firstBaselineY: CGFloat? {
             guard let font = font else { return nil }

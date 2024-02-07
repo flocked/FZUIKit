@@ -22,6 +22,12 @@
             }
             get { textStorage?.copy() as? NSAttributedString }
         }
+        
+        /// The ranges of characters selected in the text view.
+        var selectedStringRanges: [Range<String.Index>] {
+            get { selectedRanges.compactMap({$0.rangeValue}).compactMap({ Range($0, in: string) }) }
+            set { selectedRanges = newValue.compactMap({NSRange($0, in: string).nsValue}) }
+        }
     }
 
 #endif

@@ -126,6 +126,27 @@
                 swizzleTextField(shouldSwizzle: needsSwizzling)
             }
         }
+        
+        /// A Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
+        var isEditableByDoubleClick: Bool {
+            get { getAssociatedValue(key: "isEditableByDoubleClick", object: self, initialValue: false) }
+            set { 
+                guard newValue != isEditableByDoubleClick else { return }
+                set(associatedValue: newValue, key: "isEditableByDoubleClick", object: self)
+                swizzleTextField(shouldSwizzle: needsSwizzling)
+            }
+        }
+        
+        internal var _isSelectable: Bool {
+            get { getAssociatedValue(key: "_isSelectable", object: self, initialValue: isSelectable) }
+            set { set(associatedValue: newValue, key: "_isSelectable", object: self) }
+        }
+        
+        internal var _isEditable: Bool {
+            get { getAssociatedValue(key: "_isEditable", object: self, initialValue: isEditable) }
+            set { set(associatedValue: newValue, key: "_isEditable", object: self) }
+        }
+
 
         /// The action to perform when the user presses the enter key.
         var actionOnEnterKeyDown: EnterKeyAction {

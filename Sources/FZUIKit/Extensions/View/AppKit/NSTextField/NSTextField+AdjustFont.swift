@@ -126,7 +126,7 @@
         }
         
         var needsSwizzling: Bool {
-            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil
+            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || isEditableByDoubleClick
         }
 
         func setupTextFieldObserver() {
@@ -297,6 +297,10 @@
                             //  textField.editingState = .didEnd
                             textField.adjustFontSize()
                             textField.editingHandlers.didEnd?()
+                            if textField.isEditableByDoubleClick {
+                                textField.isSelectable = textField._isSelectable
+                                textField.isEditable = textField._isEditable
+                            }
                         }
                         store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                     }
@@ -330,6 +334,22 @@
                         store.original(object, #selector(NSTextField.textDidChange), notification)
                     }
                     }
+                    
+                    try replaceMethod(
+                        #selector(NSResponder.mouseDown(with:)),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSEvent) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, NSEvent) -> Void).self
+                    ) { store in { object, event in
+                        if let textField = (object as? NSTextField), textField.isEditableByDoubleClick, event.clickCount > 2, !textField.isFirstResponder {
+                            textField._isEditable = textField.isEditable
+                            textField._isSelectable = textField.isSelectable
+                            textField.isSelectable = true
+                            textField.isEditable = true
+                            textField.becomeFirstResponder()
+                        }
+                        store.original(object, #selector(NSResponder.mouseDown(with:)), event)
+                    }
+                    }
                 } catch {
                     Swift.debugPrint(error)
                 }
@@ -342,6 +362,7 @@
                 resetMethod(#selector(textDidEndEditing))
                 resetMethod(#selector(textDidBeginEditing))
                 resetMethod(#selector(textDidChange))
+                resetMethod(#selector(NSResponder.mouseDown(with:)))
             }
         }
 
