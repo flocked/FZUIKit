@@ -366,12 +366,10 @@
                     ) { store in { object, notification in
                         store.original(object, #selector(NSTextField.textDidChange), notification)
                         if let textField = (object as? NSTextField) {
-                            /*
                             textField.updateString()
                             if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
-                             */
                             textField.invalidateIntrinsicContentSize()
                         }
                     }
