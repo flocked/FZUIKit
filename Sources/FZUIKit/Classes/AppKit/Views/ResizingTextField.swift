@@ -99,10 +99,21 @@
             self.attributedStringValue = attributedStringValue
         }
 
+        var observations: [NSKeyValueObservation] = []
         func sharedInit() {
             drawsBackground = false
             isBordered = false
             textLayout = .wraps
+            
+            observations.append(
+                observeChanges(for: \.font) { [weak self] old, new in
+                    guard let self = self, !self.isEditing else { return }
+                    self.lastContentSize = self.stringValueSize()
+                    self.placeholderSize = self.placeholderStringSize()
+                    self.invalidateIntrinsicContentSize()
+                }
+            )
+            
             verticalTextAlignment = .center
             actionOnEnterKeyDown = .endEditing
             actionOnEscapeKeyDown = .endEditingAndReset
