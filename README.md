@@ -98,7 +98,7 @@ tableView.menuProvider = { textField in
 - Window Handlers
 
 ```swift
-/// Some examples:
+// Some examples:
 view.windowHandlers.window = { newWindow in
     // handle newWindow
 }
@@ -109,7 +109,7 @@ view.windowHandlers.isKey = { isKey in
 - Mouse Handlers
 
 ```swift
-/// Some examples:
+// Some examples:
 view.mouseHandlers.down = { mouseDown in
     // handle mouse click
 }
@@ -121,7 +121,7 @@ view.mouseHandlers.moved = { mouseMoved in
 - View Handlers
 
 ```swift
-/// Some examples:
+// Some examples:
 view.viewHandlers.superview = { newSuperview in
     // handle superview change
 }
