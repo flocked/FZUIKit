@@ -44,7 +44,7 @@
         public var minWidth: CGFloat? {
             didSet { 
                 if oldValue != minWidth {
-                invalidateIntrinsicContentSize()
+                    invalidateIntrinsicContentSize()
                 }
             }
         }
@@ -101,48 +101,48 @@
 
         var lastContentSize = NSSize() {
             didSet {
-                lastContentSize = NSSize(width: ceil(self.lastContentSize.width), height: ceil(self.lastContentSize.height))
+                lastContentSize = NSSize(width: ceil(lastContentSize.width), height: ceil(lastContentSize.height))
             }
         }
 
         override public var stringValue: String {
             didSet {
-                guard !self.isEditing else { return }
-                self.lastContentSize = stringValueSize()
+                guard !isEditing else { return }
+                lastContentSize = stringValueSize()
             }
         }
 
         override public var attributedStringValue: NSAttributedString {
             didSet {
-                guard !self.isEditing else { return }
-                self.lastContentSize = stringValueSize()
+                guard !isEditing else { return }
+                lastContentSize = stringValueSize()
             }
         }
 
         override public var placeholderString: String? {
             didSet {
                 guard oldValue != placeholderString else { return }
-                self.placeholderSize = placeholderStringSize()
+                placeholderSize = placeholderStringSize()
             }
         }
 
         override public var placeholderAttributedString: NSAttributedString? {
             didSet {
                 guard oldValue != placeholderAttributedString else { return }
-                self.placeholderSize = placeholderStringSize()
+                placeholderSize = placeholderStringSize()
             }
         }
 
         override public var font: NSFont? {
             didSet {
-                guard !self.isEditing else { return }
-                self.lastContentSize = stringValueSize()
-                self.placeholderSize = placeholderStringSize()
+                guard !isEditing else { return }
+                lastContentSize = stringValueSize()
+                placeholderSize = placeholderStringSize()
             }
         }
 
         func stringValueSize() -> CGSize {
-            let stringSize = self.attributedStringValue.size()
+            let stringSize = attributedStringValue.size()
             return CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
         }
 
@@ -162,31 +162,31 @@
 
         override public func textDidBeginEditing(_ notification: Notification) {
             super.textDidBeginEditing(notification)
-            self.isEditing = true
+            isEditing = true
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
-            if let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView {
+            if let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView {
                 fieldEditor.insertionPointColor = NSColor.clear
             }
         }
 
         override public func textDidEndEditing(_ notification: Notification) {
             super.textDidEndEditing(notification)
-            self.isEditing = false
+            isEditing = false
         }
 
         override public func textDidChange(_ notification: Notification) {
             super.textDidChange(notification)
-            self.invalidateIntrinsicContentSize()
+            invalidateIntrinsicContentSize()
         }
 
         override public var intrinsicContentSize: NSSize {
             let intrinsicContentSize = super.intrinsicContentSize
             guard automaticallyResizesToFit else { return intrinsicContentSize }
             let minWidth: CGFloat!
-            if !self.stringValue.isEmpty {
-                minWidth = self.lastContentSize.width
+            if !stringValue.isEmpty {
+                minWidth = lastContentSize.width
             } else {
-                minWidth = ceil(self.placeholderSize?.width ?? 0)
+                minWidth = ceil(placeholderSize?.width ?? 0)
             }
 
             var minSize = NSSize(width: minWidth, height: intrinsicContentSize.height)
@@ -213,19 +213,19 @@
                 minSize.width = max(minSize.width, minWidth)
             }
 
-            guard let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView
+            guard let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView
             else {
                 return minSize
             }
 
-            fieldEditor.insertionPointColor = self.textColor ?? NSColor.textColor
+            fieldEditor.insertionPointColor = textColor ?? NSColor.textColor
 
-            if !self.isEditing {
+            if !isEditing {
                 return minSize
             }
 
             if fieldEditor.string.isEmpty {
-                self.lastContentSize = minSize
+                lastContentSize = minSize
                 return minSize
             }
 
@@ -242,7 +242,7 @@
                 }
                 newSize.width = maxWidth
             }
-            self.lastContentSize = newSize
+            lastContentSize = newSize
             return newSize
         }
     }

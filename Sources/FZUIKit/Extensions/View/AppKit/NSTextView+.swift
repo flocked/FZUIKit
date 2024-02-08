@@ -94,7 +94,7 @@ import FZSwiftUtils
                 if mouseDownMonitor == nil {
                     mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
                         guard let self = self, self.endEditingOnOutsideMouseDown, self.isFirstResponder else { return event }
-                        if self.bounds.contains(event.location(in: self)) == false, let window = self.window {
+                        if self.bounds.contains(event.location(in: self)) == false {
                             self.resignFirstResponder()
                         }
                         return event
