@@ -318,7 +318,7 @@ import FZSwiftUtils
 
          - Returns: A new path object with the rounded rectangular path.
          */
-        convenience init(roundedRect _: CGRect, topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat) {
+        convenience init(roundedRect rect: CGRect, topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat) {
             self.init()
 
             var pt = CGPoint.zero
@@ -329,38 +329,38 @@ import FZSwiftUtils
 
             move(to: pt)
 
-            pt.x = bounds.maxX - topRight
+            pt.x = rect.maxX - topRight
             pt.y = 0
 
             // add "top line"
             addLine(to: pt)
 
-            pt.x = bounds.maxX - topRight
+            pt.x = rect.maxX - topRight
             pt.y = topRight
 
             // add "top-right corner"
             addArc(withCenter: pt, radius: topRight, startAngle: .pi * 1.5, endAngle: 0, clockwise: true)
 
-            pt.x = bounds.maxX
-            pt.y = bounds.maxY - bottomRight
+            pt.x = rect.maxX
+            pt.y = rect.maxY - bottomRight
 
             // add "right-side line"
             addLine(to: pt)
 
-            pt.x = bounds.maxX - bottomRight
-            pt.y = bounds.maxY - bottomRight
+            pt.x = rect.maxX - bottomRight
+            pt.y = rect.maxY - bottomRight
 
             // add "bottom-right corner"
             addArc(withCenter: pt, radius: bottomRight, startAngle: 0, endAngle: .pi * 0.5, clockwise: true)
 
             pt.x = bottomLeft
-            pt.y = bounds.maxY
+            pt.y = rect.maxY
 
             // add "bottom line"
             addLine(to: pt)
 
             pt.x = bottomLeft
-            pt.y = bounds.maxY - bottomLeft
+            pt.y = rect.maxY - bottomLeft
 
             // add "bottom-left corner"
             addArc(withCenter: pt, radius: bottomLeft, startAngle: .pi * 0.5, endAngle: .pi, clockwise: true)
@@ -378,44 +378,6 @@ import FZSwiftUtils
             addArc(withCenter: pt, radius: topLeft, startAngle: .pi, endAngle: .pi * 1.5, clockwise: true)
 
             close()
-        }
-    }
-#endif
-
-#if os(macOS) || os(iOS) || os(tvOS)
-    public extension NSUIRectCorner {
-        init(_ cornerMask: CACornerMask) {
-            var corner = NSUIRectCorner()
-            if cornerMask.contains(.bottomLeft) {
-                corner.insert(.bottomLeft)
-            }
-            if cornerMask.contains(.bottomRight) {
-                corner.insert(.bottomRight)
-            }
-            if cornerMask.contains(.topLeft) {
-                corner.insert(.topLeft)
-            }
-            if cornerMask.contains(.topRight) {
-                corner.insert(.topRight)
-            }
-            self.init(rawValue: corner.rawValue)
-        }
-
-        var caCornerMask: CACornerMask {
-            var cornerMask = CACornerMask()
-            if contains(.bottomLeft) {
-                cornerMask.insert(.bottomLeft)
-            }
-            if contains(.bottomRight) {
-                cornerMask.insert(.bottomRight)
-            }
-            if contains(.topLeft) {
-                cornerMask.insert(.topLeft)
-            }
-            if contains(.topRight) {
-                cornerMask.insert(.topRight)
-            }
-            return cornerMask
         }
     }
 #endif

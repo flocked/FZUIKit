@@ -15,17 +15,17 @@
      */
     public struct NSRectCorner: OptionSet, Sendable {
         /// The bottom-left corner of the rectangle.
-        public static let bottomLeft = NSRectCorner(rawValue: 1 << 0)
+        public static var bottomLeft = NSRectCorner(rawValue: 1 << 0)
 
         /// The bottom-right corner of the rectangle.
-        public static let bottomRight = NSRectCorner(rawValue: 1 << 1)
+        public static var bottomRight = NSRectCorner(rawValue: 1 << 1)
 
         /// The top-left corner of the rectangle.
-        public static let topLeft = NSRectCorner(rawValue: 1 << 2)
+        public static var topLeft = NSRectCorner(rawValue: 1 << 2)
 
         /// The top-right corner of the rectangle.
-        public static let topRight = NSRectCorner(rawValue: 1 << 3)
-
+        public static var topRight = NSRectCorner(rawValue: 1 << 3)
+        
         /// All corners of the rectangle.
         public static var allCorners: NSRectCorner {
             [.topLeft, .topRight, .bottomLeft, .bottomRight]

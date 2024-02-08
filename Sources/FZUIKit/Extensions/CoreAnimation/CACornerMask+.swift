@@ -10,62 +10,62 @@
 
     public extension CACornerMask {
         /// All corners.
-        static let all: CACornerMask = [.bottomLeft, .bottomRight, .topLeft, .topRight]
+        static var all: CACornerMask = [.bottomLeft, .bottomRight, .topLeft, .topRight]
         /// No ocrners.
-        static let none: CACornerMask = []
+        static var none: CACornerMask = []
 
         #if os(macOS)
-            /// The bottom left corner.
-            static let bottomLeft = CACornerMask.layerMinXMinYCorner
-            /// The bottom right corner.
-            static let bottomRight = CACornerMask.layerMaxXMinYCorner
-            /// The top left corner.
-            static let topLeft = CACornerMask.layerMinXMaxYCorner
-            /// The top right corner.
-            static let topRight = CACornerMask.layerMaxXMaxYCorner
+            /// The bottom-left corner.
+            static var bottomLeft = CACornerMask.layerMinXMinYCorner
+            /// The bottom-right corner.
+            static var bottomRight = CACornerMask.layerMaxXMinYCorner
+            /// The top-left corner.
+            static var topLeft = CACornerMask.layerMinXMaxYCorner
+            /// The top-right corner.
+            static var topRight = CACornerMask.layerMaxXMaxYCorner
 
-            /// Bottom corners.
-            static let bottomCorners: CACornerMask = [
+            /// The Bottom-left and bottom-right corner.
+            static var bottomCorners: CACornerMask = [
                 .layerMaxXMinYCorner,
                 .layerMinXMinYCorner,
             ]
 
-            /// Top corners.
-            static let topCorners: CACornerMask = [
+        /// The top-left and top-right corner.
+            static var topCorners: CACornerMask = [
                 .layerMinXMaxYCorner,
                 .layerMaxXMaxYCorner,
             ]
         #elseif canImport(UIKit)
-            /// The bottom left corner.
-            static let bottomLeft = CACornerMask.layerMinXMaxYCorner
-            /// The bottom right corner.
-            static let bottomRight = CACornerMask.layerMaxXMaxYCorner
-            /// The top left corner.
-            static let topLeft = CACornerMask.layerMinXMinYCorner
-            /// The top right corner.
-            static let topRight = CACornerMask.layerMaxXMinYCorner
+            /// The bottom-left corner.
+            static var bottomLeft = CACornerMask.layerMinXMaxYCorner
+            /// The bottom-right corner.
+            static var bottomRight = CACornerMask.layerMaxXMaxYCorner
+            /// The top-left corner.
+            static var topLeft = CACornerMask.layerMinXMinYCorner
+            /// The top-right corner.
+            static var topRight = CACornerMask.layerMaxXMinYCorner
 
-            /// Bottom corners.
-            static let bottomCorners: CACornerMask = [
+            /// The Bottom-left and bottom-right corner.
+            static var bottomCorners: CACornerMask = [
                 .layerMaxXMaxYCorner,
                 .layerMinXMaxYCorner,
             ]
 
-            /// Top corners.
-            static let topCorners: CACornerMask = [
+            /// The top-left and top-right corner.
+            static var topCorners: CACornerMask = [
                 .layerMinXMinYCorner,
                 .layerMaxXMinYCorner,
             ]
         #endif
 
-        /// Left corners.
-        static let leftCorners: CACornerMask = [
+        /// The Bottom-left and top-left corner.
+        static var leftCorners: CACornerMask = [
             .layerMinXMinYCorner,
             .layerMinXMaxYCorner,
         ]
 
-        /// Right corners.
-        static let rightCorners: CACornerMask = [
+        /// The Bottom-right and top-right corner.
+        static var rightCorners: CACornerMask = [
             .layerMaxXMinYCorner,
             .layerMaxXMaxYCorner,
         ]
