@@ -146,7 +146,19 @@
             get { getAssociatedValue(key: "_isEditable", object: self, initialValue: isEditable) }
             set { set(associatedValue: newValue, key: "_isEditable", object: self) }
         }
-
+        
+        /// A Boolean value that indicates whether text field should automatically adjust it's size to fit the string value.
+        var automaticallyAdjustsSizeToFitText: Bool {
+            get { getAssociatedValue(key: "automaticallyAdjustsSizeToFitText", object: self, initialValue: isEditable) }
+            set {
+                guard newValue != automaticallyAdjustsSizeToFitText else { return }
+                set(associatedValue: newValue, key: "automaticallyAdjustsSizeToFitText", object: self)
+                swizzleTextField(shouldSwizzle: needsSwizzling)
+                if newValue {
+                    sizeToFit()
+                }
+            }
+        }
 
         /// The action to perform when the user presses the enter key.
         var actionOnEnterKeyDown: EnterKeyAction {

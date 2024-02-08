@@ -126,7 +126,7 @@
         }
         
         var needsSwizzling: Bool {
-            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || isEditableByDoubleClick
+            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || isEditableByDoubleClick || automaticallyAdjustsSizeToFitText
         }
 
         func setupTextFieldObserver() {
@@ -301,6 +301,9 @@
                                 textField.isSelectable = textField._isSelectable
                                 textField.isEditable = textField._isEditable
                             }
+                            if textField.automaticallyAdjustsSizeToFitText {
+                                textField.sizeToFit()
+                            }
                         }
                         store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                     }
@@ -319,6 +322,9 @@
                             if let editingRange = textField.currentEditor()?.selectedRange {
                                 textField.editingRange = editingRange
                             }
+                            if textField.automaticallyAdjustsSizeToFitText {
+                                textField.sizeToFit()
+                            }
                         }
                     }
                     }
@@ -330,6 +336,9 @@
                     ) { store in { object, notification in
                         if let textField = (object as? NSTextField) {
                             textField.updateString()
+                            if textField.automaticallyAdjustsSizeToFitText {
+                                textField.sizeToFit()
+                            }
                         }
                         store.original(object, #selector(NSTextField.textDidChange), notification)
                     }

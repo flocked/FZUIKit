@@ -42,6 +42,26 @@
             currentEditor()?.selectedRange = range
         }
         
+        /// The location of the cursor while editing.
+        var editingCursorLocation: Int? {
+            let currentEditor = currentEditor() as? NSTextView
+            return currentEditor?.selectedRanges.first?.rangeValue.location
+        }
+        
+        /// The range of the selected text while editing.
+        var editingSelectedRange: Range<String.Index>? {
+            get {
+                let currentEditor = self.currentEditor() as? NSTextView
+                return currentEditor?.selectedStringRanges.first
+            }
+            set {
+                if let range = newValue {
+                    let currentEditor = self.currentEditor() as? NSTextView
+                    currentEditor?.selectedStringRanges = [range]
+                }
+            }
+        }
+        
         /// The y-coordinate of the baseline for the topmost line of the text.
         var firstBaselineY: CGFloat? {
             guard let font = font else { return nil }

@@ -67,11 +67,6 @@
             } }
         }
 
-        /// The minimum amount of characters required when the user edits the text.
-        public var minAmountChars: Int?
-        /// The maximum amount of characters allowed when the user edits the text.
-        public var maxAmountChars: Int?
-
         /*
          /// The allowed characters the user can enter when editing.
          public struct AllowedCharacters: OptionSet {
@@ -142,14 +137,8 @@
         /// The handler called when the edit state changes.
         public var editingStateHandler: ((EditState) -> Void)?
 
-        /// The location of the cursor while editing.
-        public var editingCursorLocation: Int? {
-            let currentEditor = currentEditor() as? NSTextView
-            return currentEditor?.selectedRanges.first?.rangeValue.location
-        }
-
         /// The range of the selected text while editing.
-        public private(set) var editingSelectedRange: NSRange? {
+        private var _editingSelectedRange: NSRange? {
             get {
                 let currentEditor = self.currentEditor() as? NSTextView
                 return currentEditor?.selectedRanges.first?.rangeValue
@@ -203,11 +192,6 @@
         }
 
         func isConforming(_ string: String) -> Bool {
-            if let minimumChars = minAmountChars, string.count < minimumChars {
-                return false
-            } else if let maxAmountChars = maxAmountChars, string.count > maxAmountChars {
-                return false
-            }
             return actionHandlers.confirm?(string) ?? true
         }
 
@@ -320,7 +304,7 @@
             //   self.setupMouseDownMonitor()
             self.previousStringValue = self.stringValue
             self.previousCharStringValue = self.stringValue
-            self.previousSelectedRange = self.editingSelectedRange
+            self.previousSelectedRange = self._editingSelectedRange
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             if let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView {
                 fieldEditor.insertionPointColor = NSColor.clear
@@ -343,10 +327,10 @@
             }
             if self.isConforming(self.stringValue) == false {
                 self.stringValue = previousStringValue
-                self.editingSelectedRange = self.previousSelectedRange
+                self._editingSelectedRange = self.previousSelectedRange
             }
             //   self.previousStringValue = self.stringValue
-            self.previousSelectedRange = self.editingSelectedRange
+            self.previousSelectedRange = self._editingSelectedRange
 
             self.invalidateIntrinsicContentSize()
             self.editingStateHandler?(.changed)
