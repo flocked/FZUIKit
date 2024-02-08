@@ -200,27 +200,10 @@
             }
             adjustFontSize()
         }
-        
-        public var _maxWidth: CGFloat? {
-            get { getAssociatedValue(key: "_maxWidth", object: self, initialValue: nil) }
-            set {
-                set(associatedValue: newValue, key: "_maxWidth", object: self)
-                swizzleTextField(shouldSwizzle: needsSwizzling)
-            }
-        }
-        
-        public var _minWidth: CGFloat? {
-            get { getAssociatedValue(key: "_minWidth", object: self, initialValue: nil) }
-            set {
-                set(associatedValue: newValue, key: "_minWidth", object: self)
-                swizzleTextField(shouldSwizzle: needsSwizzling)
-            }
-        }
 
         func swizzleTextField(shouldSwizzle: Bool) {
             if shouldSwizzle {
                 _font = font
-              //  Self.swizzleTextField()
                 guard didSwizzleTextField == false else { return }
                 didSwizzleTextField = true
                 _font = font
@@ -476,6 +459,7 @@
         }
     }
 
+/*
 extension NSTextField {
     static var didSwizzleTextField: Bool {
         get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
@@ -601,5 +585,6 @@ extension NSTextField {
         swizzled_mouseDown(with: event)
     }
 }
+*/
 
 #endif
