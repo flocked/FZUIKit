@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension NSObjectProtocol where Self: NSView {
     /// The handlers for the window state.
-    public var menuProvider: ((Self)->(NSMenu))? {
+    public var menuProvider: ((Self)->(NSMenu?))? {
         get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "menuProvider", object: self)
