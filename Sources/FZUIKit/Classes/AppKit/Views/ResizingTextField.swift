@@ -78,6 +78,7 @@
          public init(wrappingLabelWithString stringValue: String) {
              super.init(frame: .zero)
              sharedInit()
+             Swift.print("wrapp")
              self.stringValue = stringValue
         }
         
@@ -114,6 +115,8 @@
             placeholderSize = placeholderStringSize()
             automaticallyResizesToFit = true
             invalidateIntrinsicContentSize()
+            
+            Swift.print("Shared Init", stringValue)
         }
 
         var placeholderSize: CGSize? {
