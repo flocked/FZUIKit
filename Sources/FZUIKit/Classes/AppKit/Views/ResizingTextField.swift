@@ -61,20 +61,6 @@
         /// A Boolean value that indicates whether the user is editing the text.
         public private(set) var isEditing = false
 
-        /// The range of the selected text while editing.
-        private var _editingSelectedRange: NSRange? {
-            get {
-                let currentEditor = self.currentEditor() as? NSTextView
-                return currentEditor?.selectedRanges.first?.rangeValue
-            }
-            set {
-                if let range = newValue {
-                    let currentEditor = self.currentEditor() as? NSTextView
-                    currentEditor?.setSelectedRange(range)
-                }
-            }
-        }
-
         override public init(frame frameRect: NSRect) {
             super.init(frame: frameRect)
             sharedInit()
@@ -95,7 +81,7 @@
             focusType = .roundedCornersRelative(0.5)
             (cell as? NSTextFieldCell)?.setWantsNotificationForMarkedText(true)
             translatesAutoresizingMaskIntoConstraints = false
-            delegate = self
+            // delegate = self
 
             lastContentSize = stringValueSize()
             placeholderSize = placeholderStringSize()
@@ -109,10 +95,6 @@
             }
              */
             return canBecome
-        }
-
-        func trimString(_ string: String) -> String {
-            allowedCharacters.trimString(string)
         }
 
         var placeholderSize: NSSize? { didSet {
@@ -172,15 +154,9 @@
             return placeholderStringSize
         }
 
-        var previousStringValue: String = ""
-        var previousSelectedRange: NSRange?
-
         override public func textDidBeginEditing(_ notification: Notification) {
             super.textDidBeginEditing(notification)
             self.isEditing = true
-            //   self.setupMouseDownMonitor()
-            self.previousStringValue = self.stringValue
-            self.previousSelectedRange = self._editingSelectedRange
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             if let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView {
                 fieldEditor.insertionPointColor = NSColor.clear
@@ -194,21 +170,6 @@
 
         override public func textDidChange(_ notification: Notification) {
             super.textDidChange(notification)
-            /*
-            let trimmedString = self.trimString(self.stringValue)
-            if self.stringValue != trimmedString {
-                self.stringValue = trimmedString
-            }
-            /*
-            if self.isConforming(self.stringValue) == false {
-                self.stringValue = previousStringValue
-                self._editingSelectedRange = self.previousSelectedRange
-            }
-             */
-            //   self.previousStringValue = self.stringValue
-            self.previousSelectedRange = self._editingSelectedRange
-
-            */
             self.invalidateIntrinsicContentSize()
         }
 
