@@ -485,6 +485,7 @@ extension NSTextField {
     }
     
     @objc func swizzled_textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        Swift.print("do command", commandSelector)
         switch commandSelector {
         case #selector(NSControl.cancelOperation(_:)):
             switch actionOnEscapeKeyDown {
