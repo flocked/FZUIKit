@@ -74,6 +74,7 @@
             set { (cell as? NSTextFieldCell)?.verticalAlignment = newValue }
         }
         
+        /*
         /// The leading padding of the text cell.
         var leadingTextPadding: CGFloat {
             get { (cell as? NSTextFieldCell)?.leadingPadding ?? 0.0 }
@@ -85,6 +86,7 @@
             get { (cell as? NSTextFieldCell)?.trailingPadding ?? 0.0 }
             set { (cell as? NSTextFieldCell)?.trailingPadding = newValue }
         }
+        */
         
         /// The y-coordinate of the baseline for the topmost line of the text.
         var firstBaselineY: CGFloat? {

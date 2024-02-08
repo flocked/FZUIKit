@@ -122,14 +122,6 @@
         /// A Boolean value that indicates whether the user is editing the text.
         public private(set) var isEditing = false
 
-        /*
-        /// The vertical alignment of the displayed text inside the text field.
-        public var verticalTextAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
-            get { textCell?.verticalAlignment ?? .default }
-            set { textCell?.verticalAlignment = newValue }
-        }
-         */
-
         /// The handler called when the edit state changes.
         public var editingStateHandler: ((EditState) -> Void)?
 
@@ -163,7 +155,7 @@
             textLayout = .wraps
             verticalTextAlignment = .center
             focusType = .roundedCornersRelative(0.5)
-            textCell?.setWantsNotificationForMarkedText(true)
+            (cell as? NSTextFieldCell)?.setWantsNotificationForMarkedText(true)
             translatesAutoresizingMaskIntoConstraints = false
             delegate = self
 
@@ -224,15 +216,6 @@
             return false
         }
 
-        override public class var cellClass: AnyClass? {
-            get { VerticallyCenteredTextFieldCell.self }
-            set { super.cellClass = newValue }
-        }
-
-        var textCell: VerticallyCenteredTextFieldCell? {
-            cell as? VerticallyCenteredTextFieldCell
-        }
-
         var placeholderSize: NSSize? { didSet {
             if let placeholderSize_ = placeholderSize {
                 placeholderSize = NSSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
@@ -291,7 +274,6 @@
         }
 
         var previousStringValue: String = ""
-        var previousCharStringValue: String = ""
         var previousSelectedRange: NSRange?
 
         override public func textDidBeginEditing(_ notification: Notification) {
@@ -299,7 +281,6 @@
             self.isEditing = true
             //   self.setupMouseDownMonitor()
             self.previousStringValue = self.stringValue
-            self.previousCharStringValue = self.stringValue
             self.previousSelectedRange = self._editingSelectedRange
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             if let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView {
@@ -398,29 +379,6 @@
             self.lastContentSize = newSize
             return newSize
         }
-
-        /*
-         internal var mouseDownMonitor: Any? = nil
-         internal func setupMouseDownMonitor() {
-             if stopsEditingOnOutsideMouseDown, mouseDownMonitor == nil {
-                 mouseDownMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown, handler: { event in
-                     let point = event.location(in: self)
-                     if self.bounds.contains(point) == false {
-                         if self.isConforming(self.stringValue) {
-                             self.window?.makeFirstResponder(nil)
-                         } else {
-                             self.stringValue = self.previousStringValue
-                             self.window?.makeFirstResponder(nil)
-                         }
-                     }
-                     return event
-                 })
-             } else if stopsEditingOnOutsideMouseDown == false, let mouseDownMonitor = mouseDownMonitor {
-                 NSEvent.removeMonitor(mouseDownMonitor)
-                 self.mouseDownMonitor = nil
-             }
-         }
-         */
     }
 
 #endif
