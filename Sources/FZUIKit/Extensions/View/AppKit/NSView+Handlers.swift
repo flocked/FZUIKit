@@ -10,10 +10,6 @@ import AppKit
 import FZSwiftUtils
 
 extension NSObjectProtocol where Self: NSView {
-
-}
-
-extension NSView {
     /// The handlers for the window state.
     public var menuProvider: ((NSView)->(NSMenu?))? {
         get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
@@ -24,6 +20,10 @@ extension NSView {
 
         }
     }
+}
+
+extension NSView {
+
     
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
