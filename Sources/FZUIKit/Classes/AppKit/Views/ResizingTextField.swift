@@ -106,8 +106,9 @@
             textLayout = .wraps
             
             observations.append(
-                observeChanges(for: \.font) { [weak self] old, new in
-                    guard let self = self, !self.isEditing else { return }
+                observeChanges(for: \.font) {  old, new in
+                    Swift.print("font changed")
+                    guard !self.isEditing else { return }
                     self.lastContentSize = self.stringValueSize()
                     self.placeholderSize = self.placeholderStringSize()
                     self.invalidateIntrinsicContentSize()
