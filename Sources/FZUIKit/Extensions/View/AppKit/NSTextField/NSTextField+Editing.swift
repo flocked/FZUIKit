@@ -9,9 +9,9 @@
     import AppKit
     import FZSwiftUtils
 
-    public extension NSTextField {
+    extension NSTextField {
         /// Handlers for editing the text of a text field.
-        struct EditingHandler {
+        public struct EditingHandler {
             /// Handler that gets called whenever editing the text did begin.
             public var didBegin: (() -> Void)?
             /// Handler that determines whether the text should change. If you provide ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` or ``AppKit/NSTextField/allowedCharacters-swift.property`` the handler is called after checking the string against the specified property conditions.
@@ -32,7 +32,7 @@
         }
 
         /// The action to perform when the user presses the escape key.
-        enum EscapeKeyAction {
+        public enum EscapeKeyAction {
             /// No action.
             case none
             /// Ends editing the text.
@@ -49,7 +49,7 @@
         }
 
         /// The action to perform when the user presses the enter key.
-        enum EnterKeyAction {
+        public enum EnterKeyAction {
             /// No action.
             case none
             /// Ends editing the text.
@@ -64,7 +64,7 @@
         }
 
         /// The allowed characters the user can enter when editing.
-        struct AllowedCharacters: OptionSet {
+        public struct AllowedCharacters: OptionSet {
             public let rawValue: UInt
             /// Allows numeric characters (like 1, 2, etc.)
             public static let digits = AllowedCharacters(rawValue: 1 << 0)
@@ -109,7 +109,7 @@
         }
 
         /// The allowed characters the user can enter when editing.
-        var allowedCharacters: AllowedCharacters {
+        public var allowedCharacters: AllowedCharacters {
             get { getAssociatedValue(key: "allowedCharacters", object: self, initialValue: .all) }
             set { 
                 guard newValue != allowedCharacters else { return }
@@ -119,7 +119,7 @@
         }
 
         /// The handlers for editing the text.
-        var editingHandlers: EditingHandler {
+        public var editingHandlers: EditingHandler {
             get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: EditingHandler()) }
             set { 
                 set(associatedValue: newValue, key: "editingHandlers", object: self)
@@ -128,7 +128,7 @@
         }
         
         /// A Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
-        var isEditableByDoubleClick: Bool {
+        public var isEditableByDoubleClick: Bool {
             get { getAssociatedValue(key: "isEditableByDoubleClick", object: self, initialValue: false) }
             set { 
                 guard newValue != isEditableByDoubleClick else { return }
@@ -137,22 +137,22 @@
             }
         }
         
-        internal var _isSelectable: Bool {
+        var _isSelectable: Bool {
             get { getAssociatedValue(key: "_isSelectable", object: self, initialValue: isSelectable) }
             set { set(associatedValue: newValue, key: "_isSelectable", object: self) }
         }
         
-        internal var _isEditable: Bool {
+        var _isEditable: Bool {
             get { getAssociatedValue(key: "_isEditable", object: self, initialValue: isEditable) }
             set { set(associatedValue: newValue, key: "_isEditable", object: self) }
         }
         
         /// A Boolean value that indicates whether text field should automatically adjust it's size to fit the string value.
-        var automaticallyAdjustsSizeToFitText: Bool {
-            get { getAssociatedValue(key: "automaticallyAdjustsSizeToFitText", object: self, initialValue: isEditable) }
+        @objc open var automaticallyResizesToFit: Bool {
+            get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: isEditable) }
             set {
                 guard newValue != automaticallyAdjustsSizeToFitText else { return }
-                set(associatedValue: newValue, key: "automaticallyAdjustsSizeToFitText", object: self)
+                set(associatedValue: newValue, key: "automaticallyResizesToFit", object: self)
                 swizzleTextField(shouldSwizzle: needsSwizzling)
                 if newValue {
                     sizeToFit()
@@ -161,7 +161,7 @@
         }
 
         /// The action to perform when the user presses the enter key.
-        var actionOnEnterKeyDown: EnterKeyAction {
+        public var actionOnEnterKeyDown: EnterKeyAction {
             get { getAssociatedValue(key: "actionOnEnterKeyDown", object: self, initialValue: .none) }
             set {
                 guard actionOnEnterKeyDown != newValue else { return }
@@ -171,7 +171,7 @@
         }
 
         /// The action to perform when the user presses the escape key.
-        var actionOnEscapeKeyDown: EscapeKeyAction {
+        public var actionOnEscapeKeyDown: EscapeKeyAction {
             get { getAssociatedValue(key: "actionOnEscapeKeyDown", object: self, initialValue: .none) }
             set {
                 guard actionOnEscapeKeyDown != newValue else { return }
@@ -181,7 +181,7 @@
         }
 
         /// The minimum numbers of characters needed when the user edits the string value.
-        var minimumNumberOfCharacters: Int? {
+        public var minimumNumberOfCharacters: Int? {
             get { getAssociatedValue(key: "minimumNumberOfCharacters", object: self, initialValue: nil) }
             set {
                 set(associatedValue: newValue, key: "minimumNumberOfCharacters", object: self)
@@ -198,7 +198,7 @@
         }
 
         /// The maximum numbers of characters allowed when the user edits the string value.
-        var maximumNumberOfCharacters: Int? {
+        public var maximumNumberOfCharacters: Int? {
             get { getAssociatedValue(key: "maximumNumberOfCharacters", object: self, initialValue: nil) }
             set {
                 set(associatedValue: newValue, key: "maximumNumberOfCharacters", object: self)
@@ -215,7 +215,7 @@
         }
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
-        var endEditingOnOutsideMouseDown: Bool {
+        public var endEditingOnOutsideMouseDown: Bool {
             get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
             set {
                 set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)

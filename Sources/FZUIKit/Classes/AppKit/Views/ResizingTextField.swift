@@ -13,7 +13,7 @@
     open class ResizingTextField: NSTextField, NSTextFieldDelegate {
         
         /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
-        @IBInspectable public var automaticallyResizesToFit: Bool = true {
+        public override var automaticallyResizesToFit: Bool {
             didSet {
                 invalidateIntrinsicContentSize()
             }
@@ -27,7 +27,7 @@
         }
 
         /// The placeholder resize option.
-        public enum PlaceHolderResizeOption: Int {
+        public enum PlaceHolderResizeOption: Int, Hashable {
             /// Resizes the text field to always fit the placeholder.
             case always
             /// Resizes the text field to fit the placeholder if the text is an empty string ("").
@@ -39,27 +39,30 @@
         /**
          The minimum width of the text field when it automatically resizes to fit its text.
 
-         When the text field hits the maximum width, it will automatically grow it's height.
+         When ``automaticallyResizesToFit`` is enabled, the minimum width is limited to this value.
          */
         public var minWidth: CGFloat? {
-            didSet { if oldValue != minWidth {
+            didSet { 
+                if oldValue != minWidth {
                 invalidateIntrinsicContentSize()
-            } }
+                }
+            }
         }
 
         /**
          The maximum width of the text field when it automatically resizes to fit its text.
 
-         When `automaticallyResizesToFit` is enabled and the text field hits the maximum width, it will automatically grow in height.
+         When ``automaticallyResizesToFit`` is enabled and the text field hits the maximum width, it will automatically grow in height.
          */
         public var maxWidth: CGFloat? {
-            didSet { if oldValue != maxWidth {
-                invalidateIntrinsicContentSize()
-            } }
+            didSet {
+                if oldValue != maxWidth {
+                    invalidateIntrinsicContentSize()
+                }
+            }
         }
 
-        /// A Boolean value that indicates whether the user is editing the text.
-        public private(set) var isEditing = false
+        var isEditing = false
 
         override public init(frame frameRect: NSRect) {
             super.init(frame: frameRect)
@@ -78,54 +81,57 @@
             verticalTextAlignment = .center
             actionOnEnterKeyDown = .endEditing
             actionOnEscapeKeyDown = .endEditingAndReset
-            focusType = .roundedCornersRelative(0.5)
+            focusType = .roundedCorners(4.0)
             (cell as? NSTextFieldCell)?.setWantsNotificationForMarkedText(true)
             translatesAutoresizingMaskIntoConstraints = false
-            // delegate = self
 
             lastContentSize = stringValueSize()
             placeholderSize = placeholderStringSize()
+            automaticallyResizesToFit = true
+            invalidateIntrinsicContentSize()
         }
 
-        override public func becomeFirstResponder() -> Bool {
-            let canBecome = super.becomeFirstResponder()
-            /*
-            if isEditable, canBecome {
-                editingStateHandler?(.didBegin)
+        var placeholderSize: NSSize? {
+            didSet {
+                if let placeholderSize_ = placeholderSize {
+                    placeholderSize = NSSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
+                }
             }
-             */
-            return canBecome
         }
 
-        var placeholderSize: NSSize? { didSet {
-            if let placeholderSize_ = placeholderSize {
-                placeholderSize = NSSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
+        var lastContentSize = NSSize() {
+            didSet {
+                lastContentSize = NSSize(width: ceil(self.lastContentSize.width), height: ceil(self.lastContentSize.height))
             }
-        }}
+        }
 
-        var lastContentSize = NSSize() { didSet {
-            lastContentSize = NSSize(width: ceil(self.lastContentSize.width), height: ceil(self.lastContentSize.height))
-        }}
+        override public var stringValue: String {
+            didSet {
+                guard !self.isEditing else { return }
+                self.lastContentSize = stringValueSize()
+            }
+        }
 
-        override public var stringValue: String { didSet {
-            guard !self.isEditing else { return }
-            self.lastContentSize = stringValueSize()
-        }}
+        override public var attributedStringValue: NSAttributedString {
+            didSet {
+                guard !self.isEditing else { return }
+                self.lastContentSize = stringValueSize()
+            }
+        }
 
-        override public var attributedStringValue: NSAttributedString { didSet {
-            guard !self.isEditing else { return }
-            self.lastContentSize = stringValueSize()
-        }}
+        override public var placeholderString: String? {
+            didSet {
+                guard oldValue != placeholderString else { return }
+                self.placeholderSize = placeholderStringSize()
+            }
+        }
 
-        override public var placeholderString: String? { didSet {
-            guard oldValue != placeholderString else { return }
-            self.placeholderSize = placeholderStringSize()
-        }}
-
-        override public var placeholderAttributedString: NSAttributedString? { didSet {
-            guard oldValue != placeholderAttributedString else { return }
-            self.placeholderSize = placeholderStringSize()
-        }}
+        override public var placeholderAttributedString: NSAttributedString? {
+            didSet {
+                guard oldValue != placeholderAttributedString else { return }
+                self.placeholderSize = placeholderStringSize()
+            }
+        }
 
         override public var font: NSFont? {
             didSet {
