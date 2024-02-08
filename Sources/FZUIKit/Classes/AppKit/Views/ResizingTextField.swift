@@ -78,7 +78,6 @@
          public init(wrappingLabelWithString stringValue: String) {
              super.init(frame: .zero)
              sharedInit()
-             Swift.print("wrapp")
              self.stringValue = stringValue
         }
         
@@ -166,6 +165,7 @@
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
                 placeholderSize = placeholderStringSize()
+                invalidateIntrinsicContentSize()
             }
         }
 
