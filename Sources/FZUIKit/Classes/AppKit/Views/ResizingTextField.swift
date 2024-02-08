@@ -190,11 +190,11 @@
         override public func textDidEndEditing(_ notification: Notification) {
             super.textDidEndEditing(notification)
             self.isEditing = false
-            //   self.setupMouseDownMonitor()
         }
 
         override public func textDidChange(_ notification: Notification) {
             super.textDidChange(notification)
+            /*
             let trimmedString = self.trimString(self.stringValue)
             if self.stringValue != trimmedString {
                 self.stringValue = trimmedString
@@ -208,6 +208,7 @@
             //   self.previousStringValue = self.stringValue
             self.previousSelectedRange = self._editingSelectedRange
 
+            */
             self.invalidateIntrinsicContentSize()
         }
 
