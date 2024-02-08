@@ -162,6 +162,7 @@
 
         override public var font: NSFont? {
             didSet {
+                Swift.print("font0", lastContentSize, isEditing)
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
                 Swift.print("font1", lastContentSize)
