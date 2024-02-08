@@ -134,6 +134,7 @@
 
         override public var stringValue: String {
             didSet {
+                Swift.print("didSet stringValue")
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
             }
