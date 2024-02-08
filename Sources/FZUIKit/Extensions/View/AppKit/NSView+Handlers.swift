@@ -9,79 +9,27 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSTextField {
-    public func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int) -> NSMenu? {
-        Swift.print("abv")
-        return view.menu
-       // super.textView(view, menu: menu, for: event, at: charIndex)
-    }
-}
-
-extension NSObjectProtocol where Self: NSTextField {
-    /// The handlers for the window state.
-    public var menuProvider: ((Self)->(NSMenu?))? {
-        get {
-            _menuProvider as? ((Self)->(NSMenu?))
-        }
-        set {
-            _menuProvider = newValue
-            Swift.print("menuProvider textField", newValue != nil)
-            if newValue != nil {
-                do {
-                    try replaceMethod(
-                        #selector(NSTextViewDelegate.textView(_:menu:for:at:)),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, NSTextView, NSMenu, NSEvent, Int) -> (NSMenu?)).self,
-                        hookSignature: (@convention(block)  (AnyObject, NSTextView, NSMenu, NSEvent, Int) -> (NSMenu?)).self) { store in {
-                           object, view, menu, event, charIndex in
-                           
-                            Swift.print("textView menu")
-                            if let textField = object as? NSTextField, let menuProvider = textField.menuProvider {
-                                return menuProvider(textField)
-                            }
-                            
-                           return store.original(object, #selector(NSTextViewDelegate.textView(_:menu:for:at:)), view, menu, event, charIndex)
-                        }
-                   }
-                } catch {
-                    Swift.debugPrint(error)
-                }
-            }
-            
-            Swift.print("menuProvider", menuProvider != nil, newValue != nil)
-            setupRightDown()
-        }
-    }
-}
-
 extension NSObjectProtocol where Self: NSView {
     /// The handlers for the window state.
     public var menuProvider: ((Self)->(NSMenu?))? {
         get { 
-            _menuProvider as? ((Self)->(NSMenu?))
+            getAssociatedValue(key: "menuProvider", object: self, initialValue: nil)
         }
         set {
-            _menuProvider = newValue
-            Swift.print("menuProvider", menuProvider != nil, newValue != nil)
+            set(associatedValue: newValue, key: "menuProvider", object: self)
             setupRightDown()
         }
     }
     
     func setupRightDown() {
-        Swift.print("setupRightDown", menuProvider != nil)
         if mouseHandlers.rightDown != nil || menuProvider != nil {
             let event = NSEvent.EventTypeMask.rightMouseDown
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
-                Swift.print("rightDown")
-
                 guard let self = self else { return event }
-                Swift.print("rightDown", self.window?.contentView != nil)
-
                 if let contentView = self.window?.contentView {
                     let location = event.location(in: contentView)
-                    Swift.print("rightDown hit", contentView.hitTest(location) ?? "nil", contentView.hitTest(location)?.isDescendant(of: self) ?? "false")
                     if let view = contentView.hitTest(location), view.isDescendant(of: self) {
                         let location = event.location(in: self)
-                        Swift.print("rightDown contains" , self.bounds.contains(location))
                         if self.bounds.contains(location) {
                             self.mouseHandlers.rightDown?(event)
                             if let menuProvider = menuProvider {
