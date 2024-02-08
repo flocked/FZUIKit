@@ -239,6 +239,18 @@
                     }
                     
                     try replaceMethod(
+                        #selector(setter: attributedStringValue),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSAttributedString?) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, NSAttributedString?) -> Void).self
+                    ) { store in { object, attributedStringValue in
+                        store.original(object, #selector(setter: self.attributedStringValue), attributedStringValue)
+                        if let textField = object as? NSTextField, textField.automaticallyResizesToFit {
+                            textField.sizeToFit()
+                        }
+                    }
+                    }
+                    
+                    try replaceMethod(
                         #selector(getter: font),
                         methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
                         hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
