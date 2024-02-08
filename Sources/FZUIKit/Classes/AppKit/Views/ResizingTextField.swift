@@ -62,7 +62,7 @@
             }
         }
 
-        var isEditing = false
+        public var isEditing = false
 
         override public init(frame frameRect: NSRect) {
             super.init(frame: frameRect)
