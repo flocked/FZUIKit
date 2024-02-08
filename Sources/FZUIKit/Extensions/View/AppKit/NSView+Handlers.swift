@@ -9,13 +9,33 @@
 import AppKit
 import FZSwiftUtils
 
+extension NSTextField: NSTextViewDelegate {
+    
+}
+
 extension NSObjectProtocol where Self: NSTextField {
     public var menuProvider: ((Self)->(NSMenu?))? {
        get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
        set {
            set(associatedValue: newValue, key: "menuProvider", object: self)
-           
+           /**
+            #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
+
+            
+            */
+           Swift.print("menuProvider textFi")
            do {
+               try replaceMethod(
+                #selector(NSTextViewDelegate.textView(_:menu:for:at:)),
+                   methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, NSMenu, NSEvent, Int) -> NSMenu?).self,
+                   hookSignature: (@convention(block) (AnyObject, NSTextView, NSMenu, NSEvent, Int) -> NSMenu?).self
+               ) { store in { object, view, menu, event, charIndex in
+                   Swift.print("textView menu")
+                   return nil
+                 //  return store.original(object, #selector(NSTextViewDelegate.textView(_:menu:for:at:)))
+               }
+               }
+               /*
                try replaceMethod(
                    #selector(getter: menu),
                    methodSignature: (@convention(c) (AnyObject, Selector) -> NSMenu?).self,
@@ -37,6 +57,7 @@ extension NSObjectProtocol where Self: NSTextField {
                   // store.original(object, #selector(setter: self.menu), menu)
                }
                }
+               */
            } catch {
                Swift.debugPrint(error)
            }
