@@ -149,7 +149,7 @@
         
         /// A Boolean value that indicates whether text field should automatically adjust it's size to fit the string value.
         @objc open var automaticallyResizesToFit: Bool {
-            get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: isEditable) }
+            get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: false) }
             set {
                 guard newValue != automaticallyResizesToFit else { return }
                 set(associatedValue: newValue, key: "automaticallyResizesToFit", object: self)
