@@ -15,6 +15,7 @@
         /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
         public override var automaticallyResizesToFit: Bool {
             didSet {
+                Swift.print("automaticallyResizesToFit")
                 invalidateIntrinsicContentSize()
             }
         }
@@ -73,50 +74,12 @@
             super.init(coder: coder)
             sharedInit()
         }
-        
-        /*
-        /// Initializes a text field for use as a multiline static label with selectable text that uses the system default font.
-         public init(wrappingLabelWithString stringValue: String) {
-             super.init(frame: .zero)
-             sharedInit()
-             self.stringValue = stringValue
-        }
-        
-        public init(labelWithString stringValue: String) {
-            super.init(frame: .zero)
-            sharedInit()
-            self.stringValue = stringValue
-        }
-
-        public init(string: String) {
-            super.init(frame: .zero)
-            sharedInit()
-            stringValue = string
-        }
-        
-        public init(labelWithAttributedString attributedStringValue: NSAttributedString) {
-            super.init(frame: .zero)
-            sharedInit()
-            self.attributedStringValue = attributedStringValue
-        }
-        */
 
         var observations: [NSKeyValueObservation] = []
         func sharedInit() {
             drawsBackground = false
             isBordered = false
             textLayout = .wraps
-            
-            /*
-            observations.append(
-                observeChanges(for: \.font) { [weak self] old, new in
-                    guard let self = self, !self.isEditing else { return }
-                    self.lastContentSize = self.stringValueSize()
-                    self.placeholderSize = self.placeholderStringSize()
-                    self.invalidateIntrinsicContentSize()
-                }
-            )
-             */
             
             verticalTextAlignment = .center
             actionOnEnterKeyDown = .endEditing
@@ -147,6 +110,8 @@
 
         override public var stringValue: String {
             didSet {
+                Swift.print("resizing stringValue")
+
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
             }
@@ -175,6 +140,8 @@
 
         override public var font: NSFont? {
             didSet {
+                Swift.print("resizing font")
+
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
                 placeholderSize = placeholderStringSize()
@@ -203,6 +170,8 @@
 
         override public func textDidBeginEditing(_ notification: Notification) {
             super.textDidBeginEditing(notification)
+            Swift.print("resizing textDidBeginEditing")
+
             isEditing = true
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             if let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView {
@@ -216,11 +185,15 @@
         }
 
         override public func textDidChange(_ notification: Notification) {
+            Swift.print("resizing textDidChange")
+
             super.textDidChange(notification)
             invalidateIntrinsicContentSize()
         }
 
         override public var intrinsicContentSize: CGSize {
+            Swift.print("resizing intrinsicContentSize")
+
             let intrinsicContentSize = super.intrinsicContentSize
             guard automaticallyResizesToFit else { return intrinsicContentSize }
             let minWidth: CGFloat!
