@@ -203,6 +203,7 @@
 
         func swizzleTextField(shouldSwizzle: Bool) {
             if shouldSwizzle {
+                _font = font
                 Self.swizzleTextField()
                 /*
                 guard didSwizzleTextField == false else { return }
