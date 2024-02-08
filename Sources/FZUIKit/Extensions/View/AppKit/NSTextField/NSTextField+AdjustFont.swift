@@ -205,6 +205,7 @@
             if shouldSwizzle {
                 _font = font
                 Self.swizzleTextField()
+                delegate = self
                 /*
                 guard didSwizzleTextField == false else { return }
                 didSwizzleTextField = true
@@ -543,6 +544,10 @@ extension NSTextField {
         }
         swizzled_mouseDown(with: event)
     }
+}
+
+extension NSTextField: NSTextViewDelegate {
+    
 }
 
 #endif
