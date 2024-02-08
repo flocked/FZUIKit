@@ -33,7 +33,7 @@
         var isColumnSelected: Bool { if let columnIndex = columnIndex {
             return tableView?.selectedColumnIndexes.contains(columnIndex) ?? false
         }
-        return false
+            return false
         }
 
         /**

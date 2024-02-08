@@ -99,7 +99,7 @@
         /**
          The rounded corners of the view.
 
-         The default value is `[]`, which results in a view with all corners rounded.
+         The default value is `[]`, which results in a view with all corners rounded when ``cornerRadius`` isn't `0`.
          */
         @objc public var roundedCorners: CACornerMask {
             get { layer.maskedCorners }

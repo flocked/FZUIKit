@@ -100,7 +100,8 @@
          */
         public var isOpaque: Bool {
             get { layer?.isOpaque ?? false }
-            set { wantsLayer = true
+            set { 
+                wantsLayer = true
                 layer?.isOpaque = newValue
             }
         }
@@ -302,6 +303,8 @@
 
         /**
          The rounded corners of the view.
+         
+         The default value is `[]`, which results in a view with all corners rounded when ``cornerRadius`` isn't `0`.
 
          Using this property turns the view into a layer-backed view.
          */
