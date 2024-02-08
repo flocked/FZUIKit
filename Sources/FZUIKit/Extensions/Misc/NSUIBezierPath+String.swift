@@ -12,6 +12,31 @@
         import UIKit
     #endif
 
+public extension String {
+    /// Creates a bezier path for the string with the specified font.
+    func bezierPath(withFont font: NSUIFont) -> NSUIBezierPath {
+        let attributedString = NSAttributedString(string: self, attributes: [.font: font])
+        return NSUIBezierPath(attributedString: attributedString)
+    }
+}
+
+public extension NSAttributedString {
+    /// Creates a bezier path for the attributed string.
+    func bezierPath() -> NSUIBezierPath {
+        let cgPath = CGPath(attributedString: self)
+        return NSUIBezierPath(cgPath: cgPath)
+    }
+}
+
+@available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension AttributedString {
+    /// Creates a bezier path for the attributed string.
+    func bezierPath() -> NSUIBezierPath {
+        let cgPath = CGPath(attributedString: NSAttributedString(self))
+        return NSUIBezierPath(cgPath: cgPath)
+    }
+}
+
     public extension NSUIBezierPath {
         /// Creates and returns a new bezier path for the specified string and font.
         convenience init(string: String, font: NSUIFont) {
@@ -24,17 +49,31 @@
             let cgPath = CGPath(attributedString: attributedString)
             self.init(cgPath: cgPath)
         }
+        
+        /// Creates and returns a new bezier path for the specified attributed string.
+        @available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+        convenience init(attributedString: AttributedString) {
+            let cgPath = CGPath(attributedString: NSAttributedString(attributedString))
+            self.init(cgPath: cgPath)
+        }
     }
 
-    public protocol AttributedStringPath {}
+    /// A Core Graphics type.
+    public protocol CoreGraphicsType { }
 
-    extension CGPath: AttributedStringPath {}
+    extension CGPath: CoreGraphicsType { }
 
-    public extension AttributedStringPath where Self: CGPath {
+    public extension CoreGraphicsType where Self: CGPath {
         /// Creates and returns a path for the specified string and font.
         init(string: String, font: NSUIFont) {
             let attributedString = NSAttributedString(string: string, attributes: [.font: font])
             self.init(attributedString: attributedString)
+        }
+        
+        /// Creates and returns a new path for the specified attributed string.
+        @available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+        init(attributedString: AttributedString) {
+            self.init(attributedString: NSAttributedString(attributedString))
         }
 
         /// Creates and returns a new path for the specified attributed string.

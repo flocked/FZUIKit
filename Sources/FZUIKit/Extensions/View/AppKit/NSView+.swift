@@ -695,16 +695,6 @@
                 scrollToVisible(rect)
             }
         }
-
-        var alpha: CGFloat {
-            get { guard let cgValue = layer?.opacity else { return 1.0 }
-                return CGFloat(cgValue)
-            }
-            set {
-                wantsLayer = true
-                layer?.opacity = Float(newValue)
-            }
-        }
         
         static func swizzleAnimationForKey() {
             guard didSwizzleAnimationForKey == false else { return }
@@ -731,9 +721,7 @@
 
         static var didSwizzleAnimationForKey: Bool {
             get { getAssociatedValue(key: "NdidSwizzleAnimationForKey", object: self, initialValue: false) }
-            set {
-                set(associatedValue: newValue, key: "NdidSwizzleAnimationForKey", object: self)
-            }
+            set { set(associatedValue: newValue, key: "NdidSwizzleAnimationForKey", object: self) }
         }
         
         @objc private func realSelf() -> NSView { self }
@@ -743,7 +731,7 @@
     }
 
     public extension NSView.AutoresizingMask {
-        /// A empy autoresizing mask.
+        /// An empy autoresizing mask.
         static let none: NSView.AutoresizingMask = []
         /// An autoresizing mask with flexible size.
         static let flexibleSize: NSView.AutoresizingMask = [.height, .width]
@@ -771,7 +759,7 @@
         }
     }
 
-    /// The additional `NSView` keys of properties that can be animated.
+    /// The `NSView` properties keys that can be animated.
     private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize"]
 
 #endif
