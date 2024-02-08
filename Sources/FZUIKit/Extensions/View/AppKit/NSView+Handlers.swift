@@ -9,13 +9,15 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSObjectProtocol where Self: NSTextField {
-    func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int) -> NSMenu? {
+extension NSTextField {
+    public func textView(_ view: NSTextView, menu: NSMenu, for event: NSEvent, at charIndex: Int) -> NSMenu? {
         Swift.print("abv")
         return view.menu
        // super.textView(view, menu: menu, for: event, at: charIndex)
     }
-    
+}
+
+extension NSObjectProtocol where Self: NSTextField {
     /// The handlers for the window state.
     public var menuProvider: ((Self)->(NSMenu?))? {
         get {
