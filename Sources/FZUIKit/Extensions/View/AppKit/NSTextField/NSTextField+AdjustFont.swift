@@ -258,6 +258,7 @@
                         hookSignature: (@convention(block) (AnyObject) -> CGSize).self
                     ) { store in { object in
                         var intrinsicContentSize = store.original(object, #selector(getter: self.intrinsicContentSize))
+                        let previousIn = intrinsicContentSize
                         if let textField = object as? NSTextField {
                             if let maxWidth = textField._maxWidth, intrinsicContentSize.width >= maxWidth {
                                 if let cellSize = textField.cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 10000)) {
@@ -269,7 +270,8 @@
                                 intrinsicContentSize.width = max(intrinsicContentSize.width, minWidth)
                             }
                         }
-                        
+                        Swift.print("intrinsic", intrinsicContentSize, previousIn)
+
                         return intrinsicContentSize
                     }
                     }
