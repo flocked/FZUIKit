@@ -372,7 +372,7 @@
 
          The default value is `none()`, which results in a view with no outer shadow.
          */
-        @objc public var outerShadow: ShadowConfiguration {
+        public var outerShadow: ShadowConfiguration {
             get {
                 let view = NSView.toRealSelf(self)
                 return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
@@ -392,7 +392,7 @@
 
          The default value is `nil`, which results in a view with no shadow.
          */
-        public var shadowColor: NSColor? {
+        var shadowColor: NSColor? {
             get { self.layer?.shadowColor?.nsColor }
             set {
                 wantsLayer = true
@@ -421,7 +421,7 @@
 
          The default value is `zero`, which results in a view with no shadow offset.
          */
-        @objc public var shadowOffset: CGPoint {
+        @objc var shadowOffset: CGPoint {
             get { (layer?.shadowOffset ?? .zero).point }
             set {
                 wantsLayer = true
@@ -437,7 +437,7 @@
 
          The default value is `0.0`, which results in a view with no shadow radius.
          */
-        @objc public var shadowRadius: CGFloat {
+        @objc var shadowRadius: CGFloat {
             get { layer?.shadowRadius ?? .zero }
             set {
                 wantsLayer = true
@@ -453,7 +453,7 @@
 
          The default value is `0.0`, which results in a view with no shadow.
          */
-        @objc public var shadowOpacity: CGFloat {
+        @objc var shadowOpacity: CGFloat {
             get { CGFloat(layer?.shadowOpacity ?? .zero) }
             set {
                 wantsLayer = true
