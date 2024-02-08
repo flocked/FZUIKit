@@ -169,7 +169,7 @@
             }
         }
 
-        func stringValueSize() -> CGSize {
+        public func stringValueSize() -> CGSize {
             let stringSize = attributedStringValue.size()
             return CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
         }
