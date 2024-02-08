@@ -89,6 +89,7 @@
             placeholderSize = placeholderStringSize()
             automaticallyResizesToFit = true
             invalidateIntrinsicContentSize()
+            Swift.print("sharedInit", stringValue)
         }
 
         var placeholderSize: CGSize? {
