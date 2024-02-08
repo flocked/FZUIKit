@@ -265,11 +265,12 @@
                                     intrinsicContentSize.height = cellSize.height + 8.0
                                 }
                                 intrinsicContentSize.width = maxWidth
+                                Swift.print("intrinsic", intrinsicContentSize, maxWidth, textField.stringValue)
+
                             }
                             if let minWidth = textField._minWidth {
-                                intrinsicContentSize.width = max(intrinsicContentSize.width, minWidth)
+                              //  intrinsicContentSize.width = max(intrinsicContentSize.width, minWidth)
                             }
-                            Swift.print("intrinsic", intrinsicContentSize, textField.stringValue)
 
                         }
                         return intrinsicContentSize
