@@ -269,9 +269,9 @@
                             if let minWidth = textField._minWidth {
                                 intrinsicContentSize.width = max(intrinsicContentSize.width, minWidth)
                             }
-                        }
-                        Swift.print("intrinsic", intrinsicContentSize, previousIn)
+                            Swift.print("intrinsic", intrinsicContentSize, textField.stringValue)
 
+                        }
                         return intrinsicContentSize
                     }
                     }
@@ -387,8 +387,6 @@
                             if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
-                            Swift.print("textDidChange", textField.intrinsicContentSize)
-
                             textField.invalidateIntrinsicContentSize()
                         }
                     }
