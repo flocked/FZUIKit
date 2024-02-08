@@ -75,6 +75,7 @@
         }
 
         var observations: [NSKeyValueObservation] = []
+        
         func sharedInit() {
             drawsBackground = false
             isBordered = false
