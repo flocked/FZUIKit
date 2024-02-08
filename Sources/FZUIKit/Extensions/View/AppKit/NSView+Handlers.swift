@@ -9,6 +9,44 @@
 import AppKit
 import FZSwiftUtils
 
+extension NSObjectProtocol where Self: NSTextField {
+    public var menuProvider: ((Self)->(NSMenu?))? {
+       get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
+       set {
+           set(associatedValue: newValue, key: "menuProvider", object: self)
+           
+           do {
+               try replaceMethod(
+                   #selector(getter: menu),
+                   methodSignature: (@convention(c) (AnyObject, Selector) -> NSMenu?).self,
+                   hookSignature: (@convention(block) (AnyObject) -> NSMenu?).self
+               ) { store in { object in
+                   Swift.print("menu getter")
+                   return nil
+                 //  return store.original(object, #selector(getter: self.menu))
+               }
+               }
+               
+               try replaceMethod(
+                   #selector(setter: menu),
+                   methodSignature: (@convention(c) (AnyObject, Selector, NSMenu?) -> ()).self,
+                   hookSignature: (@convention(block) (AnyObject, NSMenu?) -> ()).self
+               ) { store in { object, menu in
+                   Swift.print("menu setter")
+
+                  // store.original(object, #selector(setter: self.menu), menu)
+               }
+               }
+           } catch {
+               Swift.debugPrint(error)
+           }
+           
+           
+           setupRightDownMonitor()
+       }
+   }
+}
+
 extension NSObjectProtocol where Self: NSView {
     /**
      Handler that provides a menu on right-click.
@@ -22,6 +60,11 @@ extension NSObjectProtocol where Self: NSView {
             setupRightDownMonitor()
         }
     }
+    
+    /*
+     
+     
+     */
     
     func setupRightDownMonitor() {
         if mouseHandlers.rightDown != nil || menuProvider != nil {
@@ -46,7 +89,7 @@ extension NSObjectProtocol where Self: NSView {
     }
 }
 
-extension NSView {    
+extension NSView {
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
         get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
