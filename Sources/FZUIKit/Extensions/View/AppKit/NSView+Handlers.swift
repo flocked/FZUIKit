@@ -15,7 +15,8 @@ extension NSObjectProtocol where Self: NSView {
         get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "menuProvider", object: self)
-            
+            setupEventMonitors()
+
         }
     }
 }
@@ -61,10 +62,10 @@ extension NSView {
     func setupEventMonitors() {
         setupEventMonitor(for: .leftMouseDown, handler: mouseHandlers.down)
         setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
-        setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
+ //       setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
         setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
         
-        if mouseHandlers.rightUp != nil || menuProvider != nil {
+        if mouseHandlers.rightDown != nil || menuProvider != nil {
             let event = NSEvent.EventTypeMask.rightMouseDown
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
                 guard let self = self else { return event }
@@ -73,7 +74,7 @@ extension NSView {
                     if let view = contentView.hitTest(location), view.isDescendant(of: self) {
                         let location = event.location(in: self)
                         if self.bounds.contains(location) {
-                            self.mouseHandlers.rightUp?(event)
+                            self.mouseHandlers.rightDown?(event)
                             if let menuProvider = self.menuProvider {
                                 self.menu = menuProvider(self)
                             }
