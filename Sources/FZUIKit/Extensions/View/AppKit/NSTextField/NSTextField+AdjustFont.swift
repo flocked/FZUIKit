@@ -205,7 +205,6 @@
             if shouldSwizzle {
                 _font = font
                 Self.swizzleTextField()
-                delegate = self
                 /*
                 guard didSwizzleTextField == false else { return }
                 didSwizzleTextField = true
@@ -486,6 +485,12 @@ extension NSTextField {
         swizzed_textDidBeginEditing(notification)
     }
     
+     func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+         Swift.print("textView do command", commandSelector)
+
+        return true
+    }
+    
     @objc func swizzled_textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         Swift.print("do command", commandSelector)
         switch commandSelector {
@@ -544,10 +549,6 @@ extension NSTextField {
         }
         swizzled_mouseDown(with: event)
     }
-}
-
-extension NSTextField: NSTextViewDelegate {
-    
 }
 
 #endif
