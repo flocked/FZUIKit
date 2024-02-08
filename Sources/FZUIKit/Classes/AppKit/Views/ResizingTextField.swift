@@ -159,10 +159,6 @@
             translatesAutoresizingMaskIntoConstraints = false
             delegate = self
 
-            cell?.isScrollable = true
-            cell?.wraps = true
-            lineBreakMode = .byTruncatingTail
-
             lastContentSize = stringValueSize()
             placeholderSize = placeholderStringSize()
         }
