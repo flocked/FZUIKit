@@ -12,9 +12,11 @@ import FZSwiftUtils
 extension NSObjectProtocol where Self: NSView {
     /// The handlers for the window state.
     public var menuProvider: ((Self)->(NSMenu?))? {
-        get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
+        get { 
+            _menuProvider as? ((Self)->(NSMenu?))
+        }
         set {
-            set(associatedValue: newValue, key: "menuProvider", object: self)
+            _menuProvider = newValue
             Swift.print("menuProvider", menuProvider != nil, newValue != nil)
             setupEventMonitors()
 
@@ -23,6 +25,10 @@ extension NSObjectProtocol where Self: NSView {
 }
 
 extension NSView {
+    var _menuProvider: Any? {
+        get { getAssociatedValue(key: "_menuProvider", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "_menuProvider", object: self) }
+    }
 
     
     /// The handlers for the window state.
