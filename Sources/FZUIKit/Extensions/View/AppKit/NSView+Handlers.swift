@@ -40,7 +40,7 @@ extension NSObjectProtocol where Self: NSTextField {
             }
             
             Swift.print("menuProvider", menuProvider != nil, newValue != nil)
-          //  setupRightDown()
+            setupRightDown()
         }
     }
 }
