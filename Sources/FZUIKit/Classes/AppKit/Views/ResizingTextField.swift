@@ -164,8 +164,12 @@
             didSet {
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
+                Swift.print("font1", lastContentSize)
                 placeholderSize = placeholderStringSize()
+                Swift.print("font2", lastContentSize)
+
                 invalidateIntrinsicContentSize()
+                Swift.print("font3", lastContentSize)
             }
         }
 
