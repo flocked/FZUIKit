@@ -9,6 +9,41 @@
 import AppKit
 import FZSwiftUtils
 
+extension NSObjectProtocol where Self: NSTextField {
+    /// The handlers for the window state.
+    public var menuProvider: ((Self)->(NSMenu?))? {
+        get {
+            _menuProvider as? ((Self)->(NSMenu?))
+        }
+        set {
+            _menuProvider = newValue
+            if newValue != nil {
+                do {
+                    try replaceMethod(
+                        #selector(NSTextViewDelegate.textView(_:menu:for:at:)),
+                        methodSignature: (@convention(c)  (AnyObject, Selector, NSTextView, NSMenu, NSEvent, Int) -> (NSMenu?)).self,
+                        hookSignature: (@convention(block)  (AnyObject, NSTextView, NSMenu, NSEvent, Int) -> (NSMenu?)).self) { store in {
+                           object, view, menu, event, charIndex in
+                           
+                            Swift.print("textView menu")
+                            if let textField = object as? NSTextField, let menuProvider = textField.menuProvider {
+                                return menuProvider(textField)
+                            }
+                            
+                           return store.original(object, #selector(NSTextViewDelegate.textView(_:menu:for:at:)), view, menu, event, charIndex)
+                        }
+                   }
+                } catch {
+                // handle error
+                }
+            }
+            
+            Swift.print("menuProvider", menuProvider != nil, newValue != nil)
+            setupRightDown()
+        }
+    }
+}
+
 extension NSObjectProtocol where Self: NSView {
     /// The handlers for the window state.
     public var menuProvider: ((Self)->(NSMenu?))? {
