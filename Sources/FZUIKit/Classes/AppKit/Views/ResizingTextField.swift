@@ -126,7 +126,7 @@
             }
         }
 
-        var lastContentSize = CGSize() {
+        public var lastContentSize = CGSize() {
             didSet {
                 lastContentSize = CGSize(width: ceil(lastContentSize.width), height: ceil(lastContentSize.height))
             }
@@ -252,7 +252,7 @@
             fieldEditor.insertionPointColor = textColor ?? NSColor.textColor
 
             if !isEditing {
-                Swift.print("intrinsicContentSize 1")
+                Swift.print("intrinsicContentSize 1", lastContentSize)
                 return minSize
             }
 
