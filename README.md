@@ -50,7 +50,7 @@ configuration.secondaryText = "The database is getting loaded."
 let loadingView = NSContentUnavailableView(configuration: configuration)
 ```
 
-### NSView
+### NSView extensions
 
 - `backgroundColor`: The background color of a view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
 
@@ -76,16 +76,6 @@ view.mask = roundedView
     - `anchorPoint: CGPoint`
     - NSTextField: `fontSize: CGFloat`
 
-- Convenience way of animating view properties:
-
-```swift
-view.animate(duration: 0.5) {
-    $0.cornerRadius = 4.0
-    $0.borderWidth = 2.0
-    $0.borderColor = .controlAccentColor
-}
-```
-
 - `menuProvider`:  Provides a right click menu.
 
 ```swift
@@ -95,7 +85,7 @@ tableView.menuProvider = { textField in
     return mneu
 }
 ```
-- Window Handlers
+- `WindowHandlers`:
 
 ```swift
 // Some examples:
@@ -106,7 +96,7 @@ view.windowHandlers.isKey = { isKey in
     // handle window isKey
 }
 ```
-- Mouse Handlers
+- `MouseHandlers`:
 
 ```swift
 // Some examples:
@@ -118,7 +108,7 @@ view.mouseHandlers.moved = { mouseMoved in
 }
 ```
 
-- View Handlers
+- `ViewHandlers`:
 
 ```swift
 // Some examples:
@@ -133,10 +123,10 @@ view.viewHandlers.effectiveAppearance { appearance in
 }
 ```
 
-- Drop Handlers for dropping files to the view.
+- `DropHandlers` for dropping files to the view:
 
 ```swift
-view.dropHandlers.canDrop = { items, location in
+view.dropHandlers.canDrop = { items, mouseLocation in
     if items.images?.isEmpty == false || items.fileURLs?.isEmpty == false {
         return true
     } else {
@@ -144,7 +134,7 @@ view.dropHandlers.canDrop = { items, location in
     }
 }
      
-view.dropHandlers.didDrop = { items, location in
+view.dropHandlers.didDrop = { items, mouseLocation in
     if let images = items.images {
         // handle dropped images
     }
@@ -154,9 +144,19 @@ view.dropHandlers.didDrop = { items, location in
 }
 ```
 
+- Convenience way of animating view properties:
+
+```swift
+view.animate(duration: 0.5) {
+    $0.cornerRadius = 4.0
+    $0.borderWidth = 2.0
+    $0.borderColor = .controlAccentColor
+}
+```
+
 ### NSImage prepareForDisplay & prepareThumbnail
 
-An `UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
+An `UIImage` port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
 
 ```swift
 // prepared decoded image for better performance
@@ -169,11 +169,11 @@ image.prepareThumbnail(of: maxThumbnailSize) { thumbnailImage in
 }
 ```
 
-### ContentConfiguration
+### Content Configurations
 
 Configurates several aspects of views, windows, etc. Examples:
 
-- VisualEffect
+- VisualEffect: Adds a visual effect to the background
 ```swift
 window.visualEffect = .darkAqua()
 view.visualEffect = .vibrantLight(material: .sidebar)
@@ -181,7 +181,7 @@ view.visualEffect = .vibrantLight(material: .sidebar)
 
 - Shadow/InnerShadow:
 ```swift
-let shadow = ShadowConfiguration(color: .controlAccentColor, opacity: 0.5, radius: 2.0)
+let shadow = ShadowConfiguration(color: .controlAccentColor, opacity: 0.5, radius: 3.0)
 view.outerShadow = shadow
 
 // inner shadow
@@ -197,7 +197,7 @@ let dashedBorder: BorderConfiguration = .dashed(color: .red)
 view.border = dashedBorder
 ```
 
-- SymbolConfiguration: A simplified version of UIImage/NSImage.SymbolConfiguration.
+- SymbolConfiguration: A simplified version of `UIImage/NSImage.SymbolConfiguration`.
 ```swift
 let symbolConfiguration: ImageSymbolConfiguration = .hierarchical(color: .red)
 symbolConfiguration.font = .body
@@ -221,10 +221,10 @@ Configurates the segments of a NSSegmentedControl:
 
 ```swift
 let segmentedControl = NSSegmentedControl() {
-    Segment("Segment 1").isSelected(true)
-    Segment("Segment 2"), 
-    Segment(NSImage(named: "myImage")!)
-    Segment(symbolName: "photo")
+    NSSegment("Segment 1").isSelected(true)
+    NSSegment("Segment 2"), 
+    NSSegment(NSImage(named: "myImage")!)
+    NSSegment(symbolName: "photo")
 }
 ```
 
@@ -255,6 +255,8 @@ textField.actionOnEscapeKeyDown = .endEditingAndReset
 textField.endEditingOnOutsideMouseDown = true
 ```
 
+- `automaticallyResizesToFit`: Automatically adjust the text field size to fit it's text'.
+
 - `EditingHandlers`:
 
 ```swift
@@ -282,7 +284,6 @@ let toolbar = Toolbar("ToolbarIdentifier") {
             Segment("Segment 1", isSelected: true)
             Segment("Segment 2"),
         }.onAction() { /// Segmented pressed }
-        Space()
         Search("SearchItem")
             .onSearch() { searchField, stringValue, state in /// Searching }
 }
@@ -295,18 +296,18 @@ Configurate the items of a Menu.
 
 ```swift
 let menu = NSMenu() {
-        MenuItem("Open…")
-            .onSelect() { // Open item Pressed }
-        MenuItem("Delete")
-            .onSelect() { // Delete item Pressed }
-        SeparatorItem()
-        MenuItemHostingView() {
-            HStack {
-                Circle().forgroundColor(.red)
-                Circle().forgroundColor(.blue)
-            }
+    NSMenuItem("Open…")
+        .onSelect() { // Open item Pressed }
+    NSMenuItem("Delete")
+        .onSelect() { // Delete item Pressed }
+    NSMenuItem.seperator()
+    NSMenuItem() {
+        HStack {
+            Circle().forgroundColor(.red)
+            Circle().forgroundColor(.blue)
         }
     }
+}
 ```
 
 ### DateTextFieldLabel
@@ -335,8 +336,8 @@ An advanced `NSImageView` that supports scaleToFill, multiple images, gif animat
 
 ```swift
 let imageView = ImageView()
-imageView.image = myGifImage
 imageView.imageScaling = .resizeAspectFill
+imageView.image = myGifImage
 imageView.animationDuration = 3.0 /// gif animation speed
 imageView.animationPlaybackOption = .mouseHover /// animation plays on mouse hover
 imageView.animationPlaybackOption = .mouseDown /// toggle playback via mouse click
@@ -355,7 +356,7 @@ player.isLooping = true
 
 ### NSMagnificationGestureRecognizer extension
 
-- Velocity: The velocity of the magnification in scale factor per second.
+- `velocity`: The velocity of the magnification in scale factor per second.
 
 ### DisplayLinkeTimer
 

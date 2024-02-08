@@ -52,6 +52,7 @@
          */
         convenience init(view: NSView, showsHighlight: Bool = true) {
             self.init(title: "")
+            self.view(view)
             if showsHighlight {
                 let highlightableView = NSMenuItemHighlightableView(frame: view.frame)
                 highlightableView.addSubview(withConstraint: view)
@@ -197,11 +198,45 @@
             return self
         }
         
-        /// The content view for the menu item.
+        /**
+         Displays a content view instead of the title or attributed title.
+                           
+         By default, a highlight background will be drawn behind the view whenever the menu item is highlighted. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
+         
+         - Parameters:
+            - view: The  view of the menu item.
+            - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+         */
         @discardableResult
-        func view(_ view: NSView?) -> Self {
-            self.view = view
+        func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
+            if let view = view {
+                if showsHighlight {
+                    let highlightableView = NSMenuItemHighlightableView(frame: view.frame)
+                    highlightableView.addSubview(withConstraint: view)
+                    self.view = view
+                } else {
+                    self.view = view
+                }
+            } else {
+                self.view = nil
+            }
             return self
+        }
+        
+        /**
+         Displays a SwiftUI `View` instead of the title or attributed title.
+         
+         Any views inside a menu item can use the `menuItemIsHighlighted` environment value to alter their appearance when highlighted.
+         
+         By default, a highlight background will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
+         
+         - Parameters:
+            - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+            - content: The  SwiftUI `View`.
+         */
+        @discardableResult
+        func view<Content: View>(showsHighlight: Bool = true, @ViewBuilder _ content: () -> Content) -> Self {
+            view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: content()))
         }
         
         /// A help tag for the menu item.
@@ -253,7 +288,7 @@
         func submenu(_ menu: NSMenu?) -> Self {
             submenu = menu
             return self
-        }
+        }        
     }
 
 @available(macOS 14.0, *)

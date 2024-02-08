@@ -48,11 +48,32 @@
             }
             return indexPaths
         }
+        
+        internal var indexPaths: [IndexPath] {
+            (0..<numberOfSections).flatMap({indexPaths(for: $0)})
+        }
+        
+        internal var itemFrames: [CGRect] {
+            indexPaths.compactMap({frameForItem(at: $0)})
+        }
+        
+        /**
+         The index paths in the specified rectangle.
+         
+         - Parameter rect: The rectangle.
+         */
+        func indexPaths(in rect: CGRect) -> [IndexPath] {
+            var itemI = indexPaths.compactMap({($0, frameForItem(at: $0)) })
+            itemI = itemI.filter({$0.1?.intersects(rect) == true})
+            return itemI.compactMap({$0.0})
+        }
 
+        /// Scrolls the collection view to the top.
         func scrollToTop() {
             enclosingScrollView?.scrollToBeginningOfDocument(nil)
         }
 
+        /// Scrolls the collection view to the bottom.
         func scrollToBottom() {
             enclosingScrollView?.scrollToEndOfDocument(nil)
         }

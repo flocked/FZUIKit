@@ -14,6 +14,7 @@
     #endif
 
     public extension NSUICollectionViewLayout {
+        /// Invalidates all layout information animated and triggers a layout update.
         func invalidateLayout(animated duration: TimeInterval = 0.15) {
             #if os(macOS)
                 guard duration != 0.0 else { invalidateLayout()

@@ -17,6 +17,24 @@
     #endif
 
     public extension NSUICollectionViewLayout {
+        /**
+         Creates a waterfall collection view layout with the specifed amount of columns.
+         
+         - Parameters:
+            - columnCount: The amount of columns.
+            - spacing: The spacing between the items.
+            - insets: The layout insets.
+            - itemSizeProvider: The handler that provides the item sizes..
+         */
+        static func waterfall(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> WaterfallLayout {
+            let layout = WaterfallLayout(itemSizeProvider: itemSizeProvider)
+            layout.minimumInteritemSpacing = spacing
+            layout.minimumColumnSpacing = spacing
+            layout.columnCount = columnCount
+            layout.sectionInset = insets
+            return layout
+        }
+        
         class WaterfallLayout: NSUICollectionViewLayout {
             public typealias ItemSizeProvider = (IndexPath) -> CGSize
 

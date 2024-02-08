@@ -12,6 +12,16 @@
     import FZSwiftUtils
 
     public extension NSScrollView {
+        /// Scrolls the scroll view to the top.
+        func scrollToTop() {
+            scrollToBeginningOfDocument(nil)
+        }
+
+        /// Scrolls the scroll view to the bottom.
+        func scrollToBottom() {
+            scrollToEndOfDocument(nil)
+        }
+        
         /**
          The point at which the origin of the document view is offset from the origin of the scroll view.
 

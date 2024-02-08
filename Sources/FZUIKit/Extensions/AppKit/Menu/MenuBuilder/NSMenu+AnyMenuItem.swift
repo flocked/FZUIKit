@@ -98,7 +98,6 @@
             }
         }
 
-        #if canImport(SwiftUI)
             /// Display a custom SwiftUI `View` instead of the title or attributed title.
             ///
             /// The passed closure will only be called once.
@@ -110,7 +109,6 @@
             func view<Content: View>(showsHighlight: Bool = true, @ViewBuilder _ content: () -> Content) -> Self {
                 view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: content()))
             }
-        #endif
 
         /// Sets the image associated with this menu item.
         func image(_ image: NSImage?) -> Self {

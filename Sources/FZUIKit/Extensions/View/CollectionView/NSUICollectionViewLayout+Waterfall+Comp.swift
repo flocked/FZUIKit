@@ -15,13 +15,17 @@
 
     public typealias CollectionViewItemSizeProvider = (IndexPath) -> CGSize
 
-    public extension NSUICollectionViewCompositionalLayout {
-        static func waterfall(
-            columnCount: Int = 2,
-            spacing: CGFloat = 8,
-            //   contentInsetsReference: UIContentInsetsReference = .automatic,
-            itemSizeProvider: @escaping CollectionViewItemSizeProvider
-        ) -> NSUICollectionViewCompositionalLayout {
+    public extension NSUICollectionViewLayout {
+        /**
+         Creates a waterfall collection view layout with the specifed amount of columns.
+         
+         - Parameters:
+            - columnCount: The amount of columns.
+            - spacing: The spacing between the items.
+            - insets: The layout insets.
+            - itemSizeProvider: The handler that provides the item sizes..
+         */
+        static func waterfallCompositional(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
             var numberOfItems: (Int) -> Int = { _ in 0 }
             let layout = NSUICollectionViewCompositionalLayout { section, environment in
                 let groupLayoutSize = NSCollectionLayoutSize(
@@ -38,6 +42,7 @@
                     }
                     return items
                 }
+                group.contentInsets = insets.directional
 
                 let section = NSCollectionLayoutSection(group: group)
                 // section.contentInsetsReference = configuration.contentInsetsReference
