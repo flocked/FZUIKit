@@ -91,17 +91,17 @@
             invalidateIntrinsicContentSize()
         }
 
-        var placeholderSize: NSSize? {
+        var placeholderSize: CGSize? {
             didSet {
                 if let placeholderSize_ = placeholderSize {
-                    placeholderSize = NSSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
+                    placeholderSize = CGSize(width: ceil(placeholderSize_.width), height: ceil(placeholderSize_.height))
                 }
             }
         }
 
-        var lastContentSize = NSSize() {
+        var lastContentSize = CGSize() {
             didSet {
-                lastContentSize = NSSize(width: ceil(lastContentSize.width), height: ceil(lastContentSize.height))
+                lastContentSize = CGSize(width: ceil(lastContentSize.width), height: ceil(lastContentSize.height))
             }
         }
 
@@ -179,7 +179,7 @@
             invalidateIntrinsicContentSize()
         }
 
-        override public var intrinsicContentSize: NSSize {
+        override public var intrinsicContentSize: CGSize {
             let intrinsicContentSize = super.intrinsicContentSize
             guard automaticallyResizesToFit else { return intrinsicContentSize }
             let minWidth: CGFloat!
@@ -189,7 +189,7 @@
                 minWidth = ceil(placeholderSize?.width ?? 0)
             }
 
-            var minSize = NSSize(width: minWidth, height: intrinsicContentSize.height)
+            var minSize = CGSize(width: minWidth, height: intrinsicContentSize.height)
             if let maxWidth = maxWidth, minSize.width >= maxWidth {
                 if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 10000)) {
                     minSize.height = cellSize.height + 8.0
@@ -235,7 +235,7 @@
                 newWidth = max(newWidth, minWidth)
             }
 
-            var newSize = NSSize(width: newWidth, height: intrinsicContentSize.height)
+            var newSize = CGSize(width: newWidth, height: intrinsicContentSize.height)
             if let maxWidth = maxWidth, newSize.width >= maxWidth {
                 if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 1000)) {
                     newSize.height = cellSize.height + 8.0
