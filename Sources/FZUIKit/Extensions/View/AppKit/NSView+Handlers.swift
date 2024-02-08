@@ -71,8 +71,10 @@ extension NSView {
                 guard let self = self else { return event }
                 if let contentView = self.window?.contentView {
                     let location = event.location(in: contentView)
+                    Swift.print("rightDown hit", contentView.hitTest(location) ?? "nil", contentView.hitTest(location)?.isDescendant(of: self) ?? "false")
                     if let view = contentView.hitTest(location), view.isDescendant(of: self) {
                         let location = event.location(in: self)
+                        Swift.print("rightDown contains" , self.bounds.contains(location))
                         if self.bounds.contains(location) {
                             self.mouseHandlers.rightDown?(event)
                             if let menuProvider = self.menuProvider {
