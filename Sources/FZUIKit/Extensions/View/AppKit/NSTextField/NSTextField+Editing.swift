@@ -151,7 +151,7 @@
         @objc open var automaticallyResizesToFit: Bool {
             get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: isEditable) }
             set {
-                guard newValue != automaticallyAdjustsSizeToFitText else { return }
+                guard newValue != automaticallyResizesToFit else { return }
                 set(associatedValue: newValue, key: "automaticallyResizesToFit", object: self)
                 swizzleTextField(shouldSwizzle: needsSwizzling)
                 if newValue {

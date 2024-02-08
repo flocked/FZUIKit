@@ -126,7 +126,7 @@
         }
         
         var needsSwizzling: Bool {
-            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || isEditableByDoubleClick || automaticallyAdjustsSizeToFitText
+            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || isEditableByDoubleClick || automaticallyResizesToFit
         }
 
         func setupTextFieldObserver() {
@@ -301,7 +301,7 @@
                                 textField.isSelectable = textField._isSelectable
                                 textField.isEditable = textField._isEditable
                             }
-                            if textField.automaticallyAdjustsSizeToFitText {
+                            if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
                         }
@@ -322,7 +322,7 @@
                             if let editingRange = textField.currentEditor()?.selectedRange {
                                 textField.editingRange = editingRange
                             }
-                            if textField.automaticallyAdjustsSizeToFitText {
+                            if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
                         }
@@ -336,7 +336,7 @@
                     ) { store in { object, notification in
                         if let textField = (object as? NSTextField) {
                             textField.updateString()
-                            if textField.automaticallyAdjustsSizeToFitText {
+                            if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
                         }
