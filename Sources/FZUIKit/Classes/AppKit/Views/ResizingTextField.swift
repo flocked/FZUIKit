@@ -107,6 +107,7 @@
             isBordered = false
             textLayout = .wraps
             
+            /*
             observations.append(
                 observeChanges(for: \.font) { [weak self] old, new in
                     guard let self = self, !self.isEditing else { return }
@@ -115,6 +116,7 @@
                     self.invalidateIntrinsicContentSize()
                 }
             )
+             */
             
             verticalTextAlignment = .center
             actionOnEnterKeyDown = .endEditing
@@ -126,7 +128,7 @@
             lastContentSize = stringValueSize()
             placeholderSize = placeholderStringSize()
             automaticallyResizesToFit = true
-            invalidateIntrinsicContentSize()            
+            invalidateIntrinsicContentSize()
         }
 
         var placeholderSize: CGSize? {
