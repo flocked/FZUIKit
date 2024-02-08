@@ -237,6 +237,16 @@
                     }
                     
                     try replaceMethod(
+                        #selector(getter: intrinsicContentSize),
+                        methodSignature: (@convention(c) (AnyObject, Selector) -> CGSize).self,
+                        hookSignature: (@convention(block) (AnyObject) -> CGSize).self
+                    ) { store in { object in
+                        Swift.print("swizzle intrinsicContentSize")
+                        return store.original(object, #selector(getter: self.intrinsicContentSize))
+                    }
+                    }
+                    
+                    try replaceMethod(
                         #selector(layout),
                         methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject) -> Void).self

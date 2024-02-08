@@ -15,7 +15,6 @@
         /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
         public override var automaticallyResizesToFit: Bool {
             didSet {
-                Swift.print("automaticallyResizesToFit")
                 invalidateIntrinsicContentSize()
             }
         }
@@ -110,8 +109,6 @@
 
         override public var stringValue: String {
             didSet {
-                Swift.print("resizing stringValue")
-
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
             }
@@ -140,8 +137,6 @@
 
         override public var font: NSFont? {
             didSet {
-                Swift.print("resizing font")
-
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
                 placeholderSize = placeholderStringSize()
@@ -170,8 +165,6 @@
 
         override public func textDidBeginEditing(_ notification: Notification) {
             super.textDidBeginEditing(notification)
-            Swift.print("resizing textDidBeginEditing")
-
             isEditing = true
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             if let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView {
@@ -185,14 +178,12 @@
         }
 
         override public func textDidChange(_ notification: Notification) {
-            Swift.print("resizing textDidChange")
-
             super.textDidChange(notification)
             invalidateIntrinsicContentSize()
         }
 
         override public var intrinsicContentSize: CGSize {
-            Swift.print("resizing intrinsicContentSize")
+            Swift.print("rezing intrinsicContentSize")
 
             let intrinsicContentSize = super.intrinsicContentSize
             guard automaticallyResizesToFit else { return intrinsicContentSize }
