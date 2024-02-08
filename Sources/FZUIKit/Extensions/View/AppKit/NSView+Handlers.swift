@@ -18,8 +18,36 @@ extension NSObjectProtocol where Self: NSView {
         set {
             _menuProvider = newValue
             Swift.print("menuProvider", menuProvider != nil, newValue != nil)
-            setupEventMonitors()
+            setupRightDown()
+        }
+    }
+    
+    func setupRightDown() {
+        Swift.print("setupRightDown", menuProvider != nil)
+        if mouseHandlers.rightDown != nil || menuProvider != nil {
+            let event = NSEvent.EventTypeMask.rightMouseDown
+            eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
+                Swift.print("rightDown")
 
+                guard let self = self else { return event }
+                Swift.print("rightDown", self.window?.contentView != nil)
+
+                if let contentView = self.window?.contentView {
+                    let location = event.location(in: contentView)
+                    Swift.print("rightDown hit", contentView.hitTest(location) ?? "nil", contentView.hitTest(location)?.isDescendant(of: self) ?? "false")
+                    if let view = contentView.hitTest(location), view.isDescendant(of: self) {
+                        let location = event.location(in: self)
+                        Swift.print("rightDown contains" , self.bounds.contains(location))
+                        if self.bounds.contains(location) {
+                            self.mouseHandlers.rightDown?(event)
+                            if let menuProvider = menuProvider {
+                                self.menu = menuProvider(self)
+                            }
+                        }
+                    }
+                }
+                return event
+            }
         }
     }
 }
@@ -73,11 +101,10 @@ extension NSView {
         setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
  //       setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
         setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
-        if let _menuProvider = self._menuProvider {
-            Swift.print("setupEventMonitors", _menuProvider, (_menuProvider as? ((Self)->(NSMenu?))) ?? "nil")
+        setupRightDown()
+        /*
+        let menuProvider = self._menuProvider as? ((Self)->(NSMenu?))
 
-        }
-        
         Swift.print("setupEventMonitors", mouseHandlers.rightDown != nil, menuProvider != nil )
 
         if mouseHandlers.rightDown != nil || menuProvider != nil {
@@ -96,7 +123,7 @@ extension NSView {
                         Swift.print("rightDown contains" , self.bounds.contains(location))
                         if self.bounds.contains(location) {
                             self.mouseHandlers.rightDown?(event)
-                            if let menuProvider = self.menuProvider {
+                            if let menuProvider = menuProvider {
                                 self.menu = menuProvider(self)
                             }
                         }
@@ -105,7 +132,7 @@ extension NSView {
                 return event
             }
         }
-        
+        */
     }
         
     func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
