@@ -204,8 +204,7 @@
         func swizzleTextField(shouldSwizzle: Bool) {
             if shouldSwizzle {
                 _font = font
-                Self.swizzleTextField()
-                /*
+              //  Self.swizzleTextField()
                 guard didSwizzleTextField == false else { return }
                 didSwizzleTextField = true
                 _font = font
@@ -219,6 +218,12 @@
                         guard let textField = (object as? NSTextField), textField._font != font else { return }
                         textField._font = font
                         textField.adjustFontSize()
+                        if let textField = object as? ResizingTextField {
+                            guard !textField.isEditing else { return }
+                            textField.lastContentSize = textField.stringValueSize()
+                            textField.placeholderSize = textField.placeholderStringSize()
+                            textField.invalidateIntrinsicContentSize()
+                        }
                     }
                     }
                     
@@ -362,7 +367,6 @@
                 } catch {
                     Swift.debugPrint(error)
                 }
-                 */
             } else if didSwizzleTextField {
                 didSwizzleTextField = false
                 resetMethod(#selector(setter: font))
