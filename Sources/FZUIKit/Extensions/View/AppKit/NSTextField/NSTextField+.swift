@@ -62,6 +62,30 @@
             }
         }
         
+        /// The focus type of the text field.
+        var focusType: NSTextFieldCell.FocusType {
+            get { (cell as? NSTextFieldCell)?.focusType ?? .default }
+            set { (cell as? NSTextFieldCell)?.focusType = newValue }
+        }
+        
+        /// The vertical alignment of the displayed text inside the text field.
+        var verticalTextAlignment: NSTextFieldCell.VerticalAlignment {
+            get { (cell as? NSTextFieldCell)?.verticalAlignment ?? .default }
+            set { (cell as? NSTextFieldCell)?.verticalAlignment = newValue }
+        }
+        
+        /// The leading padding of the text cell.
+        var leadingTextPadding: CGFloat {
+            get { (cell as? NSTextFieldCell)?.leadingPadding ?? 0.0 }
+            set { (cell as? NSTextFieldCell)?.leadingPadding = newValue }
+        }
+        
+        /// The trailing padding of the text cell.
+        var trailingTextPadding: CGFloat {
+            get { (cell as? NSTextFieldCell)?.trailingPadding ?? 0.0 }
+            set { (cell as? NSTextFieldCell)?.trailingPadding = newValue }
+        }
+        
         /// The y-coordinate of the baseline for the topmost line of the text.
         var firstBaselineY: CGFloat? {
             guard let font = font else { return nil }

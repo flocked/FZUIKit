@@ -10,32 +10,13 @@
 
     /// A text field cell with vertical alignment and focus type property.
     public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
-        /// The focus ring type.
-        public enum FocusType: Equatable {
-            /// No focus ring.
-            case none
-            /// A capsule focus ring.
-            case capsule
-            /// A focus ring with rounded corners.
-            case roundedCorners(CGFloat)
-            /// A focus ring with relative rounded corners.
-            case roundedCornersRelative(CGFloat)
-            /// The default focus ring.
-            case `default`
-        }
-
+        /*
         /// The vertical alignment of the text.
         public enum VerticalAlignment: Equatable {
             /// The text is vertically centered.
             case center
             /// The default vertical text alignment.
             case `default`
-        }
-
-        /// The focus ring type.
-        public var focusType: FocusType = .default {
-            didSet { guard oldValue != focusType else { return }
-            }
         }
 
         /// The vertical alignment of the text.
@@ -88,39 +69,7 @@
             super.select(withFrame: titleRect(forBounds: rect), in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
             isEditingOrSelecting = false
         }
-
-        override public func drawFocusRingMask(withFrame cellFrame: NSRect, in controlView: NSView) {
-            guard focusType != FocusType.none else {
-                return
-            }
-
-            var cornerRadius: CGFloat = 0
-            switch focusType {
-            case .capsule:
-                cornerRadius = cellFrame.size.height / 2.0
-            case let .roundedCorners(radius):
-                cornerRadius = radius
-            case let .roundedCornersRelative(relative):
-                cornerRadius = cellFrame.size.height / 2.0
-                cornerRadius = cornerRadius * relative.clamped(max: 1.0)
-            default:
-                break
-            }
-
-            // Draw default
-            guard focusType != FocusType.default, cornerRadius != 0 else {
-                super.drawFocusRingMask(withFrame: cellFrame, in: controlView)
-                return
-            }
-
-            // Custome
-            // Make forcus ring frame fit with cell size
-            // let newFrame = cellFrame.insetBy(dx: 2, dy: 1)
-            let newFrame = cellFrame
-
-            let path = NSBezierPath(roundedRect: newFrame, xRadius: cornerRadius, yRadius: cornerRadius)
-            path.fill()
-        }
+        */
     }
 
 #endif

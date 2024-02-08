@@ -45,10 +45,6 @@ extension NSFontPanel {
         
         func changeFont(_ sender: NSFontManager?) {
             guard let fontManager = sender else { return }
-            Swift.print(NSApp.keyWindow?.firstResponder?.nextResponder?.nextResponder ?? "nil")
-            if let textView = NSApp.keyWindow?.firstResponder as? NSText {
-                
-            }
             if let textView = NSApp.keyWindow?.firstResponder as? NSTextView, textView.changeFontAutomaticallyViaFontPanel {
                 let newFont = fontManager.convert(textView.font ?? .body)
                 textView.font = newFont

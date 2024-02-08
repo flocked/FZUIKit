@@ -122,17 +122,13 @@
         /// A Boolean value that indicates whether the user is editing the text.
         public private(set) var isEditing = false
 
-        /// The focus type of the text field.
-        public var focusType: VerticallyCenteredTextFieldCell.FocusType {
-            get { textCell?.focusType ?? .default }
-            set { textCell?.focusType = newValue }
-        }
-
+        /*
         /// The vertical alignment of the displayed text inside the text field.
         public var verticalTextAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
             get { textCell?.verticalAlignment ?? .default }
             set { textCell?.verticalAlignment = newValue }
         }
+         */
 
         /// The handler called when the edit state changes.
         public var editingStateHandler: ((EditState) -> Void)?
