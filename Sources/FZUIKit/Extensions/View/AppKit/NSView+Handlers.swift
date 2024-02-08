@@ -17,6 +17,7 @@ extension NSObjectProtocol where Self: NSTextField {
         }
         set {
             _menuProvider = newValue
+            Swift.print("menuProvider textField", newValue != nil)
             if newValue != nil {
                 do {
                     try replaceMethod(
