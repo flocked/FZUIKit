@@ -61,4 +61,10 @@ public extension NSUIRectCorner {
         return cornerMask
     }
 }
+
+extension NSUIRectCorner: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
+    }
+}
 #endif
