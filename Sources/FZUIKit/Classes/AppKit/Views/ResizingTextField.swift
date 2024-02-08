@@ -212,8 +212,10 @@
             guard automaticallyResizesToFit else { return intrinsicContentSize }
             let minWidth: CGFloat!
             if !stringValue.isEmpty {
+                Swift.print("intrinsicContentSize X1")
                 minWidth = lastContentSize.width
             } else {
+                Swift.print("intrinsicContentSize X2")
                 minWidth = ceil(placeholderSize?.width ?? 0)
             }
 
@@ -243,23 +245,27 @@
 
             guard let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView
             else {
+                Swift.print("intrinsicContentSize 0")
                 return minSize
             }
 
             fieldEditor.insertionPointColor = textColor ?? NSColor.textColor
 
             if !isEditing {
+                Swift.print("intrinsicContentSize 1")
                 return minSize
             }
 
             if fieldEditor.string.isEmpty {
                 lastContentSize = minSize
+                Swift.print("intrinsicContentSize 2")
                 return minSize
             }
 
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             var newWidth = ceil(stringValueSize().width)
             if let minWidth = self.minWidth {
+                Swift.print("intrinsicContentSize X3")
                 newWidth = max(newWidth, minWidth)
             }
 
@@ -271,6 +277,7 @@
                 newSize.width = maxWidth
             }
             lastContentSize = newSize
+            Swift.print("intrinsicContentSize 3")
             return newSize
         }
     }
