@@ -34,7 +34,7 @@ extension NSObjectProtocol where Self: NSTextField {
                         }
                    }
                 } catch {
-                // handle error
+                    Swift.debugPrint(error)
                 }
             }
             
