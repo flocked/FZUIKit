@@ -11,16 +11,7 @@
 
     /// A text field that automatically resizes to fit it's text.
     open class ResizingTextField: NSTextField, NSTextFieldDelegate {
-        /// The editing state the text field.
-        public enum EditState {
-            /// The user did begin editing the text.
-            case didBegin
-            /// The user did end editing the text.
-            case didEnd
-            /// The user did change the text.
-            case changed
-        }
-
+        
         /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
         @IBInspectable public var automaticallyResizesToFit: Bool = true {
             didSet {
@@ -67,63 +58,8 @@
             } }
         }
 
-        /*
-         /// The allowed characters the user can enter when editing.
-         public struct AllowedCharacters: OptionSet {
-             public let rawValue: UInt
-             /// Allows numeric characters (like 1, 2, etc.)
-             public static let digits = AllowedCharacters(rawValue: 1 << 0)
-             /// Allows all letter characters.
-             public static let letters: AllowedCharacters = [.lowercaseLetters, .uppercaseLetters]
-             /// Allows alphabetic lowercase characters (like a, b, c, etc.)
-             public static let lowercaseLetters = AllowedCharacters(rawValue: 1 << 1)
-             /// Allows alphabetic uppercase characters (like A, B, C, etc.)
-             public static let uppercaseLetters = AllowedCharacters(rawValue: 1 << 2)
-             /// Allows all alphanumerics characters.
-             public static let alphanumerics: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters]
-             /// Allows symbols (like !, -, /, etc.)
-             public static let symbols = AllowedCharacters(rawValue: 1 << 3)
-             /// Allows emoji characters (like 🥰 ❤️, etc.)
-             public static let emojis = AllowedCharacters(rawValue: 1 << 4)
-             /// Allows whitespace characters.
-             public static let whitespaces = AllowedCharacters(rawValue: 1 << 5)
-             /// Allows new line characters.
-             public static let newLines = AllowedCharacters(rawValue: 1 << 6)
-             /// Allows all characters.
-             public static let all: AllowedCharacters = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines]
-
-             internal func trimString<S: StringProtocol>(_ string: S) -> String {
-                 var string = String(string)
-                 if self.contains(.lowercaseLetters) == false { string = string.trimmingCharacters(in: .lowercaseLetters) }
-                 if self.contains(.uppercaseLetters) == false { string = string.trimmingCharacters(in: .uppercaseLetters) }
-                 if self.contains(.digits) == false { string = string.trimmingCharacters(in: .decimalDigits) }
-                 if self.contains(.symbols) == false { string = string.trimmingCharacters(in: .symbols) }
-                 if self.contains(.newLines) == false { string = string.trimmingCharacters(in: .newlines) }
-                 if self.contains(.emojis) == false { string = string.trimmingEmojis() }
-                 return string
-             }
-
-             /// Creates a swipe direction structure with the specified raw value.
-             public init(rawValue: UInt) {
-                 self.rawValue = rawValue
-             }
-         }
-
-         /// The allowed characters the user can enter when editing.
-         var allowedCharacters: AllowedCharacters = .all
-         */
-
-        /*
-         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
-         @IBInspectable public var stopsEditingOnOutsideMouseDown = false {
-             didSet { self.setupMouseDownMonitor() } }
-          */
-
         /// A Boolean value that indicates whether the user is editing the text.
         public private(set) var isEditing = false
-
-        /// The handler called when the edit state changes.
-        public var editingStateHandler: ((EditState) -> Void)?
 
         /// The range of the selected text while editing.
         private var _editingSelectedRange: NSRange? {
@@ -154,6 +90,8 @@
             isBordered = false
             textLayout = .wraps
             verticalTextAlignment = .center
+            actionOnEnterKeyDown = .endEditing
+            actionOnEscapeKeyDown = .endEditingAndReset
             focusType = .roundedCornersRelative(0.5)
             (cell as? NSTextFieldCell)?.setWantsNotificationForMarkedText(true)
             translatesAutoresizingMaskIntoConstraints = false
@@ -165,51 +103,16 @@
 
         override public func becomeFirstResponder() -> Bool {
             let canBecome = super.becomeFirstResponder()
+            /*
             if isEditable, canBecome {
                 editingStateHandler?(.didBegin)
             }
+             */
             return canBecome
         }
 
         func trimString(_ string: String) -> String {
             allowedCharacters.trimString(string)
-        }
-
-        func isConforming(_ string: String) -> Bool {
-            return actionHandlers.confirm?(string) ?? true
-        }
-
-        /// Handlers that get called whenever the user tries to confirm (Enter key) or cancel (ESC key) its editing string.
-        public struct ActionHandlers {
-            /// The handler that gets called whenever the user tries to cancel (ESC key) its string. Return `true` to allow cancellation. The string will return to it's initial value prior editing. Return `false` to to disallow cancellation. The text will stay in editing state.
-            var cancel: ((String) -> (Bool))?
-            /// The handler that gets called whenever the user tries to confirm (Enter key) its string. Return `true` to allow the string and `false` if not.
-            var confirm: ((String) -> (Bool))?
-        }
-
-        /// Handlers that get called whenever the user tries to conform or cancel its string.
-        public var actionHandlers = ActionHandlers()
-
-        public func control(_: NSControl, textView _: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-            // let modifierFlags = NSEvent.current?.modifierFlags ?? []
-
-            if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                if isConforming(stringValue) {
-                    self.window?.makeFirstResponder(nil)
-                } else {
-                    NSSound.beep()
-                }
-            } else if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
-                if actionHandlers.cancel?(stringValue) ?? true {
-                    self.isEditing = false
-                    self.stringValue = self.previousStringValue
-                    self.window?.makeFirstResponder(nil)
-                    self.invalidateIntrinsicContentSize()
-                    return true
-                }
-            }
-
-            return false
         }
 
         var placeholderSize: NSSize? { didSet {
@@ -282,14 +185,12 @@
             if let fieldEditor = self.window?.fieldEditor(false, for: self) as? NSTextView {
                 fieldEditor.insertionPointColor = NSColor.clear
             }
-            self.editingStateHandler?(.didBegin)
         }
 
         override public func textDidEndEditing(_ notification: Notification) {
             super.textDidEndEditing(notification)
             self.isEditing = false
             //   self.setupMouseDownMonitor()
-            self.editingStateHandler?(.didEnd)
         }
 
         override public func textDidChange(_ notification: Notification) {
@@ -298,15 +199,16 @@
             if self.stringValue != trimmedString {
                 self.stringValue = trimmedString
             }
+            /*
             if self.isConforming(self.stringValue) == false {
                 self.stringValue = previousStringValue
                 self._editingSelectedRange = self.previousSelectedRange
             }
+             */
             //   self.previousStringValue = self.stringValue
             self.previousSelectedRange = self._editingSelectedRange
 
             self.invalidateIntrinsicContentSize()
-            self.editingStateHandler?(.changed)
         }
 
         override public var intrinsicContentSize: NSSize {
