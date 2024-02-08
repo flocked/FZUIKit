@@ -381,6 +381,7 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
+                        Swift.print("textDidChange", (object as? NSTextField) != nil)
                         store.original(object, #selector(NSTextField.textDidChange), notification)
                         if let textField = (object as? NSTextField) {
                             textField.updateString()
