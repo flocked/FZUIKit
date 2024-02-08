@@ -74,6 +74,7 @@
             sharedInit()
         }
         
+        /*
         /// Initializes a text field for use as a multiline static label with selectable text that uses the system default font.
          public init(wrappingLabelWithString stringValue: String) {
              super.init(frame: .zero)
@@ -98,6 +99,7 @@
             sharedInit()
             self.attributedStringValue = attributedStringValue
         }
+        */
 
         var observations: [NSKeyValueObservation] = []
         func sharedInit() {
@@ -124,9 +126,7 @@
             lastContentSize = stringValueSize()
             placeholderSize = placeholderStringSize()
             automaticallyResizesToFit = true
-            invalidateIntrinsicContentSize()
-            
-            Swift.print("Shared Init", stringValue)
+            invalidateIntrinsicContentSize()            
         }
 
         var placeholderSize: CGSize? {
@@ -145,7 +145,6 @@
 
         override public var stringValue: String {
             didSet {
-                Swift.print("didSet stringValue")
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
             }
@@ -174,15 +173,10 @@
 
         override public var font: NSFont? {
             didSet {
-                Swift.print("font0", lastContentSize, isEditing)
                 guard !isEditing else { return }
                 lastContentSize = stringValueSize()
-                Swift.print("font1", lastContentSize)
                 placeholderSize = placeholderStringSize()
-                Swift.print("font2", lastContentSize)
-
                 invalidateIntrinsicContentSize()
-                Swift.print("font3", lastContentSize)
             }
         }
 
@@ -229,10 +223,8 @@
             guard automaticallyResizesToFit else { return intrinsicContentSize }
             let minWidth: CGFloat!
             if !stringValue.isEmpty {
-                Swift.print("intrinsicContentSize X1")
                 minWidth = lastContentSize.width
             } else {
-                Swift.print("intrinsicContentSize X2")
                 minWidth = ceil(placeholderSize?.width ?? 0)
             }
 
@@ -262,27 +254,23 @@
 
             guard let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView
             else {
-                Swift.print("intrinsicContentSize 0")
                 return minSize
             }
 
             fieldEditor.insertionPointColor = textColor ?? NSColor.textColor
 
             if !isEditing {
-                Swift.print("intrinsicContentSize 1", lastContentSize)
                 return minSize
             }
 
             if fieldEditor.string.isEmpty {
                 lastContentSize = minSize
-                Swift.print("intrinsicContentSize 2")
                 return minSize
             }
 
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             var newWidth = ceil(stringValueSize().width)
             if let minWidth = self.minWidth {
-                Swift.print("intrinsicContentSize X3")
                 newWidth = max(newWidth, minWidth)
             }
 
@@ -294,7 +282,6 @@
                 newSize.width = maxWidth
             }
             lastContentSize = newSize
-            Swift.print("intrinsicContentSize 3")
             return newSize
         }
     }
