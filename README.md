@@ -14,7 +14,7 @@ A port of `UIContentConfiguration` & `UIContentView` to AppKit.
 
 A content configuration suitable for hosting a hierarchy of SwiftUI views.
 
-```
+```swift
 let configuration = NSHostingConfiguration() {
     Label("Your account", systemImage: "folder.circle")
 }
@@ -26,7 +26,7 @@ collectionViewItem.contentConfiguration = configuration
 
 A content configuration suitable for backgrounds.
 
-```
+```swift
 var configuration = NSBackgroundConfiguration()
 
 configuration.backgroundColor = .controlAccentColor
@@ -41,7 +41,7 @@ let backgroundView = NSBackgroundView(configuration: configuration)
 
 A content configuration for a content-unavailable view. It is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. 
 
-```
+```swift
 let configuration = NSContentUnavailableConfiguration.loading() // A loading view that is displaying a spinning indicator.
 
 configuration.text = "Loading…"
@@ -50,15 +50,15 @@ configuration.secondaryText = "The database is getting loaded."
 let loadingView = NSContentUnavailableView(configuration: configuration)
 ```
 
-### NSView properties
+### NSView
 
 - `backgroundColor`: The background color of a view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
-```
+```swift
 view.backgroundColor = .systemRed
 ```
 
 - `mask`: Masks a view with another view whose alpha channel is used for masking.
-```
+```swift
 view.mask = roundedView
 ```
 
@@ -75,7 +75,8 @@ view.mask = roundedView
     - NSTextField: `fontSize: CGFloat`
 
 - Convenience way of animating view properties:
-```
+
+```swift
 view.animate(duration: 0.5) {
     $0.cornerRadius = 4.0
     $0.borderWidth = 2.0
@@ -83,11 +84,21 @@ view.animate(duration: 0.5) {
 }
 ```
 
+- `menuProvider`:  Provides a right click menu.
+
+```swift
+tableView.menuProvider = { textField in
+    let menu = NSMenu()
+    menu.addItem(NSMenuItem(title: "\(selectedRowIndexes.count) rows selected"))
+    return mneu
+}
+```
+
 ### NSImage prepareForDisplay & prepareThumbnail
 
 An `UIImage port for generating thumbnails and to prepare and decode images to provide much better performance displaying them. It offers synchronous and asynchronous (either via asyc/await or completionHandler) implementations.
 
-```
+```swift
 // prepared decoded image for better performance
 let preparedImage = await image.preparingForDisplay() 
 
@@ -103,13 +114,13 @@ image.prepareThumbnail(of: maxThumbnailSize) { thumbnailImage in
 Configurates several aspects of views, windows, etc. Examples:
 
 - VisualEffect
-```
+```swift
 window.visualEffect = .darkAqua()
 view.visualEffect = .vibrantLight(material: .sidebar)
 ```
 
 - Shadow/InnerShadow:
-```
+```swift
 let shadow = ShadowConfiguration(color: .controlAccentColor, opacity: 0.5, radius: 2.0)
 view.outerShadow = shadow
 
@@ -118,7 +129,7 @@ view.innerShadow = shadow
 ```
 
 - Border
-```
+```swift
 let border = BorderConfiguration(color: .black, width: 1.0)
 view.border = border
 
@@ -127,7 +138,7 @@ view.border = dashedBorder
 ```
 
 - SymbolConfiguration: A simplified version of UIImage/NSImage.SymbolConfiguration.
-```
+```swift
 let symbolConfiguration: ImageSymbolConfiguration = .hierarchical(color: .red)
 symbolConfiguration.font = .body
 symbolConfiguration.imageScaling = .large
@@ -135,7 +146,7 @@ imageView.configurate(using: symbolConfiguration)
 ```
 
 - Text
-```
+```swift
 var textConfiguration = TextConfiguration()
 textConfiguration.font = .body
 textConfiguration.color = .systemRed
@@ -148,7 +159,7 @@ textField.configurate(using: textConfiguration)
 
 Configurates the segments of a NSSegmentedControl:
 
-```
+```swift
 let segmentedControl = NSSegmentedControl() {
     Segment("Segment 1").isSelected(true)
     Segment("Segment 2"), 
@@ -222,7 +233,7 @@ toolbar.attachedWindow = window
 
 Configurate the items of a Menu.
 
-```
+```swift
 let menu = NSMenu() {
         MenuItem("Open…")
             .onSelect() { // Open item Pressed }
@@ -242,7 +253,7 @@ let menu = NSMenu() {
 
 A text field with a date property that automatically updates its string baased on date. It can show the date absolute or relative.
 
-```
+```swift
 let textField = DateTextField(date: Date())
 textField.dateDisplayMode = .relative // It displays e.g. "2 mins ago"
 textField.dateDisplayMode = .absolute // It displays e.g. "04.04.2023 10:20pm"
@@ -252,7 +263,7 @@ textField.dateDisplayMode = .absolute // It displays e.g. "04.04.2023 10:20pm"
 
 A `NSTextField` that automatically resizes to fit it's text.
 
-```
+```swift
 let textField = ResizingTextField(string: "Some string")
 textField.automaticallyResizesToFit = true
 textField.maxWidth = 200 // The max width of the text field when resizing.
@@ -262,7 +273,7 @@ textField.maxWidth = 200 // The max width of the text field when resizing.
 
 An advanced `NSImageView` that supports scaleToFill, multiple images, gif animation speed, etc.
 
-```
+```swift
 let imageView = ImageView()
 imageView.image = myGifImage
 imageView.imageScaling = .resizeAspectFill
@@ -275,7 +286,7 @@ imageView.animationPlaybackOption = .mouseDown /// toggle playback via mouse cli
 
 - `isLooping`: Easy looping of the playing item.
 
-```
+```swift
 player.isLooping = true
 ```
 
@@ -290,7 +301,7 @@ player.isLooping = true
 
 A much more precise `Timer` which time interval can be changed without invalidating the timer.
 
-```
+```swift
 let timer = DisplayLinkTimer.scheduledTimer(timeInterval: .seconds(3.0), action: {
     // some action
 })
