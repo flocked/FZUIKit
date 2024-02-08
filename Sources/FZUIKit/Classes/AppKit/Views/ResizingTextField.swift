@@ -73,6 +73,31 @@
             super.init(coder: coder)
             sharedInit()
         }
+        
+        /// Initializes a text field for use as a multiline static label with selectable text that uses the system default font.
+         public init(wrappingLabelWithString stringValue: String) {
+             super.init(frame: .zero)
+             sharedInit()
+             self.stringValue = stringValue
+        }
+        
+        public init(labelWithString stringValue: String) {
+            super.init(frame: .zero)
+            sharedInit()
+            self.stringValue = stringValue
+        }
+
+        public init(string: String) {
+            super.init(frame: .zero)
+            sharedInit()
+            stringValue = string
+        }
+        
+        public init(labelWithAttributedString attributedStringValue: NSAttributedString) {
+            super.init(frame: .zero)
+            sharedInit()
+            self.attributedStringValue = attributedStringValue
+        }
 
         func sharedInit() {
             drawsBackground = false
@@ -89,7 +114,6 @@
             placeholderSize = placeholderStringSize()
             automaticallyResizesToFit = true
             invalidateIntrinsicContentSize()
-            Swift.print("sharedInit", stringValue)
         }
 
         var placeholderSize: CGSize? {
