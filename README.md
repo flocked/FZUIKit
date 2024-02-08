@@ -53,11 +53,13 @@ let loadingView = NSContentUnavailableView(configuration: configuration)
 ### NSView
 
 - `backgroundColor`: The background color of a view that automatically adjusts on light/dark mode changes and can be animated via `animator()`.
+
 ```swift
 view.backgroundColor = .systemRed
 ```
 
 - `mask`: Masks a view with another view whose alpha channel is used for masking.
+
 ```swift
 view.mask = roundedView
 ```
@@ -91,6 +93,61 @@ tableView.menuProvider = { textField in
     let menu = NSMenu()
     menu.addItem(NSMenuItem(title: "\(selectedRowIndexes.count) rows selected"))
     return mneu
+}
+```
+- Window Handlers
+
+```swift
+view.windowHandlers.window = { newWindow in
+    // handle newWindow
+}
+view.windowHandlers.isKey = { isKey in
+    // handle window isKey
+}
+```
+- Mouse Handlers
+
+```swift
+view.mouseHandlers.down = { mouseDown in
+    // handle mouse click
+}
+view.mouseHandlers.moved = { mouseMoved in
+    // handle mouse move
+}
+```
+
+- View Handlers
+
+```swift
+view.viewHandlers.superview = { newSuperview in
+    // handle superview change
+}
+view.viewHandlers.frame = { frame in
+    // handle frame change
+}
+view.viewHandlers.effectiveAppearance { appearance in
+    // handle appearance change
+}
+```
+
+- Drop Handlers for dropping files to the view.
+
+```swift
+view.dropHandlers.canDrop = { items, location in
+    if items.images?.isEmpty == false || items.fileURLs?.isEmpty == false {
+        return true
+    } else {
+        return false
+    }
+}
+     
+view.dropHandlers.didDrop = { items, location in
+    if let images = items.images {
+        // handle dropped images
+    }
+    if let fileURLs = items.fileURLs {
+        // handle dropped file urls
+    }
 }
 ```
 

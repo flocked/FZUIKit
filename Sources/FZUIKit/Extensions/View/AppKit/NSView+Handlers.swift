@@ -295,8 +295,7 @@ extension NSView {
      In the following example the view accepts dropping of images and file urls:
      
      ```swift
-     view.dropHandlers.canDrag = { [weak self] items, location in
-        guard let self = self else { return }
+     view.dropHandlers.canDrop = { items, location in
         if items.images?.isEmpty == false || items.fileURLs?.isEmpty == false {
             return true
         } else {
@@ -304,8 +303,7 @@ extension NSView {
         }
      }
      
-     view.dropHandlers.didDrop = { [weak self] items, location in
-        guard let self = self else { return }
+     view.dropHandlers.didDrop = { items, location in
         if let images = items.images {
             // dropped images
         }
@@ -313,7 +311,6 @@ extension NSView {
             // dropped file urls
         }
      }
-  }
      ```
      */
     public struct DropHandlers {
