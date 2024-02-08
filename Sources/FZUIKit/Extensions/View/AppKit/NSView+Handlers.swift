@@ -10,18 +10,20 @@ import AppKit
 import FZSwiftUtils
 
 extension NSObjectProtocol where Self: NSView {
-    /// The handlers for the window state.
-    public var menuProvider: ((Self)->(NSMenu?))? {
-        get { 
-            getAssociatedValue(key: "menuProvider", object: self, initialValue: nil)
-        }
+    /**
+     Handler that provides a menu on right-click.
+
+     The provided menu is displayed when the user right-clicks the view. If you don't want to display a menu, return `nil`.
+     */
+     public var menuProvider: ((Self)->(NSMenu?))? {
+        get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "menuProvider", object: self)
-            setupRightDown()
+            setupRightDownMonitor()
         }
     }
     
-    func setupRightDown() {
+    func setupRightDownMonitor() {
         if mouseHandlers.rightDown != nil || menuProvider != nil {
             let event = NSEvent.EventTypeMask.rightMouseDown
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
@@ -44,13 +46,7 @@ extension NSObjectProtocol where Self: NSView {
     }
 }
 
-extension NSView {
-    var _menuProvider: Any? {
-        get { getAssociatedValue(key: "_menuProvider", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "_menuProvider", object: self) }
-    }
-
-    
+extension NSView {    
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
         get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
@@ -91,40 +87,8 @@ extension NSView {
     func setupEventMonitors() {
         setupEventMonitor(for: .leftMouseDown, handler: mouseHandlers.down)
         setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
- //       setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
         setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
-        setupRightDown()
-        /*
-        let menuProvider = self._menuProvider as? ((Self)->(NSMenu?))
-
-        Swift.print("setupEventMonitors", mouseHandlers.rightDown != nil, menuProvider != nil )
-
-        if mouseHandlers.rightDown != nil || menuProvider != nil {
-            let event = NSEvent.EventTypeMask.rightMouseDown
-            eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
-                Swift.print("rightDown")
-
-                guard let self = self else { return event }
-                Swift.print("rightDown", self.window?.contentView != nil)
-
-                if let contentView = self.window?.contentView {
-                    let location = event.location(in: contentView)
-                    Swift.print("rightDown hit", contentView.hitTest(location) ?? "nil", contentView.hitTest(location)?.isDescendant(of: self) ?? "false")
-                    if let view = contentView.hitTest(location), view.isDescendant(of: self) {
-                        let location = event.location(in: self)
-                        Swift.print("rightDown contains" , self.bounds.contains(location))
-                        if self.bounds.contains(location) {
-                            self.mouseHandlers.rightDown?(event)
-                            if let menuProvider = menuProvider {
-                                self.menu = menuProvider(self)
-                            }
-                        }
-                    }
-                }
-                return event
-            }
-        }
-        */
+        setupRightDownMonitor()
     }
         
     func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
