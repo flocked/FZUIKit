@@ -172,7 +172,6 @@
 
         func updateString() {
             let newString = allowedCharacters.trimString(stringValue)
-
             if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
                 if previousString.count <= maxCharCount {
                     stringValue = previousString
@@ -180,13 +179,11 @@
                 } else {
                     stringValue = String(newString.prefix(maxCharCount))
                 }
-                editingHandlers.didEdit?()
             } else if let minCharCount = minimumNumberOfCharacters, newString.count < minCharCount {
                 if previousString.count >= minCharCount {
                     stringValue = previousString
                     currentEditor()?.selectedRange = editingRange
                 }
-                
             } else if editingHandlers.shouldEdit?(stringValue) == false {
                 stringValue = previousString
                 currentEditor()?.selectedRange = editingRange
