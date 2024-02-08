@@ -15,6 +15,7 @@ extension NSObjectProtocol where Self: NSView {
         get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "menuProvider", object: self)
+            Swift.print("menuProvider", menuProvider != nil, newValue != nil)
             setupEventMonitors()
 
         }
