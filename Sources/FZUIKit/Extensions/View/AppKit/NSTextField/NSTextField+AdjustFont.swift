@@ -260,7 +260,7 @@
                         var intrinsicContentSize = store.original(object, #selector(getter: self.intrinsicContentSize))
                         let previousIn = intrinsicContentSize
                         if let textField = object as? NSTextField {
-                            Swift.print("intrinsic", intrinsicContentSize,  textField._maxWidth ?? "nil", textField.stringValue)
+                            Swift.print("intrinsic", intrinsicContentSize, intrinsicContentSize.width >= textField._maxWidth ?? -10.0, textField.stringValue)
 
                             if let maxWidth = textField._maxWidth, intrinsicContentSize.width >= maxWidth {
                                 if let cellSize = textField.cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 10000)) {
