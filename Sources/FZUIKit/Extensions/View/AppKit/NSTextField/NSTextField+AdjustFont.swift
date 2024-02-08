@@ -203,6 +203,8 @@
 
         func swizzleTextField(shouldSwizzle: Bool) {
             if shouldSwizzle {
+                Self.swizzleTextField()
+                /*
                 guard didSwizzleTextField == false else { return }
                 didSwizzleTextField = true
                 _font = font
@@ -359,6 +361,7 @@
                 } catch {
                     Swift.debugPrint(error)
                 }
+                 */
             } else if didSwizzleTextField {
                 didSwizzleTextField = false
                 resetMethod(#selector(setter: font))
@@ -420,5 +423,124 @@
             set { set(associatedValue: newValue, key: "observer", object: self) }
         }
     }
+
+extension NSTextField {
+    static var didSwizzleTextField: Bool {
+        get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
+        set { set(associatedValue: newValue, key: "didSwizzleTextField", object: self) }
+    }
+    
+    static func swizzleTextField() {
+        guard didSwizzleTextField == false else { return }
+        didSwizzleTextField = true
+        do {
+            try Swizzle(NSTextField.self) {
+                #selector(getter: font) <-> #selector(getter: swizzled_font)
+                #selector(setter: font) <-> #selector(setter: swizzled_font)
+                #selector(textDidChange(_:)) <-> #selector(swizzed_textDidChange(_:))
+                #selector(textDidBeginEditing(_:)) <-> #selector(swizzed_textDidBeginEditing(_:))
+                #selector(textDidEndEditing(_:)) <-> #selector(swizzed_textDidEndEditing(_:))
+                #selector(NSTextViewDelegate.textView(_:doCommandBy:)) <-> #selector(swizzled_textView(_:doCommandBy:))
+                #selector(layout) <-> #selector(swizzled_layout)
+                #selector(mouseDown(with:)) <-> #selector(swizzled_mouseDown(with:))
+
+            }
+        } catch {
+            Swift.debugPrint(error)
+        }
+    }
+    
+    @objc func swizzed_textDidChange(_ notification: Notification) {
+        updateString()
+        if automaticallyResizesToFit {
+            sizeToFit()
+        }
+        swizzed_textDidChange(notification)
+    }
+    
+    @objc func swizzed_textDidEndEditing(_ notification: Notification) {
+        adjustFontSize()
+        editingHandlers.didEnd?()
+        if isEditableByDoubleClick {
+            isSelectable = _isSelectable
+            isEditable = _isEditable
+        }
+        if automaticallyResizesToFit {
+            sizeToFit()
+        }
+        swizzed_textDidEndEditing(notification)
+    }
+    
+    @objc func swizzed_textDidBeginEditing(_ notification: Notification) {
+        editStartString = stringValue
+        previousString = stringValue
+        editingHandlers.didBegin?()
+        if let editingRange = currentEditor()?.selectedRange {
+            self.editingRange = editingRange
+        }
+        if automaticallyResizesToFit {
+            sizeToFit()
+        }
+        swizzed_textDidBeginEditing(notification)
+    }
+    
+    @objc func swizzled_textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        switch commandSelector {
+        case #selector(NSControl.cancelOperation(_:)):
+            switch actionOnEscapeKeyDown {
+            case .endEditingAndReset:
+                stringValue = editStartString
+                adjustFontSize()
+                window?.makeFirstResponder(nil)
+                return true
+            case .endEditing:
+                if editingHandlers.shouldEdit?(stringValue) == false {
+                    return false
+                } else {
+                    window?.makeFirstResponder(nil)
+                    return true
+                }
+            case .none:
+                break
+            }
+        case #selector(NSControl.insertNewline(_:)):
+            switch actionOnEnterKeyDown {
+            case .endEditing:
+                if editingHandlers.shouldEdit?(stringValue) == false {
+                    return false
+                } else {
+                    window?.makeFirstResponder(nil)
+                    return true
+                }
+            case .none: break
+            }
+        default: break
+        }
+        return swizzled_textView(textView, doCommandBy: commandSelector)
+    }
+    
+    @objc func swizzled_layout() {
+        swizzled_layout()
+    }
+    
+    @objc var swizzled_font: NSFont? {
+        get { _font }
+        set {
+            _font = newValue
+            adjustFontSize()
+        }
+    }
+    
+    @objc func swizzled_mouseDown(with event: NSEvent) {
+        if isEditableByDoubleClick, event.clickCount > 2, !isFirstResponder {
+            _isEditable = isEditable
+            _isSelectable = isSelectable
+            isSelectable = true
+            isEditable = true
+            becomeFirstResponder()
+        }
+        swizzled_mouseDown(with: event)
+    }
+}
 
 #endif
