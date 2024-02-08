@@ -73,7 +73,11 @@ extension NSView {
         setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
  //       setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
         setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
-        Swift.print("setupEventMonitors", _menuProvider != nil)
+        if let _menuProvider = self._menuProvider {
+            Swift.print("setupEventMonitors", _menuProvider, (_menuProvider as? ((Self)->(NSMenu?))) ?? "nil")
+
+        }
+        
         Swift.print("setupEventMonitors", mouseHandlers.rightDown != nil, menuProvider != nil )
 
         if mouseHandlers.rightDown != nil || menuProvider != nil {
