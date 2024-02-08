@@ -9,6 +9,17 @@
 import AppKit
 import FZSwiftUtils
 
+extension NSObjectProtocol where Self: NSView {
+    /// The handlers for the window state.
+    public var menuProvider: ((Self)->(NSMenu))? {
+        get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
+        set {
+            set(associatedValue: newValue, key: "menuProvider", object: self)
+            
+        }
+    }
+}
+
 extension NSView {
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
@@ -52,6 +63,27 @@ extension NSView {
         setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
         setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
         setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
+        
+        if mouseHandlers.rightUp != nil || menuProvider != nil {
+            let event = NSEvent.EventTypeMask.rightMouseDown
+            eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
+                guard let self = self else { return event }
+                if let contentView = self.window?.contentView {
+                    let location = event.location(in: contentView)
+                    if let view = contentView.hitTest(location), view.isDescendant(of: self) {
+                        let location = event.location(in: self)
+                        if self.bounds.contains(location) {
+                            self.mouseHandlers.rightUp?(event)
+                            if let menuProvider = self.menuProvider {
+                                self.menu = menuProvider(self)
+                            }
+                        }
+                    }
+                }
+                return event
+            }
+        }
+        
     }
         
     func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
