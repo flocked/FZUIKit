@@ -200,6 +200,22 @@
             }
             adjustFontSize()
         }
+        
+        public var _maxWidth: CGFloat? {
+            get { getAssociatedValue(key: "_maxWidth", object: self, initialValue: nil) }
+            set {
+                set(associatedValue: newValue, key: "_maxWidth", object: self)
+                swizzleTextField(shouldSwizzle: needsSwizzling)
+            }
+        }
+        
+        public var _minWidth: CGFloat? {
+            get { getAssociatedValue(key: "_minWidth", object: self, initialValue: nil) }
+            set {
+                set(associatedValue: newValue, key: "_minWidth", object: self)
+                swizzleTextField(shouldSwizzle: needsSwizzling)
+            }
+        }
 
         func swizzleTextField(shouldSwizzle: Bool) {
             if shouldSwizzle {
@@ -241,8 +257,20 @@
                         methodSignature: (@convention(c) (AnyObject, Selector) -> CGSize).self,
                         hookSignature: (@convention(block) (AnyObject) -> CGSize).self
                     ) { store in { object in
-                        Swift.print("swizzle intrinsicContentSize")
-                        return store.original(object, #selector(getter: self.intrinsicContentSize))
+                        var intrinsicContentSize = store.original(object, #selector(getter: self.intrinsicContentSize))
+                        if let textField = object as? NSTextField {
+                            if let maxWidth = textField._maxWidth, intrinsicContentSize.width >= maxWidth {
+                                if let cellSize = textField.cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 10000)) {
+                                    intrinsicContentSize.height = cellSize.height + 8.0
+                                }
+                                intrinsicContentSize.width = maxWidth
+                            }
+                            if let minWidth = textField._minWidth {
+                                intrinsicContentSize.width = max(intrinsicContentSize.width, minWidth)
+                            }
+                        }
+                        
+                        return intrinsicContentSize
                     }
                     }
                     
@@ -308,6 +336,7 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
+                        store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                         if let textField = (object as? NSTextField) {
                             //  textField.editingState = .didEnd
                             textField.adjustFontSize()
@@ -319,8 +348,8 @@
                             if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
+                            textField.invalidateIntrinsicContentSize()
                         }
-                        store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                     }
                     }
                     
@@ -340,6 +369,7 @@
                             if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
+                            textField.invalidateIntrinsicContentSize()
                         }
                     }
                     }
@@ -349,13 +379,14 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
+                        store.original(object, #selector(NSTextField.textDidChange), notification)
                         if let textField = (object as? NSTextField) {
                             textField.updateString()
                             if textField.automaticallyResizesToFit {
                                 textField.sizeToFit()
                             }
+                            textField.invalidateIntrinsicContentSize()
                         }
-                        store.original(object, #selector(NSTextField.textDidChange), notification)
                     }
                     }
                     

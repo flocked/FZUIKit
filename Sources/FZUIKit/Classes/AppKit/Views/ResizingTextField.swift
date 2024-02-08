@@ -183,8 +183,6 @@
         }
 
         override public var intrinsicContentSize: CGSize {
-            Swift.print("rezing intrinsicContentSize")
-
             let intrinsicContentSize = super.intrinsicContentSize
             guard automaticallyResizesToFit else { return intrinsicContentSize }
             let minWidth: CGFloat!
