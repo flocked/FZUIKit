@@ -64,11 +64,16 @@ extension NSView {
         setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
  //       setupEventMonitor(for: .rightMouseDown, handler: mouseHandlers.rightDown)
         setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
-        
+        Swift.print("setupEventMonitors", mouseHandlers.rightDown != nil, menuProvider != nil )
+
         if mouseHandlers.rightDown != nil || menuProvider != nil {
             let event = NSEvent.EventTypeMask.rightMouseDown
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
+                Swift.print("rightDown")
+
                 guard let self = self else { return event }
+                Swift.print("rightDown", self.window?.contentView != nil)
+
                 if let contentView = self.window?.contentView {
                     let location = event.location(in: contentView)
                     Swift.print("rightDown hit", contentView.hitTest(location) ?? "nil", contentView.hitTest(location)?.isDescendant(of: self) ?? "false")
