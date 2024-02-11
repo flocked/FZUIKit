@@ -181,31 +181,4 @@
         struct ButtonStyle: Hashable {}
     }
 
-#if canImport(UniformTypeIdentifiers)
-import UniformTypeIdentifiers
-
-@available(macOS 13.0, *)
-extension NSButton.Configuration {
-    public static func selectFiles(allowedFileTypes: [UTType], action: @escaping (() -> Void)) -> Self {
-        var configuration =  NSButton.Configuration(style: .push)
-        /*
-        let openPanel = NSOpenPanel()
-        openPanel.allowedFileTypes = NSImage.imageTypes
-        openPanel.allowedContentTypes = [.png, .jpeg]
-        openPanel.allowsMultipleSelection = false
-        openPanel.canChooseDirectories = false
-        openPanel.canCreateDirectories = false
-        openPanel.canChooseFiles = true
-        openPanel.begin { result in
-            if result == .OK {
-            }
-        }
-        */
-        
-        return configuration
-    }
-}
-
-#endif
-
 #endif
