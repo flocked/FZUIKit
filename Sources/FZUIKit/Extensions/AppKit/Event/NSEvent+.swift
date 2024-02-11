@@ -88,6 +88,9 @@
         static let mouse: [NSEvent.EventType] = [.mouseMoved, .mouseExited, .mouseEntered, .leftMouseUp, .otherMouseUp, .rightMouseUp, .leftMouseDown, .otherMouseDown, .rightMouseDown, .leftMouseDragged, .otherMouseDragged, .rightMouseDragged]
     }
 
+extension NSEvent.EventTypeMask: Hashable {
+}
+
     public extension NSEvent.EventTypeMask {
         /**
          A Boolean value that indicates whether the specified event intersects with the event type mask.

@@ -66,6 +66,28 @@ extension NSDragOperation {
 }
 
 extension NSDraggingImageComponent {
+    /// Creates a dragging image component for the specified image.
+    public convenience init(key: NSDraggingItem.ImageComponentKey = .icon, image: NSImage, frame: CGRect? = nil) {
+        self.init(key: key)
+        contents = image
+        if let frame = frame {
+            self.frame = frame
+        } else {
+            self.frame = CGRect(.zero, image.size)
+        }
+    }
+    
+    /// Creates a dragging image component for the specified image.
+    public convenience init(key: NSDraggingItem.ImageComponentKey = .icon, image: CGImage, frame: CGRect? = nil) {
+        self.init(key: key)
+        contents = image
+        if let frame = frame {
+            self.frame = frame
+        } else {
+            self.frame = CGRect(.zero, image.size)
+        }
+    }
+    
     /// Creates a dragging image component for the specified view.
     public convenience init(view: NSView) {
         self.init(key: .icon)
@@ -76,16 +98,31 @@ extension NSDraggingImageComponent {
 }
 
     public extension Collection where Element == (any PasteboardContent) {
-        /// Writes the objects to the the general pasteboard.
-        func writeToPasteboard() {
-            NSPasteboard.general.write(self)
+        /// Writes the objects to the the specified pasteboard.
+        func writeToPasteboard(_ pasteboard: NSPasteboard = .general) {
+            pasteboard.write(self)
         }
     }
 
     public extension Collection where Element: PasteboardContent {
-        /// Writes the objects to the the general pasteboard.
-        func writeToPasteboard() {
-            NSPasteboard.general.write(Array(self))
+        /// Writes the objects to the the specified pasteboard.
+        func writeToPasteboard(_ pasteboard: NSPasteboard = .general) {
+            pasteboard.write(Array(self))
+        }
+        var images: [NSImage] {
+            compactMap({$0 as? NSImage})
+        }
+        var strings: [String] {
+            compactMap({$0 as? String})
+        }
+        var urls: [URL] {
+            compactMap({$0 as? URL})
+        }
+        var sounds: [NSSound] {
+            compactMap({$0 as? NSSound})
+        }
+        var colors: [NSColor] {
+            compactMap({$0 as? NSColor})
         }
     }
 
