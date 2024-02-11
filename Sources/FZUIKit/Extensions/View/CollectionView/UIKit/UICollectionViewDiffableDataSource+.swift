@@ -67,6 +67,27 @@ extension UICollectionViewDiffableDataSource {
     }
     #endif
     
+    /*
+    /// The view that is displayed when the datasource doesn't contain any items.
+    public var emptyCollectionView: UIView? {
+        get { getAssociatedValue(key: "emptyCollectionView", object: self, initialValue: nil) }
+        set {
+            guard emptyCollectionView != newValue else { return }
+            set(associatedValue: newValue, key: "emptyCollectionView", object: self)
+            updateEmptyCollectionView()
+        }
+    }
+    
+    func updateEmptyCollectionView() {
+        let snapshot = snapshot()
+        if !snapshot.itemIdentifiers.isEmpty && !snapshot.sectionIdentifiers.isEmpty {
+            emptyCollectionView?.removeFromSuperview()
+        } else if let emptyCollectionView = self.emptyCollectionView {
+            collectionView?.addSubview(withConstraint: emptyCollectionView)
+        }
+    }
+    */
+    
     var delegate: Delegate? {
         get { getAssociatedValue(key: "delegate", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "delegate", object: self) }

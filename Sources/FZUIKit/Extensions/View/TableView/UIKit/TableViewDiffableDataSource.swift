@@ -37,6 +37,34 @@ class TableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> : U
         }
     }
     
+    /// The view that is displayed when the datasource doesn't contain any items.
+    open var emptyCollectionView: UIView? = nil {
+        didSet {
+            guard oldValue != emptyCollectionView else { return }
+            updateEmptyCollectionView()
+        }
+    }
+    
+    override func apply(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>, animatingDifferences: Bool = true, completion: (() -> Void)? = nil) {
+        super.apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
+        updateEmptyCollectionView()
+    }
+    
+    @available(iOS 15.0, tvOS 15.0, *)
+    override func applySnapshotUsingReloadData(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>, completion: (() -> Void)? = nil) {
+        super.applySnapshotUsingReloadData(snapshot, completion: completion)
+        updateEmptyCollectionView()
+    }
+    
+    func updateEmptyCollectionView() {
+        let snapshot = snapshot()
+        if !snapshot.itemIdentifiers.isEmpty && !snapshot.sectionIdentifiers.isEmpty {
+            emptyCollectionView?.removeFromSuperview()
+        } else if let emptyCollectionView = self.emptyCollectionView {
+            tableView?.addSubview(withConstraint: emptyCollectionView)
+        }
+    }
+    
     /// The handlers for selecting rows.
     public var selectionHandlers = SelectionHandlers() {
         didSet { setupDelegate() } }
