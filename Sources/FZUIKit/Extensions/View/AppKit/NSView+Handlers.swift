@@ -134,6 +134,7 @@ extension NSView {
                             self.mouseHandlers.down?(event)
                             if let items = self.draggingHandlers.canDrag?(location), !items.isEmpty, let observerView = self.observerView {
                                 let draggingItems = items.compactMap({NSDraggingItem(pasteboardWriter: $0)})
+                                draggingItems.forEach({$0.draggingFrame = self.frame})
                                 self.beginDraggingSession(with: draggingItems, event: event, source: observerView)
                             }
                         }
