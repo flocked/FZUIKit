@@ -452,13 +452,22 @@ extension NSView {
     }
     
     class ObserverView: NSView, NSDraggingSource {
+        
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
+            Swift.print("sourceOperationMaskFor")
             switch context {
             case .outsideApplication:
-                return NSDragOperation()
+                return .copy
             default:
                 return .generic
             }
+        }
+        
+        func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
+            Swift.print("draggingSession willBeginAt", screenPoint)
+        }
+        func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
+            Swift.print("draggingSession ended", screenPoint)
         }
         
         lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
