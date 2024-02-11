@@ -130,7 +130,7 @@
         }
 
         func setupTextFieldObserver() {
-            if (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation {
+            if adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0 {
                 swizzleTextField(shouldSwizzle: true)
                 if observer == nil {
                     observer = KeyValueObserver(self)
@@ -204,11 +204,11 @@
         func swizzleTextField(shouldSwizzle: Bool) {
             if shouldSwizzle {
                 _font = font
-                guard didSwizzleTextField == false else { return }
-                didSwizzleTextField = true
+                guard swizzleTextFieldTokens.isEmpty else { return }
                 _font = font
                 
                 do {
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(setter: font),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
@@ -224,8 +224,9 @@
                             textField.invalidateIntrinsicContentSize()
                         }
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(setter: stringValue),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
@@ -236,8 +237,9 @@
                             textField.sizeToFit()
                         }
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(setter: attributedStringValue),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSAttributedString?) -> Void).self,
@@ -248,8 +250,9 @@
                             textField.sizeToFit()
                         }
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(getter: font),
                         methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
@@ -257,8 +260,9 @@
                     ) { _ in { object in
                         return (object as? NSTextField)?._font ?? nil
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(layout),
                         methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
@@ -269,8 +273,9 @@
                         textField.adjustFontSize()
                         textField._bounds = textField.bounds
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
@@ -314,8 +319,9 @@
                         }
                         return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(textDidEndEditing),
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
@@ -336,8 +342,9 @@
                             textField.invalidateIntrinsicContentSize()
                         }
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(textDidBeginEditing),
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
@@ -357,8 +364,9 @@
                             textField.invalidateIntrinsicContentSize()
                         }
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(textDidChange),
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
@@ -373,8 +381,9 @@
                             textField.invalidateIntrinsicContentSize()
                         }
                     }
-                    }
+                    })
                     
+                    swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(NSResponder.mouseDown(with:)),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSEvent) -> Void).self,
@@ -389,7 +398,7 @@
                         }
                         store.original(object, #selector(NSResponder.mouseDown(with:)), event)
                     }
-                    }
+                    })
                     
                     /*
                     try replaceMethod(
@@ -421,16 +430,9 @@
                 } catch {
                     Swift.debugPrint(error)
                 }
-            } else if didSwizzleTextField {
-                didSwizzleTextField = false
-                resetMethod(#selector(setter: font))
-                resetMethod(#selector(getter: font))
-                resetMethod(#selector(layout))
-                resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
-                resetMethod(#selector(textDidEndEditing))
-                resetMethod(#selector(textDidBeginEditing))
-                resetMethod(#selector(textDidChange))
-                resetMethod(#selector(NSResponder.mouseDown(with:)))
+            } else {
+                swizzleTextFieldTokens.forEach({ resetMethod($0) })
+                swizzleTextFieldTokens.removeAll()
             }
         }
 
@@ -440,10 +442,10 @@
             }
         }
 
-        var didSwizzleTextField: Bool {
-            get { getAssociatedValue(key: "didSwizzleTextField", object: self, initialValue: false) }
+        var swizzleTextFieldTokens: [ReplacedMethodToken] {
+            get { getAssociatedValue(key: "swizzleTextFieldTokens", object: self, initialValue: []) }
             set {
-                set(associatedValue: newValue, key: "didSwizzleTextField", object: self)
+                set(associatedValue: newValue, key: "swizzleTextFieldTokens", object: self)
             }
         }
 

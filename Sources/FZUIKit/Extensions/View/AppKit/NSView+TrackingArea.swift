@@ -88,9 +88,9 @@
             set { set(associatedValue: newValue, key: "_trackingArea", object: self) }
         }
 
-        var didReplaceUpdateTrackingAreas: Bool {
-            get { getAssociatedValue(key: "didReplaceUpdateTrackingAreas", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "didReplaceUpdateTrackingAreas", object: self) }
+        var replaceUpdateTrackingAreasToken: ReplacedMethodToken? {
+            get { getAssociatedValue(key: "replaceUpdateTrackingAreasToken", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "replaceUpdateTrackingAreasToken", object: self) }
         }
         
         static var didSwizzleUpdateTrackingAreas: Bool {
@@ -117,9 +117,9 @@
                     _trackingArea = TrackingArea(for: self, options: trackingAreaOptions)
                 }
                 _trackingArea?.options = trackingAreaOptions
-                if didReplaceUpdateTrackingAreas == false {
+                if replaceUpdateTrackingAreasToken == nil {
                     do {
-                        try replaceMethod(
+                        replaceUpdateTrackingAreasToken = try replaceMethod(
                             #selector(updateTrackingAreas),
                             methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
                             hookSignature: (@convention(block) (AnyObject) -> Void).self
@@ -128,15 +128,14 @@
                             store.original(object, #selector(NSView.updateTrackingAreas))
                         }
                         }
-                        didReplaceUpdateTrackingAreas = true
                     } catch {
                         Swift.debugPrint(error)
                     }
                 }
-            } else if didReplaceUpdateTrackingAreas {
-                didReplaceUpdateTrackingAreas = false
+            } else if let replaceUpdateTrackingAreasToken = self.replaceUpdateTrackingAreasToken {
                 _trackingArea = nil
-                resetMethod(#selector(updateTrackingAreas))
+                resetMethod(replaceUpdateTrackingAreasToken)
+                self.replaceUpdateTrackingAreasToken = nil
             }
         }
     }

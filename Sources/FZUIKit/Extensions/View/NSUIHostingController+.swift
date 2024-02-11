@@ -12,6 +12,7 @@
         import UIKit
     #endif
     import SwiftUI
+    import FZSwiftUtils
 
     @available(macOS 11.0, iOS 13.0, *)
     public extension NSUIHostingController {
@@ -28,7 +29,7 @@
             self.init(rootView: rootView)
 
             if ignoreSafeArea {
-                disableSafeAreaInsets(true)
+                isSafeAreaInsetsDisabled = true
             }
         }
 
@@ -46,7 +47,7 @@
             self.init(rootView: rootView)
 
             if ignoreSafeArea {
-                disableSafeAreaInsets(true)
+                isSafeAreaInsetsDisabled = true
             }
 
             if isTransparent {
@@ -54,14 +55,11 @@
                 view.backgroundColor = .clear
             }
         }
-
-        /**
-         Disables the safe area insets of the view.
-
-         - Parameter disable: A Boolean value that indicates whether the view should ignore save area insets.
-         */
-        func disableSafeAreaInsets(_ disable: Bool) {
-            setSafeAreaInsets((disable == true) ? .zero : nil)
+        
+        /// A Boolean value that indicates whether the view should ignore save area insets.
+        var isSafeAreaInsetsDisabled: Bool {
+            get { view.isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
+            set { setSafeAreaInsets((newValue == true) ? .zero : nil) }
         }
 
         internal func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
