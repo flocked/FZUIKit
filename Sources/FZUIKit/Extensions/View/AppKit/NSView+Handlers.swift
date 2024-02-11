@@ -135,7 +135,7 @@ extension NSView {
                             if let items = self.dragHandlers.canDrag?(location), !items.isEmpty, let observerView = self.observerView {
                                 let draggingItems = items.compactMap({NSDraggingItem($0)})
                                 draggingItems.forEach({
-                                    $0.draggingFrame = self.frame
+                                    $0.draggingFrame = CGRect(.zero, self.bounds.size)
                                     $0.imageComponentsProvider = { [.init(view: self )] }
                                 })
                                 self.beginDraggingSession(with: draggingItems, event: event, source: observerView)
