@@ -322,7 +322,6 @@ extension NSView {
         
     func setupObserverView() {
         if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil {
-            Swift.print("add observer")
             if observerView == nil {
                 self.observerView = ObserverView()
                 addSubview(withConstraint: observerView!)
@@ -581,7 +580,6 @@ extension NSView {
     class ObserverView: NSView, NSDraggingSource {
         
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
-            Swift.print("draggingSession")
             switch context {
             case .outsideApplication:
                 return superview?.fileDragOperation ?? .copy
@@ -629,9 +627,8 @@ extension NSView {
         }
         
         func setupDragAndDrop(needsSetup: Bool) {
-            Swift.print("setupDragAndDrop", needsSetup)
             if needsSetup {
-                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color])
+                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL])
             } else {
                 unregisterDraggedTypes()
             }
@@ -694,7 +691,6 @@ extension NSView {
         }
         
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-            Swift.print("draggingEntered")
             guard  _dropHandlers.draggingEntered != nil || _dropHandlers.isActive else { return [] }
             let items = sender.draggingPasteboard.content()
             _dropHandlers.draggingEntered?(items, sender.draggingLocation)

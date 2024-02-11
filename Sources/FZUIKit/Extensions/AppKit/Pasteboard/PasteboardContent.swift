@@ -150,10 +150,12 @@ extension NSDraggingItem {
             if let attributedStrings = attributedStrings {
                 items.append(contentsOf: attributedStrings)
             }
-            
+
+            /*
             if let pasteboardItems = self.read(for: NSPasteboardItem.self) {
                 items.append(contentsOf: pasteboardItems)
             }
+             */
 
             return items
         }
