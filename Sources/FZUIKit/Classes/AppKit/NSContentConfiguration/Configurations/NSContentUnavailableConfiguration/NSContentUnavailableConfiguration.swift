@@ -134,6 +134,7 @@
         /// Creates the default configuration for unavailable content.
         static func empty() -> NSContentUnavailableConfiguration {
             var configuration = NSContentUnavailableConfiguration()
+            configuration.imageProperties.scaling = .none
             configuration.imageProperties.symbolConfiguration = .font(.title1, weight: .bold)
             return configuration
         }
@@ -144,6 +145,7 @@
             configuration.textProperties = .body()
             configuration.secondaryTextProperties = configuration.textProperties
             configuration.loadingIndicator = .spinning()
+            configuration.imageProperties.scaling = .none
             configuration.imageProperties.symbolConfiguration = .font(.title1, weight: .bold)
             return configuration
         }
@@ -154,6 +156,7 @@
             configuration.textProperties.font = .headline.weight(.semibold)
             configuration.secondaryTextProperties.font = .subheadline
             configuration.imageProperties.symbolConfiguration = .font(.largeTitle)
+            configuration.imageProperties.scaling = .none
             configuration.image = NSImage(systemSymbolName: "magnifyingglass")
             configuration.imageProperties.symbolConfiguration = .font(.title1, weight: .bold)
             return configuration
@@ -168,7 +171,8 @@
             configuration.imageToTextPadding = 8
             configuration.image = NSImage(systemSymbolName: "arrow.down.doc")
             configuration.imageProperties.symbolConfiguration = .font(.title1, weight: .bold)
- 
+            configuration.imageProperties.scaling = .none
+
             configuration.text = "Drop files here"
             if var fileExtensions {
                 fileExtensions = fileExtensions.compactMap { "." + $0 }
