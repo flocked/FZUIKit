@@ -75,7 +75,7 @@ extension NSView {
         }
     }
     
-    /// The handlers for dropping of content into the view.
+    /// The handlers for dropping content into the view.
     public var dropHandlers: DropHandlers {
         get { getAssociatedValue(key: "dropHandlers", object: self, initialValue: DropHandlers()) }
         set {
@@ -84,11 +84,11 @@ extension NSView {
         }
     }
     
-    /// The handlers for dropping of content into the view.
-    public var draggingHandlers: DraggingHandlers {
-        get { getAssociatedValue(key: "draggingHandlers", object: self, initialValue: DraggingHandlers()) }
+    /// The handlers for dragging content outside the view.
+    public var dragHandlers: DragHandlers {
+        get { getAssociatedValue(key: "dragHandlers", object: self, initialValue: DragHandlers()) }
         set {
-            set(associatedValue: newValue, key: "draggingHandlers", object: self)
+            set(associatedValue: newValue, key: "dragHandlers", object: self)
             setupObserverView()
             setupMouseDownMonitor()
         }
@@ -122,7 +122,7 @@ extension NSView {
     }
     
     func setupMouseDownMonitor() {
-        if mouseHandlers.down != nil || draggingHandlers.canDrag != nil {
+        if mouseHandlers.down != nil || dragHandlers.canDrag != nil {
             let event: NSEvent.EventTypeMask = .leftMouseDown
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
                 guard let self = self else { return event }
@@ -132,11 +132,12 @@ extension NSView {
                         let location = event.location(in: self)
                         if self.bounds.contains(location) {
                             self.mouseHandlers.down?(event)
-                            if let draggingItems = self.draggingHandlers.canDragItems?(location), !draggingItems.isEmpty, let observerView = self.observerView {
-                                self.beginDraggingSession(with: draggingItems, event: event, source: observerView)
-                            } else if let items = self.draggingHandlers.canDrag?(location), !items.isEmpty, let observerView = self.observerView {
-                                let draggingItems = items.compactMap({NSDraggingItem(pasteboardWriter: $0)})
-                                draggingItems.forEach({$0.draggingFrame = self.frame})
+                            if let items = self.dragHandlers.canDrag?(location), !items.isEmpty, let observerView = self.observerView {
+                                let draggingItems = items.compactMap({NSDraggingItem($0)})
+                                draggingItems.forEach({
+                                    $0.draggingFrame = self.frame
+                                    $0.imageComponentsProvider = { [.init(view: self )] }
+                                })
                                 self.beginDraggingSession(with: draggingItems, event: event, source: observerView)
                             }
                         }
@@ -197,7 +198,7 @@ extension NSView {
     }
         
     func setupObserverView() {
-        if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive || draggingHandlers.canDrag != nil {
+        if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil {
             if observerView == nil {
                 self.observerView = ObserverView()
                 addSubview(withConstraint: observerView!)
@@ -402,62 +403,26 @@ extension NSView {
         }
     }
     
-    public struct DraggingHandlers {
-        /// The items to write to the pasteboard.
-        public struct PasteboardContent {
-            /// The file urls.
-            public var fileURLs: [URL]?
-            /// The urls.
-            public var urls: [URL]?
-            /// The images.
-            public var images: [NSImage]?
-            /// The strings.
-            public var strings: [String]?
-            /// The colors.
-            public var colors: [NSColor]?
-            /// The sounds.
-            public var sounds: [NSSound]?
-            
-            func draggingItems() -> [NSDraggingItem] {
-                var items: [NSDraggingItem] = []
-                
-                if let content = fileURLs {
-                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
-                }
-                if let content = urls {
-                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
-                }
-                if let content = strings {
-                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
-                }
-                if let content = images {
-                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
-                }
-                if let content = colors {
-                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
-                }
-                if let content = sounds {
-                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
-                }
-                
-               return items
-            }
-            
-            var isValid: Bool {
-                images?.isEmpty == false || strings?.isEmpty == false || fileURLs?.isEmpty == false || urls?.isEmpty == false || colors?.isEmpty == false || sounds?.isEmpty == false
-            }
-        }
-        
-        public var canDrag: ((_ location: CGPoint) -> ([NSPasteboardWriting]?))?
-        public var canDragItems: ((_ location: CGPoint) -> ([NSDraggingItem]?))?
-        public var didDrag: ((_ location: CGPoint, _ items: [NSPasteboardWriting]) -> ())?
-        public var dragExited: (()->())?
+    /// The handlers for dragging content outside the view.
+    public struct DragHandlers {
+        /**
+         The handler that determines whether the user can drag content outside the view.
+         
+         You can return `String`, `URL`, `NSImage`, `NSColor` and `NSSound` values.
+                  
+         - Parameter location. The mouse location inside the view.
+         - Returns: The content that can be dragged outside the view, or `nil` if the view doesn't provide any draggable content.
+         */
+        public var canDrag: ((_ location: CGPoint) -> ([PasteboardContent]?))?
+        /// The handler that gets called when the user did drag the content to a supported destionation.
+        public var didDrag: ((_ screenLocation: CGPoint, _ items: [PasteboardContent]) -> ())?
+        /// The handler that gets called when the dragging ended without dragging the content to a supported destionation.
+        public var dragEnded: ((_ screenLocation: CGPoint)->())?
     }
     
     class ObserverView: NSView, NSDraggingSource {
         
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
-            Swift.print("sourceOperationMaskFor")
             switch context {
             case .outsideApplication:
                 return .copy
@@ -467,10 +432,15 @@ extension NSView {
         }
         
         func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
-            Swift.print("draggingSession willBeginAt", screenPoint)
+            // Swift.print("draggingSession willBeginAt", screenPoint)
         }
         func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
-            Swift.print("draggingSession ended", screenPoint)
+            guard superview?.dragHandlers.canDrag != nil else { return }
+            if operation != .none {
+                superview?.dragHandlers.didDrag?(screenPoint, session.draggingPasteboard.content())
+            } else {
+                superview?.dragHandlers.dragEnded?(screenPoint)
+            }
         }
         
         lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])

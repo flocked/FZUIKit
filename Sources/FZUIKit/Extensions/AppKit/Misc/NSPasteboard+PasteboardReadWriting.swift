@@ -1,5 +1,5 @@
 //
-//  NSPasteboard+PasteboardReadWriting.swift
+//  NSPasteboard+PasteboardContent.swift
 //
 //
 //  Created by Florian Zand on 31.12.23.
@@ -9,15 +9,17 @@
     import AppKit
 
     /// A type that can be read from and written to a pasteboard (`String`, `URL`, `NSColor`, `NSImage` or `NSSound`).
-    public protocol PasteboardReadWriting {}
+    public protocol PasteboardContent {}
 
-    extension String: PasteboardReadWriting {}
-    extension URL: PasteboardReadWriting {}
-    extension NSColor: PasteboardReadWriting {}
-    extension NSImage: PasteboardReadWriting {}
-    extension NSSound: PasteboardReadWriting {}
+    extension String: PasteboardContent {}
+    extension NSString: PasteboardContent {}
+    extension URL: PasteboardContent {}
+    extension NSURL: PasteboardContent {}
+    extension NSColor: PasteboardContent {}
+    extension NSImage: PasteboardContent {}
+    extension NSSound: PasteboardContent {}
 
-    public extension PasteboardReadWriting {
+    public extension PasteboardContent {
         /// Writes the object to the the general pasteboard.
         func writeToPasteboard() {
             NSPasteboard.general.write([self])
@@ -26,26 +28,41 @@
 
 extension NSDraggingItem {
     /// Creates and returns a dragging item using the specified content.
-    public convenience init(_ content: PasteboardReadWriting) {
+    public convenience init(_ content: PasteboardContent) {
         self.init(pasteboardWriter: content.nsPasteboardWriting!)
     }
 }
 
-    public extension Collection where Element == (any PasteboardReadWriting) {
+extension NSDragOperation {
+    /// A constant that indicates the drag cancelled.
+    public static var none = NSDragOperation(rawValue: 0)
+}
+
+extension NSDraggingImageComponent {
+    /// Creates a dragging image component for the specified view.
+    public convenience init(view: NSView) {
+        self.init(key: .icon)
+        contents = view.renderedImage
+        frame.origin = .zero
+        frame.size = view.bounds.size
+    }
+}
+
+    public extension Collection where Element == (any PasteboardContent) {
         /// Writes the objects to the the general pasteboard.
         func writeToPasteboard() {
             NSPasteboard.general.write(self)
         }
     }
 
-    public extension Collection where Element: PasteboardReadWriting {
+    public extension Collection where Element: PasteboardContent {
         /// Writes the objects to the the general pasteboard.
         func writeToPasteboard() {
             NSPasteboard.general.write(Array(self))
         }
     }
 
-    extension PasteboardReadWriting {
+    extension PasteboardContent {
         var nsPasteboardWriting: NSPasteboardWriting? {
             (self as? NSPasteboardWriting) ?? (self as? NSURL)
         }
@@ -53,20 +70,20 @@ extension NSDraggingItem {
 
     public extension NSPasteboard {
         /**
-         Writes the specified `PasteboardReadWriting` objects to the pasteboard.
+         Writes the specified `PasteboardContent` objects to the pasteboard.
 
-         - Parameter objects: An array of `PasteboardReadWriting` objects.
+         - Parameter objects: An array of `PasteboardContent` objects.
          */
-        func write<O: Collection<PasteboardReadWriting>>(_ objects: O) {
+        func write<O: Collection<PasteboardContent>>(_ objects: O) {
             guard objects.isEmpty != false else { return }
             clearContents()
             let writings = objects.compactMap(\.nsPasteboardWriting)
             writeObjects(writings)
         }
 
-        /// The current `PasteboardReadWriting` objects of the pasteboard.
-        func pasteboardReadWritings() -> [PasteboardReadWriting] {
-            var items: [PasteboardReadWriting] = []
+        /// The current `PasteboardContent` objects of the pasteboard.
+        func content() -> [PasteboardContent] {
+            var items: [PasteboardContent] = []
 
             if let fileURLs = fileURLs {
                 items.append(contentsOf: fileURLs)
@@ -93,9 +110,9 @@ extension NSDraggingItem {
     }
 
     public extension NSDraggingInfo {
-        /// The current `PasteboardReadWriting` objects of the dragging info.
-        func pasteboardReadWritings() -> [PasteboardReadWriting] {
-            draggingPasteboard.pasteboardReadWritings()
+        /// The current `PasteboardContent` objects of the dragging info.
+        func content() -> [PasteboardContent] {
+            draggingPasteboard.content()
         }
     }
 
