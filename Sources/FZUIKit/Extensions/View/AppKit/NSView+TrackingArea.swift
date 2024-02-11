@@ -83,22 +83,40 @@
             }
         }
 
-        var trackingArea: TrackingArea? {
-            get {getAssociatedValue(key: "trackingArea", object: self, initialValue: TrackingArea(for: self, options: trackingAreaOptions ?? [])) }
-            set { set(associatedValue: newValue, key: "trackingArea", object: self) }
+        var _trackingArea: TrackingArea? {
+            get { getAssociatedValue(key: "_trackingArea", object: self, initialValue: TrackingArea(for: self, options: trackingAreaOptions ?? [])) }
+            set { set(associatedValue: newValue, key: "_trackingArea", object: self) }
         }
 
         var didReplaceUpdateTrackingAreas: Bool {
             get { getAssociatedValue(key: "didReplaceUpdateTrackingAreas", object: self, initialValue: false) }
             set { set(associatedValue: newValue, key: "didReplaceUpdateTrackingAreas", object: self) }
         }
+        
+        static var didSwizzleUpdateTrackingAreas: Bool {
+            get { getAssociatedValue(key: "didSwizzleUpdateTrackingAreas", object: self, initialValue: false) }
+            set { set(associatedValue: newValue, key: "didSwizzleUpdateTrackingAreas", object: self) }
+        }
+        
+        @objc func swizzled_updateTrackingAreas() {
+            
+            swizzled_updateTrackingAreas()
+        }
+        
+        static func swizzleUpdateTrackingAreas() {
+            guard didSwizzleUpdateTrackingAreas == false else { return }
+            didSwizzleUpdateTrackingAreas = true
+            _ = try? Swizzle(NSView.self) {
+                #selector(updateTrackingAreas) <-> #selector(updateTrackingAreas)
+            }
+        }
 
         func updateTrackingArea() {
             if let trackingAreaOptions = trackingAreaOptions {
-                if trackingArea == nil {
-                    trackingArea = TrackingArea(for: self, options: trackingAreaOptions)
+                if _trackingArea == nil {
+                    _trackingArea = TrackingArea(for: self, options: trackingAreaOptions)
                 }
-                trackingArea?.options = trackingAreaOptions
+                _trackingArea?.options = trackingAreaOptions
                 if didReplaceUpdateTrackingAreas == false {
                     do {
                         try replaceMethod(
@@ -106,7 +124,7 @@
                             methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
                             hookSignature: (@convention(block) (AnyObject) -> Void).self
                         ) { store in { object in
-                            (object as? NSView)?.trackingArea?.update()
+                            (object as? NSView)?._trackingArea?.update()
                             store.original(object, #selector(NSView.updateTrackingAreas))
                         }
                         }
@@ -117,7 +135,7 @@
                 }
             } else if didReplaceUpdateTrackingAreas {
                 didReplaceUpdateTrackingAreas = false
-                trackingArea = nil
+                _trackingArea = nil
                 resetMethod(#selector(updateTrackingAreas))
             }
         }

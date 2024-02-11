@@ -54,7 +54,7 @@
             self.init(title: "")
             self.view(view)
             if showsHighlight {
-                let highlightableView = NSMenuItemHighlightableView(frame: view.frame)
+                let highlightableView = HighlightableView(frame: view.frame)
                 highlightableView.addSubview(withConstraint: view)
                 self.view = highlightableView
             } else {
@@ -211,7 +211,7 @@
         func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
             if let view = view {
                 if showsHighlight {
-                    let highlightableView = NSMenuItemHighlightableView(frame: view.frame)
+                    let highlightableView = HighlightableView(frame: view.frame)
                     highlightableView.addSubview(withConstraint: view)
                     self.view = view
                 } else {

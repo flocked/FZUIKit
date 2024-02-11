@@ -368,7 +368,7 @@ extension NSView {
     
     class ObserverView: NSView {
         
-        lazy var _trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
+        lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
         var windowDidBecomeKeyObserver: NotificationToken?
         var windowDidResignKeyObserver: NotificationToken?
         var windowDidBecomeMainObserver: NotificationToken?
@@ -379,7 +379,7 @@ extension NSView {
         }
         
         var _mouseHandlers = MouseHandlers() {
-            didSet {  _trackingArea.options = _mouseHandlers.trackingAreaOptions }
+            didSet {  trackingArea.options = _mouseHandlers.trackingAreaOptions }
         }
                         
         var _dropHandlers = DropHandlers() {
@@ -413,13 +413,13 @@ extension NSView {
         }
         
         func initalSetup() {
-            _trackingArea.options = _mouseHandlers.trackingAreaOptions
-            _trackingArea.update()
+            trackingArea.options = _mouseHandlers.trackingAreaOptions
+            trackingArea.update()
         }
         
         override public func updateTrackingAreas() {
             super.updateTrackingAreas()
-            _trackingArea.update()
+            trackingArea.update()
         }
         
         override public func mouseEntered(with event: NSEvent) {

@@ -184,16 +184,16 @@
             updateTrackingAreas()
         }
 
-        var _trackingArea: TrackingArea?
+        var trackingArea: TrackingArea?
         override open func updateTrackingAreas() {
             if animationPlaybackOption == .mouseHover {
-                if _trackingArea == nil {
-                    _trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways])
+                if trackingArea == nil {
+                    trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways])
                 }
             } else {
-                _trackingArea = nil
+                trackingArea = nil
             }
-            _trackingArea?.update()
+            trackingArea?.update()
         }
 
         override open func mouseEntered(with _: NSEvent) {

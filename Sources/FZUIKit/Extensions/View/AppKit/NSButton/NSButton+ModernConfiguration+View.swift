@@ -125,7 +125,7 @@
     extension NSButton {
         public class AdvanceButtonView: NSView, NSContentView {
             
-            lazy var _trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect])
+            lazy var trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect])
             
             var showsBorderOnlyWhileMouseInside: Bool {
                 appliedConfiguration.borderWidth > 0.0 && appliedConfiguration.showsBorderOnlyWhileMouseInside
@@ -135,7 +135,7 @@
             
             public override func updateTrackingAreas() {
                 super.updateTrackingAreas()
-                _trackingArea.update()
+                trackingArea.update()
             }
             
             public var configuration: NSContentConfiguration {
