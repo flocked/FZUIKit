@@ -146,6 +146,7 @@
     }
 
 extension NSMenu {
+    /// The handlers for the menu.
     public struct Handlers {
         /// The handlers that gets called when the menu did close.
         public var didClose: (()->())?
@@ -161,6 +162,7 @@ extension NSMenu {
         }
     }
     
+    /// Handlers for the menu.
     public var handlers: Handlers {
         get { getAssociatedValue(key: "menuHandlers", object: self, initialValue: Handlers()) }
         set { 

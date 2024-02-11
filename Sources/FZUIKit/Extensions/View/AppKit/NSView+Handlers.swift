@@ -18,7 +18,7 @@ extension NSObjectProtocol where Self: NSView {
 
      The provided menu is displayed when the user right-clicks the view. If you don't want to display a menu, return `nil`.
      */
-     public var menuProvider: ((Self)->(NSMenu?))? {
+    public var menuProvider: ((_ view: Self, _ location: CGPoint)->(NSMenu?))? {
         get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "menuProvider", object: self)
@@ -28,17 +28,17 @@ extension NSObjectProtocol where Self: NSView {
     
     func setupRightDownMonitor() {
         do {
-            if (mouseHandlers.rightDown != nil || menuProvider != nil) && eventMonitorsNew[.rightMouseDown] == nil {
-                eventMonitorsNew[.rightMouseDown] = try replaceMethod(#selector(NSView.rightMouseDown(with:)),
+            if (mouseHandlers.rightDown != nil || menuProvider != nil) && eventMonitors[.rightMouseDown] == nil {
+                eventMonitors[.rightMouseDown] = try replaceMethod(#selector(NSView.rightMouseDown(with:)),
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
                     object, event in
                     if let view = object as? NSView {
                         view.mouseHandlers.rightDown?(event)
                         if let menuProvider = view.menuProvider {
-                            if let menu = menuProvider(view) {
+                            let location = event.location(in: view)
+                            if let menu = menuProvider(view, location) {
                                 menu.handlers.didClose = {
-                                    Swift.print("menu didClose")
                                     if view.menu == menu {
                                         view.menu = nil
                                     }
@@ -53,10 +53,10 @@ extension NSObjectProtocol where Self: NSView {
                     }
                 }
             } else if mouseHandlers.rightDown == nil && menuProvider == nil {
-                if let token = eventMonitorsNew[.rightMouseDown] {
+                if let token = eventMonitors[.rightMouseDown] {
                     resetMethod(token)
                 }
-                eventMonitorsNew[.rightMouseDown] = nil
+                eventMonitors[.rightMouseDown] = nil
             }
         } catch {
             Swift.debugPrint(error)
@@ -121,8 +121,8 @@ extension NSView {
     
     func setupEventMonitor(for event: NSEvent.EventTypeMask, _ selector: Selector, _ keyPath: KeyPath<NSView.MouseHandlers, ((NSEvent) -> ())?>) {
         do {
-            if mouseHandlers[keyPath: keyPath] != nil,  eventMonitorsNew[event] == nil  {
-                eventMonitorsNew[event] =  try replaceMethod(selector,
+            if mouseHandlers[keyPath: keyPath] != nil,  eventMonitors[event] == nil  {
+                eventMonitors[event] =  try replaceMethod(selector,
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
                     object, event in
@@ -131,20 +131,51 @@ extension NSView {
                     }
                 }
             } else if mouseHandlers[keyPath: keyPath] == nil {
-                if let token = eventMonitorsNew[event] {
+                if let token = eventMonitors[event] {
                     resetMethod(token)
                 }
-                eventMonitorsNew[event] = nil
+                eventMonitors[event] = nil
             }
         } catch {
            Swift.debugPrint(error)
         }
     }
     
+    /*
+    var mouseDownLocation: CGPoint {
+        get { getAssociatedValue(key: "mouseDownLocation", object: self, initialValue: .zero) }
+        set { set(associatedValue: newValue, key: "mouseDownLocation", object: self) }
+    }
+    
+    func setupDragHooks() {
+        if dragHandlers.canDrag != nil && eventMonitors[.leftMouseDragged] == nil {
+            do {
+                eventMonitors[.leftMouseDragged] = try replaceMethod(#selector(NSView.mouseDragged(with:)),
+                methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
+                    object, event in
+                    if let view = object as? NSView, let canDrag = view.dragHandlers.canDrag {
+                        
+                    }
+                    store.original(object, #selector(NSView.mouseDragged(with:)), event)
+                    }
+                }
+            } catch {
+                Swift.debugPrint(error)
+            }
+        } else if dragHandlers.canDrag == nil {
+            if let token = eventMonitors[.leftMouseDragged] {
+                resetMethod(token)
+            }
+            eventMonitors[.leftMouseDragged] = nil
+        }
+    }
+    */
+        
     func setupMouseDownMonitor() {
         do {
-            if (mouseHandlers.down != nil || dragHandlers.canDrag != nil) && eventMonitorsNew[.leftMouseDown] == nil {
-                eventMonitorsNew[.leftMouseDown] = try replaceMethod(#selector(NSView.mouseDown(with:)),
+            if (mouseHandlers.down != nil || dragHandlers.canDrag != nil) && eventMonitors[.leftMouseDown] == nil {
+                eventMonitors[.leftMouseDown] = try replaceMethod(#selector(NSView.mouseDown(with:)),
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
                     object, event in
@@ -175,24 +206,19 @@ extension NSView {
                     }
                 }
             } else if mouseHandlers.down == nil && dragHandlers.canDrag == nil {
-                if let token = eventMonitorsNew[.leftMouseDown] {
+                if let token = eventMonitors[.leftMouseDown] {
                     resetMethod(token)
                 }
-                eventMonitorsNew[.leftMouseDown] = nil
+                eventMonitors[.leftMouseDown] = nil
             }
         } catch {
            Swift.debugPrint(error)
         }
     }
-        
-    var eventMonitors: [NSEvent.EventTypeMask: NSEvent.Monitor] {
+    
+    var eventMonitors: [NSEvent.EventTypeMask: ReplacedMethodToken] {
         get { getAssociatedValue(key: "eventMonitors", object: self, initialValue: [:]) }
         set { set(associatedValue: newValue, key: "eventMonitors", object: self) }
-    }
-    
-    var eventMonitorsNew: [NSEvent.EventTypeMask: ReplacedMethodToken] {
-        get { getAssociatedValue(key: "eventMonitorsNew", object: self, initialValue: [:]) }
-        set { set(associatedValue: newValue, key: "eventMonitorsNew", object: self) }
     }
         
     func setupViewObservation() {
