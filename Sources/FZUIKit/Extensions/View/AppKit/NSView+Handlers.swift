@@ -37,10 +37,16 @@ extension NSObjectProtocol where Self: NSView {
                         view.mouseHandlers.rightDown?(event)
                         if let menuProvider = view.menuProvider {
                             if let menu = menuProvider(view) {
-                                let location = event.location(in: view)
-                                menu.popUp(positioning: nil, at: location, in: view)
+                                menu.handlers.didClose = {
+                                    Swift.print("menu didClose")
+                                    if view.menu == menu {
+                                        view.menu = nil
+                                    }
+                                }
+                                view.menu = menu
+                            } else {
+                                view.menu = nil
                             }
-                            // view.menu = menuProvider(view)
                         }
                     }
                     store.original(object, #selector(NSView.rightMouseDown(with:)), event)

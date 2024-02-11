@@ -9,6 +9,7 @@
 
     import AppKit
     import Foundation
+    import FZSwiftUtils
 
     public extension NSMenu {
         /**
@@ -143,5 +144,78 @@
             return menu
         }
     }
+
+extension NSMenu {
+    public struct Handlers {
+        /// The handlers that gets called when the menu did close.
+        public var didClose: (()->())?
+        /// The handlers that gets called when the menu will open.
+        public var willOpen: (()->())?
+        /// The handlers that gets called when the menu will open.
+        public var willHighlight: ((NSMenuItem?)->())?
+        
+        var needsDelegate: Bool {
+            didClose != nil ||
+            willOpen != nil ||
+            willHighlight != nil
+        }
+    }
+    
+    public var handlers: Handlers {
+        get { getAssociatedValue(key: "menuHandlers", object: self, initialValue: Handlers()) }
+        set { 
+            set(associatedValue: newValue, key: "menuHandlers", object: self)
+            setupDelegateProxy()
+        }
+    }
+    
+    var delegateProxy: DelegateProxy? {
+        get { getAssociatedValue(key: "menuProxy", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "menuProxy", object: self) }
+    }
+    
+    func setupDelegateProxy() {
+        if handlers.needsDelegate {
+            if delegateProxy == nil {
+                delegateProxy = DelegateProxy(self)
+            }
+        } else if delegateProxy != nil {
+            if delegate === delegateProxy {
+                delegate = delegateProxy?.delegate
+            }
+            delegateProxy = nil
+        }
+    }
+    
+    class DelegateProxy: NSObject, NSMenuDelegate {
+        var delegate: NSMenuDelegate?
+        init(_ menu: NSMenu) {
+            self.delegate = menu.delegate
+            super.init()
+            menu.delegate = self
+        }
+        
+        func menuDidClose(_ menu: NSMenu) {
+            if menu.delegate === self {
+                menu.handlers.didClose?()
+            }
+            delegate?.menuDidClose?(menu)
+        }
+        
+        func menuWillOpen(_ menu: NSMenu) {
+            if menu.delegate === self {
+                menu.handlers.willOpen?()
+            }
+            delegate?.menuWillOpen?(menu)
+        }
+        
+        func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
+            if menu.delegate === self {
+                menu.handlers.willHighlight?(item)
+            }
+            delegate?.menu?(menu, willHighlight: item)
+        }
+    }
+}
 
 #endif
