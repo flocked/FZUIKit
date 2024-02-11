@@ -31,6 +31,16 @@
         }
         
         /**
+         The attributed strings of the pasteboard or `nil` if no attributed strings are available.
+         
+         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         */
+        public var attributedStrings: [NSAttributedString]? {
+            get { read(for: NSAttributedString.self) }
+            set { write(newValue ?? []) }
+        }
+        
+        /**
          The images of the pasteboard or `nil` if no images are available.
          
          Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
@@ -110,6 +120,16 @@
         public var strings: [String]? {
             get { draggingPasteboard.strings }
             set { draggingPasteboard.strings = newValue }
+        }
+        
+        /**
+         The attributed strings of the dragging info or `nil` if no attributed strings are available.
+         
+         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         */
+        public var attributedStrings: [NSAttributedString]? {
+            get { draggingPasteboard.attributedStrings }
+            set { draggingPasteboard.attributedStrings = newValue }
         }
 
         /**

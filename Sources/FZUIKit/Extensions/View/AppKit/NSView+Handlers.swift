@@ -8,6 +8,9 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+#if canImport(UniformTypeIdentifiers)
+import UniformTypeIdentifiers
+#endif
 
 extension NSObjectProtocol where Self: NSView {
     /**
@@ -453,7 +456,7 @@ extension NSView {
      
      ```swift
      view.dropHandlers.canDrop = { items, location in
-        if items.images?.isEmpty == false || items.fileURLs?.isEmpty == false {
+        if !items.images.isEmpty || !items.fileURLs.isEmpty {
             return true
         } else {
             return false
@@ -461,47 +464,57 @@ extension NSView {
      }
      
      view.dropHandlers.didDrop = { items, location in
-        if let images = items.images {
-            // dropped images
-        }
-        if let fileURLs = items.fileURLs {
-            // dropped file urls
-        }
+        // dropped images
+        let images = items.images
+        
+        // dropped file urls
+        let fileURLs = items.fileURLs
      }
      ```
      */
     public struct DropHandlers {
-        /// The items on the current pasteboard.
-        public struct PasteboardContent {
-            /// The file urls on the pasteboard.
-            public var fileURLs: [URL]?
-            /// The urls on the pasteboard.
-            public var urls: [URL]?
-            /// The images on the pasteboard.
-            public var images: [NSImage]?
-            /// The strings on the pasteboard.
-            public var strings: [String]?
-            /// The colors on the pasteboard.
-            public var colors: [NSColor]?
-            /// The sounds on the pasteboard.
-            public var sounds: [NSSound]?
-            
-            init(_ draggingInfo: NSDraggingInfo) {
-                self.images = draggingInfo.images
-                self.strings = draggingInfo.strings
-                self.colors = draggingInfo.colors
-                self.fileURLs = draggingInfo.fileURLs
-                self.urls = draggingInfo.urls
-                self.sounds = draggingInfo.sounds
-            }
-            
-            var isValid: Bool {
-                images?.isEmpty == false || strings?.isEmpty == false || fileURLs?.isEmpty == false || urls?.isEmpty == false || colors?.isEmpty == false || sounds?.isEmpty == false
-            }
+        /**
+         The file content types that can be dropped to the view.
+         */
+        @available(macOS 11.0, *)
+        public struct FileDropping {
+            /// The allowed file content types that can be dropped to the view, or `nil` if no file is allowed to drop to the file.
+            public var contentTypes: [UTType]? = nil
+            /// A Boolean value that determines whether the user can drop multiple files with the specified content types  to the view.
+            public var allowsMultiple: Bool = true
         }
         
+        /**
+         The file content types that can be dropped to the view.
+         
+         Provides the allowed content types of the files that can be dropped to the view.
+         ```swift
+         view.dropHandlers.fileDropping.contentTypes = [.image, .video]
+         ```
+         
+         Alternatively you can determine the allowed files for dropping to the view more precisely by using `canDrop`:
+         
+         ```swift
+         view.dropHandlers.canDrop = { items, _ in
+             let fileURLs = items.fileURLs
+         
+             /// Checks if the files have the prefix `vid_` and allows dropping.
+             let hasPrefix = fileURLs.contains(where: { $0.lastPathComponent.hasPrefix("vid_") })
+         
+             return hasPrefix
+         }
+         ```
+         */
+        @available(macOS 11.0, *)
+        public var fileDropping: FileDropping {
+            get { (_fileDropping as? FileDropping) ?? FileDropping() }
+            set { _fileDropping = newValue }
+        }
+        
+        var _fileDropping: Any?
+        
         /// The handler that gets called when a pasteboard dragging enters the view’s bounds rectangle.
-        public var draggingEntered: ((_ items: PasteboardContent, _ location: CGPoint) -> Void)?
+        public var draggingEntered: ((_ items: [PasteboardContent], _ location: CGPoint) -> Void)?
         
         /**
          The handler that determines whether the user can drop the content from the pasteboard to your view.
@@ -510,16 +523,20 @@ extension NSView {
          
          The handler gets called repeatedly on every mouse drag on the view’s bounds rectangle.
          */
-        public var canDrop: ((_ items: PasteboardContent, _ location: CGPoint) -> (Bool))?
+        public var canDrop: ((_ items: [PasteboardContent], _ location: CGPoint) -> (Bool))?
 
         /// The handler that gets called when the user did drop the content from the pasteboard to your view.
-        public var didDrop: ((_ items: PasteboardContent, _ location: CGPoint) -> Void)?
+        public var didDrop: ((_ items: [PasteboardContent], _ location: CGPoint) -> Void)?
         
         /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
         public var draggingExited: (()->())?
 
         var isActive: Bool {
-            canDrop != nil && didDrop != nil
+            if #available(macOS 11.0, *) {
+                (canDrop != nil || fileDropping.contentTypes != nil) && didDrop != nil
+            } else {
+                canDrop != nil && didDrop != nil
+            }
         }
     }
     
@@ -656,34 +673,49 @@ extension NSView {
             _mouseHandlers.dragged?(event)
             super.mouseDragged(with: event)
         }
-                        
+                 
+        func canDrop(_ items: [PasteboardContent], location: CGPoint) -> Bool {
+            guard _dropHandlers.isActive, items.isEmpty == false else { return false }
+            if #available(macOS 11.0, *) {
+                if let contentTypes = _dropHandlers.fileDropping.contentTypes, !contentTypes.isEmpty {
+                    let conformingURLs =  items.urls.compactMap({$0.contentType}).filter({ $0.conforms(toAny: contentTypes) })
+                    if conformingURLs.isEmpty == false {
+                        let allowsMultiple = _dropHandlers.fileDropping.allowsMultiple
+                        if allowsMultiple || (allowsMultiple == false && conformingURLs.count == 1) {
+                            return true
+                        }
+                    }
+                }
+            }
+            return _dropHandlers.canDrop?(items, location) == true
+        }
+        
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-            guard  _dropHandlers.draggingEntered != nil || _dropHandlers.canDrop != nil else { return [] }
-            let draggingOperation = DropHandlers.PasteboardContent(sender)
-            guard draggingOperation.isValid else { return [] }
-            _dropHandlers.draggingEntered?(draggingOperation, sender.draggingLocation)
-            return _dropHandlers.canDrop?(draggingOperation, sender.draggingLocation) == true ? .copy : []
+            guard  _dropHandlers.draggingEntered != nil || _dropHandlers.isActive else { return [] }
+            let items = sender.draggingPasteboard.content()
+            _dropHandlers.draggingEntered?(items, sender.draggingLocation)
+            return canDrop(items, location: sender.draggingLocation) ? .copy : []
         }
         
         override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-            guard let canDrop = _dropHandlers.canDrop else { return [] }
-            let draggingOperation = DropHandlers.PasteboardContent(sender)
-            guard draggingOperation.isValid else { return [] }
-            return canDrop(draggingOperation, sender.draggingLocation) ? .copy : []
+            guard _dropHandlers.isActive else { return [] }
+            let items = sender.draggingPasteboard.content()
+            guard items.isEmpty == false else { return [] }
+            return canDrop(items, location: sender.draggingLocation) ? .copy : []
         }
         
         override public func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-            guard _dropHandlers.isActive, let canDrop = _dropHandlers.canDrop else { return false }
-            let draggingOperation = DropHandlers.PasteboardContent(sender)
-            guard draggingOperation.isValid else { return false }
-            return canDrop(draggingOperation, sender.draggingLocation)
+            guard _dropHandlers.isActive else { return false }
+            let items = sender.draggingPasteboard.content()
+            guard items.isEmpty == false else { return false }
+            return canDrop(items, location: sender.draggingLocation)
         }
         
         override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
             guard _dropHandlers.isActive, let didDrop = _dropHandlers.didDrop else { return false }
-            let draggingOperation = DropHandlers.PasteboardContent(sender)
-            guard draggingOperation.isValid else { return false }
-            didDrop(draggingOperation, sender.draggingLocation)
+            let items = sender.draggingPasteboard.content()
+            guard items.isEmpty == false else { return false }
+            didDrop(items, sender.draggingLocation)
             return true
         }
         

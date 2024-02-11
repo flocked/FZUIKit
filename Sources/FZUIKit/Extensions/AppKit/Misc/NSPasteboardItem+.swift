@@ -10,6 +10,20 @@ import AppKit
 import FZSwiftUtils
 
 extension NSPasteboardItem {
+    convenience init?(_ content: Codable, type: NSPasteboard.PasteboardType) {
+        guard let data = try? PropertyListEncoder().encode(content) else {
+            return nil
+        }
+        self.init(pasteboardPropertyList: data, ofType: type)
+    }
+    
+    func content<Content: Codable>(_ content: Content.Type, for type: NSPasteboard.PasteboardType) -> Content? {
+        if let data = propertyList(forType: type) as? Data {
+            return try? PropertyListDecoder().decode(content, from: data)
+        }
+        return nil
+    }
+    
     /// The color of the pasteboard item.
     public var color: NSColor? {
         get {
