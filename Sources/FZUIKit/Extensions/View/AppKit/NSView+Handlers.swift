@@ -132,7 +132,9 @@ extension NSView {
                         let location = event.location(in: self)
                         if self.bounds.contains(location) {
                             self.mouseHandlers.down?(event)
-                            if let items = self.draggingHandlers.canDrag?(location), !items.isEmpty, let observerView = self.observerView {
+                            if let draggingItems = self.draggingHandlers.canDragItems?(location), !draggingItems.isEmpty, let observerView = self.observerView {
+                                self.beginDraggingSession(with: draggingItems, event: event, source: observerView)
+                            } else if let items = self.draggingHandlers.canDrag?(location), !items.isEmpty, let observerView = self.observerView {
                                 let draggingItems = items.compactMap({NSDraggingItem(pasteboardWriter: $0)})
                                 draggingItems.forEach({$0.draggingFrame = self.frame})
                                 self.beginDraggingSession(with: draggingItems, event: event, source: observerView)
@@ -447,6 +449,7 @@ extension NSView {
         }
         
         public var canDrag: ((_ location: CGPoint) -> ([NSPasteboardWriting]?))?
+        public var canDragItems: ((_ location: CGPoint) -> ([NSDraggingItem]?))?
         public var didDrag: ((_ location: CGPoint, _ items: [NSPasteboardWriting]) -> ())?
         public var dragExited: (()->())?
     }
