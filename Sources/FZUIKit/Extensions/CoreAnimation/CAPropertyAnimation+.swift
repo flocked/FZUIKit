@@ -22,7 +22,7 @@
 
     public extension CALayer {
         /**
-         Returns the animation object with the specified key path.
+         Returns the animation object with the specified keypath.
          - Parameter keyPath: The key path of the property.
          - Returns: The property animation object matching the key path, or `nil` if no such animation exists.
          */
@@ -31,12 +31,12 @@
             return animation(forKey: keyPathString) as? CAPropertyAnimation
         }
 
-        /// Add the specified property animation to the layer’s render tree.
+        /// Adds the specified property animation to the layer’s render tree.
         func add(_ animation: CAPropertyAnimation) {
             add(animation, forKey: animation.keyPath)
         }
 
-        /// Add the specified property animation.
+        /// Removes the specified property animation.
         func remove(_ animation: CAPropertyAnimation) {
             if let keyPath = animation.keyPath {
                 removeAnimation(forKey: keyPath)
