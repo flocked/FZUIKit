@@ -68,8 +68,8 @@
                 do {
                     try view.replaceMethod(
                         #selector(getter: NSUIView.safeAreaInsets),
-                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSEdgeInsets)).self,
-                        hookSignature: (@convention(block)  (AnyObject) -> (NSEdgeInsets)).self) { store in {
+                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSUIEdgeInsets)).self,
+                        hookSignature: (@convention(block)  (AnyObject) -> (NSUIEdgeInsets)).self) { store in {
                            object in
                            return newSafeAreaInsets
                         }
