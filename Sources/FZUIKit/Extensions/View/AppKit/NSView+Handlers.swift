@@ -84,10 +84,20 @@ extension NSView {
         }
     }
     
+    /// The handlers for dropping of content into the view.
+    public var draggingHandlers: DraggingHandlers {
+        get { getAssociatedValue(key: "draggingHandlers", object: self, initialValue: DraggingHandlers()) }
+        set {
+            set(associatedValue: newValue, key: "draggingHandlers", object: self)
+            setupObserverView()
+            setupMouseDownMonitor()
+        }
+    }
+    
     func setupEventMonitors() {
-        setupEventMonitor(for: .leftMouseDown, handler: mouseHandlers.down)
         setupEventMonitor(for: .leftMouseUp, handler: mouseHandlers.up)
         setupEventMonitor(for: .rightMouseUp, handler: mouseHandlers.rightUp)
+        setupMouseDownMonitor()
         setupRightDownMonitor()
     }
         
@@ -108,6 +118,28 @@ extension NSView {
             }
         } else {
             eventMonitors[event.rawValue] = nil
+        }
+    }
+    
+    func setupMouseDownMonitor() {
+        if mouseHandlers.down != nil || draggingHandlers.canDrag != nil {
+            let event: NSEvent.EventTypeMask = .leftMouseDown
+            eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
+                guard let self = self else { return event }
+                if let contentView = self.window?.contentView {
+                    let location = event.location(in: contentView)
+                    if let view = contentView.hitTest(location), view.isDescendant(of: self) {
+                        let location = event.location(in: self)
+                        if self.bounds.contains(location) {
+                            self.mouseHandlers.down?(event)
+                            if let item = self.draggingHandlers.canDrag?(location), item.isValid, let observerView = self.observerView {
+                                self.beginDraggingSession(with: item.draggingItems(), event: event, source: observerView)
+                            }
+                        }
+                    }
+                }
+                return event
+            }
         }
     }
         
@@ -161,7 +193,7 @@ extension NSView {
     }
         
     func setupObserverView() {
-        if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive {
+        if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive || draggingHandlers.canDrag != nil {
             if observerView == nil {
                 self.observerView = ObserverView()
                 addSubview(withConstraint: observerView!)
@@ -366,7 +398,66 @@ extension NSView {
         }
     }
     
-    class ObserverView: NSView {
+    public struct DraggingHandlers {
+        /// The items to write to the pasteboard.
+        public struct PasteboardContent {
+            /// The file urls.
+            public var fileURLs: [URL]?
+            /// The urls.
+            public var urls: [URL]?
+            /// The images.
+            public var images: [NSImage]?
+            /// The strings.
+            public var strings: [String]?
+            /// The colors.
+            public var colors: [NSColor]?
+            /// The sounds.
+            public var sounds: [NSSound]?
+            
+            func draggingItems() -> [NSDraggingItem] {
+                var items: [NSDraggingItem] = []
+                
+                if let content = fileURLs {
+                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
+                }
+                if let content = urls {
+                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
+                }
+                if let content = strings {
+                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
+                }
+                if let content = images {
+                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
+                }
+                if let content = colors {
+                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
+                }
+                if let content = sounds {
+                    items.append(contentsOf:  content.compactMap({NSDraggingItem(pasteboardWriter: ($0 as NSPasteboardWriting))}))
+                }
+                
+               return items
+            }
+            
+            var isValid: Bool {
+                images?.isEmpty == false || strings?.isEmpty == false || fileURLs?.isEmpty == false || urls?.isEmpty == false || colors?.isEmpty == false || sounds?.isEmpty == false
+            }
+        }
+        
+        public var canDrag: ((_ location: CGPoint) -> (PasteboardContent?))?
+        public var didDrag: ((_ location: CGPoint, _ items: PasteboardContent) -> ())?
+        public var dragExited: (()->())?
+    }
+    
+    class ObserverView: NSView, NSDraggingSource {
+        func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
+            switch context {
+            case .outsideApplication:
+                return NSDragOperation()
+            default:
+                return .generic
+            }
+        }
         
         lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
         var windowDidBecomeKeyObserver: NotificationToken?
@@ -441,7 +532,7 @@ extension NSView {
             _mouseHandlers.dragged?(event)
             super.mouseDragged(with: event)
         }
-                
+                        
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard  _dropHandlers.draggingEntered != nil || _dropHandlers.canDrop != nil else { return [] }
             let draggingOperation = DropHandlers.PasteboardContent(sender)
