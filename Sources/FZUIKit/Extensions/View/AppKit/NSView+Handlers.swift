@@ -580,6 +580,7 @@ extension NSView {
     class ObserverView: NSView, NSDraggingSource {
         
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
+            Swift.print("draggingSession")
             switch context {
             case .outsideApplication:
                 return superview?.fileDragOperation ?? .copy
