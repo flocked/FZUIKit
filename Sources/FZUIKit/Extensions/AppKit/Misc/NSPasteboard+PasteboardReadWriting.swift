@@ -24,6 +24,13 @@
         }
     }
 
+extension NSDraggingItem {
+    /// Creates and returns a dragging item using the specified content.
+    public convenience init(_ content: PasteboardReadWriting) {
+        self.init(pasteboardWriter: content.nsPasteboardWriting!)
+    }
+}
+
     public extension Collection where Element == (any PasteboardReadWriting) {
         /// Writes the objects to the the general pasteboard.
         func writeToPasteboard() {
