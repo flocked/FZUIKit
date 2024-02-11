@@ -6,25 +6,52 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 
-    /// A type that can be read from and written to a pasteboard (`String`, `URL`, `NSColor`, `NSImage` or `NSSound`).
-    public protocol PasteboardContent {}
+/// A type that can be read from and written to a pasteboard (`String`, `URL`, `NSColor`, `NSImage` or `NSSound`).
+public protocol PasteboardContent {}
 
-    extension String: PasteboardContent {}
-    extension NSString: PasteboardContent {}
-    extension URL: PasteboardContent {}
-    extension NSURL: PasteboardContent {}
-    extension NSColor: PasteboardContent {}
-    extension NSImage: PasteboardContent {}
-    extension NSSound: PasteboardContent {}
+extension String: PasteboardContent {}
+extension NSString: PasteboardContent {}
+extension URL: PasteboardContent {}
+extension NSURL: PasteboardContent {}
+extension NSColor: PasteboardContent {}
+extension NSImage: PasteboardContent {}
+extension NSSound: PasteboardContent {}
 
-    public extension PasteboardContent {
-        /// Writes the object to the the general pasteboard.
-        func writeToPasteboard() {
-            NSPasteboard.general.write([self])
-        }
+public extension PasteboardContent {
+    /// `URL` pasteboard content.
+    static func url(_ url: URL) -> PasteboardContent {
+        return url
     }
+    
+    /// `String` pasteboard content.
+    static func string(_ string: String) -> PasteboardContent {
+        return string
+    }
+    
+    /// `NSColor` pasteboard content.
+    static func color(_ color: NSColor) -> PasteboardContent {
+        return color
+    }
+    
+    /// `NSImage` pasteboard content.
+    static func image(_ image: NSImage) -> PasteboardContent {
+        return image
+    }
+    
+    /// `NSSound` pasteboard content.
+    static func sound(_ sound: NSSound) -> PasteboardContent {
+        return sound
+    }
+}
+
+public extension PasteboardContent {
+    /// Writes the object to the the general pasteboard.
+    func writeToPasteboard() {
+        NSPasteboard.general.write([self])
+    }
+}
 
 extension NSDraggingItem {
     /// Creates and returns a dragging item using the specified content.
