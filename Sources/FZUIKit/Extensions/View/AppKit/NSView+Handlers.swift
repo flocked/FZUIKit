@@ -27,7 +27,7 @@ extension NSObjectProtocol where Self: NSView {
         if mouseHandlers.rightDown != nil || menuProvider != nil {
             let event = NSEvent.EventTypeMask.rightMouseDown
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
-                guard let self = self else { return event }
+                guard let self = self, self.isVisible else { return event }
                 if let contentView = self.window?.contentView {
                     let location = event.location(in: contentView)
                     if let view = contentView.hitTest(location), view.isDescendant(of: self) {
@@ -104,7 +104,7 @@ extension NSView {
     func setupEventMonitor(for event: NSEvent.EventTypeMask, handler: ((NSEvent)->())?) {
         if let handler = handler {
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
-                guard let self = self else { return event }
+                guard let self = self, self.isVisible else { return event }
                 if let contentView = self.window?.contentView {
                     let location = event.location(in: contentView)
                     if let view = contentView.hitTest(location), view.isDescendant(of: self) {
@@ -125,7 +125,7 @@ extension NSView {
         if mouseHandlers.down != nil || dragHandlers.canDrag != nil {
             let event: NSEvent.EventTypeMask = .leftMouseDown
             eventMonitors[event.rawValue] = .local(for: event) { [weak self] event in
-                guard let self = self else { return event }
+                guard let self = self, self.isVisible else { return event }
                 if let contentView = self.window?.contentView {
                     let location = event.location(in: contentView)
                     if let view = contentView.hitTest(location), view.isDescendant(of: self) {
