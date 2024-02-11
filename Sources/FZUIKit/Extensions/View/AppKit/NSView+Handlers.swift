@@ -425,7 +425,7 @@ extension NSView {
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
             switch context {
             case .outsideApplication:
-                return .copy
+                return .move
             default:
                 return .generic
             }
