@@ -36,9 +36,11 @@ extension UITableView {
         var didEndDisplayingFooter: ((UIView, IndexPath) -> ())?
     }
     
+    #if os(iOS)
     struct SwipeActionHandlers {
         var leading: ((IndexPath) -> (UISwipeActionsConfiguration?))?
         var trailing: ((IndexPath) -> (UISwipeActionsConfiguration?))?
     }
+    #endif
 }
 #endif

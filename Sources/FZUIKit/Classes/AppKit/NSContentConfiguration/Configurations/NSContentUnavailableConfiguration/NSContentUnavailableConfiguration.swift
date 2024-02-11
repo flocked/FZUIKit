@@ -150,36 +150,50 @@
             return configuration
         }
 
-        /// Creates the default configuration for searches that return no results.
+        /// Creates the default configuration for search content.
         static func search() -> NSContentUnavailableConfiguration {
             var configuration = NSContentUnavailableConfiguration()
             configuration.textProperties.font = .headline.weight(.semibold)
             configuration.secondaryTextProperties.font = .subheadline
-            configuration.imageProperties.symbolConfiguration = .font(.largeTitle)
-            configuration.imageProperties.scaling = .none
             configuration.image = NSImage(systemSymbolName: "magnifyingglass")
+            configuration.imageProperties.scaling = .none
             configuration.imageProperties.symbolConfiguration = .font(.title1, weight: .bold)
             return configuration
         }
 
-        /// Creates the default configuration for drag and drop of files.
-        static func dropFiles(fileExtensions: [String]?, buttonHandler: (() -> Void)?) -> NSContentUnavailableConfiguration {
+        /// Creates the default configuration for dropping files.
+        static func dropFiles(fileExtensions: [String]?, selectFilesButtonHandler: (() -> Void)?) -> NSContentUnavailableConfiguration {
             var configuration = NSContentUnavailableConfiguration()
+            configuration.text = "Drop files here"
             configuration.textProperties.font = .headline.weight(.semibold)
-            configuration.textProperties.font = .title3
-            configuration.imageProperties.symbolConfiguration = .font(size: 40)
-            configuration.imageToTextPadding = 8
             configuration.image = NSImage(systemSymbolName: "arrow.down.doc")
+            configuration.imageToTextPadding = 8
             configuration.imageProperties.symbolConfiguration = .font(.title1, weight: .bold)
             configuration.imageProperties.scaling = .none
 
-            configuration.text = "Drop files here"
-            if var fileExtensions {
-                fileExtensions = fileExtensions.compactMap { "." + $0 }
-                let fileExtensionString = fileExtensions.joined(by: .commaOr)
-                configuration.secondaryText = "\(fileExtensionString) files…"
+            if var fileExtensions = fileExtensions, !fileExtensions.isEmpty {
+                if fileExtensions.count == 1 {
+                    configuration.secondaryText = ".\(fileExtensions.first!) file…"
+                } else {
+                    fileExtensions = fileExtensions.compactMap { "." + $0 }
+                    let fileExtensionString = fileExtensions.joined(by: .commaOr)
+                    configuration.secondaryText = "\(fileExtensionString) files…"
+                }
             }
-            if let buttonHandler = buttonHandler {
+            if let buttonHandler = selectFilesButtonHandler {
+                /*
+                let openPanel = NSOpenPanel()
+                openPanel.allowedFileTypes = NSImage.imageTypes
+                openPanel.allowedContentTypes = [.png, .jpeg]
+                openPanel.allowsMultipleSelection = false
+                openPanel.canChooseDirectories = false
+                openPanel.canCreateDirectories = false
+                openPanel.canChooseFiles = true
+                openPanel.begin { result in
+                    if result == .OK {
+                    }
+                }
+                */
                 configuration.button = .init(title: "Select files…", action: buttonHandler)
                 configuration.button?.symbolConfiguration = .font(.subheadline)
             }

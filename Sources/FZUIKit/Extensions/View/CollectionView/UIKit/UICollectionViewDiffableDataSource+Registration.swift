@@ -1,24 +1,24 @@
 //
 //  UITableViewDiffableDataSource+.swift
+//  DiffableDataSourceExtensions
 //
-//
-//  Created by Florian Zand on 14.09.23.
+//  Created by Florian Zand on 08.02.24.
 //
 
 #if os(iOS) || os(tvOS)
 import UIKit
 
-public extension UITableViewDiffableDataSource {
+public extension UICollectionViewDiffableDataSource {    
     /**
-     Creates a diffable data source with the specified cell registration, and connects it to the specified table view.
+     Creates a diffable data source with the specified item provider, and connects it to the specified collection view.
 
      - Parameters:
-        - tableView: The initialized table view object to connect to the diffable data source.
-        - cellRegistration: A cell registration that creates, configurates and returns each of the cells for the table view from the data the diffable data source provides.
+        - collectionView: The initialized collection view object to connect to the diffable data source.
+        - itemRegistration: A item registration that creates, configurate and returns each of the items for the collection view from the data the diffable data source provides.
      */
-    convenience init<Cell>(tableView: UITableView, cellRegistration: UITableView.CellRegistration<Cell, ItemIdentifierType>) where Cell: UITableViewCell {
-        self.init(tableView: tableView) { tableView, indexPath, item in
-            tableView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: item)
+    convenience init<Cell>(collectionView: UICollectionView, cellRegistration: UICollectionView.CellRegistration<Cell, ItemIdentifierType>) where Cell: UICollectionViewCell {
+        self.init(collectionView: collectionView) { collectionView, indexPath, item in
+            collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: item)
         }
     }
     

@@ -2,130 +2,159 @@
 //  UITableView+CellRegistration.swift
 //
 //
-//  Created by Florian Zand on 15.09.23.
+//  Created by Florian Zand on 08.02.24.
 //
 
 #if os(iOS) || os(tvOS)
-    import FZSwiftUtils
-    import UIKit
+import UIKit
+import FZSwiftUtils
 
-    public extension UITableView {
+public extension UITableView {
+    /**
+     A registration for the table view’s cells.
+
+     Use a cell registration to register table cell views with your table view and configure each cell for display. You create a cell registration with your cell type and data cell type as the registration’s generic parameters, passing in a registration handler to configure the cell. In the registration handler, you specify how to configure the content and appearance of that type of cell.
+
+     The following example creates a cell registration for cells of type `UITableViewCell`. Each cells textfield displays its item.
+
+     ```swift
+     let cellRegistration = UITableView.CellRegistration<UITableViewCell, String> { cell, indexPath, string in
+        var contentConfiguration = cell.defaultContentConfiguration()
+
+        contentConfiguration.text = string
+        contentConfiguration.textProperties.color = .lightGray
+
+        cell.contentConfiguration = contentConfiguration
+     }
+     ```
+
+     After you create a cell registration, you pass it in to ``UIKit/UITableView/dequeueConfiguredReusableCell(using:for:item:)``, which you call from your data source’s cell provider.
+
+     ```swift
+     dataSource = UITableViewDiffableDataSource<Section, String>(tableView: tableView) {
+     tableView, indexPath, item in
+        return tableView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: item)
+     }
+     ```
+
+     `UITableViewDiffableDataSource` provides a convenient initalizer:
+
+     ```swift
+     dataSource = UITableViewDiffableDataSource(collectionView: collectionView, cellRegistration: cellRegistration)
+     ```
+
+     You don’t need to call table views  `register(_:forIdentifier:)`. The table view registers your cell automatically when you pass the cell registration to ``UIKit/UITableView/dequeueConfiguredReusableCell(using:for:item:)``.
+
+     ## Column Identifiers
+
+     With `columnIdentifiers` you can restrict the cell to specific table columns when used with ``TableViewDiffableDataSource`` using ``TableViewDiffableDataSource/init(tableView:cellRegistrations:)``. You only have to provide column identifiers when your table view has multiple columns and the columns should use different types of table cells. The data source will use the matching cell registration for each column.
+
+     - Important: Do not create your cell registration inside a `UITableViewDiffableDataSource.CellProvider` closure; doing so prevents cell reuse.
+     */
+    struct CellRegistration<Cell, Item> where Cell: UITableViewCell {
+        let identifier: String
+        let nib: UINib?
+        let handler: Handler
+
+        // MARK: Creating a cell registration
+
         /**
-         Dequeues a configured reusable cell object.
+         Creates a cell registration with the specified registration handler.
 
          - Parameters:
-            - registration: The cell registration for configuring the cell object. See `UITableView.CellRegistration.
-            - indexPath: The index path specifying the row of the cell. The data source receives this information when it is asked for the cell and should just pass it along. This method uses the row to perform additional configuration based on the cell’s position in the table view.
-            - item: The item that provides data for the cell.
-
-         - returns:A configured reusable cell object.
+            - handler: The handler to configurate the cell.
          */
-        func dequeueReusableCell<Cell, Item>(using registration: CellRegistration<Cell, Item>, for indexPath: IndexPath, item: Item) -> Cell where Cell: UITableViewCell {
-            registration.makeCell(self, indexPath, item)
+        public init(handler: @escaping Handler) {
+            self.handler = handler
+            nib = nil
+            identifier = UUID().uuidString
+            UITableView.swizzleReconfigureRow()
         }
 
         /**
-          A registration for the table view’s cells.
+         Creates a cell registration with the specified registration handler and nib file.
 
-          Use a cell registration to register cells with your table view and configure each cell for display. You create a cell registration with your cell type and data cell type as the registration’s generic parameters, passing in a registration handler to configure the cell. In the registration handler, you specify how to configure the content and appearance of that type of cell.
+         - Parameters:
+            - nib: The nib of the cell.
+            - columnIdentifiers: The identifiers of the table columns. The default value is `nil`, which indicates that the cell isn't restricted to specific columns when used with ``TableViewDiffableDataSource``.
+            - handler: The handler to configurate the cell.
+         */
+        public init(nib: UINib, handler: @escaping Handler) {
+            self.nib = nib
+            self.handler = handler
+            identifier = UUID().uuidString
+            UITableView.swizzleReconfigureRow()
+        }
 
-          The following example creates a cell registration for cells of type `UITableViewCell`. Each cells textfield displays its element.
+        /// A closure that handles the cell registration and configuration.
+        public typealias Handler = (_ cellView: Cell, _ indexPath: IndexPath
+                                    , _ item: Item) -> Void
 
-          ```swift
-          let cellRegistration = UITableView.CellRegistration<UITableViewCell, String> { cell, indexPath, string in
-          cell.textField.stringValue = string
-          }
-          ```
-
-          After you create a cell registration, you pass it in to ``UIKit/UITableView/makeCell(using:for:item:)``, which you call from your data source’s cell provider.
-          ```swift
-          dataSource = UITableViewDiffableDataSource<Section, String>(tableView: tableView) {
-          tableView, indexPath, item in
-         return tableView.makeCell(using: cellRegistration, for: indexPath, item: item)
-          }
-          ```
-
-          `UITableViewDiffableDataSource` provides a convenient initalizer:
-          ```swift
-          dataSource = UITableViewDiffableDataSource<Section, String>(collectionView: collectionView, cellRegistration: cellRegistration)
-          ```
-
-          You don’t need to call  `register(_:forCellReuseIdentifier:). The table view registers your cell automatically when you pass the cell registration to ``UIKit/UITableView/makeCell(using:for:item:)``.
-
-          - Important: Do not create your cell registration inside a `UITableViewDiffableDataSource.CellProvider` closure; doing so prevents cell reuse.
-          */
-        struct CellRegistration<Cell, Item> where Cell: UITableViewCell {
-            let reuseIdentifier: String
-            private let nib: UINib?
-            private let handler: Handler
-
-            // MARK: Creating a cell registration
-
-            /**
-             Creates a cell registration with the specified registration handler.
-
-             - Parameters:
-             - handler: The handler to configurate the cell.
-             */
-            public init(handler: @escaping Handler) {
-                self.handler = handler
-                nib = nil
-                reuseIdentifier = String(describing: Cell.self)
-            }
-
-            /**
-             Creates a cell registration with the specified registration handler and nib file.
-
-             - Parameters:
-             - nib: The nib of the cell.
-             - handler: The handler to configurate the cell.
-             */
-            public init(nib: UINib, handler: @escaping Handler) {
-                self.nib = nib
-                self.handler = handler
-                reuseIdentifier = String(describing: Cell.self) + String(describing: nib.self)
-            }
-
-            /// A closure that handles the cell registration and configuration.
-            public typealias Handler = (_ cell: Cell, _ indexPath: IndexPath, _ item: Item) -> Void
-
-            func makeCell(_ tableView: UITableView, _ indexPath: IndexPath, _ element: Item) -> Cell {
-                registerIfNeeded(for: tableView)
-                let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! Cell
-                handler(cell, indexPath, element)
+        func makeCellView(_ tableView: UITableView, _ indexPath: IndexPath, _ item: Item) -> Cell {
+            register(tableView)
+            if tableView.reconfigureIndexPaths.contains(indexPath), let cell = tableView.cellForRow(at: indexPath) as? Cell {
+                handler(cell, indexPath, item)
                 return cell
             }
-
-            func registerIfNeeded(for tableView: UITableView) {
-                if tableView.registeredCellIdentifiers.contains(reuseIdentifier) == false {
-                    if let nib = nib {
-                        tableView.register(nib, forCellReuseIdentifier: reuseIdentifier)
-                    } else {
-                        tableView.register(Cell.self, forCellReuseIdentifier: reuseIdentifier)
-                    }
-                    tableView.registeredCellIdentifiers.append(reuseIdentifier)
-                }
+            if let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? Cell {
+                handler(cell, indexPath, item)
+                return cell
             }
+            return Cell()
+        }
 
-            func unregister(for tableView: UITableView) {
-                if let index = tableView.registeredCellIdentifiers.firstIndex(of: reuseIdentifier) {
-                    if nib != nil {
-                        let any: UINib? = nil
-                        tableView.register(any, forCellReuseIdentifier: reuseIdentifier)
-                    } else {
-                        let any: AnyClass? = nil
-                        tableView.register(any, forCellReuseIdentifier: reuseIdentifier)
-                    }
-                    tableView.registeredCellIdentifiers.remove(at: index)
+        func register(_ tableView: UITableView) {
+            if tableView.registeredCellIdentifiers.contains(identifier) == false {
+                if let nib = nib {
+                    tableView.register(nib, forCellReuseIdentifier: identifier)
+                } else {
+                    tableView.register(Cell.self, forCellReuseIdentifier: identifier)
                 }
             }
         }
     }
+}
 
-    extension UITableView {
-        var registeredCellIdentifiers: [String] {
-            get { getAssociatedValue(key: "registeredCellIdentifiers", object: self, initialValue: []) }
-            set { set(associatedValue: newValue, key: "registeredCellIdentifiers", object: self) }
+public extension UITableView {
+    func dequeueConfiguredReusableCell<Cell, Item>(using registration: UITableView.CellRegistration<Cell, Item>, for indexPath: IndexPath, item: Item) -> Cell where Cell : UITableViewCell {
+        registration.makeCellView(self, indexPath, item)
+    }
+}
+
+extension UITableView {
+    static func swizzleReconfigureRow() {
+        guard didSwizzleReconfigureRow == false else { return }
+        didSwizzleReconfigureRow = true
+        if #available(iOS 15.0, tvOS 15.0, *) {
+            do {
+                try Swizzle(UITableView.self) {
+                    #selector(UITableView.reconfigureRows(at:)) <->  #selector(UITableView.swizzled_reconfigureRows(at:))
+                }
+            } catch {
+                Swift.print(error)
+            }
         }
     }
+    
+    static var didSwizzleReconfigureRow: Bool {
+        get { getAssociatedValue(key: "didSwizzleReconfigureRow", object: self, initialValue: false) }
+        set { set(associatedValue: newValue, key: "didSwizzleReconfigureRow", object: self) }
+    }
+    
+    @objc func swizzled_reconfigureRows(at indexPaths: [IndexPath]) {
+        reconfigureIndexPaths = indexPaths
+        self.swizzled_reconfigureRows(at: indexPaths)
+        reconfigureIndexPaths = []
+    }
+    
+    var reconfigureIndexPaths: [IndexPath] {
+        get { getAssociatedValue(key: "reconfigureIndexPaths", object: self, initialValue: []) }
+        set { set(associatedValue: newValue, key: "reconfigureIndexPaths", object: self) }
+    }
+    
+    var registeredCellIdentifiers: [String] {
+        get { getAssociatedValue(key: "registeredCellIdentifiers", object: self, initialValue: []) }
+        set { set(associatedValue: newValue, key: "registeredCellIdentifiers", object: self) }
+    }
+}
 #endif

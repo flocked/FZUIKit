@@ -37,6 +37,12 @@ import UniformTypeIdentifiers
                 return nil
             }
         }
+        
+        /// Returns the image types supported by `NSImage`.
+        @available(macOS 11.0, *)
+        static var imageContentTypes: [UTType] {
+            imageTypes.compactMap({UTType($0)})
+        }
 
         var cgImage: CGImage? {
             if let image = self.cgImage(forProposedRect: nil, context: nil, hints: nil) {

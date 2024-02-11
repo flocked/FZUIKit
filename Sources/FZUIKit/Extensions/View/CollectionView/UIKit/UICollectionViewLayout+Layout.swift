@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 11.02.24.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(iOS)
 import UIKit
 
 extension UICollectionViewLayout {
