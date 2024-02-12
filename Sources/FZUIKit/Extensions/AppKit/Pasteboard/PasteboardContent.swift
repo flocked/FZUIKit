@@ -108,6 +108,10 @@ extension NSDraggingItem {
         func contentAlt<Content: Codable>(_ content: Content.Type) -> [Content] {
             compactMap({($0 as? CodablePasteboardItem<Content>)?.content})
         }
+        
+        func contentAltAlt<Content: Codable>(_ content: Content.Type) -> [Content] {
+            compactMap({($0 as? CodablePasteboardItemAlr<Content>)?.content})
+        }
     }
 
     public extension Collection where Element: PasteboardContent {

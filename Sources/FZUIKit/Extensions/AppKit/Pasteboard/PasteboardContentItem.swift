@@ -83,4 +83,16 @@ public class CodablePasteboardItem<Content: Codable>: NSObject, NSPasteboardWrit
     }
 }
 
+public class CodablePasteboardItemAlr<Content: Codable>: NSPasteboardItem {
+    let content: Content
+    public init(content: Content) {
+        self.content = content
+        super.init()
+    }
+    
+    required init?(pasteboardPropertyList propertyList: Any, ofType type: NSPasteboard.PasteboardType) {
+        fatalError("init(pasteboardPropertyList:ofType:) has not been implemented")
+    }
+}
+
 #endif
