@@ -102,7 +102,13 @@ extension NSView {
     
     func setupEventMonitor(for event: NSEvent.EventTypeMask, _ selector: Selector, _ keyPath: KeyPath<NSView.MouseHandlers, ((NSEvent) -> ())?>, _ condition: ()->(Bool) = { return true }, _ additional: ((NSEvent, NSView)->())? = nil) {
         if event == .rightMouseDown {
-         //   Swift.print("rightDown", mouseHandlers[keyPath: keyPath] != nil, "menuProvider != nil", condition(), )
+            Swift.print("rightDown", mouseHandlers[keyPath: keyPath] != nil, "menuProvider != nil", condition(), mouseHandlers[keyPath: keyPath] != nil || condition())
+        }
+        if event == .leftMouseDown {
+            Swift.print("leftDown", mouseHandlers[keyPath: keyPath] != nil, "dragHandlers.canDrag != nil", condition(), mouseHandlers[keyPath: keyPath] != nil || condition())
+        }
+        if event == .leftMouseDragged {
+            Swift.print("leftDrag", mouseHandlers[keyPath: keyPath] != nil, "dragHandlers.canDrag != nil", condition(), mouseHandlers[keyPath: keyPath] != nil || condition())
         }
         do {
             if mouseHandlers[keyPath: keyPath] != nil || condition() {
