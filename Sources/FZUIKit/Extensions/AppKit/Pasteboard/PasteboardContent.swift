@@ -139,29 +139,30 @@ extension NSDraggingItem {
         func content() -> [PasteboardContent] {
             var items: [PasteboardContent] = []
             
-            if let fileURLs = fileURLs {
-                items.append(contentsOf: fileURLs)
+            if let urls = urls {
+                items += urls
             }
             
             if let colors = colors {
-                items.append(contentsOf: colors)
+                items += colors
             }
             
             if let strings = strings {
-                items.append(contentsOf: strings)
+                items += strings
             }
             
             if let sounds = sounds {
-                items.append(contentsOf: sounds)
+                items += sounds
             }
             
             if let images = images {
-                items.append(contentsOf: images)
+                items += images
             }
             
             if let attributedStrings = attributedStrings {
-                items.append(contentsOf: attributedStrings)
+                items += attributedStrings
             }
+            items += pasteboardItems?.compactMap({$0 as? CodableItem}) ?? []
 
             /*
             if let pasteboardItems = self.read(for: NSPasteboardItem.self) {

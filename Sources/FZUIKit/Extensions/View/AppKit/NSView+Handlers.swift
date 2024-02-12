@@ -439,7 +439,7 @@ extension NSView {
         public var canDrop: ((_ content: [PasteboardContent], _ items: [NSPasteboardItem], _ location: CGPoint) -> (Bool))?
 
         /// The handler that gets called when the user did drop the content from the pasteboard to your view.
-        public var didDrop: ((_ items: [PasteboardContent], _ location: CGPoint) -> Void)?
+        public var didDrop: ((_ items: [PasteboardContent], _ items: [NSPasteboardItem], _ location: CGPoint) -> Void)?
         
         /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
         public var draggingExited: (()->())?
@@ -626,7 +626,7 @@ extension NSView {
             guard _dropHandlers.isActive, let didDrop = _dropHandlers.didDrop else { return false }
             let items = sender.draggingPasteboard.content()
             guard items.isEmpty == false else { return false }
-            didDrop(items, sender.draggingLocation)
+            didDrop(items, sender.draggingPasteboard.pasteboardItems ?? [],  sender.draggingLocation)
             return true
         }
         

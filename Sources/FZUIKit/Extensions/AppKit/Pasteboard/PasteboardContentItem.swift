@@ -83,7 +83,9 @@ public class CodablePasteboardItem<Content: Codable>: NSObject, NSPasteboardWrit
     }
 }
 
-public class CodablePasteboardItemAlr<Content: Codable>: NSPasteboardItem {
+protocol CodableItem: PasteboardContent { }
+
+public class CodablePasteboardItemAlr<Content: Codable>: NSPasteboardItem, CodableItem {
     let content: Content
     public init(content: Content) {
         self.content = content
