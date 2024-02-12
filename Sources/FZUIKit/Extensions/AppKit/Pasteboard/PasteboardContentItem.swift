@@ -34,14 +34,41 @@ extension PasteboardContentItem {
         pasteboardItem
     }
     public var pasteboardItem: NSPasteboardItem {
-        NSPasteboardItem(self, type: Self.pasteboardType)!
+        NSPasteboardItem(self)!
     }
     
     public init?(pasteboardItem: NSPasteboardItem) {
-        guard let content = pasteboardItem.content(Self.self, for: Self.pasteboardType) else {
+        guard let content = pasteboardItem.content(Self.self) else {
             return nil
         }
         self = content
     }
 }
+
+public class CodablePasteboardItem<Content: Codable>: NSObject, NSPasteboardWriting, NSPasteboardReading, PasteboardContent {
+    public static func readableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
+        [.codable]
+    }
+    
+    public required init?(pasteboardPropertyList propertyList: Any, ofType type: NSPasteboard.PasteboardType) {
+        guard let data = propertyList as? Data else { return nil }
+        guard let content = try? PropertyListDecoder().decode(Content.self, from: data) else { return nil }
+        self.content = content
+    }
+    
+    public func writableTypes(for pasteboard: NSPasteboard) -> [NSPasteboard.PasteboardType] {
+        [.codable]
+    }
+    
+    public func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
+        guard type == .codable else { return nil }
+        return try? PropertyListEncoder().encode(content)
+    }
+    
+    let content: Content
+    init(content: Content) {
+        self.content = content
+    }
+}
+
 #endif

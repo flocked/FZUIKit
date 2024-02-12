@@ -11,16 +11,16 @@ import FZSwiftUtils
 
 extension NSPasteboardItem {
     /// Creates a pasteboard item from a codable type.
-    public convenience init?(_ content: Codable, type: NSPasteboard.PasteboardType = .codable) {
+    public convenience init?(_ content: Codable) {
         guard let data = try? PropertyListEncoder().encode(content) else {
             return nil
         }
-        self.init(pasteboardPropertyList: data, ofType: type)
+        self.init(pasteboardPropertyList: data, ofType: .tabularText)
     }
     
     /// Returns the specified codable type for the pasteboard item.
-    public func content<Content: Codable>(_ content: Content.Type, for type: NSPasteboard.PasteboardType = .codable) -> Content? {
-        if let data = propertyList(forType: type) as? Data {
+    public func content<Content: Codable>(_ content: Content.Type) -> Content? {
+        if let data = propertyList(forType: .tabularText) as? Data {
             return try? PropertyListDecoder().decode(content, from: data)
         }
         return nil

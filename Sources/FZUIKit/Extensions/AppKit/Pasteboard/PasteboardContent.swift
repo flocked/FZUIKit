@@ -101,8 +101,8 @@ extension NSDraggingItem {
             compactMap({$0 as? NSPasteboardItem})
         }
         
-        func content<Content: Codable>(_ content: Content.Type, for type: NSPasteboard.PasteboardType = .codable) -> [Content]? {
-            pasteboardItems.compactMap({$0.content(content, for: type)})
+        func content<Content: Codable>(_ content: Content.Type) -> [Content] {
+            pasteboardItems.compactMap({$0.content(content)})
         }
     }
 
