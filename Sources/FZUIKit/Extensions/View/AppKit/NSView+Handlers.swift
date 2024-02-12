@@ -541,7 +541,7 @@ extension NSView {
         
         func setupDragAndDrop(needsSetup: Bool) {
             if needsSetup {
-                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .codable])
+                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .codable, .ruler])
             } else {
                 unregisterDraggedTypes()
             }
