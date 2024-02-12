@@ -15,6 +15,7 @@ extension NSPasteboardItem {
         self.init()
         self.setString(UUID().uuidString, forType: .ruler)
         self.content = content
+        Swift.print("write", self.content(Content.self) ?? "nil")
     }
     
     /// Returns the custom content of the pasteboard item.
@@ -25,11 +26,7 @@ extension NSPasteboardItem {
     var content: Any? {
         get { getAssociatedValue(key: "itemContent", object: self, initialValue: nil) }
         set {
-            if let newValue = newValue as? AnyObject {
-                set(weakAssociatedValue: newValue, key: "itemContent", object: self)
-            } else {
-                set(associatedValue: newValue, key: "itemContent", object: self)
-            }
+            set(associatedValue: newValue, key: "itemContent", object: self)
         }
     }
     
