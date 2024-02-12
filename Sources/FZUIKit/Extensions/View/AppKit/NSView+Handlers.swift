@@ -51,7 +51,6 @@ extension NSObjectProtocol where Self: NSView {
                                 Swift.print("menuProvider 4")
                                 view.menu = nil
                             }
-                            store.original(object, #selector(NSView.rightMouseDown(with:)), event)
                         }
                     }
                     store.original(object, #selector(NSView.rightMouseDown(with:)), event)
