@@ -171,10 +171,12 @@ extension NSView {
             component = .init(view: self)
         }
         draggingItems.first?.imageComponentsProvider = { [component] }
+        /*
         draggingItems.forEach({
-            $0.draggingFrame = CGRect(.zero, self.bounds.size)
+           $0.draggingFrame = CGRect(.zero, self.bounds.size)
          //   $0.imageComponentsProvider = { [component] }
         })
+        */
         NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
         beginDraggingSession(with: draggingItems, event: event, source: observerView)
     }
