@@ -230,7 +230,7 @@ extension NSView {
     func setupObserverView() {
         if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil {
             if observerView == nil {
-                self.observerView = ObserverView()
+                observerView = ObserverView()
                 addSubview(withConstraint: observerView!)
             }
             observerView?._mouseHandlers = mouseHandlers
@@ -588,6 +588,7 @@ extension NSView {
         }
                  
         func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
+            Swift.print("canDrop")
             let items = pasteboard.content()
             guard items.isEmpty == false, _dropHandlers.isActive, items.isEmpty == false else { return false }
             let pasteboardItems = pasteboard.pasteboardItems ?? []
