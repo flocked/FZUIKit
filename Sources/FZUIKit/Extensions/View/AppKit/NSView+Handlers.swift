@@ -509,7 +509,6 @@ extension NSView {
     }
     
     class ObserverView: NSView, NSDraggingSource {
-        
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
             switch context {
             case .outsideApplication:
