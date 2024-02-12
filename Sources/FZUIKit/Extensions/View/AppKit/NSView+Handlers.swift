@@ -113,8 +113,13 @@ extension NSView {
     }
     
     func setupEventMonitors() {
-        setupEventMonitor(for: .leftMouseUp, #selector(NSView.mouseUp(with:)), \.up)
+        setupEventMonitor(for: .leftMouseUp, #selector(NSView.mouseUp(with:)), \.leftUp)
         setupEventMonitor(for: .rightMouseUp, #selector(NSView.rightMouseUp(with:)), \.rightUp)
+        setupEventMonitor(for: .leftMouseDragged, #selector(NSView.mouseDragged(with:)), \.dragged)
+        setupEventMonitor(for: .rightMouseDragged, #selector(NSView.rightMouseDragged(with:)), \.rightDragged)
+        setupEventMonitor(for: .otherMouseDown, #selector(NSView.otherMouseDown(with:)), \.otherDown)
+        setupEventMonitor(for: .otherMouseUp, #selector(NSView.otherMouseUp(with:)), \.otherUp)
+
         setupMouseDownMonitor()
         setupRightDownMonitor()
     }
@@ -174,13 +179,13 @@ extension NSView {
         
     func setupMouseDownMonitor() {
         do {
-            if (mouseHandlers.down != nil || dragHandlers.canDrag != nil) && eventMonitors[.leftMouseDown] == nil {
+            if (mouseHandlers.leftDown != nil || dragHandlers.canDrag != nil) && eventMonitors[.leftMouseDown] == nil {
                 eventMonitors[.leftMouseDown] = try replaceMethod(#selector(NSView.mouseDown(with:)),
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
                     object, event in
                     if let view = object as? NSView {
-                        view.mouseHandlers.down?(event)
+                        view.mouseHandlers.leftDown?(event)
                         if let items = view.dragHandlers.canDrag?(event.location(in: view)), !items.isEmpty, let observerView = view.observerView {
                             view.fileDragOperation = .copy
                             if view.dragHandlers.fileDragOperation == .move {
@@ -208,7 +213,7 @@ extension NSView {
                     store.original(object, #selector(NSView.mouseDown(with:)), event)
                     }
                 }
-            } else if mouseHandlers.down == nil && dragHandlers.canDrag == nil {
+            } else if mouseHandlers.leftDown == nil && dragHandlers.canDrag == nil {
                 if let token = eventMonitors[.leftMouseDown] {
                     resetMethod(token)
                 }
@@ -329,7 +334,7 @@ extension NSView {
     
     /// The handlers for mouse events.
     public struct MouseHandlers {
-        /// Options when the mouse handlers are active.
+        /// Options when the `entered`, `exited` and `moved` mouse handlers are active.
         public enum ActiveOption: Int, Hashable {
             /// The mouse handlers are always active.
             case always
@@ -349,13 +354,13 @@ extension NSView {
             }
         }
         
-        /// Option when the mouse handlers are active. The default value is `inKeyWindow`.
+        /// Option when the `entered`, `exited` and `moved` mouse handlers are active. The default value is `inKeyWindow`.
         public var active: ActiveOption = .inKeyWindow
         
         /// The handler that gets called when when the mouse inside the view moved.
         public var moved: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the mouse inside the view dragged.
+        /// The handler that gets called when when the mouse dragged inside the view.
         public var dragged: ((NSEvent) -> ())?
         
         /// The handler that gets called when when the mouse entered the view.
@@ -364,28 +369,37 @@ extension NSView {
         /// The handler that gets called when when the mouse exited the view.
         public var exited: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the mouse did left-click the view.
-        public var down: ((NSEvent) -> ())?
+        /// The handler that gets called when when the user clicked the left mouse button.
+        public var leftDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the mouse did right-click the view.
+        /// The handler that gets called when when the user released the left mouse button.
+        public var leftUp: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when when the user clicked the right mouse button.
         public var rightDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the mouse did left-click up the view.
-        public var up: ((NSEvent) -> ())?
-        
-        /// The handler that gets called when when the mouse did right-click up the view.
+        /// The handler that gets called when when the user released the right mouse button.
         public var rightUp: ((NSEvent) -> ())?
         
+        /// The handler that gets called when when the mouse dragged inside the view while the right button clicked,
+        public var rightDragged: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when when the user clicked a mouse button other than the left or right one.
+        public var otherDown: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when when the user released a mouse button other than the left or right one.
+        public var otherUp: ((NSEvent) -> ())?
+        
         var needsObserving: Bool {
-            moved != nil || dragged != nil || entered != nil || exited != nil
+            moved != nil || entered != nil || exited != nil
         }
         
         var trackingAreaOptions: NSTrackingArea.Options {
-            var options: NSTrackingArea.Options = [.inVisibleRect, .mouseEnteredAndExited]
-            options.insert(active.option)
-            if dragged != nil {
-                options.insert(.enabledDuringMouseDrag)
+            var options: NSTrackingArea.Options = []
+            if needsObserving {
+                options = [.inVisibleRect, .mouseEnteredAndExited]
             }
+            options.insert(active.option)
             if moved != nil {
                 options.insert(NSTrackingArea.Options.mouseMoved)
             }
