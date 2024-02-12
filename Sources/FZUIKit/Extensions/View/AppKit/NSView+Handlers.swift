@@ -12,13 +12,13 @@ import FZSwiftUtils
 import UniformTypeIdentifiers
 #endif
 
-extension NSObjectProtocol where Self: NSView {
+extension NSView {
     /**
      Handler that provides the menu for a right-click.
 
      The provided menu is displayed when the user right-clicks the view. If you don't want to display a menu, return `nil`.
      */
-    public var menuProvider: ((_ view: Self, _ location: CGPoint)->(NSMenu?))? {
+    public var menuProvider: ((_ location: CGPoint)->(NSMenu?))? {
         get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
         set {
             set(associatedValue: newValue, key: "menuProvider", object: self)
@@ -39,7 +39,7 @@ extension NSObjectProtocol where Self: NSView {
                         if let menuProvider = view.menuProvider {
                             Swift.print("menuProvider 0")
                             let location = event.location(in: view)
-                            if let menu = menuProvider(view, location) {
+                            if let menu = menuProvider(location) {
                                 Swift.print("menuProvider 1")
                                 menu.handlers.didClose = {
                                     if view.menu == menu {
