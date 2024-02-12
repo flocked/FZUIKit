@@ -395,10 +395,7 @@ extension NSView {
         }
         
         var trackingAreaOptions: NSTrackingArea.Options {
-            var options: NSTrackingArea.Options = []
-            if needsObserving {
-                options = [.inVisibleRect, .mouseEnteredAndExited]
-            }
+            var options: NSTrackingArea.Options = [.inVisibleRect, .mouseEnteredAndExited]
             options.insert(active.option)
             if moved != nil {
                 options.insert(NSTrackingArea.Options.mouseMoved)
