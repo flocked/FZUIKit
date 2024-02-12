@@ -97,20 +97,14 @@ extension NSDraggingItem {
             compactMap({$0 as? NSAttributedString})
         }
         
+        /*
         var pasteboardItems: [NSPasteboardItem] {
             compactMap({$0 as? NSPasteboardItem})
         }
+         */
         
-        func content<Content: Codable>(_ content: Content.Type) -> [Content] {
-            pasteboardItems.compactMap({$0.content(content)})
-        }
-        
-        func contentAlt<Content: Codable>(_ content: Content.Type) -> [Content] {
-            compactMap({($0 as? CodablePasteboardItem<Content>)?.content})
-        }
-        
-        func contentAltAlt<Content: Codable>(_ content: Content.Type) -> [Content] {
-            compactMap({($0 as? CodablePasteboardItemAlr<Content>)?.content})
+        func custom<Content>(_ content: Content.Type) -> [Content] {
+            compactMap({($0 as? NSPasteboardItem)?.content as? Content})
         }
     }
 
@@ -162,13 +156,7 @@ extension NSDraggingItem {
             if let attributedStrings = attributedStrings {
                 items += attributedStrings
             }
-            items += pasteboardItems?.compactMap({$0 as? CodableItem}) ?? []
-
-            /*
-            if let pasteboardItems = self.read(for: NSPasteboardItem.self) {
-                items.append(contentsOf: pasteboardItems)
-            }
-             */
+            items += pasteboardItems?.filter({$0.content != nil}) ?? []
 
             return items
         }

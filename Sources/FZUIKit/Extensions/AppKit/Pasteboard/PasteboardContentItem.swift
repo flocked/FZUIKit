@@ -8,6 +8,12 @@
 #if os(macOS)
 import AppKit
 
+extension NSPasteboard.PasteboardType {
+    /// Codable type
+    public static let codable = NSPasteboard.PasteboardType(rawValue: "codable")
+}
+
+/*
 /// A type that can be used as pasteboard content.
 public protocol PasteboardContentItem: Codable, PasteboardContent {
     /// The pasteboard type of the object. The default value is `codable`.
@@ -18,11 +24,6 @@ public protocol PasteboardContentItem: Codable, PasteboardContent {
     
     /// Creates the object from the specified pasteboard item.
     init?(pasteboardItem: NSPasteboardItem)
-}
-
-extension NSPasteboard.PasteboardType {
-    /// Codable type
-    public static let codable = NSPasteboard.PasteboardType(rawValue: "codable")
 }
 
 extension PasteboardContentItem {
@@ -82,19 +83,6 @@ public class CodablePasteboardItem<Content: Codable>: NSObject, NSPasteboardWrit
         self.content = content
     }
 }
-
-protocol CodableItem: PasteboardContent { }
-
-public class CodablePasteboardItemAlr<Content: Codable>: NSPasteboardItem, CodableItem {
-    let content: Content
-    public init(content: Content) {
-        self.content = content
-        super.init()
-    }
-    
-    required init?(pasteboardPropertyList propertyList: Any, ofType type: NSPasteboard.PasteboardType) {
-        fatalError("init(pasteboardPropertyList:ofType:) has not been implemented")
-    }
-}
+*/
 
 #endif

@@ -10,21 +10,27 @@ import AppKit
 import FZSwiftUtils
 
 extension NSPasteboardItem {
-    /// Creates a pasteboard item from a codable type.
-    public convenience init?(_ content: Codable) {
-        guard let data = try? PropertyListEncoder().encode(content) else {
-            return nil
-        }
+    /// Creates a pasteboard item for a custom content.
+    public convenience init<Content>(_ content: Content) {
         self.init()
-        self.setPropertyList(data, forType: .tabularText)
+        self.setString(UUID().uuidString, forType: .ruler)
+        self.content = content
     }
     
-    /// Returns the specified codable type for the pasteboard item.
-    public func content<Content: Codable>(_ content: Content.Type) -> Content? {
-        if let data = propertyList(forType: .tabularText) as? Data {
-            return try? PropertyListDecoder().decode(content, from: data)
+    /// Returns the custom content of the pasteboard item.
+    public func content<Content>(_ content: Content.Type) -> Content? {
+        self.content as? Content
+    }
+    
+    var content: Any? {
+        get { getAssociatedValue(key: "itemContent", object: self, initialValue: nil) }
+        set {
+            if let newValue = newValue as? AnyObject {
+                set(weakAssociatedValue: newValue, key: "itemContent", object: self)
+            } else {
+                set(associatedValue: newValue, key: "itemContent", object: self)
+            }
         }
-        return nil
     }
     
     /// The color of the pasteboard item.

@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 11.02.24.
 //
 
+/*
 #if os(macOS)
 import AppKit
 
@@ -49,3 +50,4 @@ extension URL: PasteboardReading {
 }
 
 #endif
+*/
