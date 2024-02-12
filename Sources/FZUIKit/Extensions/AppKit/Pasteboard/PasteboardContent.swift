@@ -104,7 +104,6 @@ extension NSDraggingItem {
         func content<Content: Codable>(_ content: Content.Type) -> [Content] {
             pasteboardItems.compactMap({$0.content(content)})
         }
-
     }
 
     public extension Collection where Element: PasteboardContent {
@@ -156,14 +155,9 @@ extension NSDraggingItem {
                 items.append(contentsOf: attributedStrings)
             }
             
-            
-      //      pasteboardItems?.compactMap($0 as? CodableItem)
-
-            /*
-            if let pasteboardItems = self.read(for: NSPasteboardItem.self) {
+            if let pasteboardItems = pasteboardItems?.filter({$0.content != nil}) {
                 items.append(contentsOf: pasteboardItems)
             }
-             */
 
             return items
         }
