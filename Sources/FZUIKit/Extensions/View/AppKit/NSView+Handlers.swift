@@ -117,7 +117,10 @@ extension NSView {
                                                               methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                                                               hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
                         object, event in
-                        (object as? NSView)?.mouseHandlers[keyPath: keyPath]?(event)
+                        if let view = object as? NSView {
+                            view.mouseHandlers[keyPath: keyPath]?(event)
+                            additional?(event, view)
+                        }
                         store.original(object, selector, event)
                     }
                     }
