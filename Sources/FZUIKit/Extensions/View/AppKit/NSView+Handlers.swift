@@ -493,6 +493,8 @@ extension NSView {
         public var dragEnded: ((_ screenLocation: CGPoint)->())?
         /// The operation for dragging files.
         public var fileDragOperation: FileDragOperation = .copy
+        /// The visual format of multiple dragging items.
+        public var draggingFormation: NSDraggingFormation = .default
         
         /// The operation for dragging files.
         public enum FileDragOperation: Int {
@@ -518,6 +520,7 @@ extension NSView {
         }
         
         func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
+            session.draggingFormation = superview?.dragHandlers.draggingFormation ?? session.draggingFormation
             // Swift.print("draggingSession willBeginAt", screenPoint)
         }
         func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
