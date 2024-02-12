@@ -24,13 +24,7 @@ extension NSPasteboardItem {
     
     var content: Any? {
         get { getAssociatedValue(key: "itemContent", object: self, initialValue: nil) }
-        set {
-            if let newValue = newValue as? AnyObject {
-                set(weakAssociatedValue: newValue, key: "itemContent", object: self)
-            } else {
-                set(associatedValue: newValue, key: "itemContent", object: self)
-            }
-        }
+        set { set(associatedValue: newValue, key: "itemContent", object: self) }
     }
     
     /// The color of the pasteboard item.
