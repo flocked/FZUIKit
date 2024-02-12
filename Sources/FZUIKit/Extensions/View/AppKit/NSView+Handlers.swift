@@ -26,45 +26,6 @@ extension NSView {
         }
     }
     
-    func setupRightDownMonitor() {
-        do {
-            if (mouseHandlers.rightDown != nil || menuProvider != nil) && eventMonitors[.rightMouseDown] == nil {
-                eventMonitors[.rightMouseDown] = try replaceMethod(#selector(NSView.rightMouseDown(with:)),
-                methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
-                    object, event in
-                    if let view = object as? NSView {
-                        view.mouseHandlers.rightDown?(event)
-                        if let menuProvider = view.menuProvider {
-                            let location = event.location(in: view)
-                            if let menu = menuProvider(location) {
-                                menu.handlers.didClose = {
-                                    if view.menu == menu {
-                                        view.menu = nil
-                                    }
-                                }
-                                view.menu = menu
-                            } else {
-                                view.menu = nil
-                            }
-                        }
-                    }
-                    store.original(object, #selector(NSView.rightMouseDown(with:)), event)
-                    }
-                }
-            } else if mouseHandlers.rightDown == nil && menuProvider == nil {
-                if let token = eventMonitors[.rightMouseDown] {
-                    resetMethod(token)
-                }
-                eventMonitors[.rightMouseDown] = nil
-            }
-        } catch {
-            Swift.debugPrint(error)
-        }
-    }
-}
-
-extension NSView {
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
         get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
@@ -109,17 +70,18 @@ extension NSView {
             set(associatedValue: newValue, key: "dragHandlers", object: self)
             setupObserverView()
             setupMouseDownMonitor()
+            setupMouseDragMonitor()
         }
     }
     
     func setupEventMonitors() {
         setupEventMonitor(for: .leftMouseUp, #selector(NSView.mouseUp(with:)), \.leftUp)
         setupEventMonitor(for: .rightMouseUp, #selector(NSView.rightMouseUp(with:)), \.rightUp)
-        setupEventMonitor(for: .leftMouseDragged, #selector(NSView.mouseDragged(with:)), \.dragged)
         setupEventMonitor(for: .rightMouseDragged, #selector(NSView.rightMouseDragged(with:)), \.rightDragged)
         setupEventMonitor(for: .otherMouseDown, #selector(NSView.otherMouseDown(with:)), \.otherDown)
         setupEventMonitor(for: .otherMouseUp, #selector(NSView.otherMouseUp(with:)), \.otherUp)
 
+        setupMouseDragMonitor()
         setupMouseDownMonitor()
         setupRightDownMonitor()
     }
@@ -146,36 +108,118 @@ extension NSView {
         }
     }
     
-    /*
     var mouseDownLocation: CGPoint {
-        get { getAssociatedValue(key: "mouseDownLocation", object: self, initialValue: .zero) }
-        set { set(associatedValue: newValue, key: "mouseDownLocation", object: self) }
+        get { getAssociatedValue(key: "leftMouseDownLocation", object: self, initialValue: .zero) }
+        set {
+            set(associatedValue: newValue, key: "leftMouseDownLocation", object: self)
+            setupObserverView()
+        }
     }
     
-    func setupDragHooks() {
-        if dragHandlers.canDrag != nil && eventMonitors[.leftMouseDragged] == nil {
+    var didStartDragging: Bool {
+        get { getAssociatedValue(key: "didStartDragging", object: self, initialValue: false) }
+        set {
+            set(associatedValue: newValue, key: "didStartDragging", object: self)
+            setupObserverView()
+        }
+    }
+    
+    func setupMouseDragMonitor() {
+        if (mouseHandlers.dragged != nil || dragHandlers.canDrag != nil) && eventMonitors[.leftMouseDragged] == nil {
             do {
                 eventMonitors[.leftMouseDragged] = try replaceMethod(#selector(NSView.mouseDragged(with:)),
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
-                    object, event in
-                    if let view = object as? NSView, let canDrag = view.dragHandlers.canDrag {
-                        
+                hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in { object, event in
+                    if let view = object as? NSView {
+                        view.mouseHandlers.dragged?(event)
+                        if view.dragHandlers.canDrag != nil, view.didStartDragging == false {
+                            let location = event.location(in: view)
+                            let x = view.mouseDownLocation.x
+                            let y = view.mouseDownLocation.y
+                            let r = 5.0
+                            if !(x-r...x+r).contains(location.x) || !(y-r...y+r).contains(location.y) {
+                                view.didStartDragging = true
+                                view.setupDragging(for: event)
+                            }
+                        }
                     }
                     store.original(object, #selector(NSView.mouseDragged(with:)), event)
-                    }
+                }
                 }
             } catch {
-                Swift.debugPrint(error)
+                Swift.print(error)
             }
-        } else if dragHandlers.canDrag == nil {
+        } else if mouseHandlers.dragged == nil && dragHandlers.canDrag == nil {
             if let token = eventMonitors[.leftMouseDragged] {
                 resetMethod(token)
             }
             eventMonitors[.leftMouseDragged] = nil
         }
     }
-    */
+    
+    func setupRightDownMonitor() {
+        do {
+            if (mouseHandlers.rightDown != nil || menuProvider != nil) && eventMonitors[.rightMouseDown] == nil {
+                eventMonitors[.rightMouseDown] = try replaceMethod(#selector(NSView.rightMouseDown(with:)),
+                methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
+                    object, event in
+                    if let view = object as? NSView {
+                        let location = event.location(in: view)
+                        view.mouseHandlers.rightDown?(event)
+                        if let menuProvider = view.menuProvider {
+                            if let menu = menuProvider(location) {
+                                menu.handlers.didClose = {
+                                    if view.menu == menu {
+                                        view.menu = nil
+                                    }
+                                }
+                                view.menu = menu
+                            } else {
+                                view.menu = nil
+                            }
+                        }
+                    }
+                    store.original(object, #selector(NSView.rightMouseDown(with:)), event)
+                    }
+                }
+            } else if mouseHandlers.rightDown == nil && menuProvider == nil {
+                if let token = eventMonitors[.rightMouseDown] {
+                    resetMethod(token)
+                }
+                eventMonitors[.rightMouseDown] = nil
+            }
+        } catch {
+            Swift.debugPrint(error)
+        }
+    }
+    
+    func setupDragging(for event: NSEvent) {
+        guard let canDrag = dragHandlers.canDrag else { return }
+        let location = event.location(in: self)
+        let items = canDrag(location)
+        if let items = canDrag(location), !items.isEmpty, let observerView = self.observerView {
+            fileDragOperation = .copy
+            if dragHandlers.fileDragOperation == .move {
+                if items.count == (items as? [URL] ?? []).filter({$0.absoluteString.contains("file:/")}).count {
+                    fileDragOperation = .move
+                }
+            }
+            let draggingItems = items.compactMap({NSDraggingItem($0)})
+            let component: NSDraggingImageComponent
+            if let dragImage =  dragHandlers.dragImage?(location) {
+                component = .init(image: dragImage.image, frame: dragImage.imageFrame)
+            } else {
+                component = .init(view: self)
+            }
+            draggingItems.forEach({
+                $0.draggingFrame = CGRect(.zero, self.bounds.size)
+                $0.imageComponentsProvider = { [component] }
+            })
+            NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
+            beginDraggingSession(with: draggingItems, event: event, source: observerView)
+        }
+    }
         
     func setupMouseDownMonitor() {
         do {
@@ -186,29 +230,8 @@ extension NSView {
                     object, event in
                     if let view = object as? NSView {
                         view.mouseHandlers.leftDown?(event)
-                        if let items = view.dragHandlers.canDrag?(event.location(in: view)), !items.isEmpty, let observerView = view.observerView {
-                            view.fileDragOperation = .copy
-                            if view.dragHandlers.fileDragOperation == .move {
-                                if items.count == (items as? [URL] ?? []).filter({$0.absoluteString.contains("file:/")}).count {
-                                    view.fileDragOperation = .move
-                                }
-                            }
-                            let draggingItems = items.compactMap({NSDraggingItem($0)})
-                            Swift.print("draggingItems", draggingItems.count)
-                            let component: NSDraggingImageComponent
-                            if let dragImage =  view.dragHandlers.dragImage?(event.location(in: view)) {
-                                component = .init(image: dragImage.image, frame: dragImage.imageFrame)
-                            } else {
-                                component = .init(view: view)
-                            }
-                            draggingItems.forEach({
-                                $0.draggingFrame = CGRect(.zero, view.bounds.size)
-                                $0.imageComponentsProvider = { [component] }
-                            })
-                            Swift.print("beginDraggingSession", draggingItems.count)
-                            NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
-                            view.beginDraggingSession(with: draggingItems, event: event, source: observerView)
-                        }
+                        view.didStartDragging = false
+                        view.mouseDownLocation = event.location(in: view)
                     }
                     store.original(object, #selector(NSView.mouseDown(with:)), event)
                     }
