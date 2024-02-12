@@ -35,6 +35,7 @@ extension NSObjectProtocol where Self: NSView {
                     object, event in
                     if let view = object as? NSView {
                         view.mouseHandlers.rightDown?(event)
+                        Swift.print("menuProvider -1", view.menuProvider != nil)
                         if let menuProvider = view.menuProvider {
                             Swift.print("menuProvider 0")
                             let location = event.location(in: view)
