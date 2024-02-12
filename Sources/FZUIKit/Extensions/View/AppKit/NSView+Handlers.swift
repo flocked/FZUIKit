@@ -189,6 +189,7 @@ extension NSView {
                                 }
                             }
                             let draggingItems = items.compactMap({NSDraggingItem($0)})
+                            Swift.print("draggingItems", draggingItems.count)
                             let component: NSDraggingImageComponent
                             if let dragImage =  view.dragHandlers.dragImage?(event.location(in: view)) {
                                 component = .init(image: dragImage.image, frame: dragImage.imageFrame)
@@ -199,6 +200,7 @@ extension NSView {
                                 $0.draggingFrame = CGRect(.zero, view.bounds.size)
                                 $0.imageComponentsProvider = { [component] }
                             })
+                            Swift.print("beginDraggingSession", draggingItems.count)
                             view.beginDraggingSession(with: draggingItems, event: event, source: observerView)
                         }
                     }
