@@ -134,29 +134,32 @@ extension NSDraggingItem {
             var items: [PasteboardContent] = []
             
             if let urls = urls {
-                items += urls
+                items.append(contentsOf: urls)
             }
             
             if let colors = colors {
-                items += colors
+                items.append(contentsOf: colors)
             }
             
             if let strings = strings {
-                items += strings
+                items.append(contentsOf: strings)
             }
             
             if let sounds = sounds {
-                items += sounds
+                items.append(contentsOf: sounds)
             }
             
             if let images = images {
-                items += images
+                items.append(contentsOf: images)
             }
             
             if let attributedStrings = attributedStrings {
-                items += attributedStrings
+                items.append(contentsOf: attributedStrings)
             }
-            items += pasteboardItems?.filter({$0.content != nil}) ?? []
+            
+            if let pasteboardItems = pasteboardItems {
+                items.append(contentsOf: pasteboardItems.filter({$0.content != nil}))
+            }
 
             return items
         }
