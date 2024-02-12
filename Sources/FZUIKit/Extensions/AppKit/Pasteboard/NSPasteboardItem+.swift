@@ -26,7 +26,7 @@ extension NSPasteboardItem {
         get { getAssociatedValue(key: "itemContent", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "itemContent", object: self) }
     }
-    
+        
     /// The color of the pasteboard item.
     public var color: NSColor? {
         get {

@@ -9,7 +9,7 @@
 import AppKit
 
 extension NSDragOperation {
-    /// A constant that indicates the drag cancelled.
+    /// A constant that indicates no drag operation.
     public static var none = NSDragOperation(rawValue: 0)
 }
 

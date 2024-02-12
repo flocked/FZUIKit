@@ -54,15 +54,6 @@ extension NSView {
         }
     }
     
-    /// The handlers for dropping content into the view.
-    public var dropHandlers: DropHandlers {
-        get { getAssociatedValue(key: "dropHandlers", object: self, initialValue: DropHandlers()) }
-        set {
-            set(associatedValue: newValue, key: "dropHandlers", object: self)
-            setupObserverView()
-        }
-    }
-    
     /// The handlers for dragging content outside the view.
     public var dragHandlers: DragHandlers {
         get { getAssociatedValue(key: "dragHandlers", object: self, initialValue: DragHandlers()) }
@@ -70,6 +61,15 @@ extension NSView {
             set(associatedValue: newValue, key: "dragHandlers", object: self)
             setupObserverView()
             setupEventMonitors()
+        }
+    }
+    
+    /// The handlers for dropping content into the view.
+    public var dropHandlers: DropHandlers {
+        get { getAssociatedValue(key: "dropHandlers", object: self, initialValue: DropHandlers()) }
+        set {
+            set(associatedValue: newValue, key: "dropHandlers", object: self)
+            setupObserverView()
         }
     }
     
@@ -361,7 +361,11 @@ extension NSView {
     /**
      The handlers dropping content (file urls, images, colors or strings) from the pasteboard to your view.
      
-     Provide ``canDrop`` and ``didDrop`` to support dropping of content to your view.
+     Provide ``canDrop`` and/or ``allowedContentTypes`` to specify the items that can be dropped to the view.
+     
+     
+     
+     ``didDrop`` gets the
      
      The system calls the ``canDrop`` handler to validate if your view accepts dropping the content on the pasteboard. If it returns `true`, the system calls the ``didDrop`` handler when the user drops the content to your view.
      
@@ -386,6 +390,18 @@ extension NSView {
      ```
      */
     public struct DropHandlers {
+        /// The allowed file content types that can be dropped to the view, or `nil` if no file is allowed to drop to the file.
+        @available(macOS 11.0, *)
+        public var allowedContentTypes: [UTType] {
+            get { _allowedContentTypes as? [UTType] ?? [] }
+            set { _allowedContentTypes = newValue }
+        }
+        var _allowedContentTypes: Any?
+    
+        /// A Boolean value that determines whether the user can drop multiple files with the specified content types  to the view.
+        public var allowsMultipleFiles: Bool = true
+        
+        
         /**
          The file content types that can be dropped to the view.
          */

@@ -82,7 +82,7 @@ extension NSDraggingItem {
         }
         
         var fileURLs: [URL] {
-            urls.filter({$0.absoluteString.contains("file://")})
+            urls.filter({$0.isFileURL})
         }
                 
         var sounds: [NSSound] {
@@ -121,7 +121,7 @@ extension NSDraggingItem {
          - Parameter objects: An array of `PasteboardContent` objects.
          */
         func write<O: Collection<PasteboardContent>>(_ objects: O) {
-            guard objects.isEmpty != false else { return }
+            guard objects.isEmpty == false else { return }
             clearContents()
             let writings = objects.compactMap(\.pasteboardWriting)
             writeObjects(writings)
