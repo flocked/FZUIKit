@@ -10,7 +10,7 @@ import AppKit
 
 /// A type that can be used as pasteboard content.
 public protocol PasteboardContentItem: Codable, PasteboardContent {
-    /// The pasteboard type of the object.
+    /// The pasteboard type of the object. The default value is `codable`.
     static var pasteboardType: NSPasteboard.PasteboardType { get }
     
     /// Creates a pasteboard item for the object.
@@ -20,7 +20,16 @@ public protocol PasteboardContentItem: Codable, PasteboardContent {
     init?(pasteboardItem: NSPasteboardItem)
 }
 
+extension NSPasteboard.PasteboardType {
+    /// Codable type
+    public static let codable = NSPasteboard.PasteboardType(rawValue: "codable")
+}
+
 extension PasteboardContentItem {
+    public static var pasteboardType: NSPasteboard.PasteboardType {
+        return .codable
+    }
+    
     public var pasteboardWriting: NSPasteboardWriting {
         pasteboardItem
     }

@@ -90,6 +90,15 @@
             set { write(newValue ?? []) }
         }
         
+        /**
+         The specified codable objects of the pasteboard or `nil` if no objects are available.
+         
+         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         */
+        public func content<Content: Codable>(_ content: Content.Type, for type: NSPasteboard.PasteboardType = .codable) -> [Content]? {
+            pasteboardItems?.compactMap({$0.content(content, for: type)})
+        }
+        
         func write<Value: NSPasteboardWriting>(_ values: [Value]) {
             guard values.isEmpty == false else { return }
             clearContents()
