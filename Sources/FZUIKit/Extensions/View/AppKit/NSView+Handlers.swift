@@ -35,21 +35,16 @@ extension NSView {
                     object, event in
                     if let view = object as? NSView {
                         view.mouseHandlers.rightDown?(event)
-                        Swift.print("menuProvider -1", view.menuProvider != nil)
                         if let menuProvider = view.menuProvider {
-                            Swift.print("menuProvider 0")
                             let location = event.location(in: view)
                             if let menu = menuProvider(location) {
-                                Swift.print("menuProvider 1")
                                 menu.handlers.didClose = {
                                     if view.menu == menu {
                                         view.menu = nil
                                     }
                                 }
                                 view.menu = menu
-                                Swift.print("menuProvider 3")
                             } else {
-                                Swift.print("menuProvider 4")
                                 view.menu = nil
                             }
                         }
