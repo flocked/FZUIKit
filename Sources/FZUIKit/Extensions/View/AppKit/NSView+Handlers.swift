@@ -436,7 +436,7 @@ extension NSView {
          
          The handler gets called repeatedly on every mouse drag on the view’s bounds rectangle.
          */
-        public var canDrop: ((_ items: [PasteboardContent], _ location: CGPoint) -> (Bool))?
+        public var canDrop: ((_ content: [PasteboardContent], _ items: [NSPasteboardItem], _ location: CGPoint) -> (Bool))?
 
         /// The handler that gets called when the user did drop the content from the pasteboard to your view.
         public var didDrop: ((_ items: [PasteboardContent], _ location: CGPoint) -> Void)?
@@ -587,8 +587,10 @@ extension NSView {
             super.mouseDragged(with: event)
         }
                  
-        func canDrop(_ items: [PasteboardContent], location: CGPoint) -> Bool {
-            guard _dropHandlers.isActive, items.isEmpty == false else { return false }
+        func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
+            let items = pasteboard.content()
+            guard items.isEmpty == false, _dropHandlers.isActive, items.isEmpty == false else { return false }
+            let pasteboardItems = pasteboard.pasteboardItems ?? []
             if #available(macOS 11.0, *) {
                 if let contentTypes = _dropHandlers.fileDropping.contentTypes, !contentTypes.isEmpty {
                     let conformingURLs =  items.urls.compactMap({$0.contentType}).filter({ $0.conforms(toAny: contentTypes) })
@@ -600,28 +602,24 @@ extension NSView {
                     }
                 }
             }
-            return _dropHandlers.canDrop?(items, location) == true
+            return _dropHandlers.canDrop?(items, pasteboardItems, location) == true
         }
         
         override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard  _dropHandlers.draggingEntered != nil || _dropHandlers.isActive else { return [] }
             let items = sender.draggingPasteboard.content()
             _dropHandlers.draggingEntered?(items, sender.draggingLocation)
-            return canDrop(items, location: sender.draggingLocation) ? .copy : []
+            return canDrop(sender.draggingPasteboard, location: sender.draggingLocation) ? .copy : []
         }
         
         override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
             guard _dropHandlers.isActive else { return [] }
-            let items = sender.draggingPasteboard.content()
-            guard items.isEmpty == false else { return [] }
-            return canDrop(items, location: sender.draggingLocation) ? .copy : []
+            return canDrop(sender.draggingPasteboard, location: sender.draggingLocation) ? .copy : []
         }
         
         override public func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
             guard _dropHandlers.isActive else { return false }
-            let items = sender.draggingPasteboard.content()
-            guard items.isEmpty == false else { return false }
-            return canDrop(items, location: sender.draggingLocation)
+            return canDrop(sender.draggingPasteboard, location: sender.draggingLocation)
         }
         
         override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
