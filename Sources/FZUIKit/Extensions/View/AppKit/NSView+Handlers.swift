@@ -87,29 +87,11 @@ extension NSView {
             view.setupMenuProvider(for: event)
         }
         setupEventMonitor(for: .leftMouseDragged, #selector(NSView.mouseDragged(with:)), \.dragged, { dragHandlers.canDrag != nil }) { event, view in
-            if view.dragHandlers.canDrag != nil, view.didStartDragging == false {
-                let location = event.location(in: view)
-                let x = view.mouseDownLocation.x
-                let y = view.mouseDownLocation.y
-                let r = 4.0
-                if !(x-r...x+r).contains(location.x) || !(y-r...y+r).contains(location.y) {
-                    view.didStartDragging = true
-                    view.setupDraggingSession(for: event)
-                }
-            }
+            view.setupDraggingSession(for: event)
         }
     }
     
     func setupEventMonitor(for event: NSEvent.EventTypeMask, _ selector: Selector, _ keyPath: KeyPath<NSView.MouseHandlers, ((NSEvent) -> ())?>, _ condition: ()->(Bool) = { return true }, _ additional: ((NSEvent, NSView)->())? = nil) {
-        if event == .rightMouseDown {
-            Swift.print("rightDown", mouseHandlers[keyPath: keyPath] != nil, "menuProvider != nil", condition(), mouseHandlers[keyPath: keyPath] != nil || condition())
-        }
-        if event == .leftMouseDown {
-            Swift.print("leftDown", mouseHandlers[keyPath: keyPath] != nil, "dragHandlers.canDrag != nil", condition(), mouseHandlers[keyPath: keyPath] != nil || condition())
-        }
-        if event == .leftMouseDragged {
-            Swift.print("leftDrag", mouseHandlers[keyPath: keyPath] != nil, "dragHandlers.canDrag != nil", condition(), mouseHandlers[keyPath: keyPath] != nil || condition())
-        }
         do {
             if mouseHandlers[keyPath: keyPath] != nil || condition() {
                 if eventMonitors[event] == nil {
@@ -167,33 +149,37 @@ extension NSView {
             self.menu = nil
         }
     }
-            
-    func setupDraggingSession(for event: NSEvent) {
-        guard let canDrag = dragHandlers.canDrag else { return }
-        let location = event.location(in: self)
-        if let items = canDrag(location), !items.isEmpty, let observerView = self.observerView {
-            fileDragOperation = .copy
-            if dragHandlers.fileDragOperation == .move {
-                if items.count == (items as? [URL] ?? []).filter({$0.absoluteString.contains("file:/")}).count {
-                    fileDragOperation = .move
-                }
-            }
-            let draggingItems = items.compactMap({NSDraggingItem($0)})
-            let component: NSDraggingImageComponent
-            if let dragImage =  dragHandlers.dragImage?(location) {
-                component = .init(image: dragImage.image, frame: dragImage.imageFrame)
-            } else {
-                component = .init(view: self)
-            }
-            draggingItems.forEach({
-                $0.draggingFrame = CGRect(.zero, self.bounds.size)
-                $0.imageComponentsProvider = { [component] }
-            })
-            NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
-            beginDraggingSession(with: draggingItems, event: event, source: observerView)
-        }
-    }
     
+    func setupDraggingSession(for event: NSEvent) {
+        guard let canDrag = dragHandlers.canDrag, !didStartDragging else { return }
+        let location = event.location(in: self)
+        let x = mouseDownLocation.x
+        let y = mouseDownLocation.y
+        let r = 4.0
+        guard !(x-r...x+r).contains(location.x) || !(y-r...y+r).contains(location.y) else { return }
+        didStartDragging = true
+        guard let items = canDrag(location), !items.isEmpty, let observerView = self.observerView else { return }
+        fileDragOperation = .copy
+        if dragHandlers.fileDragOperation == .move {
+            if items.count == (items as? [URL] ?? []).filter({$0.absoluteString.contains("file:/")}).count {
+                fileDragOperation = .move
+            }
+        }
+        let draggingItems = items.compactMap({NSDraggingItem($0)})
+        let component: NSDraggingImageComponent
+        if let dragImage =  dragHandlers.dragImage?(location) {
+            component = .init(image: dragImage.image, frame: dragImage.imageFrame)
+        } else {
+            component = .init(view: self)
+        }
+        draggingItems.forEach({
+            $0.draggingFrame = CGRect(.zero, self.bounds.size)
+            $0.imageComponentsProvider = { [component] }
+        })
+        NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
+        beginDraggingSession(with: draggingItems, event: event, source: observerView)
+    }
+                
     var eventMonitors: [NSEvent.EventTypeMask: ReplacedMethodToken] {
         get { getAssociatedValue(key: "eventMonitors", object: self, initialValue: [:]) }
         set { set(associatedValue: newValue, key: "eventMonitors", object: self) }
