@@ -201,6 +201,7 @@ extension NSView {
                                 $0.imageComponentsProvider = { [component] }
                             })
                             Swift.print("beginDraggingSession", draggingItems.count)
+                            NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
                             view.beginDraggingSession(with: draggingItems, event: event, source: observerView)
                         }
                     }
