@@ -120,18 +120,12 @@ extension NSView {
     
     var mouseDownLocation: CGPoint {
         get { getAssociatedValue(key: "leftMouseDownLocation", object: self, initialValue: .zero) }
-        set {
-            set(associatedValue: newValue, key: "leftMouseDownLocation", object: self)
-            setupObserverView()
-        }
+        set { set(associatedValue: newValue, key: "leftMouseDownLocation", object: self) }
     }
     
     var didStartDragging: Bool {
         get { getAssociatedValue(key: "didStartDragging", object: self, initialValue: false) }
-        set {
-            set(associatedValue: newValue, key: "didStartDragging", object: self)
-            setupObserverView()
-        }
+        set { set(associatedValue: newValue, key: "didStartDragging", object: self) }
     }
     
     func setupMenuProvider(for event: NSEvent) {
@@ -173,7 +167,7 @@ extension NSView {
         draggingItems.first?.imageComponentsProvider = { [component] }
         draggingItems.forEach({
            $0.draggingFrame = CGRect(.zero, self.bounds.size)
-            $0.imageComponentsProvider = { [component] }
+            // $0.imageComponentsProvider = { [component] }
         })
         NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
         beginDraggingSession(with: draggingItems, event: event, source: observerView)
@@ -189,22 +183,33 @@ extension NSView {
             if viewObserver == nil {
                 viewObserver = .init(self)
             }
-            observe(\.window, handler: windowHandlers.window)
-            observe(\.effectiveAppearance, handler: viewHandlers.effectiveAppearance)
-            observe(\.alphaValue, handler: viewHandlers.alphaValue)
-            observe(\.isHidden, handler: viewHandlers.isHidden)
-            observe(\.bounds, handler: viewHandlers.bounds)
-            observe(\.frame, handler: viewHandlers.frame)
-            observe(\.superview, handler: viewHandlers.superview)
-            if let isFirstResponderHandler = viewHandlers.isFirstResponder {
-                viewObserver?.add(\.window?.firstResponder) { _, firstResponder in
-                    isFirstResponderHandler(self == firstResponder)
+            observe(\.window, handler: \.windowHandlers.window)
+            observe(\.effectiveAppearance, handler: \.viewHandlers.effectiveAppearance)
+            observe(\.alphaValue, handler: \.viewHandlers.alphaValue)
+            observe(\.isHidden, handler: \.viewHandlers.isHidden)
+            observe(\.bounds, handler: \.viewHandlers.bounds)
+            observe(\.frame, handler: \.viewHandlers.frame)
+            observe(\.superview, handler: \.viewHandlers.superview)
+            
+            if viewHandlers.isFirstResponder != nil && viewObserver?.isObserving(\.window?.firstResponder) == false {
+                viewObserver?.add(\.window?.firstResponder) { [weak self] _, firstResponder in
+                    guard let self = self else { return }
+                    self._isFirstResponder = self.isFirstResponder
                 }
-            } else {
+            } else if viewHandlers.isFirstResponder == nil {
                 viewObserver?.remove(\.window?.firstResponder)
             }
         } else {
             viewObserver = nil
+        }
+    }
+    
+    var _isFirstResponder: Bool {
+        get { getAssociatedValue(key: "_isFirstResponder", object: self, initialValue: isFirstResponder) }
+        set { 
+            guard newValue != _isFirstResponder else { return }
+            set(associatedValue: newValue, key: "_isFirstResponder", object: self)
+            viewHandlers.isFirstResponder?(newValue)
         }
     }
     
@@ -213,16 +218,19 @@ extension NSView {
         set { set(associatedValue: newValue, key: "viewObserver", object: self) }
     }
     
-    func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: ((Value)->())?) {
-        if let handler = handler {
-            viewObserver?.add(keyPath) { old, new in
-                handler(new)
+    func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: KeyPath<NSView, ((Value)->())?>) {
+        if self[keyPath: handler] != nil {
+            if  viewObserver?.isObserving(keyPath) == false {
+                viewObserver?.add(keyPath) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self[keyPath: handler]?(new)
+                }
             }
         } else {
             viewObserver?.remove(keyPath)
         }
     }
-        
+            
     var observerView: ObserverView? {
         get { getAssociatedValue(key: "observerView", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "observerView", object: self) }
@@ -492,10 +500,14 @@ extension NSView {
         public var didDrag: ((_ screenLocation: CGPoint, _ items: [PasteboardContent]) -> ())?
         /// The handler that gets called when the dragging ended without dragging the content to a supported destination.
         public var dragEnded: ((_ screenLocation: CGPoint)->())?
+        
+        
         /// The operation for dragging files.
         public var fileDragOperation: FileDragOperation = .copy
         /// The visual format of multiple dragging items.
         public var draggingFormation: NSDraggingFormation = .default
+        /// A Boolean value that determines whether the dragging image animates back to its starting point on a cancelled or failed drag.
+        public var animatesToStartingPositionsOnCancelOrFail: Bool = true
         
         /// The operation for dragging files.
         public enum FileDragOperation: Int {
@@ -520,9 +532,13 @@ extension NSView {
         }
         
         func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
-            session.draggingFormation = superview?.dragHandlers.draggingFormation ?? session.draggingFormation
+            if let dragHandlers = superview?.dragHandlers {
+                session.draggingFormation = dragHandlers.draggingFormation
+                session.animatesToStartingPositionsOnCancelOrFail = dragHandlers.animatesToStartingPositionsOnCancelOrFail
+            }
             // Swift.print("draggingSession willBeginAt", screenPoint)
         }
+        
         func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
             guard superview?.dragHandlers.canDrag != nil else { return }
             if operation != .none {
