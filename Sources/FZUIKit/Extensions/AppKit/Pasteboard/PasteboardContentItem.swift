@@ -50,6 +50,10 @@ public class CodablePasteboardItem<Content: Codable>: NSObject, NSPasteboardWrit
         [.codable]
     }
     
+    public static func readingOptions(forType type: NSPasteboard.PasteboardType, pasteboard: NSPasteboard) -> NSPasteboard.ReadingOptions {
+        .asData
+    }
+    
     public required init?(pasteboardPropertyList propertyList: Any, ofType type: NSPasteboard.PasteboardType) {
         guard let data = propertyList as? Data else { return nil }
         guard let content = try? PropertyListDecoder().decode(Content.self, from: data) else { return nil }
@@ -60,13 +64,21 @@ public class CodablePasteboardItem<Content: Codable>: NSObject, NSPasteboardWrit
         [.codable]
     }
     
+    public func writingOptions(forType type: NSPasteboard.PasteboardType, pasteboard: NSPasteboard) -> NSPasteboard.WritingOptions {
+        .promised
+    }
+    
     public func pasteboardPropertyList(forType type: NSPasteboard.PasteboardType) -> Any? {
         guard type == .codable else { return nil }
         return try? PropertyListEncoder().encode(content)
     }
     
-    let content: Content
-    init(content: Content) {
+    public let content: Content
+    public init(content: Content) {
+        self.content = content
+    }
+    
+    public init(_ content: Content) {
         self.content = content
     }
 }
