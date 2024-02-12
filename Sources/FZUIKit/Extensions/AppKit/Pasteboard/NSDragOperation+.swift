@@ -1,5 +1,5 @@
 //
-//  NSDraggingImageComponent+.swift
+//  NSDragOperation+.swift
 //
 //
 //  Created by Florian Zand on 11.02.24.

@@ -8,7 +8,6 @@
 #if os(macOS)
 import AppKit
 
-
 /// A type that can be written to a pasteboard.
 public protocol PasteboardContent {
     /// A representation of the content that can be written to a pasteboard.

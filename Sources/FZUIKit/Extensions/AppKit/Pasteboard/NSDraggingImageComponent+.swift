@@ -10,7 +10,7 @@ import AppKit
 
 extension NSDraggingImageComponent {
     /// Creates a dragging image component for the specified image.
-    public convenience init(key: NSDraggingItem.ImageComponentKey = .icon, image: NSImage, frame: CGRect? = nil) {
+    public convenience init(image: NSImage, frame: CGRect? = nil, key: NSDraggingItem.ImageComponentKey = .icon) {
         self.init(key: key)
         contents = image
         if let frame = frame {
@@ -21,7 +21,7 @@ extension NSDraggingImageComponent {
     }
     
     /// Creates a dragging image component for the specified image.
-    public convenience init(key: NSDraggingItem.ImageComponentKey = .icon, image: CGImage, frame: CGRect? = nil) {
+    public convenience init(image: CGImage, frame: CGRect? = nil, key: NSDraggingItem.ImageComponentKey = .icon) {
         self.init(key: key)
         contents = image
         if let frame = frame {
