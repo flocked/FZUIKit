@@ -13,7 +13,7 @@ extension NSPasteboardItem {
     /// Creates a pasteboard item for a custom content.
     public convenience init<Content>(_ content: Content) {
         self.init()
-        self.setString(UUID().uuidString, forType: .ruler)
+        self.setString(UUID().uuidString, forType: .textFinderOptions)
         self.content = content
     }
     
