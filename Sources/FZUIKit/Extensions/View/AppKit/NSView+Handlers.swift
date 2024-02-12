@@ -589,24 +589,19 @@ extension NSView {
                  
         func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
             let items = pasteboard.content()
-            Swift.print("canDrop 0", items.isEmpty == false, _dropHandlers.isActive)
             guard items.isEmpty == false, _dropHandlers.isActive else { return false }
             let pasteboardItems = pasteboard.pasteboardItems ?? []
             if #available(macOS 11.0, *) {
                 if let contentTypes = _dropHandlers.fileDropping.contentTypes, !contentTypes.isEmpty {
-                    Swift.print("canDrop 1")
                     let conformingURLs =  items.urls.compactMap({$0.contentType}).filter({ $0.conforms(toAny: contentTypes) })
                     if conformingURLs.isEmpty == false {
-                        Swift.print("canDrop 2")
                         let allowsMultiple = _dropHandlers.fileDropping.allowsMultiple
                         if allowsMultiple || (allowsMultiple == false && conformingURLs.count == 1) {
-                            Swift.print("canDrop 3")
                             return true
                         }
                     }
                 }
             }
-            Swift.print("canDrop 4", _dropHandlers.canDrop != nil, _dropHandlers.canDrop?(items, pasteboardItems, location) == true)
             return _dropHandlers.canDrop?(items, pasteboardItems, location) == true
         }
         
