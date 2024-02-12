@@ -15,7 +15,8 @@ extension NSPasteboardItem {
         guard let data = try? PropertyListEncoder().encode(content) else {
             return nil
         }
-        self.init(pasteboardPropertyList: data, ofType: .tabularText)
+        self.init()
+        self.setPropertyList(data, forType: .tabularText)
     }
     
     /// Returns the specified codable type for the pasteboard item.
