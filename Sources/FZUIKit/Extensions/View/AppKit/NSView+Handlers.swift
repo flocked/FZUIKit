@@ -133,7 +133,6 @@ extension NSView {
             setupObserverView()
         }
     }
-        
     
     func setupMenuProvider(for event: NSEvent) {
         guard let menuProvider = self.menuProvider else { return }
@@ -150,13 +149,12 @@ extension NSView {
         }
     }
     
+    static let minimumDragDistance: CGFloat = 4.0
+    
     func setupDraggingSession(for event: NSEvent) {
         guard let canDrag = dragHandlers.canDrag, !didStartDragging else { return }
         let location = event.location(in: self)
-        let x = mouseDownLocation.x
-        let y = mouseDownLocation.y
-        let r = 4.0
-        guard !(x-r...x+r).contains(location.x) || !(y-r...y+r).contains(location.y) else { return }
+        guard mouseDownLocation.distance(to: location) >= NSView.minimumDragDistance else { return }
         didStartDragging = true
         guard let items = canDrag(location), !items.isEmpty, let observerView = self.observerView else { return }
         fileDragOperation = .copy
