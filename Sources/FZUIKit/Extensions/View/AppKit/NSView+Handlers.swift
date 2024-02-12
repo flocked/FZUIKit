@@ -588,8 +588,8 @@ extension NSView {
         }
                  
         func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
-            Swift.print("canDrop 0")
             let items = pasteboard.content()
+            Swift.print("canDrop 0", items.isEmpty == false, _dropHandlers.isActive, pasteboard.pasteboardItems?.count ?? "nil")
             guard items.isEmpty == false, _dropHandlers.isActive else { return false }
             Swift.print("canDrop 1")
 

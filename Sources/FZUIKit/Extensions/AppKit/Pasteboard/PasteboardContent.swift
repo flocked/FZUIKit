@@ -97,15 +97,14 @@ extension NSDraggingItem {
             compactMap({$0 as? NSAttributedString})
         }
         
-        /*
         var pasteboardItems: [NSPasteboardItem] {
             compactMap({$0 as? NSPasteboardItem})
         }
-         */
         
-        func custom<Content>(_ content: Content.Type) -> [Content] {
-            compactMap({($0 as? NSPasteboardItem)?.content as? Content})
+        func content<Content: Codable>(_ content: Content.Type) -> [Content] {
+            pasteboardItems.compactMap({$0.content(content)})
         }
+
     }
 
     public extension Collection where Element: PasteboardContent {
@@ -133,8 +132,8 @@ extension NSDraggingItem {
         func content() -> [PasteboardContent] {
             var items: [PasteboardContent] = []
             
-            if let urls = urls {
-                items.append(contentsOf: urls)
+            if let fileURLs = fileURLs {
+                items.append(contentsOf: fileURLs)
             }
             
             if let colors = colors {
@@ -157,9 +156,14 @@ extension NSDraggingItem {
                 items.append(contentsOf: attributedStrings)
             }
             
-            if let pasteboardItems = pasteboardItems {
-                items.append(contentsOf: pasteboardItems.filter({$0.content != nil}))
+            
+      //      pasteboardItems?.compactMap($0 as? CodableItem)
+
+            /*
+            if let pasteboardItems = self.read(for: NSPasteboardItem.self) {
+                items.append(contentsOf: pasteboardItems)
             }
+             */
 
             return items
         }
