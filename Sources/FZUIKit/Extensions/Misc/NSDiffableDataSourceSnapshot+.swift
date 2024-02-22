@@ -13,6 +13,14 @@
     #endif
 
     public extension NSDiffableDataSourceSnapshot {
+        /// A Boolean value indicating whether the snapshot is empty.
+        var isEmpty: Bool {
+            if numberOfItems > 0 {
+                return numberOfSections == 0
+            }
+            return true
+        }
+        
         /**
          Adds the sections and items with the specified identifiers to the snapshot.
 
