@@ -67,7 +67,6 @@ extension UICollectionViewDiffableDataSource {
     }
     #endif
     
-    /*
     /// The view that is displayed when the datasource doesn't contain any items.
     public var emptyCollectionView: UIView? {
         get { getAssociatedValue(key: "emptyCollectionView", object: self, initialValue: nil) }
@@ -86,7 +85,6 @@ extension UICollectionViewDiffableDataSource {
             collectionView?.addSubview(withConstraint: emptyCollectionView)
         }
     }
-    */
     
     var delegate: Delegate? {
         get { getAssociatedValue(key: "delegate", object: self, initialValue: nil) }

@@ -35,7 +35,6 @@
     }
 
     public extension NSContentView {
-        /// Determines whether the view is compatible with the provided configuration.
         func supports(_ configuration: NSContentConfiguration) -> Bool {
             type(of: configuration) == type(of: self.configuration)
         }
