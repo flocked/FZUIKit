@@ -22,19 +22,19 @@ extension AVPlayerView {
         /// GIF image media content.
         case gif
         
-        @available(macOS 11.0, *)
-        var contentType: UTType {
+        var fileType: FileType {
             switch self {
-            case .video: return .audiovisualContent
+            case .video: return .video
             case .audio: return .audio
             case .image: return .image
             case .gif: return .gif
             }
         }
         
-        var fileTypes: FileType {
+        @available(macOS 11.0, *)
+        var contentType: UTType {
             switch self {
-            case .video: return .video
+            case .video: return .audiovisualContent
             case .audio: return .audio
             case .image: return .image
             case .gif: return .gif
@@ -47,12 +47,12 @@ extension AVPlayerView {
      
      The default value is an empty array which indicates that the user can't drop any new media to the player view.
      */
-    public var dropMediaContent: [AVMediaContent]  {
+    public var droppableMedia: [AVMediaContent]  {
         get { getAssociatedValue(key: "dropMediaContent", object: self, initialValue: []) }
         set {
             let newValue = newValue.uniqued()
             set(associatedValue: newValue, key: "dropMediaContent", object: self)
-            guard newValue != dropMediaContent else { return }
+            guard newValue != droppableMedia else { return }
             if !newValue.isEmpty {
                 dropHandlers.canDrop = { [weak self] items,_,_ in
                     guard let self = self else { return false }
@@ -75,12 +75,12 @@ extension AVPlayerView {
     func firstMediaURL(for urls: [URL]) -> URL? {
         return urls.first(where: {
             if #available(macOS 11.0, *) {
-                if let contentType = $0.contentType, contentType.conforms(toAny: dropMediaContent.compactMap({$0.contentType})) {
+                if let contentType = $0.contentType, contentType.conforms(toAny: droppableMedia.compactMap({$0.contentType})) {
                     return true
                 }
             }
             if let fileType = $0.fileType {
-                return dropMediaContent.compactMap({$0.fileTypes}).contains(fileType)
+                return droppableMedia.compactMap({$0.fileType}).contains(fileType)
             }
             return false
         })
