@@ -91,7 +91,6 @@ extension NSImageView {
         if let view: NSView = getAssociatedValue(key: "overlayContentView", object: self) {
             return view
         }
-        
         let overlayView = NSView()
         overlayView.clipsToBounds = true
         addSubview(withConstraint: overlayView)
