@@ -135,6 +135,31 @@
         open var isAnimating: Bool {
             imageLayer.isAnimating
         }
+        
+        /**
+         A Boolean value indicating whether the user can drag a new image into the image view.
+         
+         When the value of this property is `true`, the user can set the displayed image by dragging an image onto the image view. The default value of this property is `false`, which causes the image view to display only the programmatically set image.
+         */
+        open var isEditable: Bool = false {
+            didSet {
+                guard oldValue != isEditable else { return }
+                if isEditable {
+                    dropHandlers.canDrop = { items,_,_ in
+                        return !items.images.isEmpty
+                    }
+                    dropHandlers.didDrop = { items,_,_ in
+                        let images = items.images
+                        if !images.isEmpty {
+                            self.images = images
+                        }
+                    }
+                } else {
+                    dropHandlers.canDrop = nil
+                    dropHandlers.didDrop = nil
+                }
+            }
+        }
 
         /**
          The amount of time it takes to go through one cycle of the images.
