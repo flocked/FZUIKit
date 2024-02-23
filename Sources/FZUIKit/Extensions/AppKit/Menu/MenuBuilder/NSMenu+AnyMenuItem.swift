@@ -83,7 +83,13 @@
             set(\.state, to: state)
         }
 
-        /// Display a custom `NSView` instead of the title or attributed title.
+        /**
+         Sets a view that is displayed instead of the title or attributed title.
+         
+         - Parameters:
+            - view: The view to display.
+            - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+         */
         func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
             if let view = view {
                 if showsHighlight {
@@ -98,17 +104,27 @@
             }
         }
 
-            /// Display a custom SwiftUI `View` instead of the title or attributed title.
-            ///
-            /// The passed closure will only be called once.
-            ///
-            /// Any views inside a menu item can use the `\.menuItemIsHighlighted`
-            /// environment value to alter their appearance when highlighted.
-            ///
-            /// By default, a selection material (`NSVisualEffectView.Material.selection`) will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
-            func view<Content: View>(showsHighlight: Bool = true, @ViewBuilder _ content: () -> Content) -> Self {
+        /**
+         Sets a SwiftUI view that is displayed instead of the title or attributed title.
+         
+         - Parameters:
+            - view: The SwiftUI view to display.
+            - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+         */
+            func view<Content: View>(@ViewBuilder _ content: () -> Content, showsHighlight: Bool = true) -> Self {
                 view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: content()))
             }
+        
+        /**
+         Sets a SwiftUI view that is displayed instead of the title or attributed title.
+         
+         - Parameters:
+            - view: The SwiftUI view to display.
+            - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+         */
+        func view<Content: View>(_ view: Content, showsHighlight: Bool = true) -> Self {
+            self.view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: view))
+        }
 
         /// Sets the image associated with this menu item.
         func image(_ image: NSImage?) -> Self {

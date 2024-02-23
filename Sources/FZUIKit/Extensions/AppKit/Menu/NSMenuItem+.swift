@@ -52,15 +52,9 @@
          */
         convenience init(view: NSView, showsHighlight: Bool = true) {
             self.init(title: "")
-            if showsHighlight {
-                let highlightableView = HighlightableView(frame: view.bounds)
-                highlightableView.addSubview(withConstraint: view)
-                self.view = highlightableView
-            } else {
-                self.view = view
-            }
+            self.view(view, showsHighlight: showsHighlight)
         }
-
+    
         /**
          Initializes and returns a menu item with the `SwiftUI` view.
 
@@ -70,9 +64,22 @@
 
          - Returns: An instance of `NSMenuItem`.
          */
-        convenience init<V: View>(showsHighlight: Bool = true, view: V) {
+        convenience init<V: View>(view: V, showsHighlight: Bool = true) {
             self.init(title: "")
-            self.view = NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: view)
+            self.view(view, showsHighlight: showsHighlight)
+        }
+        
+        /**
+         Initializes and returns a menu item with the `SwiftUI` view.
+
+         - Parameters:
+            - view: The view of the menu item.
+            - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+
+         - Returns: An instance of `NSMenuItem`.
+         */
+        convenience init<V: View>(@ViewBuilder view: () -> V, showsHighlight: Bool = true) {
+            self.init(view: view(), showsHighlight: showsHighlight)
         }
 
         /**
@@ -210,9 +217,9 @@
         func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
             if let view = view {
                 if showsHighlight {
-                    let highlightableView = HighlightableView(frame: view.frame)
+                    let highlightableView = HighlightableView(frame: view.bounds)
                     highlightableView.addSubview(withConstraint: view)
-                    self.view = view
+                    self.view = highlightableView
                 } else {
                     self.view = view
                 }
@@ -234,8 +241,24 @@
             - content: The  SwiftUI `View`.
          */
         @discardableResult
-        func view<Content: View>(showsHighlight: Bool = true, @ViewBuilder _ content: () -> Content) -> Self {
-            view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: content()))
+        func view<Content: View>(@ViewBuilder _ content: () -> Content, showsHighlight: Bool = true) -> Self {
+            view(content(), showsHighlight: showsHighlight)
+        }
+        
+        /**
+         Displays a SwiftUI `View` instead of the title or attributed title.
+         
+         Any views inside a menu item can use the `menuItemIsHighlighted` environment value to alter their appearance when highlighted.
+         
+         By default, a highlight background will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
+         
+         - Parameters:
+            - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+            - content: The  SwiftUI `View`.
+         */
+        @discardableResult
+        func view<V: View>(_ view: V, showsHighlight: Bool = true) -> Self {
+            self.view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: view))
         }
         
         /// A help tag for the menu item.
