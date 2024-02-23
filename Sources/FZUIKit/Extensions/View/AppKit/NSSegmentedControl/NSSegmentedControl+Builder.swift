@@ -8,6 +8,7 @@
     import AppKit
 
     public extension NSSegmentedControl {
+        /// A function builder type that produces an array of segments for a segmented control.
         @resultBuilder
         enum Builder {
             public static func buildBlock(_ block: [NSSegment]...) -> [NSSegment] {

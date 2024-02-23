@@ -8,6 +8,7 @@
 import SwiftUI
 
 #if swift(>=5.4)
+/// A function builder type that produces a shape.
     @resultBuilder
     public enum ShapeBuilder {
         public static func buildBlock<S: Shape>(_ builder: S) -> some Shape {
@@ -15,6 +16,7 @@ import SwiftUI
         }
     }
 #else
+/// A function builder type that produces a shape.
     @_functionBuilder
     public enum ShapeBuilder {
         public static func buildBlock<S: Shape>(_ builder: S) -> some Shape {

@@ -150,6 +150,7 @@
     }
 
     public extension NSToolbar {
+        /// A function builder type that produces an array of toolbar items.
         @resultBuilder
         enum Builder {
             public static func buildBlock(_ block: [NSToolbarItem]...) -> [NSToolbarItem] {

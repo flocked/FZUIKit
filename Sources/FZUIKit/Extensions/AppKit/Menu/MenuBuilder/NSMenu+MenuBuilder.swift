@@ -8,7 +8,7 @@
 #if os(macOS)
     import AppKit
 
-    /// A function builder type that produces an array of `NSMenuItem`s.
+    /// A function builder type that produces an array of menu items.
     @resultBuilder
     public enum MenuBuilder {
         public static func buildBlock(_ block: [NSMenuItem]...) -> [NSMenuItem] {

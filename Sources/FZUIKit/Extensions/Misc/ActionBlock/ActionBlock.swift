@@ -16,6 +16,18 @@
         var action: Selector? { get set }
     }
 
+extension NSColorPanel: TargetActionProtocol {
+    public var action: Selector? {
+        get { nil }
+        set { setAction(newValue) }
+    }
+    
+    public var target: AnyObject? {
+        get { value(forKey: "target") as? AnyObject  }
+        set { setTarget(newValue) }
+    }
+}
+
     extension NSControl: TargetActionProtocol {}
     extension NSCell: TargetActionProtocol {}
     extension NSToolbarItem: TargetActionProtocol {}

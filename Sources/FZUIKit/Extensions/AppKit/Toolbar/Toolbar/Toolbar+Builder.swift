@@ -9,6 +9,7 @@
     import AppKit
 
     public extension Toolbar {
+        /// A function builder type that produces an array of toolbar items.
         @resultBuilder
         enum Builder {
             public static func buildBlock(_ block: [ToolbarItem]...) -> [ToolbarItem] {

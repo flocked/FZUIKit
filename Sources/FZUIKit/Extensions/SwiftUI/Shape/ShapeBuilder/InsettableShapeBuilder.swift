@@ -8,6 +8,7 @@
 import SwiftUI
 
 #if swift(>=5.4)
+/// A function builder type that produces an insettable shape.
     @resultBuilder
     public enum InsettableShapeBuilder {
         public static func buildBlock<S: InsettableShape>(_ builder: S) -> some InsettableShape {
@@ -15,6 +16,7 @@ import SwiftUI
         }
     }
 #else
+/// A function builder type that produces an insettable shape.
     @_functionBuilder
     public enum InsettableShapeBuilder {
         public static func buildBlock<S: InsettableShape>(_ builder: S) -> some InsettableShape {
