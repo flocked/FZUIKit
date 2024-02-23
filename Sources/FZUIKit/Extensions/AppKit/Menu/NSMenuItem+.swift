@@ -52,7 +52,6 @@
          */
         convenience init(view: NSView, showsHighlight: Bool = true) {
             self.init(title: "")
-          //  self.view(view)
             if showsHighlight {
                 let highlightableView = HighlightableView(frame: view.bounds)
                 highlightableView.addSubview(withConstraint: view)
