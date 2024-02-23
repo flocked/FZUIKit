@@ -15,7 +15,7 @@ extension NSGridView {
         self.columns = columns()
     }
     
-    /// Creates a new grid view obect with the specified rows..
+    /// Creates a new grid view object with the specified rows.
     public convenience init(@RowBuilder _ rows: () -> [GridRow]) {
         self.init()
         self.rows = rows()
@@ -42,8 +42,8 @@ extension NSGridView {
                         gridColumn.trailingPadding = column._trailingPadding
                         gridColumn.xPlacement = column._xPlacement
                         gridColumn.width = column._width
-                        gridColumn.contentViews = column._contentViews
-                        column._contentViews = []
+                        gridColumn.views = column._views
+                        column._views = []
                         column.gridColumn = gridColumn
                     }
                 }
@@ -90,8 +90,8 @@ extension NSGridView {
                         gridRow.yPlacement = row._yPlacement
                         gridRow.rowAlignment = row._rowAlignment
                         gridRow.height = row._height
-                        gridRow.contentViews = row._contentViews
-                        row._contentViews = []
+                        gridRow.views = row._views
+                        row._views = []
                         row.gridRow = gridRow
                     }
                 }
@@ -136,7 +136,7 @@ extension NSGridView {
         }
 
         public static func buildExpression(_ expr: NSView?) -> [NSView?] {
-            expr.map { [$0] } ?? []
+            [expr]
         }
     }
     
@@ -150,6 +150,14 @@ extension NSGridView {
         public static func buildExpression(_ expr: GridColumn?) -> [GridColumn] {
             expr.map { [$0] } ?? []
         }
+        /*
+        public static func buildExpression(_ expr: GridRow?) -> [GridColumn] {
+            if let contentViews = expr?.contentViews {
+                contentViews.compactMap({GridColumn(views: [$0])})
+            }
+            expr.map { [$0.cont] } ?? []
+        }
+        */
     }
     
     /// A function builder type that produces an array of grid rows.

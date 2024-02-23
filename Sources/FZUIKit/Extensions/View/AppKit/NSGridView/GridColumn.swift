@@ -23,21 +23,21 @@ public class GridColumn {
     }
     
     /// The content views of the grid column cells.
-    public var contentViews: [NSView?] {
-        get { gridColumn?.contentViews ?? _contentViews }
+    public var views: [NSView?] {
+        get { gridColumn?.views ?? _views }
         set {
             if let gridColumn = self.gridColumn {
-                gridColumn.contentViews = newValue
+                gridColumn.views = newValue
             } else {
-                _contentViews = newValue
+                _views = newValue
             }
         }
     }
     
     /// Sets the content views of the grid column cells.
     @discardableResult
-    public func contentViews(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
-        contentViews = views()
+    public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
+        self.views = views()
         return self
     }
     
@@ -59,7 +59,7 @@ public class GridColumn {
     
     /// The number of cells of the column.
     public var numberOfCells: Int {
-        get { gridColumn?.numberOfCells ?? _contentViews.count }
+        get { gridColumn?.numberOfCells ?? _views.count }
     }
     
     /// The leading padding of the column.
@@ -126,7 +126,7 @@ public class GridColumn {
         return self
     }
     
-    var _contentViews: [NSView?] = []
+    var _views: [NSView?] = []
     var _isHidden: Bool = false
     var _leadingPadding: CGFloat = 0.0
     var _trailingPadding: CGFloat = 0.0
@@ -135,12 +135,12 @@ public class GridColumn {
     
     /// Creates a grid column with the specified views.
     public init(@NSGridView.Builder _ views: () -> [NSView?]) {
-        _contentViews = views()
+        _views = views()
     }
     
     /// Creates a grid column with the specified views.
     public init(views: [NSView?]) {
-        _contentViews = views
+        _views = views
     }
     
     /// Creates a grid column.

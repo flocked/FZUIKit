@@ -1,6 +1,6 @@
 //
 //  NSGridColumn+.swift
-//  
+//
 //
 //  Created by Florian Zand on 23.02.24.
 //
@@ -20,7 +20,7 @@ extension NSGridColumn {
     }
     
     /// The content views of the grid column cells.
-    public var contentViews: [NSView?] {
+    public var views: [NSView?] {
         get { cells.compactMap({$0.contentView}) }
         set {
             guard let gridView = self.gridView else { return }
@@ -34,6 +34,7 @@ extension NSGridColumn {
             cells.forEach({$0.contentView?.removeFromSuperview() })
             for (index, view) in newValue.enumerated() {
                 self.cells[safe: index]?.contentView = view
+                // self.cells[safe: index]?.contentView = (view as? GridSpacer) != nil ? nil : view
             }
             if newValue.count < gridView.numberOfRows {
                 let rows = gridView.nsRows
@@ -45,6 +46,13 @@ extension NSGridColumn {
                     }
                 }
             }
+            /*
+            for index in newValue.indexes(where: {($0 as? GridSpacer) != nil}) {
+                if let value = (newValue[safe: index] as? GridSpacer)?.value, index < gridView.numberOfRows, gridView.row(at: index).views.compactMap({$0}).count == 0 {
+                    gridView.row(at: index).height = value
+                }
+            }
+            */
         }
     }
 }

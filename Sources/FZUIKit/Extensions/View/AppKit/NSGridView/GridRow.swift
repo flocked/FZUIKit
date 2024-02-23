@@ -1,6 +1,6 @@
 //
 //  GridRow.swift
-//  
+//
 //
 //  Created by Florian Zand on 23.02.24.
 //
@@ -24,21 +24,21 @@ public class GridRow {
     }
     
     /// The content views of the grid row cells.
-    public var contentViews: [NSView?] {
-        get { gridRow?.contentViews ?? _contentViews }
+    public var views: [NSView?] {
+        get { gridRow?.views ?? _views }
         set {
             if let gridRow = self.gridRow {
-                gridRow.contentViews = newValue
+                gridRow.views = newValue
             } else {
-                _contentViews = newValue
+                _views = newValue
             }
         }
     }
     
     /// Sets the content views of the grid row cells.
     @discardableResult
-    public func contentViews(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
-        contentViews = views()
+    public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
+        self.views = views()
         return self
     }
     
@@ -60,7 +60,7 @@ public class GridRow {
     
     /// The number of cells of the row.
     public var numberOfCells: Int {
-        get { gridRow?.numberOfCells ?? _contentViews.count }
+        get { gridRow?.numberOfCells ?? _views.count }
     }
     
     /// The top padding of the row.
@@ -143,7 +143,7 @@ public class GridRow {
         return self
     }
     
-    var _contentViews: [NSView?] = []
+    var _views: [NSView?] = []
     var _isHidden: Bool = false
     var _topPadding: CGFloat = 0.0
     var _bottomPadding: CGFloat = 0.0
@@ -153,12 +153,12 @@ public class GridRow {
     
     /// Creates a grid row with the specified views.
     public init(@NSGridView.Builder _ views: () -> [NSView?]) {
-        _contentViews = views()
+        _views = views()
     }
     
     /// Creates a grid row with the specified views.
     public init(views: [NSView?]) {
-        _contentViews = views
+        _views = views
     }
     
     /// Creates a grid row.

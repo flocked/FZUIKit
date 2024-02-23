@@ -20,7 +20,7 @@ extension NSGridRow {
     }
     
     /// The content views of the grid row cells.
-    public var contentViews: [NSView?] {
+    public var views: [NSView?] {
         get { cells.compactMap({$0.contentView}) }
         set {
             guard let gridView = self.gridView else { return }
@@ -34,6 +34,7 @@ extension NSGridRow {
             cells.forEach({$0.contentView?.removeFromSuperview() })
             for (index, view) in newValue.enumerated() {
                 self.cells[safe: index]?.contentView = view
+             // self.cells[safe: index]?.contentView = (view as? GridSpacer) != nil ? nil : view
             }
             if newValue.count < gridView.numberOfColumns {
                 let columns = gridView.nsColumns
@@ -45,6 +46,13 @@ extension NSGridRow {
                     }
                 }
             }
+            /*
+            for index in newValue.indexes(where: {($0 as? GridSpacer) != nil}) {
+                if let value = (newValue[safe: index] as? GridSpacer)?.value, index < gridView.numberOfColumns, gridView.column(at: index).views.count == 0 {
+                    gridView.column(at: index).width = value
+                }
+            }
+            */
         }
     }
 }
