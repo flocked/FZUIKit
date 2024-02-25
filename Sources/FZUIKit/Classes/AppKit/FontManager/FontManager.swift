@@ -70,13 +70,13 @@ public class FontManager: NSObject {
             func checkFirstResponder(_ firstResponder: NSResponder?) {
                 if let textView = firstResponder as? NSTextView, textView.isFieldEditor == false {
                     self.target = textView
-                } else {
+                } else if firstResponder != self.fontSizeTextField {
                     self.target = nil
                 }
             }
             checkFirstResponder(fontFamilyPopUpButton.window?.firstResponder)
             targetObservation = fontFamilyPopUpButton.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
-                guard let self = self, old != new else { return }
+                guard self != nil, old != new else { return }
                 checkFirstResponder(new)
             }
         } else {
