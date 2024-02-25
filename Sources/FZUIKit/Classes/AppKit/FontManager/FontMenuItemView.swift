@@ -1,12 +1,12 @@
 //
-//  MenuItemView.swift
-//  Icon Extractor
+//  FontMenuItemView.swift
+//
 //
 //  Created by Florian Zand on 24.02.24.
 //
 
+#if os(macOS)
 import AppKit
-import FZUIKit
 
 class FontMenuItemView: MenuItemView {
     let contentView = ContentView()
@@ -166,3 +166,4 @@ extension FontMenuItemView {
         }
     }
 }
+#endif

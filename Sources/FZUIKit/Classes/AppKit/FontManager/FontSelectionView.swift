@@ -1,12 +1,13 @@
 //
-//  FFFF.swift
-//  Icon Extractor
+//  FontSelectionView.swift
+//
 //
 //  Created by Florian Zand on 24.02.24.
 //
 
+#if os(macOS)
+
 import AppKit
-import FZUIKit
 import FZSwiftUtils
 
 public class FontSelectionView: NSView, NSTextFieldDelegate, NSMenuDelegate {
@@ -441,3 +442,4 @@ extension FontSelectionView {
           }
       }
 }
+#endif

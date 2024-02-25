@@ -1,6 +1,12 @@
+//
+//  MenuItemView.swift
+//
+//
+//  Created by Florian Zand on 24.02.24.
+//
+
 #if os(macOS)
 import AppKit
-import FZUIKit
 
 /// A view that replicates the behavior of a menu item and
 /// can be used to wrap custom views assigned to an `NSMenuItem`.

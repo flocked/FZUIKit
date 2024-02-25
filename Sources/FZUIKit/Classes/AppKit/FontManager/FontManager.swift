@@ -1,6 +1,6 @@
 //
 //  FontManager.swift
-//  Icon Extractor
+//  
 //
 //  Created by Florian Zand on 24.02.24.
 //
@@ -420,58 +420,6 @@ extension NSFont {
             self.weight = weight
             self.localizedFaceName = NSFontManager.shared.localizedName(forFamily: familyName, face: faceName)
         }
-    }
-}
-
-extension NSTextField {
-    /// The number formatting for a text field.
-    public struct NumberFormatting {
-        /// The formatting style.
-        var style: NumberFormatter.Style = .decimal
-        /// The rounding mode.
-        var roundingMode: NumberFormatter.RoundingMode = .halfEven
-        /// A Boolean value that indicates whether the text field will use heuristics to guess at the number which is intended by a string.
-        var isLenient: Bool = false
-        /// The minimum number.
-        var minValue: Double? = nil
-        /// The maximum number.
-        var maxValue: Double? = nil
-    }
-    
-    /// The number formatting for the text field.
-    public var numberFormatting: NumberFormatting? {
-        get {
-            guard let formatter = formatter as? NumberFormatter else { return nil }
-            return NumberFormatting(formatter)
-        }
-        set {
-            if let newValue = newValue {
-                formatter = NumberFormatter(newValue)
-            } else if formatter is NumberFormatter {
-                formatter = nil
-            }
-        }
-    }
-}
-
-extension NSTextField.NumberFormatting {
-    init(_ formatter: NumberFormatter) {
-        style = formatter.numberStyle
-        roundingMode = formatter.roundingMode
-        isLenient = formatter.isLenient
-        minValue = formatter.minValue
-        maxValue = formatter.maxValue
-    }
-}
-
-extension NumberFormatter {
-    convenience init(_ formatting: NSTextField.NumberFormatting) {
-        self.init()
-        numberStyle = formatting.style
-        roundingMode = formatting.roundingMode
-        isLenient = formatting.isLenient
-        minValue = formatting.minValue
-        maxValue = formatting.maxValue
     }
 }
 

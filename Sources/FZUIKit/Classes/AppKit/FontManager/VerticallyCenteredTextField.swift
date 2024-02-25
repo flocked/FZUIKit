@@ -5,6 +5,8 @@
 //  Created by Florian Zand on 23.02.24.
 //
 
+#if os(macOS)
+
 import AppKit
 
 class VerticallyCenteredTextField: NSTextField {
@@ -64,3 +66,5 @@ class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         mIsEditingOrSelecting = false
     }
 }
+
+#endif
