@@ -11,6 +11,19 @@
     import FZSwiftUtils
 
     public extension NSTextField {
+        
+        /// The receiver’s number formatter.
+        var numberFormatter: NumberFormatter? {
+            get { formatter as? NumberFormatter }
+            set {
+                if let newValue = newValue {
+                    formatter = newValue
+                } else if formatter is NumberFormatter {
+                    formatter = nil
+                }
+            }
+        }
+        
         /// Deselects all text.
         func deselectAll() {
             currentEditor()?.selectedRange = NSRange(location: 0, length: 0)
@@ -353,129 +366,6 @@
             return lineRanges
         }
     }
-
-extension NSTextField {
-    /// The number formatting for a text field.
-    public struct NumberFormatting {
-        
-        /// The formatting style.
-        public var style: NumberFormatter.Style = .none
-        
-        /// The rounding mode.
-        public var roundingMode: NumberFormatter.RoundingMode = .halfEven
-        
-        /// A Boolean value that indicates whether the text field will use heuristics to guess at the number which is intended by a string.
-        public var isLenient: Bool = true
-        
-        /// A Boolean value that indicates whether float values are allowed.
-        public var allowsFloats: Bool = true
-        
-        /// The minimum number.
-        public var minimumValue: Double? = nil
-        
-        /// The minimum number of digits before the decimal separator.
-        public var minimumIntegerDigits: Int = 1
-        
-        /// The minimum number of digits after the decimal separator.
-        public var minimumFractionDigits: Int = 2
-        
-        /// The maximum number.
-        public var maximumValue: Double? = nil
-        
-        /// The maximum number of digits before the decimal separator.
-        public var maximumIntegerDigits: Int = 2000000000
-        
-        /// The maximum number of digits after the decimal separator.
-        public var maximumFractionDigits: Int = 2
-
-        public init() {
-            
-        }
-        
-        init(style: NumberFormatter.Style = .none, minimumValue: Double? = nil, maximumValue: Double? = nil) {
-            self.style = style
-            self.minimumValue = minimumValue
-            self.maximumValue = maximumValue
-        }
-                
-        /// Integer style formatting.
-        public static func integer(minValue: Int? = nil, maxValue: Int? = nil) -> NumberFormatting {
-            NumberFormatting(style: .none, minimumValue: minValue != nil ? Double(minValue!) : nil, maximumValue: maxValue != nil ? Double(maxValue!) : nil)
-        }
-        
-        /// Decimal style formatting.
-        public static func decimal(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
-            NumberFormatting(style: .decimal, minimumValue: minValue, maximumValue: maxValue)
-        }
-        
-        /// Currency style formatting.
-        public static func currency(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
-            NumberFormatting(style: .currency, minimumValue: minValue, maximumValue: maxValue)
-        }
-        
-        /// Percent style formatting.
-        public static func percent(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
-            NumberFormatting(style: .percent, minimumValue: minValue, maximumValue: maxValue)
-        }
-    }
-    
-    /// The receiver’s number formatter.
-    public var numberFormatter: NumberFormatter? {
-        get { formatter as? NumberFormatter }
-        set {
-            if let newValue = newValue {
-                formatter = newValue
-            } else if formatter is NumberFormatter {
-                formatter = nil
-            }
-        }
-    }
-    
-    /// The number formatting for the text field.
-    public var numberFormatting: NumberFormatting? {
-        get {
-            guard let formatter = formatter as? NumberFormatter else { return nil }
-            return NumberFormatting(formatter)
-        }
-        set {
-            if let newValue = newValue {
-                formatter = NumberFormatter(newValue)
-            } else if formatter is NumberFormatter {
-                formatter = nil
-            }
-        }
-    }
-}
-
-extension NSTextField.NumberFormatting {
-    init(_ formatter: NumberFormatter) {
-        style = formatter.numberStyle
-        roundingMode = formatter.roundingMode
-        isLenient = formatter.isLenient
-        minimumValue = formatter.minimumValue
-        allowsFloats = formatter.allowsFloats
-        minimumIntegerDigits = formatter.minimumIntegerDigits
-        minimumFractionDigits = formatter.minimumFractionDigits
-        maximumValue = formatter.maximumValue
-        maximumIntegerDigits = formatter.maximumIntegerDigits
-        maximumFractionDigits = formatter.maximumFractionDigits
-    }
-}
-
-extension NumberFormatter {
-    convenience init(_ formatting: NSTextField.NumberFormatting) {
-        self.init()
-        numberStyle = formatting.style
-        roundingMode = formatting.roundingMode
-        isLenient = formatting.isLenient
-        minimumValue = formatting.minimumValue
-        minimumIntegerDigits = formatting.minimumIntegerDigits
-        minimumFractionDigits = formatting.minimumFractionDigits
-        maximumValue = formatting.maximumValue
-        maximumIntegerDigits = formatting.maximumIntegerDigits
-        maximumFractionDigits = formatting.maximumFractionDigits
-    }
-}
 
 #endif
 
