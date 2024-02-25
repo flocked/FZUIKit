@@ -93,9 +93,7 @@
         func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
             if let view = view {
                 if showsHighlight {
-                    let highlightableView = NSMenuItem.HighlightableView(frame: view.frame)
-                    highlightableView.addSubview(withConstraint: view)
-                    return set(\.view, to: highlightableView)
+                    return set(\.view, to: MenuItemView(content: view))
                 } else {
                     return set(\.view, to: view)
                 }
@@ -112,7 +110,7 @@
             - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
          */
             func view<Content: View>(@ViewBuilder _ content: () -> Content, showsHighlight: Bool = true) -> Self {
-                view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: content()))
+                view(MenuItemHostingView(contentView: content(), showsHighlight: showsHighlight))
             }
         
         /**
@@ -123,7 +121,7 @@
             - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
          */
         func view<Content: View>(_ view: Content, showsHighlight: Bool = true) -> Self {
-            self.view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: view))
+            self.view(MenuItemHostingView(contentView: view, showsHighlight: showsHighlight))
         }
 
         /// Sets the image associated with this menu item.

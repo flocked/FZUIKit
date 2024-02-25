@@ -8,6 +8,7 @@
 #if os(macOS)
     import AppKit
     import FZSwiftUtils
+
     @available(macOS 11.0, *)
     extension NSFont.TextStyle: CaseIterable {
         /// A collection of all text style values.

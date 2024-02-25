@@ -230,9 +230,7 @@
         func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
             if let view = view {
                 if showsHighlight {
-                    let highlightableView = HighlightableView(frame: view.bounds)
-                    highlightableView.addSubview(withConstraint: view)
-                    self.view = highlightableView
+                    self.view = MenuItemView(content: view)
                 } else {
                     self.view = view
                 }
@@ -271,7 +269,7 @@
          */
         @discardableResult
         func view<V: View>(_ view: V, showsHighlight: Bool = true) -> Self {
-            self.view(NSMenu.MenuItemHostingView(showsHighlight: showsHighlight, contentView: view))
+            self.view(MenuItemHostingView(contentView: view, showsHighlight: showsHighlight))
         }
         
         /// A help tag for the menu item.

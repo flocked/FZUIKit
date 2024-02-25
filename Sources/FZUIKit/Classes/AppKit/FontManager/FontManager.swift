@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 public class FontManager: NSObject {
     /// The selected font.
@@ -47,6 +48,49 @@ public class FontManager: NSObject {
     
     var currentFontMembers: [NSFont.FontMember] {
         selectedFontFamily?.members ?? []
+    }
+    
+    var token: NotificationToken?
+    var fontObservation: NSKeyValueObservation?
+    public var target: AnyObject? {
+        didSet {
+            if let textView = target as? NSTextView {
+                token = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
+                    guard let self = self else { return }
+                    self.selectFont(for: textView)
+                }
+                fontObservation = nil
+            } else if let textField = target as? NSTextField {
+                fontObservation = textField.observeChanges(for: \.font) { [weak self] old, new in
+                    guard let self = self, old != new else { return  }
+                    self.selectedFont = new
+                }
+                token = nil
+            } else {
+                target = nil
+                token = nil
+                fontObservation = nil
+            }
+        }
+    }
+    
+    func selectFont(for textView: NSTextView) {
+        guard let textStorage = textView.textStorage else { return }
+        var fonts: [NSFont] = []
+        for range in textView.selectedRanges.compactMap({$0.rangeValue}) {
+            textStorage.enumerateAttribute(.font, in: range, using: { font, range, fu in
+                if let font = font as? NSFont {
+                    fonts.append(font)
+                }
+            })
+        }
+        if fonts.count == 1 {
+           selectedFont = fonts.first
+        } else if fonts.count > 1 {
+            selectedFont = nil
+        } else {
+            selectedFont = textView.typingAttributes[.font] as? NSFont
+        }
     }
     
     /// The popup button for selecting the font family.
@@ -207,6 +251,8 @@ public class FontManager: NSObject {
     
     let popUpButtonItemHeight: CGFloat = 28
     
+    var availableFontsObservation: NotificationToken?
+    
     let specialFontNames: Set<String> = [
         "Bodoni Ornaments", "Webdings", "Wingdings", "Wingdings2", "Wingdings3"
     ]
@@ -232,6 +278,10 @@ public class FontManager: NSObject {
     func sharedInit() {
         updateAvailableFontFamilies()
         selectFont(Self.defaultFont)
+        availableFontsObservation = NotificationCenter.default.observe(NSFont.fontSetChangedNotification, object: nil) { [weak self] _ in
+            guard let self = self else { return }
+            self.updateAvailableFontFamilies()
+        }
     }
     
     func updateAvailableFontFamilies() {
@@ -348,79 +398,58 @@ public class FontManager: NSObject {
         fontSizeTextField?.doubleValue = font.pointSize
         _selectedFont = font
     }
+    
+    func selectFontFamily(_ family: NSFont.FontFamily) {
+        guard let index = availableFontFamilies.firstIndex(where: {$0 == family}) else { return }
+        currentFamilyIndex = index
+        updateMembers()
+        updateSelectedFont()
+    }
+    
+    func selectFontFamily(named name: String) {
+        guard let index = availableFontFamilies.firstIndex(where: {$0.name == name}) else { return }
+        currentFamilyIndex = index
+        updateMembers()
+        updateSelectedFont()
+    }
+    
+    var allAvailableFontNames: [String] {
+        availableFontFamilies.flatMap({$0.members.compactMap({$0.fontName})})
+    }
 }
 
-extension NSFont {
-    /// the font families available in the system.
-    public static var availableFontFamilies: [FontFamily] {
-        NSFontManager.shared.availableFontFamilies.compactMap({FontFamily($0)})
-    }
-    
-    /// Font family.
-    public struct FontFamily: Hashable {
-        
-        /// The name of the font family.
-        public let name: String
-        
-        /// The localized name of the font family.
-        public let localizedName: String
-        
-        /// The members of the font family (e.g. `regular`, `light` or `bold`).
-        public let members: [FontMember]
-        
-        init(_ name: String) {
-            self.name = name
-            let localizedName = NSFontManager.shared.localizedName(forFamily: name, face: nil)
-            self.localizedName = localizedName
-            self.members = (NSFontManager.shared.availableMembers(ofFontFamily: name) ?? []).compactMap({FontMember($0, name, localizedName)})
-        }
-    }
-    
-    /// A member of a font family.
-    public struct FontMember: Hashable {
-        /// The full name of the font, as used in PostScript language code—for example, “Times-Roman” or “Helvetica-Oblique.”
-        public let fontName: String
-        
-        /// The family name of the font—for example, “Times” or “Helvetica.”
-        public let familyName: String
-        
-        /// The localized family name.
-        public let localizedFamilyName: String
-        
-        /// The face name of the font—for example, “Regular”, "Light" or “Bold”.
-        public let faceName: String
-        
-        /// The localized face name of the font.
-        public let localizedFaceName: String
-        
-        /**
-         The approximated weight of the font.
-         
-         An approximation of the weight of the given font, where `0` indicates the lightest possible weight, `5` indicates a normal or book weight, and `9` or more indicates a bold or heavier weight.
-         */
-        public let weight: CGFloat
-        
-        /// The traits of the font.
-        public let traits: NSFontDescriptor.SymbolicTraits
-        
-        /// The font with the specified size.
-        public func font(size: CGFloat = NSFont.systemFontSize) -> NSFont? {
-            NSFont(name: fontName, size: size)
+/*
+extension FontManager {
+    class DelegateProxy: NSObject, NSTextDelegate, NSTextViewDelegate {
+        weak var textDelegate: NSTextDelegate?
+        weak var textViewDelegate: NSTextViewDelegate?
+        weak var fontManager: FontManager?
+        func textDidBeginEditing(_ notification: Notification) {
+            textDelegate?.textDidBeginEditing?(notification)
         }
         
-        init?(_ value: [Any], _ familyName: String, _ localizedFamilyName: String) {
-            guard let fontName = value[safe: 0] as? String, let faceName = value[safe: 1] as? String, let weight = value[safe: 2] as? CGFloat, let traits = value[safe: 3] as? UInt32 else {
-                return nil
-            }
-            self.fontName = fontName
-            self.faceName = faceName
-            self.familyName = familyName
-            self.localizedFamilyName = localizedFamilyName
-            self.traits = .init(rawValue: traits)
-            self.weight = weight
-            self.localizedFaceName = NSFontManager.shared.localizedName(forFamily: familyName, face: faceName)
+        func textDidChange(_ notification: Notification) {
+            textDelegate?.textDidChange?(notification)
+        }
+        
+        func textDidEndEditing(_ notification: Notification) {
+            textDelegate?.textDidEndEditing?(notification)
+        }
+        
+        func textShouldBeginEditing(_ textObject: NSText) -> Bool {
+            textDelegate?.textShouldBeginEditing?(textObject) ?? true
+        }
+        
+        func textShouldEndEditing(_ textObject: NSText) -> Bool {
+            textDelegate?.textShouldEndEditing?(textObject) ?? true
+        }
+        
+        func textViewDidChangeSelection(_ notification: Notification) {
+            textViewDelegate?.textViewDidChangeSelection?(notification)
         }
     }
 }
+ */
+
 
 #endif

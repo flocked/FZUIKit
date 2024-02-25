@@ -12,20 +12,69 @@
 #endif
 
 public extension NSUIFontDescriptor {
-    /// A dictionary of the traits.
-    var traits: [TraitKey: Any]? {
-        object(forKey: .traits) as? [TraitKey: Any]
+    /// The name of the font, including family and face names, to use when displaying the font information to the user.
+    var displayName: String? {
+        object(forKey: .visibleName) as? String
+    }
+    
+    ///  The family name of the font.
+    var familyName: String? {
+        object(forKey: .family) as? String
+    }
+    
+    /// The face name of the font.
+    var faceName: String? {
+        object(forKey: .face) as? String
+    }
+    
+    #if os(macOS)
+    ///  The localized family name of the font.
+    var localizedFamilyName: String? {
+        guard let familyName = familyName else { return nil }
+        return NSFontManager.shared.localizedName(forFamily: familyName, face: nil)
+    }
+    
+    /// The localized face name of the font.
+    var localizedFaceName: String? {
+        guard let familyName = familyName, let faceName = faceName else { return nil }
+        return NSFontManager.shared.localizedName(forFamily: familyName, face: faceName)
+    }
+    
+    /// A dictionary that describes the font’s variation axis.
+    var variation: [VariationKey: Any]? {
+        object(forKey: .variation) as? [VariationKey: Any]
+    }
+    #endif
+    
+    /// The value that overrides the glyph advancement specified by the font.
+    var fixedAdvance: CGFloat? {
+        object(forKey: .fixedAdvance) as? CGFloat
+    }
+    
+    /// The set of Unicode characters covered by the font.
+    var characterSet: CharacterSet? {
+        object(forKey: .characterSet) as? CharacterSet
+    }
+    
+    /// The relative slant angle value.
+    var slant: CGFloat? {
+        traits?[.slant] as? CGFloat
+    }
+    
+    /// The relative inter-glyph spacing.
+    var width: CGFloat? {
+        traits?[.width] as? CGFloat
     }
 
-    /// The system design of the font descriptor.
-    var design: NSUIFontDescriptor.SystemDesign? {
+    /// The system design of the font.
+    var design: SystemDesign? {
         if let rawValue = traits?[.design] as? String {
-            return NSUIFontDescriptor.SystemDesign(rawValue: rawValue)
+            return SystemDesign(rawValue: rawValue)
         }
         return nil
     }
 
-    /// The weight of the font descriptor.
+    /// The weight of the font.
     var weight: NSUIFont.Weight? {
         if let rawValue = traits?[.weight] as? CGFloat {
             switch rawValue {
@@ -42,6 +91,11 @@ public extension NSUIFontDescriptor {
             }
         }
         return nil
+    }
+    
+    /// A dictionary of the traits.
+    internal var traits: [TraitKey: Any]? {
+        object(forKey: .traits) as? [TraitKey: Any]
     }
 
     /// The text style of the font descriptor.
@@ -74,14 +128,9 @@ public extension NSUIFontDescriptor.TraitKey {
     static var design: Self {
         .init(rawValue: "NSCTFontUIFontDesignTrait")
     }
-
-    /// The normalized weight value.
-    static var weight: Self {
-        .init(rawValue: "NSCTFontWeightTrait")
-    }
 }
 
-extension NSFontDescriptor.SymbolicTraits: Hashable {
+extension NSUIFontDescriptor.SymbolicTraits: Hashable {
     
 }
 

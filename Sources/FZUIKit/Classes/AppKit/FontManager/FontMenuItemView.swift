@@ -22,12 +22,12 @@ class FontMenuItemView: MenuItemView {
     }
     
     init() {
-        super.init(frame: CGRect(0, 0, FontSelectionView.minWidth, 28))
+        super.init(frame: CGRect(0, 0, 120, 28))
         sharedInit()
     }
     
     init(font: NSFont, title: String? = nil) {
-        super.init(frame: CGRect(0, 0, FontSelectionView.minWidth, 28))
+        super.init(frame: CGRect(0, 0, 120, 28))
         sharedInit()
         self.title = title
         self.font = font
@@ -94,12 +94,12 @@ extension FontMenuItemView {
         }
         
         init() {
-            super.init(frame: CGRect(0, 0, FontSelectionView.minWidth, 28))
+            super.init(frame: CGRect(0, 0, 120, 28))
             sharedInit()
         }
         
         init(font: NSFont, title: String? = nil) {
-            super.init(frame: CGRect(0, 0, FontSelectionView.minWidth, 28))
+            super.init(frame: CGRect(0, 0, 120, 28))
             sharedInit()
             self.title = title
             textField.stringValue = title ?? font.fontName
