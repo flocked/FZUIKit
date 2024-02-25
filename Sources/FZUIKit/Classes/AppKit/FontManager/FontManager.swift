@@ -68,10 +68,11 @@ public class FontManager: NSObject {
     func setupAutomaticTargetObservation() {
         if automaticallyManagesTarget, let fontFamilyPopUpButton = fontFamilyPopUpButton {
             func checkFirstResponder(_ firstResponder: NSResponder?) {
-                Swift.print("firstResponder", firstResponder ?? "nil", firstResponder == fontSizeTextField)
+           //     Swift.print("firstResponder", firstResponder ?? "nil", firstResponder == fontSizeTextField)
                 if let textView = firstResponder as? NSTextView, textView.isFieldEditor == false {
                     self.target = textView
                 } else if firstResponder != self.fontSizeTextField, firstResponder != fontFamilyPopUpButton.window {
+                    Swift.print("firstResponder", firstResponder ?? "nil")
                     self.target = nil
                 }
             }
