@@ -171,6 +171,15 @@
         }
 
         func updateString() {
+            guard formatter is NumberFormatter == false else { 
+                editingHandlers.didEdit?()
+                previousString = stringValue
+                if let editingRange = currentEditor()?.selectedRange {
+                    self.editingRange = editingRange
+                }
+                adjustFontSize()
+                return
+            }
             let newString = allowedCharacters.trimString(stringValue)
             if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
                 if previousString.count <= maxCharCount {
@@ -374,9 +383,6 @@
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
                         store.original(object, #selector(NSTextField.textDidChange), notification)
-                        if let editor = notification.userInfo?["NSFieldEditor"] as? NSText {
-                            Swift.print("editor", editor.string)
-                        }
                         if let textField = (object as? NSTextField) {
                             textField.updateString()
                             if textField.automaticallyResizesToFit {
