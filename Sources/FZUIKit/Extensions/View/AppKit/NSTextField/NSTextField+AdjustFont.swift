@@ -374,6 +374,9 @@
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
                         store.original(object, #selector(NSTextField.textDidChange), notification)
+                        if let editor = notification.userInfo?["NSFieldEditor"] as? NSText {
+                            Swift.print("editor", editor.string)
+                        }
                         if let textField = (object as? NSTextField) {
                             textField.updateString()
                             if textField.automaticallyResizesToFit {
