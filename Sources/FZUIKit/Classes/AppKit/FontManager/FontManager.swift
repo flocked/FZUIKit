@@ -72,7 +72,11 @@ public class FontManager: NSObject {
                 if let textView = firstResponder as? NSTextView, textView.isFieldEditor == false {
                     self.target = textView
                 } else if firstResponder != self.fontSizeTextField, firstResponder != fontFamilyPopUpButton.window {
-                    Swift.print("firstResponder", firstResponder ?? "nil")
+                    if let textView = firstResponder as? NSTextView {
+                        Swift.print("Here", textView.isFieldEditor, fontFamilyPopUpButton.window?.fieldEditor(false, for: nil) == textView, textView)
+                    } else {
+                        Swift.print("firstResponder", firstResponder ?? "nil")
+                    }
                     self.target = nil
                 }
             }
