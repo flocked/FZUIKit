@@ -194,7 +194,11 @@ extension NSView {
             if viewHandlers.isFirstResponder != nil && viewObserver?.isObserving(\.window?.firstResponder) == false {
                 viewObserver?.add(\.window?.firstResponder) { [weak self] _, firstResponder in
                     guard let self = self else { return }
-                    self._isFirstResponder = self.isFirstResponder
+                    if let self = self as? NSTextField, let firstResponder = firstResponder {
+                        self._isFirstResponder = self.currentEditor() == firstResponder
+                    } else {
+                        self._isFirstResponder = self.isFirstResponder
+                    }
                 }
             } else if viewHandlers.isFirstResponder == nil {
                 viewObserver?.remove(\.window?.firstResponder)
