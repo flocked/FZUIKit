@@ -202,7 +202,7 @@
                 stringValue = previousString
                 currentEditor()?.selectedRange = editingRange
             } else {
-                Swift.print("updateString", currentEditor()?.string ?? "nil", stringValue, newString)
+                Swift.print("updateString string:", stringValue, "newString:", newString)
                 stringValue = newString
                 if previousString == newString {
                     currentEditor()?.selectedRange = editingRange
