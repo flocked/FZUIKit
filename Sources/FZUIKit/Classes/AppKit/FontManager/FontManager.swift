@@ -260,6 +260,7 @@ public class FontManager: NSObject {
     var _selectedFont: NSFont? = .systemFont(ofSize: NSFont.systemFontSize) {
         didSet {
             guard oldValue != _selectedFont else { return }
+            updateTargetFont()
             selectedFontHandler?(_selectedFont)
         }
     }
@@ -397,6 +398,18 @@ public class FontManager: NSObject {
         guard let fontName = currentFontMembers[safe: currentMemberIndex]?.fontName, let font = NSFont(name: fontName, size: fontSize) else { return }
         fontSizeTextField?.doubleValue = font.pointSize
         _selectedFont = font
+    }
+    
+    func updateTargetFont() {
+        guard let selectedFont = selectedFont else { return }
+        if let textView = target as? NSTextView {
+            guard let textStorage = textView.textStorage else { return }
+            for range in textView.selectedRanges.compactMap({$0.rangeValue}) {
+                textStorage.addAttribute(.font, value: selectedFont, range: range)
+            }
+        } else if let textField = target as? NSTextField {
+            textField.font = selectedFont
+        }
     }
     
     func selectFontFamily(_ family: NSFont.FontFamily) {
