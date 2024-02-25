@@ -14,7 +14,7 @@
 public extension NSUIFontDescriptor {
     /// A dictionary of the traits.
     var traits: [TraitKey: Any]? {
-        fontAttributes[.traits] as? [TraitKey: Any]
+        object(forKey: .traits) as? [TraitKey: Any]
     }
 
     /// The system design of the font descriptor.
@@ -28,7 +28,18 @@ public extension NSUIFontDescriptor {
     /// The weight of the font descriptor.
     var weight: NSUIFont.Weight? {
         if let rawValue = traits?[.weight] as? CGFloat {
-            return NSUIFont.Weight(rawValue: rawValue)
+            switch rawValue {
+            case -0.8: return .ultraLight
+            case -0.6: return .thin
+            case -0.4: return .light
+            case 0: return .regular
+            case 0.23: return .medium
+            case 0.3: return .semibold
+            case 0.4: return .bold
+            case 0.56: return .heavy
+            case 0.62: return .black
+            default: return nil
+            }
         }
         return nil
     }
@@ -68,6 +79,10 @@ public extension NSUIFontDescriptor.TraitKey {
     static var weight: Self {
         .init(rawValue: "NSCTFontWeightTrait")
     }
+}
+
+extension NSFontDescriptor.SymbolicTraits: Hashable {
+    
 }
 
 public extension NSUIFontDescriptor.AttributeName {

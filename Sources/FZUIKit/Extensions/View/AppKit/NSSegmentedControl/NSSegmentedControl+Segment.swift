@@ -89,11 +89,11 @@
                 segmentedControl?.setToolTip(toolTip, forSegment: index)
             } }
         }
-
-        /// The title alignemnt of the segment.
-        public var contentOffset: CGSize = .zero {
+        
+        /// The font of the segment.
+        public var font: NSFont = .systemFont {
             didSet { if let index = index {
-                segmentedControl?.setAlignment(titleAlignment, forSegment: index)
+                segmentedControl?.setFont(font, forSegment: index)
             } }
         }
 
@@ -158,6 +158,12 @@
         /// Sets the tooltip for the segment.
         public func toolTip(_ value: String?) -> Self {
             toolTip = value
+            return self
+        }
+        
+        /// Sets the font for the segment.
+        public func font(_ font: NSFont) -> Self {
+            self.font = font
             return self
         }
 
@@ -241,7 +247,7 @@
             image = nil
         }
 
-        init(title: String?, titleAlignment: NSTextAlignment = .left, image: NSImage?, imageScaling: NSImageScaling = .scaleProportionallyDown, menu: NSMenu? = nil, showsMenuIndicator: Bool = false, isSelected: Bool, isEnabled: Bool = true, width: CGFloat = .zero, toolTip: String? = nil, tag: Int? = nil, segmentedControl: NSSegmentedControl? = nil) {
+        init(title: String?, titleAlignment: NSTextAlignment = .left, image: NSImage?, imageScaling: NSImageScaling = .scaleProportionallyDown, menu: NSMenu? = nil, showsMenuIndicator: Bool = false, isSelected: Bool, isEnabled: Bool = true, width: CGFloat = .zero, toolTip: String? = nil, tag: Int? = nil, font: NSFont? = nil, segmentedControl: NSSegmentedControl? = nil) {
             self.title = title
             self.titleAlignment = titleAlignment
             self.image = image
@@ -254,6 +260,7 @@
             self.toolTip = toolTip
             self.tag = tag ?? UUID().hashValue
             self.segmentedControl = segmentedControl
+            self.font = font ?? .systemFont
         }
     }
 
@@ -344,7 +351,8 @@
             let width = width(forSegment: index)
             let toolTip = toolTip(forSegment: index)
             let tag = tag(forSegment: index)
-            return NSSegment(title: title, titleAlignment: titleAlignment, image: image, imageScaling: imageScaling, menu: menu, showsMenuIndicator: showsMenuIndicator, isSelected: isSelected, isEnabled: isEnabled, width: width, toolTip: toolTip, tag: tag, segmentedControl: self)
+            let font = font(forSegment: index)
+            return NSSegment(title: title, titleAlignment: titleAlignment, image: image, imageScaling: imageScaling, menu: menu, showsMenuIndicator: showsMenuIndicator, isSelected: isSelected, isEnabled: isEnabled, width: width, toolTip: toolTip, tag: tag, font: font, segmentedControl: self)
         }
 
         /**
@@ -365,11 +373,36 @@
             setShowsMenuIndicator(segment.showsMenuIndicator, forSegment: index)
             setSelected(segment.isSelected, forSegment: index)
             setEnabled(segment.isEnabled, forSegment: index)
+            setFont(segment.font, forSegment: index)
             if segment.width != .zero {
                 setWidth(segment.width, forSegment: index)
             }
             setToolTip(segment.toolTip, forSegment: index)
             setTag(segment.tag, forSegment: index)
+        }
+        
+        /**
+         Returns the font of the specified segment.
+
+         - Parameter segment:The index of the segment whose font you want to get.
+         */
+        func font(forSegment segment: Int) -> NSFont? {
+            segmentViews[safe: segment]?.value(forKey: "font") as? NSFont
+        }
+        
+        /**
+         Sets the font for the specified segment.
+         
+         - Parameters:
+            - font: The label for the segment.
+            - index: The index of the segment whose label you want to set.
+         */
+        func setFont(_ font: NSFont, forSegment segment: Int) {
+            segmentViews[safe: segment]?.setValue(font, forKey: "font")
+        }
+        
+        internal var segmentViews: [NSView] {
+            subviews.filter({ NSStringFromClass(type(of: $0)) == "NSSegmentItemView" })
         }
 
         internal var indexesOfSelectedItems: [Int] {

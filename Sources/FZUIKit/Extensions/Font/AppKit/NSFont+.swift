@@ -17,6 +17,9 @@
     }
 
     public extension NSFont {
+        /// The standard system font with standard size.
+        static var systemFont = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        
         /// The height, in points, of text lines.
         var lineHeight: CGFloat {
             let ctFont = cleanedFont as CTFont

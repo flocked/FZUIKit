@@ -98,6 +98,19 @@
             submenu = NSMenu(title: "", items: items())
         }
         
+        /// The font of the menu item.
+        var font: NSFont? {
+            get { value(forKey: "font") as? NSFont }
+            set { setValue(newValue, forKey: "font") }
+        }
+        
+        /// Sets the font of the menu item.
+        @discardableResult
+        func font(_ font: NSFont) -> Self {
+            self.font = font
+            return self
+        }
+        
         /// A Boolean value that indicates whether the menu item is enabled.
         @discardableResult
         func isEnabled(_ isEnabled: Bool) -> Self {
