@@ -93,6 +93,7 @@
 
             func trimString<S: StringProtocol>(_ string: S) -> String {
                 var string = String(string)
+                Swift.print("trim", string)
                 if contains(.lowercaseLetters) == false { string = string.trimmingCharacters(in: .lowercaseLetters) }
                 if contains(.uppercaseLetters) == false { string = string.trimmingCharacters(in: .uppercaseLetters) }
                 if contains(.digits) == false { string = string.trimmingCharacters(in: .decimalDigits) }
