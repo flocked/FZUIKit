@@ -93,14 +93,29 @@
 
             func trimString<S: StringProtocol>(_ string: S) -> String {
                 var string = String(string)
-                Swift.print("trim", string)
-                if contains(.lowercaseLetters) == false { string = string.trimmingCharacters(in: .lowercaseLetters) }
-                if contains(.uppercaseLetters) == false { string = string.trimmingCharacters(in: .uppercaseLetters) }
-                if contains(.digits) == false { string = string.trimmingCharacters(in: .decimalDigits) }
-                if contains(.symbols) == false { string = string.trimmingCharacters(in: .symbols) }
-                if contains(.whitespaces) == false { string = string.trimmingCharacters(in: .whitespaces) }
-                if contains(.newLines) == false { string = string.trimmingCharacters(in: .newlines) }
-                if contains(.emojis) == false { string = string.trimmingEmojis() }
+                Swift.print("edit start", string)
+                if contains(.lowercaseLetters) == false {
+                    Swift.print("lowercaseLetters")
+                    string = string.trimmingCharacters(in: .lowercaseLetters) }
+                if contains(.uppercaseLetters) == false { 
+                    Swift.print("uppercaseLetters")
+                    string = string.trimmingCharacters(in: .uppercaseLetters) }
+                if contains(.digits) == false { 
+                    Swift.print("digits")
+                    string = string.trimmingCharacters(in: .decimalDigits) }
+                if contains(.symbols) == false {
+                    Swift.print("symbols")
+                    string = string.trimmingCharacters(in: .symbols) }
+                if contains(.whitespaces) == false { 
+                    Swift.print("whitespaces")
+                    string = string.trimmingCharacters(in: .whitespaces) }
+                if contains(.newLines) == false { 
+                    Swift.print("newLines")
+                    string = string.trimmingCharacters(in: .newlines) }
+                if contains(.emojis) == false { 
+                    Swift.print("emojis")
+                    string = string.trimmingEmojis() }
+                Swift.print("edit end", string)
                 return string
             }
 
