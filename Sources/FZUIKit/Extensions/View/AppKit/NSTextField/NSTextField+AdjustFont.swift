@@ -290,7 +290,7 @@
                         textField._bounds = textField.bounds
                     }
                     })
-                    
+                    /*
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -336,7 +336,7 @@
                         return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                     }
                     })
-                    
+                    */
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(textDidEndEditing),
