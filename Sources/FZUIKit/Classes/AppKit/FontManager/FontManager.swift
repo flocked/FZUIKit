@@ -142,6 +142,7 @@ public class FontManager: NSObject {
             fontFamilyPopUpButton.isEnabled = isEnabled
             updateFontFamiliesPopUpButton()
             fontFamilyPopUpButton.selectItem(at: _currentFamilyIndex)
+            updatePopUpButtonFonts()
         }
     }
     
@@ -157,6 +158,7 @@ public class FontManager: NSObject {
             fontMemberPopUpButton.isEnabled = isEnabled
             updateMembersPopUpButton()
             fontMemberPopUpButton.selectItem(at: _currentMemberIndex)
+            updatePopUpButtonFonts()
         }
     }
     
@@ -248,10 +250,35 @@ public class FontManager: NSObject {
         }
     }
     
-    /// A Boolean value that indicates whether the font names are presented with the system standard font or their font.
-    public var showFontAppearanceWhenSelecting: Bool = true {
+    /// A Boolean value that indicates whether the selected font is displayed on the popup buttons.
+    public var showsFontAppearanceOnPopUpButtons: Bool = false {
         didSet {
-            guard oldValue != showFontAppearanceWhenSelecting else { return }
+            guard oldValue != showsFontAppearanceOnPopUpButtons else { return }
+            updatePopUpButtonFonts()
+        }
+    }
+    
+    func updatePopUpButtonFonts() {
+        if let fontFamilyPopUpButton = fontFamilyPopUpButton {
+            if showsFontAppearanceOnPopUpButtons, let selectedFont = selectedFont {
+                fontFamilyPopUpButton.font = selectedFont.withSize(NSFont.systemFontSize(for: fontFamilyPopUpButton.controlSize))
+            } else {
+                fontFamilyPopUpButton.font = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: fontFamilyPopUpButton.controlSize))
+            }
+        }
+        if let fontMemberPopUpButton = fontMemberPopUpButton {
+            if showsFontAppearanceOnPopUpButtons, let selectedFont = selectedFont {
+                fontMemberPopUpButton.font = selectedFont.withSize(NSFont.systemFontSize(for: fontMemberPopUpButton.controlSize))
+            } else {
+                fontMemberPopUpButton.font = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: fontMemberPopUpButton.controlSize))
+            }
+        }
+    }
+    
+    /// A Boolean value that indicates whether the font names are presented with the system standard font or their font.
+    public var showsFontAppearanceWhenSelecting: Bool = true {
+        didSet {
+            guard oldValue != showsFontAppearanceWhenSelecting else { return }
             updateAvailableFontFamilies()
             updateMembers()
             fontFamilyPopUpButton?.selectItem(at: currentFamilyIndex)
@@ -332,6 +359,7 @@ public class FontManager: NSObject {
         didSet {
             guard oldValue != _selectedFont else { return }
             updateTargetFont()
+            updatePopUpButtonFonts()
             selectedFontHandler?(_selectedFont)
             fontTraitsSegmentedControl?.segment(withTag: 22)?.isSelected = _selectedFont?.fontDescriptor.symbolicTraits.contains(.bold) ?? false
             fontTraitsSegmentedControl?.segment(withTag: 33)?.isSelected = _selectedFont?.fontDescriptor.symbolicTraits.contains(.italic) ?? false
@@ -388,7 +416,7 @@ public class FontManager: NSObject {
             
             let item = NSMenuItem($0.localizedName)
             item.tag = UUID().hashValue
-            if showFontAppearanceWhenSelecting {
+            if showsFontAppearanceWhenSelecting {
                 let itemView = FontMenuItemView(font: font, title: $0.localizedName)
                 item.view = itemView
             }
@@ -420,7 +448,7 @@ public class FontManager: NSObject {
             }
             let item = NSMenuItem(member.faceName)
             item.tag = UUID().hashValue
-            if showFontAppearanceWhenSelecting {
+            if showsFontAppearanceWhenSelecting {
                 let itemView = FontMenuItemView(font: font, title: member.faceName)
                 item.view = itemView
             }
