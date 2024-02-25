@@ -400,7 +400,7 @@ extension NSTextField {
                 
         /// Integer style formatting.
         public static func integer(minValue: Int? = nil, maxValue: Int? = nil) -> NumberFormatting {
-            NumberFormatting(style: .decimal, minimumValue: minValue != nil ? Double(minValue!) : nil, maximumValue: maxValue != nil ? Double(maxValue!) : nil)
+            NumberFormatting(style: .none, minimumValue: minValue != nil ? Double(minValue!) : nil, maximumValue: maxValue != nil ? Double(maxValue!) : nil)
         }
         
         /// Decimal style formatting.
@@ -416,6 +416,18 @@ extension NSTextField {
         /// Percent style formatting.
         public static func percent(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
             NumberFormatting(style: .percent, minimumValue: minValue, maximumValue: maxValue)
+        }
+    }
+    
+    /// The receiver’s number formatter.
+    public var numberFormatter: NumberFormatter? {
+        get { formatter as? NumberFormatter }
+        set {
+            if let newValue = newValue {
+                formatter = newValue
+            } else if formatter is NumberFormatter {
+                formatter = nil
+            }
         }
     }
     
@@ -440,11 +452,11 @@ extension NSTextField.NumberFormatting {
         style = formatter.numberStyle
         roundingMode = formatter.roundingMode
         isLenient = formatter.isLenient
-        minimumValue = formatter.minValue
+        minimumValue = formatter.minimumValue
         allowsFloats = formatter.allowsFloats
         minimumIntegerDigits = formatter.minimumIntegerDigits
         minimumFractionDigits = formatter.minimumFractionDigits
-        maximumValue = formatter.maxValue
+        maximumValue = formatter.maximumValue
         maximumIntegerDigits = formatter.maximumIntegerDigits
         maximumFractionDigits = formatter.maximumFractionDigits
     }
@@ -456,10 +468,10 @@ extension NumberFormatter {
         numberStyle = formatting.style
         roundingMode = formatting.roundingMode
         isLenient = formatting.isLenient
-        minValue = formatting.minimumValue
+        minimumValue = formatting.minimumValue
         minimumIntegerDigits = formatting.minimumIntegerDigits
         minimumFractionDigits = formatting.minimumFractionDigits
-        maxValue = formatting.maximumValue
+        maximumValue = formatting.maximumValue
         maximumIntegerDigits = formatting.maximumIntegerDigits
         maximumFractionDigits = formatting.maximumFractionDigits
     }
