@@ -184,6 +184,7 @@
             */
             let string = stringValue
             Swift.print("start update", string)
+            Swift.print("start update", stringValue)
             let newString = allowedCharacters.trimString(string)
             Swift.print("newString", newString)
             if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
