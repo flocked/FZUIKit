@@ -71,15 +71,7 @@ public class FontManager: NSObject {
     }
     
     func setSelectedFont(for textView: NSTextView) {
-        guard let textStorage = textView.textStorage else { return }
-        var fonts: [NSFont] = []
-        for range in textView.selectedRanges.compactMap({$0.rangeValue}) {
-            textStorage.enumerateAttribute(.font, in: range, using: { font, range, fu in
-                if let font = font as? NSFont {
-                    fonts.append(font)
-                }
-            })
-        }
+        let fonts = textView.selectionFonts
         if fonts.count == 1 {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
@@ -274,7 +266,7 @@ public class FontManager: NSObject {
     
     func sharedInit() {
         updateAvailableFontFamilies()
-        selectFont(Self.defaultFont)
+        // selectFont(Self.defaultFont)
         availableFontsObservation = NotificationCenter.default.observe(NSFont.fontSetChangedNotification, object: nil) { [weak self] _ in
             guard let self = self else { return }
             self.updateAvailableFontFamilies()
@@ -320,19 +312,19 @@ public class FontManager: NSObject {
     }
     
     private func updateMembers() {
-        guard let fontFamily = selectedFontFamily, !fontFamily.members.isEmpty else {
-            fontMemberPopUpButton?.removeAllItems()
-            fontMemberPopUpButton?.isEnabled = false
+        guard let fontFamily = selectedFontFamily else {
             return
         }
         updateMembersPopUpButton()
+        fontSizeTextField?.isEnabled = isEnabled
+        fontSizeStepper?.isEnabled = isEnabled
     }
     
     func updateMembersPopUpButton() {
         guard let fontMemberPopUpButton = fontMemberPopUpButton, let fontFamily = selectedFontFamily else { return }
         let isSpecial = specialFontNames.contains(fontFamily.name)
         fontMemberPopUpButton.removeAllItems()
-        fontMemberPopUpButton.isEnabled = true
+        fontMemberPopUpButton.isEnabled = isEnabled
         for member in currentFontMembers {
             let font: NSFont
             if isSpecial {
@@ -384,9 +376,12 @@ public class FontManager: NSObject {
         } else {
             currentFamilyIndex = -1
             currentMemberIndex = -1
-            fontMemberPopUpButton?.menu?.removeAllItems()
-            fontSizeTextField?.stringValue = ""
             _selectedFont = nil
+            fontMemberPopUpButton?.menu?.removeAllItems()
+            fontMemberPopUpButton?.isEnabled = false
+            fontSizeTextField?.stringValue = ""
+            fontSizeTextField?.isEnabled = false
+            fontSizeStepper?.isEnabled = false
         }
     }
     
@@ -399,10 +394,7 @@ public class FontManager: NSObject {
     func updateTargetFont() {
         guard let selectedFont = selectedFont else { return }
         if let textView = target as? NSTextView {
-            guard let textStorage = textView.textStorage else { return }
-            for range in textView.selectedRanges.compactMap({$0.rangeValue}) {
-                textStorage.addAttribute(.font, value: selectedFont, range: range)
-            }
+            textView.selectionFonts = [selectedFont]
         } else if let textField = target as? NSTextField {
             textField.font = selectedFont
         }

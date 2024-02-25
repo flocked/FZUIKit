@@ -30,6 +30,28 @@ import FZSwiftUtils
             set { selectedRanges = newValue.compactMap({NSRange($0, in: string).nsValue}) }
         }
         
+        /// The fonts of the selected text.
+        public var selectionFonts: [NSFont] {
+            get {
+                guard let textStorage = textStorage else { return [] }
+                var fonts: [NSFont] = []
+                for range in selectedRanges.compactMap({$0.rangeValue}) {
+                    textStorage.enumerateAttribute(.font, in: range, using: { font, range, fu in
+                        if let font = font as? NSFont {
+                            fonts.append(font)
+                        }
+                    })
+                }
+                return fonts
+            }
+            set {
+                guard let font = newValue.first, let textStorage = textStorage else { return }
+                for range in selectedRanges.compactMap({$0.rangeValue}) {
+                    textStorage.addAttribute(.font, value: font, range: range)
+                }
+            }
+        }
+        
         /// Deselects all text.
         public func deselectAll() {
             selectedStringRanges = []
