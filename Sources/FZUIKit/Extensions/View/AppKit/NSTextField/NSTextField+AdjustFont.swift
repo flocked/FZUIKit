@@ -173,7 +173,6 @@
         func updateString() {
             let newString = allowedCharacters.trimString(stringValue)
             if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
-                Swift.print("maxCharCount")
                 if previousString.count <= maxCharCount {
                     stringValue = previousString
                     currentEditor()?.selectedRange = editingRange
@@ -181,19 +180,15 @@
                     stringValue = String(newString.prefix(maxCharCount))
                 }
             } else if let minCharCount = minimumNumberOfCharacters, newString.count < minCharCount {
-                Swift.print("minCharCount")
-
                 if previousString.count >= minCharCount {
                     stringValue = previousString
                     currentEditor()?.selectedRange = editingRange
                 }
             } else if editingHandlers.shouldEdit?(stringValue) == false {
-                Swift.print("shouldEdit")
-
                 stringValue = previousString
                 currentEditor()?.selectedRange = editingRange
             } else {
-                Swift.print("else")
+                Swift.print("updateString", stringValue, newString)
                 stringValue = newString
                 if previousString == newString {
                     currentEditor()?.selectedRange = editingRange

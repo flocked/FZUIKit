@@ -93,12 +93,27 @@
 
             func trimString<S: StringProtocol>(_ string: S) -> String {
                 var string = String(string)
-                if contains(.lowercaseLetters) == false { string = string.trimmingCharacters(in: .lowercaseLetters) }
-                if contains(.uppercaseLetters) == false { string = string.trimmingCharacters(in: .uppercaseLetters) }
-                if contains(.digits) == false { string = string.trimmingCharacters(in: .decimalDigits) }
-                if contains(.symbols) == false { string = string.trimmingCharacters(in: .symbols) }
-                if contains(.newLines) == false { string = string.trimmingCharacters(in: .newlines) }
-                if contains(.emojis) == false { string = string.trimmingEmojis() }
+                if contains(.lowercaseLetters) == false { 
+                    Swift.print("lowercaseLetters")
+                    string = string.trimmingCharacters(in: .lowercaseLetters) }
+                if contains(.uppercaseLetters) == false {
+                    Swift.print("uppercaseLetters")
+                    string = string.trimmingCharacters(in: .uppercaseLetters) }
+                if contains(.digits) == false {
+                    Swift.print("digits")
+                    string = string.trimmingCharacters(in: .decimalDigits) }
+                if contains(.symbols) == false { 
+                    Swift.print("symbols")
+                    string = string.trimmingCharacters(in: .symbols) }
+                if contains(.whitespaces) == false { 
+                    Swift.print("whitespaces")
+                    string = string.trimmingCharacters(in: .whitespaces) }
+                if contains(.newLines) == false { 
+                    Swift.print("newLines")
+                    string = string.trimmingCharacters(in: .newlines) }
+                if contains(.emojis) == false {
+                    Swift.print("emojis")
+                    string = string.trimmingEmojis() }
                 return string
             }
 
