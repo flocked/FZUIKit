@@ -91,8 +91,8 @@
                 self != AllowedCharacters.all
             }
 
-            func trimString<S: StringProtocol>(_ string: S) -> String {
-                var string = String(string)
+            func trimString(_ string: String) -> String {
+                var string = string
                 Swift.print("edit start", string)
                 if contains(.lowercaseLetters) == false {
                     Swift.print("lowercaseLetters")
