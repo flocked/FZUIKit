@@ -50,31 +50,27 @@ public class FontManager: NSObject {
         selectedFontFamily?.members ?? []
     }
     
-    var token: NotificationToken?
-    var fontObservation: NSKeyValueObservation?
+    var targetObservation: Any?
     public var target: AnyObject? {
         didSet {
+            targetObservation = nil
             if let textView = target as? NSTextView {
-                token = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
+                setSelectedFont(for: textView)
+                targetObservation = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
                     guard let self = self else { return }
-                    self.selectFont(for: textView)
+                    self.setSelectedFont(for: textView)
                 }
-                fontObservation = nil
             } else if let textField = target as? NSTextField {
-                fontObservation = textField.observeChanges(for: \.font) { [weak self] old, new in
+                selectedFont = textField.font
+                targetObservation = textField.observeChanges(for: \.font) { [weak self] old, new in
                     guard let self = self, old != new else { return  }
                     self.selectedFont = new
                 }
-                token = nil
-            } else {
-                target = nil
-                token = nil
-                fontObservation = nil
             }
         }
     }
     
-    func selectFont(for textView: NSTextView) {
+    func setSelectedFont(for textView: NSTextView) {
         guard let textStorage = textView.textStorage else { return }
         var fonts: [NSFont] = []
         for range in textView.selectedRanges.compactMap({$0.rangeValue}) {
