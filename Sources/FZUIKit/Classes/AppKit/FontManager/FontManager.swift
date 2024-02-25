@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 public class FontManager: NSObject {
     /// The selected font.
-    public var selectedFont: NSFont? {
+    @objc dynamic public var selectedFont: NSFont? {
         get { _selectedFont }
         set {
             guard newValue != selectedFont else { return }
@@ -20,7 +20,7 @@ public class FontManager: NSObject {
     }
     
     /// The selected font size.
-    public var fontSize: CGFloat = 12 {
+    @objc dynamic public var fontSize: CGFloat = 12 {
         didSet {
             guard oldValue != fontSize else { return }
             fontSize = fontSize.clamped(min: 0.5)
@@ -50,31 +50,77 @@ public class FontManager: NSObject {
         selectedFontFamily?.members ?? []
     }
     
-    var targetObservation: Any?
+    var targetObservation: NSKeyValueObservation?
+    var targetFontObservation: Any?
+    
+    /**
+     A Boolean value that indicates whether the target is automatically updated.
+
+     if `true`, the target is automatically updates based on the first responder of the window that displays ``fontFamilyPopUpButton``.
+     */
+    public var automaticallyManagesTarget: Bool = false {
+        didSet {
+            guard oldValue != automaticallyManagesTarget else { return }
+            setupAutomaticTargetObservation()
+        }
+    }
+    
+    func setupAutomaticTargetObservation() {
+        if automaticallyManagesTarget, let fontFamilyPopUpButton = fontFamilyPopUpButton {
+            func checkFirstResponder(_ firstResponder: NSResponder?) {
+                if let textView = firstResponder as? NSTextView, textView.isFieldEditor == false {
+                    self.target = textView
+                } else {
+                    self.target = nil
+                }
+            }
+            checkFirstResponder(fontFamilyPopUpButton.window?.firstResponder)
+            targetObservation = fontFamilyPopUpButton.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                checkFirstResponder(new)
+            }
+        } else {
+            targetObservation = nil
+        }
+    }
+    
+    /**
+     The target object that updates and receives the selected font.
+     
+     ``selectedFont`` reflects the font of the target. If the target changes it's font, ``selectedFont`` is updated, and viceversa.
+     
+     The target has to be either `NSTextView`, `NSTextField` or any `NSControl`.
+     */
     public var target: AnyObject? {
         didSet {
-            targetObservation = nil
             if let textView = target as? NSTextView {
-                setSelectedFont(for: textView)
-                targetObservation = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
+                updateSelectedFont(for: textView)
+                targetFontObservation = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
                     guard let self = self else { return }
-                    self.setSelectedFont(for: textView)
+                    self.updateSelectedFont(for: textView)
                 }
-            } else if let textField = target as? NSTextField {
-                selectedFont = textField.font
-                targetObservation = textField.observeChanges(for: \.font) { [weak self] old, new in
+            } else if let control = target as? NSControl {
+                selectedFont = control.font
+                targetFontObservation = control.observeChanges(for: \.font) { [weak self] old, new in
                     guard let self = self, old != new else { return  }
                     self.selectedFont = new
                 }
+            } else {
+                target = nil
+                targetFontObservation = nil
+                selectedFont = nil
             }
         }
     }
     
-    func setSelectedFont(for textView: NSTextView) {
+    func updateSelectedFont(for textView: NSTextView) {
         let fonts = textView.selectionFonts
         if fonts.count == 1 {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
+            let sameFamily = fonts.compactMap({$0.familyName}).uniqued().count == 1
+            let sameTraits = sameFamily ? fonts.compactMap({$0.fontDescriptor.symbolicTraits}).uniqued().count == 1 : false
+            let sameSize = fonts.compactMap({$0.pointSize}).uniqued().count == 1
             selectedFont = nil
         } else {
             selectedFont = textView.typingAttributes[.font] as? NSFont
@@ -84,7 +130,9 @@ public class FontManager: NSObject {
     /// The popup button for selecting the font family.
     public weak var fontFamilyPopUpButton: NSPopUpButton? {
         didSet {
-            guard oldValue != fontFamilyPopUpButton, let fontFamilyPopUpButton = fontFamilyPopUpButton else { return }
+            guard oldValue != fontFamilyPopUpButton else { return }
+            setupAutomaticTargetObservation()
+            guard let fontFamilyPopUpButton = fontFamilyPopUpButton else { return }
             fontFamilyPopUpButton.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 self._currentFamilyIndex = fontFamilyPopUpButton.indexOfSelectedItem
@@ -152,19 +200,53 @@ public class FontManager: NSObject {
         }
     }
     
-    /*
     /// The segmented control for selecting the font traits.
     public weak var fontTraitsSegmentedControl: NSSegmentedControl? {
         didSet {
             guard oldValue != fontTraitsSegmentedControl, let segmentedControl = fontTraitsSegmentedControl else { return }
             segmentedControl.trackingMode = .selectAny
-            segmentedControl.segments = [NSSegment("B").font(.systemFont.bold), NSSegment("I").font(.systemFont.italic)]
-            segmentedControl.actionBlock = { [weak self] _ in
-                guard let self = self else { return }
+            segmentedControl.isEnabled = isEnabled
+            segmentedControl.segments {
+                if #available(macOS 11.0, *) {
+                    NSSegment(symbolName: "bold")?.tag(11)
+                    NSSegment(symbolName: "italic")?.tag(22)
+                    NSSegment(symbolName: "underline")?.tag(33)
+                    NSSegment(symbolName: "strikethrough")?.tag(44)
+                } else {
+                    NSSegment("B").font(.systemFont.bold).tag(11)
+                    NSSegment("I").font(.systemFont.italic).tag(22)
+                }
+            }
+            segmentedControl.actionBlock = { [weak self] segmentedControl in
+                guard let self = self, let selectedFont = self.selectedFont else { return }
+                guard let boldSeg = segmentedControl.segment(withTag: 11), let italicSeg = segmentedControl.segment(withTag: 22) else { return }
+                var traits = selectedFont.fontDescriptor.symbolicTraits
+                if boldSeg.isSelected {
+                    traits.insert(.bold)
+                } else {
+                    traits.remove(.bold)
+                }
+                if italicSeg.isSelected {
+                    traits.insert(.italic)
+                } else {
+                    traits.remove(.italic)
+                }
+                if traits != selectedFont.fontDescriptor.symbolicTraits {
+                    
+                }
             }
         }
     }
-    */
+    
+    func updateSegmented() {
+        if let selectedFont = selectedFont {
+            let traits = selectedFont.fontDescriptor.symbolicTraits
+            fontTraitsSegmentedControl?.segment(withTag: 11)?.isSelected = traits.contains(.bold)
+            fontTraitsSegmentedControl?.segment(withTag: 22)?.isSelected = traits.contains(.italic)
+        } else {
+            fontTraitsSegmentedControl?.deselectAll()
+        }
+    }
     
     /// A Boolean value that indicates whether the font names are presented with the system standard font or their font.
     public var showFontAppearanceWhenSelecting: Bool = true {
@@ -184,6 +266,7 @@ public class FontManager: NSObject {
             fontMemberPopUpButton?.isEnabled = isEnabled
             fontSizeTextField?.isEnabled = isEnabled
             fontSizeStepper?.isEnabled = isEnabled
+            fontTraitsSegmentedControl?.isEnabled = isEnabled
         }
     }
     
@@ -250,6 +333,8 @@ public class FontManager: NSObject {
             guard oldValue != _selectedFont else { return }
             updateTargetFont()
             selectedFontHandler?(_selectedFont)
+            fontTraitsSegmentedControl?.segment(withTag: 22)?.isSelected = _selectedFont?.fontDescriptor.symbolicTraits.contains(.bold) ?? false
+            fontTraitsSegmentedControl?.segment(withTag: 33)?.isSelected = _selectedFont?.fontDescriptor.symbolicTraits.contains(.italic) ?? false
         }
     }
     
@@ -312,12 +397,13 @@ public class FontManager: NSObject {
     }
     
     private func updateMembers() {
-        guard let fontFamily = selectedFontFamily else {
+        guard selectedFontFamily != nil else {
             return
         }
         updateMembersPopUpButton()
         fontSizeTextField?.isEnabled = isEnabled
         fontSizeStepper?.isEnabled = isEnabled
+        fontTraitsSegmentedControl?.isEnabled = isEnabled
     }
     
     func updateMembersPopUpButton() {
@@ -371,7 +457,6 @@ public class FontManager: NSObject {
                 currentMemberIndex = index
             }
             fontSize = font.pointSize
-            fontSizeTextField?.doubleValue = font.pointSize
             updateSelectedFont()
         } else {
             currentFamilyIndex = -1
@@ -382,6 +467,7 @@ public class FontManager: NSObject {
             fontSizeTextField?.stringValue = ""
             fontSizeTextField?.isEnabled = false
             fontSizeStepper?.isEnabled = false
+            fontTraitsSegmentedControl?.isEnabled = false
         }
     }
     
@@ -395,8 +481,8 @@ public class FontManager: NSObject {
         guard let selectedFont = selectedFont else { return }
         if let textView = target as? NSTextView {
             textView.selectionFonts = [selectedFont]
-        } else if let textField = target as? NSTextField {
-            textField.font = selectedFont
+        } else if let control = target as? NSControl {
+            control.font = selectedFont
         }
     }
     

@@ -18,28 +18,30 @@
     }
 
     public extension NSFont {
-        /// The standard system font with standard size.
-        static var systemFont = NSFont.systemFont(ofSize: NSFont.systemFontSize)
         
         /// The height, in points, of text lines.
         var lineHeight: CGFloat {
             let ctFont = cleanedFont as CTFont
             return CTFontGetAscent(ctFont) + CTFontGetDescent(ctFont) + CTFontGetLeading(ctFont)
         }
+        
+        internal var baselineOffset: CGFloat {
+            value(forKey: "_baselineOffsetForUILayout") as? CGFloat ?? 0.0
+        }
 
         internal var descenderReal: CGFloat {
             let ctFont = cleanedFont as CTFont
-            return CTFontGetDescent(ctFont)
+            return -CTFontGetDescent(ctFont)
         }
 
         internal var ascenderReal: CGFloat {
             let ctFont = cleanedFont as CTFont
-            return CTFontGetAscent(ctFont)
+            return -CTFontGetAscent(ctFont)
         }
 
         internal var leadingReal: CGFloat {
             let ctFont = cleanedFont as CTFont
-            return CTFontGetLeading(ctFont)
+            return -CTFontGetLeading(ctFont)
         }
 
         var spc: CGFloat? {

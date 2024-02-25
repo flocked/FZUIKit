@@ -87,7 +87,8 @@ extension FontMenuItemView {
         
         func update() {
             if let font = textField.font {
-                centerConstraint?.constant = (font.pointSize / 2.0) - 1.5
+                centerConstraint?.constant = font.baselineOffset
+             //   centerConstraint?.constant = (font.pointSize / 2.0) - 1.5
             }
             textField.sizeToFit()
             frame.size.width = fittingSize.width + 4
@@ -150,7 +151,8 @@ extension FontMenuItemView {
                 ]
             }
             layoutConstraints.activate()
-            centerConstraint = textField.firstBaselineAnchor.constraint(equalTo: centerYAnchor).activate()
+            centerConstraint = textField.centerYAnchor.constraint(equalTo: centerYAnchor).activate()
+           // centerConstraint = textField.firstBaselineAnchor.constraint(equalTo: centerYAnchor).activate()
             update()
         }
         

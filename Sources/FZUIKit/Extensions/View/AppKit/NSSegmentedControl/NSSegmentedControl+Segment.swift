@@ -166,6 +166,12 @@
             self.font = font
             return self
         }
+        
+        /// Sets the tag of the segment.
+        public func tag(_ tag: Int) -> Self {
+            self.tag = tag
+            return self
+        }
 
         /// The index of the segment, or `nil` if the segment isn't displayed in any segmented control.
         public var index: Int? {
@@ -330,6 +336,13 @@
                     setSegment(segment, for: index)
                 }
             }
+        }
+        
+        /// Sets the segments displayed by the segmented control.
+        @discardableResult
+        func segments(@Builder segments: () -> [NSSegment]) -> Self {
+            self.segments = segments()
+            return self
         }
 
         /// Returns the segment that matches the title.

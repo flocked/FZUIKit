@@ -12,6 +12,9 @@
 #endif
 
 public extension NSUIFont {
+    /// The standard system font with standard system size.
+    static var systemFont = NSUIFont.systemFont(ofSize: NSUIFont.systemFontSize)
+    
     /// A font with the alternate caption text style.
     static var caption2: NSUIFont {
         if #available(macOS 11.0, iOS 12.2, tvOS 12.2, watchOS 5.2, *) {
@@ -199,6 +202,26 @@ public extension NSUIFont {
         }
         return self
     }
+    
+    /// The leading value of the font.
+    var leading: FontLeading {
+        let symbolicTraits = fontDescriptor.symbolicTraits
+        #if os(macOS)
+        if symbolicTraits.contains(.looseLeading) {
+            return .loose
+        } else if symbolicTraits.contains(.tightLeading) {
+            return .tight
+        }
+        return .standard
+        #else
+        if symbolicTraits.contains(.traitLooseLeading) {
+            return .loose
+        } else if symbolicTraits.contains(.traitTightLeading) {
+            return .tight
+        }
+        return .standard
+        #endif
+    }
 
     /// Applies the specified leading value to the font.
     func leading(_ leading: FontLeading) -> NSUIFont {
@@ -223,6 +246,26 @@ public extension NSUIFont {
             #endif
         }
     }
+    
+    /// The width of the font’s characters.
+    var width: FontWidth {
+        let symbolicTraits = fontDescriptor.symbolicTraits
+        #if os(macOS)
+        if symbolicTraits.contains(.expanded) {
+            return .expanded
+        } else if symbolicTraits.contains(.condensed) {
+            return .condensed
+        }
+        return .standard
+        #else
+        if symbolicTraits.contains(.traitExpanded) {
+            return .expanded
+        } else if symbolicTraits.contains(.traitCondensed) {
+            return .condensed
+        }
+        return .standard
+        #endif
+    }
 
     /// Applies the specified width value to the font.
     func width(_ width: FontWidth) -> NSUIFont {
@@ -239,7 +282,7 @@ public extension NSUIFont {
             #else
                 return includingSymbolicTraits(.traitExpanded, without: .traitCondensed)
             #endif
-        default:
+        case .condensed:
             #if os(macOS)
                 return includingSymbolicTraits(.condensed, without: .expanded)
             #else
@@ -248,14 +291,13 @@ public extension NSUIFont {
         }
     }
 
-    /// The font width.
+    /// The width of the font’s characters.
     enum FontWidth {
-        /// The font uses a standard leading value.
-        case compressed
         /// The font uses a leading value that’s greater than the default.
         case condensed
         /// The font uses a leading value that’s less than the default.
         case expanded
+        /// The font uses a standard leading value.
         case standard
     }
 
