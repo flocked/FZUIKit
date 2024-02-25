@@ -93,29 +93,15 @@
 
             func trimString(_ string: String) -> String {
                 var string = string
-                Swift.print("edit start", string)
-                if contains(.lowercaseLetters) == false {
-                    Swift.print("lowercaseLetters")
-                    string = string.trimmingCharacters(in: .lowercaseLetters) }
-                if contains(.uppercaseLetters) == false { 
-                    Swift.print("uppercaseLetters")
-                    string = string.trimmingCharacters(in: .uppercaseLetters) }
-                if contains(.digits) == false { 
-                    Swift.print("digits")
-                    string = string.trimmingCharacters(in: .decimalDigits) }
-                if contains(.symbols) == false {
-                    Swift.print("symbols")
-                    string = string.trimmingCharacters(in: .symbols) }
-                if contains(.whitespaces) == false { 
-                    Swift.print("whitespaces")
-                    string = string.trimmingCharacters(in: .whitespaces) }
-                if contains(.newLines) == false { 
-                    Swift.print("newLines")
-                    string = string.trimmingCharacters(in: .newlines) }
-                if contains(.emojis) == false { 
-                    Swift.print("emojis")
-                    string = string.trimmingEmojis() }
-                Swift.print("edit end", string)
+                var characterSet = CharacterSet()
+                if contains(.lowercaseLetters) == false { characterSet += .lowercaseLetters }
+                if contains(.uppercaseLetters) == false { characterSet += .uppercaseLetters }
+                if contains(.digits) == false { characterSet += .decimalDigits }
+                if contains(.symbols) == false { characterSet += .symbols}
+                if contains(.newLines) == false { characterSet += .newlines }
+                if !characterSet.isEmpty { string = string.trimmingCharacters(in: characterSet) }
+                if contains(.whitespaces) == false { string = string.replacingOccurrences(of: " ", with: "") }
+                if contains(.emojis) == false { string = string.trimmingEmojis() }
                 return string
             }
 
