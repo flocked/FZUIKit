@@ -203,6 +203,7 @@ public extension NSUIFont {
         return self
     }
     
+    /*
     /// The leading value of the font.
     var leading: FontLeading {
         let symbolicTraits = fontDescriptor.symbolicTraits
@@ -222,6 +223,7 @@ public extension NSUIFont {
         return .standard
         #endif
     }
+     */
 
     /// Applies the specified leading value to the font.
     func leading(_ leading: FontLeading) -> NSUIFont {
@@ -247,6 +249,7 @@ public extension NSUIFont {
         }
     }
     
+    /*
     /// The width of the font’s characters.
     var width: FontWidth {
         let symbolicTraits = fontDescriptor.symbolicTraits
@@ -266,6 +269,7 @@ public extension NSUIFont {
         return .standard
         #endif
     }
+     */
 
     /// Applies the specified width value to the font.
     func width(_ width: FontWidth) -> NSUIFont {
