@@ -171,7 +171,8 @@
         }
 
         func updateString() {
-            guard formatter is NumberFormatter == false else { 
+            /*
+            guard formatter is NumberFormatter == false else {
                 editingHandlers.didEdit?()
                 previousString = stringValue
                 if let editingRange = currentEditor()?.selectedRange {
@@ -180,6 +181,7 @@
                 adjustFontSize()
                 return
             }
+            */
             let newString = allowedCharacters.trimString(stringValue)
             if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
                 if previousString.count <= maxCharCount {
