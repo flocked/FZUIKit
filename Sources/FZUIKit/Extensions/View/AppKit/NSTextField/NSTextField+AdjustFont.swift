@@ -224,6 +224,7 @@
                 _font = font
                 
                 do {
+                    /*
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(setter: font),
@@ -290,7 +291,6 @@
                         textField._bounds = textField.bounds
                     }
                     })
-                    /*
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -336,7 +336,6 @@
                         return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                     }
                     })
-                    */
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(textDidEndEditing),
@@ -381,7 +380,7 @@
                         }
                     }
                     })
-                    
+                    */
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(textDidChange),
@@ -398,7 +397,7 @@
                         }
                     }
                     })
-                    
+                    /*
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(NSResponder.mouseDown(with:)),
@@ -415,7 +414,7 @@
                         store.original(object, #selector(NSResponder.mouseDown(with:)), event)
                     }
                     })
-                    
+                    */
                     /*
                     try replaceMethod(
                         #selector(getter: intrinsicContentSize),
