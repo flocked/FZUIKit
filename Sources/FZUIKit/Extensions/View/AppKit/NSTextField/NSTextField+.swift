@@ -388,15 +388,34 @@ extension NSTextField {
         /// The maximum number of digits after the decimal separator.
         public var maximumFractionDigits: Int = 2
 
+        public init() {
+            
+        }
         
-        /// Percent style formatting.
-        public static func percent(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
-            NumberFormatting(style: .percent, minimumValue: minValue, maximumValue: maxValue)
+        init(style: NumberFormatter.Style = .none, minimumValue: Double? = nil, maximumValue: Double? = nil) {
+            self.style = style
+            self.minimumValue = minimumValue
+            self.maximumValue = maximumValue
+        }
+                
+        /// Integer style formatting.
+        public static func integer(minValue: Int? = nil, maxValue: Int? = nil) -> NumberFormatting {
+            NumberFormatting(style: .decimal, minimumValue: minValue != nil ? Double(minValue!) : nil, maximumValue: maxValue != nil ? Double(maxValue!) : nil)
         }
         
         /// Decimal style formatting.
         public static func decimal(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
             NumberFormatting(style: .decimal, minimumValue: minValue, maximumValue: maxValue)
+        }
+        
+        /// Currency style formatting.
+        public static func currency(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
+            NumberFormatting(style: .currency, minimumValue: minValue, maximumValue: maxValue)
+        }
+        
+        /// Percent style formatting.
+        public static func percent(minValue: Double? = nil, maxValue: Double? = nil) -> NumberFormatting {
+            NumberFormatting(style: .percent, minimumValue: minValue, maximumValue: maxValue)
         }
     }
     
