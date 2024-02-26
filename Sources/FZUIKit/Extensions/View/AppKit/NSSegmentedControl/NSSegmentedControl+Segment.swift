@@ -98,48 +98,56 @@
         }
 
         /// Sets the title for the segment.
+        @discardableResult
         public func title(_ value: String?) -> Self {
             title = value
             return self
         }
 
         /// Sets the title alignment for the segment.
+        @discardableResult
         public func titleAlignment(_ value: NSTextAlignment) -> Self {
             titleAlignment = value
             return self
         }
 
         /// Sets the image for the segment.
+        @discardableResult
         public func image(_ value: NSImage?) -> Self {
             image = value
             return self
         }
-
+        
         /// Sets the image scaling for the segment.
+        @discardableResult
         public func imageScaling(_ value: NSImageScaling) -> Self {
             imageScaling = value
             return self
         }
 
         /// Sets the menu for the segment.
+        @discardableResult
         public func menu(_ value: NSMenu?) -> Self {
             menu = value
             return self
         }
 
         /// Sets whether the menu indicator is shown.
+        @discardableResult
         public func showsMenuIndicator(_ value: Bool) -> Self {
             showsMenuIndicator = value
             return self
         }
 
         /// Sets whether the segment is selected.
+        @discardableResult
         public func isSelected(_ value: Bool) -> Self {
             isSelected = value
             return self
         }
 
         /// Sets whether the segment is enabled.
+        @discardableResult
         public func isEnabled(_ value: Bool) -> Self {
             isEnabled = value
             return self
@@ -150,24 +158,28 @@
 
          Specify the value 0 if you want the segment to be sized to fit the available space automatically.
          */
+        @discardableResult
         public func width(_ value: CGFloat) -> Self {
             width = value
             return self
         }
 
         /// Sets the tooltip for the segment.
+        @discardableResult
         public func toolTip(_ value: String?) -> Self {
             toolTip = value
             return self
         }
         
         /// Sets the font for the segment.
+        @discardableResult
         public func font(_ font: NSFont) -> Self {
             self.font = font
             return self
         }
         
         /// Sets the tag of the segment.
+        @discardableResult
         public func tag(_ tag: Int) -> Self {
             self.tag = tag
             return self

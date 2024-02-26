@@ -52,9 +52,44 @@ import FZSwiftUtils
             }
         }
         
-        /// Deselects all text.
-        public func deselectAll() {
-            selectedStringRanges = []
+        var selectionHasStrikethrough: Bool {
+            guard let textStorage = textStorage else { return false }
+            var selectionHasStrikethrough = false
+            for range in selectedRanges.compactMap({$0.rangeValue}) {
+                textStorage.enumerateAttribute(.strikethroughStyle, in: range, using: { strikethrough, range, fu in
+                    if let strikethrough = strikethrough as? Int, strikethrough != 0 {
+                        selectionHasStrikethrough = true
+                    }
+                })
+            }
+            return selectionHasStrikethrough
+        }
+        
+        var selectionHasUnderline: Bool {
+            guard let textStorage = textStorage else { return false }
+            var selectionHasUnderline = false
+            for range in selectedRanges.compactMap({$0.rangeValue}) {
+                textStorage.enumerateAttribute(.underlineStyle, in: range, using: { underline, range, fu in
+                    if let underline = underline as? Int, underline != 0 {
+                        selectionHasUnderline = true
+                    }
+                })
+            }
+            return selectionHasUnderline
+        }
+        
+        var typingIsUnderline: Bool {
+            if let underline = typingAttributes[.underlineStyle] as? Int, underline != 0 {
+                return true
+            }
+            return false
+        }
+        
+        var typingIsStrikethrough: Bool {
+            if let underline = typingAttributes[.strikethroughStyle] as? Int, underline != 0 {
+                return true
+            }
+            return false
         }
         
         /// Selects all text.

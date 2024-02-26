@@ -1,6 +1,6 @@
 //
-//  FontManager.swift
-//  
+//  FontManagerNew.swift
+//
 //
 //  Created by Florian Zand on 24.02.24.
 //
@@ -9,7 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
-public class FontManager: NSObject {
+public class FontManagerNew: NSObject {
     /// The selected font.
     @objc dynamic public var selectedFont: NSFont? {
         get { _selectedFont }
@@ -49,6 +49,39 @@ public class FontManager: NSObject {
     var currentFontMembers: [NSFont.FontMember] {
         selectedFontFamily?.members ?? []
     }
+    
+    /*
+    func isFontAvailable(_ font: NSFont) -> Bool {
+        guard let familyName = font.familyName, let faceName = font.fontDescriptor.faceName else { return false }
+        return availableFontFamilies.first(where: {$0.name == familyName })?.members.contains(where: {$0.fontName == font.fontName}) ?? false
+    }
+    
+    var selectedFontA: NSFont? {
+        get { selectedFonts.first }
+        set { selectedFonts = newValue != nil ? [newValue!] : [] }
+    }
+    var selectedFonts: [NSFont] = [] {
+        didSet {
+            let sortedFonts = selectedFonts.sorted(by: \.fontName).filter({isFontAvailable($0)})
+            guard oldValue != sortedFonts else { return }
+            selectedFonts = sortedFonts
+            // update UI
+            selectedFontHandler?(sortedFonts.first)
+        }
+    }
+    
+    func updateIndexes() {
+        let families = selectedFonts.compactMap({$0.familyName}).uniqued()
+        if families.isEmpty {
+            
+        } else if families.count == 1 {
+          
+            
+        } else {
+            
+        }
+    }
+    */
     
     var targetObservation: NSKeyValueObservation?
     var targetFontObservation: Any?
@@ -124,6 +157,26 @@ public class FontManager: NSObject {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
             selectedFont = nil
+            /*
+            let familyIndexes = fonts.compactMap({$0.familyName}).uniqued().compactMap({ name in  availableFontFamilies.firstIndex(where: {$0.name == name }) })
+            if familyIndexes.count == 1 {
+                fontFamilyPopUpButton?.selectItem(at: familyIndexes.first!)
+            } else if familyIndexes.count > 1 {
+                for index in familyIndexes {
+                    fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
+                }
+                fontMemberPopUpButton?.textField?.stringValue = "Multiple"
+            }
+            let pointSizes = fonts.compactMap({$0.pointSize}).uniqued()
+            if let pointSize = pointSizes.first {
+                if pointSizes.count == 1 {
+                    fontSizeTextField?.doubleValue = pointSize
+                } else {
+                    fontSizeTextField?.stringValue = ""
+                    fontSizeTextField?.placeholderString = "\(pointSize)"
+                }
+            }
+            */
         } else {
             selectedFont = textView.typingAttributes[.font] as? NSFont
         }
@@ -590,13 +643,6 @@ public class FontManager: NSObject {
     
     var availableFontNames: [String] {
         availableFontFamilies.flatMap({$0.members.compactMap({$0.fontName})})
-    }
-}
-
-
-extension NSPopUpButton {
-    var textField: NSTextField? {
-        subviews(type: NSTextField.self).first
     }
 }
 
