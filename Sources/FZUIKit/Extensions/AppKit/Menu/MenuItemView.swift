@@ -276,8 +276,7 @@ open class MenuItemView: NSView {
         guard autoHighlightSubviews else { return }
         let isHighlighted = enclosingMenuItem?.isHighlighted ?? false
         let isEnabled = self.isEnabled
-        subviews
-            .forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
+       // subviews.forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
     }
     
     /// Add a subview to the menu item and automatically add constraints to
@@ -342,7 +341,7 @@ open class MenuItemView: NSView {
         if
             let textField = view as? NSTextField
         {
-          //  textField.textColor = colorConsidering(isHighlighted: isHighlighted, isEnabled: isEnabled)
+            textField.textColor = colorConsidering(isHighlighted: isHighlighted, isEnabled: isEnabled)
         } else if
             let imageView = view as? NSImageView,
             imageView.image?.isTemplate == true,
