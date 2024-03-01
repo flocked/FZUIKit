@@ -23,9 +23,9 @@
 
     extension NSView {
         /**
-         Updates the background style of all nested subviews to the specified style.
+         Updates the background style of the view and all nested subviews to the specified style.
 
-         It updates all subviews that implement ``setBackgroundStyle(_:)``: or are a `NSControl` or `NSTableCellView`.
+         It updates all views that implement ``setBackgroundStyle(_:)``: or are a `NSControl` or `NSTableCellView`.
 
          - Parameter backgroundStyle: The background style to apply.
          */
@@ -35,7 +35,7 @@
             } else if let self = self as? NSTableCellView, self.backgroundStyle != backgroundStyle {
                 self.backgroundStyle = backgroundStyle
             }
-
+            
             for subview in subviews {
                 subview.setBackgroundStyle(backgroundStyle)
             }

@@ -639,7 +639,7 @@ public class FontManagerNewN: NSObject {
     
     func updateMembersPopUpButton(for fontFamily: NSFont.FontFamily? = nil) {
         let fontFamily = fontFamily ?? selectedFontFamily
-        guard let fontMemberPopUpButton = fontMemberPopUpButton, let fontFamily = selectedFontFamily else { return }
+        guard let fontMemberPopUpButton = fontMemberPopUpButton, let fontFamily = fontFamily else { return }
         let isSpecial = specialFontNames.contains(fontFamily.name)
         fontMemberPopUpButton.removeAllItems()
         fontMemberPopUpButton.isEnabled = isEnabled

@@ -276,7 +276,7 @@ open class MenuItemView: NSView {
         guard autoHighlightSubviews else { return }
         let isHighlighted = enclosingMenuItem?.isHighlighted ?? false
         let isEnabled = self.isEnabled
-       // subviews.forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
+        subviews.forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
     }
     
     /// Add a subview to the menu item and automatically add constraints to
@@ -294,7 +294,7 @@ open class MenuItemView: NSView {
         
         translatesAutoresizingMaskIntoConstraints = false
         view.translatesAutoresizingMaskIntoConstraints = false
-        
+                
         NSLayoutConstraint.activate([
             view.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
             view.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
@@ -353,26 +353,6 @@ open class MenuItemView: NSView {
         view.subviews
             .forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
     }
-    
-    /*
-    open override func mouseEntered(with event: NSEvent) {
-        if let enclosingMenuItem = enclosingMenuItem {
-            if enclosingMenuItem.menu?.highlightedItem?.tag == enclosingMenuItem.tag {
-                if bounds.contains(event.location(in: self)) {
-                    mouseIsHovering = true
-                }
-            }
-        }
-    }
-    
-    open override func mouseExited(with event: NSEvent) {
-        if let enclosingMenuItem = enclosingMenuItem {
-            if enclosingMenuItem.menu?.highlightedItem?.tag != enclosingMenuItem.tag {
-                mouseIsHovering = false
-            }
-        }
-    }
-     */
     
     private var highlightViewConstraits: [NSLayoutConstraint] = []
     private var innerContentConstraits: [NSLayoutConstraint] = []
