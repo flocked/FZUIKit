@@ -1,6 +1,6 @@
 //
-//  FontManager.swift
-//  
+//  FontManagerNewN.swift
+//
 //
 //  Created by Florian Zand on 24.02.24.
 //
@@ -9,7 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
-public class FontManager: NSObject {
+public class FontManagerNewN: NSObject {
     /// The selected font.
     @objc dynamic public var selectedFont: NSFont? {
         get { _selectedFont }
@@ -18,6 +18,8 @@ public class FontManager: NSObject {
             selectFont(newValue)
         }
     }
+    
+    var selectedFonts: [NSFont] = []
     
     /// The selected font size.
     @objc dynamic public var fontSize: CGFloat = 12 {
@@ -127,6 +129,35 @@ public class FontManager: NSObject {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
             selectedFont = nil
+            let familyIndexes = fonts.compactMap({$0.familyName}).uniqued().compactMap({ name in  availableFontFamilies.firstIndex(where: {$0.name == name }) })
+            if familyIndexes.count == 1 {
+                fontFamilyPopUpButton?.selectItem(at: familyIndexes.first!)
+                let memberIndexes = fonts.compactMap({$0.fontName}).uniqued().compactMap({name in currentFontMembers.firstIndex(where: {$0.fontName == name }) })
+                updateMembersPopUpButton(for: availableFontFamilies[familyIndexes.first!])
+                if memberIndexes.count == 1 {
+                    fontMemberPopUpButton?.selectItem(at: memberIndexes.first!)
+                } else if memberIndexes.count > 1 {
+                    fontMemberPopUpButton?.selectItem(at: memberIndexes.first!)
+                    for index in memberIndexes {
+                        fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
+                    }
+                    fontMemberPopUpButton?.textField?.stringValue = "Multiple"
+                }
+            } else if familyIndexes.count > 1 {
+                for index in familyIndexes {
+                    fontFamilyPopUpButton?.menu?.items[safe: index]?.state = .mixed
+                }
+                fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
+            }
+            let pointSizes = fonts.compactMap({$0.pointSize}).uniqued()
+            if let pointSize = pointSizes.first {
+                if pointSizes.count == 1 {
+                    fontSizeTextField?.doubleValue = pointSize
+                } else {
+                    fontSizeTextField?.stringValue = ""
+                    fontSizeTextField?.placeholderString = "\(pointSize)"
+                }
+            }
         } else {
             selectedFont = textView.typingAttributes[.font] as? NSFont
         }
@@ -157,6 +188,9 @@ public class FontManager: NSObject {
             guard oldValue != fontMemberPopUpButton, let fontMemberPopUpButton = fontMemberPopUpButton else { return }
             fontMemberPopUpButton.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
+                if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
+                    
+                }
                 self._currentMemberIndex = fontMemberPopUpButton.indexOfSelectedItem
                 self.updateSelectedFont()
             }
@@ -174,7 +208,11 @@ public class FontManager: NSObject {
             fontSizeTextField.doubleValue = fontSize
             fontSizeTextField.editingHandlers.didEnd = { [weak self] in
                 guard let self = self, let fontSizeTextField = self.fontSizeTextField else { return  }
-                self.fontSize = fontSizeTextField.doubleValue
+                if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
+                    textView.selectionFonts = textView.selectionFonts.compactMap({$0.withSize(fontSizeTextField.doubleValue)})
+                } else {
+                    self.fontSize = fontSizeTextField.doubleValue
+                }
             }
             let formatter = NumberFormatter()
             formatter.numberStyle = .decimal
@@ -480,7 +518,7 @@ public class FontManager: NSObject {
     
     func updateAvailableFontFamilies() {
         let selectedFontFamily = selectedFontFamily
-        availableFontFamilies = NSFontManager.shared.availableFontFamilies.compactMap({NSFont.FontFamily($0)})
+    availableFontFamilies = NSFontManager.shared.availableFontFamilies.compactMap({NSFont.FontFamily($0)})
         updateFontFamiliesPopUpButton()
         if let selectedFontFamily = selectedFontFamily, availableFontFamilies[safe: currentFamilyIndex] != selectedFontFamily {
             if let index = availableFontFamilies.firstIndex(of: selectedFontFamily) {
@@ -527,7 +565,8 @@ public class FontManager: NSObject {
         fontTraitsSegmentedControl?.isEnabled = isEnabled
     }
     
-    func updateMembersPopUpButton() {
+    func updateMembersPopUpButton(for fontFamily: NSFont.FontFamily? = nil) {
+        let fontFamily = fontFamily ?? selectedFontFamily
         guard let fontMemberPopUpButton = fontMemberPopUpButton, let fontFamily = selectedFontFamily else { return }
         let isSpecial = specialFontNames.contains(fontFamily.name)
         fontMemberPopUpButton.removeAllItems()
@@ -618,10 +657,5 @@ public class FontManager: NSObject {
 }
 
 
-extension NSPopUpButton {
-    var textField: NSTextField? {
-        subviews(type: NSTextField.self).first
-    }
-}
 
 #endif

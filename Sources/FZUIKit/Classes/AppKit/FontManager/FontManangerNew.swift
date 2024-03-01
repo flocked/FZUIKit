@@ -470,7 +470,7 @@ public class FontManagerNew: NSObject {
     
     /// The default selected font.
     static var defaultFont: NSFont {
-        NSFont(name: "HelveticaNeue", size: 12) ?? .systemFont(ofSize: NSFont.systemFontSize)
+        .userFont(ofSize: 12) ?? NSFont(name: "HelveticaNeue", size: 12) ?? .systemFont(ofSize: NSFont.systemFontSize)
     }
     
     let popUpButtonItemHeight: CGFloat = 28
