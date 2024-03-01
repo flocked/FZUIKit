@@ -177,7 +177,7 @@ extension NSMenu {
     }
     
     func setupDelegateProxy() {
-        if handlers.needsDelegate {
+        if handlers.needsDelegate || items.contains(where: {$0.view is MenuItemView}) {
             if delegateProxy == nil {
                 delegateProxy = DelegateProxy(self)
             }
@@ -215,6 +215,8 @@ extension NSMenu {
             if menu.delegate === self {
                 menu.handlers.willHighlight?(item)
             }
+            menu.items.compactMap({$0.view as? MenuItemView}).forEach({$0.highlightView.isHidden = true})
+            (item?.view as? MenuItemView)?.highlightView.isHidden = false
             delegate?.menu?(menu, willHighlight: item)
         }
     }

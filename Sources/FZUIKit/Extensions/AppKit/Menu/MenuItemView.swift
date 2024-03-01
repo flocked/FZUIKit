@@ -8,17 +8,6 @@
 #if os(macOS)
 import AppKit
 
-extension NSMenu {
-    func setupItemViewHighlighting() {
-        guard handlers.willHighlight == nil else { return }
-        handlers.willHighlight = { [weak self] item in
-            guard let self = self else { return }
-            self.items.compactMap({$0.view as? MenuItemView}).forEach({$0.highlightView.isHidden = true})
-            (item?.view as? MenuItemView)?.highlightView.isHidden = false
-        }
-    }
-}
-
 /// A view that replicates the behavior of a menu item and
 /// can be used to wrap custom views assigned to an `NSMenuItem`.
 ///
@@ -271,7 +260,7 @@ open class MenuItemView: NSView {
         }
     }
     
-    var drawsIsHighlighted: Bool = true
+    var drawsIsHighlighted: Bool = false
     
     public var isHighlighted: Bool {
         get { enclosingMenuItem?.isHighlighted ?? false }
@@ -287,7 +276,9 @@ open class MenuItemView: NSView {
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         
-        enclosingMenuItem?.menu?.setupItemViewHighlighting()
+        if let menu = enclosingMenuItem?.menu, menu.delegateProxy == nil {
+            menu.delegateProxy = NSMenu.DelegateProxy(menu)
+        }
         
         let isHighlighted = self.isHighlighted
         if drawsIsHighlighted {
