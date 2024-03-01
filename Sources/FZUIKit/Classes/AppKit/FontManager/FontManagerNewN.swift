@@ -264,7 +264,7 @@ public class FontManagerNewN: NSObject {
             textView.window?.makeFirstResponder(textView)
             let selectedRanges = textView.selectedRanges
             textView.selectedRanges = [NSRange(location: 0, length: 0).nsValue]
-            textView.selectedRanges = selectedRanges
+         //   textView.selectedRanges = selectedRanges
         } else if let textField = target as? NSTextField {
             textField.window?.makeFirstResponder(textField)
         }
