@@ -104,7 +104,7 @@
                         guard let self = self else { return }
                         self.isHovered = true
                     }
-                    mouseHandlers.dragged = { [weak self] _ in
+                    mouseHandlers.leftDragged = { [weak self] _ in
                         guard let self = self else { return }
                         self.isHovered = true
                     }
