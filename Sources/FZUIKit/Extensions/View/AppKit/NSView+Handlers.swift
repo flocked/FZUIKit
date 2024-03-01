@@ -73,7 +73,26 @@ extension NSView {
         }
     }
     
+    // ObserverGestureRecognizer
+    
+    var observerGestureRecognizer: ObserverGestureRecognizer? {
+        get { getAssociatedValue(key: "observerGestureRecognizer", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "observerGestureRecognizer", object: self) }
+    }
+    
     func setupEventMonitors() {
+        if mouseHandlers.needsObserving || menuProvider != nil || dragHandlers.canDrag != nil {
+            if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
+                addGestureRecognizer(observerGestureRecognizer)
+            } else if observerGestureRecognizer == nil {
+                observerGestureRecognizer = ObserverGestureRecognizer()
+                addGestureRecognizer(observerGestureRecognizer!)
+            }
+        } else {
+            observerGestureRecognizer?.removeFromView()
+            observerGestureRecognizer = nil
+        }
+        /*
         setupEventMonitor(for: .leftMouseUp, #selector(NSView.mouseUp(with:)), \.leftUp)
         setupEventMonitor(for: .rightMouseUp, #selector(NSView.rightMouseUp(with:)), \.rightUp)
         setupEventMonitor(for: .rightMouseDragged, #selector(NSView.rightMouseDragged(with:)), \.rightDragged)
@@ -89,8 +108,9 @@ extension NSView {
         setupEventMonitor(for: .leftMouseDragged, #selector(NSView.mouseDragged(with:)), \.dragged, { dragHandlers.canDrag != nil }) { event, view in
             view.setupDraggingSession(for: event)
         }
+        */
     }
-    
+    /*
     func setupEventMonitor(for event: NSEvent.EventTypeMask, _ selector: Selector, _ keyPath: KeyPath<NSView.MouseHandlers, ((NSEvent) -> ())?>, _ condition: ()->(Bool) = { return true }, _ additional: ((NSEvent, NSView)->())? = nil) {
         do {
             if mouseHandlers[keyPath: keyPath] != nil || condition() {
@@ -177,6 +197,7 @@ extension NSView {
         get { getAssociatedValue(key: "eventMonitors", object: self, initialValue: [:]) }
         set { set(associatedValue: newValue, key: "eventMonitors", object: self) }
     }
+    */
         
     func setupViewObservation() {
         if viewHandlers.needsObserving || windowHandlers.window != nil {

@@ -38,7 +38,7 @@
         var isMovableByViewBackground: BackgroundDragOption {
             get { getAssociatedValue(key: "isMovableByViewBackground", object: self, initialValue: .off) }
             set {
-                guard newValue != self.isMovableByViewBackground else { return }
+                guard newValue != isMovableByViewBackground else { return }
                 set(associatedValue: newValue, key: "isMovableByViewBackground", object: self)
                 setupDragResizeGesture()
             }
@@ -48,6 +48,15 @@
         var movableViewVelocity: ((CGPoint) -> Void)? {
             get { getAssociatedValue(key: "movableViewVelocity", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "movableViewVelocity", object: self) }
+        }
+        
+        /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
+        var isResizable: Bool {
+            get { getAssociatedValue(key: "isMovableByViewBackground", object: self, initialValue: false) }
+            set {
+                guard newValue != isResizable else { return }
+                set(associatedValue: newValue, key: "isMovableByViewBackground", object: self)
+            }
         }
 
         internal func setupDragResizeGesture() {

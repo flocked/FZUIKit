@@ -49,6 +49,7 @@ import SwiftUI
     public typealias NSUITextView = NSTextView
     public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
     public typealias NSUIScreen = NSScreen
+    public typealias NSUIGestureRecognizer = NSGestureRecognizer
 
 #elseif canImport(UIKit)
     import UIKit
@@ -92,5 +93,6 @@ import SwiftUI
     public typealias NSUITextView = UITextView
     public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
     public typealias NSUIScreen = UIScreen
+    public typealias NSUIGestureRecognizer = UIGestureRecognizer
 
 #endif
