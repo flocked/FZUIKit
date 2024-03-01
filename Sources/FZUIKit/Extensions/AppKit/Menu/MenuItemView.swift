@@ -245,12 +245,14 @@ open class MenuItemView: NSView {
         return intrinsicContentSize
     }
     
-    private lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .mouseEnteredAndExited])
+   // private lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .mouseEnteredAndExited])
     
+    /*
     open override func updateTrackingAreas() {
         super.updateTrackingAreas()
         trackingArea.update()
     }
+     */
     
     public var isEnabled: Bool {
         get { enclosingMenuItem?.isEnabled ?? true }
@@ -260,6 +262,13 @@ open class MenuItemView: NSView {
         }
     }
     
+    public var isHighlighted: Bool = false {
+        didSet {
+            highlightView.isHidden = !isHighlighted
+        }
+    }
+    
+    /*
     var drawsIsHighlighted: Bool = false
     
     public var isHighlighted: Bool {
@@ -272,6 +281,7 @@ open class MenuItemView: NSView {
             highlightView.isHidden = !isHighlighted || !mouseIsHovering
         }
     }
+     */
         
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -280,10 +290,12 @@ open class MenuItemView: NSView {
             menu.delegateProxy = NSMenu.DelegateProxy(menu)
         }
         
-        let isHighlighted = self.isHighlighted
+        let isHighlighted = enclosingMenuItem?.isHighlighted ?? false
+        /*
         if drawsIsHighlighted {
             highlightView.isHidden = !isHighlighted || !mouseIsHovering
         }
+         */
         
         guard autoHighlightSubviews else { return }
         let isEnabled = self.isEnabled
@@ -366,6 +378,7 @@ open class MenuItemView: NSView {
             .forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
     }
     
+    /*
     open override func mouseEntered(with event: NSEvent) {
         if let enclosingMenuItem = enclosingMenuItem {
             if enclosingMenuItem.menu?.highlightedItem?.tag == enclosingMenuItem.tag {
@@ -383,6 +396,7 @@ open class MenuItemView: NSView {
             }
         }
     }
+     */
     
     private var highlightViewConstraits: [NSLayoutConstraint] = []
     private var innerContentConstraits: [NSLayoutConstraint] = []
@@ -391,7 +405,7 @@ open class MenuItemView: NSView {
 // MARK: - Setup
 private extension MenuItemView {
     func setup() {
-        _ = trackingArea
+       //  _ = trackingArea
         setupHighlightView()
         setupLayoutGuide()
     }

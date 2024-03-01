@@ -44,7 +44,6 @@ class FontMenuItemView: MenuItemView {
     }
         
     func sharedInit() {
-        drawsIsHighlighted = false
         addSubview(contentView, layoutAutomatically: true)
     }
     
