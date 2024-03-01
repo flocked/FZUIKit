@@ -104,6 +104,26 @@ public extension NSUIFont {
             return .systemFont(ofSize: NSUIFont.systemFontSize + 17)
         }
     #endif
+    
+    /// Returns a new font based on the current font, but with the specified font matrix.
+    func withMatrix(_ matrix: AffineTransform) -> NSUIFont? {
+        NSUIFont(descriptor: fontDescriptor.withMatrix(matrix), size: pointSize)
+    }
+    /// Returns a new font based on the current font, but with the specified design style.
+    func withDesign(_ design: NSUIFontDescriptor.SystemDesign) -> NSUIFont? {
+        guard let fontDescriptor = fontDescriptor.withDesign(design) else { return nil }
+        return NSUIFont(descriptor: fontDescriptor, size: pointSize)
+    }
+    
+    /// Returns a new font based on the current font, but with the specified symbolic traits taking precedence over the existing ones.
+    func withSymbolicTraits(_ symbolTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont? {
+        NSUIFont(descriptor: fontDescriptor.withSymbolicTraits(symbolTraits), size: pointSize)
+    }
+    
+    /// Returns a new font based on the current font, but with the specified face.
+    func withFace(_ newFacw: String) -> NSUIFont? {
+        NSUIFont(descriptor: fontDescriptor.withFace(newFacw), size: pointSize)
+    }
 }
 
 public extension NSUIFont {

@@ -239,7 +239,13 @@ public class FontManagerNewN: NSObject {
             fontMemberPopUpButton.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
-                  //  if self.multipleMembers
+                    if self.multipleMembers {
+                        let faceName = self.currentFontMembers[fontMemberPopUpButton.indexOfSelectedItem].faceName
+                        let newSelectionFonts = textView.selectionFonts.compactMap({$0.withFace(faceName)})
+                        if !newSelectionFonts.isEmpty {
+                            textView.selectionFonts = newSelectionFonts
+                        }
+                    }
                 } else {
                     self._currentMemberIndex = fontMemberPopUpButton.indexOfSelectedItem
                     self.updateSelectedFont()
