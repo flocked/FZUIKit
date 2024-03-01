@@ -9,24 +9,31 @@
 import AppKit
 
 class ObserverGestureRecognizer: NSGestureRecognizer {
-    
-    var observation: NSKeyValueObservation? = nil
-        
     override func keyDown(with event: NSEvent) {
+        view?.keyHandlers.keyDown?(event)
         super.keyDown(with: event)
     }
     
+    override func keyUp(with event: NSEvent) {
+        view?.keyHandlers.keyUp?(event)
+        super.keyUp(with: event)
+    }
+    
+    override func flagsChanged(with event: NSEvent) {
+        view?.keyHandlers.flagsChanged?(event)
+        super.flagsChanged(with: event)
+    }
+    
     override func mouseDown(with event: NSEvent) {
+        if let view = view {
+            mouseDownLocation = event.location(in: view)
+        }
+        didStartDragging = false
         view?.mouseHandlers.leftDown?(event)
         super.mouseDown(with: event)
     }
     
     override func mouseUp(with event: NSEvent) {
-        if let view = view {
-            mouseDownLocation = event.location(in: view)
-            view.mouseHandlers.leftUp?(event)
-        }
-        didStartDragging = false
         view?.mouseHandlers.leftUp?(event)
         super.mouseUp(with: event)
     }
@@ -54,13 +61,28 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
     
     override func mouseDragged(with event: NSEvent) {
         setupDraggingSession(for: event)
-        view?.mouseHandlers.dragged?(event)
+        view?.mouseHandlers.leftDragged?(event)
         super.mouseDragged(with: event)
     }
     
     override func rightMouseDragged(with event: NSEvent) {
         view?.mouseHandlers.rightDragged?(event)
         super.rightMouseDragged(with: event)
+    }
+    
+    override func otherMouseDragged(with event: NSEvent) {
+        view?.mouseHandlers.otherDragged?(event)
+        super.otherMouseDragged(with: event)
+    }
+    
+    override func magnify(with event: NSEvent) {
+        view?.mouseHandlers.magnify?(event)
+        super.magnify(with: event)
+    }
+    
+    override func rotate(with event: NSEvent) {
+        view?.mouseHandlers.rotate?(event)
+        super.rotate(with: event)
     }
     
     func setupMenuProvider(for event: NSEvent) {
@@ -110,13 +132,15 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
         view.beginDraggingSession(with: draggingItems, event: event, source: observerView)
     }
     
+    var viewObservation: NSKeyValueObservation? = nil
+    
     convenience init() {
         self.init(target: nil, action: nil)
     }
     
     override init(target: Any?, action: Selector?) {
         super.init(target: target, action: action)
-        observation = observeChanges(for: \.view) { old, new in
+        viewObservation = observeChanges(for: \.view) { old, new in
             if new == nil, let old = old {
                 old.setupEventMonitors()
             }

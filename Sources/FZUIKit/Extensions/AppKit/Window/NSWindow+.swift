@@ -10,6 +10,111 @@
     import FZSwiftUtils
 
     extension NSWindow {
+        /// Handlers for the window.
+        public struct Handlers {
+            /// The handler that gets called when the window’s key state changes.
+            public var isKey: ((Bool)->())?
+            /// The handler that gets called when the window’s main state changes.
+            public var isMain: ((Bool)->())?
+            /// The handler that gets called when the window’s first responder changes.
+            public var firstResponder: ((NSResponder?)->())?
+            /// The handler that gets called when the window’s frame changes.
+            public var frame: ((CGRect)->())?
+            
+            var needsObserver: Bool {
+                frame != nil || firstResponder != nil
+            }
+        }
+        
+        /// The handlers for the window.
+        public var handlers: Handlers {
+            get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: Handlers()) }
+            set {
+                set(associatedValue: newValue, key: "windowHandlers", object: self)
+                
+                if handlers.needsObserver, windowObserver == nil {
+                    windowObserver = KeyValueObserver(self)
+                } else if !handlers.needsObserver {
+                    windowObserver = nil
+                }
+                
+                if handlers.firstResponder != nil {
+                    windowObserver?.add(\.firstResponder) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.handlers.firstResponder?(new)
+                    }
+                }
+                
+                if handlers.frame != nil {
+                    windowObserver?.add(\.frame) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.handlers.frame?(new)
+                    }
+                }
+                
+                if handlers.isKey != nil, isKeyWindowTokens.isEmpty {
+                    _isKeyWindow = isKeyWindow
+                    isKeyWindowTokens.append(NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { [weak self] _ in
+                        guard let self = self else { return }
+                        self._isKeyWindow = true
+                    })
+                    isKeyWindowTokens.append(NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { [weak self] _ in
+                        guard let self = self else { return }
+                        self._isKeyWindow = false
+                    })
+                } else if handlers.isKey == nil {
+                    isKeyWindowTokens.removeAll()
+                }
+                
+                if handlers.isMain != nil, isMainWindowTokens.isEmpty {
+                    _isMainWindow = isMainWindow
+                    isMainWindowTokens.append(NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { [weak self] _ in
+                        guard let self = self else { return }
+                        self._isMainWindow = true
+                    })
+                    isMainWindowTokens.append(NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { [weak self] _ in
+                        guard let self = self else { return }
+                        self._isMainWindow = false
+                    })
+                } else if handlers.isMain == nil {
+                    isMainWindowTokens.removeAll()
+                }
+            }
+        }
+        
+        var windowObserver: KeyValueObserver<NSWindow>? {
+            get { getAssociatedValue(key: "windowObserver", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "windowObserver", object: self) }
+        }
+        
+        var isKeyWindowTokens: [NotificationToken] {
+            get { getAssociatedValue(key: "isKeyWindowTokens", object: self, initialValue: []) }
+            set { set(associatedValue: newValue, key: "isKeyWindowTokens", object: self) }
+        }
+        
+        var isMainWindowTokens: [NotificationToken] {
+            get { getAssociatedValue(key: "isMainWindowTokens", object: self, initialValue: []) }
+            set { set(associatedValue: newValue, key: "isMainWindowTokens", object: self) }
+        }
+        
+        var _isKeyWindow: Bool {
+            get { getAssociatedValue(key: "_isKeyWindow", object: self, initialValue: isKeyWindow) }
+            set { 
+                guard _isKeyWindow != newValue else { return }
+                set(associatedValue: newValue, key: "_isKeyWindow", object: self)
+                handlers.isKey?(newValue)
+            }
+        }
+        
+        var _isMainWindow: Bool {
+            get { getAssociatedValue(key: "_isMainWindow", object: self, initialValue: isMainWindow) }
+            set { 
+                guard _isMainWindow != newValue else { return }
+                set(associatedValue: newValue, key: "_isMainWindow", object: self)
+                handlers.isMain?(newValue)
+            }
+        }
+                
         /// A Boolean value that indicates whether the window is fullscreen.
         public var isFullscreen: Bool {
             get { styleMask.contains(.fullScreen) }

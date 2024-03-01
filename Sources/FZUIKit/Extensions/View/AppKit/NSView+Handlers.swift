@@ -45,6 +45,15 @@ extension NSView {
         }
     }
     
+    /// The handlers for mouse events.
+    public var keyHandlers: KeyHandlers {
+        get { getAssociatedValue(key: "keyHandlers", object: self, initialValue: KeyHandlers()) }
+        set {
+            set(associatedValue: newValue, key: "keyHandlers", object: self)
+            setupEventMonitors()
+        }
+    }
+    
     /// The handlers for the view state.
     public var viewHandlers: ViewHandlers {
         get { getAssociatedValue(key: "viewHandlers", object: self, initialValue: ViewHandlers()) }
@@ -72,16 +81,14 @@ extension NSView {
             setupObserverView()
         }
     }
-    
-    // ObserverGestureRecognizer
-    
+        
     var observerGestureRecognizer: ObserverGestureRecognizer? {
         get { getAssociatedValue(key: "observerGestureRecognizer", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "observerGestureRecognizer", object: self) }
     }
     
     func setupEventMonitors() {
-        if mouseHandlers.needsObserving || menuProvider != nil || dragHandlers.canDrag != nil {
+        if mouseHandlers.needsObserving || keyHandlers.needsObserving || menuProvider != nil || dragHandlers.canDrag != nil {
             if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
                 addGestureRecognizer(observerGestureRecognizer)
             } else if observerGestureRecognizer == nil {
@@ -92,112 +99,7 @@ extension NSView {
             observerGestureRecognizer?.removeFromView()
             observerGestureRecognizer = nil
         }
-        /*
-        setupEventMonitor(for: .leftMouseUp, #selector(NSView.mouseUp(with:)), \.leftUp)
-        setupEventMonitor(for: .rightMouseUp, #selector(NSView.rightMouseUp(with:)), \.rightUp)
-        setupEventMonitor(for: .rightMouseDragged, #selector(NSView.rightMouseDragged(with:)), \.rightDragged)
-        setupEventMonitor(for: .otherMouseDown, #selector(NSView.otherMouseDown(with:)), \.otherDown)
-        setupEventMonitor(for: .otherMouseUp, #selector(NSView.otherMouseUp(with:)), \.otherUp)
-        setupEventMonitor(for: .leftMouseDown, #selector(NSView.mouseDown(with:)), \.leftDown, { dragHandlers.canDrag != nil }) { event, view in
-            view.didStartDragging = false
-            view.mouseDownLocation = event.location(in: view)
-        }
-        setupEventMonitor(for: .rightMouseDown, #selector(NSView.rightMouseDown(with:)), \.rightDown, { menuProvider != nil }) { event, view in
-            view.setupMenuProvider(for: event)
-        }
-        setupEventMonitor(for: .leftMouseDragged, #selector(NSView.mouseDragged(with:)), \.dragged, { dragHandlers.canDrag != nil }) { event, view in
-            view.setupDraggingSession(for: event)
-        }
-        */
     }
-    /*
-    func setupEventMonitor(for event: NSEvent.EventTypeMask, _ selector: Selector, _ keyPath: KeyPath<NSView.MouseHandlers, ((NSEvent) -> ())?>, _ condition: ()->(Bool) = { return true }, _ additional: ((NSEvent, NSView)->())? = nil) {
-        do {
-            if mouseHandlers[keyPath: keyPath] != nil || condition() {
-                if eventMonitors[event] == nil {
-                    eventMonitors[event] =  try replaceMethod(selector,
-                                                              methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
-                                                              hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
-                        object, event in
-                        if let view = object as? NSView {
-                            view.mouseHandlers[keyPath: keyPath]?(event)
-                            additional?(event, view)
-                        }
-                        store.original(object, selector, event)
-                    }
-                    }
-                }
-            } else {
-                if let token = eventMonitors[event] {
-                    resetMethod(token)
-                }
-                eventMonitors[event] = nil
-            }
-        } catch {
-           Swift.debugPrint(error)
-        }
-    }
-    
-    var mouseDownLocation: CGPoint {
-        get { getAssociatedValue(key: "leftMouseDownLocation", object: self, initialValue: .zero) }
-        set { set(associatedValue: newValue, key: "leftMouseDownLocation", object: self) }
-    }
-    
-    var didStartDragging: Bool {
-        get { getAssociatedValue(key: "didStartDragging", object: self, initialValue: false) }
-        set { set(associatedValue: newValue, key: "didStartDragging", object: self) }
-    }
-    
-    func setupMenuProvider(for event: NSEvent) {
-        guard let menuProvider = self.menuProvider else { return }
-        let location = event.location(in: self)
-        if let menu = menuProvider(location) {
-            menu.handlers.didClose = {
-                if self.menu == menu {
-                    self.menu = nil
-                }
-            }
-            self.menu = menu
-        } else {
-            self.menu = nil
-        }
-    }
-    
-    static let minimumDragDistance: CGFloat = 4.0
-    
-    func setupDraggingSession(for event: NSEvent) {
-        guard let canDrag = dragHandlers.canDrag, !didStartDragging else { return }
-        let location = event.location(in: self)
-        guard mouseDownLocation.distance(to: location) >= NSView.minimumDragDistance else { return }
-        didStartDragging = true
-        guard let items = canDrag(location), !items.isEmpty, let observerView = self.observerView else { return }
-        fileDragOperation = .copy
-        if dragHandlers.fileDragOperation == .move {
-            if items.count == (items as? [URL] ?? []).filter({$0.absoluteString.contains("file:/")}).count {
-                fileDragOperation = .move
-            }
-        }
-        let draggingItems = items.compactMap({NSDraggingItem($0)})
-        let component: NSDraggingImageComponent
-        if let dragImage =  dragHandlers.dragImage?(location) {
-            component = .init(image: dragImage.image, frame: dragImage.imageFrame)
-        } else {
-            component = .init(view: self)
-        }
-        draggingItems.first?.imageComponentsProvider = { [component] }
-        draggingItems.forEach({
-           $0.draggingFrame = CGRect(.zero, self.bounds.size)
-            // $0.imageComponentsProvider = { [component] }
-        })
-        NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
-        beginDraggingSession(with: draggingItems, event: event, source: observerView)
-    }
-                
-    var eventMonitors: [NSEvent.EventTypeMask: ReplacedMethodToken] {
-        get { getAssociatedValue(key: "eventMonitors", object: self, initialValue: [:]) }
-        set { set(associatedValue: newValue, key: "eventMonitors", object: self) }
-    }
-    */
         
     func setupViewObservation() {
         if viewHandlers.needsObserving || windowHandlers.window != nil {
@@ -320,6 +222,22 @@ extension NSView {
         }
     }
     
+    /// The handlers for keyboard events.
+    public struct KeyHandlers {
+        /// The handler that gets called when the user has pressed a key.
+        public var keyDown: ((NSEvent) -> ())?
+        /// The handler that gets called when the user has released a key.
+        public var keyUp: ((NSEvent) -> ())?
+        /// The handler that gets called when the user pressed or released a modifier key (Shift, Control, and so on).
+        public var flagsChanged: ((NSEvent) -> ())?
+        
+        var needsObserving: Bool {
+            keyDown != nil ||
+            keyUp != nil ||
+            flagsChanged != nil
+        }
+    }
+    
     /// The handlers for mouse events.
     public struct MouseHandlers {
         /// Options when the `entered`, `exited` and `moved` mouse handlers are active.
@@ -345,41 +263,64 @@ extension NSView {
         /// Option when the `entered`, `exited` and `moved` mouse handlers are active. The default value is `inKeyWindow`.
         public var active: ActiveOption = .inKeyWindow
         
-        /// The handler that gets called when when the mouse inside the view moved.
-        public var moved: ((NSEvent) -> ())?
-        
-        /// The handler that gets called when when the mouse dragged inside the view.
-        public var dragged: ((NSEvent) -> ())?
-        
-        /// The handler that gets called when when the mouse entered the view.
+        /// The handler that gets called when the mouse entered the view.
         public var entered: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the mouse exited the view.
+        /// The handler that gets called when the mouse inside the view moved.
+        public var moved: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when the mouse exited the view.
         public var exited: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the user clicked the left mouse button.
+        /// The handler that gets called when the user clicked the left mouse button.
         public var leftDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the user released the left mouse button.
+        /// The handler that gets called when the user released the left mouse button.
         public var leftUp: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the user clicked the right mouse button.
+        /// The handler that gets called when the user moved the mouse with the left button pressed.
+        public var leftDragged: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when the user clicked the right mouse button.
         public var rightDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the user released the right mouse button.
+        /// The handler that gets called when the user released the right mouse button.
         public var rightUp: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the mouse dragged inside the view while the right button clicked,
+        /// The handler that gets called when the user moved the mouse with the right button pressed.
         public var rightDragged: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the user clicked a mouse button other than the left or right one.
+        /// The handler that gets called when the user clicked a mouse button other than the left or right one.
         public var otherDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when when the user released a mouse button other than the left or right one.
+        /// The handler that gets called when the user released a mouse button other than the left or right one.
         public var otherUp: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when the user moved the mouse with a button other than the left or right one pressed.
+        public var otherDragged: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when the user is performing a pinch gesture.
+        public var magnify: ((NSEvent) -> ())?
+        
+        /// The handler that gets called when the user is performing a rotation gesture.
+        public var rotate: ((NSEvent) -> ())?
         
         var needsObserving: Bool {
             moved != nil || entered != nil || exited != nil
+        }
+        
+        var needsGestureObserving: Bool {
+            leftDown != nil ||
+            leftUp != nil ||
+            leftDragged != nil ||
+            rightDown != nil ||
+            rightUp != nil ||
+            rightDragged != nil ||
+            otherDown != nil ||
+            otherUp != nil ||
+            otherDragged != nil ||
+            rotate != nil ||
+            magnify != nil
         }
         
         var trackingAreaOptions: NSTrackingArea.Options {
@@ -640,11 +581,6 @@ extension NSView {
         override public func mouseMoved(with event: NSEvent) {
             _mouseHandlers.moved?(event)
             super.mouseMoved(with: event)
-        }
-        
-        override public func mouseDragged(with event: NSEvent) {
-            _mouseHandlers.dragged?(event)
-            super.mouseDragged(with: event)
         }
                  
         func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
