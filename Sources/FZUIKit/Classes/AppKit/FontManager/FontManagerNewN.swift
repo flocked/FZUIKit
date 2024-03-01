@@ -96,6 +96,7 @@ public class FontManagerNewN: NSObject {
             Swift.print("targetIsFirstResonder", targetIsFirstResonder)
         }
     }
+    var _targetIsFirstResonder: Bool = false
     var targetWindowObserver: NSKeyValueObservation? = nil
     
     /**
@@ -114,7 +115,7 @@ public class FontManagerNewN: NSObject {
                         Swift.print("firstResponder", new != self.fontSizeTextField, new != self.fontSizeTextField?.currentEditor(), (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()),  self.fontSizeTextField ?? "nil", new)
                     }
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
-                    self.targetIsFirstResonder = textView == new
+                    self.targetIsFirstResonder = textView.isFirstResponder
                 }
                 updateSelectedFont(for: textView)
                 targetFontObservation = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
@@ -129,7 +130,7 @@ public class FontManagerNewN: NSObject {
                         Swift.print("firstResponder", new != self.fontSizeTextField, new != self.fontSizeTextField?.currentEditor(), (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()),  self.fontSizeTextField ?? "nil", new)
                     }
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
-                    self.targetIsFirstResonder = control == new
+                    self.targetIsFirstResonder = control.isFirstResponder
                 }
                 selectedFont = control.font
                 targetFontObservation = control.observeChanges(for: \.font) { [weak self] old, new in
@@ -257,7 +258,7 @@ public class FontManagerNewN: NSObject {
     
     var firstResponderObserver: NSKeyValueObservation? = nil
     func makeTargetFirstResponder() {
-        guard targetIsFirstResonder else { return }
+        guard _targetIsFirstResonder else { return }
         if let textView = target as? NSTextView {
             textView.window?.makeFirstResponder(textView)
         } else if let textField = target as? NSTextField {
@@ -273,6 +274,10 @@ public class FontManagerNewN: NSObject {
          //   fontSizeTextField.editingHandlers
             fontSizeTextField.actionOnEnterKeyDown = .endEditing
             fontSizeTextField.actionOnEscapeKeyDown = .endEditingAndReset
+            fontSizeTextField.editingHandlers.didBegin = { [weak self] in
+                guard let self = self else { return }
+                self._targetIsFirstResonder = self.targetIsFirstResonder
+            }
             fontSizeTextField.editingHandlers.didEnd = { [weak self] in
                 guard let self = self, let fontSizeTextField = self.fontSizeTextField else { return  }
                 if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
