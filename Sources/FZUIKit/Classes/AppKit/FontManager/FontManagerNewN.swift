@@ -528,6 +528,7 @@ public class FontManagerNewN: NSObject {
         get { fontFamilyPopUpButton?.indexOfSelectedItem ?? _currentFamilyIndex }
         set {
             _currentFamilyIndex = newValue
+            fontFamilyPopUpButton?.menu?.items.forEach({$0.state = .off})
             fontFamilyPopUpButton?.selectItem(at: newValue)
         }
     }
@@ -537,7 +538,6 @@ public class FontManagerNewN: NSObject {
         get { fontMemberPopUpButton?.indexOfSelectedItem ?? _currentMemberIndex }
         set {
             _currentMemberIndex = newValue
-            fontMemberPopUpButton?.menu?.items.forEach({$0.state = .off})
             fontMemberPopUpButton?.selectItem(at: newValue)
         }
     }
