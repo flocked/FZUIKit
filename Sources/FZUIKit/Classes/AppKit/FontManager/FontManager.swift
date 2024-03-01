@@ -18,9 +18,7 @@ public class FontManager: NSObject {
             selectFont(newValue)
         }
     }
-    
-    var selectedFonts: [NSFont] = []
-    
+        
     /// The selected font size.
     @objc dynamic public var fontSize: CGFloat = 12 {
         didSet {
@@ -156,12 +154,35 @@ public class FontManager: NSObject {
         return false
     }
     
+    var targetTextField: NSTextField? {
+        target as? NSTextField
+    }
+    var targetTextView: NSTextView? {
+        target as? NSTextView
+    }
+    
+    var selectedFonts: [NSFont] {
+        get {
+            var selectedFonts: [NSFont] = []
+            if let targetTextView = self.targetTextView {
+                selectedFonts = targetTextView.selectionFonts
+                if selectedFonts.isEmpty, let font = targetTextView.typingAttributes[.font] as? NSFont {
+                    selectedFonts = [font]
+                }
+            }
+            return selectedFonts
+        }
+    }
+    
     func updateSelectedFont(for textView: NSTextView) {
         fontFamilyPopUpButton?.menu?.handlers.didClose = nil
         fontMemberPopUpButton?.menu?.handlers.didClose = nil
         var fonts = textView.selectionFonts
         if fonts.isEmpty, let font = textView.typingAttributes[.font] as? NSFont {
+            Swift.print("updateSelectedFont typing")
             fonts = [font]
+        } else {
+            Swift.print("updateSelectedFont")
         }
         if fonts.count == 1 {
            selectedFont = fonts.first
