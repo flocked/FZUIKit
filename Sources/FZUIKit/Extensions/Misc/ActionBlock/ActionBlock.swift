@@ -7,14 +7,15 @@
 
 #if os(macOS)
 
-    import AppKit
-    import Foundation
+import AppKit
+import FZSwiftUtils
 
-    public protocol TargetActionProtocol: NSObjectProtocol {
-        typealias ActionBlock = (Self) -> Void
-        var target: AnyObject? { get set }
-        var action: Selector? { get set }
-    }
+/// An object with a target and action.
+public protocol TargetActionProtocol: NSObjectProtocol {
+    typealias ActionBlock = (Self) -> Void
+    var target: AnyObject? { get set }
+    var action: Selector? { get set }
+}
 
 extension NSColorPanel: TargetActionProtocol {
     public var action: Selector? {
@@ -28,144 +29,122 @@ extension NSColorPanel: TargetActionProtocol {
     }
 }
 
-    extension NSControl: TargetActionProtocol {}
-    extension NSCell: TargetActionProtocol {}
-    extension NSToolbarItem: TargetActionProtocol {}
+extension NSControl: TargetActionProtocol { }
+extension NSCell: TargetActionProtocol { }
+extension NSToolbarItem: TargetActionProtocol { }
+extension NSMenuItem: TargetActionProtocol { }
 
-    extension NSPanGestureRecognizer: TargetActionProtocol {}
-    extension NSMagnificationGestureRecognizer: TargetActionProtocol {}
-    extension NSClickGestureRecognizer: TargetActionProtocol {}
-    extension NSPressGestureRecognizer: TargetActionProtocol {}
-    extension NSRotationGestureRecognizer: TargetActionProtocol {}
+extension NSPanGestureRecognizer: TargetActionProtocol { }
+extension NSMagnificationGestureRecognizer: TargetActionProtocol { }
+extension NSClickGestureRecognizer: TargetActionProtocol { }
+extension NSPressGestureRecognizer: TargetActionProtocol { }
+extension NSRotationGestureRecognizer: TargetActionProtocol { }
 
-    extension NSMenuItem: TargetActionProtocol {}
-
-    class ActionTrampoline<T: TargetActionProtocol>: NSObject {
-        var action: (T) -> Void
-
-        init(action: @escaping (T) -> Void) {
-            self.action = action
-        }
-
-        @objc func performAction(sender: NSObject) {
-            if let sender = sender as? T {
-                action(sender)
-            }
+class ActionTrampoline<T: TargetActionProtocol>: NSObject {
+    var action: (T) -> Void
+    
+    init(action: @escaping (T) -> Void) {
+        self.action = action
+    }
+    
+    @objc func performAction(sender: NSObject) {
+        if let sender = sender as? T {
+            action(sender)
         }
     }
+}
 
-    private let ActionBlockAssociatedObjectKey = "ActionBlock".address
-
-    fileprivate extension String {
-        var address: UnsafeRawPointer {
-            UnsafeRawPointer(bitPattern: abs(hashValue))!
-        }
+public extension TargetActionProtocol {
+    /// Sets the action handler of the object.
+    @discardableResult
+    func action(_ action: ActionBlock?) -> Self {
+        actionBlock = action
+        return self
     }
-
-    public extension TargetActionProtocol {
-        /// The action handler of the control.
-        @discardableResult
-        func action(_ action: ActionBlock?) -> Self {
-            actionBlock = action
-            return self
-        }
-        
-        /// The action handler of the control.
-        var actionBlock: ActionBlock? {
-            set {
-                guard let action = newValue else {
-                    objc_setAssociatedObject(self, ActionBlockAssociatedObjectKey, nil,
-                                             .OBJC_ASSOCIATION_RETAIN)
-                    return
-                }
-                let trampoline = ActionTrampoline(action: action)
-                target = trampoline
-                self.action = #selector(trampoline.performAction(sender:))
-                objc_setAssociatedObject(self, ActionBlockAssociatedObjectKey, trampoline, .OBJC_ASSOCIATION_RETAIN)
-            }
-            get {
-                guard let trampoline: ActionTrampoline =
-                    objc_getAssociatedObject(self, ActionBlockAssociatedObjectKey) as? ActionTrampoline<Self> else { return nil }
-                return trampoline.action
+    
+    /// The action handler of the object.
+    var actionBlock: ActionBlock? {
+        set {
+            if let newValue = newValue {
+                actionTrampoline = ActionTrampoline(action: newValue)
+                target = actionTrampoline
+                action = #selector(ActionTrampoline<Self>.performAction(sender:))
+            } else if actionTrampoline != nil {
+                actionTrampoline = nil
+                action = nil
             }
         }
-
-        private func setup(setup: (Self) -> Void) -> Self {
-            setup(self)
-            return self
-        }
+        get { actionTrampoline?.action }
     }
+    
+    internal var actionTrampoline: ActionTrampoline<Self>? {
+        get { getAssociatedValue(key: "actionTrampoline", object: self) }
+        set { set(associatedValue: newValue, key: "actionTrampoline", object: self) }
+    }
+}
 
 #elseif os(iOS) || os(tvOS)
-    import Foundation
-    import UIKit
+import UIKit
+import FZSwiftUtils
 
-    public protocol TargetActionProtocol: AnyObject {
-        typealias ActionBlock = (Self) -> Void
-        func addTarget(_ target: Any, action: Selector)
-        func removeTarget(_ target: Any?, action: Selector?)
+/// An object with a target and action.
+public protocol TargetActionProtocol: AnyObject {
+    typealias ActionBlock = (Self) -> Void
+    func addTarget(_ target: Any, action: Selector)
+    func removeTarget(_ target: Any?, action: Selector?)
+}
+
+extension UISwipeGestureRecognizer: TargetActionProtocol { }
+extension UIPanGestureRecognizer: TargetActionProtocol { }
+extension UILongPressGestureRecognizer: TargetActionProtocol { }
+extension UITapGestureRecognizer: TargetActionProtocol { }
+
+#if os(iOS)
+extension UIPinchGestureRecognizer: TargetActionProtocol { }
+extension UIRotationGestureRecognizer: TargetActionProtocol { }
+extension UIHoverGestureRecognizer: TargetActionProtocol { }
+#endif
+
+class ActionTrampoline<T: TargetActionProtocol>: NSObject {
+    var action: (T) -> Void
+    
+    init(action: @escaping (T) -> Void) {
+        self.action = action
     }
-
-    extension UISwipeGestureRecognizer: TargetActionProtocol {}
-    extension UIPanGestureRecognizer: TargetActionProtocol {}
-    extension UILongPressGestureRecognizer: TargetActionProtocol {}
-    extension UITapGestureRecognizer: TargetActionProtocol {}
-
-    #if os(iOS)
-        extension UIPinchGestureRecognizer: TargetActionProtocol {}
-        extension UIRotationGestureRecognizer: TargetActionProtocol {}
-        extension UIHoverGestureRecognizer: TargetActionProtocol {}
-    #endif
-
-    class ActionTrampoline<T: TargetActionProtocol>: NSObject {
-        var action: (T) -> Void
-
-        init(action: @escaping (T) -> Void) {
-            self.action = action
-        }
-
-        @objc func performAction(sender: NSObject) {
-            if let sender = sender as? T {
-                action(sender)
-            }
-        }
-    }
-
-    private let ActionBlockAssociatedObjectKey = "ActionBlock".address
-
-    fileprivate extension String {
-        var address: UnsafeRawPointer {
-            UnsafeRawPointer(bitPattern: abs(hashValue))!
+    
+    @objc func performAction(sender: NSObject) {
+        if let sender = sender as? T {
+            action(sender)
         }
     }
+}
 
-    public extension TargetActionProtocol {
-        var actionBlock: ActionBlock? {
-            set {
-                guard let action = newValue else {
-                    if let trampoline: ActionTrampoline =
-                        objc_getAssociatedObject(self, ActionBlockAssociatedObjectKey) as? ActionTrampoline<Self>
-                    {
-                        removeTarget(trampoline, action: #selector(trampoline.performAction(sender:)))
-                    }
-                    objc_setAssociatedObject(self, ActionBlockAssociatedObjectKey, nil,
-                                             .OBJC_ASSOCIATION_RETAIN)
-                    return
-                }
+public extension TargetActionProtocol {
+    /// Sets the action handler of the object.
+    @discardableResult
+    func action(_ action: ActionBlock?) -> Self {
+        actionBlock = action
+        return self
+    }
+    
+    /// The action handler of the object.
+    var actionBlock: ActionBlock? {
+        set {
+            if let action = newValue {
                 let trampoline = ActionTrampoline(action: action)
                 addTarget(trampoline, action: #selector(trampoline.performAction(sender:)))
-                objc_setAssociatedObject(self, ActionBlockAssociatedObjectKey, trampoline, .OBJC_ASSOCIATION_RETAIN)
-            }
-            get {
-                guard let trampoline: ActionTrampoline =
-                    objc_getAssociatedObject(self, ActionBlockAssociatedObjectKey) as? ActionTrampoline<Self> else { return nil }
-                return trampoline.action
+                actionTrampoline = trampoline
+            } else if let trampoline = actionTrampoline {
+                removeTarget(trampoline, action: #selector(trampoline.performAction(sender:)))
+                actionTrampoline = nil
             }
         }
-
-        private func setup(setup: (Self) -> Void) -> Self {
-            setup(self)
-            return self
-        }
+        get { actionTrampoline?.action }
     }
+    
+    internal var actionTrampoline: ActionTrampoline<Self>? {
+        get { getAssociatedValue(key: "actionTrampoline", object: self) }
+        set { set(associatedValue: newValue, key: "actionTrampoline", object: self) }
+    }
+}
 #endif

@@ -104,8 +104,13 @@ extension FontMenuItemView {
             self.title = title
             textField.stringValue = title ?? font.fontName
             self.font = font
+            adjustFont()
             update()
         }
+        
+        let specialFontNames: Set<String> = [
+            "Bodoni Ornaments", "Webdings", "Wingdings", "Wingdings2", "Wingdings3"
+        ]
         
         override init(frame frameRect: NSRect) {
             super.init(frame: frameRect)
@@ -152,6 +157,25 @@ extension FontMenuItemView {
             layoutConstraints.activate()
             centerConstraint = textField.firstBaselineAnchor.constraint(equalTo: centerYAnchor).activate()
             update()
+        }
+        
+        private func adjustFont(height: CGFloat? = 28.0){
+            let height: CGFloat = height ?? frame.height
+            var current = font
+            if let familyName = font.familyName, specialFontNames.contains(familyName) {
+                current = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+            }
+            let margin: CGFloat = 4
+            while current.pointSize > 1 {
+                let attrStr = NSMutableAttributedString(string: textField.stringValue, attributes: [.font: current])
+                let rect = attrStr.boundingRect(with: NSSize(width: 0, height: height), options: [.usesDeviceMetrics, .usesFontLeading])
+                
+                if rect.height + margin <= height {
+                    break
+                }
+                current = current.withSize(current.pointSize - 1)
+            }
+            font = current
         }
         
         override func draw(_ dirtyRect: NSRect) {

@@ -32,6 +32,11 @@ extension NSFont {
         /// The members of the font family (e.g. `regular`, `light` or `bold`).
         public let members: [FontMember]
         
+        /// The font with the specified size.
+        public func font(withSize size: CGFloat = NSFont.systemFontSize) -> NSFont? {
+            NSFont(name: name, size: size)
+        }
+        
         init(_ name: String) {
             self.name = name
             let localizedName = NSFontManager.shared.localizedName(forFamily: name, face: nil)
@@ -68,7 +73,7 @@ extension NSFont {
         public let traits: NSFontDescriptor.SymbolicTraits
         
         /// The font with the specified size.
-        public func font(size: CGFloat = NSFont.systemFontSize) -> NSFont? {
+        public func font(withSize size: CGFloat = NSFont.systemFontSize) -> NSFont? {
             NSFont(name: fontName, size: size)
         }
         

@@ -177,7 +177,7 @@ public class FontManagerNewN: NSObject {
                 } else if memberIndexes.count > 1 {
                     fontMemberPopUpButton?.selectItem(at: memberIndexes.first!)
                     for index in memberIndexes {
-                      //  fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
+                        fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
                     }
                     fontMemberPopUpButton?.textField?.stringValue = "Multiple"
                     fontMemberPopUpButton?.menu?.handlers.didClose = { [weak self] in
@@ -544,7 +544,7 @@ public class FontManagerNewN: NSObject {
         get { fontMemberPopUpButton?.indexOfSelectedItem ?? _currentMemberIndex }
         set {
             _currentMemberIndex = newValue
-           // fontMemberPopUpButton?.menu?.items.forEach({$0.state = .off})
+            fontMemberPopUpButton?.menu?.items.forEach({$0.state = .off})
             fontMemberPopUpButton?.selectItem(at: newValue)
         }
     }
@@ -612,22 +612,12 @@ public class FontManagerNewN: NSObject {
         guard let fontFamilyPopUpButton = fontFamilyPopUpButton else { return }
         fontFamilyPopUpButton.removeAllItems()
         availableFontFamilies.forEach {
-            guard var font = NSFont(name: $0.name, size: NSFont.systemFontSize) else {
+            guard var font = $0.font() else {
                 return
             }
-            
-            if specialFontNames.contains($0.name) {
-                font = adjustFont(NSFont.systemFont(ofSize: NSFont.systemFontSize), string: $0.localizedName, height: popUpButtonItemHeight)
-            } else {
-                font = adjustFont(font, string: $0.localizedName, height: popUpButtonItemHeight)
-            }
-            
-            
             let item = NSMenuItem($0.localizedName)
-            item.tag = UUID().hashValue
             if showsFontAppearanceWhenSelecting {
-                let itemView = FontMenuItemView(font: font, title: $0.localizedName)
-                item.view = itemView
+                item.view = FontMenuItemView(font: font, title: $0.localizedName)
             }
             fontFamilyPopUpButton.menu?.addItem(item)
         }
@@ -647,24 +637,16 @@ public class FontManagerNewN: NSObject {
     func updateMembersPopUpButton(for fontFamily: NSFont.FontFamily? = nil) {
         let fontFamily = fontFamily ?? selectedFontFamily
         guard let fontMemberPopUpButton = fontMemberPopUpButton, let fontFamily = fontFamily else { return }
-        let isSpecial = specialFontNames.contains(fontFamily.name)
         fontMemberPopUpButton.removeAllItems()
         fontMemberPopUpButton.isEnabled = isEnabled
         for member in currentFontMembers {
-            let font: NSFont
-            if isSpecial {
-                font = adjustFont(NSFont.systemFont(ofSize: NSFont.systemFontSize), string: member.fontName, height: popUpButtonItemHeight)
-            } else {
-                font = adjustFont(NSFont(name: member.fontName, size: NSFont.systemFontSize)!, string: member.faceName, height: popUpButtonItemHeight)
-            }
-            let item = NSMenuItem(member.faceName)
-            item.tag = UUID().hashValue
+            let item = NSMenuItem(member.localizedFaceName)
             if showsFontAppearanceWhenSelecting {
-                let itemView = FontMenuItemView(font: font, title: member.faceName)
-                item.view = itemView
+                item.view = FontMenuItemView(font: member.font()!, title: member.localizedFaceName)
             }
             fontMemberPopUpButton.menu?.addItem(item)
         }
+        
         if fontMemberPopUpButton.numberOfItems > 0 {
             currentMemberIndex = 0
         }
