@@ -180,6 +180,7 @@ public class FontManagerNewN: NSObject {
                         fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
                     }
                     fontMemberPopUpButton?.textField?.stringValue = "Multiple"
+                    Swift.print("fontMemberPopUpButton", fontMemberPopUpButton?.textField != nil, fontMemberPopUpButton?.textField?.stringValue ?? "nil")
                     fontMemberPopUpButton?.menu?.handlers.didClose = { [weak self] in
                         guard let self = self else { return }
                         if self.multipleMembers {
@@ -188,10 +189,10 @@ public class FontManagerNewN: NSObject {
                     }
                 }
             } else if familyIndexes.count > 1 {
+                fontMemberPopUpButton?.selectItem(at: familyIndexes.first!)
                 for index in familyIndexes {
                     fontFamilyPopUpButton?.menu?.items[safe: index]?.state = .mixed
                 }
-                fontMemberPopUpButton?.selectItem(at: familyIndexes.first!)
                 fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
                 fontFamilyPopUpButton?.menu?.handlers.didClose = { [weak self] in
                     guard let self = self else { return }
@@ -536,6 +537,7 @@ public class FontManagerNewN: NSObject {
         get { fontMemberPopUpButton?.indexOfSelectedItem ?? _currentMemberIndex }
         set {
             _currentMemberIndex = newValue
+            fontMemberPopUpButton?.menu?.items.forEach({$0.state = .off})
             fontMemberPopUpButton?.selectItem(at: newValue)
         }
     }
