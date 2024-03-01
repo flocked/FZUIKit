@@ -138,6 +138,8 @@ public class FontManagerNewN: NSObject {
     }
     
     func updateSelectedFont(for textView: NSTextView) {
+        fontFamilyPopUpButton?.menu?.handlers.didClose = nil
+        fontMemberPopUpButton?.menu?.handlers.didClose = nil
         let fonts = textView.selectionFonts
         if fonts.count == 1 {
            selectedFont = fonts.first
