@@ -111,9 +111,6 @@ public class FontManagerNewN: NSObject {
             if let textView = target as? NSTextView {
                 targetIsFirstResonder = textView.isFirstResponder
                 targetWindowObserver = textView.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
-                    if let self = self, let new = new {
-                        Swift.print("firstResponder", new != self.fontSizeTextField, new != self.fontSizeTextField?.currentEditor(), (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()),  self.fontSizeTextField ?? "nil", new)
-                    }
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
                     self.targetIsFirstResonder = textView.isFirstResponder
                 }
@@ -126,9 +123,6 @@ public class FontManagerNewN: NSObject {
             } else if let control = target as? NSControl {
                 targetIsFirstResonder = control.isFirstResponder
                 targetWindowObserver = control.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
-                    if let self = self, let new = new {
-                        Swift.print("firstResponder", new != self.fontSizeTextField, new != self.fontSizeTextField?.currentEditor(), (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()),  self.fontSizeTextField ?? "nil", new)
-                    }
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
                     self.targetIsFirstResonder = control.isFirstResponder
                 }
@@ -197,6 +191,7 @@ public class FontManagerNewN: NSObject {
                 for index in familyIndexes {
                     fontFamilyPopUpButton?.menu?.items[safe: index]?.state = .mixed
                 }
+                fontMemberPopUpButton?.selectItem(at: familyIndexes.first!)
                 fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
                 fontFamilyPopUpButton?.menu?.handlers.didClose = { [weak self] in
                     guard let self = self else { return }
@@ -262,9 +257,7 @@ public class FontManagerNewN: NSObject {
         Swift.print("makeTargetFirstResponder")
         if let textView = target as? NSTextView {
             textView.window?.makeFirstResponder(textView)
-            let selectedRanges = textView.selectedRanges
-            textView.selectedRanges = [NSRange(location: 0, length: 0).nsValue]
-         //   textView.selectedRanges = selectedRanges
+            textView.selectedRanges = textView.selectedRanges
         } else if let textField = target as? NSTextField {
             textField.window?.makeFirstResponder(textField)
         }
@@ -289,7 +282,6 @@ public class FontManagerNewN: NSObject {
                 } else {
                     self.fontSize = fontSizeTextField.doubleValue
                 }
-                Swift.print("fontSizeTextField end", self.targetIsFirstResonder)
                 self.makeTargetFirstResponder()
             }
             let formatter = NumberFormatter()
