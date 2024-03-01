@@ -5,14 +5,11 @@
 //  Created by Florian Zand on 30.05.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
-#else
-import UIKit
-#endif
 
-extension TargetActionProtocol where Self: NSUIGestureRecognizer {
+
+extension TargetActionProtocol where Self: NSGestureRecognizer {
     /// Initializes the gesture recognizer with the specified action handler.
     init(action: @escaping ActionBlock) {
         self.init()
@@ -20,7 +17,7 @@ extension TargetActionProtocol where Self: NSUIGestureRecognizer {
     }
 }
 
-extension TargetActionProtocol where Self: NSUIControl {
+extension TargetActionProtocol where Self: NSControl {
     /// Initializes the control with the specified action handler.
     init(action: @escaping ActionBlock) {
         self.init()
@@ -28,7 +25,6 @@ extension TargetActionProtocol where Self: NSUIControl {
     }
 }
 
-#if os(macOS)
 extension TargetActionProtocol where Self: NSCell {
     /// Initializes the cell with the specified action handler.
     init(action: @escaping ActionBlock) {
@@ -36,5 +32,4 @@ extension TargetActionProtocol where Self: NSCell {
         actionBlock = action
     }
 }
-#endif
 #endif

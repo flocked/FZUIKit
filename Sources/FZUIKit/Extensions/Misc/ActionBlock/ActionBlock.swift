@@ -33,12 +33,7 @@ extension NSControl: TargetActionProtocol { }
 extension NSCell: TargetActionProtocol { }
 extension NSToolbarItem: TargetActionProtocol { }
 extension NSMenuItem: TargetActionProtocol { }
-
-extension NSPanGestureRecognizer: TargetActionProtocol { }
-extension NSMagnificationGestureRecognizer: TargetActionProtocol { }
-extension NSClickGestureRecognizer: TargetActionProtocol { }
-extension NSPressGestureRecognizer: TargetActionProtocol { }
-extension NSRotationGestureRecognizer: TargetActionProtocol { }
+extension NSGestureRecognizer: TargetActionProtocol { }
 
 class ActionTrampoline<T: TargetActionProtocol>: NSObject {
     var action: (T) -> Void
@@ -87,25 +82,7 @@ public extension TargetActionProtocol {
 import UIKit
 import FZSwiftUtils
 
-/// An object with a target and action.
-public protocol TargetActionProtocol: AnyObject {
-    typealias ActionBlock = (Self) -> Void
-    func addTarget(_ target: Any, action: Selector)
-    func removeTarget(_ target: Any?, action: Selector?)
-}
-
-extension UISwipeGestureRecognizer: TargetActionProtocol { }
-extension UIPanGestureRecognizer: TargetActionProtocol { }
-extension UILongPressGestureRecognizer: TargetActionProtocol { }
-extension UITapGestureRecognizer: TargetActionProtocol { }
-
-#if os(iOS)
-extension UIPinchGestureRecognizer: TargetActionProtocol { }
-extension UIRotationGestureRecognizer: TargetActionProtocol { }
-extension UIHoverGestureRecognizer: TargetActionProtocol { }
-#endif
-
-class ActionTrampoline<T: TargetActionProtocol>: NSObject {
+class ActionTrampoline<T: AnyObject>: NSObject {
     var action: (T) -> Void
     
     init(action: @escaping (T) -> Void) {
@@ -119,16 +96,22 @@ class ActionTrampoline<T: TargetActionProtocol>: NSObject {
     }
 }
 
-public extension TargetActionProtocol {
+public extension NSObjectProtocol where Self: UIGestureRecognizer {
+    /// Initializes the gesture recognizer with the specified action handler.
+    init(action: @escaping ((Self) -> Void)) {
+        self.init()
+        actionBlock = action
+    }
+    
     /// Sets the action handler of the object.
     @discardableResult
-    func action(_ action: ActionBlock?) -> Self {
+    func action(_ action: ((Self) -> Void)?) -> Self {
         actionBlock = action
         return self
     }
     
     /// The action handler of the object.
-    var actionBlock: ActionBlock? {
+    var actionBlock: ((Self) -> Void)? {
         set {
             if let action = newValue {
                 let trampoline = ActionTrampoline(action: action)
@@ -141,10 +124,37 @@ public extension TargetActionProtocol {
         }
         get { actionTrampoline?.action }
     }
-    
+
     internal var actionTrampoline: ActionTrampoline<Self>? {
         get { getAssociatedValue(key: "actionTrampoline", object: self) }
         set { set(associatedValue: newValue, key: "actionTrampoline", object: self) }
     }
 }
+
+/*
+ public extension NSObjectProtocol where Self: UIControl {
+     /// Sets the action handler for the specified event.
+     func setAction(for controlEvents: UIControl.Event, action: ((Self) -> Void)?) {
+         if let trampoline = actionTrampolines[controlEvents.rawValue] {
+             removeTarget(trampoline, action: #selector(trampoline.performAction(sender:)), for: controlEvents)
+             actionTrampolines[controlEvents.rawValue] = nil
+         }
+         if let action = action {
+             let trampoline = ActionTrampoline<Self>(action: action)
+             addTarget(trampoline, action: #selector(trampoline.performAction(sender:)), for: controlEvents)
+             actionTrampolines[controlEvents.rawValue] = trampoline
+         }
+     }
+     
+     func removeAllActions() {
+         actionTrampolines.forEach({removeTarget($0.value, action: #selector(ActionTrampoline<Self>.performAction(sender:)), for: UIControl.Event(rawValue: $0.key))})
+         actionTrampolines.removeAll()
+     }
+     
+     internal var actionTrampolines: [UIControl.Event.RawValue: ActionTrampoline<Self>] {
+         get { getAssociatedValue(key: "actionTrampolines", object: self, initialValue: [:]) }
+         set { set(associatedValue: newValue, key: "actionTrampolines", object: self) }
+     }
+ }
+ */
 #endif
