@@ -262,7 +262,9 @@ public class FontManagerNewN: NSObject {
         Swift.print("makeTargetFirstResponder")
         if let textView = target as? NSTextView {
             textView.window?.makeFirstResponder(textView)
-            textView.selectedRanges = textView.selectedRanges
+            let selectedRanges = textView.selectedRanges
+            textView.selectedRanges = [NSRange(location: 0, length: 0).nsValue]
+           // textView.selectedRanges = textView.selectedRanges
         } else if let textField = target as? NSTextField {
             textField.window?.makeFirstResponder(textField)
         }
