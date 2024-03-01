@@ -252,9 +252,17 @@ open class MenuItemView: NSView {
         }
     }
     
-    public var isHighlighted: Bool = false {
-        didSet {
-            highlightView.isHidden = !isHighlighted
+    var isHighlighted: Bool = false {
+        didSet { updateHighlight() } }
+    
+    public var showsHighlight: Bool = true {
+        didSet { updateHighlight() } }
+    
+    func updateHighlight() {
+        if showsHighlight, isHighlighted {
+            highlightView.isHidden = false
+        } else {
+            highlightView.isHidden = true
         }
     }
         
@@ -334,7 +342,7 @@ open class MenuItemView: NSView {
         if
             let textField = view as? NSTextField
         {
-            textField.textColor = colorConsidering(isHighlighted: isHighlighted, isEnabled: isEnabled)
+          //  textField.textColor = colorConsidering(isHighlighted: isHighlighted, isEnabled: isEnabled)
         } else if
             let imageView = view as? NSImageView,
             imageView.image?.isTemplate == true,
