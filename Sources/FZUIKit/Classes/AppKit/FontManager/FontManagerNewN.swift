@@ -623,6 +623,16 @@ public class FontManagerNewN: NSObject {
                 item.view = itemView
             }
             fontFamilyPopUpButton.menu?.addItem(item)
+            var previousItem: FontMenuItemView? = nil
+            fontFamilyPopUpButton.menu?.handlers.willHighlight = { item in
+                previousItem?.highlightView.isHidden = true
+                if let item = item?.view as? FontMenuItemView {
+                    item.highlightView.isHidden = false
+                    previousItem = item
+                } else {
+                    previousItem = nil
+                }
+            }
         }
     }
     

@@ -260,22 +260,26 @@ open class MenuItemView: NSView {
         }
     }
     
+    var drawsIsHighlighted: Bool = true
+    
     public var isHighlighted: Bool {
         get { enclosingMenuItem?.isHighlighted ?? false }
     }
     
     var mouseIsHovering: Bool = false {
         didSet {
-            guard oldValue != mouseIsHovering else { return }
+            guard oldValue != mouseIsHovering, drawsIsHighlighted else { return }
             highlightView.isHidden = !isHighlighted || !mouseIsHovering
         }
     }
-    
+        
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         
         let isHighlighted = self.isHighlighted
-        highlightView.isHidden = !isHighlighted || !mouseIsHovering
+        if drawsIsHighlighted {
+            highlightView.isHidden = !isHighlighted || !mouseIsHovering
+        }
         
         guard autoHighlightSubviews else { return }
         let isEnabled = self.isEnabled
