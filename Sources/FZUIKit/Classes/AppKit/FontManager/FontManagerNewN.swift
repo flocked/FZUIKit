@@ -140,7 +140,10 @@ public class FontManagerNewN: NSObject {
     func updateSelectedFont(for textView: NSTextView) {
         fontFamilyPopUpButton?.menu?.handlers.didClose = nil
         fontMemberPopUpButton?.menu?.handlers.didClose = nil
-        let fonts = textView.selectionFonts
+        var fonts = textView.selectionFonts
+        if fonts.isEmpty, let font = textView.typingAttributes[.font] as? NSFont {
+            fonts = [font]
+        }
         if fonts.count == 1 {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
@@ -186,8 +189,6 @@ public class FontManagerNewN: NSObject {
                     fontSizeTextField?.placeholderString = "\(pointSize)"
                 }
             }
-        } else {
-            selectedFont = textView.typingAttributes[.font] as? NSFont
         }
     }
     
@@ -217,10 +218,11 @@ public class FontManagerNewN: NSObject {
             fontMemberPopUpButton.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
-                    
+                  //  if self.multipleMembers
+                } else {
+                    self._currentMemberIndex = fontMemberPopUpButton.indexOfSelectedItem
+                    self.updateSelectedFont()
                 }
-                self._currentMemberIndex = fontMemberPopUpButton.indexOfSelectedItem
-                self.updateSelectedFont()
             }
             fontMemberPopUpButton.isEnabled = isEnabled
             updateMembersPopUpButton()
@@ -673,7 +675,11 @@ public class FontManagerNewN: NSObject {
     func updateTargetFont() {
         guard let selectedFont = selectedFont else { return }
         if let textView = target as? NSTextView {
-            textView.selectionFonts = [selectedFont]
+            if textView.selectionFonts.isEmpty {
+                textView.typingAttributes[.font] = selectedFont
+            } else {
+                textView.selectionFonts = [selectedFont]
+            }
         } else if let control = target as? NSControl {
             control.font = selectedFont
         }
