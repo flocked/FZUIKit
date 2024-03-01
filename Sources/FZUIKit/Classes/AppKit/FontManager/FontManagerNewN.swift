@@ -193,7 +193,6 @@ public class FontManagerNewN: NSObject {
                     fontFamilyPopUpButton?.menu?.items[safe: index]?.state = .mixed
                 }
                 fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
-                Swift.print("fontMemberPopUpButton", fontFamilyPopUpButton?.textField != nil, fontFamilyPopUpButton?.textField?.stringValue ?? "nil")
                 fontFamilyPopUpButton?.menu?.handlers.didClose = { [weak self] in
                     guard let self = self else { return }
                     if self.multipleFamiles {
@@ -203,6 +202,7 @@ public class FontManagerNewN: NSObject {
             }
             let pointSizes = fonts.compactMap({$0.pointSize}).uniqued()
             if let pointSize = pointSizes.first {
+                fontSizeTextField?.isEnabled = true
                 if pointSizes.count == 1 {
                     fontSizeTextField?.doubleValue = pointSize
                 } else {
