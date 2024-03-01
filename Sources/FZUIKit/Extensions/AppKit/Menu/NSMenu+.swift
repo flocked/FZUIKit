@@ -182,19 +182,28 @@ extension NSMenu {
                 delegateProxy = DelegateProxy(self)
             }
         } else if delegateProxy != nil {
-            if delegate === delegateProxy {
-                delegate = delegateProxy?.delegate
-            }
+            let _delegate = delegateProxy?.delegate
             delegateProxy = nil
+            delegate = _delegate
         }
     }
     
     class DelegateProxy: NSObject, NSMenuDelegate {
         var delegate: NSMenuDelegate?
+        var delegateObservation: NSKeyValueObservation? = nil
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
+            
             super.init()
             menu.delegate = self
+            delegateObservation = menu.observeChanges(for: \.delegate) { [weak self] old, new in
+                guard let self = self else { return }
+                self.delegate = new
+                if new == nil || (new != nil && (new as? NSObject) != self) {
+                    self.delegate = new
+                    menu.delegate = self
+                }
+            }
         }
         
         func menuDidClose(_ menu: NSMenu) {
@@ -209,6 +218,30 @@ extension NSMenu {
                 menu.handlers.willOpen?()
             }
             delegate?.menuWillOpen?(menu)
+        }
+        
+        func numberOfItems(in menu: NSMenu) -> Int {
+            return delegate?.numberOfItems?(in: menu) ?? menu.items.count
+        }
+        
+        func menuNeedsUpdate(_ menu: NSMenu) {
+            delegate?.menuNeedsUpdate?(menu)
+        }
+        
+        func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
+            if let menuHasKeyEquivalent = delegate?.menuHasKeyEquivalent?(menu, for: event, target: target, action: action) {
+                return menuHasKeyEquivalent
+            }
+            let keyEquivalent = event.readableKeyCode.lowercased()
+            return menu.items.contains(where: {$0.keyEquivalent == keyEquivalent && $0.isEnabled})
+        }
+        
+        func confinementRect(for menu: NSMenu, on screen: NSScreen?) -> NSRect {
+            delegate?.confinementRect?(for: menu, on: screen) ?? .zero
+        }
+        
+        func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
+            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
