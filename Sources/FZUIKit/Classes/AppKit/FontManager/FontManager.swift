@@ -179,11 +179,9 @@ public class FontManager: NSObject {
         fontMemberPopUpButton?.menu?.handlers.didClose = nil
         var fonts = textView.selectionFonts
         if fonts.isEmpty, let font = textView.typingAttributes[.font] as? NSFont {
-            Swift.print("updateSelectedFont typing")
             fonts = [font]
-        } else {
-            Swift.print("updateSelectedFont")
         }
+        Swift.print("updateSelectedFont", fonts)
         if fonts.count == 1 {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
