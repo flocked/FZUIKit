@@ -91,7 +91,11 @@ public class FontManagerNewN: NSObject {
         }
     }
     
-    var targetIsFirstResonder: Bool = false
+    var targetIsFirstResonder: Bool = false {
+        didSet {
+            Swift.print("targetIsFirstResonder", targetIsFirstResonder)
+        }
+    }
     var targetWindowObserver: NSKeyValueObservation? = nil
     
     /**
