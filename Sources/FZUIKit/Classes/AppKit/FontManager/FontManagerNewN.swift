@@ -259,6 +259,7 @@ public class FontManagerNewN: NSObject {
     var firstResponderObserver: NSKeyValueObservation? = nil
     func makeTargetFirstResponder() {
         guard _targetIsFirstResonder else { return }
+        Swift.print("makeTargetFirstResponder")
         if let textView = target as? NSTextView {
             textView.window?.makeFirstResponder(textView)
             textView.selectedRanges = textView.selectedRanges
