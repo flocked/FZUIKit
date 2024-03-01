@@ -91,6 +91,9 @@ public class FontManagerNewN: NSObject {
         }
     }
     
+    var targetIsFirstResonder: Bool = false
+    var targetWindowObserver: NSKeyValueObservation? = nil
+    
     /**
      The target object that updates and receives the selected font.
      
@@ -101,6 +104,11 @@ public class FontManagerNewN: NSObject {
     public var target: AnyObject? {
         didSet {
             if let textView = target as? NSTextView {
+                targetIsFirstResonder = textView.isFirstResponder
+                targetWindowObserver = textView.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self, new != self.fontSizeTextField else { return }
+                    self.targetIsFirstResonder = textView == new
+                }
                 updateSelectedFont(for: textView)
                 targetFontObservation = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
                     guard let self = self else { return }
@@ -108,12 +116,18 @@ public class FontManagerNewN: NSObject {
                     self.updateSegmentedTextViewAttributes()
                 }
             } else if let control = target as? NSControl {
+                targetIsFirstResonder = control.isFirstResponder
+                targetWindowObserver = control.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self, new != self.fontSizeTextField else { return }
+                    self.targetIsFirstResonder = control == new
+                }
                 selectedFont = control.font
                 targetFontObservation = control.observeChanges(for: \.font) { [weak self] old, new in
                     guard let self = self, old != new else { return  }
                     self.selectedFont = new
                 }
             } else {
+                targetWindowObserver = nil
                 target = nil
                 targetFontObservation = nil
                 selectedFont = nil
@@ -231,6 +245,16 @@ public class FontManagerNewN: NSObject {
         }
     }
     
+    var firstResponderObserver: NSKeyValueObservation? = nil
+    func makeTargetFirstResponder() {
+        guard targetIsFirstResonder else { return }
+        if let textView = target as? NSTextView {
+            textView.window?.makeFirstResponder(textView)
+        } else if let textField = target as? NSTextField {
+            textField.window?.makeFirstResponder(textField)
+        }
+    }
+    
     /// The text field for changing the font size.
     public weak var fontSizeTextField: NSTextField? {
         didSet {
@@ -246,6 +270,7 @@ public class FontManagerNewN: NSObject {
                 } else {
                     self.fontSize = fontSizeTextField.doubleValue
                 }
+                self.makeTargetFirstResponder()
             }
             let formatter = NumberFormatter()
             formatter.numberStyle = .decimal

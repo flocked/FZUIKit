@@ -327,7 +327,6 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
-                        Swift.print("swizzle textDidEndEditing", (object as? NSTextField)?.editingHandlers.didEnd != nil)
                         store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                         if let textField = (object as? NSTextField) {
                             //  textField.editingState = .didEnd
