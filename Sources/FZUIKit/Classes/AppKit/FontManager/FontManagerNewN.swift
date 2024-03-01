@@ -622,6 +622,7 @@ public class FontManagerNewN: NSObject {
                 let itemView = FontMenuItemView(font: font, title: $0.localizedName)
                 item.view = itemView
             }
+            /*
             fontFamilyPopUpButton.menu?.addItem(item)
             var previousItem: FontMenuItemView? = nil
             fontFamilyPopUpButton.menu?.handlers.willHighlight = { item in
@@ -633,6 +634,7 @@ public class FontManagerNewN: NSObject {
                     previousItem = nil
                 }
             }
+             */
         }
     }
     
@@ -667,6 +669,16 @@ public class FontManagerNewN: NSObject {
                 item.view = itemView
             }
             fontMemberPopUpButton.menu?.addItem(item)
+        }
+        var previousItem: FontMenuItemView? = nil
+        fontMemberPopUpButton.menu?.handlers.willHighlight = { item in
+            previousItem?.highlightView.isHidden = true
+            if let item = item?.view as? FontMenuItemView {
+                item.highlightView.isHidden = false
+                previousItem = item
+            } else {
+                previousItem = nil
+            }
         }
         if fontMemberPopUpButton.numberOfItems > 0 {
             currentMemberIndex = 0
