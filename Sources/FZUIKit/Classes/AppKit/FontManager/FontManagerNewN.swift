@@ -180,7 +180,6 @@ public class FontManagerNewN: NSObject {
                         fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
                     }
                     fontMemberPopUpButton?.textField?.stringValue = "Multiple"
-                    Swift.print("fontMemberPopUpButton", fontMemberPopUpButton?.textField != nil, fontMemberPopUpButton?.textField?.stringValue ?? "nil")
                     fontMemberPopUpButton?.menu?.handlers.didClose = { [weak self] in
                         guard let self = self else { return }
                         if self.multipleMembers {
@@ -194,6 +193,7 @@ public class FontManagerNewN: NSObject {
                     fontFamilyPopUpButton?.menu?.items[safe: index]?.state = .mixed
                 }
                 fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
+                Swift.print("fontMemberPopUpButton", fontFamilyPopUpButton?.textField != nil, fontFamilyPopUpButton?.textField?.stringValue ?? "nil")
                 fontFamilyPopUpButton?.menu?.handlers.didClose = { [weak self] in
                     guard let self = self else { return }
                     if self.multipleFamiles {
