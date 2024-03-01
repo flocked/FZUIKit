@@ -109,5 +109,15 @@
             self.preferredEdge = preferredEdge
             return self
         }
+        
+        /**
+         Returns the menu item with the specified tag.
+         
+         - Parameter tag: A numeric tag associated with a menu item.
+         - Returns: The menu item, or `nil` if no item with the specified tag exists in the menu.
+         */
+        func item(withTag tag: Int) -> NSMenuItem? {
+            menu?.item(withTag: tag)
+        }
     }
 #endif
