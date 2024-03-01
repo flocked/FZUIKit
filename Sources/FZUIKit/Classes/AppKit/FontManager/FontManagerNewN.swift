@@ -107,7 +107,7 @@ public class FontManagerNewN: NSObject {
                 targetIsFirstResonder = textView.isFirstResponder
                 targetWindowObserver = textView.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                     if let self = self, let new = new {
-                        Swift.print("firstResponder", (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()), new)
+                        Swift.print("firstResponder", new != self.fontSizeTextField, new != self.fontSizeTextField?.currentEditor(), self.fontSizeTextField ?? "nil", new)
                     }
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
                     self.targetIsFirstResonder = textView == new
@@ -122,7 +122,7 @@ public class FontManagerNewN: NSObject {
                 targetIsFirstResonder = control.isFirstResponder
                 targetWindowObserver = control.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                     if let self = self, let new = new {
-                        Swift.print("firstResponder", (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()), new)
+                        Swift.print("firstResponder", new != self.fontSizeTextField, new != self.fontSizeTextField?.currentEditor(), self.fontSizeTextField ?? "nil", new)
                     }
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
                     self.targetIsFirstResonder = control == new
