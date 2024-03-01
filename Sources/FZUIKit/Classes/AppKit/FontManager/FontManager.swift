@@ -255,8 +255,8 @@ public class FontManager: NSObject {
                 guard let self = self else { return }
                 if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
                     if self.multipleMembers {
-                        let faceName = self.currentFontMembers[fontMemberPopUpButton.indexOfSelectedItem].faceName
-                        let newSelectionFonts = textView.selectionFonts.compactMap({$0.withFace(faceName)})
+                        let member = self.currentFontMembers[fontMemberPopUpButton.indexOfSelectedItem]
+                        let newSelectionFonts = textView.selectionFonts.compactMap({member.font(withSize: $0.pointSize)})
                         if !newSelectionFonts.isEmpty {
                             textView.selectionFonts = newSelectionFonts
                         }

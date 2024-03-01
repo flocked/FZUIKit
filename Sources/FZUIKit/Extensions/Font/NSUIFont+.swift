@@ -134,8 +134,12 @@ public extension NSUIFont {
     }
     
     /// Returns a new font based on the current font, but with the specified face.
-    func withFace(_ newFacw: String) -> NSUIFont? {
-        NSUIFont(descriptor: fontDescriptor.withFace(newFacw), size: pointSize)
+    func withFace(_ newFace: String) -> NSUIFont? {
+        #if os(macOS)
+        fontFamily?.members.first(where: {$0.faceName == newFace || $0.localizedFaceName == newFace})?.font(withSize: pointSize)
+        #else
+        return NSUIFont(descriptor: fontDescriptor.withFace(newFace), size: pointSize)
+        #endif
     }
 }
 
