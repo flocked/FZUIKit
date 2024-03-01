@@ -236,6 +236,9 @@ public class FontManagerNewN: NSObject {
         didSet {
             guard oldValue != fontSizeTextField, let fontSizeTextField = fontSizeTextField else { return }
             fontSizeTextField.doubleValue = fontSize
+         //   fontSizeTextField.editingHandlers
+            fontSizeTextField.actionOnEnterKeyDown = .endEditing
+            fontSizeTextField.actionOnEscapeKeyDown = .endEditingAndReset
             fontSizeTextField.editingHandlers.didEnd = { [weak self] in
                 guard let self = self, let fontSizeTextField = self.fontSizeTextField else { return  }
                 if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
