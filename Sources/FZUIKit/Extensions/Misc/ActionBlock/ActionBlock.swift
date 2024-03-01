@@ -12,6 +12,7 @@ import FZSwiftUtils
 
 /// An object with a target and action.
 public protocol TargetActionProtocol: NSObjectProtocol {
+    /// The action handler.
     typealias ActionBlock = (Self) -> Void
     var target: AnyObject? { get set }
     var action: Selector? { get set }
@@ -50,13 +51,6 @@ class ActionTrampoline<T: TargetActionProtocol>: NSObject {
 }
 
 public extension TargetActionProtocol {
-    /// Sets the action handler of the object.
-    @discardableResult
-    func action(_ action: ActionBlock?) -> Self {
-        actionBlock = action
-        return self
-    }
-    
     /// The action handler of the object.
     var actionBlock: ActionBlock? {
         set {
@@ -72,9 +66,40 @@ public extension TargetActionProtocol {
         get { actionTrampoline?.action }
     }
     
+    /// Sets the action handler of the object.
+    @discardableResult
+    func action(_ action: ActionBlock?) -> Self {
+        actionBlock = action
+        return self
+    }
+    
     internal var actionTrampoline: ActionTrampoline<Self>? {
         get { getAssociatedValue(key: "actionTrampoline", object: self) }
         set { set(associatedValue: newValue, key: "actionTrampoline", object: self) }
+    }
+}
+
+public extension TargetActionProtocol where Self: NSGestureRecognizer {
+    /// Initializes the gesture recognizer with the specified action handler.
+    init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension TargetActionProtocol where Self: NSControl {
+    /// Initializes the control with the specified action handler.
+    init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension TargetActionProtocol where Self: NSCell {
+    /// Initializes the cell with the specified action handler.
+    init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
     }
 }
 

@@ -617,11 +617,4 @@ public class FontManager: NSObject {
     }
 }
 
-
-extension NSPopUpButton {
-    var textField: NSTextField? {
-        subviews(type: NSTextField.self).first
-    }
-}
-
 #endif

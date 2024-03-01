@@ -133,11 +133,7 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
     }
     
     var viewObservation: NSKeyValueObservation? = nil
-    
-    convenience init() {
-        self.init(target: nil, action: nil)
-    }
-    
+
     override init(target: Any?, action: Selector?) {
         super.init(target: target, action: action)
         viewObservation = observeChanges(for: \.view) { old, new in

@@ -152,12 +152,4 @@
             _ = target.perform(action, with: self)
         }
     }
-
-    extension SwipeTouchGestureRecognizer: TargetActionProtocol {}
-    public extension SwipeTouchGestureRecognizer {
-        convenience init(action: @escaping ActionBlock) {
-            self.init()
-            actionBlock = action
-        }
-    }
 #endif

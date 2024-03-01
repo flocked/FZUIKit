@@ -41,7 +41,7 @@ extension NSMagnificationGestureRecognizer {
         default:
             let timeInterval = time - previousTime
             let velocityDiff = magnification - prevMagnification
-            self.velocity = (velocityDiff / timeInterval)
+            velocity = (velocityDiff / timeInterval)
         }
         prevMagnification = magnification
     }

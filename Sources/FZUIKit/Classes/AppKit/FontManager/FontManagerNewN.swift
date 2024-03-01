@@ -179,12 +179,11 @@ public class FontManagerNewN: NSObject {
                     for index in memberIndexes {
                         fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
                     }
-                    fontMemberPopUpButton?.textField?.stringValue = "Multiple"
-                    fontMemberPopUpButton?.menu?.handlers.didClose = { [weak self] in
+                    fontMemberPopUpButton?.menu?.items.last?.isHidden(false)
+                    fontMemberPopUpButton?.selectItem(at: (fontMemberPopUpButton?.numberOfItems ?? 1)-1)
+                    fontMemberPopUpButton?.menu?.handlers.willOpen = { [weak self] in
                         guard let self = self else { return }
-                        if self.multipleMembers {
-                            self.fontMemberPopUpButton?.textField?.stringValue = "Multiple"
-                        }
+                        fontMemberPopUpButton?.menu?.items.last?.isHidden(true)
                     }
                 }
             } else if familyIndexes.count > 1 {
@@ -192,12 +191,11 @@ public class FontManagerNewN: NSObject {
                 for index in familyIndexes {
                     fontFamilyPopUpButton?.menu?.items[safe: index]?.state = .mixed
                 }
-                fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
-                fontFamilyPopUpButton?.menu?.handlers.didClose = { [weak self] in
+                fontFamilyPopUpButton?.menu?.items.last?.isHidden(false)
+                fontFamilyPopUpButton?.selectItem(at: (fontFamilyPopUpButton?.numberOfItems ?? 1)-1)
+                fontFamilyPopUpButton?.menu?.handlers.willOpen = { [weak self] in
                     guard let self = self else { return }
-                    if self.multipleFamiles {
-                        self.fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
-                    }
+                    fontFamilyPopUpButton?.menu?.items.last?.isHidden(true)
                 }
             }
             let pointSizes = fonts.compactMap({$0.pointSize}).uniqued()
@@ -621,6 +619,7 @@ public class FontManagerNewN: NSObject {
             }
             fontFamilyPopUpButton.menu?.addItem(item)
         }
+        fontFamilyPopUpButton.menu?.addItem(.init("Multiple").isHidden(true))
     }
     
     private func updateMembers() {
@@ -646,7 +645,7 @@ public class FontManagerNewN: NSObject {
             }
             fontMemberPopUpButton.menu?.addItem(item)
         }
-        
+        fontMemberPopUpButton.menu?.addItem(.init("Multiple").isHidden(true))
         if fontMemberPopUpButton.numberOfItems > 0 {
             currentMemberIndex = 0
         }
@@ -721,6 +720,10 @@ public class FontManagerNewN: NSObject {
     }
 }
 
-
+extension NSPopUpButton {
+    var textField: NSTextField? {
+        subviews(type: NSTextField.self).first
+    }
+}
 
 #endif
