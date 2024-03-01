@@ -123,6 +123,20 @@ public class FontManagerNewN: NSObject {
         }
     }
     
+    var multipleFamiles: Bool {
+        guard let textView = target as? NSTextView else { return false }
+        return textView.selectionFonts.compactMap({$0.familyName}).uniqued().compactMap({ name in  availableFontFamilies.firstIndex(where: {$0.name == name }) }).count > 1
+    }
+    
+    var multipleMembers: Bool {
+        guard let textView = target as? NSTextView else { return false }
+        let selectionFonts = textView.selectionFonts
+        if selectionFonts.compactMap({$0.familyName}).uniqued().compactMap({ name in  availableFontFamilies.firstIndex(where: {$0.name == name }) }).count == 1 {
+            return selectionFonts.compactMap({$0.fontName}).uniqued().count > 1
+        }
+        return false
+    }
+    
     func updateSelectedFont(for textView: NSTextView) {
         let fonts = textView.selectionFonts
         if fonts.count == 1 {
@@ -142,12 +156,24 @@ public class FontManagerNewN: NSObject {
                         fontMemberPopUpButton?.menu?.items[safe: index]?.state = .mixed
                     }
                     fontMemberPopUpButton?.textField?.stringValue = "Multiple"
+                    fontMemberPopUpButton?.menu?.handlers.didClose = { [weak self] in
+                        guard let self = self else { return }
+                        if self.multipleMembers {
+                            self.fontMemberPopUpButton?.textField?.stringValue = "Multiple"
+                        }
+                    }
                 }
             } else if familyIndexes.count > 1 {
                 for index in familyIndexes {
                     fontFamilyPopUpButton?.menu?.items[safe: index]?.state = .mixed
                 }
                 fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
+                fontFamilyPopUpButton?.menu?.handlers.didClose = { [weak self] in
+                    guard let self = self else { return }
+                    if self.multipleFamiles {
+                        self.fontFamilyPopUpButton?.textField?.stringValue = "Multiple"
+                    }
+                }
             }
             let pointSizes = fonts.compactMap({$0.pointSize}).uniqued()
             if let pointSize = pointSizes.first {
