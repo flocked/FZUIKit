@@ -270,6 +270,7 @@ public class FontManagerNewN: NSObject {
                 } else {
                     self.fontSize = fontSizeTextField.doubleValue
                 }
+                Swift.print("fontSizeTextField end", self.targetIsFirstResonder)
                 self.makeTargetFirstResponder()
             }
             let formatter = NumberFormatter()
