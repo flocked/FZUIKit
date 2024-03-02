@@ -195,29 +195,16 @@ public class FontManager: NSObject {
                     if memberIndexes.count == 1 {
                         fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
                     } else if memberIndexes.count > 1 {
-                        fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
-                        fontMemberPopUpButton.textField?.stringValue = "Multiple"
-                      //  fontMemberPopUpButton.menu?.items.last?.isHidden(false)
-                      //  fontMemberPopUpButton.selectItem(at: fontMemberPopUpButton.numberOfItems-1)
-                        
+                        fontMemberPopUpButton.selectItem(withTag: 444)
                         for index in memberIndexes {
                             fontMemberPopUpButton.menu?.items[safe: index]?.state = .mixed
-                        }
-                        fontMemberPopUpButton.menu?.handlers.willOpen = {
-                            fontMemberPopUpButton.item(withTag: 999)?.isHidden(true)
                         }
                     }
                 }
             } else if familyIndexes.count > 1, let fontFamilyPopUpButton = fontFamilyPopUpButton {
-                fontFamilyPopUpButton.selectItem(at: familyIndexes.first!)
-                fontFamilyPopUpButton.textField?.stringValue = "Multiple"
-              //  fontFamilyPopUpButton.menu?.items.last?.isHidden(false)
-              //  fontFamilyPopUpButton.selectItem(at: fontFamilyPopUpButton.numberOfItems-1)
+                fontFamilyPopUpButton.selectItem(withTag: 444)
                 for index in familyIndexes {
                     fontFamilyPopUpButton.menu?.items[safe: index]?.state = .mixed
-                }
-                fontFamilyPopUpButton.menu?.handlers.willOpen = {
-                    fontFamilyPopUpButton.item(withTag: 999)?.isHidden(true)
                 }
             }
             let pointSizes = fonts.compactMap({$0.pointSize}).uniqued()
@@ -641,7 +628,7 @@ public class FontManager: NSObject {
             }
             fontFamilyPopUpButton.menu?.addItem(item)
         }
-        fontFamilyPopUpButton.menu?.addItem(.init("Multiple").isHidden(true).tag(999))
+        fontFamilyPopUpButton.menu?.addItem(.init("Multiple").isHidden(true).tag(444))
     }
     
     private func updateMembers() {
@@ -667,10 +654,10 @@ public class FontManager: NSObject {
             }
             fontMemberPopUpButton.menu?.addItem(item)
         }
-        fontMemberPopUpButton.menu?.addItem(.init("Multiple").isHidden(true).tag(999))
         if fontMemberPopUpButton.numberOfItems > 0 {
             currentMemberIndex = 0
         }
+        fontMemberPopUpButton.menu?.addItem(.init("Multiple").isHidden(true).tag(444))
     }
     
     private func adjustFont(_ font: NSFont, string: String, height: CGFloat) -> NSFont {
