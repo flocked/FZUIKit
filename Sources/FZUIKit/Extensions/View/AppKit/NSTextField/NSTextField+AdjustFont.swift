@@ -291,17 +291,13 @@
                                 case .endEditingAndReset:
                                     textField.stringValue = textField.editStartString
                                     textField.adjustFontSize()
-                                    if let window = textField.window {
-                                        window.makeFirstResponder(window)
-                                    }
+                                    textField.window?.makeFirstResponder(nil)
                                     return true
                                 case .endEditing:
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        if let window = textField.window {
-                                            window.makeFirstResponder(window)
-                                        }
+                                        textField.window?.makeFirstResponder(nil)
                                         return true
                                     }
                                 case .none:
@@ -313,9 +309,7 @@
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        if let window = textField.window {
-                                            window.makeFirstResponder(window)
-                                        }
+                                        textField.window?.makeFirstResponder(nil)
                                         return true
                                     }
                                 case .none: break
@@ -395,7 +389,7 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, NSEvent) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, NSEvent) -> Void).self
                     ) { store in { object, event in
-                        if let textField = (object as? NSTextField), textField.isEditableByDoubleClick, event.clickCount > 2, !textField.isFirstResponder {
+                        if let textField = (object as? NSTextField), textField.isEditableByDoubleClick, event.clickCount > 1, !textField.isFirstResponder {
                             textField._isEditable = textField.isEditable
                             textField._isSelectable = textField.isSelectable
                             textField.isSelectable = true
