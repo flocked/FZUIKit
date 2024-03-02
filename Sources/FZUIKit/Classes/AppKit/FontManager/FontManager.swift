@@ -257,6 +257,7 @@ public class FontManager: NSObject {
         if let textView = target as? NSTextView {
             textView.window?.makeFirstResponder(nil)
             textView.window?.makeFirstResponder(textView)
+            textView.window?.makeFirstResponder(textView)
             //textView.selectedRanges = textView.selectedRanges
         } else if let textField = target as? NSTextField {
             textField.window?.makeFirstResponder(nil)
