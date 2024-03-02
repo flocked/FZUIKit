@@ -171,8 +171,6 @@ public class FontManager: NSObject {
     }
     
     func updateSelectedFont(for textView: NSTextView) {
-        fontFamilyPopUpButton?.menu?.handlers.didClose = nil
-        fontMemberPopUpButton?.menu?.handlers.didClose = nil
         var fonts = textView.selectionFonts
         if fonts.isEmpty, let font = textView.typingAttributes[.font] as? NSFont {
             fonts = [font]
@@ -556,7 +554,7 @@ public class FontManager: NSObject {
         get { fontMemberPopUpButton?.indexOfSelectedItem ?? _currentMemberIndex }
         set {
             _currentMemberIndex = newValue
-            fontMemberPopUpButton?.menu?.items.forEach({$0.state = .off})
+          //  fontMemberPopUpButton?.menu?.items.forEach({$0.state = .off})
             fontMemberPopUpButton?.selectItem(at: newValue)
         }
     }
