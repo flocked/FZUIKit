@@ -327,10 +327,11 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
-                      //  store.original(object, #selector(NSTextField.textDidEndEditing), notification)
+                        store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                         if let textField = (object as? NSTextField) {
                             //  textField.editingState = .didEnd
                             textField.adjustFontSize()
+                            textField.editingHandlers.didEnd?()
                             if textField.isEditableByDoubleClick {
                                 textField.isSelectable = textField._isSelectable
                                 textField.isEditable = textField._isEditable
@@ -339,7 +340,6 @@
                                 textField.sizeToFit()
                             }
                             textField.invalidateIntrinsicContentSize()
-                            textField.editingHandlers.didEnd?()
                         }
                     }
                     })
