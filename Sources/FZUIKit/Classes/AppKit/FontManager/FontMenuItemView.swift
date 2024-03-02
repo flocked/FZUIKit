@@ -141,7 +141,7 @@ extension FontMenuItemView {
             if showsSelection {
                 addSubview(imageView)
                 layoutConstraints = [
-                    imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+                    imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
                     imageView.centerYAnchor.constraint(equalTo: centerYAnchor),
                     imageView.widthAnchor.constraint(equalToConstant: 12),
                     textField.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 4),
