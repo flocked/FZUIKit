@@ -272,20 +272,33 @@ public class FontManager: NSObject {
             fontSizeTextField.doubleValue = fontSize
         //    fontSizeTextField.actionOnEnterKeyDown = .endEditing
          //   fontSizeTextField.actionOnEscapeKeyDown = .endEditingAndReset
+            var stringValue = fontSizeTextField.stringValue
+            var placeholderString = fontSizeTextField.placeholderString
             fontSizeTextField.editingHandlers.didBegin = { [weak self] in
                 guard let self = self else { return }
+                stringValue = fontSizeTextField.stringValue
+                placeholderString = fontSizeTextField.placeholderString
                 self._targetIsFirstResonder = self.targetIsFirstResonder
+            }
+            fontSizeTextField.editingHandlers.shouldEdit = { string in
+                let doubleValue = Double(string.replacingOccurrences(of: ",", with: "."))
+                return doubleValue != nil || string == ""
             }
              fontSizeTextField.editingHandlers.didEnd = { [weak self] in
                  guard let self = self, let fontSizeTextField = self.fontSizeTextField else { return  }
-                 if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
-                     textView.selectionFonts = textView.selectionFonts.compactMap({$0.withSize(fontSizeTextField.doubleValue)})
+                 if let fontSize = Double(fontSizeTextField.stringValue.replacingOccurrences(of: ",", with: ".")) {
+                     if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
+                         textView.selectionFonts = textView.selectionFonts.compactMap({$0.withSize(fontSize)})
+                     } else {
+                         self.fontSize = fontSize
+                     }
                  } else {
-                     self.fontSize = fontSizeTextField.doubleValue
+                     fontSizeTextField.stringValue = stringValue
+                     fontSizeTextField.placeholderString = placeholderString
                  }
                  self.makeTargetFirstResponder()
              }
-            fontSizeTextField.formatter = NumberFormatter(style: .decimal, minValue: Double(minFontSize ?? 1), maxValue: Double(maxFontSize ?? 20000))
+           // fontSizeTextField.formatter = NumberFormatter(style: .decimal, minValue: Double(minFontSize ?? 1), maxValue: Double(maxFontSize ?? 20000))
             fontSizeTextField.isEnabled = isEnabled
         }
     }
@@ -496,9 +509,8 @@ public class FontManager: NSObject {
     public var minFontSize: CGFloat? = nil {
         didSet {
             fontSizeStepper?.minValue = minFontSize ?? 1
-            fontSizeTextField?.numberFormatter?.minimumValue = nil
+            fontSizeTextField?.numberFormatter?.minimumValue = minFontSize ?? 1
             if let minFontSize = minFontSize {
-                fontSizeTextField?.numberFormatter?.minimumValue = minFontSize
                 if fontSize < minFontSize {
                     fontSize = minFontSize
                 }
