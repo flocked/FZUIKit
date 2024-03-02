@@ -88,6 +88,7 @@ extension NSView {
     }
     
     func setupEventMonitors() {
+        Swift.print("setupEventMonitors", observerGestureRecognizer == nil, mouseHandlers.needsObserving, mouseHandlers.needsObserving || keyHandlers.needsObserving || menuProvider != nil || dragHandlers.canDrag != nil)
         if mouseHandlers.needsObserving || keyHandlers.needsObserving || menuProvider != nil || dragHandlers.canDrag != nil {
             if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
                 addGestureRecognizer(observerGestureRecognizer)
