@@ -291,14 +291,14 @@
                                 case .endEditingAndReset:
                                     textField.stringValue = textField.editStartString
                                     textField.adjustFontSize()
-                                    textField.window?.makeFirstResponder(nil)
+                                    textField.resignFirstResponding()
                                     Swift.print("escapeKeyDown firstResponder", textField.window?.firstResponder ?? "nil")
                                     return true
                                 case .endEditing:
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        textField.window?.makeFirstResponder(nil)
+                                        textField.resignFirstResponding()
                                         Swift.print("escapeKeyDown firstResponder", textField.window?.firstResponder ?? "nil")
                                         return true
                                     }
@@ -311,7 +311,7 @@
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        textField.window?.makeFirstResponder(nil)
+                                        textField.resignFirstResponding()
                                         Swift.print("enterKeyDown firstResponder", textField.window?.firstResponder ?? "nil")
                                         return true
                                     }
