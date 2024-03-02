@@ -291,17 +291,17 @@
                                 case .endEditingAndReset:
                                     textField.stringValue = textField.editStartString
                                     textField.adjustFontSize()
-                                    Swift.print("makeFirstResponder", textField.window?.firstResponder ?? "nil")
-                                    textField.window?.makeFirstResponder(nil)
-                                    Swift.print("makeFirstResponder end", textField.window?.firstResponder ?? "nil")
+                                    if let window = textField.window {
+                                        window.makeFirstResponder(window)
+                                    }
                                     return true
                                 case .endEditing:
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        Swift.print("makeFirstResponder start", textField.window?.firstResponder ?? "nil")
-                                        textField.window?.makeFirstResponder(nil)
-                                        Swift.print("makeFirstResponder end", textField.window?.firstResponder ?? "nil")
+                                        if let window = textField.window {
+                                            window.makeFirstResponder(window)
+                                        }
                                         return true
                                     }
                                 case .none:
@@ -313,7 +313,9 @@
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        textField.window?.makeFirstResponder(nil)
+                                        if let window = textField.window {
+                                            window.makeFirstResponder(window)
+                                        }
                                         return true
                                     }
                                 case .none: break
