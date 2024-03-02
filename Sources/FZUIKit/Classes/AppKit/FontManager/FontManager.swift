@@ -252,12 +252,15 @@ public class FontManager: NSObject {
     
     var firstResponderObserver: NSKeyValueObservation? = nil
     func makeTargetFirstResponder() {
-        guard _targetIsFirstResonder, fontSizeTextField?.isFirstResponder == true else { return }
-        if let textView = target as? NSTextView {
-            textView.window?.makeFirstResponder(textView)
-            textView.selectedRanges = textView.selectedRanges
-        } else if let textField = target as? NSTextField {
-            textField.window?.makeFirstResponder(textField)
+        guard let fontSizeTextField = fontSizeTextField, fontSizeTextField.isFirstResponder else { return }
+        if _targetIsFirstResonder {
+            if let textView = target as? NSTextView {
+                textView.makeFirstResponder()
+            } else if let textField = target as? NSTextField {
+                textField.makeFirstResponder()
+            }
+        } else {
+            fontSizeTextField.resignFirstResponding()
         }
     }
     
