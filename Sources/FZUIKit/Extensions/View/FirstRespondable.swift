@@ -63,6 +63,36 @@
              - Returns: `true` if the responder is the first responder; otherwise, `false`.
              */
             var isFirstResponder: Bool { (window?.firstResponder == self) }
+            
+            /**
+             Attempts to make the object the first responder in its window.
+
+             Call this method when you want the object to be the first responder.
+             
+             - Returns: `true` if this object is now the first responder; otherwise, `false`.
+             */
+            @discardableResult
+            func makeFirstResponder() -> Bool {
+                if !isFirstResponder, acceptsFirstResponder {
+                    window?.makeFirstResponder(self)
+                }
+                return isFirstResponder
+            }
+            
+            /**
+             Attempts to resign the object as first responder in its window.
+
+             Call this method when you want the object to resign the first responder.
+             
+             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
+             */
+            @discardableResult
+            func resignFirstResponding() -> Bool {
+                if isFirstResponder {
+                    window?.makeFirstResponder(nil)
+                }
+                return !isFirstResponder
+            }
         }
 
         public extension FirstRespondable where Self: NSTextField {
@@ -85,42 +115,8 @@
              - Returns: `true` if the responder is the first responder; otherwise, `false`.
              */
             var isFirstResponder: Bool { (view.window?.firstResponder == self) }
-        }
-
-        extension NSView {
-            /**
-             Attempts to make the object the first responder in its window.
-
-             Call this method when you want the object to be the first responder.
-             
-             - Returns: `true` if this object is now the first responder; otherwise, `false`.
-             */
-            @discardableResult
-            public func makeFirstResponder() -> Bool {
-                if !isFirstResponder, acceptsFirstResponder, becomeFirstResponder() {
-                    window?.makeFirstResponder(self)
-                }
-                return isFirstResponder
-            }
             
             /**
-             Attempts to resign the object as first responder in its window.
-
-             Call this method when you want the object to resign the first responder.
-             
-             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
-             */
-            @discardableResult
-            public func resignFirstResponding() -> Bool {
-                if isFirstResponder, resignFirstResponder() {
-                    window?.makeFirstResponder(self)
-                }
-                return !isFirstResponder
-            }
-        }
-
-        extension NSViewController {
-            /**
              Attempts to make the object the first responder in its window.
 
              Call this method when you want the object to be the first responder.
@@ -128,7 +124,7 @@
              - Returns: `true` if this object is now the first responder; otherwise, `false`.
              */
             @discardableResult
-            public func makeFirstResponder() -> Bool {
+            func makeFirstResponder() -> Bool {
                 if !isFirstResponder, acceptsFirstResponder {
                     view.window?.makeFirstResponder(self)
                 }
@@ -143,13 +139,14 @@
              - Returns: `true` if this object isn't the first responder; otherwise, `false`.
              */
             @discardableResult
-            public func resignFirstResponding() -> Bool {
+            func resignFirstResponding() -> Bool {
                 if isFirstResponder {
-                    view.window?.makeFirstResponder(self)
+                    view.window?.makeFirstResponder(nil)
                 }
                 return !isFirstResponder
             }
         }
+
     #endif
 #endif
 
