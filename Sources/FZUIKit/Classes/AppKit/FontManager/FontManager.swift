@@ -708,11 +708,8 @@ public class FontManager: NSObject {
     func updateTargetFont() {
         guard let selectedFont = selectedFont else { return }
         if let textView = target as? NSTextView {
-            if textView.selectionFonts.isEmpty {
-                textView.typingAttributes[.font] = selectedFont
-            } else {
-                textView.selectionFonts = [selectedFont]
-            }
+            textView.selectionFonts = [selectedFont]
+            textView.typingAttributes[.font] = selectedFont
         } else if let control = target as? NSControl {
             control.font = selectedFont
         }
