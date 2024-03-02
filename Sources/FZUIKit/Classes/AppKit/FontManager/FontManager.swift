@@ -171,6 +171,8 @@ public class FontManager: NSObject {
     }
     
     func updateSelectedFont(for textView: NSTextView) {
+        fontFamilyPopUpButton?.menu?.handlers = .init()
+        fontMemberPopUpButton?.menu?.handlers = .init()
         var fonts = textView.selectionFonts
         if fonts.isEmpty, let font = textView.typingAttributes[.font] as? NSFont {
             fonts = [font]
@@ -179,46 +181,23 @@ public class FontManager: NSObject {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
             selectedFont = nil
-            let familyIndexes = fonts.compactMap({$0.familyName}).uniqued().compactMap({ name in  availableFontFamilies.firstIndex(where: {$0.name == name }) })
+            let familyIndexes = fonts.compactMap({$0.familyName}).uniqued().compactMap({ name in  availableFontFamilies.firstIndex(where: {$0.name == name }) }).sorted()
             if familyIndexes.count == 1 {
                 fontFamilyPopUpButton?.selectItem(at: familyIndexes.first!)
                 if let fontMemberPopUpButton = fontMemberPopUpButton {
                     updateMembersPopUpButton(for: availableFontFamilies[familyIndexes.first!])
-                    let memberIndexes = fonts.compactMap({$0.fontName}).uniqued().compactMap({name in currentFontMembers.firstIndex(where: {$0.fontName == name }) })
+                    let memberIndexes = fonts.compactMap({$0.fontName}).uniqued().compactMap({name in currentFontMembers.firstIndex(where: {$0.fontName == name }) }).sorted()
                     if memberIndexes.count == 1 {
                         fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
                     } else if memberIndexes.count > 1 {
-                        if let item = fontMemberPopUpButton.menu?.items[safe: memberIndexes.first!] {
-                            item.representedObject(item.title).tag(555).title("Multiple")
-                            fontMemberPopUpButton.selectItem(withTag: 555)
-                            fontMemberPopUpButton.menu?.handlers.willOpen = {
-                                if let item = fontMemberPopUpButton.menu?.item(withTag: 555), let title = item.representedObject as? String {
-                                    item.title = title
-                                }
-                            }
-                            fontMemberPopUpButton.menu?.handlers.didClose = {
-                                fontMemberPopUpButton.menu?.item(withTag: 555)?.title = "Multiple"
-                            }
-                        }
-                        /*
-                        fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
-                        let title = fontMemberPopUpButton.selectedItem?.title ?? "Non"
-                        fontMemberPopUpButton.selectedItem?.title = "Multiple"
-                        fontMemberPopUpButton.menu?.handlers.willOpen = {
-                            fontMemberPopUpButton.selectedItem?.title = title
-                        }
-                        fontMemberPopUpButton.menu?.handlers.didClose = {
-                            fontMemberPopUpButton.selectedItem?.title = "Multiple"
-                        }
-                         */
-                      //  fontMemberPopUpButton.selectItem(withTag: 444)
+                        setupMultipleItem(for: fontMemberPopUpButton, index: memberIndexes.first!)
                         for index in memberIndexes {
                             fontMemberPopUpButton.menu?.items[safe: index]?.state = .mixed
                         }
                     }
                 }
             } else if familyIndexes.count > 1, let fontFamilyPopUpButton = fontFamilyPopUpButton {
-                fontFamilyPopUpButton.selectItem(withTag: 444)
+                setupMultipleItem(for: fontFamilyPopUpButton, index: familyIndexes.first!)
                 for index in familyIndexes {
                     fontFamilyPopUpButton.menu?.items[safe: index]?.state = .mixed
                 }
@@ -232,6 +211,22 @@ public class FontManager: NSObject {
                     fontSizeTextField?.stringValue = ""
                     fontSizeTextField?.placeholderString = "\(pointSize)"
                 }
+            }
+        }
+    }
+    
+    func setupMultipleItem(for popUpButton: NSPopUpButton, index: Int) {
+        popUpButton.item(at: index)
+        if let item = popUpButton.item(at: index) {
+            item.representedObject(item.title).tag(555).title("Multiple")
+            popUpButton.selectItem(withTag: 555)
+            popUpButton.menu?.handlers.willOpen = {
+                if let item = popUpButton.item(withTag: 555), let title = item.representedObject as? String {
+                    item.title = title
+                }
+            }
+            popUpButton.menu?.handlers.didClose = {
+                popUpButton.item(withTag: 555)?.title = "Multiple"
             }
         }
     }
