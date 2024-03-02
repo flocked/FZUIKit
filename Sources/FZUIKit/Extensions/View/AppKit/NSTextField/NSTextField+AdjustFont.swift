@@ -292,14 +292,12 @@
                                     textField.stringValue = textField.editStartString
                                     textField.adjustFontSize()
                                     textField.resignFirstResponding()
-                                    Swift.print("escapeKeyDown firstResponder", textField.window?.firstResponder ?? "nil")
                                     return true
                                 case .endEditing:
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
                                         textField.resignFirstResponding()
-                                        Swift.print("escapeKeyDown firstResponder", textField.window?.firstResponder ?? "nil")
                                         return true
                                     }
                                 case .none:
@@ -311,9 +309,7 @@
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        Swift.print("enterKeyDown start", textField.isFirstResponder, textField.window?.firstResponder ?? "nil")
                                         textField.resignFirstResponding()
-                                        Swift.print("enterKeyDown firstResponder", textField.window?.firstResponder ?? "nil")
                                         return true
                                     }
                                 case .none: break
@@ -331,13 +327,10 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
                     ) { store in { object, notification in
-                        Swift.print("textDidEndEditing 0", (object as? NSTextField)?.window?.firstResponder ?? "nil")
-                        store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                         if let textField = (object as? NSTextField) {
                             //  textField.editingState = .didEnd
                             textField.adjustFontSize()
                             textField.editingHandlers.didEnd?()
-                            Swift.print("textDidEndEditing 1", (object as? NSTextField)?.window?.firstResponder ?? "nil")
                             if textField.isEditableByDoubleClick {
                                 textField.isSelectable = textField._isSelectable
                                 textField.isEditable = textField._isEditable
@@ -347,6 +340,7 @@
                             }
                             textField.invalidateIntrinsicContentSize()
                         }
+                        store.original(object, #selector(NSTextField.textDidEndEditing), notification)
                     }
                     })
                     
