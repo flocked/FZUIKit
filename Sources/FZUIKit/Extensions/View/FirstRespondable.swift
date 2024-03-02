@@ -16,30 +16,39 @@
     /// A type that accepts first responder status of a window.
     public protocol FirstRespondable: NSUIResponder {
         #if os(macOS)
-            /**
-             Returns a Boolean value indicating whether this object is the first responder.
-
-             `AppKit` dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-
-             - Returns: `true` if the responder is the first responder; otherwise, `false`.
-             */
-            var isFirstResponder: Bool { get }
-
             /// A Boolean value that indicates whether the responder accepts first responder status.
             var acceptsFirstResponder: Bool { get }
+        
+        /**
+         Attempts to make the object the first responder in its window.
+
+         Call this method when you want the object to be the first responder.
+         
+         - Returns: `true` if this object is now the first responder; otherwise, `false`.
+         */
+        @discardableResult func makeFirstResponder() -> Bool
+        
+        /**
+         Attempts to resign the object as first responder in its window.
+
+         Call this method when you want the object to resign the first responder.
+         
+         - Returns: `true` if this object isn't the first responder; otherwise, `false`.
+         */
+        @discardableResult func resignFirstResponding() -> Bool
         #elseif canImport(UIKit)
-            /**
-             Returns a Boolean value indicating whether this object is the first responder.
-
-             `UIKit` dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-
-             - Returns: `true` if the responder is the first responder; otherwise, `false`.
-             */
-            var isFirstResponder: Bool { get }
-
             /// Returns a Boolean value indicating whether this object can become the first responder.
             var canBecomeFirstResponder: Bool { get }
         #endif
+        
+        /**
+         Returns a Boolean value indicating whether this object is the first responder.
+
+         The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
+
+         - Returns: `true` if the responder is the first responder; otherwise, `false`.
+         */
+        var isFirstResponder: Bool { get }
 
         /// Attempts to make a given responder the first responder for the window.
         @discardableResult func becomeFirstResponder() -> Bool
@@ -55,22 +64,8 @@
     #if os(macOS)
 
         public extension FirstRespondable where Self: NSView {
-            /**
-             Returns a Boolean value indicating whether this object is the first responder.
-
-             AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-
-             - Returns: `true` if the responder is the first responder; otherwise, `false`.
-             */
             var isFirstResponder: Bool { (window?.firstResponder == self) }
             
-            /**
-             Attempts to make the object the first responder in its window.
-
-             Call this method when you want the object to be the first responder.
-             
-             - Returns: `true` if this object is now the first responder; otherwise, `false`.
-             */
             @discardableResult
             func makeFirstResponder() -> Bool {
                 if !isFirstResponder, acceptsFirstResponder {
@@ -79,13 +74,6 @@
                 return isFirstResponder
             }
             
-            /**
-             Attempts to resign the object as first responder in its window.
-
-             Call this method when you want the object to resign the first responder.
-             
-             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
-             */
             @discardableResult
             func resignFirstResponding() -> Bool {
                 if isFirstResponder {
@@ -96,51 +84,23 @@
         }
 
         public extension FirstRespondable where Self: NSTextView {
-            /**
-             Attempts to resign the object as first responder in its window.
-
-             Call this method when you want the object to resign the first responder.
-             
-             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
-             */
             @discardableResult
-            func resignFirstResponding() -> Bool {
-                if isFirstResponder {
-                    window?.makeFirstResponder(nil)
+            func makeFirstResponder() -> Bool {
+                if !isFirstResponder, acceptsFirstResponder {
+                    window?.makeFirstResponder(self)
                 }
                 selectedRanges = selectedRanges
-                return !isFirstResponder
+                return isFirstResponder
             }
         }
 
         public extension FirstRespondable where Self: NSTextField {
-            /**
-             Returns a Boolean value indicating whether this textfield is the first responder.
-
-             AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-
-             - Returns: `true` if the responder is the first responder; otherwise, `false`.
-             */
             var isFirstResponder: Bool { currentEditor() == window?.firstResponder }
         }
 
         public extension FirstRespondable where Self: NSViewController {
-            /**
-             Returns a Boolean value indicating whether this object is the first responder.
-
-             AppKit dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-
-             - Returns: `true` if the responder is the first responder; otherwise, `false`.
-             */
             var isFirstResponder: Bool { (view.window?.firstResponder == self) }
             
-            /**
-             Attempts to make the object the first responder in its window.
-
-             Call this method when you want the object to be the first responder.
-             
-             - Returns: `true` if this object is now the first responder; otherwise, `false`.
-             */
             @discardableResult
             func makeFirstResponder() -> Bool {
                 if !isFirstResponder, acceptsFirstResponder {
@@ -148,14 +108,7 @@
                 }
                 return isFirstResponder
             }
-            
-            /**
-             Attempts to resign the object as first responder in its window.
 
-             Call this method when you want the object to resign the first responder.
-             
-             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
-             */
             @discardableResult
             func resignFirstResponding() -> Bool {
                 if isFirstResponder {
