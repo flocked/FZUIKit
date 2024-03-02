@@ -87,7 +87,7 @@
             var isFirstResponder: Bool { (view.window?.firstResponder == self) }
         }
 
-        extension NSView {
+        extension NSControl {
             /**
              Attempts to make a given responder the first responder for the window.
 
