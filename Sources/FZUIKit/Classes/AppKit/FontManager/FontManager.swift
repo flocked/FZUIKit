@@ -252,8 +252,7 @@ public class FontManager: NSObject {
     
     var firstResponderObserver: NSKeyValueObservation? = nil
     func makeTargetFirstResponder() {
-        guard _targetIsFirstResonder else { return }
-        
+        guard _targetIsFirstResonder, fontSizeTextField?.isFirstResponder == true else { return }
         if let textView = target as? NSTextView {
             textView.window?.makeFirstResponder(textView)
             textView.selectedRanges = textView.selectedRanges
@@ -268,8 +267,8 @@ public class FontManager: NSObject {
             guard oldValue != fontSizeTextField, let fontSizeTextField = fontSizeTextField else { return }
             oldValue?.editingHandlers = .init()
             fontSizeTextField.doubleValue = fontSize
-            fontSizeTextField.actionOnEnterKeyDown = .endEditing
-            fontSizeTextField.actionOnEscapeKeyDown = .endEditingAndReset
+        //    fontSizeTextField.actionOnEnterKeyDown = .endEditing
+         //   fontSizeTextField.actionOnEscapeKeyDown = .endEditingAndReset
             fontSizeTextField.editingHandlers.didBegin = { [weak self] in
                 guard let self = self else { return }
                 self._targetIsFirstResonder = self.targetIsFirstResonder
