@@ -100,7 +100,7 @@
                     return true
                 }
                 isChangingFirstResponder = false
-                return true
+                return acceptsFirstResponder
             }
 
             /**
@@ -112,10 +112,10 @@
                 if let window = window, window.firstResponder == self, isChangingFirstResponder == false {
                     isChangingFirstResponder = true
                     window.makeFirstResponder(nil)
-                    return super.resignFirstResponder()
+                    return true
                 }
                 isChangingFirstResponder = false
-                return super.resignFirstResponder()
+                return true
             }
 
             var isChangingFirstResponder: Bool {
