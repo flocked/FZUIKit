@@ -270,6 +270,20 @@ public class FontManager: NSObject {
             fontSizeTextField.doubleValue = fontSize
             fontSizeTextField.actionOnEnterKeyDown = .endEditing
             fontSizeTextField.actionOnEscapeKeyDown = .endEditingAndReset
+            fontSizeTextField.viewHandlers.isFirstResponder = { [weak self] isFirstResponder in
+                guard let self = self else { return }
+                if isFirstResponder {
+                    self._targetIsFirstResonder = self.targetIsFirstResonder
+                } else {
+                    if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
+                        textView.selectionFonts = textView.selectionFonts.compactMap({$0.withSize(fontSizeTextField.doubleValue)})
+                    } else {
+                        self.fontSize = fontSizeTextField.doubleValue
+                    }
+                    self.makeTargetFirstResponder()
+                }
+            }
+            /*
             fontSizeTextField.editingHandlers.didBegin = { [weak self] in
                 guard let self = self else { return }
                 self._targetIsFirstResonder = self.targetIsFirstResonder
@@ -283,6 +297,7 @@ public class FontManager: NSObject {
                  }
                  self.makeTargetFirstResponder()
              }
+            */
             fontSizeTextField.formatter = NumberFormatter(style: .decimal, minValue: Double(minFontSize ?? 1), maxValue: Double(maxFontSize ?? 20000))
             fontSizeTextField.isEnabled = isEnabled
         }
