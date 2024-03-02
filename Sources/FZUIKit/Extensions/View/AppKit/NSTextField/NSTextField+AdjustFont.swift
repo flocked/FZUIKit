@@ -311,6 +311,7 @@
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
+                                        Swift.print("enterKeyDown start", textField.isFirstResponder, textField.window?.firstResponder ?? "nil")
                                         textField.resignFirstResponding()
                                         Swift.print("enterKeyDown firstResponder", textField.window?.firstResponder ?? "nil")
                                         return true
