@@ -9,7 +9,7 @@
     import AppKit
 
     public extension NSResponder {
-        /// Returns the respnder chain including itself.
+        /// Returns the responder chain including itself.
         func responderChain() -> [NSResponder] {
             var current = self
             var chain: [NSResponder] = [self]
