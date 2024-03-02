@@ -196,6 +196,9 @@ public class FontManager: NSObject {
                         fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
                     } else if memberIndexes.count > 1 {
                         fontMemberPopUpButton.selectItem(withTag: 444)
+                        fontMemberPopUpButton.menu?.handlers.willOpen = {
+                            fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
+                        }
                         for index in memberIndexes {
                             fontMemberPopUpButton.menu?.items[safe: index]?.state = .mixed
                         }
