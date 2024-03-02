@@ -90,6 +90,7 @@ extension FontMenuItemView {
                 centerConstraint?.constant = (font.pointSize / 2.0) - 1.5
             }
             textField.sizeToFit()
+            Swift.print(fittingSize.height)
             frame.size.width = fittingSize.width + 4
         }
         
@@ -154,7 +155,7 @@ extension FontMenuItemView {
             } else {
                 imageView.removeFromSuperview()
                 layoutConstraints = [
-                    textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+                    textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
                     textField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
                 ]
             }
