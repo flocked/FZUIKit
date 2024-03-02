@@ -87,77 +87,67 @@
             var isFirstResponder: Bool { (view.window?.firstResponder == self) }
         }
 
-        extension NSControl {
+        extension NSView {
             /**
-             Attempts to make a given responder the first responder for the window.
+             Attempts to make the object the first responder in its window.
 
-             The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
+             Call this method when you want the object to be the first responder.
+             
+             - Returns: `true` if this object is now the first responder; otherwise, `false`.
              */
-            @discardableResult override open func becomeFirstResponder() -> Bool {
-                if !isChangingFirstResponder, acceptsFirstResponder, let window = window, window.firstResponder != self {
-                    isChangingFirstResponder = true
-                    window.makeFirstResponder(self)
-                    return true
+            @discardableResult
+            public func makeFirstResponder() -> Bool {
+                if !isFirstResponder, acceptsFirstResponder, becomeFirstResponder() {
+                    window?.makeFirstResponder(self)
                 }
-                isChangingFirstResponder = false
-                return true
+                return isFirstResponder
             }
-
+            
             /**
-             Notifies the receiver that it’s been asked to relinquish its status as first responder in its window.
+             Attempts to resign the object as first responder in its window.
 
-             The default implementation returns 'true', resigning first responder status. Subclasses can override this method to update state or perform some action such as unhighlighting the selection, or to return 'false', refusing to relinquish first responder status.
+             Call this method when you want the object to resign the first responder.
+             
+             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
              */
-            @discardableResult override open func resignFirstResponder() -> Bool {
-                if !isChangingFirstResponder, let window = window, window.firstResponder == self {
-                    isChangingFirstResponder = true
-                    window.makeFirstResponder(nil)
-                    return true
+            @discardableResult
+            public func resignFirstResponding() -> Bool {
+                if isFirstResponder, resignFirstResponder() {
+                    window?.makeFirstResponder(self)
                 }
-                isChangingFirstResponder = false
-                return true
-            }
-
-            var isChangingFirstResponder: Bool {
-                get { getAssociatedValue(key: "isChangingFirstResponder", object: self, initialValue: false) }
-                set { set(associatedValue: newValue, key: "isChangingFirstResponder", object: self) }
+                return !isFirstResponder
             }
         }
 
         extension NSViewController {
             /**
-             Attempts to make a given responder the first responder for the window.
+             Attempts to make the object the first responder in its window.
 
-             The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
+             Call this method when you want the object to be the first responder.
+             
+             - Returns: `true` if this object is now the first responder; otherwise, `false`.
              */
-            @discardableResult override open func becomeFirstResponder() -> Bool {
-                if acceptsFirstResponder, let window = view.window, window.firstResponder != self, isChangingFirstResponder == false {
-                    isChangingFirstResponder = true
-                    window.makeFirstResponder(self)
-                    return super.becomeFirstResponder()
+            @discardableResult
+            public func makeFirstResponder() -> Bool {
+                if !isFirstResponder, acceptsFirstResponder {
+                    view.window?.makeFirstResponder(self)
                 }
-                isChangingFirstResponder = false
-                return super.becomeFirstResponder()
+                return isFirstResponder
             }
-
+            
             /**
-             Notifies the receiver that it’s been asked to relinquish its status as first responder in its window.
+             Attempts to resign the object as first responder in its window.
 
-             The default implementation returns 'true', resigning first responder status. Subclasses can override this method to update state or perform some action such as unhighlighting the selection, or to return 'false', refusing to relinquish first responder status.
+             Call this method when you want the object to resign the first responder.
+             
+             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
              */
-            @discardableResult override open func resignFirstResponder() -> Bool {
-                if let window = view.window, window.firstResponder == self, isChangingFirstResponder == false {
-                    isChangingFirstResponder = true
-                    window.makeFirstResponder(nil)
-                    return super.resignFirstResponder()
+            @discardableResult
+            public func resignFirstResponding() -> Bool {
+                if isFirstResponder {
+                    view.window?.makeFirstResponder(self)
                 }
-                isChangingFirstResponder = false
-                return super.resignFirstResponder()
-            }
-
-            var isChangingFirstResponder: Bool {
-                get { getAssociatedValue(key: "isChangingFirstResponder", object: self, initialValue: false) }
-                set { set(associatedValue: newValue, key: "isChangingFirstResponder", object: self) }
+                return !isFirstResponder
             }
         }
     #endif

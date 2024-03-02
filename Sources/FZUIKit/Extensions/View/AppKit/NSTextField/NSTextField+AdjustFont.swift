@@ -394,7 +394,7 @@
                             textField._isSelectable = textField.isSelectable
                             textField.isSelectable = true
                             textField.isEditable = true
-                            textField.becomeFirstResponder()
+                            textField.makeFirstResponder()
                         } else {
                             store.original(object, #selector(NSResponder.mouseDown(with:)), event)
                         }

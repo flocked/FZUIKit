@@ -152,7 +152,7 @@ import FZSwiftUtils
                     mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
                         guard let self = self, self.endEditingOnOutsideMouseDown, self.isFirstResponder else { return event }
                         if self.bounds.contains(event.location(in: self)) == false {
-                            self.resignFirstResponder()
+                            self.resignFirstResponding()
                         }
                         return event
                     }
@@ -237,17 +237,17 @@ import FZSwiftUtils
                     switch textView.actionOnEscapeKeyDown {
                     case .endEditingAndReset:
                         textView.string = string
-                        textView.resignFirstResponder()
+                        textView.resignFirstResponding()
                         return true
                     case .endEditing:
-                        textView.resignFirstResponder()
+                        textView.resignFirstResponding()
                     case .none:
                         break
                     }
                 case #selector(NSControl.insertNewline(_:)):
                     switch textView.actionOnEnterKeyDown {
                     case .endEditing:
-                        textView.resignFirstResponder()
+                        textView.resignFirstResponding()
                     case .none: break
                     }
                 default: break
