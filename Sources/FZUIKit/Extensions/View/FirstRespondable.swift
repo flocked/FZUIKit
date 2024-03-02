@@ -87,6 +87,7 @@
             var isFirstResponder: Bool { (view.window?.firstResponder == self) }
         }
 
+/*
         extension NSView {
             /**
              Attempts to make a given responder the first responder for the window.
@@ -123,6 +124,7 @@
                 set { set(associatedValue: newValue, key: "isChangingFirstResponder", object: self) }
             }
         }
+*/
 
         extension NSViewController {
             /**
