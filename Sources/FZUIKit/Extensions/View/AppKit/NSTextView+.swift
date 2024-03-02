@@ -45,9 +45,11 @@ import FZSwiftUtils
                 return fonts
             }
             set {
-                guard let font = newValue.first, let textStorage = textStorage else { return }
-                for range in selectedRanges.compactMap({$0.rangeValue}) {
-                    textStorage.addAttribute(.font, value: font, range: range)
+                guard let textStorage = textStorage else { return }
+                for (index, range) in selectedRanges.compactMap({$0.rangeValue}).enumerated() {
+                    if let font = newValue[safe: index] ?? newValue.last {
+                        textStorage.addAttribute(.font, value: font, range: range)
+                    }
                 }
             }
         }
