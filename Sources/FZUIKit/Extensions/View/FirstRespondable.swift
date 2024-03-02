@@ -95,6 +95,24 @@
             }
         }
 
+        public extension FirstRespondable where Self: NSTextView {
+            /**
+             Attempts to resign the object as first responder in its window.
+
+             Call this method when you want the object to resign the first responder.
+             
+             - Returns: `true` if this object isn't the first responder; otherwise, `false`.
+             */
+            @discardableResult
+            func resignFirstResponding() -> Bool {
+                if isFirstResponder {
+                    window?.makeFirstResponder(nil)
+                }
+                selectedRanges = selectedRanges
+                return !isFirstResponder
+            }
+        }
+
         public extension FirstRespondable where Self: NSTextField {
             /**
              Returns a Boolean value indicating whether this textfield is the first responder.
