@@ -125,6 +125,10 @@ extension FontMenuItemView {
         func sharedInit() {
             imageView.imageScaling = .scaleProportionallyUpOrDown
             imageView.translatesAutoresizingMaskIntoConstraints = false
+            if #available(macOS 11.0, *) {
+                imageView.symbolConfiguration = .init(pointSize: NSFont.systemFontSize, weight: .heavy)
+            }
+            imageView.contentTintColor = .labelColor
             
             textField.isSelectable = false
             textField.lineBreakMode = .byTruncatingTail
