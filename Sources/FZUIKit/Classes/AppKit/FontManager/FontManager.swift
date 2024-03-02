@@ -188,6 +188,18 @@ public class FontManager: NSObject {
                     if memberIndexes.count == 1 {
                         fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
                     } else if memberIndexes.count > 1 {
+                        if let item = fontMemberPopUpButton.menu?.items[safe: memberIndexes.first!] {
+                            item.representedObject(item.title).tag(555).title("Multiple")
+                            fontMemberPopUpButton.selectItem(withTag: 555)
+                            fontMemberPopUpButton.menu?.handlers.willOpen = {
+                                if let item = fontMemberPopUpButton.menu?.item(withTag: 555), let title = item.representedObject as? String {
+                                    item.title = title
+                                }
+                            }
+                            fontMemberPopUpButton.menu?.handlers.didClose = {
+                                fontMemberPopUpButton.menu?.item(withTag: 555)?.title = "Multiple"
+                            }
+                        }
                         /*
                         fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
                         let title = fontMemberPopUpButton.selectedItem?.title ?? "Non"
@@ -199,7 +211,7 @@ public class FontManager: NSObject {
                             fontMemberPopUpButton.selectedItem?.title = "Multiple"
                         }
                          */
-                        fontMemberPopUpButton.selectItem(withTag: 444)
+                      //  fontMemberPopUpButton.selectItem(withTag: 444)
                         for index in memberIndexes {
                             fontMemberPopUpButton.menu?.items[safe: index]?.state = .mixed
                         }
