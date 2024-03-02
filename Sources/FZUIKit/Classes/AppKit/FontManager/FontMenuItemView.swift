@@ -90,7 +90,6 @@ extension FontMenuItemView {
                 centerConstraint?.constant = (font.pointSize / 2.0) - 1.5
             }
             textField.sizeToFit()
-            Swift.print(fittingSize.height)
             frame.size.width = fittingSize.width + 4
         }
         
