@@ -94,13 +94,18 @@
              The default implementation returns 'true', accepting first responder status. Subclasses can override this method to update state or perform some action such as highlighting the selection, or to return 'false', refusing first responder status.
              */
             @discardableResult override open func becomeFirstResponder() -> Bool {
-                if acceptsFirstResponder, let window = window, window.firstResponder != self, !isChangingFirstResponder {
+                Swift.print()
+                Swift.print("become 0")
+                if !isChangingFirstResponder, acceptsFirstResponder, let window = window, window.firstResponder != self {
                     isChangingFirstResponder = true
+                    Swift.print("become 1")
                     window.makeFirstResponder(self)
+                    Swift.print("become 2")
                     return true
                 }
                 isChangingFirstResponder = false
-                return acceptsFirstResponder
+                Swift.print("become 3")
+                return true
             }
 
             /**
@@ -109,12 +114,17 @@
              The default implementation returns 'true', resigning first responder status. Subclasses can override this method to update state or perform some action such as unhighlighting the selection, or to return 'false', refusing to relinquish first responder status.
              */
             @discardableResult override open func resignFirstResponder() -> Bool {
-                if let window = window, window.firstResponder == self, isChangingFirstResponder == false {
+                Swift.print()
+                Swift.print("resign 0")
+                if !isChangingFirstResponder, let window = window, window.firstResponder == self {
                     isChangingFirstResponder = true
+                    Swift.print("resign 1")
                     window.makeFirstResponder(nil)
+                    Swift.print("resign 2")
                     return true
                 }
                 isChangingFirstResponder = false
+                Swift.print("resign 3")
                 return true
             }
 
