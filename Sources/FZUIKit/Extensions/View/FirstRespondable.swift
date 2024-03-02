@@ -96,6 +96,22 @@
 
         public extension FirstRespondable where Self: NSTextField {
             var isFirstResponder: Bool { currentEditor() == window?.firstResponder }
+            
+            @discardableResult
+            func makeFirstResponder() -> Bool {
+                if !isFirstResponder, acceptsFirstResponder {
+                    window?.makeFirstResponder(self)
+                }
+                return isFirstResponder
+            }
+            
+            @discardableResult
+            func resignFirstResponding() -> Bool {
+                if isFirstResponder {
+                    window?.makeFirstResponder(nil)
+                }
+                return !isFirstResponder
+            }
         }
 
         public extension FirstRespondable where Self: NSViewController {
