@@ -195,10 +195,17 @@ public class FontManager: NSObject {
                     if memberIndexes.count == 1 {
                         fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
                     } else if memberIndexes.count > 1 {
-                        fontMemberPopUpButton.selectItem(withTag: 444)
+                        fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
+                        let title = fontMemberPopUpButton.selectedItem?.title ?? "Non"
+                        fontMemberPopUpButton.selectedItem?.title = "Multiple"
                         fontMemberPopUpButton.menu?.handlers.willOpen = {
-                            fontMemberPopUpButton.selectItem(at: memberIndexes.first!)
+                            fontMemberPopUpButton.selectedItem?.title = title
                         }
+                        fontMemberPopUpButton.menu?.handlers.didClose = {
+                            fontMemberPopUpButton.selectedItem?.title = "Multiple"
+                        }
+                        
+                       // fontMemberPopUpButton.selectItem(withTag: 444)
                         for index in memberIndexes {
                             fontMemberPopUpButton.menu?.items[safe: index]?.state = .mixed
                         }
