@@ -255,12 +255,9 @@ public class FontManager: NSObject {
         guard _targetIsFirstResonder else { return }
         
         if let textView = target as? NSTextView {
-            textView.window?.makeFirstResponder(nil)
             textView.window?.makeFirstResponder(textView)
-            textView.window?.makeFirstResponder(textView)
-            //textView.selectedRanges = textView.selectedRanges
+            textView.selectedRanges = textView.selectedRanges
         } else if let textField = target as? NSTextField {
-            textField.window?.makeFirstResponder(nil)
             textField.window?.makeFirstResponder(textField)
         }
     }
@@ -273,18 +270,33 @@ public class FontManager: NSObject {
             fontSizeTextField.doubleValue = fontSize
             fontSizeTextField.actionOnEnterKeyDown = .endEditing
             fontSizeTextField.actionOnEscapeKeyDown = .endEditingAndReset
+            /*
             fontSizeTextField.editingHandlers.didBegin = { [weak self] in
                 guard let self = self else { return }
                 self._targetIsFirstResonder = self.targetIsFirstResonder
             }
-            fontSizeTextField.editingHandlers.didEnd = { [weak self] in
-                guard let self = self, let fontSizeTextField = self.fontSizeTextField else { return  }
-                if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
-                    textView.selectionFonts = textView.selectionFonts.compactMap({$0.withSize(fontSizeTextField.doubleValue)})
+             fontSizeTextField.editingHandlers.didEnd = { [weak self] in
+                 guard let self = self, let fontSizeTextField = self.fontSizeTextField else { return  }
+                 if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
+                     textView.selectionFonts = textView.selectionFonts.compactMap({$0.withSize(fontSizeTextField.doubleValue)})
+                 } else {
+                     self.fontSize = fontSizeTextField.doubleValue
+                 }
+                 self.makeTargetFirstResponder()
+             }
+             */
+            fontSizeTextField.viewHandlers.isFirstResponder = { [weak self] isFirstResponder in
+                guard let self = self else { return }
+                if isFirstResponder {
+                    self._targetIsFirstResonder = self.targetIsFirstResonder
                 } else {
-                    self.fontSize = fontSizeTextField.doubleValue
+                    if let textView = self.target as? NSTextView, textView.selectionFonts.count > 1 {
+                        textView.selectionFonts = textView.selectionFonts.compactMap({$0.withSize(fontSizeTextField.doubleValue)})
+                    } else {
+                        self.fontSize = fontSizeTextField.doubleValue
+                    }
+                    self.makeTargetFirstResponder()
                 }
-                self.makeTargetFirstResponder()
             }
             fontSizeTextField.formatter = NumberFormatter(style: .decimal, minValue: Double(minFontSize ?? 1), maxValue: Double(maxFontSize ?? 20000))
             fontSizeTextField.isEnabled = isEnabled

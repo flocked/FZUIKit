@@ -281,10 +281,10 @@
                         methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
                         hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
                     ) { store in { object, textView, selector in
-                        if let doCommand = (object as? NSTextField)?.editingHandlers.doCommand {
-                            return doCommand(selector)
-                        }
                         if let textField = object as? NSTextField {
+                            if let doCommand = textField.editingHandlers.doCommand {
+                                return doCommand(selector)
+                            }
                             switch selector {
                             case #selector(NSControl.cancelOperation(_:)):
                                 switch textField.actionOnEscapeKeyDown {
