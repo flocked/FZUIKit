@@ -89,11 +89,7 @@ public class FontManager: NSObject {
         }
     }
     
-    var targetIsFirstResonder: Bool = false {
-        didSet {
-            Swift.print("targetIsFirstResonder", targetIsFirstResonder)
-        }
-    }
+    var targetIsFirstResonder: Bool = false
     var _targetIsFirstResonder: Bool = false
     var targetWindowObserver: NSKeyValueObservation? = nil
     
@@ -181,7 +177,6 @@ public class FontManager: NSObject {
         if fonts.isEmpty, let font = textView.typingAttributes[.font] as? NSFont {
             fonts = [font]
         }
-        Swift.print("updateSelectedFont", fonts)
         if fonts.count == 1 {
            selectedFont = fonts.first
         } else if fonts.count > 1 {
@@ -279,7 +274,6 @@ public class FontManager: NSObject {
     var firstResponderObserver: NSKeyValueObservation? = nil
     func makeTargetFirstResponder() {
         guard _targetIsFirstResonder else { return }
-        Swift.print("makeTargetFirstResponder")
         if let textView = target as? NSTextView {
             textView.window?.makeFirstResponder(textView)
             textView.selectedRanges = textView.selectedRanges
