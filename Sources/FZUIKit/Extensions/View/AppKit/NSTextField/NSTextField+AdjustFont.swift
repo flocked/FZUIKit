@@ -277,10 +277,6 @@
                     //  self.editingState = .didEnd
                     self.adjustFontSize()
                     self.editingHandlers.didEnd?()
-                    if self.isEditableByDoubleClick {
-                        self.isSelectable = self._isSelectable
-                        self.isEditable = self._isEditable
-                    }
                     if self.automaticallyResizesToFit {
                         self.sizeToFit()
                     }

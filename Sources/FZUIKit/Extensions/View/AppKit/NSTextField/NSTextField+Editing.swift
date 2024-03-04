@@ -128,16 +128,17 @@
                     doubleClickEditGestureRecognizer?.removeFromView(disablingReadding: true)
                     doubleClickEditGestureRecognizer = nil
                 }
+                setupFirstResponderObservation()
             }
         }
         
-        var _isSelectable: Bool {
-            get { getAssociatedValue(key: "_isSelectable", object: self, initialValue: isSelectable) }
+        var _isSelectable: Bool? {
+            get { getAssociatedValue(key: "_isSelectable", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "_isSelectable", object: self) }
         }
         
-        var _isEditable: Bool {
-            get { getAssociatedValue(key: "_isEditable", object: self, initialValue: isEditable) }
+        var _isEditable: Bool? {
+            get { getAssociatedValue(key: "_isEditable", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "_isEditable", object: self) }
         }
         
@@ -210,18 +211,38 @@
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
         public var endEditingOnOutsideMouseDown: Bool {
-            get { textFieldFirstResponderObservation != nil }
-            set {
-                guard newValue != endEditingOnOutsideMouseDown else { return }
-                if newValue {
+            get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
+            set { set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
+                setupFirstResponderObservation()
+                setupMouseMonitor(isEditing: hasKeyboardFocus)
+            }
+        }
+        
+        func setupFirstResponderObservation() {
+            if endEditingOnOutsideMouseDown || isEditableByDoubleClick {
+                if textFieldFirstResponderObservation == nil {
                     textFieldFirstResponderObservation = self.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                         guard let self = self, old != new else { return }
-                        self.setupMouseMonitor(isEditing: self.hasKeyboardFocus)
+                        self._hasKeyboardFocus = self.hasKeyboardFocus
                     }
-                } else {
-                    textFieldFirstResponderObservation = nil
                 }
-                setupMouseMonitor(isEditing: hasKeyboardFocus)
+            } else {
+                textFieldFirstResponderObservation = nil
+            }
+        }
+        
+        var _hasKeyboardFocus: Bool {
+            get { getAssociatedValue(key: "_hasKeyboardFocus", object: self, initialValue: false) }
+            set {
+                guard newValue != _hasKeyboardFocus else { return }
+                set(associatedValue: newValue, key: "_hasKeyboardFocus", object: self)
+                if newValue == false, let _isSelectable = self._isSelectable, let _isEditable = self._isEditable {
+                    self.isSelectable = _isSelectable
+                    self.isEditable = _isEditable
+                    self._isSelectable = nil
+                    self._isEditable = nil
+                }
+                setupMouseMonitor(isEditing: newValue)
             }
         }
         
