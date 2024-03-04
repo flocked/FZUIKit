@@ -478,7 +478,7 @@ class TextFieldMouseDownGestureRecognizer: NSGestureRecognizer {
         if let textField = view as? NSTextField {
             Swift.print("gesst", event.clickCount, textField.isEditableByDoubleClick, textField.isFirstResponder)
         }
-        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isFirstResponder, event.clickCount == 2 {
+        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, textField.isEditable == false, event.clickCount > 1 {
             textField._isEditable = textField.isEditable
             textField._isSelectable = textField.isSelectable
             textField.isSelectable = true
