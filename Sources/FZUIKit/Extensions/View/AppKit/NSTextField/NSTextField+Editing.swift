@@ -139,7 +139,7 @@
                     mouseDownGestureRecognizer = TextFieldMouseDownGestureRecognizer()
                     mouseDownGestureRecognizer?.addToView(self)
                 } else  {
-                    mouseDownGestureRecognizer?.removeFromView()
+                    mouseDownGestureRecognizer?.removeFromView(disablingObservation: true)
                     mouseDownGestureRecognizer = nil
                 }
             }
