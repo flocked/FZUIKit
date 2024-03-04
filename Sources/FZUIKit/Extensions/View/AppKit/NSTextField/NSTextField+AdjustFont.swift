@@ -475,7 +475,7 @@
         
         class KeyUpActionGestureRecognizer: ReattachingGestureRecognizer {
             override func keyUp(with event: NSEvent) {
-                if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
+                if let textField = view as? NSTextField {
                     if event.keyCode == 53 { // Esc
                         switch textField.actionOnEscapeKeyDown {
                         case .endEditingAndReset:

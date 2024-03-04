@@ -189,6 +189,7 @@
         }
         
         func setupKeyUpGestureRecognizer() {
+            Swift.print("setupKeyUpGestureRecognizer", (actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none))
             if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
                 if keyUpActionGestureRecognizer == nil {
                     keyUpActionGestureRecognizer = KeyUpActionGestureRecognizer()
