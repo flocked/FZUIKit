@@ -362,17 +362,6 @@
                         self.invalidateIntrinsicContentSize()
                     })
                     
-                    mouseHandlers.leftDown = { [weak self] event in
-                        guard let self = self else { return }
-                        if self.isEditableByDoubleClick, !self.isFirstResponder {
-                            self._isEditable = self.isEditable
-                            self._isSelectable = self.isSelectable
-                            self.isSelectable = true
-                            self.isEditable = true
-                            self.makeFirstResponder()
-                        }
-                    }
-                    
                     /*
                     try replaceMethod(
                         #selector(getter: intrinsicContentSize),
@@ -430,7 +419,7 @@
             }
         }
         
-        var mouseDownGestureRecognizer: TextFieldMouseDownGestureRecognizer? {
+        var mouseDownGestureRecognizer: DoubleClickEditGestureRecognizer? {
             get { getAssociatedValue(key: "mouseDownGestureRecognizer", object: self, initialValue: nil) }
             set {
                 set(associatedValue: newValue, key: "mouseDownGestureRecognizer", object: self)
@@ -471,21 +460,20 @@
             get { getAssociatedValue(key: "observer", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "observer", object: self) }
         }
-    }
-
-class TextFieldMouseDownGestureRecognizer: AutoGestureRecognizer {
-    override func mouseDown(with event: NSEvent) {
-        Swift.print("mouseDo", event.clickCount)
-        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
-            textField._isEditable = textField.isEditable
-            textField._isSelectable = textField.isSelectable
-            textField.isSelectable = true
-            textField.isEditable = true
-            textField.makeFirstResponder()
+        
+        class DoubleClickEditGestureRecognizer: ReattachingGestureRecognizer {
+            override func mouseDown(with event: NSEvent) {
+                if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
+                    textField._isEditable = textField.isEditable
+                    textField._isSelectable = textField.isSelectable
+                    textField.isSelectable = true
+                    textField.isEditable = true
+                    textField.makeFirstResponder()
+                }
+                super.mouseDown(with: event)
+            }
         }
-        super.mouseDown(with: event)
     }
-}
 
 /*
 extension NSTextField {

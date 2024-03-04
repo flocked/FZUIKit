@@ -136,10 +136,10 @@
             set {
                 guard newValue != isEditableByDoubleClick else { return }
                 if newValue {
-                    mouseDownGestureRecognizer = TextFieldMouseDownGestureRecognizer()
+                    mouseDownGestureRecognizer = DoubleClickEditGestureRecognizer()
                     mouseDownGestureRecognizer?.addToView(self)
                 } else  {
-                    mouseDownGestureRecognizer?.removeFromView(disablingObservation: true)
+                    mouseDownGestureRecognizer?.removeFromView(disablingReadding: true)
                     mouseDownGestureRecognizer = nil
                 }
             }
