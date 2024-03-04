@@ -26,6 +26,10 @@
         var item: NSToolbarItem {
             rootItem
         }
+        
+        public func item (_ handler: (NSToolbarItem)->()) {
+            handler(item)
+        }
 
         public init(_ identifier: NSToolbarItem.Identifier? = nil) {
             self.identifier = identifier ?? .random
