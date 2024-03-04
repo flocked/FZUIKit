@@ -92,6 +92,8 @@
             placeholderSize = placeholderStringSize()
             automaticallyResizesToFit = true
             invalidateIntrinsicContentSize()
+            super.drawsBackground = false
+            super.backgroundColor = nil
         }
 
         var placeholderSize: CGSize? {
@@ -122,7 +124,7 @@
             didSet { updateBackgroundColor() }
         }
         
-        var _drawsBackground: Bool = false {
+        var _drawsBackground: Bool = true {
             didSet { updateBackgroundColor() }
         }
         
