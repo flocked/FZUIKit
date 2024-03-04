@@ -225,7 +225,7 @@
             guard let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView
             else {
                 Swift.print("noFieldEditor")
-                minSize.width += leadingPadding + trailingPadding + 3
+                minSize.width += leadingPadding + trailingPadding + 10
                 return minSize
             }
 
@@ -233,7 +233,7 @@
 
             if !isEditing {
                 Swift.print("!isEditing")
-                minSize.width += leadingPadding + trailingPadding + 3
+                minSize.width += leadingPadding + trailingPadding + 10
                 return minSize
             }
 
