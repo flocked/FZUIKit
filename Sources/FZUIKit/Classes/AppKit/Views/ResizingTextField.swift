@@ -102,11 +102,39 @@
             }
         }
 
-        public var lastContentSize = CGSize() {
+        var lastContentSize = CGSize() {
             didSet {
                 lastContentSize = CGSize(width: ceil(lastContentSize.width), height: ceil(lastContentSize.height))
             }
         }
+        
+        open override var backgroundColor: NSUIColor? {
+            get { _backgroundColor }
+            set { _backgroundColor = newValue }
+        }
+        
+        open override var drawsBackground: Bool {
+            get { _drawsBackground }
+            set { _drawsBackground = newValue }
+        }
+        
+        var _backgroundColor: NSColor? = nil {
+            didSet { updateBackgroundColor() }
+        }
+        
+        var _drawsBackground: Bool = false {
+            didSet { updateBackgroundColor() }
+        }
+        
+        func updateBackgroundColor() {
+            if _drawsBackground {
+                wantsLayer = true
+                layer?.backgroundColor = _backgroundColor?.cgColor
+            } else {
+                layer?.backgroundColor = nil
+            }
+        }
+
 
         override public var stringValue: String {
             didSet {
