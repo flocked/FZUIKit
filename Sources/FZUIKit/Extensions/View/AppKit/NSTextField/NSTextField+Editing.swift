@@ -132,14 +132,13 @@
         
         /// A Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
         public var isEditableByDoubleClick: Bool {
-            get { getAssociatedValue(key: "isEditableByDoubleClick", object: self, initialValue: false) }
-            set { 
+            get { mouseDownGestureRecognizer != nil }
+            set {
                 guard newValue != isEditableByDoubleClick else { return }
-                set(associatedValue: newValue, key: "isEditableByDoubleClick", object: self)
-                if newValue, mouseDownGestureRecognizer == nil {
+                if newValue {
                     mouseDownGestureRecognizer = TextFieldMouseDownGestureRecognizer()
-                    addGestureRecognizer(mouseDownGestureRecognizer!)
-                } else if newValue == false {
+                    mouseDownGestureRecognizer?.addToView(self)
+                } else  {
                     mouseDownGestureRecognizer?.removeFromView()
                     mouseDownGestureRecognizer = nil
                 }

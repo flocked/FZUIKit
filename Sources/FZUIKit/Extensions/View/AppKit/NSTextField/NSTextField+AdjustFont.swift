@@ -475,10 +475,7 @@
 
 class TextFieldMouseDownGestureRecognizer: NSGestureRecognizer {
     override func mouseDown(with event: NSEvent) {
-        if let textField = view as? NSTextField {
-            Swift.print("gesst", event.clickCount, textField.isEditableByDoubleClick, textField.isFirstResponder)
-        }
-        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, textField.isEditable == false, event.clickCount > 1 {
+        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount > 1 {
             textField._isEditable = textField.isEditable
             textField._isSelectable = textField.isSelectable
             textField.isSelectable = true
@@ -495,14 +492,13 @@ class TextFieldMouseDownGestureRecognizer: NSGestureRecognizer {
     var viewObservation: NSKeyValueObservation? = nil
     override init(target: Any?, action: Selector?) {
         super.init(target: target, action: action)
-        /*
         viewObservation = observeChanges(for: \.view) { [weak self] old, new in
             guard let self = self else { return }
+            Swift.print("is removing ges")
             if new == nil, let old = old {
                 old.addGestureRecognizer(self)
             }
         }
-         */
     }
     
     required init?(coder: NSCoder) {
