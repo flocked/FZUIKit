@@ -126,7 +126,7 @@
         }
         
         var needsSwizzling: Bool {
-            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit
+            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit
         }
 
         func setupTextFieldObserver() {
@@ -274,53 +274,6 @@
                         textField._bounds = textField.bounds
                     }
                     })
-                    /*
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
-                        hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
-                    ) { store in { object, textView, selector in
-                        if let textField = object as? NSTextField {
-                            if let doCommand = textField.editingHandlers.doCommand {
-                                return doCommand(selector)
-                            }
-                            switch selector {
-                            case #selector(NSControl.cancelOperation(_:)):
-                                switch textField.actionOnEscapeKeyDown {
-                                case .endEditingAndReset:
-                                    textField.stringValue = textField.editStartString
-                                    textField.adjustFontSize()
-                                    textField.resignFirstResponding()
-                                    return true
-                                case .endEditing:
-                                    if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                        return false
-                                    } else {
-                                        textField.resignFirstResponding()
-                                        return true
-                                    }
-                                case .none:
-                                    break
-                                }
-                            case #selector(NSControl.insertNewline(_:)):
-                                switch textField.actionOnEnterKeyDown {
-                                case .endEditing:
-                                    if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                        return false
-                                    } else {
-                                        textField.resignFirstResponding()
-                                        return true
-                                    }
-                                case .none: break
-                                }
-                            default: break
-                            }
-                        }
-                        return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
-                    }
-                    })
-                    */
                                         
                     editingNotificationTokens.append(
                     NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
@@ -399,6 +352,63 @@
                 editingNotificationTokens.removeAll()
             }
         }
+        
+        func swizzleDoCommand() {
+            if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
+                if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
+                    do {
+                        try replaceMethod(
+                            #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
+                            methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
+                            hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
+                        ) { store in { object, textView, selector in
+                            if let textField = object as? NSTextField {
+                                if let doCommand = textField.editingHandlers.doCommand {
+                                    return doCommand(selector)
+                                }
+                                switch selector {
+                                case #selector(NSControl.cancelOperation(_:)):
+                                    switch textField.actionOnEscapeKeyDown {
+                                    case .endEditingAndReset:
+                                        textField.stringValue = textField.editStartString
+                                        textField.adjustFontSize()
+                                        textField.resignFirstResponding()
+                                        return true
+                                    case .endEditing:
+                                        if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                            return false
+                                        } else {
+                                            textField.resignFirstResponding()
+                                            return true
+                                        }
+                                    case .none:
+                                        break
+                                    }
+                                case #selector(NSControl.insertNewline(_:)):
+                                    switch textField.actionOnEnterKeyDown {
+                                    case .endEditing:
+                                        if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                            return false
+                                        } else {
+                                            textField.resignFirstResponding()
+                                            return true
+                                        }
+                                    case .none: break
+                                    }
+                                default: break
+                                }
+                            }
+                            return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
+                        }
+                        }
+                    } catch {
+                        Swift.debugPrint(error)
+                    }
+                }
+            } else {
+                resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
+            }
+        }
 
         var isAdjustingFontSize: Bool {
             get { getAssociatedValue(key: "isAdjustingFontSize", object: self, initialValue: false) }
@@ -470,44 +480,6 @@
                     textField.makeFirstResponder()
                 }
                 super.mouseDown(with: event)
-            }
-        }
-        
-        class KeyUpActionGestureRecognizer: ReattachingGestureRecognizer {
-            override func keyUp(with event: NSEvent) {
-                Swift.print("keyUp", event.keyCode)
-                if let textField = view as? NSTextField {
-                    if event.keyCode == 53 { // Esc
-                        switch textField.actionOnEscapeKeyDown {
-                        case .endEditingAndReset:
-                            textField.stringValue = textField.editStartString
-                            textField.adjustFontSize()
-                            textField.resignFirstResponding()
-                          //  return true
-                        case .endEditing:
-                            if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                              //  return false
-                            } else {
-                                textField.resignFirstResponding()
-                             //   return true
-                            }
-                        case .none:
-                            break
-                        }
-                    } else if event.keyCode == 36 { // Enter
-                        switch textField.actionOnEnterKeyDown {
-                        case .endEditing:
-                            if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                              //  return false
-                            } else {
-                                textField.resignFirstResponding()
-                             //   return true
-                            }
-                        case .none: break
-                        }
-                    }
-                }
-                super.keyUp(with: event)
             }
         }
     }

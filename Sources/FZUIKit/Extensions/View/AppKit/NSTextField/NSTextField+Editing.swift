@@ -174,7 +174,7 @@
             set {
                 guard actionOnEnterKeyDown != newValue else { return }
                 set(associatedValue: newValue, key: "actionOnEnterKeyDown", object: self)
-                setupKeyUpGestureRecognizer()
+                swizzleDoCommand()
             }
         }
 
@@ -184,26 +184,8 @@
             set {
                 guard actionOnEscapeKeyDown != newValue else { return }
                 set(associatedValue: newValue, key: "actionOnEscapeKeyDown", object: self)
-                setupKeyUpGestureRecognizer()
+                swizzleDoCommand()
             }
-        }
-        
-        func setupKeyUpGestureRecognizer() {
-            Swift.print("setupKeyUpGestureRecognizer", (actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none))
-            if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
-                if keyUpActionGestureRecognizer == nil {
-                    keyUpActionGestureRecognizer = KeyUpActionGestureRecognizer()
-                    keyUpActionGestureRecognizer?.addToView(self)
-                }
-            } else {
-                keyUpActionGestureRecognizer?.removeFromView(disablingReadding: true)
-                keyUpActionGestureRecognizer = nil
-            }
-        }
-        
-        var keyUpActionGestureRecognizer: KeyUpActionGestureRecognizer? {
-            get { getAssociatedValue(key: "keyUpActionGestureRecognizer", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "keyUpActionGestureRecognizer", object: self) }
         }
 
         /// The minimum numbers of characters needed when the user edits the string value.
