@@ -9,10 +9,6 @@
 import AppKit
 import FZSwiftUtils
 
-func test() {
-    
-}
-
 /// A type that accepts first responder status of a window.
 public protocol FirstRespondable: NSUIResponder {
     

@@ -136,7 +136,13 @@
             set { 
                 guard newValue != isEditableByDoubleClick else { return }
                 set(associatedValue: newValue, key: "isEditableByDoubleClick", object: self)
-                swizzleTextField(shouldSwizzle: needsSwizzling)
+                if newValue, mouseDownGestureRecognizer == nil {
+                    mouseDownGestureRecognizer = TextFieldMouseDownGestureRecognizer()
+                    addGestureRecognizer(mouseDownGestureRecognizer!)
+                } else if newValue == false {
+                    mouseDownGestureRecognizer?.removeFromView()
+                    mouseDownGestureRecognizer = nil
+                }
             }
         }
         

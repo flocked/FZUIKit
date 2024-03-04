@@ -320,86 +320,58 @@
                         return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                     }
                     })
+                                        
+                    editingNotificationTokens.append(
+                    NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
+                        guard let self = self else { return }
+                        self.editStartString = self.stringValue
+                        self.previousString = self.stringValue
+                        self.editingHandlers.didBegin?()
+                        if let editingRange = self.currentEditor()?.selectedRange {
+                            self.editingRange = editingRange
+                        }
+                        if self.automaticallyResizesToFit {
+                            self.sizeToFit()
+                        }
+                        self.invalidateIntrinsicContentSize()
+                    })
                     
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(textDidEndEditing),
-                        methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
-                    ) { store in { object, notification in
-                        store.original(object, #selector(NSTextField.textDidEndEditing), notification)
-                        if let textField = (object as? NSTextField) {
-                            //  textField.editingState = .didEnd
-                            textField.adjustFontSize()
-                            textField.editingHandlers.didEnd?()
-                            if textField.isEditableByDoubleClick {
-                                textField.isSelectable = textField._isSelectable
-                                textField.isEditable = textField._isEditable
-                            }
-                            if textField.automaticallyResizesToFit {
-                                textField.sizeToFit()
-                            }
-                            textField.invalidateIntrinsicContentSize()
+                    editingNotificationTokens.append(
+                    NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
+                        guard let self = self else { return }
+                        self.updateString()
+                        if self.automaticallyResizesToFit {
+                            self.sizeToFit()
+                        }
+                        self.invalidateIntrinsicContentSize()
+                    })
+                    
+                    editingNotificationTokens.append(
+                    NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
+                        guard let self = self else { return }
+                        //  self.editingState = .didEnd
+                        self.adjustFontSize()
+                        self.editingHandlers.didEnd?()
+                        if self.isEditableByDoubleClick {
+                            self.isSelectable = self._isSelectable
+                            self.isEditable = self._isEditable
+                        }
+                        if self.automaticallyResizesToFit {
+                            self.sizeToFit()
+                        }
+                        self.invalidateIntrinsicContentSize()
+                    })
+                    
+                    mouseHandlers.leftDown = { [weak self] event in
+                        guard let self = self else { return }
+                        if self.isEditableByDoubleClick, !self.isFirstResponder {
+                            self._isEditable = self.isEditable
+                            self._isSelectable = self.isSelectable
+                            self.isSelectable = true
+                            self.isEditable = true
+                            self.makeFirstResponder()
                         }
                     }
-                    })
-                    
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(textDidBeginEditing),
-                        methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
-                    ) { store in { object, notification in
-                        store.original(object, #selector(NSTextField.textDidBeginEditing), notification)
-                        if let textField = (object as? NSTextField) {
-                            textField.editStartString = textField.stringValue
-                            textField.previousString = textField.stringValue
-                            textField.editingHandlers.didBegin?()
-                            if let editingRange = textField.currentEditor()?.selectedRange {
-                                textField.editingRange = editingRange
-                            }
-                            if textField.automaticallyResizesToFit {
-                                textField.sizeToFit()
-                            }
-                            textField.invalidateIntrinsicContentSize()
-                        }
-                    }
-                    })
-                    
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(textDidChange),
-                        methodSignature: (@convention(c) (AnyObject, Selector, Notification) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, Notification) -> Void).self
-                    ) { store in { object, notification in
-                        store.original(object, #selector(NSTextField.textDidChange), notification)
-                        if let textField = (object as? NSTextField) {
-                            textField.updateString()
-                            if textField.automaticallyResizesToFit {
-                                textField.sizeToFit()
-                            }
-                            textField.invalidateIntrinsicContentSize()
-                        }
-                    }
-                    })
-                    
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(NSResponder.mouseDown(with:)),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSEvent) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, NSEvent) -> Void).self
-                    ) { store in { object, event in
-                        if let textField = (object as? NSTextField), textField.isEditableByDoubleClick, event.clickCount > 1, !textField.isFirstResponder {
-                            textField._isEditable = textField.isEditable
-                            textField._isSelectable = textField.isSelectable
-                            textField.isSelectable = true
-                            textField.isEditable = true
-                            textField.makeFirstResponder()
-                        } else {
-                            store.original(object, #selector(NSResponder.mouseDown(with:)), event)
-                        }
-                        }
-                    })
                     
                     /*
                     try replaceMethod(
@@ -434,6 +406,7 @@
             } else {
                 swizzleTextFieldTokens.forEach({ resetMethod($0) })
                 swizzleTextFieldTokens.removeAll()
+                editingNotificationTokens.removeAll()
             }
         }
 
@@ -447,6 +420,20 @@
             get { getAssociatedValue(key: "swizzleTextFieldTokens", object: self, initialValue: []) }
             set {
                 set(associatedValue: newValue, key: "swizzleTextFieldTokens", object: self)
+            }
+        }
+        
+        var editingNotificationTokens: [NotificationToken] {
+            get { getAssociatedValue(key: "editingNotificationTokens", object: self, initialValue: []) }
+            set {
+                set(associatedValue: newValue, key: "editingNotificationTokens", object: self)
+            }
+        }
+        
+        var mouseDownGestureRecognizer: TextFieldMouseDownGestureRecognizer? {
+            get { getAssociatedValue(key: "mouseDownGestureRecognizer", object: self, initialValue: nil) }
+            set {
+                set(associatedValue: newValue, key: "mouseDownGestureRecognizer", object: self)
             }
         }
 
@@ -485,6 +472,40 @@
             set { set(associatedValue: newValue, key: "observer", object: self) }
         }
     }
+
+class TextFieldMouseDownGestureRecognizer: NSGestureRecognizer {
+    override func mouseDown(with event: NSEvent) {
+        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isFirstResponder, event.clickCount == 2 {
+            textField._isEditable = textField.isEditable
+            textField._isSelectable = textField.isSelectable
+            textField.isSelectable = true
+            textField.isEditable = true
+            textField.makeFirstResponder()
+        }
+        super.mouseDown(with: event)
+    }
+    
+    convenience init() {
+        self.init(target: nil, action: nil)
+    }
+
+    var viewObservation: NSKeyValueObservation? = nil
+    override init(target: Any?, action: Selector?) {
+        super.init(target: target, action: action)
+        /*
+        viewObservation = observeChanges(for: \.view) { [weak self] old, new in
+            guard let self = self else { return }
+            if new == nil, let old = old {
+                old.addGestureRecognizer(self)
+            }
+        }
+         */
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
 
 /*
 extension NSTextField {

@@ -13,6 +13,11 @@ import UIKit
 #endif
 
 extension NSUIGestureRecognizer {
+    /// Adds the gesture recognizer to the specified view.
+    public func addToView(_ view: NSUIView) {
+        view.addGestureRecognizer(self)
+    }
+    
     /// Removes the gesture recognizer from the view it's attached to.
     public func removeFromView() {
         #if os(macOS)
