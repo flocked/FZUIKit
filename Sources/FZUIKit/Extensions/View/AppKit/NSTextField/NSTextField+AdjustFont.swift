@@ -473,7 +473,7 @@
         }
     }
 
-class TextFieldMouseDownGestureRecognizer: NSGestureRecognizer {
+class TextFieldMouseDownGestureRecognizer: AutoGestureRecognizer {
     override func mouseDown(with event: NSEvent) {
         if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount > 1 {
             textField._isEditable = textField.isEditable
@@ -483,37 +483,6 @@ class TextFieldMouseDownGestureRecognizer: NSGestureRecognizer {
             textField.makeFirstResponder()
         }
         super.mouseDown(with: event)
-    }
-    
-    convenience init() {
-        self.init(target: nil, action: nil)
-    }
-
-    var viewObservation: NSKeyValueObservation? = nil
-    override init(target: Any?, action: Selector?) {
-        super.init(target: target, action: action)
-        viewObservation = observeChanges(for: \.view) { [weak self] old, new in
-            guard let self = self else { return }
-            if new == nil, let old = old {
-                let task = DispatchWorkItem { [weak self] in
-                    guard let self = self else { return }
-                    Swift.print("readding")
-                    old.addGestureRecognizer(self)
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: task)
-            }
-        }
-    }
-    
-    func removeFromView(disablingObservation: Bool) {
-        if disablingObservation {
-            viewObservation = nil
-        }
-        view?.removeGestureRecognizer(self)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }
 

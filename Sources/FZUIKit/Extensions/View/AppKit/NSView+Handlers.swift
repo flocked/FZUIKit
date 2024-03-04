@@ -96,7 +96,7 @@ extension NSView {
                 addGestureRecognizer(observerGestureRecognizer!)
             }
         } else {
-            observerGestureRecognizer?.removeFromView()
+            observerGestureRecognizer?.removeFromView(disablingObservation: true)
             observerGestureRecognizer = nil
         }
     }

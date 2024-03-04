@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 02.03.24.
 //
 
+#if os(macOS)
 import AppKit
 import FZSwiftUtils
 
@@ -152,3 +153,4 @@ class FontManagerNew {
     public weak var fontSizePopUpButton: NSPopUpButton?
     public weak var fontSizeStepper: NSStepper?
 }
+#endif

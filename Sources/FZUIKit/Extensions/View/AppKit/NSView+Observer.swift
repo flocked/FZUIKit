@@ -8,30 +8,7 @@
 #if os(macOS)
 import AppKit
 
-/// A gesture recognizer that automatically adds
-class AutoGestureRecognizer: NSGestureRecognizer {
-    var viewObservation: NSKeyValueObservation? = nil
-    
-    convenience init() {
-        self.init(target: nil, action: nil)
-    }
-
-    override init(target: Any?, action: Selector?) {
-        super.init(target: target, action: action)
-        viewObservation = observeChanges(for: \.view) { [weak self] old, new in
-            guard let self = self else { return }
-            if new == nil, let old = old, !old.gestureRecognizers.contains(self) {
-                old.addGestureRecognizer(self)
-            }
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-class ObserverGestureRecognizer: NSGestureRecognizer {
+class ObserverGestureRecognizer: AutoGestureRecognizer {
     override func keyDown(with event: NSEvent) {
         view?.keyHandlers.keyDown?(event)
         super.keyDown(with: event)
@@ -153,25 +130,6 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
         })
         NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
         view.beginDraggingSession(with: draggingItems, event: event, source: observerView)
-    }
-    
-    var viewObservation: NSKeyValueObservation? = nil
-    
-    convenience init() {
-        self.init(target: nil, action: nil)
-    }
-
-    override init(target: Any?, action: Selector?) {
-        super.init(target: target, action: action)
-        viewObservation = observeChanges(for: \.view) { old, new in
-            if new == nil, let old = old {
-                old.setupEventMonitors()
-            }
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }
 
