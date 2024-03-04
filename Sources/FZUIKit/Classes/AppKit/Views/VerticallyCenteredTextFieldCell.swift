@@ -68,10 +68,9 @@
                 let isLTR = userInterfaceLayoutDirection == .leftToRight
                 let newRect = NSRect(x: rect.origin.x + (isLTR ? leadingPadding : trailingPadding),
                                      y: rect.origin.y,
-                                     width: rect.width + leadingPadding + trailingPadding,
+                                     width: rect.width - leadingPadding - trailingPadding,
                                      height: rect.height)
                 return newRect
-        //    return super.titleRect(forBounds: rect)
         }
 
         override public func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
