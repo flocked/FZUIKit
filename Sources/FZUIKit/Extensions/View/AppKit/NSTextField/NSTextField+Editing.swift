@@ -128,7 +128,7 @@
                     doubleClickEditGestureRecognizer?.removeFromView(disablingReadding: true)
                     doubleClickEditGestureRecognizer = nil
                 }
-                observeTextFieldWindow()
+                observeTextFieldFirstResponder()
             }
         }
         
@@ -213,33 +213,21 @@
         public var endEditingOnOutsideMouseDown: Bool {
             get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
             set { set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
-                observeTextFieldWindow()
+                observeTextFieldFirstResponder()
                 setupMouseMonitor(isEditing: hasKeyboardFocus)
             }
         }
         
-        func observeTextFieldWindow() {
-            if (endEditingOnOutsideMouseDown || isEditableByDoubleClick) {
-                textFieldWindowObservation = observeChanges(for: \.window) { [weak self] old, new in
-                    guard let self = self else { return }
-                    self.observeTextFieldFirstResponder()
-                }
-            } else {
-                textFieldWindowObservation = nil
-            }
-            self.observeTextFieldFirstResponder()
-        }
-        
         func observeTextFieldFirstResponder() {
-            if (endEditingOnOutsideMouseDown || isEditableByDoubleClick), let window = window {
-                textFieldFirstResponderObservation = window.observeChanges(for: \.firstResponder) { [weak self] old, new in
-                    guard let self = self, old != new else { return }
+            if (endEditingOnOutsideMouseDown || isEditableByDoubleClick) {
+                textFieldFirstResponderObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self else { return }
                     self._hasKeyboardFocus = self.hasKeyboardFocus
                 }
+                self._hasKeyboardFocus = self.hasKeyboardFocus
             } else {
                 textFieldFirstResponderObservation = nil
             }
-            self._hasKeyboardFocus = self.hasKeyboardFocus
         }
         
         var _hasKeyboardFocus: Bool {
@@ -262,11 +250,6 @@
             set { set(associatedValue: newValue, key: "textFieldFirstResponderObservation", object: self) }
         }
         
-        var textFieldWindowObservation: NSKeyValueObservation? {
-            get { getAssociatedValue(key: "textFieldWindowObservation", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "textFieldWindowObservation", object: self) }
-        }
-
         var mouseDownMonitor: NSEvent.Monitor? {
             get { getAssociatedValue(key: "mouseDownMonitor", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
