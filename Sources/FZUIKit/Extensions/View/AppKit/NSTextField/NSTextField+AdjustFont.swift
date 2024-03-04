@@ -126,7 +126,7 @@
         }
         
         var needsSwizzling: Bool {
-            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || isEditableByDoubleClick || automaticallyResizesToFit
+            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || actionOnEnterKeyDown.needsSwizzling || actionOnEscapeKeyDown.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit
         }
 
         func setupTextFieldObserver() {
@@ -274,7 +274,7 @@
                         textField._bounds = textField.bounds
                     }
                     })
-                    
+                    /*
                     swizzleTextFieldTokens.append(
                     try replaceMethod(
                         #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -320,6 +320,7 @@
                         return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                     }
                     })
+                    */
                                         
                     editingNotificationTokens.append(
                     NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
@@ -419,11 +420,9 @@
             }
         }
         
-        var mouseDownGestureRecognizer: DoubleClickEditGestureRecognizer? {
-            get { getAssociatedValue(key: "mouseDownGestureRecognizer", object: self, initialValue: nil) }
-            set {
-                set(associatedValue: newValue, key: "mouseDownGestureRecognizer", object: self)
-            }
+        var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
+            get { getAssociatedValue(key: "doubleClickEditGestureRecognizer", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "doubleClickEditGestureRecognizer", object: self) }
         }
 
         var _bounds: CGRect {
@@ -471,6 +470,43 @@
                     textField.makeFirstResponder()
                 }
                 super.mouseDown(with: event)
+            }
+        }
+        
+        class KeyUpActionGestureRecognizer: ReattachingGestureRecognizer {
+            override func keyUp(with event: NSEvent) {
+                if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
+                    if event.keyCode == 53 { // Esc
+                        switch textField.actionOnEscapeKeyDown {
+                        case .endEditingAndReset:
+                            textField.stringValue = textField.editStartString
+                            textField.adjustFontSize()
+                            textField.resignFirstResponding()
+                          //  return true
+                        case .endEditing:
+                            if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                              //  return false
+                            } else {
+                                textField.resignFirstResponding()
+                             //   return true
+                            }
+                        case .none:
+                            break
+                        }
+                    } else if event.keyCode == 36 { // Enter
+                        switch textField.actionOnEnterKeyDown {
+                        case .endEditing:
+                            if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                              //  return false
+                            } else {
+                                textField.resignFirstResponding()
+                             //   return true
+                            }
+                        case .none: break
+                        }
+                    }
+                }
+                super.keyUp(with: event)
             }
         }
     }
