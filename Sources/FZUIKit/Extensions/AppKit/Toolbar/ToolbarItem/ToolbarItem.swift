@@ -27,8 +27,8 @@
             rootItem
         }
         
-        public func item (_ handler: (NSToolbarItem)->()) {
-            handler(item)
+        public func view (_ view: NSView?) {
+            item.view = view
         }
 
         public init(_ identifier: NSToolbarItem.Identifier? = nil) {
