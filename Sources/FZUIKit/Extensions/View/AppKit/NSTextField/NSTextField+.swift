@@ -75,58 +75,6 @@
             }
         }
         
-        internal var verticalTextFieldCell: VerticallyCenteredTextFieldCell? {
-            cell as? VerticallyCenteredTextFieldCell
-        }
-        
-        internal var textFieldCell: NSTextFieldCell? {
-            cell as? NSTextFieldCell
-        }
-        
-        /// The focus type of the text field.
-        var focusType: FocusType {
-            get { verticalTextFieldCell?.focusType ?? .default }
-            set {
-                if newValue != .default, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
-                    cell = textFieldCell.convertToVerticalTextFieldCell()
-                }
-                verticalTextFieldCell?.focusType = newValue
-            }
-        }
-        
-        /// A Boolean value indicating whether the text is vertically centered.
-        var isVerticallyCentered: Bool {
-            get { verticalTextFieldCell?.isVerticallyCentered ?? false }
-            set {
-                if newValue != false, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
-                    cell = textFieldCell.convertToVerticalTextFieldCell()
-                }
-                verticalTextFieldCell?.isVerticallyCentered = newValue
-            }
-        }
-        
-        /// The leading padding of the text filed.
-        var leadingPadding: CGFloat {
-            get { verticalTextFieldCell?.leadingPadding ?? 0.0 }
-            set {
-                if newValue != 0.0, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
-                    cell = textFieldCell.convertToVerticalTextFieldCell()
-                }
-                verticalTextFieldCell?.leadingPadding = newValue
-            }
-        }
-        
-        /// The trailing padding of the text field.
-        var trailingPadding: CGFloat {
-            get { verticalTextFieldCell?.trailingPadding ?? 0.0 }
-            set {
-                if newValue != 0.0, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
-                    cell = textFieldCell.convertToVerticalTextFieldCell()
-                }
-                verticalTextFieldCell?.leadingPadding = newValue
-            }
-        }
-        
         /// The y-coordinate of the baseline for the topmost line of the text.
         var firstBaselineY: CGFloat? {
             guard let font = font else { return nil }

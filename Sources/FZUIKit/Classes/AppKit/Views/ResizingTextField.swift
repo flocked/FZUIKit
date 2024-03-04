@@ -184,7 +184,7 @@
         }
         
         override public class var cellClass: AnyClass? {
-            get { VerticallyCenteredTextFieldCell.self }
+            get { ExtendedTextFieldCell.self }
             set { super.cellClass = newValue }
         }
 
@@ -224,34 +224,41 @@
 
             guard let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView
             else {
+                Swift.print("noFieldEditor")
                 return minSize
             }
 
             fieldEditor.insertionPointColor = textColor ?? NSColor.textColor
 
             if !isEditing {
+                Swift.print("!isEditing")
                 return minSize
             }
 
             if fieldEditor.string.isEmpty {
                 lastContentSize = minSize
+                Swift.print("fieldEditor.string.isEmpty")
                 return minSize
             }
 
             // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
             var newWidth = ceil(stringValueSize().width)
             if let minWidth = self.minWidth {
+                Swift.print("minWidth")
                 newWidth = max(newWidth, minWidth)
             }
 
             var newSize = CGSize(width: newWidth, height: intrinsicContentSize.height)
             if let maxWidth = maxWidth, newSize.width >= maxWidth {
+                Swift.print("maxWidth")
                 if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 1000)) {
+                    Swift.print("maxWidt cellh")
                     newSize.height = cellSize.height + 8.0
                 }
                 newSize.width = maxWidth
             }
             lastContentSize = newSize
+            Swift.print("intrinsic")
             return newSize
         }
     }
