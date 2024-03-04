@@ -74,7 +74,44 @@ extension NSTextField {
     
     func convertToExtendedTextFieldCell() {
         if extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell {
-            cell = textFieldCell.convertToExtended()
+            if let layer = layer {
+                let backgroundColor = layer.backgroundColor
+                let border = border
+                let innerShadow = innerShadow
+                let outerShadow = outerShadow
+                let cornerRadius = cornerRadius
+                let cornerCurve = cornerCurve
+                let roundedCorners = roundedCorners
+                let isOpaque = isOpaque
+                let mask = mask
+                let anchorPoint = anchorPoint
+                let transform = transform
+                let transform3D = transform3D
+                let shadowPath = shadowPath
+                
+                cell = textFieldCell.convertToExtended()
+                
+                self.wantsLayer = true
+                self.layer?.backgroundColor = backgroundColor
+                self.border = border
+                self.innerShadow = innerShadow
+                self.outerShadow = outerShadow
+                self.cornerRadius = cornerRadius
+                self.cornerCurve = cornerCurve
+                self.roundedCorners = roundedCorners
+                self.isOpaque = isOpaque
+                self.mask = mask
+                self.anchorPoint = anchorPoint
+                self.shadowPath = shadowPath
+                if transform != CGAffineTransformIdentity {
+                    self.transform = transform
+                }
+                if transform3D != CATransform3DIdentity {
+                    self.transform3D = transform3D
+                }
+            } else {
+                cell = textFieldCell.convertToExtended()
+            }
         }
     }
 }
