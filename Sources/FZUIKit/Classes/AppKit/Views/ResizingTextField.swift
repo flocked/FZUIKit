@@ -111,30 +111,26 @@
         }
         
         open override var backgroundColor: NSUIColor? {
-            get { _backgroundColor }
-            set { _backgroundColor = newValue }
+            get { backgroundColorAnimatable }
+            set {
+                wantsLayer = true
+                Self.swizzleAnimationForKey()
+                NSView.toRealSelf(self).dynamicColors.background = newValue
+                var animatableColor = newValue?.resolvedColor(for: self)
+                if animatableColor == nil, isProxy() {
+                    animatableColor = .clear
+                }
+
+                if layer?.backgroundColor?.isVisible == false || layer?.backgroundColor == nil {
+                    layer?.backgroundColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                }
+                backgroundColorAnimatable = animatableColor
+            }
         }
         
         open override var drawsBackground: Bool {
-            get { _drawsBackground }
-            set { _drawsBackground = newValue }
-        }
-        
-        var _backgroundColor: NSColor? = nil {
-            didSet { updateBackgroundColor() }
-        }
-        
-        var _drawsBackground: Bool = true {
-            didSet { updateBackgroundColor() }
-        }
-        
-        func updateBackgroundColor() {
-            if _drawsBackground {
-                wantsLayer = true
-                layer?.backgroundColor = _backgroundColor?.cgColor
-            } else {
-                layer?.backgroundColor = nil
-            }
+            get { true }
+            set { }
         }
 
 
