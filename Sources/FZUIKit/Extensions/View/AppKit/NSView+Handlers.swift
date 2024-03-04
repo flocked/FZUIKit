@@ -101,29 +101,13 @@ extension NSView {
             observerGestureRecognizer = nil
         }
     }
-    
-    func setupFirstResponderObservation() {
-        if let window = window, let isFirstResponder = viewHandlers.isFirstResponder {
-            firstResponderObservation = window.observeChanges(for: \.firstResponder) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self._isFirstResponder = self.isFirstResponder
-            }
-            self._isFirstResponder = self.isFirstResponder
-        } else {
-            firstResponderObservation = nil
-        }
-    }
-    
-    var firstResponderObservation: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "firstResponderObservation", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "firstResponderObservation", object: self) }
-    }
         
     func setupViewObservation() {
         if viewHandlers.needsObserving || windowHandlers.window != nil {
             if viewObserver == nil {
                 viewObserver = .init(self)
             }
+            observe(\.window, handler: \.windowHandlers.window)
             observe(\.effectiveAppearance, handler: \.viewHandlers.effectiveAppearance)
             observe(\.alphaValue, handler: \.viewHandlers.alphaValue)
             observe(\.isHidden, handler: \.viewHandlers.isHidden)
@@ -131,17 +115,13 @@ extension NSView {
             observe(\.frame, handler: \.viewHandlers.frame)
             observe(\.superview, handler: \.viewHandlers.superview)
             
-            if viewHandlers.isFirstResponder != nil || windowHandlers.window != nil {
-                Swift.print("setup window observation")
-                viewObserver?.add(\.window) { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    Swift.print("window changed", new != nil)
-                    self.windowHandlers.window?(new)
-                  //  self.setupFirstResponderObservation()
+            if viewHandlers.isFirstResponder != nil && viewObserver?.isObserving(\.window?.firstResponder) == false {
+                viewObserver?.add(\.window?.firstResponder) { [weak self] _, firstResponder in
+                    guard let self = self else { return }
+                    self._isFirstResponder = self.isFirstResponder
                 }
-              //  setupFirstResponderObservation()
-            } else {
-                viewObserver?.remove(\.window)
+            } else if viewHandlers.isFirstResponder == nil {
+                viewObserver?.remove(\.window?.firstResponder)
             }
         } else {
             viewObserver = nil
@@ -659,6 +639,27 @@ extension NSView {
             super.viewWillMove(toWindow: newWindow)
         }
         
+        /*
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            superview?.windowHandlers.window?(window)
+            setupFirstResponderObservation()
+        }
+        
+        func setupFirstResponderObservation() {
+            if let window = window, superview?.viewHandlers.isFirstResponder != nil {
+                firstResponderObservation = window.observeChanges(for: \.firstResponder) { [weak self] old, new in
+                    guard let self = self, let superview = self.superview, superview.viewHandlers.isFirstResponder != nil else { return }
+                    superview._isFirstResponder = superview.isFirstResponder
+                }
+            } else {
+                firstResponderObservation = nil
+            }
+        }
+        
+        var firstResponderObservation: NSKeyValueObservation?
+        */
+        
         func updateWindowObserver() {
             if _windowHandlers.isKey == nil {
                 removeWindowKeyObserver()
@@ -682,7 +683,7 @@ extension NSView {
             windowDidBecomeMainObserver = nil
             windowDidResignMainObserver = nil
         }
-                
+        
         func observeWindowState(for window: NSWindow) {
             windowIsKey = window.isKeyWindow
             windowIsMain = window.isMainWindow
@@ -718,7 +719,7 @@ extension NSView {
         var windowIsMain = false {
             didSet {
                 if oldValue != windowIsMain {
-                    _windowHandlers.isMain?(windowIsMain)
+                    _windowHandlers.isMain?(windowIsKey)
                 }
             }
         }
