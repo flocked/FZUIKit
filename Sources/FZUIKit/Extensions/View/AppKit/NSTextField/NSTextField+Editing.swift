@@ -39,13 +39,6 @@
             case endEditing
             /// Ends editing the text and resets it to the the state before editing.
             case endEditingAndReset
-            
-            var needsSwizzling: Bool {
-                switch self {
-                case .none: return false
-                default: return true
-                }
-            }
         }
 
         /// The action to perform when the user presses the enter key.
@@ -54,13 +47,6 @@
             case none
             /// Ends editing the text.
             case endEditing
-            
-            var needsSwizzling: Bool {
-                switch self {
-                case .none: return false
-                case .endEditing: return true
-                }
-            }
         }
 
         /// The allowed characters the user can enter when editing.
@@ -117,7 +103,7 @@
             set { 
                 guard newValue != allowedCharacters else { return }
                 set(associatedValue: newValue, key: "allowedCharacters", object: self)
-                swizzleTextField(shouldSwizzle: needsSwizzling)
+                swizzleTextField()
             }
         }
 
@@ -126,7 +112,7 @@
             get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: EditingHandler()) }
             set { 
                 set(associatedValue: newValue, key: "editingHandlers", object: self)
-                swizzleTextField(shouldSwizzle: needsSwizzling)
+                swizzleTextField()
             }
         }
         
@@ -161,7 +147,7 @@
             set {
                 guard newValue != automaticallyResizesToFit else { return }
                 set(associatedValue: newValue, key: "automaticallyResizesToFit", object: self)
-                swizzleTextField(shouldSwizzle: needsSwizzling)
+                swizzleTextField()
                 if newValue {
                     sizeToFit()
                 }
@@ -201,7 +187,7 @@
                 if let maxCharCount = newValue, stringValue.count > maxCharCount {
                     stringValue = String(stringValue.prefix(maxCharCount))
                 }
-                swizzleTextField(shouldSwizzle: needsSwizzling)
+                swizzleTextField()
             }
         }
 
@@ -218,7 +204,7 @@
                 if let maxCharCount = newValue, stringValue.count > maxCharCount {
                     stringValue = String(stringValue.prefix(maxCharCount))
                 }
-                swizzleTextField(shouldSwizzle: needsSwizzling)
+                swizzleTextField()
             }
         }
 
@@ -227,7 +213,8 @@
             get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
             set {
                 set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
-                setupMouseMonitor()
+                swizzleEditing()
+                setupMouseMonitor(isEditing: hasKeyboardFocus)
             }
         }
 
@@ -236,18 +223,15 @@
             set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
         }
 
-        func setupMouseMonitor() {
-            if endEditingOnOutsideMouseDown {
-                if mouseDownMonitor == nil {
-                    mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
-                        guard let self = self, self.endEditingOnOutsideMouseDown, self.hasKeyboardFocus else { return event }
-                        if self.bounds.contains(event.location(in: self)) == false, let window = self.window {
-                            //  if self.stringValue
-                            self.updateString()
-                            window.makeFirstResponder(nil)
-                        }
-                        return event
+        func setupMouseMonitor(isEditing: Bool) {
+            if endEditingOnOutsideMouseDown, isEditing {
+                mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
+                    guard let self = self, self.endEditingOnOutsideMouseDown, self.hasKeyboardFocus else { return event }
+                    if self.bounds.contains(event.location(in: self)) == false {
+                        self.updateString()
+                        self.resignFirstResponding()
                     }
+                    return event
                 }
             } else {
                 mouseDownMonitor = nil

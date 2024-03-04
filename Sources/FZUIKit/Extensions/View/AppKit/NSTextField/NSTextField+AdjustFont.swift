@@ -124,48 +124,75 @@
                 needsUpdate = !isFittingCurrentText
             }
         }
-        
-        var needsSwizzling: Bool {
-            (adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0) || allowsDefaultTighteningForTruncation || editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit
-        }
 
         func setupTextFieldObserver() {
             if adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0 {
-                swizzleTextField(shouldSwizzle: true)
-                if observer == nil {
-                    observer = KeyValueObserver(self)
-                    observer?.add(\.stringValue, handler: { [weak self] old, new in
-                        guard let self = self, self.isAdjustingFontSize == false, old != new else { return }
-                        self.adjustFontSize()
-                    })
-                    observer?.add(\.isBezeled, handler: { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.adjustFontSize()
-                    })
-                    observer?.add(\.isBordered, handler: { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.adjustFontSize()
-                    })
-                    observer?.add(\.bezelStyle, handler: { [weak self] old, new in
-                        guard let self = self, self.isBezeled, old != new else { return }
-                        self.adjustFontSize()
-                    })
-                    observer?.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.adjustFontSize()
-                    })
-                    observer?.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.adjustFontSize()
-                    })
-                    observer?.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.adjustFontSize()
-                    })
+                if swizzleTextFieldTokens.isEmpty {
+                    _font = font
+                    do {
+                        swizzleTextFieldTokens.append(
+                            try replaceMethod(
+                                #selector(setter: font),
+                                methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
+                                hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
+                            ) { _ in { object, font in
+                                guard let textField = (object as? NSTextField), textField._font != font else { return }
+                                textField._font = font
+                                textField.adjustFontSize()
+                            }
+                            })
+                        
+                        swizzleTextFieldTokens.append(
+                            try replaceMethod(
+                                #selector(getter: font),
+                                methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
+                                hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
+                            ) { _ in { object in
+                                return (object as? NSTextField)?._font ?? nil
+                            }
+                            })
+                    } catch {
+                        Swift.debugPrint(error)
+                    }
                 }
+                
+                observer = KeyValueObserver(self)
+                observer?.add(\.stringValue, handler: { [weak self] old, new in
+                    guard let self = self, self.isAdjustingFontSize == false, old != new else { return }
+                    self.adjustFontSize()
+                })
+                observer?.add(\.isBezeled, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                observer?.add(\.isBordered, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                observer?.add(\.bezelStyle, handler: { [weak self] old, new in
+                    guard let self = self, self.isBezeled, old != new else { return }
+                    self.adjustFontSize()
+                })
+                observer?.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                observer?.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                observer?.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                observer?.add(\.frame, handler: { [weak self] old, new in
+                    guard let self = self, old.size != new.size else { return }
+                    self.adjustFontSize()
+                })
             } else {
                 observer = nil
-                swizzleTextField(shouldSwizzle: needsSwizzling)
+                swizzleTextFieldTokens.forEach({ resetMethod($0) })
+                swizzleTextFieldTokens.removeAll()
             }
             adjustFontSize()
         }
@@ -200,121 +227,74 @@
             }
             adjustFontSize()
         }
-
-        func swizzleTextField(shouldSwizzle: Bool) {
-            if shouldSwizzle {
-                _font = font
-                guard swizzleTextFieldTokens.isEmpty else { return }
-                _font = font
+        
+        func swizzleEditing() {
+            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || endEditingOnOutsideMouseDown {
+                guard editingNotificationTokens.isEmpty else { return }
+                editingNotificationTokens.append(
+                NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.setupMouseMonitor(isEditing: true)
+                    self.editStartString = self.stringValue
+                    self.previousString = self.stringValue
+                    self.editingHandlers.didBegin?()
+                    if let editingRange = self.currentEditor()?.selectedRange {
+                        self.editingRange = editingRange
+                    }
+                    if self.automaticallyResizesToFit {
+                        self.sizeToFit()
+                    }
+                    self.invalidateIntrinsicContentSize()
+                })
                 
-                do {
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(setter: font),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
-                    ) { _ in { object, font in
-                        guard let textField = (object as? NSTextField), textField._font != font else { return }
-                        textField._font = font
-                        textField.adjustFontSize()
-                        if let textField = object as? ResizingTextField {
-                            guard !textField.isEditing else { return }
-                            textField.lastContentSize = textField.stringValueSize()
-                            textField.placeholderSize = textField.placeholderStringSize()
-                            textField.invalidateIntrinsicContentSize()
-                        }
+                editingNotificationTokens.append(
+                NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.updateString()
+                    if self.automaticallyResizesToFit {
+                        self.sizeToFit()
                     }
-                    })
-                    
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(setter: stringValue),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
-                    ) { store in { object, stringValue in
-                        store.original(object, #selector(setter: self.stringValue), stringValue)
-                        if let textField = object as? NSTextField, textField.automaticallyResizesToFit {
-                            textField.sizeToFit()
-                        }
+                    self.invalidateIntrinsicContentSize()
+                })
+                
+                editingNotificationTokens.append(
+                NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.setupMouseMonitor(isEditing: false)
+                    //  self.editingState = .didEnd
+                    self.adjustFontSize()
+                    self.editingHandlers.didEnd?()
+                    if self.isEditableByDoubleClick {
+                        self.isSelectable = self._isSelectable
+                        self.isEditable = self._isEditable
                     }
-                    })
-                    
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(setter: attributedStringValue),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSAttributedString?) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, NSAttributedString?) -> Void).self
-                    ) { store in { object, attributedStringValue in
-                        store.original(object, #selector(setter: self.attributedStringValue), attributedStringValue)
-                        if let textField = object as? NSTextField, textField.automaticallyResizesToFit {
-                            textField.sizeToFit()
-                        }
+                    if self.automaticallyResizesToFit {
+                        self.sizeToFit()
                     }
-                    })
-                    
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(getter: font),
-                        methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
-                        hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
-                    ) { _ in { object in
-                        return (object as? NSTextField)?._font ?? nil
-                    }
-                    })
-                    
-                    swizzleTextFieldTokens.append(
-                    try replaceMethod(
-                        #selector(layout),
-                        methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject) -> Void).self
-                    ) { store in { object in
-                        store.original(object, #selector(NSView.layout))
-                        guard let textField = (object as? NSTextField), textField.bounds.size != textField._bounds.size else { return }
-                        textField.adjustFontSize()
-                        textField._bounds = textField.bounds
-                    }
-                    })
-                                        
-                    editingNotificationTokens.append(
-                    NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
-                        guard let self = self else { return }
-                        self.editStartString = self.stringValue
-                        self.previousString = self.stringValue
-                        self.editingHandlers.didBegin?()
-                        if let editingRange = self.currentEditor()?.selectedRange {
-                            self.editingRange = editingRange
-                        }
-                        if self.automaticallyResizesToFit {
-                            self.sizeToFit()
-                        }
-                        self.invalidateIntrinsicContentSize()
-                    })
-                    
-                    editingNotificationTokens.append(
-                    NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
-                        guard let self = self else { return }
-                        self.updateString()
-                        if self.automaticallyResizesToFit {
-                            self.sizeToFit()
-                        }
-                        self.invalidateIntrinsicContentSize()
-                    })
-                    
-                    editingNotificationTokens.append(
-                    NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
-                        guard let self = self else { return }
-                        //  self.editingState = .didEnd
-                        self.adjustFontSize()
-                        self.editingHandlers.didEnd?()
-                        if self.isEditableByDoubleClick {
-                            self.isSelectable = self._isSelectable
-                            self.isEditable = self._isEditable
-                        }
-                        if self.automaticallyResizesToFit {
-                            self.sizeToFit()
-                        }
-                        self.invalidateIntrinsicContentSize()
-                    })
+                    self.invalidateIntrinsicContentSize()
+                })
+            } else {
+                editingNotificationTokens.removeAll()
+            }
+        }
+
+        func swizzleTextField() {
+            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit {
+                guard keyValueObservations.isEmpty else { return }
+                
+                keyValueObservations.append(
+                observeChanges(for: \.stringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit else { return }
+                    self.sizeToFit()
+                })
+                
+                keyValueObservations.append(
+                observeChanges(for: \.attributedStringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit else { return }
+                    self.sizeToFit()
+                })
+                
+                swizzleEditing()
                     
                     /*
                     try replaceMethod(
@@ -343,13 +323,8 @@
                     }
                     }
                      */
-                } catch {
-                    Swift.debugPrint(error)
-                }
             } else {
-                swizzleTextFieldTokens.forEach({ resetMethod($0) })
-                swizzleTextFieldTokens.removeAll()
-                editingNotificationTokens.removeAll()
+                keyValueObservations.removeAll()
             }
         }
         
@@ -423,6 +398,13 @@
             }
         }
         
+        var keyValueObservations: [NSKeyValueObservation] {
+            get { getAssociatedValue(key: "keyValueObservations", object: self, initialValue: []) }
+            set {
+                set(associatedValue: newValue, key: "keyValueObservations", object: self)
+            }
+        }
+        
         var editingNotificationTokens: [NotificationToken] {
             get { getAssociatedValue(key: "editingNotificationTokens", object: self, initialValue: []) }
             set {
@@ -433,11 +415,6 @@
         var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
             get { getAssociatedValue(key: "doubleClickEditGestureRecognizer", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "doubleClickEditGestureRecognizer", object: self) }
-        }
-
-        var _bounds: CGRect {
-            get { getAssociatedValue(key: "bounds", object: self, initialValue: .zero) }
-            set { set(associatedValue: newValue, key: "bounds", object: self) }
         }
 
         var lastFontScaleFactor: CGFloat {
