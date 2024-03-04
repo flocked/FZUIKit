@@ -224,17 +224,20 @@
 
             guard let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView
             else {
+                minSize.width += leadingTextPadding + trailingTextPadding
                 return minSize
             }
 
             fieldEditor.insertionPointColor = textColor ?? NSColor.textColor
 
             if !isEditing {
+                minSize.width += leadingTextPadding + trailingTextPadding
                 return minSize
             }
 
             if fieldEditor.string.isEmpty {
                 lastContentSize = minSize
+                minSize.width += leadingTextPadding + trailingTextPadding
                 return minSize
             }
 
@@ -252,6 +255,7 @@
                 newSize.width = maxWidth
             }
             lastContentSize = newSize
+            newSize.width += leadingTextPadding + trailingTextPadding
             return newSize
         }
     }
