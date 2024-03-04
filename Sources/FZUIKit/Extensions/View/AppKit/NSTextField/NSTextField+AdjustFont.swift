@@ -442,6 +442,7 @@
             override func mouseDown(with event: NSEvent) {
                 Swift.print("doubleClick", event.clickCount)
                 if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
+                    Swift.print("doubleClick start", event.clickCount)
                     textField._isEditable = textField.isEditable
                     textField._isSelectable = textField.isSelectable
                     textField.isSelectable = true
