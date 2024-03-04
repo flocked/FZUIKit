@@ -475,6 +475,7 @@
         
         class KeyUpActionGestureRecognizer: ReattachingGestureRecognizer {
             override func keyUp(with event: NSEvent) {
+                Swift.print("keyUp", event.keyCode)
                 if let textField = view as? NSTextField {
                     if event.keyCode == 53 { // Esc
                         switch textField.actionOnEscapeKeyDown {
