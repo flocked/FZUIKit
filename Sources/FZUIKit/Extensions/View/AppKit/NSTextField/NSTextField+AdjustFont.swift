@@ -475,7 +475,8 @@
 
 class TextFieldMouseDownGestureRecognizer: AutoGestureRecognizer {
     override func mouseDown(with event: NSEvent) {
-        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount > 1 {
+        Swift.print("mouseDo", event.clickCount)
+        if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
             textField._isEditable = textField.isEditable
             textField._isSelectable = textField.isSelectable
             textField.isSelectable = true
