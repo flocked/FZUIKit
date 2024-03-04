@@ -11,12 +11,12 @@ import AppKit
 
 class VerticallyCenteredTextField: NSTextField {
     override class var cellClass: AnyClass? {
-        get { VerticallyCenteredTextFieldCell.self }
+        get { VerticallyCenteredTextFieldCellAlt.self }
         set {  }
     }
 }
 
-class VerticallyCenteredTextFieldCell: NSTextFieldCell {
+class VerticallyCenteredTextFieldCellAlt: NSTextFieldCell {
     var mIsEditingOrSelecting:Bool = false
     
     override func drawingRect(forBounds theRect: NSRect) -> NSRect {

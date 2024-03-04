@@ -83,7 +83,7 @@
             
             verticalTextAlignment = .center
             actionOnEnterKeyDown = .endEditing
-            actionOnEscapeKeyDown = .endEditingAndReset
+            actionOnEscapeKeyDown = .endEditing
             focusType = .roundedCorners(4.0)
             (cell as? NSTextFieldCell)?.setWantsNotificationForMarkedText(true)
             translatesAutoresizingMaskIntoConstraints = false
@@ -181,6 +181,11 @@
         override public func textDidChange(_ notification: Notification) {
             super.textDidChange(notification)
             invalidateIntrinsicContentSize()
+        }
+        
+        override public class var cellClass: AnyClass? {
+            get { VerticallyCenteredTextFieldCell.self }
+            set { super.cellClass = newValue }
         }
 
         override public var intrinsicContentSize: CGSize {

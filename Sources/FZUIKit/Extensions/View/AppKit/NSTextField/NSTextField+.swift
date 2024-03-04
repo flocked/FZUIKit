@@ -75,28 +75,56 @@
             }
         }
         
+        internal var verticalTextFieldCell: VerticallyCenteredTextFieldCell? {
+            cell as? VerticallyCenteredTextFieldCell
+        }
+        
+        internal var textFieldCell: NSTextFieldCell? {
+            cell as? NSTextFieldCell
+        }
+        
         /// The focus type of the text field.
-        var focusType: NSTextFieldCell.FocusType {
-            get { (cell as? NSTextFieldCell)?.focusType ?? .default }
-            set { (cell as? NSTextFieldCell)?.focusType = newValue }
+        var focusType: VerticallyCenteredTextFieldCell.FocusType {
+            get { verticalTextFieldCell?.focusType ?? .default }
+            set {
+                if newValue != .default, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
+                    cell = textFieldCell.convertToVerticalTextFieldCell()
+                }
+                verticalTextFieldCell?.focusType = newValue
+            }
         }
         
         /// The vertical alignment of the displayed text inside the text field.
-        var verticalTextAlignment: NSTextFieldCell.VerticalAlignment {
-            get { (cell as? NSTextFieldCell)?.verticalAlignment ?? .default }
-            set { (cell as? NSTextFieldCell)?.verticalAlignment = newValue }
+        var verticalTextAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
+            get { verticalTextFieldCell?.verticalAlignment ?? .default }
+            set {
+                if newValue != .default, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
+                    cell = textFieldCell.convertToVerticalTextFieldCell()
+                }
+                verticalTextFieldCell?.verticalAlignment = newValue
+            }
         }
         
         /// The leading padding of the text cell.
         var leadingTextPadding: CGFloat {
-            get { (cell as? NSTextFieldCell)?.leadingPadding ?? 0.0 }
-            set { (cell as? NSTextFieldCell)?.leadingPadding = newValue }
+            get { verticalTextFieldCell?.leadingPadding ?? 0.0 }
+            set {
+                if newValue != 0.0, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
+                    cell = textFieldCell.convertToVerticalTextFieldCell()
+                }
+                verticalTextFieldCell?.leadingPadding = newValue
+            }
         }
         
         /// The trailing padding of the text cell.
         var trailingTextPadding: CGFloat {
-            get { (cell as? NSTextFieldCell)?.trailingPadding ?? 0.0 }
-            set { (cell as? NSTextFieldCell)?.trailingPadding = newValue }
+            get { verticalTextFieldCell?.trailingPadding ?? 0.0 }
+            set {
+                if newValue != 0.0, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
+                    cell = textFieldCell.convertToVerticalTextFieldCell()
+                }
+                verticalTextFieldCell?.leadingPadding = newValue
+            }
         }
         
         /// The y-coordinate of the baseline for the topmost line of the text.

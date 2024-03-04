@@ -10,6 +10,7 @@
 import AppKit
 import FZSwiftUtils
 
+/*
 extension NSTextFieldCell {
     /// The focus ring type.
     public enum FocusType: Hashable {
@@ -228,5 +229,6 @@ extension NSTextFieldCell {
         }
     }
 }
+ */
 
 #endif
