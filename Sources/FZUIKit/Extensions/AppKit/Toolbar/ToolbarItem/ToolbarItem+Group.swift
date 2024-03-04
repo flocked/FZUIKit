@@ -126,9 +126,11 @@
             public convenience init(
                 _ identifier: NSToolbarItem.Identifier? = nil,
                 selectionMode: SelectionMode = .momentary,
+                view: NSView? = nil,
                 _ items: NSToolbarItem...
             ) {
                 self.init(identifier, selectionMode: selectionMode, items: items)
+                self.item.view = view
             }
 
             /**
@@ -142,9 +144,11 @@
             public convenience init(
                 _ identifier: NSToolbarItem.Identifier? = nil,
                 selectionMode: SelectionMode = .momentary,
+                view: NSView? = nil,
                 @NSToolbar.Builder items: () -> [NSToolbarItem]
             ) {
                 self.init(identifier, selectionMode: selectionMode, items: items())
+                self.item.view = view
             }
         }
     }
