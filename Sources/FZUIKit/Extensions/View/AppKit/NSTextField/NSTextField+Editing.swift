@@ -14,25 +14,23 @@
         public struct EditingHandler {
             /// Handler that gets called whenever editing the text did begin.
             public var didBegin: (() -> Void)?
+            
             /// Handler that determines whether the text should change. If you provide ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` or ``AppKit/NSTextField/allowedCharacters-swift.property`` the handler is called after checking the string against the specified property conditions.
             public var shouldEdit: ((String) -> (Bool))?
+            
             /// Handler that gets called whenever the text did change.
             public var didEdit: (() -> Void)?
-            /*
-            /// Handler that determines whether editing the text can end.
-            public var shouldEnd: ((String) -> (Bool))?
-             */
+            
             /// Handler that gets called whenever editing the text did end.
             public var didEnd: (() -> Void)?
-            /// Handler that determines whether a command should be performed (e.g. cancel, enter).
-            public var doCommand: ((Selector) -> (Bool))?
+            
             var needsSwizzle: Bool {
-                didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil || doCommand != nil
+                didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil
             }
         }
 
         /// The action to perform when the user presses the escape key.
-        public enum EscapeKeyAction {
+        public enum EscapeKeyAction: Int, Hashable {
             /// No action.
             case none
             /// Ends editing the text.
@@ -42,7 +40,7 @@
         }
 
         /// The action to perform when the user presses the enter key.
-        public enum EnterKeyAction {
+        public enum EnterKeyAction: Int, Hashable {
             /// No action.
             case none
             /// Ends editing the text.
@@ -116,32 +114,6 @@
             }
         }
         
-        /// A Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
-        public var isEditableByDoubleClick: Bool {
-            get { doubleClickEditGestureRecognizer != nil }
-            set {
-                guard newValue != isEditableByDoubleClick else { return }
-                if newValue {
-                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer()
-                    doubleClickEditGestureRecognizer?.addToView(self)
-                } else  {
-                    doubleClickEditGestureRecognizer?.removeFromView(disablingReadding: true)
-                    doubleClickEditGestureRecognizer = nil
-                }
-                observeTextFieldFirstResponder()
-            }
-        }
-        
-        var _isSelectable: Bool? {
-            get { getAssociatedValue(key: "_isSelectable", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "_isSelectable", object: self) }
-        }
-        
-        var _isEditable: Bool? {
-            get { getAssociatedValue(key: "_isEditable", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "_isEditable", object: self) }
-        }
-        
         /// A Boolean value that indicates whether text field should automatically adjust it's size to fit the string value.
         @objc open var automaticallyResizesToFit: Bool {
             get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: false) }
@@ -210,56 +182,59 @@
         }
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
-        public var endEditingOnOutsideMouseDown: Bool {
-            get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
-                observeTextFieldFirstResponder()
-                setupMouseMonitor(isEditing: hasKeyboardFocus)
+        public var endEditingOnOutsideClick: Bool {
+            get { getAssociatedValue(key: "endEditingOnOutsideClick", object: self, initialValue: false) }
+            set { 
+                guard newValue != endEditingOnOutsideClick else { return }
+                set(associatedValue: newValue, key: "endEditingOnOutsideClick", object: self)
+                observeKeyboardFocus()
+                keyboardFocusChanged()
             }
         }
         
-        func observeTextFieldFirstResponder() {
-            if (endEditingOnOutsideMouseDown || isEditableByDoubleClick) {
-                textFieldFirstResponderObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
-                    guard let self = self else { return }
-                    self._hasKeyboardFocus = self.hasKeyboardFocus
-                }
-                self._hasKeyboardFocus = self.hasKeyboardFocus
-            } else {
-                textFieldFirstResponderObservation = nil
-            }
-        }
-        
-        var _hasKeyboardFocus: Bool {
-            get { getAssociatedValue(key: "_hasKeyboardFocus", object: self, initialValue: false) }
+        /// A Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
+        public var isEditableByDoubleClick: Bool {
+            get { doubleClickEditGestureRecognizer != nil }
             set {
-                guard newValue != _hasKeyboardFocus else { return }
-                set(associatedValue: newValue, key: "_hasKeyboardFocus", object: self)
-                if newValue == false, let _isSelectable = self._isSelectable, let _isEditable = self._isEditable {
-                    self.isSelectable = _isSelectable
-                    self.isEditable = _isEditable
-                    self._isSelectable = nil
-                    self._isEditable = nil
+                guard newValue != isEditableByDoubleClick else { return }
+                if newValue {
+                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer()
+                    doubleClickEditGestureRecognizer?.addToView(self)
+                } else  {
+                    doubleClickEditGestureRecognizer?.removeFromView(disablingReadding: true)
+                    doubleClickEditGestureRecognizer = nil
                 }
-                setupMouseMonitor(isEditing: newValue)
+                observeKeyboardFocus()
             }
         }
         
-        var textFieldFirstResponderObservation: NSKeyValueObservation? {
-            get { getAssociatedValue(key: "textFieldFirstResponderObservation", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "textFieldFirstResponderObservation", object: self) }
+        func observeKeyboardFocus() {
+            if (endEditingOnOutsideClick || isEditableByDoubleClick) {
+                keyboardFocusObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self else { return }
+                    if self.hasKeyboardFocus != self.isKeyboardFocused {
+                        self.keyboardFocusChanged()
+                        self.isKeyboardFocused = self.hasKeyboardFocus
+                    }
+                }
+                self.isKeyboardFocused = self.hasKeyboardFocus
+                self.keyboardFocusChanged()
+            } else {
+                keyboardFocusObservation = nil
+            }
         }
         
-        var mouseDownMonitor: NSEvent.Monitor? {
-            get { getAssociatedValue(key: "mouseDownMonitor", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
-        }
-
-        func setupMouseMonitor(isEditing: Bool) {
-            if endEditingOnOutsideMouseDown, isEditing {
+        func keyboardFocusChanged() {
+            let hasKeyboardFocus = hasKeyboardFocus
+            if !hasKeyboardFocus, let isSelectableEditable = isSelectableEditable {
+                self.isSelectable = isSelectableEditable.isSelectable
+                self.isEditable = isSelectableEditable.isEditable
+                self.isSelectableEditable = nil
+            }
+            if hasKeyboardFocus, endEditingOnOutsideClick {
                 guard mouseDownMonitor == nil else { return }
                 mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
-                    guard let self = self, self.endEditingOnOutsideMouseDown, self.hasKeyboardFocus else { return event }
+                    guard let self = self, self.endEditingOnOutsideClick, self.hasKeyboardFocus else { return event }
                     if self.bounds.contains(event.location(in: self)) == false {
                         self.updateString()
                         self.resignFirstResponding()
@@ -270,97 +245,219 @@
                 mouseDownMonitor = nil
             }
         }
+        
+        var isSelectableEditable: (isSelectable: Bool, isEditable: Bool)? {
+            get { getAssociatedValue(key: "isSelectableEditable", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "isSelectableEditable", object: self) }
+        }
+        
+        var isKeyboardFocused: Bool {
+            get { getAssociatedValue(key: "isKeyboardFocused", object: self, initialValue: false) }
+            set { set(associatedValue: newValue, key: "isKeyboardFocused", object: self) }
+        }
+        
+        var keyboardFocusObservation: NSKeyValueObservation? {
+            get { getAssociatedValue(key: "keyboardFocusObservation", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "keyboardFocusObservation", object: self) }
+        }
+        
+        var mouseDownMonitor: NSEvent.Monitor? {
+            get { getAssociatedValue(key: "mouseDownMonitor", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
+        }
+        
+        func updateString() {
+            let newString = allowedCharacters.trimString(stringValue)
+            if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
+                if previousString.count <= maxCharCount {
+                    stringValue = previousString
+                    currentEditor()?.selectedRange = editingRange
+                } else {
+                    stringValue = String(newString.prefix(maxCharCount))
+                }
+            } else if let minCharCount = minimumNumberOfCharacters, newString.count < minCharCount {
+                if previousString.count >= minCharCount {
+                    stringValue = previousString
+                    currentEditor()?.selectedRange = editingRange
+                }
+            } else if editingHandlers.shouldEdit?(stringValue) == false {
+                stringValue = previousString
+                currentEditor()?.selectedRange = editingRange
+            } else {
+                stringValue = newString
+                if previousString == newString {
+                    currentEditor()?.selectedRange = editingRange
+                }
+                editingHandlers.didEdit?()
+            }
+            previousString = stringValue
+            if let editingRange = currentEditor()?.selectedRange {
+                self.editingRange = editingRange
+            }
+            adjustFontSize()
+        }
+
+        func swizzleTextField() {
+            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit {
+                guard keyValueObservations.isEmpty else { return }
+                
+                keyValueObservations.append(
+                observeChanges(for: \.stringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit else { return }
+                    self.sizeToFit()
+                })
+                
+                keyValueObservations.append(
+                observeChanges(for: \.attributedStringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit else { return }
+                    self.sizeToFit()
+                })
+                
+                editingNotificationTokens.append(
+                NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.editStartString = self.stringValue
+                    self.previousString = self.stringValue
+                    self.editingHandlers.didBegin?()
+                    if let editingRange = self.currentEditor()?.selectedRange {
+                        self.editingRange = editingRange
+                    }
+                    if self.automaticallyResizesToFit {
+                        self.sizeToFit()
+                    }
+                    self.invalidateIntrinsicContentSize()
+                })
+                
+                editingNotificationTokens.append(
+                NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.updateString()
+                    if self.automaticallyResizesToFit {
+                        self.sizeToFit()
+                    }
+                    self.invalidateIntrinsicContentSize()
+                })
+                
+                editingNotificationTokens.append(
+                NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.adjustFontSize()
+                    self.editingHandlers.didEnd?()
+                    if self.automaticallyResizesToFit {
+                        self.sizeToFit()
+                    }
+                    self.invalidateIntrinsicContentSize()
+                })
+            } else {
+                keyValueObservations.removeAll()
+                editingNotificationTokens.removeAll()
+            }
+        }
+        
+        func swizzleDoCommand() {
+            if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
+                if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
+                    do {
+                        try replaceMethod(
+                            #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
+                            methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
+                            hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
+                        ) { store in { object, textView, selector in
+                            if let textField = object as? NSTextField {
+                                switch selector {
+                                case #selector(NSControl.cancelOperation(_:)):
+                                    switch textField.actionOnEscapeKeyDown {
+                                    case .endEditingAndReset:
+                                        textField.stringValue = textField.editStartString
+                                        textField.adjustFontSize()
+                                        textField.resignFirstResponding()
+                                        return true
+                                    case .endEditing:
+                                        if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                            return false
+                                        } else {
+                                            textField.resignFirstResponding()
+                                            return true
+                                        }
+                                    case .none:
+                                        break
+                                    }
+                                case #selector(NSControl.insertNewline(_:)):
+                                    switch textField.actionOnEnterKeyDown {
+                                    case .endEditing:
+                                        if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                            return false
+                                        } else {
+                                            textField.resignFirstResponding()
+                                            return true
+                                        }
+                                    case .none: break
+                                    }
+                                default: break
+                                }
+                            }
+                            return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
+                        }
+                        }
+                    } catch {
+                        Swift.debugPrint(error)
+                    }
+                }
+            } else {
+                resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
+            }
+        }
+
+        var isAdjustingFontSize: Bool {
+            get { getAssociatedValue(key: "isAdjustingFontSize", object: self, initialValue: false) }
+            set { set(associatedValue: newValue, key: "isAdjustingFontSize", object: self)
+            }
+        }
+        
+        var keyValueObservations: [NSKeyValueObservation] {
+            get { getAssociatedValue(key: "keyValueObservations", object: self, initialValue: []) }
+            set {
+                set(associatedValue: newValue, key: "keyValueObservations", object: self)
+            }
+        }
+        
+        var editingNotificationTokens: [NotificationToken] {
+            get { getAssociatedValue(key: "editingNotificationTokens", object: self, initialValue: []) }
+            set {
+                set(associatedValue: newValue, key: "editingNotificationTokens", object: self)
+            }
+        }
+        
+        var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
+            get { getAssociatedValue(key: "doubleClickEditGestureRecognizer", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "doubleClickEditGestureRecognizer", object: self) }
+        }
+
+        var editStartString: String {
+            get { getAssociatedValue(key: "editStartString", object: self, initialValue: stringValue) }
+            set { set(associatedValue: newValue, key: "editStartString", object: self) }
+        }
+
+        var previousString: String {
+            get { getAssociatedValue(key: "previousString", object: self, initialValue: stringValue) }
+            set { set(associatedValue: newValue, key: "previousString", object: self) }
+        }
+
+        var editingRange: NSRange {
+            get { getAssociatedValue(key: "editingRange", object: self, initialValue: currentEditor()?.selectedRange ?? NSRange(location: 0, length: 0)) }
+            set { set(associatedValue: newValue, key: "editingRange", object: self) }
+        }
+        
+        class DoubleClickEditGestureRecognizer: ReattachingGestureRecognizer {
+            override func mouseDown(with event: NSEvent) {
+                if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
+                    textField.isSelectableEditable = (textField.isSelectable, textField.isEditable)
+                    textField.isSelectable = true
+                    textField.isEditable = true
+                    textField.makeFirstResponder()
+                }
+                super.mouseDown(with: event)
+            }
+        }
     }
-
-    /*
-     internal extension NSTextField {
-         class DelegateProxy: NSObject, NSTextFieldDelegate {
-             weak var textField: NSTextField!
-             weak var delegate: NSTextFieldDelegate? = nil
-
-             var editingString = ""
-             var editStartString = ""
-
-             func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
-                 return delegate?.control?(control, textShouldEndEditing: fieldEditor) ?? true
-             }
-
-             func control(_ control: NSControl, textShouldBeginEditing fieldEditor: NSText) -> Bool {
-                 return delegate?.control?(control, textShouldBeginEditing: fieldEditor) ?? true
-             }
-
-             func control(_ control: NSControl, didFailToFormatString string: String, errorDescription error: String?) -> Bool {
-                 return delegate?.control?(control, didFailToFormatString: string, errorDescription: error) ?? true
-             }
-
-             func control(_ control: NSControl, didFailToValidatePartialString string: String, errorDescription error: String?) {
-                 delegate?.control?(control, didFailToValidatePartialString: string, errorDescription: error)
-             }
-
-             func control(_ control: NSControl, textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>) -> [String] {
-                 return delegate?.control?(control, textView: textView, completions: words, forPartialWordRange: charRange, indexOfSelectedItem: index) ?? []
-             }
-
-             func control(_ control: NSControl, isValidObject obj: Any?) -> Bool {
-                 return delegate?.control?(control, isValidObject: obj) ?? true
-             }
-
-             func controlTextDidChange(_ obj: Notification) {
-                 textField.editingState = .isEditing
-                 if let maxCharCount = textField.maximumNumberOfCharacters, textField.stringValue.count > maxCharCount {
-                     if textField.editingString.count == textField.maximumNumberOfCharacters {
-                         textField.stringValue = textField.editingString
-                         if let editor = textField.currentEditor(), editor.selectedRange.location > 0 {
-                             editor.selectedRange.location -= 1
-                         }
-                     } else {
-                         textField.stringValue = String(textField.stringValue.prefix(maxCharCount))
-                     }
-                 }
-                 editingString = textField.stringValue
-                 delegate?.controlTextDidChange?(obj)
-                 textField.adjustFontSize()
-             }
-
-             func controlTextDidBeginEditing(_ obj: Notification) {
-                 editingString = textField.stringValue
-                 editStartString = textField.stringValue
-                 textField.editingState = .didBegin
-                 delegate?.controlTextDidBeginEditing?(obj)
-             }
-
-             func controlTextDidEndEditing(_ obj: Notification) {
-                 textField.editingState = .didEnd
-                 delegate?.controlTextDidEndEditing?(obj)
-                 textField.adjustFontSize()
-             }
-
-             func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-                 if commandSelector == #selector(NSResponder.insertNewline(_:)) {
-                     if textField.editingState != .didEnd, textField.actionOnEnterKeyDown == .endEditing {
-                         textField.window?.makeFirstResponder(nil)
-                         return true
-                     }
-                 } else if commandSelector == #selector(NSResponder.cancelOperation(_:)) {
-                     if textField.actionOnEscapeKeyDown == .endEditingAndReset {
-                         textField.stringValue = editStartString
-                         textField.adjustFontSize()
-                     }
-                     if textField.actionOnEscapeKeyDown != .none {
-                         textField.window?.makeFirstResponder(nil)
-                         return true
-                     }
-                 }
-                 return delegate?.control?(control, textView: textView, doCommandBy: commandSelector) ?? false
-             }
-
-             init(_ textField: NSTextField) {
-                 self.textField = textField
-                 super.init()
-                 delegate = self.textField.delegate
-                 self.textField.delegate = self
-             }
-         }
-     }
-      */
 #endif

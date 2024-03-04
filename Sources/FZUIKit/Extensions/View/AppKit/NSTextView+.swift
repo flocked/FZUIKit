@@ -134,11 +134,11 @@ import FZSwiftUtils
         }
         
         /// A Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
-        public var endEditingOnOutsideMouseDown: Bool {
-            get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
+        public var endEditingOnOutsideClick: Bool {
+            get { getAssociatedValue(key: "endEditingOnOutsideClick", object: self, initialValue: false) }
             set {
-                guard newValue != endEditingOnOutsideMouseDown else { return }
-                set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
+                guard newValue != endEditingOnOutsideClick else { return }
+                set(associatedValue: newValue, key: "endEditingOnOutsideClick", object: self)
                 setupMouseMonitor()
             }
         }
@@ -149,10 +149,10 @@ import FZSwiftUtils
         }
 
         func setupMouseMonitor() {
-            if endEditingOnOutsideMouseDown {
+            if endEditingOnOutsideClick {
                 if mouseDownMonitor == nil {
                     mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
-                        guard let self = self, self.endEditingOnOutsideMouseDown, self.isFirstResponder else { return event }
+                        guard let self = self, self.endEditingOnOutsideClick, self.isFirstResponder else { return event }
                         if self.bounds.contains(event.location(in: self)) == false {
                             self.resignFirstResponding()
                         }

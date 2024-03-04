@@ -87,7 +87,6 @@
             set { (cell as? NSTextFieldCell)?.verticalAlignment = newValue }
         }
         
-        /*
         /// The leading padding of the text cell.
         var leadingTextPadding: CGFloat {
             get { (cell as? NSTextFieldCell)?.leadingPadding ?? 0.0 }
@@ -99,7 +98,6 @@
             get { (cell as? NSTextFieldCell)?.trailingPadding ?? 0.0 }
             set { (cell as? NSTextFieldCell)?.trailingPadding = newValue }
         }
-        */
         
         /// The y-coordinate of the baseline for the topmost line of the text.
         var firstBaselineY: CGFloat? {
@@ -261,7 +259,7 @@
             return cell?.drawingRect(forBounds: frame)
         }
 
-        var numberOfVisibleLinesAlt: Int {
+        internal var numberOfVisibleLinesAlt: Int {
             let maxSize = CGSize(width: bounds.width, height: CGFloat.infinity)
             var numberOfVisibleLines = 0
             let attributedStringValue = attributedStringValue

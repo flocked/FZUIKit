@@ -18,10 +18,29 @@
         convenience init(layout: TextLayout) {
             if layout == .wraps {
                 self.init(wrappingLabelWithString: "")
+                self.isSelectable = false
             } else {
-                self.init(string: "")
+                self.init(labelWithString: "")
                 textLayout = layout
-                maximumNumberOfLines = 0
+            }
+        }
+        
+        /**
+         Initializes a text field with the specified string value and text layout.
+         
+         - Parameters:
+            - stringValue: A string to use as the content of the label.
+            - layout: The text layout for the text field.
+         
+         - Returns: An initialized `NSTextField`.
+         */
+        convenience init(_ stringValue: String, layout: TextLayout = .truncates) {
+            if layout == .wraps {
+                self.init(wrappingLabelWithString: stringValue)
+                self.isSelectable = false
+            } else {
+                self.init(labelWithString: stringValue)
+                textLayout = layout
             }
         }
 
@@ -84,13 +103,5 @@
             }
         }
     }
-
-public extension NSTextField.TextLayout {
-    /// Returns the text layout for the specifed line break mode.
-    init?(lineBreakMode: NSLineBreakMode) {
-        guard let found = Self.allCases.first(where: { $0.lineBreakMode == lineBreakMode }) else { return nil }
-        self = found
-    }
-}
 
 #endif
