@@ -81,7 +81,7 @@
             isBordered = false
             textLayout = .wraps
             
-            verticalTextAlignment = .center
+            isVerticallyCentered = true
             actionOnEnterKeyDown = .endEditing
             actionOnEscapeKeyDown = .endEditing
             focusType = .roundedCorners(4.0)

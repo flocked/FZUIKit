@@ -84,7 +84,7 @@
         }
         
         /// The focus type of the text field.
-        var focusType: VerticallyCenteredTextFieldCell.FocusType {
+        var focusType: FocusType {
             get { verticalTextFieldCell?.focusType ?? .default }
             set {
                 if newValue != .default, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
@@ -94,19 +94,19 @@
             }
         }
         
-        /// The vertical alignment of the displayed text inside the text field.
-        var verticalTextAlignment: VerticallyCenteredTextFieldCell.VerticalAlignment {
-            get { verticalTextFieldCell?.verticalAlignment ?? .default }
+        /// A Boolean value indicating whether the text is vertically centered.
+        var isVerticallyCentered: Bool {
+            get { verticalTextFieldCell?.isVerticallyCentered ?? false }
             set {
-                if newValue != .default, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
+                if newValue != false, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
                     cell = textFieldCell.convertToVerticalTextFieldCell()
                 }
-                verticalTextFieldCell?.verticalAlignment = newValue
+                verticalTextFieldCell?.isVerticallyCentered = newValue
             }
         }
         
-        /// The leading padding of the text cell.
-        var leadingTextPadding: CGFloat {
+        /// The leading padding of the text filed.
+        var leadingPadding: CGFloat {
             get { verticalTextFieldCell?.leadingPadding ?? 0.0 }
             set {
                 if newValue != 0.0, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {
@@ -116,8 +116,8 @@
             }
         }
         
-        /// The trailing padding of the text cell.
-        var trailingTextPadding: CGFloat {
+        /// The trailing padding of the text field.
+        var trailingPadding: CGFloat {
             get { verticalTextFieldCell?.trailingPadding ?? 0.0 }
             set {
                 if newValue != 0.0, verticalTextFieldCell == nil, let textFieldCell = textFieldCell  {

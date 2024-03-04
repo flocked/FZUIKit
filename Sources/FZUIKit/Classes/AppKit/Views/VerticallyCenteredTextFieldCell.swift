@@ -8,57 +8,55 @@
 #if os(macOS)
     import AppKit
 
+public extension NSTextField {
+    /// The focus ring type.
+    enum FocusType: Equatable {
+        /// No focus ring.
+        case none
+        /// A capsule focus ring.
+        case capsule
+        /// A focus ring with rounded corners.
+        case roundedCorners(CGFloat)
+        /// A focus ring with relative rounded corners.
+        case roundedCornersRelative(CGFloat)
+        /// The default focus ring.
+        case `default`
+    }
+}
+
     /// A text field cell with vertical alignment and focus type property.
     public class VerticallyCenteredTextFieldCell: NSTextFieldCell {
-        /// The focus ring type.
-        public enum FocusType: Equatable {
-            /// No focus ring.
-            case none
-            /// A capsule focus ring.
-            case capsule
-            /// A focus ring with rounded corners.
-            case roundedCorners(CGFloat)
-            /// A focus ring with relative rounded corners.
-            case roundedCornersRelative(CGFloat)
-            /// The default focus ring.
-            case `default`
-        }
-
-        /// The vertical alignment of the text.
-        public enum VerticalAlignment: Equatable {
-            /// The text is vertically centered.
-            case center
-            /// The default vertical text alignment.
-            case `default`
-        }
 
         /// The focus ring type.
-        public var focusType: FocusType = .default {
+        public var focusType: NSTextField.FocusType = .default {
             didSet { guard oldValue != focusType else { return }
             }
         }
 
-        /// The vertical alignment of the text.
-        public var verticalAlignment: VerticalAlignment = .center
+        /// A Boolean value indicating whether the text is vertically centered.
+        public var isVerticallyCentered: Bool = false
 
         /// The leading padding of the cell.
-        public var leadingPadding: CGFloat = 0
+        public var leadingPadding: CGFloat = 0 {
+            didSet { leadingPadding = leadingPadding.clamped(min: 0.0) }
+        }
+        
         /// The trailing padding of the cell.
-        public var trailingPadding: CGFloat = 0
+        public var trailingPadding: CGFloat = 0 {
+            didSet { trailingPadding = trailingPadding.clamped(min: 0.0) }
+        }
 
         var isEditingOrSelecting = false
-        //  internal var isEditingHandler: ((Bool)->())? = nil
 
         override public func titleRect(forBounds rect: NSRect) -> NSRect {
-            switch verticalAlignment {
-            case .center:
+            if isVerticallyCentered {
                 var titleRect = super.titleRect(forBounds: rect)
                 let minimumHeight = cellSize(forBounds: rect).height
                 titleRect.origin.y += (titleRect.size.height - minimumHeight) / 2
                 titleRect.size.height = minimumHeight
                 titleRect = titleRectWithPadding(for: titleRect)
                 return titleRect
-            case .default:
+            } else {
                 let paddedRect = titleRectWithPadding(for: rect)
                 return super.titleRect(forBounds: paddedRect)
             }
@@ -90,7 +88,7 @@
         }
 
         override public func drawFocusRingMask(withFrame cellFrame: NSRect, in controlView: NSView) {
-            guard focusType != FocusType.none else {
+            guard focusType != .none else {
                 return
             }
 
@@ -108,7 +106,7 @@
             }
 
             // Draw default
-            guard focusType != FocusType.default, cornerRadius != 0 else {
+            guard focusType != .default, cornerRadius != 0 else {
                 super.drawFocusRingMask(withFrame: cellFrame, in: controlView)
                 return
             }
