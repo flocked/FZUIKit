@@ -227,10 +227,23 @@
             }
             adjustFontSize()
         }
-        
-        func swizzleEditing() {
-            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || endEditingOnOutsideMouseDown {
-                guard editingNotificationTokens.isEmpty else { return }
+
+        func swizzleTextField() {
+            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit {
+                guard keyValueObservations.isEmpty else { return }
+                
+                keyValueObservations.append(
+                observeChanges(for: \.stringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit else { return }
+                    self.sizeToFit()
+                })
+                
+                keyValueObservations.append(
+                observeChanges(for: \.attributedStringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit else { return }
+                    self.sizeToFit()
+                })
+                
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
@@ -273,29 +286,6 @@
                     }
                     self.invalidateIntrinsicContentSize()
                 })
-            } else {
-                editingNotificationTokens.removeAll()
-            }
-        }
-
-        func swizzleTextField() {
-            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit {
-                guard keyValueObservations.isEmpty else { return }
-                
-                keyValueObservations.append(
-                observeChanges(for: \.stringValue) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit else { return }
-                    self.sizeToFit()
-                })
-                
-                keyValueObservations.append(
-                observeChanges(for: \.attributedStringValue) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit else { return }
-                    self.sizeToFit()
-                })
-                
-                swizzleEditing()
-                    
                     /*
                     try replaceMethod(
                         #selector(getter: intrinsicContentSize),
@@ -325,6 +315,7 @@
                      */
             } else {
                 keyValueObservations.removeAll()
+                editingNotificationTokens.removeAll()
             }
         }
         

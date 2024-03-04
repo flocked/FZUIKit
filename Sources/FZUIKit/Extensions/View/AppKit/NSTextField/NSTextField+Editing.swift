@@ -210,12 +210,24 @@
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
         public var endEditingOnOutsideMouseDown: Bool {
-            get { getAssociatedValue(key: "endEditingOnOutsideMouseDown", object: self, initialValue: false) }
+            get { textFieldFirstResponderObservation != nil }
             set {
-                set(associatedValue: newValue, key: "endEditingOnOutsideMouseDown", object: self)
-                swizzleEditing()
+                guard newValue != endEditingOnOutsideMouseDown else { return }
+                if newValue {
+                    textFieldFirstResponderObservation = self.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.setupMouseMonitor(isEditing: self.hasKeyboardFocus)
+                    }
+                } else {
+                    textFieldFirstResponderObservation = nil
+                }
                 setupMouseMonitor(isEditing: hasKeyboardFocus)
             }
+        }
+        
+        var textFieldFirstResponderObservation: NSKeyValueObservation? {
+            get { getAssociatedValue(key: "textFieldFirstResponderObservation", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "textFieldFirstResponderObservation", object: self) }
         }
 
         var mouseDownMonitor: NSEvent.Monitor? {
@@ -225,6 +237,7 @@
 
         func setupMouseMonitor(isEditing: Bool) {
             if endEditingOnOutsideMouseDown, isEditing {
+                guard mouseDownMonitor == nil else { return }
                 mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
                     guard let self = self, self.endEditingOnOutsideMouseDown, self.hasKeyboardFocus else { return event }
                     if self.bounds.contains(event.location(in: self)) == false {
