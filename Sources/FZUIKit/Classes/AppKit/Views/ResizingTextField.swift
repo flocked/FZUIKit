@@ -225,6 +225,7 @@
             guard let fieldEditor = window?.fieldEditor(false, for: self) as? NSTextView
             else {
                 Swift.print("noFieldEditor")
+                minSize.width += leadingPadding + trailingPadding
                 return minSize
             }
 
@@ -232,6 +233,7 @@
 
             if !isEditing {
                 Swift.print("!isEditing")
+                minSize.width += leadingPadding + trailingPadding
                 return minSize
             }
 
@@ -257,6 +259,7 @@
                 }
                 newSize.width = maxWidth
             }
+            newSize.width += leadingPadding + trailingPadding
             lastContentSize = newSize
             Swift.print("intrinsic")
             return newSize
