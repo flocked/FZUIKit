@@ -32,6 +32,7 @@ extension NSView {
         set {
             set(associatedValue: newValue, key: "windowHandlers", object: self)
             setupObserverView()
+            setupViewObservation()
         }
     }
     
@@ -131,12 +132,14 @@ extension NSView {
             observe(\.superview, handler: \.viewHandlers.superview)
             
             if viewHandlers.isFirstResponder != nil || windowHandlers.window != nil {
+                Swift.print("setup window observation")
                 viewObserver?.add(\.window) { [weak self] old, new in
                     guard let self = self, old != new else { return }
+                    Swift.print("window changed", new != nil)
                     self.windowHandlers.window?(new)
-                    self.setupFirstResponderObservation()
+                  //  self.setupFirstResponderObservation()
                 }
-                setupFirstResponderObservation()
+              //  setupFirstResponderObservation()
             } else {
                 viewObserver?.remove(\.window)
             }
