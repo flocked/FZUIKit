@@ -227,7 +227,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             let minimumHeight = cellSize(forBounds: rect).height
             titleRect.origin.y += (titleRect.size.height - minimumHeight) / 2
             titleRect.size.height = minimumHeight
-            titleRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
+            titleRect = titleRect.insetBy(dx: padding.left, dy: padding.bottom)
             return titleRect
         } else {
             let paddedRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
