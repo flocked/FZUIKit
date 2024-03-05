@@ -46,25 +46,14 @@ extension NSTextField {
         }
     }
     
-    /// The leading padding of the text filed.
-    public var leadingPadding: CGFloat {
-        get { extendedTextFieldCell?.leadingPadding ?? 0.0 }
+    /// The leading padding of the text field.
+    public var padding: NSEdgeInsets {
+        get { extendedTextFieldCell?.padding ?? .zero }
         set {
-            if newValue != 0.0 {
+            if newValue != .zero {
                 convertToExtendedTextFieldCell()
             }
-            extendedTextFieldCell?.leadingPadding = newValue
-        }
-    }
-    
-    /// The trailing padding of the text field.
-    public var trailingPadding: CGFloat {
-        get { extendedTextFieldCell?.trailingPadding ?? 0.0 }
-        set {
-            if newValue != 0.0 {
-                convertToExtendedTextFieldCell()
-            }
-            extendedTextFieldCell?.leadingPadding = newValue
+            extendedTextFieldCell?.padding = newValue
         }
     }
     
@@ -135,8 +124,19 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         didSet { trailingPadding = trailingPadding.clamped(min: 0.0) }
     }
     
-    var isEditingOrSelecting = false
+    /// The padding of the cell.
+    public var padding = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0) {
+        didSet { 
+            padding.bottom = padding.bottom.clamped(min: 0.0)
+            padding.top = padding.top.clamped(min: 0.0)
+            padding.left = padding.left.clamped(min: 0.0)
+            padding.right = padding.right.clamped(min: 0.0)
+        }
+    }
+    
     /*
+     var isEditingOrSelecting = false
+
     func titleRectWithPadding(for rect: NSRect) -> NSRect {
         let isLTR = userInterfaceLayoutDirection == .leftToRight
         let newRect = NSRect(x: rect.origin.x + (isLTR ? leadingPadding : trailingPadding),
@@ -215,9 +215,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     */
     
-    private static let padding = CGSize(width: 14.0, height: 14.0)
-
-    var padding: NSEdgeInsets = .init(top: 5, left: 7, bottom: 5, right: 7)
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
         size.height += (padding.height)
@@ -225,7 +222,19 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
-        rect.insetBy(dx: padding.left, dy: padding.bottom)
+        if isVerticallyCentered {
+            var titleRect = super.titleRect(forBounds: rect)
+            let minimumHeight = cellSize(forBounds: rect).height
+            titleRect.origin.y += (titleRect.size.height - minimumHeight) / 2
+            titleRect.size.height = minimumHeight
+            titleRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
+            return titleRect
+        } else {
+            let paddedRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
+            return super.titleRect(forBounds: paddedRect)
+        }
+        
+        return rect.insetBy(dx: padding.left, dy: padding.bottom)
     }
 
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
