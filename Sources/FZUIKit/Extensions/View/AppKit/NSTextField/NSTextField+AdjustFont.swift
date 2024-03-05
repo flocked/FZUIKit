@@ -224,7 +224,7 @@
             
             
             Swift.print("setupEditing -1", endEditingOnOutsideClick, isEditableByDoubleClick)
-            if endEditingOnOutsideClick || isEditableByDoubleClick, observer.isObserving(\.window?.firstResponder) {
+            if endEditingOnOutsideClick || isEditableByDoubleClick {
                 Swift.print("setupEditing 0")
                 guard observer.isObserving(\.window?.firstResponder) == false else { return }
                 Swift.print("setupEditing 1")
