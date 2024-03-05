@@ -214,11 +214,10 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         path.fill()
     }
     */
-    
+    /*
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
         size.height += (padding.height)
-        size.width += (padding.width)
         return size
     }
 
@@ -283,6 +282,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let path = NSBezierPath(roundedRect: newFrame, xRadius: cornerRadius, yRadius: cornerRadius)
         path.fill()
     }
+    */
 }
 
 extension NSTextFieldCell {
