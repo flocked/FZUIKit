@@ -22,6 +22,7 @@
         convenience init(resizingLabel stringValue: String) {
             self.init(labelWithString: stringValue)
             self.automaticallyResizesToFit = true
+            self.backgroundColor = nil
             self.focusType = .roundedCorners(4.0)
             self.isVerticallyCentered = true
             self.stringValue = stringValue

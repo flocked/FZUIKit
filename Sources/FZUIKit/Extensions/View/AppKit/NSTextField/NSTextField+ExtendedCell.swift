@@ -46,14 +46,14 @@ extension NSTextField {
         }
     }
     
-    /// The leading padding of the text field.
-    public var padding: NSEdgeInsets {
-        get { extendedTextFieldCell?.padding ?? .zero }
+    /// The padding of the text.
+    public var textPadding: NSEdgeInsets {
+        get { extendedTextFieldCell?.textPadding ?? .zero }
         set {
             if newValue != .zero {
                 convertToExtendedTextFieldCell()
             }
-            extendedTextFieldCell?.padding = newValue
+            extendedTextFieldCell?.textPadding = newValue
         }
     }
     
@@ -114,27 +114,27 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     /// A Boolean value indicating whether the text is vertically centered.
     public var isVerticallyCentered: Bool = false
     
-    /// The leading padding of the cell.
-    public var leadingPadding: CGFloat = 0 {
-        didSet { leadingPadding = leadingPadding.clamped(min: 0.0) }
-    }
-    
-    /// The trailing padding of the cell.
-    public var trailingPadding: CGFloat = 0 {
-        didSet { trailingPadding = trailingPadding.clamped(min: 0.0) }
-    }
-    
-    /// The padding of the cell.
-    public var padding = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0) {
+    /// The padding of the text.
+    public var textPadding = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0) {
         didSet { 
-            padding.bottom = padding.bottom.clamped(min: 0.0)
-            padding.top = padding.top.clamped(min: 0.0)
-            padding.left = padding.left.clamped(min: 0.0)
-            padding.right = padding.right.clamped(min: 0.0)
+            textPadding.bottom = textPadding.bottom.clamped(min: 0.0)
+            textPadding.top = textPadding.top.clamped(min: 0.0)
+            textPadding.left = textPadding.left.clamped(min: 0.0)
+            textPadding.right = textPadding.right.clamped(min: 0.0)
         }
     }
     
     /*
+     /// The leading padding of the cell.
+     public var leadingPadding: CGFloat = 0 {
+         didSet { leadingPadding = leadingPadding.clamped(min: 0.0) }
+     }
+     
+     /// The trailing padding of the cell.
+     public var trailingPadding: CGFloat = 0 {
+         didSet { trailingPadding = trailingPadding.clamped(min: 0.0) }
+     }
+     
      var isEditingOrSelecting = false
 
     func titleRectWithPadding(for rect: NSRect) -> NSRect {
@@ -217,34 +217,34 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
-        size.height += (padding.height)
+        size.height += (textPadding.height)
         return size
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
         if isVerticallyCentered {
-            var titleRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
+            var titleRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
             let minimumHeight = cellSize(forBounds: rect).height
             titleRect.origin.y += (titleRect.size.height - minimumHeight) / 2
             titleRect.size.height = minimumHeight
             return titleRect
         } else {
-            return rect.insetBy(dx: padding.left, dy: padding.bottom)
+            return rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         }
     }
 
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
-        let insetRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
+        let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.edit(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, event: event)
     }
 
     override func select(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
-        let insetRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
+        let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
     }
 
     override func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
-        let insetRect = cellFrame.insetBy(dx: padding.left, dy: padding.bottom)
+        let insetRect = cellFrame.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.drawInterior(withFrame: insetRect, in: controlView)
     }
     
