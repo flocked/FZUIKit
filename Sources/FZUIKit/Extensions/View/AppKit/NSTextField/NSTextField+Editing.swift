@@ -284,20 +284,17 @@
                 stringValue = previousString
                 currentEditor()?.selectedRange = editingRange
             } else {
-                Swift.print("BBBB")
-             //   stringValue = newString
+                stringValue = newString
                 if previousString == newString {
                     currentEditor()?.selectedRange = editingRange
                 }
                 editingHandlers.didEdit?()
             }
-            /*
             previousString = stringValue
             if let editingRange = currentEditor()?.selectedRange {
                 self.editingRange = editingRange
             }
             adjustFontSize()
-             */
         }
 
         func swizzleTextField() {
