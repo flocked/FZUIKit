@@ -19,6 +19,7 @@
             }
         }
 
+        /*
         /// Indicates how the text field should resize for fitting the placeholder.
         public var resizesToFitPlaceholder: PlaceHolderResizeOption = .emptyText {
             didSet { if oldValue != resizesToFitPlaceholder, resizesToFitPlaceholder != .never {
@@ -35,6 +36,7 @@
             /// Never resizes the text field to fit the placeholder.
             case never
         }
+        */
 
         /**
          The minimum width of the text field when it automatically resizes to fit its text.

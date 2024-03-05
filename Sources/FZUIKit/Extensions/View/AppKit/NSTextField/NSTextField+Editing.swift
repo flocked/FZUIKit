@@ -138,6 +138,27 @@
             }
         }
         
+        /// Indicates how the text field should resize for fitting the placeholder.
+        public var resizesToFitPlaceholder: PlaceHolderResizeOption {
+            get { getAssociatedValue(key: "preferredMinLayoutWidth", object: self, initialValue: .never) }
+            set {
+                guard newValue != resizesToFitPlaceholder else { return }
+                set(associatedValue: newValue, key: "preferredMinLayoutWidth", object: self)
+                swizzleIntrinsicContentSize()
+                resizeToFit()
+            }
+        }
+
+        /// The placeholder resize option.
+        public enum PlaceHolderResizeOption: Int, Hashable {
+            /// Resizes the text field to always fit the placeholder.
+            case always
+            /// Resizes the text field to fit the placeholder if the text is an empty string ("").
+            case emptyText
+            /// Never resizes the text field to fit the placeholder.
+            case never
+        }
+        
         public var isEditingText: Bool {
             get { getAssociatedValue(key: "isEditingText", object: self, initialValue: false) }
             set { set(associatedValue: newValue, key: "isEditingText", object: self) }
@@ -153,7 +174,7 @@
         }
         
         func swizzleIntrinsicContentSize() {
-            if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
+            if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 || resizesToFitPlaceholder != .never {
                 guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
                 do {
                     try replaceMethod(
@@ -181,9 +202,42 @@
             var cellSize = cell.cellSize(forBounds: CGRect(0, 0, maxWidth, 10000))
             cellSize.width.round(toNearest: 0.5, .awayFromZero)
             cellSize.height.round(toNearest: 0.5, .awayFromZero)
+            switch resizesToFitPlaceholder {
+            case .always:
+                let placeholderSize = calculatedPlaceholderSize
+                cellSize.width = max(placeholderSize.width, cellSize.width)
+            case .emptyText:
+                if stringValue == "" {
+                    let placeholderSize = calculatedPlaceholderSize
+                    cellSize.width = max(placeholderSize.width, cellSize.width)
+                }
+            case.never: break
+            }
             cellSize.width = max(cellSize.width, preferredMinLayoutWidth)
             return cellSize
         }
+        
+        var calculatedPlaceholderSize: CGSize {
+            guard let cell = cell else { return .zero }
+            var size = CGSize.zero
+            if let placeholder = placeholderAttributedString {
+                let attributedStringValue = attributedStringValue
+                self.attributedStringValue = placeholder
+                size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth), 10000))
+                size.width.round(toNearest: 0.5, .awayFromZero)
+                size.height.round(toNearest: 0.5, .awayFromZero)
+                self.attributedStringValue = attributedStringValue
+            } else if let placeholder = placeholderString {
+                let stringValue = self.stringValue
+                self.stringValue = placeholder
+                size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth), 10000))
+                size.width.round(toNearest: 0.5, .awayFromZero)
+                size.height.round(toNearest: 0.5, .awayFromZero)
+                self.stringValue = stringValue
+            }
+            return size
+        }
+        
 
         /// The action to perform when the user presses the enter key.
         public var actionOnEnterKeyDown: EnterKeyAction {
@@ -368,6 +422,18 @@
                 keyValueObservations.append(
                 observeChanges(for: \.attributedStringValue) { [weak self] old, new in
                     guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
+                    self.resizeToFit()
+                })
+                
+                keyValueObservations.append(
+                observeChanges(for: \.placeholderString) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, self.resizesToFitPlaceholder != .never else { return }
+                    self.resizeToFit()
+                })
+                
+                keyValueObservations.append(
+                observeChanges(for: \.placeholderAttributedString) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, self.resizesToFitPlaceholder != .never else { return }
                     self.resizeToFit()
                 })
                 
