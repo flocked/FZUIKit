@@ -137,6 +137,21 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     var isEditingOrSelecting = false
     
+    func titleRectWithPadding(for rect: NSRect) -> NSRect {
+        let isLTR = userInterfaceLayoutDirection == .leftToRight
+        let newRect = NSRect(x: rect.origin.x + (isLTR ? leadingPadding : trailingPadding),
+                             y: rect.origin.y,
+                             width: rect.width - leadingPadding - trailingPadding,
+                             height: rect.height)
+        return newRect
+    }
+    
+    override func drawingRect(forBounds rect: NSRect) -> NSRect {
+        let newRect = titleRectWithPadding(for: rect)
+        return super.drawingRect(forBounds: newRect)
+    }
+    
+    /*
     override public func titleRect(forBounds rect: NSRect) -> NSRect {
         if isVerticallyCentered {
             var titleRect = super.titleRect(forBounds: rect)
@@ -151,24 +166,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         }
     }
     
-    
-    
-    func titleRectWithPadding(for rect: NSRect) -> NSRect {
-        let isLTR = userInterfaceLayoutDirection == .leftToRight
-        let newRect = NSRect(x: rect.origin.x + (isLTR ? leadingPadding : trailingPadding),
-                             y: rect.origin.y,
-                             width: rect.width - leadingPadding - trailingPadding,
-                             height: rect.height)
-        return newRect
-    }
-    
     override public func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
         super.drawInterior(withFrame: titleRect(forBounds: cellFrame), in: controlView)
-    }
-    
-    override func drawingRect(forBounds rect: NSRect) -> NSRect {
-        let newRect = titleRectWithPadding(for: rect)
-        return super.drawingRect(forBounds: newRect)
     }
     
     override public func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
@@ -215,6 +214,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let path = NSBezierPath(roundedRect: newFrame, xRadius: cornerRadius, yRadius: cornerRadius)
         path.fill()
     }
+     */
 }
 
 extension NSTextFieldCell {
