@@ -140,6 +140,7 @@
          */
         
         func setupTextFieldObservation() {
+            Swift.print("setupTextFieldObservation 0", (needsFontAdjustments || automaticallyResizesToFit  || automaticallyResizesToFit || endEditingOnOutsideClick || isEditableByDoubleClick), observer != nil, endEditingOnOutsideClick, isEditableByDoubleClick  )
             if needsFontAdjustments || automaticallyResizesToFit  || automaticallyResizesToFit || endEditingOnOutsideClick || isEditableByDoubleClick {
                 if observer == nil {
                     observer = KeyValueObserver(self)
@@ -147,6 +148,7 @@
             } else {
                 observer = nil
             }
+            Swift.print("setupTextFieldObservation 1", observer != nil )
             guard let observer = observer else { return }
             
             if needsFontAdjustments || automaticallyResizesToFit {
