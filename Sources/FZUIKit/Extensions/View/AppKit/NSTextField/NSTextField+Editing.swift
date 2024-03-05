@@ -120,9 +120,10 @@
             set {
                 guard newValue != automaticallyResizesToFit else { return }
                 set(associatedValue: newValue, key: "automaticallyResizesToFit", object: self)
+                swizzleIntrinsicContentSize()
                 swizzleTextField()
                 if newValue {
-                    sizeToFit()
+                    resizeToFit()
                 }
             }
         }
@@ -143,7 +144,33 @@
         
         func resizeToFit() {
             guard automaticallyResizesToFit else { return }
-            frame.size = calculatedFittingSize
+            if translatesAutoresizingMaskIntoConstraints {
+                frame.size = calculatedFittingSize
+            } else {
+                invalidateIntrinsicContentSize()
+            }
+        }
+        
+        func swizzleIntrinsicContentSize() {
+            if automaticallyResizesToFit {
+                do {
+                    try replaceMethod(
+                        #selector(getter: NSTextField.intrinsicContentSize),
+                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (CGSize)).self,
+                        hookSignature: (@convention(block)  (AnyObject) -> (CGSize)).self) { store in {
+                            object in
+                            if let textField = object as? NSTextField, textField.automaticallyResizesToFit {
+                                return CGSize(textField.calculatedFittingSize.width, NSView.noIntrinsicMetric)
+                            }
+                            return store.original(object, #selector(getter: NSTextField.intrinsicContentSize))
+                        }
+                        }
+                } catch {
+                    Swift.debugPrint(error)
+                }
+            } else {
+                resetMethod(#selector(getter: NSTextField.intrinsicContentSize))
+            }
         }
         
         var calculatedFittingSize: CGSize {
