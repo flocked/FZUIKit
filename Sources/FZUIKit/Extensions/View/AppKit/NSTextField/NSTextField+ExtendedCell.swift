@@ -215,6 +215,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     */
     
+    var isEditingOrSelecting = false
+    
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
         size.height += (textPadding.height)
@@ -224,23 +226,41 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     override func titleRect(forBounds rect: NSRect) -> NSRect {
         if isVerticallyCentered {
             var titleRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
+            
+            if !isEditingOrSelecting {
+                let textSize = self.cellSize(forBounds: rect)
+                let heightDelta = titleRect.size.height - textSize.height
+                if heightDelta > 0 {
+                    titleRect.size.height -= heightDelta
+                    titleRect.origin.y += heightDelta/2
+                }
+            }
+            return titleRect
+            
+            /*
+            var titleRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
             let minimumHeight = cellSize(forBounds: rect).height
             titleRect.origin.y += (titleRect.size.height - minimumHeight) / 2
             titleRect.size.height = minimumHeight
             return titleRect
+             */
         } else {
             return rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         }
     }
 
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
+        isEditingOrSelecting = true
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.edit(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, event: event)
+        isEditingOrSelecting = false
     }
 
     override func select(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
+        isEditingOrSelecting = true
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
+        isEditingOrSelecting = false
     }
 
     override func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
