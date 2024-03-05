@@ -77,17 +77,20 @@ extension NSTextField {
                 let transform = transform
                 let transform3D = transform3D
                 let shadowPath = shadowPath
-                
+                let clipsToBounds = clipsToBounds
+
                 cell = textFieldCell.convertToExtended()
-                
                 self.wantsLayer = true
+                layer.delegate = self as? any CALayerDelegate
+                self.layer = layer
                 self.layer?.backgroundColor = backgroundColor
                 self.border = border
                 self.innerShadow = innerShadow
                 self.outerShadow = outerShadow
-                self.cornerRadius = cornerRadius
-                self.cornerCurve = cornerCurve
                 self.roundedCorners = roundedCorners
+                self.cornerCurve = cornerCurve
+                self.cornerRadius = cornerRadius
+                self.clipsToBounds = clipsToBounds
                 self.isOpaque = isOpaque
                 self.mask = mask
                 self.anchorPoint = anchorPoint
