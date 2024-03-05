@@ -10,6 +10,7 @@
     import FZSwiftUtils
 
     extension NSTextField {
+        
         /// Handlers for editing the text of a text field.
         public struct EditingHandler {
             /// Handler that gets called whenever editing the text did begin.
@@ -101,7 +102,7 @@
             set { 
                 guard newValue != allowedCharacters else { return }
                 set(associatedValue: newValue, key: "allowedCharacters", object: self)
-                swizzleTextField()
+                observeEditing()
             }
         }
 
@@ -110,118 +111,13 @@
             get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: EditingHandler()) }
             set { 
                 set(associatedValue: newValue, key: "editingHandlers", object: self)
-                swizzleTextField()
+                observeEditing()
             }
-        }
-        
-        /// A Boolean value that indicates whether text field should automatically adjust it's size to fit the string value.
-        @objc open var automaticallyResizesToFit: Bool {
-            get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: false) }
-            set {
-                guard newValue != automaticallyResizesToFit else { return }
-                set(associatedValue: newValue, key: "automaticallyResizesToFit", object: self)
-                swizzleIntrinsicContentSize()
-                swizzleTextField()
-                if newValue {
-                    resizeToFit()
-                }
-            }
-        }
-        
-        /**
-         The preferred minimum width of the text field.
-         
-         Apply ``AppKit/NSTextField/placeholderWidth`` to this property, to use the placeholder width as minimum value
-         */
-        public var preferredMinLayoutWidth: CGFloat {
-            get { getAssociatedValue(key: "preferredMinLayoutWidth", object: self, initialValue: 0) }
-            set {
-                set(associatedValue: newValue, key: "preferredMinLayoutWidth", object: self)
-                swizzleIntrinsicContentSize()
-                resizeToFit()
-            }
-        }
-        
-        /// A value that tells the layout system to use the placeholder width as preferred minimum width (see ``preferredMinLayoutWidth``).
-        public static var placeholderWidth: CGFloat {
-            -1
         }
         
         public var isEditingText: Bool {
             get { getAssociatedValue(key: "isEditingText", object: self, initialValue: false) }
             set { set(associatedValue: newValue, key: "isEditingText", object: self) }
-        }
-        
-        func resizeToFit() {
-            guard automaticallyResizesToFit else { return }
-            if translatesAutoresizingMaskIntoConstraints {
-                frame.size = calculatedFittingSize
-            } else {
-                invalidateIntrinsicContentSize()
-            }
-        }
-        
-        func swizzleIntrinsicContentSize() {
-            if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
-                guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
-                observer = nil
-                do {
-                    try replaceMethod(
-                        #selector(getter: NSTextField.intrinsicContentSize),
-                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (CGSize)).self,
-                        hookSignature: (@convention(block)  (AnyObject) -> (CGSize)).self) { store in {
-                            object in
-                            if let textField = object as? NSTextField, (textField.automaticallyResizesToFit || textField.preferredMinLayoutWidth != 0.0) {
-                                return textField.calculatedFittingSize
-                            }
-                            return store.original(object, #selector(getter: NSTextField.intrinsicContentSize))
-                        }
-                        }
-                    setupTextFieldObservation()
-                } catch {
-                    Swift.debugPrint(error)
-                }
-            } else if isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) {
-                observer = nil
-                resetMethod(#selector(getter: NSTextField.intrinsicContentSize))
-                setupTextFieldObservation()
-            }
-        }
-        
-        var calculatedFittingSize: CGSize {
-            guard let cell = cell else { return frame.size }
-            let maxWidth: CGFloat = preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth
-            var cellSize = cell.cellSize(forBounds: CGRect(0, 0, maxWidth, 10000))
-            cellSize.width.round(toNearest: 0.5, .awayFromZero)
-            cellSize.height.round(toNearest: 0.5, .awayFromZero)
-            if preferredMinLayoutWidth == Self.placeholderWidth {
-                let placeholderSize = calculatedPlaceholderSize
-                cellSize.width = max(placeholderSize.width, cellSize.width)
-            } else {
-                cellSize.width = max(cellSize.width, preferredMinLayoutWidth)
-            }
-            return cellSize
-        }
-        
-        var calculatedPlaceholderSize: CGSize {
-            guard let cell = cell else { return .zero }
-            var size = CGSize.zero
-            if let placeholder = placeholderAttributedString {
-                let attributedStringValue = attributedStringValue
-                self.attributedStringValue = placeholder
-                size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth), 10000))
-                size.width.round(toNearest: 0.5, .awayFromZero)
-                size.height.round(toNearest: 0.5, .awayFromZero)
-                self.attributedStringValue = attributedStringValue
-            } else if let placeholder = placeholderString {
-                let stringValue = self.stringValue
-                self.stringValue = placeholder
-                size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth), 10000))
-                size.width.round(toNearest: 0.5, .awayFromZero)
-                size.height.round(toNearest: 0.5, .awayFromZero)
-                self.stringValue = stringValue
-            }
-            return size
         }
         
 
@@ -231,7 +127,7 @@
             set {
                 guard actionOnEnterKeyDown != newValue else { return }
                 set(associatedValue: newValue, key: "actionOnEnterKeyDown", object: self)
-                swizzleDoCommand()
+                observeTextCommands()
             }
         }
 
@@ -241,7 +137,7 @@
             set {
                 guard actionOnEscapeKeyDown != newValue else { return }
                 set(associatedValue: newValue, key: "actionOnEscapeKeyDown", object: self)
-                swizzleDoCommand()
+                observeTextCommands()
             }
         }
 
@@ -249,6 +145,7 @@
         public var minimumNumberOfCharacters: Int? {
             get { getAssociatedValue(key: "minimumNumberOfCharacters", object: self, initialValue: nil) }
             set {
+                guard newValue != minimumNumberOfCharacters else { return }
                 set(associatedValue: newValue, key: "minimumNumberOfCharacters", object: self)
                 if let newValue = newValue {
                     if let maximumNumberOfCharacters = maximumNumberOfCharacters, newValue > maximumNumberOfCharacters {
@@ -258,7 +155,7 @@
                 if let maxCharCount = newValue, stringValue.count > maxCharCount {
                     stringValue = String(stringValue.prefix(maxCharCount))
                 }
-                swizzleTextField()
+                observeEditing()
             }
         }
 
@@ -266,6 +163,7 @@
         public var maximumNumberOfCharacters: Int? {
             get { getAssociatedValue(key: "maximumNumberOfCharacters", object: self, initialValue: nil) }
             set {
+                guard newValue != maximumNumberOfCharacters else { return }
                 set(associatedValue: newValue, key: "maximumNumberOfCharacters", object: self)
                 if let newValue = newValue {
                     if let minimumNumberOfCharacters = minimumNumberOfCharacters, newValue < minimumNumberOfCharacters {
@@ -275,7 +173,7 @@
                 if let maxCharCount = newValue, stringValue.count > maxCharCount {
                     stringValue = String(stringValue.prefix(maxCharCount))
                 }
-                swizzleTextField()
+                observeEditing()
             }
         }
 
@@ -285,7 +183,7 @@
             set { 
                 guard newValue != endEditingOnOutsideClick else { return }
                 set(associatedValue: newValue, key: "endEditingOnOutsideClick", object: self)
-                setupTextFieldObservation()
+                setupTextFieldObserver()
                 keyboardFocusChanged()
             }
         }
@@ -302,7 +200,7 @@
                     doubleClickEditGestureRecognizer?.removeFromView(disablingReadding: true)
                     doubleClickEditGestureRecognizer = nil
                 }
-                setupTextFieldObservation()
+                setupTextFieldObserver()
                 keyboardFocusChanged()
             }
         }
@@ -375,10 +273,10 @@
             adjustFontSize()
         }
 
-        func swizzleTextField() {
+        func observeEditing() {
             if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit {
                 guard editingNotificationTokens.isEmpty else { return }
-                setupTextFieldObservation()
+                setupTextFieldObserver()
                 
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
@@ -419,15 +317,15 @@
                     self.invalidateIntrinsicContentSize()
                 })
             } else {
-                setupTextFieldObservation()
+                setupTextFieldObserver()
                 editingNotificationTokens.removeAll()
             }
         }
         
-        func swizzleDoCommand() {
+        func observeTextCommands() {
             if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
                 if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
-                    observer = nil
+                    textFieldObserver = nil
                     do {
                         try replaceMethod(
                             #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -470,22 +368,116 @@
                             return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                         }
                         }
-                        setupTextFieldObservation()
+                        setupTextFieldObserver()
                     } catch {
                         Swift.debugPrint(error)
                     }
                 }
             } else if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
-                observer = nil
+                textFieldObserver = nil
                 resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
-                setupTextFieldObservation()
+                setupTextFieldObserver()
             }
         }
-
-        var isAdjustingFontSize: Bool {
-            get { getAssociatedValue(key: "isAdjustingFontSize", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "isAdjustingFontSize", object: self)
+        
+        func setupTextFieldObserver() {
+            if needsFontAdjustments || automaticallyResizesToFit || endEditingOnOutsideClick || isEditableByDoubleClick {
+                if textFieldObserver == nil {
+                    textFieldObserver = KeyValueObserver(self)
+                }
+            } else {
+                textFieldObserver = nil
             }
+            guard let textFieldObserver = textFieldObserver else { return }
+            
+            if endEditingOnOutsideClick || isEditableByDoubleClick {
+                guard textFieldObserver.isObserving(\.window?.firstResponder) == false else { return }
+                textFieldObserver.add( \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self else { return }
+                    if self.hasKeyboardFocus != self.isKeyboardFocused {
+                        self.keyboardFocusChanged()
+                        self.isKeyboardFocused = self.hasKeyboardFocus
+                    }
+                }
+                isKeyboardFocused = hasKeyboardFocus
+            } else {
+                textFieldObserver.remove(\.window?.firstResponder)
+            }
+            
+            if needsFontAdjustments || automaticallyResizesToFit {
+                guard textFieldObserver.isObserving(\.stringValue) == false else { return }
+                textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    if isAdjustingFontSize == false {
+                        self.adjustFontSize()
+                    }
+                    if self.automaticallyResizesToFit, !isEditingText {
+                        self.resizeToFit()
+                    }
+                })
+            } else {
+                textFieldObserver.remove(\.stringValue)
+            }
+            
+            if needsFontAdjustments {
+                guard textFieldObserver.isObserving(\.isBezeled) == false else { return }
+                
+                textFieldObserver.add(\.isBezeled, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                textFieldObserver.add(\.isBordered, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                textFieldObserver.add(\.bezelStyle, handler: { [weak self] old, new in
+                    guard let self = self, self.isBezeled, old != new else { return }
+                    self.adjustFontSize()
+                })
+                textFieldObserver.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                textFieldObserver.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                textFieldObserver.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.adjustFontSize()
+                })
+                textFieldObserver.add(\.frame, handler: { [weak self] old, new in
+                    guard let self = self, old.size != new.size else { return }
+                    self.adjustFontSize()
+                })
+            } else {
+                textFieldObserver.remove([\.isBezeled, \.isBordered, \.bezelStyle, \.preferredMaxLayoutWidth, \.allowsDefaultTighteningForTruncation, \.maximumNumberOfLines, \.frame])
+            }
+            
+            if automaticallyResizesToFit {
+                guard textFieldObserver.isObserving(\.attributedStringValue) == false else { return }
+                textFieldObserver.add(\.attributedStringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
+                    self.resizeToFit()
+                }
+                
+                textFieldObserver.add(\.placeholderString) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
+                    self.resizeToFit()
+                }
+                
+                textFieldObserver.add(\.placeholderAttributedString) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
+                    self.resizeToFit()
+                }
+            } else {
+                textFieldObserver.remove([\.attributedStringValue, \.placeholderString, \.placeholderAttributedString])
+            }
+        }
+        
+        var textFieldObserver: KeyValueObserver<NSTextField>? {
+            get { getAssociatedValue(key: "textFieldObserver", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "textFieldObserver", object: self) }
         }
         
         var editingNotificationTokens: [NotificationToken] {

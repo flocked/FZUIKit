@@ -24,6 +24,8 @@
             self.automaticallyResizesToFit = true
             self.focusType = .roundedCorners(4.0)
             self.isVerticallyCentered = true
+            self.stringValue = stringValue
+            self.resizeToFit()
         }
         
         /// The receiver’s number formatter.
