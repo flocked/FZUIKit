@@ -80,8 +80,8 @@ extension NSTextField {
     
     var calculatedFittingSize: CGSize {
         guard let cell = cell else { return frame.size }
-        let maxWidth: CGFloat = preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth
-        var cellSize = cell.cellSize(forBounds: CGRect(0, 0, maxWidth, 10000))
+        let maxWidth: CGFloat = preferredMaxLayoutWidth == 0 ? 40000 : preferredMaxLayoutWidth
+        var cellSize = cell.cellSize(forBounds: CGRect(0, 0, maxWidth, 40000))
         cellSize.width.round(toNearest: 0.5, .awayFromZero)
         cellSize.height.round(toNearest: 0.5, .awayFromZero)
         if preferredMinLayoutWidth == Self.placeholderWidth {
@@ -99,14 +99,14 @@ extension NSTextField {
         if let placeholder = placeholderAttributedString {
             let attributedStringValue = attributedStringValue
             self.attributedStringValue = placeholder
-            size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth), 10000))
+            size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 40000 : preferredMaxLayoutWidth), 40000))
             size.width.round(toNearest: 0.5, .awayFromZero)
             size.height.round(toNearest: 0.5, .awayFromZero)
             self.attributedStringValue = attributedStringValue
         } else if let placeholder = placeholderString {
             let stringValue = self.stringValue
             self.stringValue = placeholder
-            size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth), 10000))
+            size = cell.cellSize(forBounds: CGRect(0, 0, (preferredMaxLayoutWidth == 0 ? 40000 : preferredMaxLayoutWidth), 40000))
             size.width.round(toNearest: 0.5, .awayFromZero)
             size.height.round(toNearest: 0.5, .awayFromZero)
             self.stringValue = stringValue

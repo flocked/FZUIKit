@@ -65,7 +65,17 @@
     #if os(macOS)
         public extension Sizable where Self: NSTextField {
             func sizeThatFits(_ size: CGSize) -> CGSize {
-                if size.width != NSView.noIntrinsicMetric, size.width > 0, let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: CGFloat.greatestFiniteMagnitude)) {
+                var size = size
+                if size.width == NSView.noIntrinsicMetric {
+                    size.width = 40000
+                }
+                if size.height == NSView.noIntrinsicMetric {
+                    size.height = 40000
+                }
+                size.width = size.width.clamped(min: 0)
+                size.height = size.height.clamped(min: 0)
+
+                if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: size.height)) {
                     return CGSize(size.width, cellSize.height)
                 }
                 return fittingSize

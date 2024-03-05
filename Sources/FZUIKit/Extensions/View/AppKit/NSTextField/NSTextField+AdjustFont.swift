@@ -77,7 +77,7 @@
             return fittingPointSize ?? 0.0
         }
 
-        func adjustFontSize(requiresSmallerScale: Bool = false) {
+        func adjustFontSize() {
             guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
             isAdjustingFontSize = true

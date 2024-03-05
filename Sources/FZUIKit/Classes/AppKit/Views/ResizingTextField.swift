@@ -226,7 +226,7 @@
 
             var minSize = CGSize(width: minWidth, height: intrinsicContentSize.height)
             if let maxWidth = maxWidth, minSize.width >= maxWidth {
-                if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 10000)) {
+                if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: maxWidth, height: 40000)) {
                     minSize.height = cellSize.height + 8.0
                 }
                 minSize.width = maxWidth

@@ -43,7 +43,7 @@
             override public func viewDidLayout() {
                 if view.frame.size.width != previousWidth {
                     previousWidth = view.frame.size.width
-                    let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 10000))
+                    let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 40000))
                     heightAnchor.constant = fittingSize.height
                 }
             }
@@ -52,7 +52,7 @@
             override public func viewDidLayoutSubviews() {
                 if view.frame.size.width != previousWidth {
                     previousWidth = view.frame.size.width
-                    let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 10000))
+                    let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 40000))
                     heightAnchor.constant = fittingSize.height
                 }
             }
@@ -97,7 +97,7 @@
 
              let previousWidthAnchor = self.widthAnchor
              let widthAn =
-             let fittingSize = self.sizeThatFits(CGSize(width: previousWidth, height: 10000))
+             let fittingSize = self.sizeThatFits(CGSize(width: previousWidth, height: 40000))
              self.height.constant = fittingSize.height
          }
      }

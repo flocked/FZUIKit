@@ -17,7 +17,7 @@
             - durationOfShake: The duration of each shake. The default value is `0.5`.
             - vigourOfShake: The vigour of each shake. The default value is `0.02`.
          */
-        func shake(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02) {
+        public func shake(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02) {
             let shakeAnimation = shakeAnimation(numberOfShakes: numberOfShakes, durationOfShake: durationOfShake, vigourOfShake: vigourOfShake, frame: frame)
             animations = ["frameOrigin": shakeAnimation]
             animator().setFrameOrigin(frame.origin)
@@ -33,7 +33,7 @@
             - durationOfShake: The duration of each shake. The default value is `0.5`.
             - vigourOfShake: The vigour of each shake. The default value is `0.02`.
          */
-        func shake(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02) {
+        public func shake(numberOfShakes: Int = 4, durationOfShake: TimeInterval = 0.5, vigourOfShake: CGFloat = 0.02) {
             let shakeAnimation = shakeAnimation(numberOfShakes: numberOfShakes, durationOfShake: durationOfShake, vigourOfShake: vigourOfShake, frame: frame)
             animations = ["frameOrigin": shakeAnimation]
             animator().setFrameOrigin(frame.origin)
