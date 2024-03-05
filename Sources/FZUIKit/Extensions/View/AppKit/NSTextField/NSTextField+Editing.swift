@@ -164,7 +164,7 @@
         func swizzleIntrinsicContentSize() {
             if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
                 guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
-                observer = nil
+              //  observer = nil
                 do {
                     try replaceMethod(
                         #selector(getter: NSTextField.intrinsicContentSize),
@@ -182,7 +182,7 @@
                     Swift.debugPrint(error)
                 }
             } else if isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) {
-                observer = nil
+             //   observer = nil
                 resetMethod(#selector(getter: NSTextField.intrinsicContentSize))
                 setupTextFieldObservation()
             }
@@ -428,7 +428,7 @@
         func swizzleDoCommand() {
             if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
                 if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
-                    observer = nil
+                 //   observer = nil
                     do {
                         try replaceMethod(
                             #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -477,7 +477,7 @@
                     }
                 }
             } else if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
-                observer = nil
+             //   observer = nil
                 resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
                 setupTextFieldObservation()
             }
