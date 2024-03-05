@@ -281,12 +281,11 @@
                     currentEditor()?.selectedRange = editingRange
                 }
             } else if editingHandlers.shouldEdit?(stringValue) == false {
-                Swift.print("GGGG")
                 stringValue = previousString
                 currentEditor()?.selectedRange = editingRange
             } else {
                 Swift.print("BBBB")
-                stringValue = newString
+             //   stringValue = newString
                 if previousString == newString {
                     currentEditor()?.selectedRange = editingRange
                 }
