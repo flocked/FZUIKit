@@ -223,11 +223,10 @@ class ExtendedTextFieldCell: NSTextFieldCell {
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
         if isVerticallyCentered {
-            var titleRect = super.titleRect(forBounds: rect)
+            var titleRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
             let minimumHeight = cellSize(forBounds: rect).height
             titleRect.origin.y += (titleRect.size.height - minimumHeight) / 2
             titleRect.size.height = minimumHeight
-            titleRect = titleRect.insetBy(dx: padding.left, dy: padding.bottom)
             return titleRect
         } else {
             let paddedRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
