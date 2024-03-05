@@ -21,7 +21,7 @@
             set {
                 guard newValue != adjustsFontSizeToFitWidth else { return }
                 set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
-                setupTextFieldObserver()
+                setupFontAdjustment()
             }
         }
 
@@ -36,7 +36,7 @@
                 let newValue = newValue.clamped(max: 1.0)
                 guard newValue != minimumScaleFactor else { return }
                 set(associatedValue: newValue, key: "minimumScaleFactor", object: self)
-                setupTextFieldObserver()
+                setupFontAdjustment()
             }
         }
 
@@ -78,6 +78,7 @@
         }
 
         func adjustFontSize(requiresSmallerScale: Bool = false) {
+            guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
             isAdjustingFontSize = true
             cell?.font = _font
@@ -124,71 +125,151 @@
                 needsUpdate = !isFittingCurrentText
             }
         }
-
-        func setupTextFieldObserver() {
-            if adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0 {
+        
+        /*
+         if (endEditingOnOutsideClick || isEditableByDoubleClick) {
+             if keyboardFocusObservation == nil {
+                 keyboardFocusObservation = KeyValueObserver(self)
+                 keyboardFocusObservation?.add( \.window?.firstResponder) { [weak self] old, new in
+                     guard let self = self else { return }
+                     if self.hasKeyboardFocus != self.isKeyboardFocused {
+                         self.keyboardFocusChanged()
+                         self.isKeyboardFocused = self.hasKeyboardFocus
+                     }
+                 }
+         */
+        
+        func setupTextFieldObservation() {
+            if needsFontAdjustments || automaticallyResizesToFit  || automaticallyResizesToFit || endEditingOnOutsideClick || isEditableByDoubleClick {
                 if observer == nil {
-                    do {
-                        try replaceMethod(#selector(setter: font),
-                            methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
-                            hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
-                        ) { _ in { object, font in
-                            guard let textField = (object as? NSTextField), textField._font != font else { return }
-                            textField._font = font
-                        }
-                        }
-                        
-                        try replaceMethod(#selector(getter: font),
-                            methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
-                            hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
-                        ) { _ in { object in
-                            return (object as? NSTextField)?._font ?? nil
-                        }
-                        }
-                        _font = font
-                    } catch {
-                        Swift.debugPrint(error)
-                    }
+                    observer = KeyValueObserver(self)
                 }
+            } else {
+                observer = nil
+            }
+            guard let observer = observer else { return }
+            
+            if needsFontAdjustments || automaticallyResizesToFit {
+                guard observer.isObserving(\.stringValue) == false else { return }
+                observer.add(\.stringValue, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    if isAdjustingFontSize == false {
+                        self.adjustFontSize()
+                    }
+                    if self.automaticallyResizesToFit, !isEditingText {
+                        self.resizeToFit()
+                    }
+                })
+            } else {
+                observer.remove(\.stringValue)
+            }
+            
+            if needsFontAdjustments {
+                guard observer.isObserving(\.isBezeled) == false else { return }
                 
-                observer = KeyValueObserver(self)
-                observer?.add(\.stringValue, handler: { [weak self] old, new in
-                    guard let self = self, self.isAdjustingFontSize == false, old != new else { return }
-                    self.adjustFontSize()
-                })
-                observer?.add(\.isBezeled, handler: { [weak self] old, new in
+                observer.add(\.isBezeled, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
-                observer?.add(\.isBordered, handler: { [weak self] old, new in
+                observer.add(\.isBordered, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
-                observer?.add(\.bezelStyle, handler: { [weak self] old, new in
+                observer.add(\.bezelStyle, handler: { [weak self] old, new in
                     guard let self = self, self.isBezeled, old != new else { return }
                     self.adjustFontSize()
                 })
-                observer?.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
+                observer.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
-                observer?.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
+                observer.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
-                observer?.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
+                observer.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
-                observer?.add(\.frame, handler: { [weak self] old, new in
+                observer.add(\.frame, handler: { [weak self] old, new in
                     guard let self = self, old.size != new.size else { return }
                     self.adjustFontSize()
                 })
             } else {
+                observer.remove([\.isBezeled, \.isBordered, \.bezelStyle, \.preferredMaxLayoutWidth, \.allowsDefaultTighteningForTruncation, \.maximumNumberOfLines, \.frame])
+            }
+            
+            if automaticallyResizesToFit {
+                guard observer.isObserving(\.attributedStringValue) == false else { return }
+                observer.add(\.attributedStringValue) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
+                    self.resizeToFit()
+                }
+                
+                observer.add(\.placeholderString) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
+                    self.resizeToFit()
+                }
+                
+                observer.add(\.placeholderAttributedString) { [weak self] old, new in
+                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
+                    self.resizeToFit()
+                }
+            } else {
+                observer.remove([\.attributedStringValue, \.placeholderString, \.placeholderAttributedString])
+            }
+            
+            if endEditingOnOutsideClick || isEditableByDoubleClick {
+                guard observer.isObserving(\.window?.firstResponder) == false else { return }
+                observer.add( \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self else { return }
+                    if self.hasKeyboardFocus != self.isKeyboardFocused {
+                        self.keyboardFocusChanged()
+                        self.isKeyboardFocused = self.hasKeyboardFocus
+                    }
+                }
+                isKeyboardFocused = hasKeyboardFocus
+            } else {
+                observer.remove(\.window?.firstResponder)
+            }
+        }
+        
+        var needsFontAdjustments: Bool {
+            adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0
+        }
+
+        func setupFontAdjustment() {
+            if needsFontAdjustments {
+                guard isMethodReplaced(#selector(setter: font)) == false else { return }
+                observer = nil
+                do {
+                    try replaceMethod(#selector(setter: font),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
+                    ) { _ in { object, font in
+                        guard let textField = (object as? NSTextField), textField._font != font else { return }
+                        textField._font = font
+                    }
+                    }
+                    
+                    try replaceMethod(#selector(getter: font),
+                        methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
+                        hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
+                    ) { _ in { object in
+                        return (object as? NSTextField)?._font ?? nil
+                    }
+                    }
+                    _font = font
+                } catch {
+                    Swift.debugPrint(error)
+                }
+                setupTextFieldObservation()
+            } else if isMethodReplaced(#selector(setter: font)) {
                 observer = nil
                 resetMethod(#selector(setter: font))
                 resetMethod(#selector(getter: font))
                 font = _font ?? font
+                setupTextFieldObservation()
             }
         }
         

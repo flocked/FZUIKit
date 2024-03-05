@@ -164,6 +164,7 @@
         func swizzleIntrinsicContentSize() {
             if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
                 guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
+                observer = nil
                 do {
                     try replaceMethod(
                         #selector(getter: NSTextField.intrinsicContentSize),
@@ -176,11 +177,14 @@
                             return store.original(object, #selector(getter: NSTextField.intrinsicContentSize))
                         }
                         }
+                    setupTextFieldObservation()
                 } catch {
                     Swift.debugPrint(error)
                 }
-            } else {
+            } else if isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) {
+                observer = nil
                 resetMethod(#selector(getter: NSTextField.intrinsicContentSize))
+                setupTextFieldObservation()
             }
         }
         
@@ -281,7 +285,7 @@
             set { 
                 guard newValue != endEditingOnOutsideClick else { return }
                 set(associatedValue: newValue, key: "endEditingOnOutsideClick", object: self)
-                observeKeyboardFocus()
+                setupTextFieldObservation()
                 keyboardFocusChanged()
             }
         }
@@ -298,26 +302,8 @@
                     doubleClickEditGestureRecognizer?.removeFromView(disablingReadding: true)
                     doubleClickEditGestureRecognizer = nil
                 }
-                observeKeyboardFocus()
-            }
-        }
-        
-        func observeKeyboardFocus() {
-            if (endEditingOnOutsideClick || isEditableByDoubleClick) {
-                if keyboardFocusObservation == nil {
-                    keyboardFocusObservation = KeyValueObserver(self)
-                    keyboardFocusObservation?.add( \.window?.firstResponder) { [weak self] old, new in
-                        guard let self = self else { return }
-                        if self.hasKeyboardFocus != self.isKeyboardFocused {
-                            self.keyboardFocusChanged()
-                            self.isKeyboardFocused = self.hasKeyboardFocus
-                        }
-                    }
-                    self.isKeyboardFocused = self.hasKeyboardFocus
-                }
-                self.keyboardFocusChanged()
-            } else {
-                keyboardFocusObservation = nil
+                setupTextFieldObservation()
+                keyboardFocusChanged()
             }
         }
         
@@ -351,11 +337,6 @@
         var isKeyboardFocused: Bool {
             get { getAssociatedValue(key: "isKeyboardFocused", object: self, initialValue: false) }
             set { set(associatedValue: newValue, key: "isKeyboardFocused", object: self) }
-        }
-        
-        var keyboardFocusObservation: KeyValueObserver<NSTextField>? {
-            get { getAssociatedValue(key: "keyboardFocusObservation", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "keyboardFocusObservation", object: self) }
         }
         
         var mouseDownMonitor: NSEvent.Monitor? {
@@ -396,31 +377,8 @@
 
         func swizzleTextField() {
             if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit {
-                guard keyValueObservations.isEmpty else { return }
-                
-                keyValueObservations.append(
-                observeChanges(for: \.stringValue) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
-                    self.resizeToFit()
-                })
-                
-                keyValueObservations.append(
-                observeChanges(for: \.attributedStringValue) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
-                    self.resizeToFit()
-                })
-                
-                keyValueObservations.append(
-                observeChanges(for: \.placeholderString) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
-                    self.resizeToFit()
-                })
-                
-                keyValueObservations.append(
-                observeChanges(for: \.placeholderAttributedString) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
-                    self.resizeToFit()
-                })
+                guard editingNotificationTokens.isEmpty else { return }
+                setupTextFieldObservation()
                 
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
@@ -460,7 +418,7 @@
                     self.invalidateIntrinsicContentSize()
                 })
             } else {
-                keyValueObservations.removeAll()
+                setupTextFieldObservation()
                 editingNotificationTokens.removeAll()
             }
         }
@@ -468,6 +426,7 @@
         func swizzleDoCommand() {
             if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
                 if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
+                    observer = nil
                     do {
                         try replaceMethod(
                             #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -510,25 +469,21 @@
                             return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                         }
                         }
+                        setupTextFieldObservation()
                     } catch {
                         Swift.debugPrint(error)
                     }
                 }
-            } else {
+            } else if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
+                observer = nil
                 resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
+                setupTextFieldObservation()
             }
         }
 
         var isAdjustingFontSize: Bool {
             get { getAssociatedValue(key: "isAdjustingFontSize", object: self, initialValue: false) }
             set { set(associatedValue: newValue, key: "isAdjustingFontSize", object: self)
-            }
-        }
-        
-        var keyValueObservations: [NSKeyValueObservation] {
-            get { getAssociatedValue(key: "keyValueObservations", object: self, initialValue: []) }
-            set {
-                set(associatedValue: newValue, key: "keyValueObservations", object: self)
             }
         }
         

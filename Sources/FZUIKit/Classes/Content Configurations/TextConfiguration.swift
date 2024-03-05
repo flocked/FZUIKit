@@ -331,9 +331,6 @@
                 adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
                 minimumScaleFactor = configuration.minimumScaleFactor
                 allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
-                if configuration.allowsDefaultTighteningForTruncation {
-                    setupTextFieldObserver()
-                }
             }
         }
 
