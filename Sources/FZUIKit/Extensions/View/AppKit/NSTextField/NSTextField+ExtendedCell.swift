@@ -242,6 +242,41 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let insetRect = cellFrame.insetBy(dx: padding.left, dy: padding.bottom)
         super.drawInterior(withFrame: insetRect, in: controlView)
     }
+    
+    override func drawFocusRingMask(withFrame cellFrame: NSRect, in controlView: NSView) {
+        guard focusType != .none else {
+            return
+        }
+        
+        var cornerRadius: CGFloat = 0
+        switch focusType {
+        case .capsule:
+            cornerRadius = cellFrame.size.height / 2.0
+        case let .roundedCorners(radius):
+            cornerRadius = radius
+        case let .roundedCornersRelative(relative):
+            cornerRadius = cellFrame.size.height / 2.0
+            cornerRadius = cornerRadius * relative.clamped(max: 1.0)
+        default:
+            break
+        }
+        
+        // Draw default
+        guard focusType != .default, cornerRadius != 0 else {
+            super.drawFocusRingMask(withFrame: cellFrame, in: controlView)
+            return
+        }
+        
+        // Custome
+        // Make forcus ring frame fit with cell size
+        // let newFrame = cellFrame.insetBy(dx: 2, dy: 1)
+        let newFrame = cellFrame
+        
+        
+        
+        let path = NSBezierPath(roundedRect: newFrame, xRadius: cornerRadius, yRadius: cornerRadius)
+        path.fill()
+    }
 }
 
 extension NSTextFieldCell {
