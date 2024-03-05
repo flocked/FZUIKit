@@ -151,6 +151,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         }
     }
     
+    
+    
     func titleRectWithPadding(for rect: NSRect) -> NSRect {
         let isLTR = userInterfaceLayoutDirection == .leftToRight
         let newRect = NSRect(x: rect.origin.x + (isLTR ? leadingPadding : trailingPadding),
@@ -162,6 +164,11 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     override public func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
         super.drawInterior(withFrame: titleRect(forBounds: cellFrame), in: controlView)
+    }
+    
+    override func drawingRect(forBounds rect: NSRect) -> NSRect {
+        let newRect = titleRectWithPadding(for: rect)
+        return super.drawingRect(forBounds: newRect)
     }
     
     override public func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
