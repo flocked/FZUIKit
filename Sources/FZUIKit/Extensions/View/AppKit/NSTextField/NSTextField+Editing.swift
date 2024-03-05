@@ -304,7 +304,8 @@
         
         func observeKeyboardFocus() {
             if (endEditingOnOutsideClick || isEditableByDoubleClick) {
-                keyboardFocusObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                keyboardFocusObservation = KeyValueObserver(self)
+                keyboardFocusObservation?.add( \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self else { return }
                     if self.hasKeyboardFocus != self.isKeyboardFocused {
                         self.keyboardFocusChanged()
@@ -350,7 +351,7 @@
             set { set(associatedValue: newValue, key: "isKeyboardFocused", object: self) }
         }
         
-        var keyboardFocusObservation: NSKeyValueObservation? {
+        var keyboardFocusObservation: KeyValueObserver<NSTextField>? {
             get { getAssociatedValue(key: "keyboardFocusObservation", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "keyboardFocusObservation", object: self) }
         }
