@@ -136,7 +136,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     
     var isEditingOrSelecting = false
-    
+    /*
     func titleRectWithPadding(for rect: NSRect) -> NSRect {
         let isLTR = userInterfaceLayoutDirection == .leftToRight
         let newRect = NSRect(x: rect.origin.x + (isLTR ? leadingPadding : trailingPadding),
@@ -151,7 +151,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         return super.drawingRect(forBounds: newRect)
     }
     
-    /*
     override public func titleRect(forBounds rect: NSRect) -> NSRect {
         if isVerticallyCentered {
             var titleRect = super.titleRect(forBounds: rect)
@@ -214,7 +213,34 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let path = NSBezierPath(roundedRect: newFrame, xRadius: cornerRadius, yRadius: cornerRadius)
         path.fill()
     }
-     */
+    */
+    
+    private static let padding = CGSize(width: 14.0, height: 14.0)
+
+    override func cellSize(forBounds rect: NSRect) -> NSSize {
+        var size = super.cellSize(forBounds: rect)
+        size.height += (Self.padding.height * 2)
+        return size
+    }
+
+    override func titleRect(forBounds rect: NSRect) -> NSRect {
+        rect.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+    }
+
+    override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
+        let insetRect = rect.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+        super.edit(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, event: event)
+    }
+
+    override func select(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
+        let insetRect = rect.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+        super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
+    }
+
+    override func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
+        let insetRect = cellFrame.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+        super.drawInterior(withFrame: insetRect, in: controlView)
+    }
 }
 
 extension NSTextFieldCell {
