@@ -150,7 +150,24 @@
             }
             Swift.print("setupTextFieldObservation 1", observer != nil)
             guard let observer = observer else { return }
-            Swift.print("setupTextFieldObservation 2", observer.isObserving(\.window?.firstResponder) )
+            Swift.print("setupTextFieldObservation 2", observer.isObserving(\.window?.firstResponder), endEditingOnOutsideClick, isEditableByDoubleClick )
+            
+            if endEditingOnOutsideClick || isEditableByDoubleClick {
+                Swift.print("setupEditing 0")
+                guard observer.isObserving(\.window?.firstResponder) == false else { return }
+                Swift.print("setupEditing 1")
+                observer.add( \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self else { return }
+                    Swift.print("firstResponder", self.hasKeyboardFocus, self.isKeyboardFocused, self.isFirstResponder, new ?? "nil")
+                    if self.hasKeyboardFocus != self.isKeyboardFocused {
+                        self.keyboardFocusChanged()
+                        self.isKeyboardFocused = self.hasKeyboardFocus
+                    }
+                }
+                isKeyboardFocused = hasKeyboardFocus
+            } else {
+                observer.remove(\.window?.firstResponder)
+            }
             
             if needsFontAdjustments || automaticallyResizesToFit {
                 guard observer.isObserving(\.stringValue) == false else { return }
@@ -220,25 +237,6 @@
                 }
             } else {
                 observer.remove([\.attributedStringValue, \.placeholderString, \.placeholderAttributedString])
-            }
-            
-            
-            Swift.print("setupEditing -1", endEditingOnOutsideClick, isEditableByDoubleClick)
-            if endEditingOnOutsideClick || isEditableByDoubleClick {
-                Swift.print("setupEditing 0")
-                guard observer.isObserving(\.window?.firstResponder) == false else { return }
-                Swift.print("setupEditing 1")
-                observer.add( \.window?.firstResponder) { [weak self] old, new in
-                    guard let self = self else { return }
-                    Swift.print("firstResponder", self.hasKeyboardFocus, self.isKeyboardFocused, self.isFirstResponder, new ?? "nil")
-                    if self.hasKeyboardFocus != self.isKeyboardFocused {
-                        self.keyboardFocusChanged()
-                        self.isKeyboardFocused = self.hasKeyboardFocus
-                    }
-                }
-                isKeyboardFocused = hasKeyboardFocus
-            } else {
-                observer.remove(\.window?.firstResponder)
             }
         }
         
