@@ -248,6 +248,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         super.drawInterior(withFrame: insetRect, in: controlView)
     }
     
+    /*
     override func drawFocusRingMask(withFrame cellFrame: NSRect, in controlView: NSView) {
         guard focusType != .none else {
             return
@@ -282,6 +283,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let path = NSBezierPath(roundedRect: newFrame, xRadius: cornerRadius, yRadius: cornerRadius)
         path.fill()
     }
+     */
 }
 
 extension NSTextFieldCell {
