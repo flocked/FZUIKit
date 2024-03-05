@@ -267,6 +267,7 @@
         }
         
         func updateString() {
+            /*
             let newString = allowedCharacters.trimString(stringValue)
             if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
                 if previousString.count <= maxCharCount {
@@ -295,6 +296,7 @@
                 self.editingRange = editingRange
             }
             adjustFontSize()
+             */
         }
 
         func swizzleTextField() {
