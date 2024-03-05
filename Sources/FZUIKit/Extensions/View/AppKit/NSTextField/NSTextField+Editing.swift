@@ -128,7 +128,11 @@
             }
         }
         
-        /// The preferred minimum width, if `automaticallyResizesToFit` is enabled.
+        /**
+         The preferred minimum width of the text field.
+         
+         Apply ``AppKit/NSTextField/placeholderWidth`` to this property, to use the placeholder width as minimum value
+         */
         public var preferredMinLayoutWidth: CGFloat {
             get { getAssociatedValue(key: "preferredMinLayoutWidth", object: self, initialValue: 0) }
             set {
@@ -138,25 +142,9 @@
             }
         }
         
-        /// Indicates how the text field should resize for fitting the placeholder.
-        public var resizesToFitPlaceholder: PlaceHolderResizeOption {
-            get { getAssociatedValue(key: "resizesToFitPlaceholder", object: self, initialValue: .never) }
-            set {
-                guard newValue != resizesToFitPlaceholder else { return }
-                set(associatedValue: newValue, key: "resizesToFitPlaceholder", object: self)
-                swizzleIntrinsicContentSize()
-                resizeToFit()
-            }
-        }
-
-        /// The placeholder resize option.
-        public enum PlaceHolderResizeOption: Int, Hashable {
-            /// Resizes the text field to always fit the placeholder.
-            case always
-            /// Resizes the text field to fit the placeholder if the text is an empty string ("").
-            case emptyText
-            /// Never resizes the text field to fit the placeholder.
-            case never
+        /// A value that tells the layout system to use the placeholder width as preferred minimum width (see ``preferredMinLayoutWidth``).
+        public static var placeholderWidth: CGFloat {
+            -1
         }
         
         public var isEditingText: Bool {
@@ -174,7 +162,7 @@
         }
         
         func swizzleIntrinsicContentSize() {
-            if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 || resizesToFitPlaceholder != .never {
+            if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
                 guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
                 do {
                     try replaceMethod(
@@ -202,19 +190,12 @@
             var cellSize = cell.cellSize(forBounds: CGRect(0, 0, maxWidth, 10000))
             cellSize.width.round(toNearest: 0.5, .awayFromZero)
             cellSize.height.round(toNearest: 0.5, .awayFromZero)
-            switch resizesToFitPlaceholder {
-            case .always:
+            if preferredMinLayoutWidth == Self.placeholderWidth {
                 let placeholderSize = calculatedPlaceholderSize
-                Swift.print("placeholderSize", placeholderSize, "max",  max(placeholderSize.width, cellSize.width),  "min", min(placeholderSize.width, cellSize.width))
                 cellSize.width = max(placeholderSize.width, cellSize.width)
-            case .emptyText:
-                if stringValue == "" {
-                    let placeholderSize = calculatedPlaceholderSize
-                    cellSize.width = max(placeholderSize.width, cellSize.width)
-                }
-            case.never: break
+            } else {
+                cellSize.width = max(cellSize.width, preferredMinLayoutWidth)
             }
-            cellSize.width = max(cellSize.width, preferredMinLayoutWidth)
             return cellSize
         }
         
@@ -428,13 +409,13 @@
                 
                 keyValueObservations.append(
                 observeChanges(for: \.placeholderString) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit, self.resizesToFitPlaceholder != .never else { return }
+                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
                     self.resizeToFit()
                 })
                 
                 keyValueObservations.append(
                 observeChanges(for: \.placeholderAttributedString) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit, self.resizesToFitPlaceholder != .never else { return }
+                    guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
                     self.resizeToFit()
                 })
                 
