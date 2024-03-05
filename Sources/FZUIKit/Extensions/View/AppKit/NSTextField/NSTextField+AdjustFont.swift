@@ -148,8 +148,9 @@
             } else {
                 observer = nil
             }
-            Swift.print("setupTextFieldObservation 1", observer != nil )
+            Swift.print("setupTextFieldObservation 1", observer != nil)
             guard let observer = observer else { return }
+            Swift.print("setupTextFieldObservation 2", observer.isObserving(\.window?.firstResponder) )
             
             if needsFontAdjustments || automaticallyResizesToFit {
                 guard observer.isObserving(\.stringValue) == false else { return }
@@ -221,7 +222,9 @@
                 observer.remove([\.attributedStringValue, \.placeholderString, \.placeholderAttributedString])
             }
             
-            if endEditingOnOutsideClick || isEditableByDoubleClick {
+            
+            Swift.print("setupEditing -1", endEditingOnOutsideClick, isEditableByDoubleClick)
+            if endEditingOnOutsideClick || isEditableByDoubleClick, observer.isObserving(\.window?.firstResponder) {
                 Swift.print("setupEditing 0")
                 guard observer.isObserving(\.window?.firstResponder) == false else { return }
                 Swift.print("setupEditing 1")

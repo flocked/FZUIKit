@@ -295,6 +295,7 @@
             get { doubleClickEditGestureRecognizer != nil }
             set {
                 guard newValue != isEditableByDoubleClick else { return }
+                Swift.print("isEditableByDoubleClick", newValue)
                 if newValue {
                     doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer()
                     doubleClickEditGestureRecognizer?.addToView(self)
@@ -308,6 +309,7 @@
         }
         
         func keyboardFocusChanged() {
+            Swift.print("keyboardFocusChanged")
             let hasKeyboardFocus = hasKeyboardFocus
             if !hasKeyboardFocus, let isSelectableEditable = isSelectableEditable {
                 self.isSelectable = isSelectableEditable.isSelectable
@@ -516,6 +518,11 @@
         
         class DoubleClickEditGestureRecognizer: ReattachingGestureRecognizer {
             override func mouseDown(with event: NSEvent) {
+                if let textField = view as? NSTextField {
+                    Swift.print("mouseDown", event.clickCount, textField.isEditableByDoubleClick, !textField.isEditable, textField.hasKeyboardFocus, textField.isFirstResponder)
+                } else {
+                    Swift.print("mouseDown nil", event.clickCount, view ?? "nil")
+                }
                 if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
                     textField.isSelectableEditable = (textField.isSelectable, textField.isEditable)
                     textField.isSelectable = true
