@@ -164,7 +164,7 @@
         func swizzleIntrinsicContentSize() {
             if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
                 guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
-              //  observer = nil
+                observer = nil
                 do {
                     try replaceMethod(
                         #selector(getter: NSTextField.intrinsicContentSize),
@@ -182,7 +182,7 @@
                     Swift.debugPrint(error)
                 }
             } else if isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) {
-             //   observer = nil
+                observer = nil
                 resetMethod(#selector(getter: NSTextField.intrinsicContentSize))
                 setupTextFieldObservation()
             }
@@ -295,7 +295,6 @@
             get { doubleClickEditGestureRecognizer != nil }
             set {
                 guard newValue != isEditableByDoubleClick else { return }
-                Swift.print("isEditableByDoubleClick", newValue)
                 if newValue {
                     doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer()
                     doubleClickEditGestureRecognizer?.addToView(self)
@@ -309,7 +308,6 @@
         }
         
         func keyboardFocusChanged() {
-            Swift.print("keyboardFocusChanged")
             let hasKeyboardFocus = hasKeyboardFocus
             if !hasKeyboardFocus, let isSelectableEditable = isSelectableEditable {
                 self.isSelectable = isSelectableEditable.isSelectable
@@ -428,7 +426,7 @@
         func swizzleDoCommand() {
             if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
                 if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
-                 //   observer = nil
+                    observer = nil
                     do {
                         try replaceMethod(
                             #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -477,7 +475,7 @@
                     }
                 }
             } else if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
-             //   observer = nil
+                observer = nil
                 resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
                 setupTextFieldObservation()
             }
@@ -518,11 +516,6 @@
         
         class DoubleClickEditGestureRecognizer: ReattachingGestureRecognizer {
             override func mouseDown(with event: NSEvent) {
-                if let textField = view as? NSTextField {
-                    Swift.print("mouseDown", event.clickCount, textField.isEditableByDoubleClick, !textField.isEditable, textField.hasKeyboardFocus, textField.isFirstResponder)
-                } else {
-                    Swift.print("mouseDown nil", event.clickCount, view ?? "nil")
-                }
                 if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
                     textField.isSelectableEditable = (textField.isSelectable, textField.isEditable)
                     textField.isSelectable = true

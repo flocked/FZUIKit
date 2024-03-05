@@ -364,7 +364,7 @@
         func setupFontAdjustment() {
             if needsFontAdjustments {
                 guard isMethodReplaced(#selector(setter: font)) == false else { return }
-             //   observer = nil
+                observer = nil
                 do {
                     try replaceMethod(#selector(setter: font),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
@@ -388,7 +388,7 @@
                 }
                 setupTextFieldObservation()
             } else if isMethodReplaced(#selector(setter: font)) {
-             //   observer = nil
+                observer = nil
                 resetMethod(#selector(setter: font))
                 resetMethod(#selector(getter: font))
                 font = _font ?? font
