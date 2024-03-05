@@ -220,9 +220,12 @@
             }
             
             if endEditingOnOutsideClick || isEditableByDoubleClick {
+                Swift.print("setupEditing 0")
                 guard observer.isObserving(\.window?.firstResponder) == false else { return }
+                Swift.print("setupEditing 1")
                 observer.add( \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self else { return }
+                    Swift.print("firstResponder", self.hasKeyboardFocus, self.isKeyboardFocused, self.isFirstResponder, new ?? "nil")
                     if self.hasKeyboardFocus != self.isKeyboardFocused {
                         self.keyboardFocusChanged()
                         self.isKeyboardFocused = self.hasKeyboardFocus
