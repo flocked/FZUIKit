@@ -140,10 +140,10 @@
         
         /// Indicates how the text field should resize for fitting the placeholder.
         public var resizesToFitPlaceholder: PlaceHolderResizeOption {
-            get { getAssociatedValue(key: "preferredMinLayoutWidth", object: self, initialValue: .never) }
+            get { getAssociatedValue(key: "resizesToFitPlaceholder", object: self, initialValue: .never) }
             set {
                 guard newValue != resizesToFitPlaceholder else { return }
-                set(associatedValue: newValue, key: "preferredMinLayoutWidth", object: self)
+                set(associatedValue: newValue, key: "resizesToFitPlaceholder", object: self)
                 swizzleIntrinsicContentSize()
                 resizeToFit()
             }
@@ -205,6 +205,7 @@
             switch resizesToFitPlaceholder {
             case .always:
                 let placeholderSize = calculatedPlaceholderSize
+                Swift.print("placeholderSize", placeholderSize, "max",  max(placeholderSize.width, cellSize.width),  "min", min(placeholderSize.width, cellSize.width))
                 cellSize.width = max(placeholderSize.width, cellSize.width)
             case .emptyText:
                 if stringValue == "" {
