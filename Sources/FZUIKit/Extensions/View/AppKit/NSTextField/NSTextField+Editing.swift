@@ -126,6 +126,35 @@
                 }
             }
         }
+        
+        /// The preferred minimum width, if `automaticallyResizesToFit` is enabled.
+        public var preferredMinLayoutWidth: CGFloat {
+            get { getAssociatedValue(key: "preferredMinLayoutWidth", object: self, initialValue: 0) }
+            set {
+                set(associatedValue: newValue, key: "preferredMinLayoutWidth", object: self)
+                resizeToFit()
+            }
+        }
+        
+        public var isEditingText: Bool {
+            get { getAssociatedValue(key: "isEditingText", object: self, initialValue: false) }
+            set { set(associatedValue: newValue, key: "isEditingText", object: self) }
+        }
+        
+        func resizeToFit() {
+            guard automaticallyResizesToFit else { return }
+            frame.size = calculatedFittingSize
+        }
+        
+        var calculatedFittingSize: CGSize {
+            guard let cell = cell else { return frame.size }
+            let maxWidth: CGFloat = preferredMaxLayoutWidth == 0 ? 100000 : preferredMaxLayoutWidth
+            var cellSize = cell.cellSize(forBounds: CGRect(0, 0, maxWidth, 10000))
+            cellSize.width.round(toNearest: 0.5, .awayFromZero)
+            cellSize.height.round(toNearest: 0.5, .awayFromZero)
+            cellSize.width = max(cellSize.width, preferredMinLayoutWidth)
+            return cellSize
+        }
 
         /// The action to perform when the user presses the enter key.
         public var actionOnEnterKeyDown: EnterKeyAction {
@@ -303,19 +332,20 @@
                 
                 keyValueObservations.append(
                 observeChanges(for: \.stringValue) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit else { return }
-                    self.sizeToFit()
+                    guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
+                    self.resizeToFit()
                 })
                 
                 keyValueObservations.append(
                 observeChanges(for: \.attributedStringValue) { [weak self] old, new in
-                    guard let self = self, self.automaticallyResizesToFit else { return }
-                    self.sizeToFit()
+                    guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
+                    self.resizeToFit()
                 })
                 
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
+                    self.isEditingText = true
                     self.editStartString = self.stringValue
                     self.previousString = self.stringValue
                     self.editingHandlers.didBegin?()
@@ -323,7 +353,7 @@
                         self.editingRange = editingRange
                     }
                     if self.automaticallyResizesToFit {
-                        self.sizeToFit()
+                        self.resizeToFit()
                     }
                     self.invalidateIntrinsicContentSize()
                 })
@@ -333,7 +363,7 @@
                     guard let self = self else { return }
                     self.updateString()
                     if self.automaticallyResizesToFit {
-                        self.sizeToFit()
+                        self.resizeToFit()
                     }
                     self.invalidateIntrinsicContentSize()
                 })
@@ -341,10 +371,11 @@
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
+                    self.isEditingText = false
                     self.adjustFontSize()
                     self.editingHandlers.didEnd?()
                     if self.automaticallyResizesToFit {
-                        self.sizeToFit()
+                        self.resizeToFit()
                     }
                     self.invalidateIntrinsicContentSize()
                 })
