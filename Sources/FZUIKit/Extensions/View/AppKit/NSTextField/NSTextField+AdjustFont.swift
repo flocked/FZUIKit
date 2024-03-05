@@ -257,7 +257,6 @@
         */
         
         func setupTextFieldObservation() {
-            Swift.print("setupTextFieldObservation 0", (needsFontAdjustments || automaticallyResizesToFit  || automaticallyResizesToFit || endEditingOnOutsideClick || isEditableByDoubleClick), observer != nil, endEditingOnOutsideClick, isEditableByDoubleClick  )
             if needsFontAdjustments || automaticallyResizesToFit  || automaticallyResizesToFit || endEditingOnOutsideClick || isEditableByDoubleClick {
                 if observer == nil {
                     observer = KeyValueObserver(self)
@@ -265,17 +264,12 @@
             } else {
                 observer = nil
             }
-            Swift.print("setupTextFieldObservation 1", observer != nil)
             guard let observer = observer else { return }
-            Swift.print("setupTextFieldObservation 2", observer.isObserving(\.window?.firstResponder), endEditingOnOutsideClick, isEditableByDoubleClick )
             
             if endEditingOnOutsideClick || isEditableByDoubleClick {
-                Swift.print("setupEditing 0")
                 guard observer.isObserving(\.window?.firstResponder) == false else { return }
-                Swift.print("setupEditing 1")
                 observer.add( \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self else { return }
-                    Swift.print("firstResponder", self.hasKeyboardFocus, self.isKeyboardFocused, self.isFirstResponder, new ?? "nil")
                     if self.hasKeyboardFocus != self.isKeyboardFocused {
                         self.keyboardFocusChanged()
                         self.isKeyboardFocused = self.hasKeyboardFocus

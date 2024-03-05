@@ -415,6 +415,7 @@
                     if self.automaticallyResizesToFit {
                         self.resizeToFit()
                     }
+                    self.editStartString = self.stringValue
                     self.invalidateIntrinsicContentSize()
                 })
             } else {
