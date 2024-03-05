@@ -217,28 +217,29 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     private static let padding = CGSize(width: 14.0, height: 14.0)
 
+    var padding: NSEdgeInsets = .init(top: 5, left: 7, bottom: 5, right: 7)
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
-        size.height += (Self.padding.height * 2)
+        size.height += (padding.height)
         return size
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
-        rect.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+        rect.insetBy(dx: padding.left, dy: padding.bottom)
     }
 
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
-        let insetRect = rect.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+        let insetRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
         super.edit(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, event: event)
     }
 
     override func select(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
-        let insetRect = rect.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+        let insetRect = rect.insetBy(dx: padding.left, dy: padding.bottom)
         super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
     }
 
     override func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
-        let insetRect = cellFrame.insetBy(dx: Self.padding.width, dy: Self.padding.height)
+        let insetRect = cellFrame.insetBy(dx: padding.left, dy: padding.bottom)
         super.drawInterior(withFrame: insetRect, in: controlView)
     }
 }
