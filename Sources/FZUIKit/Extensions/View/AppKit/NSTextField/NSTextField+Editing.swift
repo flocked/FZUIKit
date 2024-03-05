@@ -133,6 +133,7 @@
             get { getAssociatedValue(key: "preferredMinLayoutWidth", object: self, initialValue: 0) }
             set {
                 set(associatedValue: newValue, key: "preferredMinLayoutWidth", object: self)
+                swizzleIntrinsicContentSize()
                 resizeToFit()
             }
         }
@@ -152,7 +153,8 @@
         }
         
         func swizzleIntrinsicContentSize() {
-            if automaticallyResizesToFit {
+            if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
+                guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
                 do {
                     try replaceMethod(
                         #selector(getter: NSTextField.intrinsicContentSize),
