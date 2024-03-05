@@ -160,7 +160,7 @@
                         hookSignature: (@convention(block)  (AnyObject) -> (CGSize)).self) { store in {
                             object in
                             if let textField = object as? NSTextField, textField.automaticallyResizesToFit {
-                                return CGSize(textField.calculatedFittingSize.width, NSView.noIntrinsicMetric)
+                                return textField.calculatedFittingSize
                             }
                             return store.original(object, #selector(getter: NSTextField.intrinsicContentSize))
                         }
