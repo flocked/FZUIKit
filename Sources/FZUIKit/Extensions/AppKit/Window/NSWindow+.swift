@@ -82,6 +82,16 @@
             }
         }
         
+        @objc dynamic var isKey: Bool {
+            get { getAssociatedValue(key: "isKey", object: self, initialValue: isKeyWindow) }
+            set { set(associatedValue: newValue, key: "isKey", object: self) }
+        }
+        
+        @objc dynamic var isMain: Bool {
+            get { getAssociatedValue(key: "isMain", object: self, initialValue: isMainWindow) }
+            set { set(associatedValue: newValue, key: "isMain", object: self) }
+        }
+        
         var windowObserver: KeyValueObserver<NSWindow>? {
             get { getAssociatedValue(key: "windowObserver", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "windowObserver", object: self) }
@@ -303,6 +313,7 @@ extension NSWindow {
                        (object as? NSWindow)?.willChangeValue(for: \.isKeyWindow)
                        store.original(object, #selector(NSWindow.becomeKey))
                        (object as? NSWindow)?.didChangeValue(for: \.isKeyWindow)
+                       (object as? NSWindow)?.isKey = true
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignKey),
@@ -312,6 +323,7 @@ extension NSWindow {
                         (object as? NSWindow)?.willChangeValue(for: \.isKeyWindow)
                         store.original(object, #selector(NSWindow.resignKey))
                         (object as? NSWindow)?.didChangeValue(for: \.isKeyWindow)
+                        (object as? NSWindow)?.isKey = false
                         }
                     }
                 } catch {
@@ -339,6 +351,7 @@ extension NSWindow {
                        (object as? NSWindow)?.willChangeValue(for: \.isMainWindow)
                        store.original(object, #selector(NSWindow.becomeMain))
                        (object as? NSWindow)?.didChangeValue(for: \.isMainWindow)
+                       (object as? NSWindow)?.isMain = true
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignMain),
@@ -348,6 +361,7 @@ extension NSWindow {
                         (object as? NSWindow)?.willChangeValue(for: \.isMainWindow)
                         store.original(object, #selector(NSWindow.resignMain))
                         (object as? NSWindow)?.didChangeValue(for: \.isMainWindow)
+                        (object as? NSWindow)?.isMain = false
                         }
                     }
                 } catch {
