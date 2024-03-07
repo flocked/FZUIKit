@@ -118,7 +118,7 @@ extension NSView {
          //   observe(\.window?.isMainWindow, handler: \.windowHandlers.isMain)
 
             if windowHandlers.isKey != nil {
-                if  viewObserver?.isObserving(\.window?.isKeyWindow) == false {
+                if  viewObserver?.isObserving(\.window?.isKey) == false {
                     NSWindow.isKeyWindowObservable = true
                     viewObserver?.add(\.window?.isKey) { [weak self] _, new in
                         guard let self = self, let new = new else { return }
@@ -130,7 +130,7 @@ extension NSView {
             }
             
             if windowHandlers.isMain != nil {
-                if  viewObserver?.isObserving(\.window?.isMainWindow) == false {
+                if  viewObserver?.isObserving(\.window?.isMain) == false {
                     NSWindow.isMainWindowObservable = true
                     viewObserver?.add(\.window?.isMain) { [weak self] _, new in
                         guard let self = self, let new = new else { return }
