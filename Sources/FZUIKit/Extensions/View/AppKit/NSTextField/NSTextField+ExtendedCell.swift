@@ -139,6 +139,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     var isEditingOrSelecting = false
     
+    /*
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
         size.height += (textPadding.height)
@@ -200,6 +201,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let insetRect = cellFrame.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.drawInterior(withFrame: insetRect, in: controlView)
     }
+     */
     
     /*
     override func drawingRect(forBounds rect: NSRect) -> NSRect {
