@@ -648,7 +648,7 @@ extension NSView {
         
         func setupFirstResponderObservation() {
             if let window = window, superview?.viewHandlers.isFirstResponder != nil {
-                firstResponderObservation = window.observe(\.firstResponder) { [weak self] old, new in
+                firstResponderObservation = window.observeChanges(for: \.firstResponder) { [weak self] old, new in
                     guard let self = self, let superview = self.superview, superview.viewHandlers.isFirstResponder != nil else { return }
                     superview._isFirstResponder = superview.isFirstResponder
                 }

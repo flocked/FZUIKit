@@ -16,7 +16,7 @@ extension NSColorWell {
         set {
             set(associatedValue: newValue, key: "colorHandler", object: self)
             if let colorHandler = newValue {
-                colorObservation = observe(\.color) { old, new in
+                colorObservation = observeChanges(for: \.color) { old, new in
                     guard old != new else { return }
                     colorHandler(new)
                 }

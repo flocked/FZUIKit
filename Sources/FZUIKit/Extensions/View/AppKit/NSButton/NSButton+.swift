@@ -199,7 +199,7 @@
                 }
             } else {
                 if buttonStateObserver == nil {
-                    buttonStateObserver = observe(\.cell?.state) { [weak self] _, _ in
+                    buttonStateObserver = observeChanges(for: \.cell?.state) { [weak self] _, _ in
                         guard let self = self else { return }
                         if let contentTintColor = self.contentTintColor(for: state) {
                             self.contentTintColor = contentTintColor

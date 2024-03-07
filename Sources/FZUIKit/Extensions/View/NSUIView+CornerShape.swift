@@ -52,7 +52,7 @@
                 updateCornerShape()
                 if newValue?.needsViewObservation == true {
                     if cornerShapeBoundsObserver == nil {
-                        cornerShapeBoundsObserver = observe(\.frame) { [weak self] old, new in
+                        cornerShapeBoundsObserver = observeChanges(for: \.frame) { [weak self] old, new in
                             guard let self = self, old.size != new.size else { return }
                             self.updateCornerShape()
                         }

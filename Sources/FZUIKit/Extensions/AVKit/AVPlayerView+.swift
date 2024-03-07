@@ -107,7 +107,7 @@ extension AVPlayerView {
         }
         overlayView.frame = videoBounds
         set(associatedValue: overlayView, key: "resizingContentOverlayView", object: self)
-        videoBoundsObservation = observe(\.videoBounds, handler: { [weak self] old, new in
+        videoBoundsObservation = observeChanges(for: \.videoBounds, handler: { [weak self] old, new in
             guard let self = self, old != new else { return }
             self.resizingContentOverlayView.frame = new
         })

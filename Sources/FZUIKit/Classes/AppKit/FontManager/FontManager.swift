@@ -86,7 +86,7 @@ public class FontManager: NSObject {
                 }
             }
             checkFirstResponder(fontFamilyPopUpButton.window?.firstResponder)
-            targetObservation = fontFamilyPopUpButton.observe(\.window?.firstResponder) { [weak self] old, new in
+            targetObservation = fontFamilyPopUpButton.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                 guard self != nil, old != new else { return }
                 checkFirstResponder(new)
             }
@@ -110,7 +110,7 @@ public class FontManager: NSObject {
         didSet {
             if let textView = target as? NSTextView {
                 targetIsFirstResonder = textView.isFirstResponder
-                targetWindowObserver = textView.observe(\.window?.firstResponder) { [weak self] old, new in
+                targetWindowObserver = textView.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
                     self.targetIsFirstResonder = textView.isFirstResponder
                 }
@@ -122,12 +122,12 @@ public class FontManager: NSObject {
                 }
             } else if let control = target as? NSControl {
                 targetIsFirstResonder = control.isFirstResponder
-                targetWindowObserver = control.observe(\.window?.firstResponder) { [weak self] old, new in
+                targetWindowObserver = control.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self, (new != self.fontSizeTextField && new != self.fontSizeTextField?.currentEditor()) else { return }
                     self.targetIsFirstResonder = control.isFirstResponder
                 }
                 selectedFont = control.font
-                targetFontObservation = control.observe(\.font) { [weak self] old, new in
+                targetFontObservation = control.observeChanges(for: \.font) { [weak self] old, new in
                     guard let self = self, old != new else { return  }
                     self.selectedFont = new
                 }

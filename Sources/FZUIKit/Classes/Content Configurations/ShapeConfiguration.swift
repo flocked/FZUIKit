@@ -213,7 +213,7 @@
         lazy var hostingController = NSUIHostingController(rootView: ShapeContentView(configuration: configuration))
 
         func setupObserver(for layer: CALayer) {
-            layer.frameObserver = layer.observe(\.frame, handler: { [weak self] old, new in
+            layer.frameObserver = layer.observeChanges(for: \.frame, handler: { [weak self] old, new in
                 guard let self = self, old.size != new.size else { return }
                 self.frame.size = new.size
             })
