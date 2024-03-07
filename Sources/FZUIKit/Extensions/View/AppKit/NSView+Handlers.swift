@@ -114,31 +114,28 @@ extension NSView {
             observe(\.frame, handler: \.viewHandlers.frame)
             observe(\.superview, handler: \.viewHandlers.superview)
             
-        //    observe(\.window?.isKeyWindow, handler: \.windowHandlers.isKey)
-         //   observe(\.window?.isMainWindow, handler: \.windowHandlers.isMain)
-
             if windowHandlers.isKey != nil {
-                if  viewObserver?.isObserving(\.window?.isKey) == false {
+                if  viewObserver?.isObserving(\.window?.isKeyWindow) == false {
                     NSWindow.isKeyWindowObservable = true
-                    viewObserver?.add(\.window?.isKey) { [weak self] _, new in
+                    viewObserver?.add(\.window?.isKeyWindow) { [weak self] _, new in
                         guard let self = self, let new = new else { return }
                         self.windowHandlers.isKey?(new)
                     }
                 }
             } else {
-                viewObserver?.remove(\.window?.isKey)
+                viewObserver?.remove(\.window?.isKeyWindow)
             }
             
             if windowHandlers.isMain != nil {
-                if  viewObserver?.isObserving(\.window?.isMain) == false {
+                if  viewObserver?.isObserving(\.window?.isMainWindow) == false {
                     NSWindow.isMainWindowObservable = true
-                    viewObserver?.add(\.window?.isMain) { [weak self] _, new in
+                    viewObserver?.add(\.window?.isMainWindow) { [weak self] _, new in
                         guard let self = self, let new = new else { return }
                         self.windowHandlers.isMain?(new)
                     }
                 }
             } else {
-                viewObserver?.remove(\.window?.isMain)
+                viewObserver?.remove(\.window?.isMainWindow)
             }
             
             if windowHandlers.isMain != nil {
@@ -178,21 +175,6 @@ extension NSView {
             if  viewObserver?.isObserving(keyPath) == false {
                 viewObserver?.add(keyPath) { [weak self] old, new in
                     guard let self = self else { return }
-                    self[keyPath: handler]?(new)
-                }
-            }
-        } else {
-            viewObserver?.remove(keyPath)
-        }
-    }
-    
-    func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value?>, handler: KeyPath<NSView, ((Value)->())?>) {
-        if self[keyPath: handler] != nil {
-            Swift.print("observe here")
-            if  viewObserver?.isObserving(keyPath) == false {
-                viewObserver?.add(keyPath) { [weak self] old, new in
-                    Swift.print("Here", new ?? "nil")
-                    guard let self = self, let new = new else { return }
                     self[keyPath: handler]?(new)
                 }
             }

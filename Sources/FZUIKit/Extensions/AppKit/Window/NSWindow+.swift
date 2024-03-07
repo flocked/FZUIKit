@@ -82,16 +82,6 @@
             }
         }
         
-        @objc dynamic var isKey: Bool {
-            get { getAssociatedValue(key: "isKey", object: self, initialValue: isKeyWindow) }
-            set { set(associatedValue: newValue, key: "isKey", object: self) }
-        }
-        
-        @objc dynamic var isMain: Bool {
-            get { getAssociatedValue(key: "isMain", object: self, initialValue: isMainWindow) }
-            set { set(associatedValue: newValue, key: "isMain", object: self) }
-        }
-        
         var windowObserver: KeyValueObserver<NSWindow>? {
             get { getAssociatedValue(key: "windowObserver", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "windowObserver", object: self) }
@@ -310,20 +300,18 @@ extension NSWindow {
                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                        object in
+                       (object as? NSWindow)?.willChangeValue(for: \.isKeyWindow)
                        store.original(object, #selector(NSWindow.becomeKey))
-                   //    (object as? NSWindow)?.willChangeValue(for: \.isKeyWindow)
-                    //   (object as? NSWindow)?.didChangeValue(for: \.isKeyWindow)
-                       (object as? NSWindow)?.isKey = true
+                       (object as? NSWindow)?.didChangeValue(for: \.isKeyWindow)
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignKey),
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
+                        (object as? NSWindow)?.willChangeValue(for: \.isKeyWindow)
                         store.original(object, #selector(NSWindow.resignKey))
-                        (object as? NSWindow)?.isKey = false
-                      //  (object as? NSWindow)?.willChangeValue(for: \.isKeyWindow)
-                      //  (object as? NSWindow)?.didChangeValue(for: \.isKeyWindow)
+                        (object as? NSWindow)?.didChangeValue(for: \.isKeyWindow)
                         }
                     }
                 } catch {
@@ -348,24 +336,21 @@ extension NSWindow {
                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                        object in
+                       (object as? NSWindow)?.willChangeValue(for: \.isMainWindow)
                        store.original(object, #selector(NSWindow.becomeMain))
-                     //  (object as? NSWindow)?.willChangeValue(for: \.isMainWindow)
-                     //  (object as? NSWindow)?.didChangeValue(for: \.isMainWindow)
-                       (object as? NSWindow)?.isMain = true
+                       (object as? NSWindow)?.didChangeValue(for: \.isMainWindow)
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignMain),
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
+                        (object as? NSWindow)?.willChangeValue(for: \.isMainWindow)
                         store.original(object, #selector(NSWindow.resignMain))
-                     //   (object as? NSWindow)?.willChangeValue(for: \.isMainWindow)
-                     //   (object as? NSWindow)?.didChangeValue(for: \.isMainWindow)
-                        (object as? NSWindow)?.isMain = false
+                        (object as? NSWindow)?.didChangeValue(for: \.isMainWindow)
                         }
                     }
                 } catch {
-                   // handle error
                    Swift.debugPrint(error)
                 }
             } else {
