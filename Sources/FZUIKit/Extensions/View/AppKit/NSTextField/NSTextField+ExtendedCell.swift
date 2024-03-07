@@ -147,6 +147,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
+        return super.titleRect(forBounds: rect)
         if isVerticallyCentered {
             var titleRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
             
