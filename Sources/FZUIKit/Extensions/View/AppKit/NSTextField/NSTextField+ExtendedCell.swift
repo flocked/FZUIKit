@@ -57,6 +57,16 @@ extension NSTextField {
         }
     }
     
+    public var focusPadding: NSEdgeInsets {
+        get { extendedTextFieldCell?.focusPadding ?? .zero }
+        set {
+            if newValue != .zero {
+                convertToExtendedTextFieldCell()
+            }
+            extendedTextFieldCell?.focusPadding = newValue
+        }
+    }
+    
     var extendedTextFieldCell: ExtendedTextFieldCell? {
         cell as? ExtendedTextFieldCell
     }
@@ -196,6 +206,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
      */
     
+    public var focusPadding = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         
@@ -207,10 +219,10 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             bounds.size.width += leftRight + leftRight
             bounds.size.height += topBottom + topBottom
         }
-        bounds.origin.x -= textPadding.left
-        bounds.origin.y -= textPadding.bottom
-        bounds.size.width += textPadding.width
-        bounds.size.height += textPadding.height
+        bounds.origin.x -= focusPadding.left
+        bounds.origin.y -= focusPadding.bottom
+        bounds.size.width += focusPadding.width
+        bounds.size.height += focusPadding.height
         
         Swift.print("focusRingMaskBounds", super.focusRingMaskBounds(forFrame: cellFrame, in: controlView), bounds)
         return bounds
