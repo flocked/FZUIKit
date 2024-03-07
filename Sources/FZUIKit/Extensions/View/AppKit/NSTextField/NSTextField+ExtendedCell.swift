@@ -198,12 +198,20 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
-        let leftRight = bounds.height/3.0
-        let topBottom = bounds.height/10.0
-        bounds.origin.x -= leftRight
-        bounds.origin.y -= topBottom
-        bounds.size.width += leftRight + leftRight
-        bounds.size.height += topBottom + topBottom
+        
+        if focusType == .capsule {
+            let leftRight = bounds.height/3.0
+            let topBottom = bounds.height/10.0
+            bounds.origin.x -= leftRight
+            bounds.origin.y -= topBottom
+            bounds.size.width += leftRight + leftRight
+            bounds.size.height += topBottom + topBottom
+        }
+        bounds.origin.x -= textPadding.left
+        bounds.origin.y -= textPadding.bottom
+        bounds.size.width += textPadding.width
+        bounds.size.height += textPadding.height
+        
         Swift.print("focusRingMaskBounds", super.focusRingMaskBounds(forFrame: cellFrame, in: controlView), bounds)
         return bounds
     }
@@ -215,18 +223,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         
         Swift.print("drawFocusRingMask", cellFrame, focusRingMaskBounds(forFrame: cellFrame, in: controlView))
 
-        
-        var cellFrame = cellFrame
-        let leftRight = cellFrame.height/3.0
-        let topBottom = cellFrame.height/10.0
-        cellFrame.origin.x -= leftRight
-        cellFrame.origin.y -= topBottom
-        cellFrame.size.width += leftRight + leftRight
-        cellFrame.size.height += topBottom + topBottom
-        
-        cellFrame = focusRingMaskBounds(forFrame: cellFrame, in: controlView)
-
-        
         var cornerRadius: CGFloat = 0
         switch focusType {
         case .capsule:
@@ -234,27 +230,19 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         case let .roundedCorners(radius):
             cornerRadius = radius
         case let .roundedCornersRelative(relative):
-            cornerRadius = cellFrame.size.height / 2.0
             cornerRadius = cornerRadius * relative.clamped(max: 1.0)
         default:
             break
         }
         
-        // Draw default
         guard focusType != .default, cornerRadius != 0 else {
             super.drawFocusRingMask(withFrame: cellFrame, in: controlView)
             return
         }
         
-        // Custome
-        // Make forcus ring frame fit with cell size
-        // let newFrame = cellFrame.insetBy(dx: 2, dy: 1)
-        let newFrame = cellFrame
-        
-        
-        
-        let path = NSBezierPath(roundedRect: newFrame, xRadius: cornerRadius, yRadius: cornerRadius)
-        path.fill()
+        // Make focus ring frame fit with cell size via cellFrame.insetBy(dx: 2, dy: 1)
+        let cellFrame = focusRingMaskBounds(forFrame: cellFrame, in: controlView)
+        NSBezierPath(roundedRect: cellFrame, cornerRadius: cornerRadius).fill()
     }
 }
 
