@@ -119,6 +119,7 @@ extension NSView {
 
             if windowHandlers.isKey != nil {
                 NSWindow.isKeyWindowObservable = true
+                Swift.print("isKeyWindowObservable", NSWindow.isKeyWindowObservable)
             }
             
             if windowHandlers.isMain != nil {
