@@ -182,7 +182,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         }
     }
 
-    /*
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
         isEditingOrSelecting = true
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
@@ -196,8 +195,13 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
         isEditingOrSelecting = false
     }
-    */
-
+    
+    override func highlight(_ flag: Bool, withFrame cellFrame: NSRect, in controlView: NSView) {
+        Swift.print("textCell highlight")
+        let insetRect = cellFrame.insetBy(dx: textPadding.left, dy: textPadding.bottom)
+        super.highlight(flag, withFrame: insetRect, in: controlView)
+    }
+    
     override func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
         let insetRect = cellFrame.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.drawInterior(withFrame: insetRect, in: controlView)
