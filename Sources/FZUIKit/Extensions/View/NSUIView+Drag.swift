@@ -20,24 +20,23 @@
             /// The view is movable.
             case on
             
-            /// The view is movable if it's the first responder.
-            case ifFirstResponder
-            
             /// The view isn't movable.
             case off
             
+            case boundsToSuperview(NSDirectionalEdgeInsets)
+            
+            public static let boundsToSuperview = BackgroundDragOption.boundsToSuperview(.zero)
+            
+            var margins: NSDirectionalEdgeInsets? {
+                switch self {
+                case .boundsToSuperview(let margins):
+                    return margins
+                default: return nil
+                }
+            }
             public init(booleanLiteral value: Bool) {
                 self = value == true ? .on : .off
             }
-        }
-        
-        /// Options for moving the view by it's background.
-        struct MovableByBackgroundOptions {
-            /// The view bounds to the superview when moved.
-            public var boundsToSuperView: Bool = true
-            
-            /// The margins that the view bounds to the superview when moved.
-            public var margins: NSDirectionalEdgeInsets = .zero
         }
         
         /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
@@ -46,15 +45,8 @@
             set {
                 guard newValue != isMovableByViewBackground else { return }
                 set(associatedValue: newValue, key: "isMovableByViewBackground", object: self)
-             
                 setupDragResizeGesture()
             }
-        }
-        
-        /// The options for moving the view by it's background.
-        var movableByBackgroundOptions: MovableByBackgroundOptions {
-            get { getAssociatedValue(key: "movableByBackgroundOptions", object: self, initialValue: MovableByBackgroundOptions()) }
-            set { set(associatedValue: newValue, key: "movableByBackgroundOptions", object: self) }
         }
 
         /// A handler that provides the moved velocity when the view ``isMovableByViewBackground``.
@@ -67,7 +59,7 @@
             if isMovableByViewBackground != .off {
                 if panGesture == nil {
                     panGesture = NSUIPanGestureRecognizer { [weak self] gesture in
-                        guard let self = self, self.isMovableByViewBackground != .ifFirstResponder || self.isFirstResponder else { return }
+                        guard let self = self else { return }
                         self.movableByBackgroundVelocity?(gesture.velocity(in: self))
                         switch gesture.state {
                         case .began:
@@ -84,8 +76,7 @@
                             dragPoint.y += translation.y
                             #endif
                             self.frame.origin = dragPoint
-                            if self.movableByBackgroundOptions.boundsToSuperView {
-                                let margins = self.movableByBackgroundOptions.margins
+                            if let margins = isMovableByViewBackground.margins {
                                 if self.frame.origin.x < 0 + margins.leading {
                                     self.frame.origin.x = 0 + margins.leading
                                 }
