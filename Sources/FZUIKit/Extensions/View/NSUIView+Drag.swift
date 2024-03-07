@@ -23,9 +23,11 @@
             /// The view isn't movable.
             case off
             
-            case boundsToSuperview(NSDirectionalEdgeInsets)
+            /// The view is movable and bounds to it's superview by the specified margins.
+            case boundsToSuperview(margins: NSDirectionalEdgeInsets)
             
-            public static let boundsToSuperview = BackgroundDragOption.boundsToSuperview(.zero)
+            /// The view is movable and bounds to it's superview.
+            public static let boundsToSuperview = BackgroundDragOption.boundsToSuperview(margins: .zero)
             
             var margins: NSDirectionalEdgeInsets? {
                 switch self {
