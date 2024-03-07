@@ -139,7 +139,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     var isEditingOrSelecting = false
     
-    /*
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
         size.height += (textPadding.height)
@@ -183,6 +182,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         }
     }
 
+    /*
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
         isEditingOrSelecting = true
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
@@ -196,12 +196,12 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
         isEditingOrSelecting = false
     }
+    */
 
     override func drawInterior(withFrame cellFrame: NSRect, in controlView: NSView) {
         let insetRect = cellFrame.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.drawInterior(withFrame: insetRect, in: controlView)
     }
-     */
     
     /*
     override func drawingRect(forBounds rect: NSRect) -> NSRect {
@@ -212,7 +212,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     public var focusPadding = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     
-    /*
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         
@@ -261,7 +260,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let cellFrame = focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         NSBezierPath(roundedRect: cellFrame, cornerRadius: cornerRadius).fill()
     }
-     */
 }
 
 extension NSTextFieldCell {
