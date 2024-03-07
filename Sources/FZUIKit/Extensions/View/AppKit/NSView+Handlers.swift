@@ -31,7 +31,6 @@ extension NSView {
         get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
         set {
             set(associatedValue: newValue, key: "windowHandlers", object: self)
-         //   setupObserverView()
             setupViewObservation()
         }
     }
@@ -103,7 +102,7 @@ extension NSView {
     }
         
     func setupViewObservation() {
-        if viewHandlers.needsObserving || windowHandlers.window != nil || windowHandlers.isKey != nil || windowHandlers.isMain != nil {
+        if viewHandlers.needsObserving || windowHandlers.needsObserving {
             if viewObserver == nil {
                 viewObserver = .init(self)
             }
@@ -115,26 +114,16 @@ extension NSView {
             observe(\.frame, handler: \.viewHandlers.frame)
             observe(\.superview, handler: \.viewHandlers.superview)
             
+            observe(\.window?.isKeyWindow, handler: \.windowHandlers.isKey)
+            observe(\.window?.isMainWindow, handler: \.windowHandlers.isMain)
+
             if windowHandlers.isKey != nil {
                 NSWindow.isKeyWindowObservable = true
-                viewObserver?.add(\.window?.isKeyWindow) { [weak self] old, new in
-                    guard let self = self, old != new, let new = new else { return }
-                    self.windowHandlers.isKey?(new)
-                }
-            } else {
-                viewObserver?.remove(\.window?.isKeyWindow)
             }
             
             if windowHandlers.isMain != nil {
                 NSWindow.isMainWindowObservable = true
-                viewObserver?.add(\.window?.isMainWindow) { [weak self] old, new in
-                    guard let self = self, old != new, let new = new else { return }
-                    self.windowHandlers.isMain?(new)
-                }
-            } else {
-                viewObserver?.remove(\.window?.isMainWindow)
             }
-            
             
             if viewHandlers.isFirstResponder != nil {
                 _isFirstResponder = isFirstResponder
@@ -176,20 +165,32 @@ extension NSView {
             viewObserver?.remove(keyPath)
         }
     }
-            
+    
+    func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value?>, handler: KeyPath<NSView, ((Value)->())?>) {
+        if self[keyPath: handler] != nil {
+            if  viewObserver?.isObserving(keyPath) == false {
+                viewObserver?.add(keyPath) { [weak self] old, new in
+                    guard let self = self, let new = new else { return }
+                    self[keyPath: handler]?(new)
+                }
+            }
+        } else {
+            viewObserver?.remove(keyPath)
+        }
+    }
+    
     var observerView: ObserverView? {
         get { getAssociatedValue(key: "observerView", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "observerView", object: self) }
     }
         
     func setupObserverView() {
-        if windowHandlers.needsObserving || mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil {
+        if mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil {
             if observerView == nil {
                 observerView = ObserverView()
                 addSubview(withConstraint: observerView!)
             }
             observerView?._mouseHandlers = mouseHandlers
-            observerView?._windowHandlers = windowHandlers
             observerView?._dropHandlers = dropHandlers
         } else if observerView != nil {
             observerView?.removeFromSuperview()
@@ -209,7 +210,7 @@ extension NSView {
         public var isMain: ((Bool) -> Void)?
         
         var needsObserving: Bool {
-            isKey != nil || isMain != nil
+            isKey != nil || isMain != nil || window != nil
         }
     }
     
@@ -539,10 +540,6 @@ extension NSView {
         var windowDidBecomeMainObserver: NotificationToken?
         var windowDidResignMainObserver: NotificationToken?
         
-        var _windowHandlers = WindowHandlers() {
-            didSet { updateWindowObserver() }
-        }
-        
         var _mouseHandlers = MouseHandlers() {
             didSet {  trackingArea.options = _mouseHandlers.trackingAreaOptions }
         }
@@ -650,17 +647,6 @@ extension NSView {
             super.draggingExited(sender)
         }
         
-        override public func viewWillMove(toWindow newWindow: NSWindow?) {
-            if newWindow != window {
-                removeWindowKeyObserver()
-                removeWindowMainObserver()
-                if let newWindow = newWindow {
-                    observeWindowState(for: newWindow)
-                }
-            }
-            super.viewWillMove(toWindow: newWindow)
-        }
-        
         /*
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
@@ -681,75 +667,6 @@ extension NSView {
         
         var firstResponderObservation: NSKeyValueObservation?
         */
-        
-        func updateWindowObserver() {
-            if _windowHandlers.isKey == nil {
-                removeWindowKeyObserver()
-            }
-            
-            if _windowHandlers.isMain == nil {
-                removeWindowMainObserver()
-            }
-            
-            if let window = window {
-                observeWindowState(for: window)
-            }
-        }
-                
-        func removeWindowKeyObserver() {
-            windowDidBecomeKeyObserver = nil
-            windowDidResignKeyObserver = nil
-        }
-        
-        func removeWindowMainObserver() {
-            windowDidBecomeMainObserver = nil
-            windowDidResignMainObserver = nil
-        }
-        
-        func observeWindowState(for window: NSWindow) {
-            windowIsKey = window.isKeyWindow
-            windowIsMain = window.isMainWindow
-            if windowDidBecomeKeyObserver == nil, _windowHandlers.isKey != nil {
-                windowDidBecomeKeyObserver = NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: window) { _ in
-                    self.windowIsKey = true
-                }
-                
-                windowDidResignKeyObserver = NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: window) { _ in
-                    self.windowIsKey = false
-                }
-            }
-            
-            if windowDidBecomeMainObserver == nil, _windowHandlers.isMain != nil {
-                windowDidBecomeMainObserver = NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: window) { _ in
-                    self.windowIsMain = true
-                }
-                
-                windowDidResignMainObserver = NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: window) { _ in
-                    self.windowIsMain = false
-                }
-            }
-        }
-        
-        var windowIsKey = false {
-            didSet {
-                if oldValue != windowIsKey {
-                    _windowHandlers.isKey?(windowIsKey)
-                }
-            }
-        }
-        
-        var windowIsMain = false {
-            didSet {
-                if oldValue != windowIsMain {
-                    _windowHandlers.isMain?(windowIsKey)
-                }
-            }
-        }
-        
-        deinit {
-            self.removeWindowKeyObserver()
-            self.removeWindowMainObserver()
-        }
     }
 }
     
