@@ -168,8 +168,10 @@ extension NSView {
     
     func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value?>, handler: KeyPath<NSView, ((Value)->())?>) {
         if self[keyPath: handler] != nil {
+            Swift.print("observe here")
             if  viewObserver?.isObserving(keyPath) == false {
                 viewObserver?.add(keyPath) { [weak self] old, new in
+                    Swift.print("Here", new ?? "nil")
                     guard let self = self, let new = new else { return }
                     self[keyPath: handler]?(new)
                 }
