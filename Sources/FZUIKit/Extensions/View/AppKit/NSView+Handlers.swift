@@ -31,7 +31,7 @@ extension NSView {
         get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
         set {
             set(associatedValue: newValue, key: "windowHandlers", object: self)
-            setupObserverView()
+         //   setupObserverView()
             setupViewObservation()
         }
     }
@@ -103,7 +103,7 @@ extension NSView {
     }
         
     func setupViewObservation() {
-        if viewHandlers.needsObserving || windowHandlers.window != nil {
+        if viewHandlers.needsObserving || windowHandlers.window != nil || windowHandlers.isKey != nil || windowHandlers.isMain != nil {
             if viewObserver == nil {
                 viewObserver = .init(self)
             }
@@ -115,12 +115,34 @@ extension NSView {
             observe(\.frame, handler: \.viewHandlers.frame)
             observe(\.superview, handler: \.viewHandlers.superview)
             
-            if viewHandlers.isFirstResponder != nil && viewObserver?.isObserving(\.window?.firstResponder) == false {
+            if windowHandlers.isKey != nil {
+                NSWindow.isKeyWindowObservable = true
+                viewObserver?.add(\.window?.isKeyWindow) { [weak self] old, new in
+                    guard let self = self, old != new, let new = new else { return }
+                    self.windowHandlers.isKey?(new)
+                }
+            } else {
+                viewObserver?.remove(\.window?.isKeyWindow)
+            }
+            
+            if windowHandlers.isMain != nil {
+                NSWindow.isMainWindowObservable = true
+                viewObserver?.add(\.window?.isMainWindow) { [weak self] old, new in
+                    guard let self = self, old != new, let new = new else { return }
+                    self.windowHandlers.isMain?(new)
+                }
+            } else {
+                viewObserver?.remove(\.window?.isMainWindow)
+            }
+            
+            
+            if viewHandlers.isFirstResponder != nil {
+                _isFirstResponder = isFirstResponder
                 viewObserver?.add(\.window?.firstResponder) { [weak self] _, firstResponder in
                     guard let self = self else { return }
                     self._isFirstResponder = self.isFirstResponder
                 }
-            } else if viewHandlers.isFirstResponder == nil {
+            } else {
                 viewObserver?.remove(\.window?.firstResponder)
             }
         } else {
