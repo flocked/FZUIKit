@@ -142,6 +142,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
         size.height += (textPadding.height)
+        size.width += (textPadding.width)
         return size
     }
 
