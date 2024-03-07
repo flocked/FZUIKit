@@ -114,12 +114,31 @@ extension NSView {
             observe(\.frame, handler: \.viewHandlers.frame)
             observe(\.superview, handler: \.viewHandlers.superview)
             
-            observe(\.window?.isKeyWindow, handler: \.windowHandlers.isKey)
-            observe(\.window?.isMainWindow, handler: \.windowHandlers.isMain)
+        //    observe(\.window?.isKeyWindow, handler: \.windowHandlers.isKey)
+         //   observe(\.window?.isMainWindow, handler: \.windowHandlers.isMain)
 
             if windowHandlers.isKey != nil {
-                NSWindow.isKeyWindowObservable = true
-                Swift.print("isKeyWindowObservable", NSWindow.isKeyWindowObservable)
+                if  viewObserver?.isObserving(\.window?.isKeyWindow) == false {
+                    NSWindow.isKeyWindowObservable = true
+                    viewObserver?.add(\.window?.isKeyWindow) { [weak self] _, new in
+                        guard let self = self, let new = new else { return }
+                        self.windowHandlers.isKey?(new)
+                    }
+                }
+            } else {
+                viewObserver?.remove(\.window?.isKeyWindow)
+            }
+            
+            if windowHandlers.isMain != nil {
+                if  viewObserver?.isObserving(\.window?.isMainWindow) == false {
+                    NSWindow.isMainWindowObservable = true
+                    viewObserver?.add(\.window?.isMainWindow) { [weak self] _, new in
+                        guard let self = self, let new = new else { return }
+                        self.windowHandlers.isMain?(new)
+                    }
+                }
+            } else {
+                viewObserver?.remove(\.window?.isMainWindow)
             }
             
             if windowHandlers.isMain != nil {
