@@ -197,6 +197,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
      */
     
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
+        
         Swift.print("focusRingMaskBounds", super.focusRingMaskBounds(forFrame: cellFrame, in: controlView))
         return super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
     }
@@ -205,6 +206,18 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         guard focusType != .none else {
             return
         }
+        
+        Swift.print("drawFocusRingMask", cellFrame)
+        
+        var cellFrame = cellFrame
+        let leftRight = cellFrame.height/3.0
+        let topBottom = cellFrame.height/10.0
+        cellFrame.origin.x -= leftRight
+        cellFrame.origin.y -= topBottom
+        cellFrame.size.width += leftRight + leftRight
+        cellFrame.size.height += topBottom + topBottom
+        
+        
         
         var cornerRadius: CGFloat = 0
         switch focusType {
