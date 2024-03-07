@@ -213,7 +213,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             return
         }
         
-        Swift.print("drawFocusRingMask", cellFrame)
+        Swift.print("drawFocusRingMask", cellFrame, focusRingMaskBounds(forFrame: cellFrame, in: controlView))
+
         
         var cellFrame = cellFrame
         let leftRight = cellFrame.height/3.0
@@ -223,7 +224,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         cellFrame.size.width += leftRight + leftRight
         cellFrame.size.height += topBottom + topBottom
         
-        
+        cellFrame = focusRingMaskBounds(forFrame: cellFrame, in: controlView)
+
         
         var cornerRadius: CGFloat = 0
         switch focusType {
