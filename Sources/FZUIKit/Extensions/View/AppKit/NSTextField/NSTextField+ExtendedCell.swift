@@ -212,6 +212,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     public var focusPadding = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     
+    /*
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         
@@ -260,6 +261,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         let cellFrame = focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         NSBezierPath(roundedRect: cellFrame, cornerRadius: cornerRadius).fill()
     }
+     */
 }
 
 extension NSTextFieldCell {
