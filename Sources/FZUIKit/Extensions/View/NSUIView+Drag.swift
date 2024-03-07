@@ -79,7 +79,7 @@
                             var dragPoint = self.dragPoint
                             dragPoint.x += translation.x
                             #if os(macOS)
-                            dragPoint.y -= translation.y
+                            dragPoint.y += translation.y
                             #else
                             dragPoint.y += translation.y
                             #endif
