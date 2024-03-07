@@ -13,6 +13,21 @@
 import FZSwiftUtils
 import SwiftUI
 
+@available(macOS 12.0, *)
+extension NSUIImageSymbolConfiguration {
+    func imageSymbolConfiguration() -> ImageSymbolConfiguration {
+        var configuration = ImageSymbolConfiguration()
+        self.textStyle
+        switch scale {
+        case .small: configuration.imageScale = .small
+        case .medium: configuration.imageScale = .medium
+        case .large: configuration.imageScale = .large
+        default: break
+        }
+        return configuration
+    }
+}
+
 /**
  An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
 
@@ -68,6 +83,21 @@ public struct ImageSymbolConfiguration: Hashable {
         var configuration = self
         configuration.imageScale = scale
         return configuration
+    }
+    
+    /**
+     Creates a configuration by applying the values from the configuration you specify.
+
+     - Parameter configuration: The configuration details to apply.
+     - Returns: A new configuration that prioritizes the values from the configuration you specify.
+     */
+    public func applying(_ configuration: ImageSymbolConfiguration) -> ImageSymbolConfiguration {
+        var newConfiguration = self
+        newConfiguration.font = configuration.font ?? newConfiguration.font
+        newConfiguration.color = configuration.color ?? newConfiguration.color
+        newConfiguration.colorTransformer = configuration.colorTransformer ?? newConfiguration.colorTransformer
+        newConfiguration.imageScale = configuration.imageScale ?? newConfiguration.imageScale
+        return newConfiguration
     }
 
     /**

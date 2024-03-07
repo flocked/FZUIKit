@@ -13,27 +13,33 @@
     #endif
     import FZSwiftUtils
 
+
     public extension NSUIView {
         /// A value that indicates whether a view is movable by clicking and dragging anywhere in its background.
-        enum BackgroundDragOption: Hashable {
-            /// The view is movable and bounds to the superview with the specified insets.
-            case boundsToSuperview(NSDirectionalEdgeInsets)
+        enum BackgroundDragOption: Hashable, ExpressibleByBooleanLiteral {
             /// The view is movable.
             case on
+            
+            /// The view is movable if it's the first responder.
+            case ifFirstResponder
+            
             /// The view isn't movable.
             case off
-
-            /// The view is movable and bounds to the superview.
-            public static var boundsToSuperview = BackgroundDragOption.boundsToSuperview(.zero)
-
-            var margins: NSDirectionalEdgeInsets? {
-                switch self {
-                case let .boundsToSuperview(margins): return margins
-                default: return nil
-                }
+            
+            public init(booleanLiteral value: Bool) {
+                self = value == true ? .on : .off
             }
         }
-
+        
+        /// Options for moving the view by it's background.
+        struct MovableByBackgroundOptions {
+            /// The view bounds to the superview when moved.
+            public var boundsToSuperView: Bool = true
+            
+            /// The margins that the view bounds to the superview when moved.
+            public var margins: NSDirectionalEdgeInsets = .zero
+        }
+        
         /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
         var isMovableByViewBackground: BackgroundDragOption {
             get { getAssociatedValue(key: "isMovableByViewBackground", object: self, initialValue: .off) }
@@ -43,76 +49,65 @@
                 setupDragResizeGesture()
             }
         }
+        
+        /// The options for moving the view by it's background.
+        var movableByBackgroundOptions: MovableByBackgroundOptions {
+            get { getAssociatedValue(key: "movableByBackgroundOptions", object: self, initialValue: MovableByBackgroundOptions()) }
+            set { set(associatedValue: newValue, key: "movableByBackgroundOptions", object: self) }
+        }
 
         /// A handler that provides the moved velocity when the view ``isMovableByViewBackground``.
-        var movableViewVelocity: ((CGPoint) -> Void)? {
-            get { getAssociatedValue(key: "movableViewVelocity", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "movableViewVelocity", object: self) }
-        }
-        
-        /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
-        var isResizable: Bool {
-            get { getAssociatedValue(key: "isMovableByViewBackground", object: self, initialValue: false) }
-            set {
-                guard newValue != isResizable else { return }
-                set(associatedValue: newValue, key: "isMovableByViewBackground", object: self)
-            }
+        var movableByBackgroundVelocity: ((CGPoint) -> Void)? {
+            get { getAssociatedValue(key: "movableByBackgroundVelocity", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "movableByBackgroundVelocity", object: self) }
         }
 
         internal func setupDragResizeGesture() {
+            panGesture?.removeFromView()
             if isMovableByViewBackground != .off {
-                if panGesture == nil {
-                    panGesture = NSUIPanGestureRecognizer { [weak self] gesture in
-                        guard let self = self else { return }
-                        switch gesture.state {
-                        case .began:
-                            self.dragPoint = self.frame.origin
-                        case .ended:
-                            self.dragPoint = self.frame.origin
-                            self.movableViewVelocity?(gesture.velocity(in: self))
-                        case .changed:
-                            let translation = gesture.translation(in: self)
-                            var dragPoint = self.dragPoint
-                            dragPoint.x += translation.x
-                            #if os(macOS)
-                            dragPoint.y -= translation.y
-                            #else
-                            dragPoint.y += translation.y
-                            #endif
-                            self.frame.origin = dragPoint
-                            if let margins = self.isMovableByViewBackground.margins {
-                                if self.frame.origin.x < 0 + margins.leading {
-                                    self.frame.origin.x = 0 + margins.leading
+                var dragPoint: CGPoint = .zero
+                panGesture = NSUIPanGestureRecognizer { [weak self] gesture in
+                    guard let self = self, self.isMovableByViewBackground != .ifFirstResponder || self.isFirstResponder else { return }
+                    self.movableByBackgroundVelocity?(gesture.velocity(in: self))
+                    switch gesture.state {
+                    case .began:
+                        dragPoint = self.frame.origin
+                    case .ended:
+                        dragPoint = self.frame.origin
+                    case .changed:
+                        let translation = gesture.translation(in: self)
+                        dragPoint.x += translation.x
+                        #if os(macOS)
+                        dragPoint.y -= translation.y
+                        #else
+                        dragPoint.y += translation.y
+                        #endif
+                        self.frame.origin = dragPoint
+                        if self.movableByBackgroundOptions.boundsToSuperView {
+                            let margins = self.movableByBackgroundOptions.margins
+                            if self.frame.origin.x < 0 + margins.leading {
+                                self.frame.origin.x = 0 + margins.leading
+                            }
+                            if self.frame.origin.y < 0 + margins.bottom {
+                                self.frame.origin.y = 0 + margins.bottom
+                            }
+                            if let superview = self.superview {
+                                if self.frame.origin.x > superview.bounds.width - self.frame.width - margins.trailing {
+                                    self.frame.origin.x = superview.bounds.width - self.frame.width - margins.trailing
                                 }
-                                if self.frame.origin.y < 0 + margins.bottom {
-                                    self.frame.origin.y = 0 + margins.bottom
-                                }
-                                if let superview = self.superview {
-                                    if self.frame.origin.x > superview.bounds.width - self.frame.width - margins.trailing {
-                                        self.frame.origin.x = superview.bounds.width - self.frame.width - margins.trailing
-                                    }
-                                    if self.frame.origin.y > superview.bounds.height - self.frame.height - margins.top {
-                                        self.frame.origin.y = superview.bounds.height - self.frame.height - margins.top
-                                    }
+                                if self.frame.origin.y > superview.bounds.height - self.frame.height - margins.top {
+                                    self.frame.origin.y = superview.bounds.height - self.frame.height - margins.top
                                 }
                             }
-                        default:
-                            break
                         }
+                    default:
+                        break
                     }
-                    addGestureRecognizer(panGesture!)
                 }
+                addGestureRecognizer(panGesture!)
             } else {
-                if let panGesture = panGesture {
-                    removeGestureRecognizer(panGesture)
-                    self.panGesture = nil
-                }
+                panGesture = nil
             }
-        }
-
-        private var dragPoint: CGPoint {
-            get { getAssociatedValue(key: "dragPoint", object: self, initialValue: .zero) }
-            set { set(associatedValue: newValue, key: "dragPoint", object: self) }
         }
 
         private var panGesture: NSUIPanGestureRecognizer? {
