@@ -96,7 +96,7 @@ extension NSView {
         
         if dynamicColors.needsAppearanceObserver {
             if _effectiveAppearanceKVO == nil {
-                _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
+                _effectiveAppearanceKVO = observe(\.effectiveAppearance) { [weak self] _, _ in
                     self?.updateEffectiveColors()
                 }
             }

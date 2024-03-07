@@ -259,7 +259,7 @@
         func setupToolbarItemSelectionObserver() {
             if itemHandlers.selectionChanged != nil {
                 if toolbarItemSelectionObserver == nil {
-                    toolbarItemSelectionObserver = observeChanges(for: \.toolbar.selectedItemIdentifier) { [weak self] _, identifier in
+                    toolbarItemSelectionObserver = observe(\.toolbar.selectedItemIdentifier) { [weak self] _, identifier in
                         guard let self = self else { return }
                         if let identifier = identifier {
                             guard let item = self._items.first(where: { $0.identifier == identifier }) else { return }

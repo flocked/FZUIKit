@@ -196,7 +196,7 @@ extension NSMenu {
             
             super.init()
             menu.delegate = self
-            delegateObservation = menu.observeChanges(for: \.delegate) { [weak self] old, new in
+            delegateObservation = menu.observe(\.delegate) { [weak self] old, new in
                 guard let self = self else { return }
                 self.delegate = new
                 if new == nil || (new != nil && (new as? NSObject) != self) {

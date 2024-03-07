@@ -203,7 +203,7 @@
             func setupDownload(_ download: WKDownload) {
                 download.delegate = self
                 webview.downloads.append(download)
-                download.downloadObservation = download.observeChanges(for: \.progress.fractionCompleted, handler: {
+                download.downloadObservation = download.observe(\.progress.fractionCompleted, handler: {
                     _, _ in
                     download.progress.updateEstimatedTimeRemaining()
                 })

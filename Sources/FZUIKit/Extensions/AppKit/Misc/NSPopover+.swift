@@ -142,7 +142,7 @@ import SwiftUI
                 })
             }
             if trackViewFrame {
-                positioningViewFrameObserver = positioningView.observeChanges(for: \.frame, handler: { [weak self] old, new in
+                positioningViewFrameObserver = positioningView.observe(\.frame, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     if self.isOpeningPopover == false, self.isDetached == false, self.isShown == true {
                         let animates = self.animates

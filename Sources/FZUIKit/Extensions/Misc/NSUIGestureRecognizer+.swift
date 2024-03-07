@@ -40,7 +40,7 @@ class ReattachingGestureRecognizer: NSUIGestureRecognizer {
     
     func setupViewObservation() {
         if reattachsWhenRemoved {
-            viewObservation = observeChanges(for: \.view) { [weak self] old, new in
+            viewObservation = observe(\.view) { [weak self] old, new in
                 guard let self = self else { return }
                 if new == nil, let old = old {
                     let task = DispatchWorkItem { [weak self] in

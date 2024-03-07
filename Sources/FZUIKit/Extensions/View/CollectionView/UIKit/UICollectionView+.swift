@@ -87,7 +87,7 @@
         func setupDisplayingItemsTracking() {
             if displayingCellsHandlers.isDisplaying != nil || displayingCellsHandlers.didEndDisplaying != nil {
                 if contentOffsetObserver == nil {
-                    contentOffsetObserver = observeChanges(for: \.contentOffset, handler: { [weak self] old, new in
+                    contentOffsetObserver = observe(\.contentOffset, handler: { [weak self] old, new in
                         guard let self = self, old != new else { return }
                         self.didScroll()
                     })

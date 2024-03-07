@@ -127,7 +127,7 @@ import FZSwiftUtils
 
         func addObserver(for view: NSUIView) {
             let id = ObjectIdentifier(view).hashValue
-            viewObservers[id] = view.observeChanges(for: \.isHidden, handler: { [weak self] old, new in
+            viewObservers[id] = view.observe(\.isHidden, handler: { [weak self] old, new in
                 guard let self = self else { return }
                 if old != new {
                     self.updateViewConstraints()
