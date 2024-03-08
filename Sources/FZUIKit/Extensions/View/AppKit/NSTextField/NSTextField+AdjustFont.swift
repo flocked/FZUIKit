@@ -130,7 +130,7 @@
         }
         
         var needsFontAdjustments: Bool {
-            adjustsFontSizeToFitWidth && minimumScaleFactor !=e 0.0
+            adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0
         }
 
         func setupFontAdjustment() {
