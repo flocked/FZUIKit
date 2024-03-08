@@ -525,6 +525,7 @@
                 }
                 
                 innerShadowColor = newColor
+                layer?.innerShadowLayer?.color = newValue.color
                 innerShadowColorTransformer = newValue.colorTransformer
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
