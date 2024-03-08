@@ -47,7 +47,6 @@
 
         var resolvedColor: NSUIColor? = nil {
             didSet {
-                Swift.print("resolvedColor set", superlayer != nil, superlayer?.parentView != nil,  superlayer ?? "nil", superlayer?.parentView ?? "nil")
                 shadowColor = resolvedColor?.cgColor
             }
         }
@@ -88,9 +87,6 @@
 
         var obs: NSKeyValueObservation?
         func sharedInit() {
-            obs = observeChanges(for: \.superlayer) { old, new in
-                Swift.print("superlayer changed", new ?? "nil")
-            }
             shadowOpacity = 0
             shadowColor = nil
             backgroundColor = .clear

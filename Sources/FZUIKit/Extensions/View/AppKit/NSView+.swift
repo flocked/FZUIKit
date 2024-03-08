@@ -523,7 +523,6 @@
                 if layer?.innerShadowLayer?.shadowColor?.isVisible == false || layer?.innerShadowLayer?.shadowColor == nil {
                     layer?.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
-                
                 innerShadowColor = newColor
                 layer?.innerShadowLayer?.color = newValue.color
                 innerShadowColorTransformer = newValue.colorTransformer
