@@ -191,11 +191,11 @@
             if let cell = cell {
                 isTruncating = cell.expansionFrame(withFrame: frame, in: self) != .zero
                 if !isTruncating, maximumNumberOfLines == 1 {
-                    let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height))
+                    let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height-0.5))
                     isTruncating = cellSize.width > frame.width
                 }
             }
-            return isTruncating            
+            return isTruncating
         }
 
         /// Option how to count the lines of a text field.
