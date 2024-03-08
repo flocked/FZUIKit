@@ -74,9 +74,17 @@
             cell?.font = _font
             return fittingPointSize ?? 0.0
         }
+        
+        public var isAdjusting: Bool {
+            get { getAssociatedValue(key: "isAdjusting", object: self, initialValue: false) }
+            set {
+                set(associatedValue: newValue, key: "isAdjusting", object: self)
+            }
+        }
 
         func adjustFontSize() {
-            guard needsFontAdjustments else { return }
+            guard needsFontAdjustments, !isAdjusting else { return }
+            isAdjusting = true
             guard let _font = _font else { return }
             cell?.font = _font
             var scaleFactor = 1.0
@@ -102,7 +110,8 @@
 
             Swift.print("adjustFontSize end", cell?.font?.pointSize ?? "nil",  pointSize)
             cell?.font = _font.withSize(pointSize)
-            
+            font = _font.withSize(pointSize)
+            isAdjusting = false
               //  adjustFontKerning()
         }
 
@@ -164,7 +173,7 @@
             }
         }
         
-        public var _font: NSFont? {
+        var _font: NSFont? {
             get { getAssociatedValue(key: "_font", object: self, initialValue: nil) }
             set { 
                 set(associatedValue: newValue, key: "_font", object: self)
