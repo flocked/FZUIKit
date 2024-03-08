@@ -274,6 +274,7 @@
         }
 
         func observeEditing() {
+            Swift.print("observeEditing", editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit, needsFontAdjustments, editingNotificationTokens.isEmpty)
             if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit, needsFontAdjustments {
                 guard editingNotificationTokens.isEmpty else { return }
                 setupTextFieldObserver()
@@ -293,6 +294,7 @@
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
+                    Swift.print("didChange")
                     self.updateString()
                     self.resizeToFit()
                     self.adjustFontSize()
