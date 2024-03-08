@@ -44,8 +44,9 @@
 
         var isFittingCurrentText: Bool {
             let isFitting = !isTruncatingText
+            Swift.print("isFitting", isTruncatingText, cell?.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude))) ?? "nil", frame)
             if isFitting == true {
-                if let cell = cell, cell.cellSize(forBounds: CGRect(.zero, CGSize(bounds.width, CGFloat.greatestFiniteMagnitude))).height > bounds.height {
+                if let cell = cell, cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude))).height > frame.height {
                     return false
                 }
             }
@@ -80,6 +81,7 @@
         func adjustFontSize() {
             guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
+            Swift.print("-----------")
             cell?.font = _font
             var scaleFactor = 1.0
             var needsUpdate = !isFittingCurrentText
@@ -157,9 +159,9 @@
                 textFieldObserver = nil
                 resetMethod(#selector(setter: font))
                 resetMethod(#selector(getter: font))
-                font = _font ?? font
                 setupTextFieldObserver()
                 observeEditing()
+                font = _font ?? font
             }
         }
         
