@@ -133,7 +133,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
         size.height += (textPadding.height)
-        size.width += (textPadding.width)
+     //   size.width += (textPadding.width)
         return size
     }
 
@@ -170,14 +170,12 @@ class ExtendedTextFieldCell: NSTextFieldCell {
 
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
         isEditingOrSelecting = true
-        Swift.print("edit")
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.edit(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, event: event)
         isEditingOrSelecting = false
     }
 
     override func select(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
-        Swift.print("select")
         isEditingOrSelecting = true
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
@@ -213,10 +211,12 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             bounds.size.height += topBottom + topBottom
         }
 
+        /*
         bounds.origin.x -= textPadding.left
         bounds.origin.y -= textPadding.bottom
         bounds.size.width += textPadding.width
         bounds.size.height += textPadding.height
+        */
         
         return bounds
     }
