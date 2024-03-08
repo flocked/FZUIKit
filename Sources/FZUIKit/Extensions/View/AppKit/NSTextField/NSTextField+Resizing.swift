@@ -43,17 +43,13 @@ extension NSTextField {
     public static let placeholderWidth: CGFloat = -1
     
     func resizeToFit() {
-        let height = frame.size.height
-        let currentFrame = frame
+        var height = frame.size.height
         guard automaticallyResizesToFit else { return }
         if translatesAutoresizingMaskIntoConstraints {
             frame.size = calculatedFittingSize
         } else {
             invalidateIntrinsicContentSize()
         }
-        let diff = frame.size.height - height
-        Swift.print("resizeToFit", height, frame.size.height, currentFrame, frame)
-        frame.origin.y -= diff
     }
     
     func swizzleIntrinsicContentSize() {

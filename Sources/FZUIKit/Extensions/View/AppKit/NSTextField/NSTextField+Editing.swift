@@ -288,33 +288,28 @@
                     if let editingRange = self.currentEditor()?.selectedRange {
                         self.editingRange = editingRange
                     }
-                    if self.automaticallyResizesToFit {
-                        self.resizeToFit()
-                    }
-                    self.invalidateIntrinsicContentSize()
                 })
                 
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
                     self.updateString()
+                    self.adjustFontSize()
                     if self.automaticallyResizesToFit {
                         self.resizeToFit()
                     }
-                    self.invalidateIntrinsicContentSize()
                 })
                 
                 editingNotificationTokens.append(
                 NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
                     self.isEditingText = false
+                    self.editStartString = self.stringValue
                     self.adjustFontSize()
                     self.editingHandlers.didEnd?()
                     if self.automaticallyResizesToFit {
                         self.resizeToFit()
                     }
-                    self.editStartString = self.stringValue
-                    self.invalidateIntrinsicContentSize()
                 })
             } else {
                 setupTextFieldObserver()
@@ -411,6 +406,7 @@
                     if isAdjustingFontSize == false {
                         self.adjustFontSize()
                     }
+                    
                     if self.automaticallyResizesToFit, !isEditingText {
                         self.resizeToFit()
                     }
