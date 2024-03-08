@@ -516,8 +516,6 @@
                     innerShadowLayer.shadowOpacity = 0.0
                     innerShadowLayer.shadowRadius = 0.0
                 }
-                Swift.print("_innerShadowColor", newValue.color ?? "", newValue._resolvedColor ?? "nil", newValue._resolvedColor?.resolvedColor(for: self) ?? "nil")
-                Swift.print("_innerShadowColor", self)
                 var newColor = newValue._resolvedColor?.resolvedColor(for: self)
                 if newColor == nil, isProxy() {
                     newColor = .clear
@@ -534,7 +532,9 @@
 
         @objc var innerShadowColor: NSColor? {
             get { layer?.innerShadowLayer?.shadowColor?.nsUIColor }
-            set { layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
+            set { 
+                Swift.print("innerShadowColor", newValue)
+                layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
         }
 
         @objc var innerShadowOpacity: CGFloat {
