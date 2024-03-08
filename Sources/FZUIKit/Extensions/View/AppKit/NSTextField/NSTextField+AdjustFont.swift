@@ -22,6 +22,7 @@
                 guard newValue != adjustsFontSizeToFitWidth else { return }
                 set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
                 setupFontAdjustment()
+                adjustFontSize()
             }
         }
 
@@ -37,6 +38,7 @@
                 guard newValue != minimumScaleFactor else { return }
                 set(associatedValue: newValue, key: "minimumScaleFactor", object: self)
                 setupFontAdjustment()
+                adjustFontSize()
             }
         }
 
@@ -74,17 +76,9 @@
             cell?.font = _font
             return fittingPointSize ?? 0.0
         }
-        
-        public var isAdjusting: Bool {
-            get { getAssociatedValue(key: "isAdjusting", object: self, initialValue: false) }
-            set {
-                set(associatedValue: newValue, key: "isAdjusting", object: self)
-            }
-        }
 
         func adjustFontSize() {
-            guard needsFontAdjustments, !isAdjusting else { return }
-            isAdjusting = true
+            guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
             cell?.font = _font
             var scaleFactor = 1.0
@@ -92,7 +86,6 @@
             var pointSize = _font.pointSize
             var minPointSize = pointSize * minimumScaleFactor
             while needsUpdate, scaleFactor >= minimumScaleFactor {
-                
                 let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
 
                 let adjustedFont = _font.withSize(currentPointSize)
@@ -105,9 +98,6 @@
                 }
                 needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.001)
             }
-
-        //    cell?.font = _font.withSize(pointSize)
-            isAdjusting = false
               //  adjustFontKerning()
         }
 
@@ -139,7 +129,6 @@
                 guard isMethodReplaced(#selector(setter: font)) == false else { return }
                 textFieldObserver = nil
                 _font = font
-                adjustFontSize()
                 do {
                     try replaceMethod(#selector(setter: font),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
@@ -148,9 +137,7 @@
                         guard let textField = (object as? NSTextField), textField._font != font else { return }
                         textField._font = font
                         store.original(object, #selector(setter: NSTextField.font), font)
-                        textField.adjustFontSize()
-
-                        
+                        textField.adjustFontSize()                        
                     }
                     }
                     
@@ -165,12 +152,14 @@
                     Swift.debugPrint(error)
                 }
                 setupTextFieldObserver()
+                observeEditing()
             } else if isMethodReplaced(#selector(setter: font)) {
                 textFieldObserver = nil
                 resetMethod(#selector(setter: font))
                 resetMethod(#selector(getter: font))
                 font = _font ?? font
                 setupTextFieldObserver()
+                observeEditing()
             }
         }
         

@@ -274,7 +274,7 @@
         }
 
         func observeEditing() {
-            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit {
+            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit, needsFontAdjustments {
                 guard editingNotificationTokens.isEmpty else { return }
                 setupTextFieldObserver()
                 
