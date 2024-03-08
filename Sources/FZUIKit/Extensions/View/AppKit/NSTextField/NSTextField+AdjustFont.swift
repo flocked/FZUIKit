@@ -110,7 +110,6 @@
 
             Swift.print("adjustFontSize end", cell?.font?.pointSize ?? "nil",  pointSize)
             cell?.font = _font.withSize(pointSize)
-            font = _font.withSize(pointSize)
             isAdjusting = false
               //  adjustFontKerning()
         }
