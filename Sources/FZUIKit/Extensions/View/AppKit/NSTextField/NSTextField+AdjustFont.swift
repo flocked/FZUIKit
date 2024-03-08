@@ -44,10 +44,19 @@
 
         var isFittingCurrentText: Bool {
             let isFitting = !isTruncatingText
-            Swift.print("isFitting", isTruncatingText, cell?.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude))) ?? "nil", frame)
             if isFitting == true {
+                if let cell = cell {
+                    let size = cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude)))
+                    Swift.print("isFitting", isTruncatingText, size.height > frame.height, size, frame.size )
+                }
+                
                 if let cell = cell, cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude))).height > frame.height {
                     return false
+                }
+            } else {
+                if let cell = cell {
+                    let size = cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude)))
+                    Swift.print("isFitting", isTruncatingText, size.height > frame.height, size, frame.size )
                 }
             }
             return isFitting
