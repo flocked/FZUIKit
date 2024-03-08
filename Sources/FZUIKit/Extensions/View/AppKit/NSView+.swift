@@ -532,9 +532,7 @@
 
         @objc var innerShadowColor: NSColor? {
             get { layer?.innerShadowLayer?.shadowColor?.nsUIColor }
-            set { 
-                Swift.print("innerShadowColor", newValue)
-                layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
+            set { layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
         }
 
         @objc var innerShadowOpacity: CGFloat {

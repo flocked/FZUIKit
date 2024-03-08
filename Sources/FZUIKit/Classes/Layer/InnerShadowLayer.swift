@@ -23,9 +23,6 @@
                 innerShadowColorDynamic = newValue._resolvedColor
                 if let parentView = parentView {
                     shadowColor = newValue._resolvedColor?.resolvedColor(for: parentView).cgColor
-                    #if os(macOS)
-                        parentView.dynamicColors.innerShadow = newValue._resolvedColor
-                    #endif
                 } else {
                     shadowColor = newValue._resolvedColor?.cgColor
                 }
@@ -41,7 +38,14 @@
             }
         }
 
+        #if os(macOS)
+        var innerShadowColorDynamic: NSUIColor? {
+            get { parentView?.dynamicColors.shadow }
+            set { parentView?.dynamicColors.shadow = newValue}
+        }
+        #else
         var innerShadowColorDynamic: NSUIColor?
+        #endif
 
         var isUpdating: Bool = false
 
