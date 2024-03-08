@@ -227,6 +227,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     //    bounds.size.width += textPadding.right
     //    bounds.size.height += textPadding.top
         
+        Swift.print("focusRing", cellFrame, super.focusRingMaskBounds(forFrame: cellFrame, in: controlView), bounds)
         return bounds
     }
         
