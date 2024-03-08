@@ -46,7 +46,7 @@
             let isFitting = !isTruncatingText
             if isFitting == true {
                 if let cell = cell {
-                    let size = cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude)))
+                    let size = cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width-0.5, CGFloat.greatestFiniteMagnitude)))
                     Swift.print("isFitting", isTruncatingText, size.height > frame.height, size, frame.size )
                 }
                 
