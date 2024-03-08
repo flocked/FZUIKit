@@ -47,6 +47,7 @@
 
         var resolvedColor: NSUIColor? = nil {
             didSet {
+                Swift.print("resolvedColor set", superlayer != nil, superlayer?.parentView != nil,  superlayer ?? "nil", superlayer?.parentView ?? "nil")
                 shadowColor = resolvedColor?.cgColor
             }
         }
