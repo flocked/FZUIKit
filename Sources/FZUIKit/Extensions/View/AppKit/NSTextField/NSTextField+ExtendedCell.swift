@@ -118,6 +118,59 @@ extension NSTextField {
     }
 }
 
+import FZSwiftUtils
+extension NSTextFieldCell {
+    var isEditingOrSelecting: Bool {
+        get { getAssociatedValue(key: "isEditingOrSelecting", object: self, initialValue: false) }
+        set { set(associatedValue: newValue, key: "isEditingOrSelecting", object: self) }
+    }
+    
+    var textField: NSTextField? {
+        controlView as? NSTextField
+    }
+    
+    func swizzleCell() {
+        do {
+           try replaceMethod(
+           #selector(NSTextFieldCell.cellSize(forBounds:)),
+           methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGSize)).self,
+           hookSignature: (@convention(block)  (AnyObject, CGRect) -> (CGSize)).self) { store in {
+               object, bounds in
+               var cellSize = store.original(object, #selector(NSTextFieldCell.cellSize(forBounds:)), bounds)
+               if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                   cellSize.height += textField.textPadding.height
+                   cellSize.width += textField.textPadding.height
+               }
+               return cellSize
+               }
+           }
+            try replaceMethod(
+            #selector(NSTextFieldCell.titleRect(forBounds:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGRect)).self,
+            hookSignature: (@convention(block)  (AnyObject, CGRect) -> (CGRect)).self) { store in {
+                object, rect in
+                var titleRect = rect
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    titleRect = titleRect.insetBy(dx: textField.textPadding.left, dy: textField.textPadding.bottom)
+                    if !cell.isEditingOrSelecting {
+                        let textSize = cell.cellSize(forBounds: rect)
+                        let heightDelta = titleRect.size.height - textSize.height
+                        if heightDelta > 0 {
+                            titleRect.size.height -= heightDelta
+                            titleRect.origin.y += heightDelta/2
+                        }
+                    }
+                }
+                return store.original(object, #selector(NSTextFieldCell.titleRect(forBounds:)), rect)
+                }
+            }
+        } catch {
+           // handle error
+           Swift.debugPrint(error)
+        }
+    }
+}
+
 /// A text field cell with vertical alignment and focus type property.
 class ExtendedTextFieldCell: NSTextFieldCell {
     
@@ -137,7 +190,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         }
     }
     
-    var isEditingOrSelecting = false
     
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
@@ -147,7 +199,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
-        return super.titleRect(forBounds: rect)
+        return super.titleRect(forBounds: rect).insetBy(dx: textPadding.left, dy: textPadding.bottom)
         if isVerticallyCentered {
             var titleRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
             
