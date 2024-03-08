@@ -516,7 +516,8 @@
                     innerShadowLayer.shadowOpacity = 0.0
                     innerShadowLayer.shadowRadius = 0.0
                 }
-                Swift.print("_innerShadowColor", newValue._resolvedColor ?? "nil", newValue._resolvedColor?.resolvedColor(for: self) ?? "nil")
+                Swift.print("_innerShadowColor", newValue.color ?? "nil", newValue._resolvedColor ?? "nil", newValue._resolvedColor?.resolvedColor(for: self) ?? "nil")
+                Swift.print("_innerShadowColor", newValue)
                 var newColor = newValue._resolvedColor?.resolvedColor(for: self)
                 if newColor == nil, isProxy() {
                     newColor = .clear
