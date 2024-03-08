@@ -203,12 +203,16 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         super.drawInterior(withFrame: insetRect, in: controlView)
     }
     
-    /*
+
     override func drawingRect(forBounds rect: NSRect) -> NSRect {
-        let insetRect = insetRect(for: rect)
-        return super.drawingRect(forBounds: insetRect)
+        var insetRect = rect
+        insetRect.origin.x -= textPadding.left
+        insetRect.origin.y -= textPadding.bottom
+        insetRect.size.width += textPadding.width
+        insetRect.size.height += textPadding.height
+
+        return insetRect
     }
-     */
         
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
