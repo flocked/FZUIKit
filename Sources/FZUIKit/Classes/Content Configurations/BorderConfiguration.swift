@@ -68,6 +68,11 @@
         public static func black(width: CGFloat = 2.0) -> Self {
             Self(color: .black, width: width)
         }
+        
+        /// A configuration for a black border.
+        public static func white(width: CGFloat = 2.0) -> Self {
+            Self(color: .white, width: width)
+        }
 
         /// A configuration for a border with the specified color.
         public static func color(_ color: NSUIColor, width: CGFloat = 2.0) -> Self {
