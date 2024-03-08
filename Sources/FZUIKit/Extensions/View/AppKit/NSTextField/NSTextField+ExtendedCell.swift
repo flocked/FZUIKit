@@ -138,7 +138,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     
     func insetRect(for rect: CGRect) -> CGRect {
-        return rect
+     //   return rect
         var rect = rect
         rect.origin.x += textPadding.left
         rect.origin.y += textPadding.bottom
