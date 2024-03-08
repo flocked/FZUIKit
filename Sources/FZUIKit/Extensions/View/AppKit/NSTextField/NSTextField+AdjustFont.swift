@@ -74,37 +74,15 @@
             }
             cell?.font = _font
             isAdjustingFontSize = false
-            return fittingPointSize ?? 0.0
+            return fittingPointSize ?? _font.pointSize
         }
 
         func adjustFontSize() {
-            Swift.print("adjustFontSize", _font != nil)
+            Swift.print("adjustFontSize", _font != nil, needsFontAdjustments)
             guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
             isAdjustingFontSize = true
-            cell?.font = _font
-                        
-            if adjustsFontSizeToFitWidth, minimumScaleFactor != 0.0 {
-                var scaleFactor = 1.0
-                var needsUpdate = !isFittingCurrentText
-                var pointSize = _font.pointSize
-                var minPointSize = pointSize * minimumScaleFactor
-                while needsUpdate, scaleFactor >= minimumScaleFactor {
-                    let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
-                    let adjustedFont = _font.withSize(currentPointSize)
-                    scaleFactor = currentPointSize / _font.pointSize
-                    cell?.font = adjustedFont
-                    if isFittingCurrentText {
-                        minPointSize = currentPointSize
-                    } else {
-                        pointSize = currentPointSize
-                    }
-                    needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.001)
-                }
-                
-            } else if allowsDefaultTighteningForTruncation {
-                adjustFontKerning()
-            }
+            cell?.font = _font.withSize(fittingFontSize)
             isAdjustingFontSize = false
         }
 

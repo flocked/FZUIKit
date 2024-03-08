@@ -405,6 +405,8 @@
                     guard let self = self, old != new else { return }
                     if self.isAdjustingFontSize == false {
                         self.adjustFontSize()
+                    } else {
+                        Swift.print("isAdjustingFontSize ")
                     }
                     
                     if self.automaticallyResizesToFit, !isEditingText {
