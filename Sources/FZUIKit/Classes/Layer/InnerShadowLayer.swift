@@ -37,11 +37,32 @@
                 }
             }
         }
+        
+        /*
+        public var configurationn: ShadowConfiguration = .none() {
+            didSet {
+                if let parentView = parentView {
+                    shadowColor = configurationn._resolvedColor?.resolvedColor(for: parentView).cgColor
+                } else {
+                    shadowColor = configurationn._resolvedColor?.cgColor
+                }
+                shadowOpacity = Float(configurationn.opacity)
+                let needsUpdate = shadowOffset != configurationn.offset.size || shadowRadius != configurationn.radius
+                isUpdating = true
+                shadowOffset = configurationn.offset.size
+                shadowRadius = configurationn.radius
+                isUpdating = false
+                if needsUpdate {
+                    updateShadowPath()
+                }
+            }
+        }
+        */
 
         #if os(macOS)
         var innerShadowColorDynamic: NSUIColor? {
-            get { parentView?.dynamicColors.shadow }
-            set { parentView?.dynamicColors.shadow = newValue}
+            get { superlayer?.parentView?.dynamicColors.shadow }
+            set { superlayer?.parentView?.dynamicColors.shadow = newValue}
         }
         #else
         var innerShadowColorDynamic: NSUIColor?
