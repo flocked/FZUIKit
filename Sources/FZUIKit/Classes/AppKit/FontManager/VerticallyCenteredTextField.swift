@@ -16,7 +16,7 @@ class VerticallyCenteredTextField: NSTextField {
     }
 }
 class VerticallyCenteredTextFieldCell: NSTextFieldCell {
-    var mIsEditingOrSelecting:Bool = false
+    var isEditingOrSelecting:Bool = false
     
     override func drawingRect(forBounds theRect: NSRect) -> NSRect {
         //Get the parent's idea of where we should draw
@@ -26,7 +26,7 @@ class VerticallyCenteredTextFieldCell: NSTextFieldCell {
         // the configuration of the field editor.  We sneak around this by intercepting selectWithFrame and editWithFrame and sneaking a
         // reduced, centered rect in at the last minute.
         
-        if !mIsEditingOrSelecting {
+        if !isEditingOrSelecting {
             // Get our ideal size for current text
             let textSize:NSSize = self.cellSize(forBounds: theRect)
             
@@ -48,9 +48,9 @@ class VerticallyCenteredTextFieldCell: NSTextFieldCell {
                               length selLength: Int)//(var aRect: NSRect, inView controlView: NSView, editor textObj: NSText, delegate anObject: AnyObject?, start selStart: Int, length selLength: Int)
     {
         let arect = self.drawingRect(forBounds: rect)
-        mIsEditingOrSelecting = true;
+        isEditingOrSelecting = true
         super.select(withFrame: arect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
-        mIsEditingOrSelecting = false;
+        isEditingOrSelecting = false
     }
     
     override func edit(withFrame rect: NSRect,
@@ -60,9 +60,9 @@ class VerticallyCenteredTextFieldCell: NSTextFieldCell {
                             event: NSEvent?)
     {
         let aRect = self.drawingRect(forBounds: rect)
-        mIsEditingOrSelecting = true;
+        isEditingOrSelecting = true
         super.edit(withFrame: aRect, in: controlView, editor: textObj, delegate: delegate, event: event)
-        mIsEditingOrSelecting = false
+        isEditingOrSelecting = false
     }
 }
 
