@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSTextField {
     
@@ -26,44 +27,37 @@ extension NSTextField {
     
     /// The focus type of the text field.
     public var focusType: FocusType {
-        get { extendedTextFieldCell?.focusType ?? .default }
+        get { getAssociatedValue(key: "focusType", object: self, initialValue: .default) }
         set {
+            guard newValue != focusType else { return }
             if newValue != .default {
                 convertToExtendedTextFieldCell()
             }
-            extendedTextFieldCell?.focusType = newValue
+            set(associatedValue: newValue, key: "focusType", object: self)
         }
     }
     
     /// A Boolean value indicating whether the text is vertically centered.
     public var isVerticallyCentered: Bool {
-        get { extendedTextFieldCell?.isVerticallyCentered ?? false }
+        get { getAssociatedValue(key: "isVerticallyCentered", object: self, initialValue: false) }
         set {
+            guard newValue != isVerticallyCentered else { return }
             if newValue != false {
                 convertToExtendedTextFieldCell()
             }
-            extendedTextFieldCell?.isVerticallyCentered = newValue
+            set(associatedValue: newValue, key: "isVerticallyCentered", object: self)
         }
     }
     
     /// The padding of the text.
     public var textPadding: NSEdgeInsets {
-        get { extendedTextFieldCell?.textPadding ?? .zero }
+        get { getAssociatedValue(key: "textPadding", object: self, initialValue: .zero) }
         set {
+            guard newValue != textPadding else { return }
             if newValue != .zero {
                 convertToExtendedTextFieldCell()
             }
-            extendedTextFieldCell?.textPadding = newValue
-        }
-    }
-    
-    public var focusPadding: NSEdgeInsets {
-        get { extendedTextFieldCell?.focusPadding ?? .zero }
-        set {
-            if newValue != .zero {
-                convertToExtendedTextFieldCell()
-            }
-            extendedTextFieldCell?.focusPadding = newValue
+            set(associatedValue: newValue, key: "textPadding", object: self)
         }
     }
     
@@ -72,102 +66,8 @@ extension NSTextField {
     }
     
     func convertToExtendedTextFieldCell() {
-        if extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell {
-            if let layer = layer {
-                let backgroundColor = layer.backgroundColor
-                let border = border
-                let innerShadow = innerShadow
-                let outerShadow = outerShadow
-                let cornerRadius = cornerRadius
-                let cornerCurve = cornerCurve
-                let roundedCorners = roundedCorners
-                let isOpaque = isOpaque
-                let mask = mask
-                let anchorPoint = anchorPoint
-                let transform = transform
-                let transform3D = transform3D
-                let shadowPath = shadowPath
-                let clipsToBounds = clipsToBounds
-
-                cell = textFieldCell.convertToExtended()
-                self.wantsLayer = true
-                layer.delegate = self as? any CALayerDelegate
-                self.layer = layer
-                self.layer?.backgroundColor = backgroundColor
-                self.border = border
-                self.innerShadow = innerShadow
-                self.outerShadow = outerShadow
-                self.roundedCorners = roundedCorners
-                self.cornerCurve = cornerCurve
-                self.cornerRadius = cornerRadius
-                self.clipsToBounds = clipsToBounds
-                self.isOpaque = isOpaque
-                self.mask = mask
-                self.anchorPoint = anchorPoint
-                self.shadowPath = shadowPath
-                if transform != CGAffineTransformIdentity {
-                    self.transform = transform
-                }
-                if transform3D != CATransform3DIdentity {
-                    self.transform3D = transform3D
-                }
-            } else {
-                cell = textFieldCell.convertToExtended()
-            }
-        }
-    }
-}
-
-import FZSwiftUtils
-extension NSTextFieldCell {
-    var isEditingOrSelecting: Bool {
-        get { getAssociatedValue(key: "isEditingOrSelecting", object: self, initialValue: false) }
-        set { set(associatedValue: newValue, key: "isEditingOrSelecting", object: self) }
-    }
-    
-    var textField: NSTextField? {
-        controlView as? NSTextField
-    }
-    
-    func swizzleCell() {
-        do {
-           try replaceMethod(
-           #selector(NSTextFieldCell.cellSize(forBounds:)),
-           methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGSize)).self,
-           hookSignature: (@convention(block)  (AnyObject, CGRect) -> (CGSize)).self) { store in {
-               object, bounds in
-               var cellSize = store.original(object, #selector(NSTextFieldCell.cellSize(forBounds:)), bounds)
-               if let cell = object as? NSTextFieldCell, let textField = cell.textField {
-                   cellSize.height += textField.textPadding.height
-                   cellSize.width += textField.textPadding.height
-               }
-               return cellSize
-               }
-           }
-            try replaceMethod(
-            #selector(NSTextFieldCell.titleRect(forBounds:)),
-            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGRect)).self,
-            hookSignature: (@convention(block)  (AnyObject, CGRect) -> (CGRect)).self) { store in {
-                object, rect in
-                var titleRect = rect
-                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
-                    titleRect = titleRect.insetBy(dx: textField.textPadding.left, dy: textField.textPadding.bottom)
-                    if !cell.isEditingOrSelecting {
-                        let textSize = cell.cellSize(forBounds: rect)
-                        let heightDelta = titleRect.size.height - textSize.height
-                        if heightDelta > 0 {
-                            titleRect.size.height -= heightDelta
-                            titleRect.origin.y += heightDelta/2
-                        }
-                    }
-                }
-                return store.original(object, #selector(NSTextFieldCell.titleRect(forBounds:)), rect)
-                }
-            }
-        } catch {
-           // handle error
-           Swift.debugPrint(error)
-        }
+        guard let cell = cell as? NSTextFieldCell, !cell.isMethodReplaced(#selector(NSTextFieldCell.cellSize(forBounds:))) else { return }
+        cell.swizzleCell()
     }
 }
 
@@ -265,9 +165,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         return super.drawingRect(forBounds: newRect)
     }
      */
-    
-    public var focusPadding = NSEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    
+        
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         
@@ -279,10 +177,12 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             bounds.size.width += leftRight + leftRight
             bounds.size.height += topBottom + topBottom
         }
-        bounds.origin.x -= focusPadding.left
-        bounds.origin.y -= focusPadding.bottom
-        bounds.size.width += focusPadding.width
-        bounds.size.height += focusPadding.height
+        /*
+        bounds.origin.x -= textPadding.left
+        bounds.origin.y -= textPadding.bottom
+        bounds.size.width += textPadding.width
+        bounds.size.height += textPadding.height
+         */
         
         Swift.print("focusRingMaskBounds", super.focusRingMaskBounds(forFrame: cellFrame, in: controlView), bounds)
         return bounds
@@ -365,6 +265,171 @@ extension NSTextFieldCell {
         cell.refusesFirstResponder = refusesFirstResponder
         cell.controlView = controlView
         return cell
+    }
+}
+
+extension NSTextFieldCell {
+    var isEditingOrSelecting: Bool {
+        get { getAssociatedValue(key: "isEditingOrSelecting", object: self, initialValue: false) }
+        set { set(associatedValue: newValue, key: "isEditingOrSelecting", object: self) }
+    }
+    
+    var textField: NSTextField? {
+        controlView as? NSTextField
+    }
+    
+    func swizzleCell() {
+        do {
+           try replaceMethod(
+           #selector(NSTextFieldCell.cellSize(forBounds:)),
+           methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGSize)).self,
+           hookSignature: (@convention(block)  (AnyObject, CGRect) -> (CGSize)).self) { store in {
+               object, bounds in
+               var cellSize = store.original(object, #selector(NSTextFieldCell.cellSize(forBounds:)), bounds)
+               if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                   cellSize.height += textField.textPadding.height
+                   cellSize.width += textField.textPadding.height
+               }
+               return cellSize
+               }
+           }
+            
+            try replaceMethod(
+            #selector(NSTextFieldCell.titleRect(forBounds:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGRect)).self,
+            hookSignature: (@convention(block)  (AnyObject, CGRect) -> (CGRect)).self) { store in {
+                object, rect in
+                var titleRect = rect
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    titleRect = titleRect.insetBy(dx: textField.textPadding.left, dy: textField.textPadding.bottom)
+                    if !cell.isEditingOrSelecting {
+                        let textSize = cell.cellSize(forBounds: rect)
+                        let heightDelta = titleRect.size.height - textSize.height
+                        if heightDelta > 0 {
+                            titleRect.size.height -= heightDelta
+                            titleRect.origin.y += heightDelta/2
+                        }
+                    }
+                }
+                return titleRect
+                }
+            }
+
+            try replaceMethod(
+            #selector(NSTextFieldCell.edit(withFrame:in:editor:delegate:event:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect, NSView, NSText, Any?, NSEvent) -> ()).self,
+            hookSignature: (@convention(block)  (AnyObject, CGRect, NSView, NSText, Any?, NSEvent) -> ()).self) { store in {
+                object, rect, controlView, textObj, delegate, event in
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    cell.isEditingOrSelecting = true
+                    let insetRect = rect.insetBy(dx: textField.textPadding.left, dy: textField.textPadding.bottom)
+                    store.original(object, #selector(NSTextFieldCell.edit(withFrame:in:editor:delegate:event:)), insetRect, controlView, textObj, delegate, event)
+                    cell.isEditingOrSelecting = false
+                }
+                }
+            }
+            
+            try replaceMethod(
+            #selector(NSTextFieldCell.select(withFrame:in:editor:delegate:start:length:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect, NSView, NSText, Any?, Int, Int) -> ()).self,
+            hookSignature: (@convention(block)  (AnyObject, CGRect, NSView, NSText, Any?, Int, Int) -> ()).self) { store in {
+                object, rect, controlView, textObj, delegate, selStart, length in
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    cell.isEditingOrSelecting = true
+                    let insetRect = rect.insetBy(dx: textField.textPadding.left, dy: textField.textPadding.bottom)
+                    store.original(object, #selector(NSTextFieldCell.select(withFrame:in:editor:delegate:start:length:)), insetRect, controlView, textObj, delegate, selStart, length)
+                    cell.isEditingOrSelecting = false
+                }
+                }
+            }
+            
+            try replaceMethod(
+            #selector(NSTextFieldCell.highlight(_:withFrame:in:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, Bool, CGRect, NSView) -> ()).self,
+            hookSignature: (@convention(block)  (AnyObject, Bool, CGRect, NSView) -> ()).self) { store in {
+                object, flag, cellFrame, controlView in
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    let insetRect = cellFrame.insetBy(dx: textField.textPadding.left, dy: textField.textPadding.bottom)
+                    store.original(object, #selector(NSTextFieldCell.highlight(_:withFrame:in:)), flag, insetRect, controlView)
+                }
+                }
+            }
+            
+            try replaceMethod(
+            #selector(NSTextFieldCell.drawInterior(withFrame:in:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect, NSView) -> ()).self,
+            hookSignature: (@convention(block)  (AnyObject, CGRect, NSView) -> ()).self) { store in {
+                object, cellFrame, controlView in
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    let insetRect = cellFrame.insetBy(dx: textField.textPadding.left, dy: textField.textPadding.bottom)
+                    store.original(object, #selector(NSTextFieldCell.drawInterior(withFrame:in:)), insetRect, controlView)
+                }
+                }
+            }
+            
+            try replaceMethod(
+            #selector(NSTextFieldCell.drawFocusRingMask(withFrame:in:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect, NSView) -> ()).self,
+            hookSignature: (@convention(block)  (AnyObject, CGRect, NSView) -> ()).self) { store in {
+                object, cellFrame, controlView in
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    guard textField.focusType != .none else {
+                        return
+                    }
+                    
+                    Swift.print("drawFocusRingMask", cellFrame, cell.focusRingMaskBounds(forFrame: cellFrame, in: controlView))
+                    var cornerRadius: CGFloat = 0
+                    switch textField.focusType {
+                    case .capsule:
+                        cornerRadius = cellFrame.size.height / 2.0
+                    case let .roundedCorners(radius):
+                        cornerRadius = radius
+                    case let .roundedCornersRelative(relative):
+                        cornerRadius = cornerRadius * relative.clamped(max: 1.0)
+                    default:
+                        break
+                    }
+                    
+                    guard textField.focusType != .default, cornerRadius != 0 else {
+                        store.original(object, #selector(NSTextFieldCell.drawFocusRingMask(withFrame:in:)), cellFrame, controlView)
+                        return
+                    }
+                    
+                    // Make focus ring frame fit with cell size via cellFrame.insetBy(dx: 2, dy: 1)
+                    let cellFrame = cell.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
+                    NSBezierPath(roundedRect: cellFrame, cornerRadius: cornerRadius).fill()
+                }
+                }
+            }
+            
+            try replaceMethod(
+            #selector(NSTextFieldCell.focusRingMaskBounds(forFrame:in:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, CGRect, NSView) -> (CGRect)).self,
+            hookSignature: (@convention(block)  (AnyObject, CGRect, NSView) -> (CGRect)).self) { store in {
+                object, cellFrame, controlView in
+                
+                var bounds = store.original(object, #selector(NSTextFieldCell.focusRingMaskBounds(forFrame:in:)), cellFrame, controlView)
+                if let cell = object as? NSTextFieldCell, let textField = cell.textField {
+                    if textField.focusType == .capsule {
+                        let leftRight = bounds.height/3.0
+                        let topBottom = bounds.height/10.0
+                        bounds.origin.x -= leftRight
+                        bounds.origin.y -= topBottom
+                        bounds.size.width += leftRight + leftRight
+                        bounds.size.height += topBottom + topBottom
+                    }
+                    bounds.origin.x -= textField.textPadding.left
+                    bounds.origin.y -= textField.textPadding.bottom
+                    bounds.size.width += textField.textPadding.width
+                    bounds.size.height += textField.textPadding.height
+                    
+                }
+                return bounds
+                }
+            }
+        } catch {
+           Swift.debugPrint(error)
+        }
     }
 }
 
