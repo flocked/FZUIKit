@@ -15,6 +15,8 @@
          A Boolean value that determines whether the text field reduces the text’s font size to fit the title string into the text field’s bounding rectangle.
 
          Normally, the text field draws the text with the font you specify in the `font` property. If this property is true, and the text in the `stringValue` property exceeds the text field’s bounding rectangle, the text field reduces the font size until the text fits or it has scaled the font down to the minimum font size. The default value for this property is `false`. If you change it to `true`, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` property. This autoshrinking behavior is only intended for use with a single-line text field.
+         
+         - Note: If you you set this property to `true`, ``automaticallyResizesToFit`` is set to `false`.
          */
         public var adjustsFontSizeToFitWidth: Bool {
             get { getAssociatedValue(key: "adjustsFontSizeToFitWidth", object: self, initialValue: false) }
@@ -22,6 +24,9 @@
                 guard newValue != adjustsFontSizeToFitWidth else { return }
                 set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
                 setupFontAdjustment()
+                if newValue {
+                    automaticallyResizesToFit = false
+                }
                 adjustFontSize()
             }
         }

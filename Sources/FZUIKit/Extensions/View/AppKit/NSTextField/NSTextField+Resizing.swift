@@ -11,7 +11,11 @@ import FZSwiftUtils
 
 extension NSTextField {
     
-    /// A Boolean value that indicates whether text field should automatically adjust it's size to fit it's string value.
+    /**
+     A Boolean value that indicates whether the text field is automatically adjust it's size to fit it's string value.
+     
+     - Note: If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     */
     @objc open var automaticallyResizesToFit: Bool {
         get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: false) }
         set {
@@ -20,6 +24,7 @@ extension NSTextField {
             swizzleIntrinsicContentSize()
             observeEditing()
             if newValue {
+                adjustsFontSizeToFitWidth = false
                 resizeToFit()
             }
         }

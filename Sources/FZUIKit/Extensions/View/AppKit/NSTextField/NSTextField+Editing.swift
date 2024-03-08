@@ -294,10 +294,8 @@
                 NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
                     self.updateString()
+                    self.resizeToFit()
                     self.adjustFontSize()
-                    if self.automaticallyResizesToFit {
-                        self.resizeToFit()
-                    }
                 })
                 
                 editingNotificationTokens.append(
@@ -305,11 +303,9 @@
                     guard let self = self else { return }
                     self.isEditingText = false
                     self.editStartString = self.stringValue
-                    self.adjustFontSize()
                     self.editingHandlers.didEnd?()
-                    if self.automaticallyResizesToFit {
-                        self.resizeToFit()
-                    }
+                    self.resizeToFit()
+                    self.adjustFontSize()
                 })
             } else {
                 setupTextFieldObserver()
@@ -403,8 +399,8 @@
                 guard textFieldObserver.isObserving(\.stringValue) == false else { return }
                 textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
-                    self.adjustFontSize()
                     self.resizeToFit()
+                    self.adjustFontSize()
                 })
             } else {
                 textFieldObserver.remove(\.stringValue)
