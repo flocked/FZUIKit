@@ -14,7 +14,7 @@ import FZSwiftUtils
 #endif
 import SwiftUI
 
-extension NSDirectionalRectEdge: Hashable {}
+extension NSDirectionalRectEdge: Hashable { }
 
 public extension CGRect {
     func inset(by edgeInsets: EdgeInsets) -> CGRect {
@@ -28,9 +28,9 @@ public extension CGRect {
     func inset(by edgeInsets: NSDirectionalEdgeInsets) -> CGRect {
         var result = self
         result.origin.x += edgeInsets.leading
-        result.origin.y += edgeInsets.top
-        result.size.width -= edgeInsets.leading - edgeInsets.trailing
-        result.size.height -= edgeInsets.top - edgeInsets.bottom
+        result.origin.y += edgeInsets.bottom
+        result.size.width -= edgeInsets.width
+        result.size.height -= edgeInsets.height
         return result
     }
 }
@@ -70,6 +70,16 @@ public extension NSUIEdgeInsets {
         let hValue = height / 2.0
         self.init(top: hValue, left: wValue, bottom: hValue, right: wValue)
     }
+    
+    /// Creates an edge insets structure with the specified shared bottom and top values.
+    init(bottomTop: CGFloat, leftRight: CGFloat? = nil) {
+        self.init(top: bottomTop, left: leftRight ?? 0.0, bottom: bottomTop, right: leftRight ?? 0.0)
+    }
+    
+    /// Creates an edge insets structure with the specified shared left and right values.
+    init(bottomTop: CGFloat? = nil, leftRight: CGFloat) {
+        self.init(top: bottomTop ?? 0.0, left: leftRight, bottom: bottomTop ?? 0.0, right: leftRight)
+    }
 
     /// The width (left + right) of the insets.
     var width: CGFloat {
@@ -88,6 +98,24 @@ public extension NSUIEdgeInsets {
             let value = newValue / 2.0
             top = value
             bottom = value
+        }
+    }
+    
+    /// The bottom and top value.
+    var bottomTop: CGFloat {
+        get { max(bottom, top) }
+        set {
+            bottom = newValue
+            top = newValue
+        }
+    }
+    
+    /// The left and right value.
+    var leftRight: CGFloat {
+        get { max(left, right) }
+        set {
+            left = newValue
+            right = newValue
         }
     }
 
@@ -119,6 +147,16 @@ public extension NSDirectionalEdgeInsets {
         self.width = width
         self.height = height
     }
+    
+    /// Creates an edge insets structure with the specified shared bottom and top values.
+    init(bottomTop: CGFloat, leadingTrailing: CGFloat? = nil) {
+        self.init(top: bottomTop, leading: leadingTrailing ?? 0.0, bottom: bottomTop, trailing: leadingTrailing ?? 0.0)
+    }
+    
+    /// Creates an edge insets structure with the specified shared leading and trailing values.
+    init(bottomTop: CGFloat? = nil, leadingTrailing: CGFloat) {
+        self.init(top: bottomTop ?? 0.0, leading: leadingTrailing, bottom: bottomTop ?? 0.0, trailing: leadingTrailing)
+    }
 
     /// The width (leading + trailing) of the insets.
     var width: CGFloat {
@@ -137,6 +175,24 @@ public extension NSDirectionalEdgeInsets {
             let value = newValue / 2.0
             top = value
             bottom = value
+        }
+    }
+    
+    /// The bottom and top value.
+    var bottomTop: CGFloat {
+        get { max(bottom, top) }
+        set {
+            bottom = newValue
+            top = newValue
+        }
+    }
+    
+    /// The leading and trailing value.
+    var leadingTrailing: CGFloat {
+        get { max(leading, trailing) }
+        set {
+            leading = newValue
+            trailing = newValue
         }
     }
 
@@ -202,6 +258,16 @@ extension EdgeInsets: Hashable {
         self.width = width
         self.height = height
     }
+    
+    /// Creates an edge insets structure with the specified shared bottom and top values.
+    public init(bottomTop: CGFloat, leadingTrailing: CGFloat? = nil) {
+        self.init(top: bottomTop, leading: leadingTrailing ?? 0.0, bottom: bottomTop, trailing: leadingTrailing ?? 0.0)
+    }
+    
+    /// Creates an edge insets structure with the specified shared leading and trailing values.
+    public init(bottomTop: CGFloat? = nil, leadingTrailing: CGFloat) {
+        self.init(top: bottomTop ?? 0.0, leading: leadingTrailing, bottom: bottomTop ?? 0.0, trailing: leadingTrailing)
+    }
 
     /// The width (leading + trailing) of the insets.
     public var width: CGFloat {
@@ -222,6 +288,41 @@ extension EdgeInsets: Hashable {
             bottom = value
         }
     }
+    
+    /// The bottom and top value.
+    public var bottomTop: CGFloat {
+        get { max(bottom, top) }
+        set {
+            bottom = newValue
+            top = newValue
+        }
+    }
+    
+    /// The leading and trailing value.
+    public var leadingTrailing: CGFloat {
+        get { max(leading, trailing) }
+        set {
+            leading = newValue
+            trailing = newValue
+        }
+    }
+    
+    /// The insets as `NSDirectionalEdgeInsets`.
+    var directional: NSDirectionalEdgeInsets {
+        .init(top: top, leading: leading, bottom: bottom, trailing: trailing)
+    }
+    
+    #if os(macOS)
+    /// The insets as `NSEdgeInsets`.
+    var nsEdgeInsets: NSEdgeInsets {
+        .init(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
+    }
+    #elseif canImport(UIKit)
+    /// The insets as `UIEdgeInsets`.
+    var uiEdgeInsets: UIEdgeInsets {
+        .init(top: top, left: leading, bottom: bottom, right: trailing)
+    }
+    #endif
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(top)
