@@ -135,6 +135,7 @@
             if needsFontAdjustments {
                 guard isMethodReplaced(#selector(setter: font)) == false else { return }
                 textFieldObserver = nil
+                _font = font
                 do {
                     try replaceMethod(#selector(setter: font),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
@@ -152,7 +153,6 @@
                         return (object as? NSTextField)?._font ?? nil
                     }
                     }
-                    _font = font
                 } catch {
                     Swift.debugPrint(error)
                 }
