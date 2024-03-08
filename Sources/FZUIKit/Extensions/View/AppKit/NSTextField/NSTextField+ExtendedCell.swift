@@ -147,6 +147,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         return rect
     }
 
+    /*
     override func titleRect(forBounds rect: NSRect) -> NSRect {
         var titleRect = super.titleRect(forBounds: rect)
         titleRect = insetRect(for: rect)
@@ -178,6 +179,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         }
         return titleRect
     }
+     */
     
     override func drawingRect(forBounds theRect: NSRect) -> NSRect {
         var newRect = super.drawingRect(forBounds: theRect)
