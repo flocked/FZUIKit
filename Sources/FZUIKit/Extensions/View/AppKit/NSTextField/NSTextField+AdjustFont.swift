@@ -49,10 +49,6 @@
 
         var isFittingCurrentText: Bool {
             let isFitting = !isTruncatingText
-            if let cell = cell {
-                let size = cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width-0.5, CGFloat.greatestFiniteMagnitude)))
-                Swift.print("isFitting", isTruncatingText, size.height > frame.height, size, frame.size )
-            }
             if isFitting == true {
                 if let cell = cell {
                     let cellSize = cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width-0.5, CGFloat.greatestFiniteMagnitude)))
@@ -60,11 +56,6 @@
                         return false
                     }
                 }
-                /*
-                if let cell = cell, cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width, CGFloat.greatestFiniteMagnitude))).height > frame.height {
-                    return false
-                }
-                */
             }
             return isFitting
         }
@@ -97,7 +88,6 @@
         func adjustFontSize() {
             guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
-            Swift.print("-----------")
             cell?.font = _font
             var scaleFactor = 1.0
             var needsUpdate = !isFittingCurrentText
