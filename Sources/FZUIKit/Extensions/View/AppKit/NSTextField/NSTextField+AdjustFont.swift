@@ -78,7 +78,7 @@
         }
 
         func adjustFontSize() {
-            guard needsFontAdjustments else { return }
+            guard needsFontAdjustments, isAdjustingFontSize == false else { return }
             guard let _font = _font else { return }
             isAdjustingFontSize = true
             cell?.font = _font
@@ -105,6 +105,7 @@
 
             Swift.print("adjustFontSize end", cell?.font?.pointSize ?? "nil",  pointSize)
             cell?.font = _font.withSize(pointSize)
+            self.font = _font.withSize(pointSize)
             
               //  adjustFontKerning()
             isAdjustingFontSize = false
