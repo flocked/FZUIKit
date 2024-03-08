@@ -148,6 +148,22 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
+        let insetRect = insetRect(for: rect)
+        var newRect = super.titleRect(forBounds: rect)
+        if !isEditingOrSelecting {
+            let textSize = self.cellSize(forBounds: rect)
+            
+            let heightDelta = newRect.size.height - textSize.height
+            if heightDelta > 0 {
+                newRect.size.height -= heightDelta
+                newRect.origin.y += heightDelta/2
+            }
+        }
+        return newRect
+        
+        /*
+        
+        
         var titleRect = insetRect(for: rect)
         return titleRect
         if isVerticallyCentered {
@@ -177,22 +193,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
              */
         }
         return titleRect
-    }
-    
-    override func drawingRect(forBounds rect: NSRect) -> NSRect {
-        var newRect = super.drawingRect(forBounds: rect)
-        
-        if isVerticallyCentered, !isEditingOrSelecting {
-            let textSize:NSSize = self.cellSize(forBounds: rect)
-            
-            let heightDelta:CGFloat = newRect.size.height - textSize.height
-            if heightDelta > 0 {
-                newRect.size.height -= heightDelta
-                newRect.origin.y += heightDelta/2
-            }
-        }
-        
-        return newRect
+         */
     }
 
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
