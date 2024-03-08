@@ -18,13 +18,18 @@
     public class InnerShadowLayer: CALayer {
         /// The configuration of the inner shadow.
         public var configuration: ShadowConfiguration {
-            get { ShadowConfiguration(color: innerShadowColorDynamic, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
+            get { 
+                var configuration = ShadowConfiguration(color: color, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)
+                configuration.colorTransformer = colorTransformer
+                return configuration
+            }
             set {
-                innerShadowColorDynamic = newValue._resolvedColor
-                if let parentView = parentView {
-                    shadowColor = newValue._resolvedColor?.resolvedColor(for: parentView).cgColor
+                colorTransformer = newValue.colorTransformer
+                color = newValue.color
+                if let view = superlayer?.parentView {
+                    resolvedColor = newValue._resolvedColor?.resolvedColor(for: view)
                 } else {
-                    shadowColor = newValue._resolvedColor?.cgColor
+                    resolvedColor = newValue._resolvedColor
                 }
                 shadowOpacity = Float(newValue.opacity)
                 let needsUpdate = shadowOffset != newValue.offset.size || shadowRadius != newValue.radius
@@ -38,35 +43,19 @@
             }
         }
         
-        /*
-        public var configurationn: ShadowConfiguration = .none() {
+        var colorTransformer: ColorTransformer?
+
+        var resolvedColor: NSUIColor? = nil {
             didSet {
-                if let parentView = parentView {
-                    shadowColor = configurationn._resolvedColor?.resolvedColor(for: parentView).cgColor
-                } else {
-                    shadowColor = configurationn._resolvedColor?.cgColor
-                }
-                shadowOpacity = Float(configurationn.opacity)
-                let needsUpdate = shadowOffset != configurationn.offset.size || shadowRadius != configurationn.radius
-                isUpdating = true
-                shadowOffset = configurationn.offset.size
-                shadowRadius = configurationn.radius
-                isUpdating = false
-                if needsUpdate {
-                    updateShadowPath()
-                }
+                shadowColor = resolvedColor?.cgColor
             }
         }
-        */
-
-        #if os(macOS)
-        var innerShadowColorDynamic: NSUIColor? {
-            get { superlayer?.parentView?.dynamicColors.shadow }
-            set { superlayer?.parentView?.dynamicColors.shadow = newValue}
+        
+        var color: NSUIColor? = nil
+        
+        var view: NSUIView? {
+            superlayer?.parentView
         }
-        #else
-        var innerShadowColorDynamic: NSUIColor?
-        #endif
 
         var isUpdating: Bool = false
 

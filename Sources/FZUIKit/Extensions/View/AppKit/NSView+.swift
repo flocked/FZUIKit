@@ -523,16 +523,23 @@
                 if layer?.innerShadowLayer?.shadowColor?.isVisible == false || layer?.innerShadowLayer?.shadowColor == nil {
                     layer?.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
+                
                 innerShadowColor = newColor
+                innerShadowColorTransformer = newValue.colorTransformer
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
             }
         }
+        
+        var innerShadowColorTransformer: ColorTransformer? {
+            get { layer?.innerShadowLayer?.colorTransformer }
+            set { layer?.innerShadowLayer?.colorTransformer = newValue }
+        }
 
         @objc var innerShadowColor: NSColor? {
-            get { layer?.innerShadowLayer?.shadowColor?.nsUIColor }
-            set { layer?.innerShadowLayer?.shadowColor = newValue?.cgColor }
+            get { layer?.innerShadowLayer?.resolvedColor }
+            set { layer?.innerShadowLayer?.resolvedColor = newValue }
         }
 
         @objc var innerShadowOpacity: CGFloat {
