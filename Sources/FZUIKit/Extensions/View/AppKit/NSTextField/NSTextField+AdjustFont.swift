@@ -143,13 +143,18 @@
                 guard isMethodReplaced(#selector(setter: font)) == false else { return }
                 textFieldObserver = nil
                 _font = font
+                adjustFontSize()
                 do {
                     try replaceMethod(#selector(setter: font),
                         methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
-                    ) { _ in { object, font in
+                    ) { store in { object, font in
                         guard let textField = (object as? NSTextField), textField._font != font else { return }
                         textField._font = font
+                        store.original(object, #selector(setter: NSTextField.font), font)
+                        textField.adjustFontSize()
+
+                        
                     }
                     }
                     
@@ -177,7 +182,6 @@
             get { getAssociatedValue(key: "_font", object: self, initialValue: nil) }
             set { 
                 set(associatedValue: newValue, key: "_font", object: self)
-                adjustFontSize()
             }
         }
     }
