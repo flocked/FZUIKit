@@ -27,37 +27,34 @@ extension NSTextField {
     
     /// The focus type of the text field.
     public var focusType: FocusType {
-        get { getAssociatedValue(key: "focusType", object: self, initialValue: .default) }
+        get { extendedTextFieldCell?.focusType ?? .default }
         set {
-            guard newValue != focusType else { return }
             if newValue != .default {
                 convertToExtendedTextFieldCell()
             }
-            set(associatedValue: newValue, key: "focusType", object: self)
+            extendedTextFieldCell?.focusType = newValue
         }
     }
     
     /// A Boolean value indicating whether the text is vertically centered.
     public var isVerticallyCentered: Bool {
-        get { getAssociatedValue(key: "isVerticallyCentered", object: self, initialValue: false) }
+        get { extendedTextFieldCell?.isVerticallyCentered ?? false }
         set {
-            guard newValue != isVerticallyCentered else { return }
             if newValue != false {
                 convertToExtendedTextFieldCell()
             }
-            set(associatedValue: newValue, key: "isVerticallyCentered", object: self)
+            extendedTextFieldCell?.isVerticallyCentered = newValue
         }
     }
     
     /// The padding of the text.
     public var textPadding: NSEdgeInsets {
-        get { getAssociatedValue(key: "textPadding", object: self, initialValue: .zero) }
+        get { extendedTextFieldCell?.textPadding ?? .zero }
         set {
-            guard newValue != textPadding else { return }
             if newValue != .zero {
                 convertToExtendedTextFieldCell()
             }
-            set(associatedValue: newValue, key: "textPadding", object: self)
+            extendedTextFieldCell?.textPadding = newValue
         }
     }
     
@@ -66,8 +63,49 @@ extension NSTextField {
     }
     
     func convertToExtendedTextFieldCell() {
-        guard let cell = cell as? NSTextFieldCell, !cell.isMethodReplaced(#selector(NSTextFieldCell.cellSize(forBounds:))) else { return }
-        cell.swizzleCell()
+        if extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell {
+            if let layer = layer {
+                let backgroundColor = layer.backgroundColor
+                let border = border
+                let innerShadow = innerShadow
+                let outerShadow = outerShadow
+                let cornerRadius = cornerRadius
+                let cornerCurve = cornerCurve
+                let roundedCorners = roundedCorners
+                let isOpaque = isOpaque
+                let mask = mask
+                let anchorPoint = anchorPoint
+                let transform = transform
+                let transform3D = transform3D
+                let shadowPath = shadowPath
+                let clipsToBounds = clipsToBounds
+
+                cell = textFieldCell.convertToExtended()
+                self.wantsLayer = true
+                layer.delegate = self as? any CALayerDelegate
+                self.layer = layer
+                self.layer?.backgroundColor = backgroundColor
+                self.border = border
+                self.innerShadow = innerShadow
+                self.outerShadow = outerShadow
+                self.roundedCorners = roundedCorners
+                self.cornerCurve = cornerCurve
+                self.cornerRadius = cornerRadius
+                self.clipsToBounds = clipsToBounds
+                self.isOpaque = isOpaque
+                self.mask = mask
+                self.anchorPoint = anchorPoint
+                self.shadowPath = shadowPath
+                if transform != CGAffineTransformIdentity {
+                    self.transform = transform
+                }
+                if transform3D != CATransform3DIdentity {
+                    self.transform3D = transform3D
+                }
+            } else {
+                cell = textFieldCell.convertToExtended()
+            }
+        }
     }
 }
 
@@ -90,6 +128,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         }
     }
     
+    var isEditingOrSelecting: Bool = false
     
     override func cellSize(forBounds rect: NSRect) -> NSSize {
         var size = super.cellSize(forBounds: rect)
@@ -99,10 +138,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
-        return super.titleRect(forBounds: rect).insetBy(dx: textPadding.left, dy: textPadding.bottom)
+        var titleRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         if isVerticallyCentered {
-            var titleRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
-            
             if !isEditingOrSelecting {
                 let textSize = self.cellSize(forBounds: rect)
                 let heightDelta = titleRect.size.height - textSize.height
@@ -111,8 +148,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
                     titleRect.origin.y += heightDelta/2
                 }
             }
-            return titleRect
-            
             /*
              var titleRect = super.titleRect(forBounds: rect)
              let minimumHeight = cellSize(forBounds: rect).height
@@ -129,19 +164,20 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             titleRect.size.height = minimumHeight
             return titleRect
              */
-        } else {
-            return rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         }
+        return titleRect
     }
 
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
         isEditingOrSelecting = true
+        Swift.print("edit")
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.edit(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, event: event)
         isEditingOrSelecting = false
     }
 
     override func select(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
+        Swift.print("select")
         isEditingOrSelecting = true
         let insetRect = rect.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.select(withFrame: insetRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
@@ -149,7 +185,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     
     override func highlight(_ flag: Bool, withFrame cellFrame: NSRect, in controlView: NSView) {
-        Swift.print("textCell highlight")
         let insetRect = cellFrame.insetBy(dx: textPadding.left, dy: textPadding.bottom)
         super.highlight(flag, withFrame: insetRect, in: controlView)
     }
@@ -184,7 +219,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         bounds.size.height += textPadding.height
          */
         
-        Swift.print("focusRingMaskBounds", super.focusRingMaskBounds(forFrame: cellFrame, in: controlView), bounds)
         return bounds
     }
     
@@ -193,8 +227,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             return
         }
         
-        Swift.print("drawFocusRingMask", cellFrame, focusRingMaskBounds(forFrame: cellFrame, in: controlView))
-
         var cornerRadius: CGFloat = 0
         switch focusType {
         case .capsule:
@@ -268,6 +300,7 @@ extension NSTextFieldCell {
     }
 }
 
+/*
 extension NSTextFieldCell {
     var isEditingOrSelecting: Bool {
         get { getAssociatedValue(key: "isEditingOrSelecting", object: self, initialValue: false) }
@@ -294,7 +327,6 @@ extension NSTextFieldCell {
                }
            }
             
-            /*
             try replaceMethod(
             #selector(NSTextFieldCell.titleRect(forBounds:)),
             methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGRect)).self,
@@ -428,11 +460,11 @@ extension NSTextFieldCell {
                 return bounds
                 }
             }
-             */
         } catch {
            Swift.debugPrint(error)
         }
     }
 }
+*/
 
 #endif
