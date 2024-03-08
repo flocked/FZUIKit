@@ -224,8 +224,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
 
         bounds.origin.x -= textPadding.left
         bounds.origin.y -= textPadding.bottom
-        bounds.size.width += textPadding.right
-        bounds.size.height += textPadding.top
+    //    bounds.size.width += textPadding.right
+    //    bounds.size.height += textPadding.top
         
         return bounds
     }
