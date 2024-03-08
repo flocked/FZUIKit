@@ -78,7 +78,7 @@
         }
 
         func adjustFontSize() {
-            Swift.print("adjustFontSize")
+            Swift.print("adjustFontSize", _font != nil)
             guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
             isAdjustingFontSize = true
