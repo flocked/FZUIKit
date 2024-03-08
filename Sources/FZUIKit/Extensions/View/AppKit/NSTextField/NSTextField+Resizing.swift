@@ -43,7 +43,6 @@ extension NSTextField {
     public static let placeholderWidth: CGFloat = -1
     
     func resizeToFit() {
-        var height = frame.size.height
         guard automaticallyResizesToFit else { return }
         if translatesAutoresizingMaskIntoConstraints {
             frame.size = calculatedFittingSize

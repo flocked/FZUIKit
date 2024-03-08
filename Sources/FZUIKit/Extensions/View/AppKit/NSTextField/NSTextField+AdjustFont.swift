@@ -53,7 +53,6 @@
         /// Returns the font size that fits the current string value in the text field's bounds, or `0` if no font size fits.
         public var fittingFontSize: CGFloat {
             guard let _font = _font ?? font else { return 0.0 }
-            isAdjustingFontSize = true
             cell?.font = _font
             stringValue = stringValue
             var needsUpdate = !isFittingCurrentText
@@ -73,14 +72,12 @@
                 needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.1)
             }
             cell?.font = _font
-            isAdjustingFontSize = false
             return fittingPointSize ?? 0.0
         }
 
         func adjustFontSize() {
-            guard needsFontAdjustments, isAdjustingFontSize == false else { return }
+            guard needsFontAdjustments else { return }
             guard let _font = _font else { return }
-            isAdjustingFontSize = true
             cell?.font = _font
             var scaleFactor = 1.0
             var needsUpdate = !isFittingCurrentText
@@ -105,10 +102,8 @@
 
             Swift.print("adjustFontSize end", cell?.font?.pointSize ?? "nil",  pointSize)
             cell?.font = _font.withSize(pointSize)
-            self.font = _font.withSize(pointSize)
             
               //  adjustFontKerning()
-            isAdjustingFontSize = false
         }
 
         func adjustFontKerning() {
@@ -169,17 +164,12 @@
             }
         }
         
-        var _font: NSFont? {
+        public var _font: NSFont? {
             get { getAssociatedValue(key: "_font", object: self, initialValue: nil) }
             set { 
                 set(associatedValue: newValue, key: "_font", object: self)
                 adjustFontSize()
             }
-        }
-        
-        var isAdjustingFontSize: Bool {
-            get { getAssociatedValue(key: "isAdjustingFontSize", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "isAdjustingFontSize", object: self) }
         }
     }
 #endif

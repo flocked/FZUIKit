@@ -403,15 +403,8 @@
                 guard textFieldObserver.isObserving(\.stringValue) == false else { return }
                 textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
-                    if self.isAdjustingFontSize == false {
-                        self.adjustFontSize()
-                    } else {
-                        Swift.print("isAdjustingFontSize ")
-                    }
-                    
-                    if self.automaticallyResizesToFit, !isEditingText {
-                        self.resizeToFit()
-                    }
+                    self.adjustFontSize()
+                    self.resizeToFit()
                 })
             } else {
                 textFieldObserver.remove(\.stringValue)
