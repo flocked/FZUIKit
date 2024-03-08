@@ -100,7 +100,7 @@ extension NSView {
             observerGestureRecognizer = nil
         }
     }
-        
+
     func setupViewObservation() {
         if viewHandlers.needsObserving || windowHandlers.needsObserving {
             if viewObserver == nil {
@@ -146,7 +146,11 @@ extension NSView {
                 _isFirstResponder = isFirstResponder
                 viewObserver?.add(\.window?.firstResponder) { [weak self] _, firstResponder in
                     guard let self = self else { return }
-                    self._isFirstResponder = self.isFirstResponder
+                    if let self = self as? NSTextField {
+                        self._isFirstResponder = self.isFirstResponder
+                    } else {
+                        self._isFirstResponder = self.isFirstResponder
+                    }
                 }
             } else {
                 viewObserver?.remove(\.window?.firstResponder)

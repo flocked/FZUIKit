@@ -82,13 +82,23 @@
             }
         }
         
-        @objc dynamic var isKey: Bool {
-            get { getAssociatedValue(key: "isKey", object: self, initialValue: isKeyWindow) }
+        /**
+         A Boolean value that indicates whether the window is the key window for the application.
+         
+         It provides the same value as `isKeyWindow`, but can be KVO observed by enabling `isKeyWindowObservable`.
+         */
+        @objc public dynamic internal(set) var isKey: Bool {
+            get { NSWindow.isKeyWindowObservable ? getAssociatedValue(key: "isKey", object: self, initialValue: isKeyWindow) :  isKeyWindow }
             set { set(associatedValue: newValue, key: "isKey", object: self) }
         }
         
-        @objc dynamic var isMain: Bool {
-            get { getAssociatedValue(key: "isMain", object: self, initialValue: isMainWindow) }
+        /**
+         A Boolean value that indicates whether the window is the application’s main window.
+         
+         It provides the same value as `isMainWindow`, but can be KVO observed by enabling `isMainWindowObservable`.
+         */
+        @objc public dynamic internal(set) var isMain: Bool {
+            get { NSWindow.isKeyWindowObservable ? getAssociatedValue(key: "isMain", object: self, initialValue: isMainWindow) :  isMainWindow }
             set { set(associatedValue: newValue, key: "isMain", object: self) }
         }
         
@@ -298,8 +308,8 @@
         }
     }
 
-extension NSWindow {
-    /// A Boolean value that indicates whether the property `isKeyWindow` is KVO observable.
+extension NSWindow {    
+    /// A Boolean value that indicates whether the property `isKey` is KVO observable.
     public static var isKeyWindowObservable: Bool {
         get { isMethodReplaced(#selector(NSWindow.becomeKey)) }
         set {
@@ -337,7 +347,7 @@ extension NSWindow {
         }
     }
     
-    /// A Boolean value that indicates whether the property `isMainWindow` is KVO observable.
+    /// A Boolean value that indicates whether the property `isMain` is KVO observable.
     public static var isMainWindowObservable: Bool {
         get { isMethodReplaced(#selector(NSWindow.becomeMain)) }
         set {

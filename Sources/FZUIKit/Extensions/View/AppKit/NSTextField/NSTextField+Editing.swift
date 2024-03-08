@@ -77,6 +77,7 @@
             }
 
             func trimString(_ string: String) -> String {
+                guard self != .all else { return string }
                 var string = string
                 var characterSet = CharacterSet()
                 if contains(.lowercaseLetters) == false { characterSet += .lowercaseLetters }
@@ -274,7 +275,7 @@
         }
 
         func observeEditing() {
-            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments {
+            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments || isVerticallyCentered {
                 guard editingNotificationTokens.isEmpty else { return }
                 setupTextFieldObserver()
                 
@@ -296,6 +297,10 @@
                     self.updateString()
                     self.resizeToFit()
                     self.adjustFontSize()
+                    if self.isVerticallyCentered, !self.automaticallyResizesToFit {
+                        self.frame.size.height += 0.0001
+                        self.frame.size.height -= 0.0001
+                    }
                 })
                 
                 editingNotificationTokens.append(

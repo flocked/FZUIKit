@@ -391,5 +391,146 @@
             get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
             set { optionalLayer?._gradientLayer?.colors = newValue }
         }
+        
+        
+        /// Sets the Boolean value indicating whether the view is hidden.
+        @discardableResult
+        func isHidden(_ isHidden: Bool) -> Self {
+            self.isHidden = isHidden
+            return self
+        }
+        
+        /// Sets the corner radius of the view.
+        @discardableResult
+        func cornerRadius(_ radius: CGFloat) -> Self {
+            cornerRadius = radius
+            return self
+        }
+        
+        /// Sets the rounded corners of the view.
+        @discardableResult
+        func roundedCorners(_ corners: CACornerMask) -> Self {
+            roundedCorners = corners
+            return self
+        }
+        
+        /// Sets the border of the view.
+        @discardableResult
+        func border(_ border: BorderConfiguration) -> Self {
+            self.border = border
+            return self
+        }
+        
+        /// Sets the shadow of the view.
+        @discardableResult
+        func shadow(_ shadow: ShadowConfiguration) -> Self {
+            #if os(macOS)
+            self.outerShadow = shadow
+            #else
+            self.shadow = shadow
+            #endif
+            return self
+        }
+        
+        /// Sets the inner shadow of the view.
+        @discardableResult
+        func innerShadow(_ shadow: ShadowConfiguration) -> Self {
+            self.innerShadow = shadow
+            return self
+        }
+        
+        /// Sets the anchor point of the view’s bounds rectangle.
+        @discardableResult
+        func anchorPoint(_ anchorPoint: CGPoint) -> Self {
+            self.anchorPoint = anchorPoint
+            return self
+        }
+        
+        /// Sets the scale transform of the view.
+        @discardableResult
+        func scale(_ scale: CGPoint) -> Self {
+            self.scale = scale
+            return self
+        }
+        
+        /// Sets the rotation of the view as euler angles in degrees.
+        @discardableResult
+        func rotation(_ rotation: CGVector3) -> Self {
+            self.rotation = rotation
+            return self
+        }
+        
+        /// Sets the rotation of the view as euler angles in radians.
+        @discardableResult
+        func rotationInRadians(_ rotation: CGVector3) -> Self {
+            self.rotationInRadians = rotation
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the view, and its subviews, confine their drawing areas to the bounds of the view.
+        @discardableResult
+        func clipsToBounds(_ clipsToBounds: Bool) -> Self {
+            self.clipsToBounds = clipsToBounds
+            return self
+        }
+        
+        /// Sets the view whose alpha channel is used to mask a view’s content.
+        @discardableResult
+        func mask(_ mask: NSUIView?) -> Self {
+            self.mask = mask
+            return self
+        }
+        
+        /// Sets the view’s bounds rectangle, which expresses its location and size in its own coordinate system.
+        @discardableResult
+        func bounds(_ bounds: CGRect) -> Self {
+            self.bounds = bounds
+            return self
+        }
+        
+        /// Sets the view’s frame rectangle, which defines its position and size in its superview’s coordinate system.
+        @discardableResult
+        func frame(_ frame: CGRect) -> Self {
+            self.frame = frame
+            return self
+        }
+        
+        /// Sets the center point of the view’s frame rectangle.
+        @discardableResult
+        func center(_ center: CGPoint) -> Self {
+            self.center = center
+            return self
+        }
+        
+        #if os(macOS)
+        /// Sets the opacity of the view.
+        @discardableResult
+        func alphaValue(_ alphaValue: CGFloat) -> Self {
+            self.alphaValue = alphaValue
+            return self
+        }
+        #else
+        /// Sets the opacity of the view.
+        @discardableResult
+        func alpha(_ alpha: CGFloat) -> Self {
+            self.alpha = alpha
+            return self
+        }
+        
+        /// Sets the first nondefault tint color value in the view’s hierarchy, ascending from and starting with the view itself.
+        @discardableResult
+        func tintColor(_ color: UIColor!) -> Self {
+            tintColor = color
+            return self
+        }
+        
+        /// Sets the flag used to determine how a view lays out its content when its bounds change.x
+        @discardableResult
+        func contentMode(_ mode: UIView.ContentMode) -> Self {
+            contentMode = mode
+            return self
+        }
+        #endif
+        
     }
 #endif

@@ -158,6 +158,13 @@
             set { cell?.isScrollable = newValue }
         }
         
+        /// Sets the color of the text field’s content.
+        @discardableResult
+        func textColor(_ color: NSColor?) -> Self {
+            textColor = color            
+            return self
+        }
+        
         /// Sets the Boolean value that determines whether the user can select the content of the text field.
         @discardableResult
         func isSelectable(_ isSelectable: Bool) -> Self {

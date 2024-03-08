@@ -44,6 +44,7 @@ extension NSTextField {
                 convertToExtendedTextFieldCell()
             }
             extendedTextFieldCell?.isVerticallyCentered = newValue
+            observeEditing()
         }
     }
     
@@ -130,9 +131,13 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     var isEditingOrSelecting: Bool = false
     
+    override func draw(withFrame cellFrame: NSRect, in controlView: NSView) {
+        super.draw(withFrame: cellFrame, in: controlView)
+    }
+            
     func insetRect(for rect: CGRect) -> CGRect {
         var newRect = rect.inset(by: textPadding)
-        if isVerticallyCentered, !isEditingOrSelecting {
+        if isVerticallyCentered {
             let textSize = self.cellSize(forBounds: rect)
             let heightDelta = newRect.size.height - textSize.height
             if heightDelta > 0 {
@@ -151,11 +156,11 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     
     override func drawingRect(forBounds rect: NSRect) -> NSRect {
-        super.drawingRect(forBounds: insetRect(for: rect))
+      return super.drawingRect(forBounds: insetRect(for: rect))
     }
     
     override func titleRect(forBounds rect: NSRect) -> NSRect {
-        insetRect(for: rect)
+        return insetRect(for: rect)
     }
     
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
@@ -195,7 +200,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         case let .roundedCorners(radius):
             cornerRadius = radius
         case let .roundedCornersRelative(relative):
-            cornerRadius = cornerRadius * relative.clamped(max: 1.0)
+            cornerRadius = (cellFrame.height/2.0) * relative.clamped(max: 1.0)
         default:
             break
         }

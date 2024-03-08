@@ -706,6 +706,13 @@
             }
         }
         
+        /// Sets the text for the view’s tooltip.
+        @discardableResult
+        func toolTip(_ toolTip: String?) -> Self {
+            self.toolTip = toolTip
+            return self
+        }
+
         static func swizzleAnimationForKey() {
             guard didSwizzleAnimationForKey == false else { return }
             didSwizzleAnimationForKey = true

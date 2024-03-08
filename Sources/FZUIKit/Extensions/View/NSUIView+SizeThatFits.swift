@@ -14,7 +14,7 @@
     #endif
     import AVKit
 
-    public protocol Sizable {
+public protocol Sizable: NSUIView {
         /**
          Asks the view to calculate and return the size that best fits the specified size.
 
@@ -25,7 +25,7 @@
          - Parameter size:  The size for which the view should calculate its best-fitting size.
          - Returns: A new size that fits the receiver’s subviews.
          */
-        func sizeThatFits(_ size: CGSize) -> CGSize
+        func fittingSize(for size: CGSize) -> CGSize
         /**
          Resizes and moves the receiver view so it just encloses its subviews.
 
@@ -34,68 +34,86 @@
          You should not override this method. If you want to change the default sizing information for your view, override the `sizeThatFits(_:)` instead. That method performs any needed calculations and returns them to this method, which then makes the change.
          */
         func sizeToFit()
-
-        /// The minimum size of the view that satisfies the constraints it holds.
-        var fittingSize: CGSize { get }
     }
 
-    extension NSUIView: Sizable {}
+#if os(macOS)
+extension NSTextField: Sizable { }
+extension NSButton: Sizable { }
+extension AVPlayerView: Sizable { }
+extension NSComboBox: Sizable { }
+extension NSImageView: Sizable { }
+extension NSStepper: Sizable { }
+extension NSSlider: Sizable { }
+extension NSSegmentedControl: Sizable { }
+extension NSSwitch: Sizable { }
+extension NSProgressIndicator: Sizable { }
+extension NSLevelIndicator: Sizable { }
+extension NSPathControl: Sizable { }
+extension NSDatePicker: Sizable { }
 
-    public extension Sizable where Self: NSUIView {
-        var fittingSize: CGSize {
-            sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
-        }
+#else
 
-        func sizeToFit() {
-            frame.size = sizeThatFits(CGSize(NSUIView.noIntrinsicMetric, NSUIView.noIntrinsicMetric))
-        }
+#endif
 
-        func sizeThatFits(_: CGSize) -> CGSize {
-            frame.size
-        }
+extension Sizable {
+    /// Resizes the view to a fitting size.
+    public func sizeToFit() {
+        frame.size = sizeThatFits()
     }
-
-    public extension Sizable where Self: NSUIView {
-        /// Asks the view to calculate and return the size that best fits the specified width and height.
-        func sizeThatFits(width: CGFloat?, height: CGFloat?) -> CGSize {
-            sizeThatFits(CGSize(width: width ?? NSUIView.noIntrinsicMetric, height: height ?? NSUIView.noIntrinsicMetric))
-        }
+    
+    /// Asks the view to calculate and return the size that best fits.
+    public func sizeThatFits() -> CGSize {
+        fittingSize(for: CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric))
     }
+    
+    /// Asks the view to calculate and return the size that best fits the specified width.
+    public func sizeThatFits(width: CGFloat) -> CGSize {
+        fittingSize(for: CGSize(width, NSView.noIntrinsicMetric))
+    }
+    
+    /// Asks the view to calculate and return the size that best fits the specified height.
+    public func sizeThatFits(height: CGFloat) -> CGSize {
+        fittingSize(for: CGSize(NSView.noIntrinsicMetric, height))
+    }
+}
+
+
 
     #if os(macOS)
         public extension Sizable where Self: NSTextField {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
+                guard let cell = cell else { return fittingSize }
                 var size = size
-                if size.width == NSView.noIntrinsicMetric {
+                if size.width == NSView.noIntrinsicMetric || size.width == 0 {
                     size.width = 40000
                 }
-                if size.height == NSView.noIntrinsicMetric {
+                if size.height == NSView.noIntrinsicMetric || size.height == 0 {
                     size.height = 40000
                 }
-                size.width = size.width.clamped(min: 0)
-                size.height = size.height.clamped(min: 0)
-
-                if let cellSize = cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: size.width, height: size.height)) {
-                    return CGSize(size.width, cellSize.height)
-                }
-                return fittingSize
+                size = size.clamped(to: CGSize.zero...)
+                return cell.cellSize(forBounds: CGRect(.zero, size))
             }
         }
 
         public extension Sizable where Self: NSButton {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 let styles: [NSButton.BezelStyle] = [.helpButton, .disclosure, .roundedDisclosure, .circular, .smallSquare]
                 let buttonType = buttonType.rawValue
-                if size.width > fittingSize.width, styles.contains(where: { $0.rawValue == buttonType }) == false {
-                    fittingSize.width = size.width
+                if !styles.contains(where: {$0.rawValue == buttonType}), !isBordered {
+                    if size.width > fittingSize.width {
+                        fittingSize.width = size.width
+                    }
+                    if size.height > fittingSize.height {
+                        fittingSize.height = size.height
+                    }
                 }
                 return fittingSize
             }
         }
 
         public extension Sizable where Self: NSSegmentedControl {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 if size.width > fittingSize.width {
                     fittingSize.width = size.width
@@ -104,14 +122,14 @@
             }
         }
 
-        public extension Sizable where Self: NSSwitch {
-            func sizeThatFits(_: CGSize) -> CGSize {
+public extension Sizable where Self: NSSwitch {
+            func fittingSize(for size: CGSize) -> CGSize {
                 fittingSize
             }
         }
 
         public extension Sizable where Self: NSProgressIndicator {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 if style == .spinning { return fittingSize }
                 if size.width > fittingSize.width {
@@ -122,7 +140,7 @@
         }
 
         public extension Sizable where Self: NSLevelIndicator {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 if size.width > fittingSize.width {
                     fittingSize.width = size.width
@@ -132,7 +150,7 @@
         }
 
         public extension Sizable where Self: NSPathControl {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 if size.width > 0, size.width.isFinite {
                     fittingSize.width = size.width
@@ -142,7 +160,7 @@
         }
 
         public extension Sizable where Self: NSDatePicker {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 if datePickerStyle != .clockAndCalendar, size.width > 0, size.width.isFinite {
                     fittingSize.width = size.width
@@ -152,7 +170,7 @@
         }
 
         public extension Sizable where Self: NSSlider {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 if sliderType == .circular { return fittingSize }
                 if isVertical == false, size.width > fittingSize.width {
@@ -165,13 +183,13 @@
         }
 
         public extension Sizable where Self: NSStepper {
-            func sizeThatFits(_: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 fittingSize
             }
         }
 
         public extension Sizable where Self: NSComboBox {
-            func sizeThatFits(_ size: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 var fittingSize = fittingSize
                 if size.width > fittingSize.width {
                     fittingSize.width = size.width
@@ -181,13 +199,13 @@
         }
 
         public extension Sizable where Self: NSImageView {
-            func sizeThatFits(_: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 image?.size ?? bounds.size
             }
         }
 
         public extension Sizable where Self: AVPlayerView {
-            func sizeThatFits(_: CGSize) -> CGSize {
+            func fittingSize(for size: CGSize) -> CGSize {
                 player?.currentItem?.asset.videoNaturalSize ?? bounds.size
             }
         }

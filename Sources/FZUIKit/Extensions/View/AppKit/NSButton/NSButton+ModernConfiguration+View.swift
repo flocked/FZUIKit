@@ -211,7 +211,8 @@
 
             func updateConfiguration() {
                 hostingController.rootView = ContentView(configuration: appliedConfiguration, showBorder: showBorder)
-                sizeToFit()
+                frame.size = fittingSize
+               // sizeToFit()
             }
 
             var margins: NSDirectionalEdgeInsets {
