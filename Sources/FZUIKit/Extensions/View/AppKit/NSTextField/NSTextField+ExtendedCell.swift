@@ -294,6 +294,7 @@ extension NSTextFieldCell {
                }
            }
             
+            /*
             try replaceMethod(
             #selector(NSTextFieldCell.titleRect(forBounds:)),
             methodSignature: (@convention(c)  (AnyObject, Selector, CGRect) -> (CGRect)).self,
@@ -427,6 +428,7 @@ extension NSTextFieldCell {
                 return bounds
                 }
             }
+             */
         } catch {
            Swift.debugPrint(error)
         }
