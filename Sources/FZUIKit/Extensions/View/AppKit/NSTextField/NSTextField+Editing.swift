@@ -402,8 +402,9 @@
             if needsFontAdjustments || automaticallyResizesToFit {
                 guard textFieldObserver.isObserving(\.stringValue) == false else { return }
                 textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
+                    Swift.print("string chanbged", self?.isAdjustingFontSize ?? "")
                     guard let self = self, old != new else { return }
-                    if isAdjustingFontSize == false {
+                    if self.isAdjustingFontSize == false {
                         self.adjustFontSize()
                     }
                     
