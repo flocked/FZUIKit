@@ -505,6 +505,8 @@
         public var innerShadow: ShadowConfiguration {
             get { NSView.toRealSelf(self).layer?.innerShadowLayer?.configuration ?? .none() }
             set {
+                guard didApply == false else { return }
+                didApply = true
                 wantsLayer = true
                 Self.swizzleAnimationForKey()
                 NSView.toRealSelf(self).dynamicColors.innerShadow = newValue._resolvedColor
@@ -530,6 +532,12 @@
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
             }
+        }
+        
+        
+         var didApply: Bool {
+            get { getAssociatedValue(key: "didApply", object: self, initialValue: false) }
+            set { set(associatedValue: newValue, key: "didApply", object: self) }
         }
 
         @objc var innerShadowColor: NSColor? {
