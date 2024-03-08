@@ -57,11 +57,10 @@ extension NSTextField {
         }
     }
     
-    
-    /// A value that tells the layout system to use the placeholder width as preferred minimum width (see ``preferredMinLayoutWidth``).
+    /// A value that tells the layout system to constraint the preferred minimum width to the width of the placeholder string (see ``preferredMinLayoutWidth``).
     public static let placeholderWidth: CGFloat = -1
     
-    /// A value that tells the layout system to constraint the preferred maximum width to the superview width.
+    /// A value that tells the layout system to constraint the preferred maximum width to the width of the superview (see `preferredMaxLayoutWidth`).
     public static let superviewWidth: CGFloat = -1
     
     func resizeToFit() {
@@ -112,17 +111,10 @@ extension NSTextField {
             setupTextFieldObserver()
         }
     }
-    
-    var _preferredMaxLayoutWidth: CGFloat {
-        if preferredMaxLayoutWidth == NSTextField.superviewWidth, let superview = superview {
-            return superview.frame.width - (frame.origin.x * 2)
-        }
-        return preferredMaxLayoutWidth
-    }
-    
+
     var calculatedFittingSize: CGSize {
         guard let cell = cell else { return frame.size }
-        var cellSize = sizeThatFits(width: _preferredMaxLayoutWidth)
+        var cellSize = sizeThatFits(width: maxLayoutWidth)
         cellSize.height.round(toNearest: 0.5, .awayFromZero)
         if preferredMinLayoutWidth == Self.placeholderWidth {
             let placeholderSize = placeholderStringSize
@@ -130,25 +122,45 @@ extension NSTextField {
             cellSize.width.round(toNearest: 0.5, .awayFromZero)
         } else {
             cellSize.width.round(toNearest: 0.5, .awayFromZero)
-            cellSize.width = min(cellSize.width, _preferredMaxLayoutWidth)
+            cellSize.width = max(cellSize.width, maxLayoutWidth)
         }
         return cellSize
     }
-    
+        
     var placeholderStringSize: CGSize {
         guard let cell = cell else { return .zero }
-        var size = CGSize.zero
         if let placeholder = placeholderAttributedString {
-            let attributedStringValue = attributedStringValue
-            cell.attributedStringValue = placeholder
-            size = sizeThatFits(width: _preferredMaxLayoutWidth)
-            cell.attributedStringValue = attributedStringValue
+            return fittingSize(for: placeholder, maxWidth: maxLayoutWidth)
         } else if let placeholder = placeholderString {
-            let stringValue = stringValue
-            cell.stringValue = placeholder
-            size = sizeThatFits(width: _preferredMaxLayoutWidth)
-            cell.stringValue = stringValue
+            return fittingSize(for: placeholder, maxWidth: maxLayoutWidth)
         }
+        return .zero
+    }
+    
+    var maxLayoutWidth: CGFloat {
+        if preferredMaxLayoutWidth == NSTextField.superviewWidth, let superview = superview {
+            return superview.frame.width - (frame.origin.x * 2)
+        }
+        return preferredMaxLayoutWidth
+    }
+    
+    func fittingSize(for string: String, maxWidth: CGFloat? = nil, maxHeight: CGFloat? = nil) -> CGSize {
+        guard let cell = cell else { return .zero }
+        var size: CGSize = .zero
+        let stringValue = stringValue
+        cell.stringValue = string
+        size = sizeThatFits(width: maxWidth, height: maxHeight)
+        cell.stringValue = stringValue
+        return size
+    }
+    
+    func fittingSize(for attributedString: NSAttributedString, maxWidth: CGFloat? = nil, maxHeight: CGFloat? = nil) -> CGSize {
+        guard let cell = cell else { return .zero }
+        var size: CGSize = .zero
+        let stringValue = attributedStringValue
+        cell.attributedStringValue = attributedString
+        size = sizeThatFits(width: maxWidth, height: maxHeight)
+        cell.attributedStringValue = stringValue
         return size
     }
 }

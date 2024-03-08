@@ -75,6 +75,11 @@ extension Sizable {
     public func sizeThatFits(height: CGFloat) -> CGSize {
         fittingSize(for: CGSize(NSView.noIntrinsicMetric, height))
     }
+    
+    /// Asks the view to calculate and return the size that best fits the specified width.
+    public func sizeThatFits(width: CGFloat?, height: CGFloat?) -> CGSize {
+        fittingSize(for: CGSize(width ?? NSView.noIntrinsicMetric, height ?? NSView.noIntrinsicMetric))
+    }
 }
 
 
