@@ -82,12 +82,11 @@
             guard let _font = _font else { return }
             isAdjustingFontSize = true
             cell?.font = _font
-                        
             var scaleFactor = 1.0
             var needsUpdate = !isFittingCurrentText
             var pointSize = _font.pointSize
             var minPointSize = pointSize * minimumScaleFactor
-            Swift.print("adjustFontSize", pointSize)
+            Swift.print("adjustFontSize", cell?.font?.pointSize ?? "nil",  pointSize)
             while needsUpdate, scaleFactor >= minimumScaleFactor {
                 
                 let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
@@ -103,6 +102,10 @@
                 }
                 needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.001)
             }
+
+            Swift.print("adjustFontSize end", cell?.font?.pointSize ?? "nil",  pointSize)
+            cell?.font = _font.withSize(pointSize)
+            
               //  adjustFontKerning()
             isAdjustingFontSize = false
         }
@@ -127,7 +130,7 @@
         }
         
         var needsFontAdjustments: Bool {
-            adjustsFontSizeToFitWidth && minimumScaleFactor != 0.0
+            adjustsFontSizeToFitWidth && minimumScaleFactor !=e 0.0
         }
 
         func setupFontAdjustment() {
