@@ -136,7 +136,13 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
             
     func insetRect(for rect: CGRect) -> CGRect {
-        var newRect = rect.inset(by: textPadding)
+        var newRect = rect
+        newRect.origin.x += textPadding.left
+        newRect.origin.y += textPadding.top
+        newRect.size.width -= textPadding.width
+        newRect.size.height -= textPadding.height
+        
+        
         if isVerticallyCentered {
             let textSize = self.cellSize(forBounds: rect)
             let heightDelta = newRect.size.height - textSize.height
@@ -178,6 +184,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         if focusType == .capsule {
+            
             let leftRight = bounds.height/3.0
             let topBottom = bounds.height/10.0
             bounds.origin.x -= leftRight

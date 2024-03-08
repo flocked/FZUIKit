@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 08.03.24.
 //
 
+/*
 #if os(macOS)
 
     import AppKit
@@ -27,3 +28,4 @@ extension NSTextField {
 }
 
 #endif
+*/
