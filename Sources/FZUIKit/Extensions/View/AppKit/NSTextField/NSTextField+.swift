@@ -187,8 +187,15 @@
 
         /// A Boolean value indicating whether the text field is truncating the text.
         var isTruncatingText: Bool {
-            guard let cell = cell else { return false }
-            return cell.expansionFrame(withFrame: frame, in: self) != .zero
+            var isTruncating = false
+            if let cell = cell {
+                isTruncating = cell.expansionFrame(withFrame: frame, in: self) != .zero
+                if !isTruncating, maximumNumberOfLines == 1 {
+                    let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height))
+                    isTruncating = cellSize.width > frame.width
+                }
+            }
+            return isTruncating            
         }
 
         /// Option how to count the lines of a text field.
