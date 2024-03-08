@@ -53,7 +53,7 @@ extension NSTextField {
         }
         let diff = frame.size.height - height
         Swift.print("resizeToFit", height, frame.size.height, currentFrame, frame)
-        frame.origin.y += diff
+        frame.origin.y -= diff
     }
     
     func swizzleIntrinsicContentSize() {
