@@ -148,7 +148,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
 
     override func titleRect(forBounds rect: NSRect) -> NSRect {
-        var titleRect = insetRect(for: rect)
+        var titleRect = super.titleRect(forBounds: rect)
+        titleRect = insetRect(for: titleRect)
         if isVerticallyCentered {
             if !isEditingOrSelecting {
                 let textSize = self.cellSize(forBounds: rect)
@@ -180,6 +181,8 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     
     override func drawingRect(forBounds theRect: NSRect) -> NSRect {
         var newRect = super.drawingRect(forBounds: theRect)
+        newRect = insetRect(for: newRect)
+
         if isVerticallyCentered, !isEditingOrSelecting {
             let textSize = self.cellSize(forBounds: theRect)
             let heightDelta:CGFloat = newRect.size.height - textSize.height
