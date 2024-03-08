@@ -100,7 +100,7 @@ extension NSControl {
         self.usesSingleLineMode = usesSingleLineMode
         return self
     }
-    
+        
     /// Sets the formatter.
     @discardableResult
     public func formatter(_ formatter: Formatter?) -> Self {

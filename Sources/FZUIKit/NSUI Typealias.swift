@@ -50,6 +50,7 @@ import SwiftUI
     public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
     public typealias NSUIScreen = NSScreen
     public typealias NSUIGestureRecognizer = NSGestureRecognizer
+    public typealias NSUIButton = NSButton
 
 #elseif canImport(UIKit)
     import UIKit
@@ -94,5 +95,6 @@ import SwiftUI
     public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
     public typealias NSUIScreen = UIScreen
     public typealias NSUIGestureRecognizer = UIGestureRecognizer
+    public typealias NSUIButton = UIButton
 
 #endif

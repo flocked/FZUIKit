@@ -40,6 +40,27 @@ public extension BackgroundColorSettable where Self: NSView {
             backgroundColorAnimatable = animatableColor
         }
     }
+    
+    /**
+     Sets the background color of the view.
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    @discardableResult
+    func backgroundColor(_ color: NSUIColor?) -> Self {
+        backgroundColor = color
+        return self
+    }
+}
+
+public extension BackgroundColorSettable where Self: NSTextField {
+    /// Sets the background color of the text field.
+    @discardableResult
+    func backgroundColor(_ color: NSUIColor?) -> Self {
+        backgroundColor = color
+        drawsBackground = color != nil
+        return self
+    }
 }
 
 extension NSView {

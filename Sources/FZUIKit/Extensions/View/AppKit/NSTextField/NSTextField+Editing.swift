@@ -402,34 +402,38 @@
                     self.resizeToFit()
                     self.adjustFontSize()
                 })
-            } else {
-                textFieldObserver.remove(\.stringValue)
-            }
-            
-            if needsFontAdjustments {
-                guard textFieldObserver.isObserving(\.isBezeled) == false else { return }
-                
+                textFieldObserver.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.resizeToFit()
+                    self.adjustFontSize()
+                })
+                textFieldObserver.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.resizeToFit()
+                    self.adjustFontSize()
+                })
                 textFieldObserver.add(\.isBezeled, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
+                    self.resizeToFit()
                     self.adjustFontSize()
                 })
                 textFieldObserver.add(\.isBordered, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
+                    self.resizeToFit()
                     self.adjustFontSize()
                 })
                 textFieldObserver.add(\.bezelStyle, handler: { [weak self] old, new in
                     guard let self = self, self.isBezeled, old != new else { return }
+                    self.resizeToFit()
                     self.adjustFontSize()
                 })
-                textFieldObserver.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    self.adjustFontSize()
-                })
+            } else {
+                textFieldObserver.remove([\.stringValue, \.isBezeled, \.isBordered, \.bezelStyle, \.preferredMaxLayoutWidth, \.maximumNumberOfLines])
+            }
+            
+            if needsFontAdjustments {
+                guard textFieldObserver.isObserving(\.allowsDefaultTighteningForTruncation) == false else { return }
                 textFieldObserver.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    self.adjustFontSize()
-                })
-                textFieldObserver.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.adjustFontSize()
                 })
@@ -438,7 +442,7 @@
                     self.adjustFontSize()
                 })
             } else {
-                textFieldObserver.remove([\.isBezeled, \.isBordered, \.bezelStyle, \.preferredMaxLayoutWidth, \.allowsDefaultTighteningForTruncation, \.maximumNumberOfLines, \.frame])
+                textFieldObserver.remove([\.allowsDefaultTighteningForTruncation, \.frame])
             }
             
             if automaticallyResizesToFit {
@@ -447,12 +451,10 @@
                     guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
                     self.resizeToFit()
                 }
-                
                 textFieldObserver.add(\.placeholderString) { [weak self] old, new in
                     guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
                     self.resizeToFit()
                 }
-                
                 textFieldObserver.add(\.placeholderAttributedString) { [weak self] old, new in
                     guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
                     self.resizeToFit()

@@ -158,6 +158,98 @@
             set { cell?.isScrollable = newValue }
         }
         
+        /// Sets the Boolean value that determines whether the user can select the content of the text field.
+        @discardableResult
+        func isSelectable(_ isSelectable: Bool) -> Self {
+            self.isSelectable = isSelectable
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
+        @discardableResult
+        func truncatesLastVisibleLine(_ truncates: Bool) -> Self {
+            truncatesLastVisibleLine = truncates
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the user can edit the value in the text field.
+        @discardableResult
+        func isEditable(_ isEditable: Bool) -> Self {
+            self.isEditable = isEditable
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether excess text scrolls past the text field’s bounds.
+        @discardableResult
+        func isScrollable(_ isScrollable: Bool) -> Self {
+            self.isScrollable = isScrollable
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the text field wraps text whose length that exceeds the text field’s frame.
+        @discardableResult
+        func wraps(_ wraps: Bool) -> Self {
+            self.wraps = wraps
+            return self
+        }
+        
+        /// Sets the text layout of the text field.
+        @discardableResult
+        func textLayout(_ textLayout: TextLayout) -> Self {
+            self.textLayout = textLayout
+            return self
+        }
+        
+        /// Sets the text field’s bezel style.
+        @discardableResult
+        func bezelStyle(_ style: BezelStyle?) -> Self {
+            bezelStyle = style ?? bezelStyle
+            isBezeled = style != nil
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text field draws a solid black border around its contents.
+        @discardableResult
+        func isBordered(_ isBordered: Bool) -> Self {
+            self.isBordered = isBordered
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text field draws a bezeled background around its contents.
+        @discardableResult
+        func isBezeled(_ isBezeled: Bool) -> Self {
+            self.isBezeled = isBezeled
+            return self
+        }
+        
+        /// Sets the maximum number of lines a wrapping text field displays before clipping or truncating the text.
+        @discardableResult
+        func maximumNumberOfLines(_ lines: Int) -> Self {
+            maximumNumberOfLines = lines
+            return self
+        }
+        
+        /// Sets the minimum numbers of characters needed when the user edits the string value.
+        @discardableResult
+        func minimumNumberOfCharacters(_ minimum: Int) -> Self {
+            minimumNumberOfCharacters = minimum
+            return self
+        }
+        
+        /// Sets the maximum numbers of characters allowed when the user edits the string value.
+        @discardableResult
+        func maximumNumberOfCharacters(_ maximum: Int) -> Self {
+            maximumNumberOfCharacters = maximum
+            return self
+        }
+        
+        /// Sets the allowed characters the user can enter when editing.
+        @discardableResult
+        func allowedCharacters(_ characters: AllowedCharacters) -> Self {
+            allowedCharacters = characters
+            return self
+        }
+        
         /// A Boolean value indicating whether the text field has keyboard focus.
         var hasKeyboardFocus: Bool {
             currentEditor() == window?.firstResponder

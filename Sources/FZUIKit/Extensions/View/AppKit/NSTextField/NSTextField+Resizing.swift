@@ -26,6 +26,7 @@ extension NSTextField {
             if newValue {
                 adjustsFontSizeToFitWidth = false
                 resizeToFit()
+                adjustFontSize()
             }
         }
     }

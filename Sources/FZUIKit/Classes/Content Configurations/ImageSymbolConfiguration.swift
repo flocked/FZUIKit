@@ -13,21 +13,6 @@
 import FZSwiftUtils
 import SwiftUI
 
-@available(macOS 12.0, *)
-extension NSUIImageSymbolConfiguration {
-    func imageSymbolConfiguration() -> ImageSymbolConfiguration {
-        var configuration = ImageSymbolConfiguration()
-        self.textStyle
-        switch scale {
-        case .small: configuration.imageScale = .small
-        case .medium: configuration.imageScale = .medium
-        case .large: configuration.imageScale = .large
-        default: break
-        }
-        return configuration
-    }
-}
-
 /**
  An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
 
@@ -45,7 +30,7 @@ public struct ImageSymbolConfiguration: Hashable {
         didSet { updateResolvedColors() }
     }
 
-    /// The color transformer for resolving the color style.
+    /// The color transformer for resolving the colors of the color configuration.
     public var colorTransformer: ColorTransformer? {
         didSet { updateResolvedColors() }
     }
@@ -60,6 +45,24 @@ public struct ImageSymbolConfiguration: Hashable {
         configuration.font = font
         return configuration
     }
+    
+    /// Sets the font weight of the symbol configuration.
+    @discardableResult
+    public func weight(_ weight: NSUIImage.SymbolWeight) -> Self {
+        var configuration = self
+        configuration.font = configuration.font?.weight(weight)
+        return configuration
+    }
+    
+    /*
+    /// Sets the font design of the symbol configuration.
+    @discardableResult
+    public func design(_ design: NSUIFontDescriptor.SystemDesign) -> Self {
+        var configuration = self
+        configuration.font = configuration.font?.design(design)
+        return configuration
+    }
+    */
 
     /// Sets the color configuration of the symbol configuration.
     @discardableResult
@@ -71,7 +74,7 @@ public struct ImageSymbolConfiguration: Hashable {
 
     /// Sets the color transformer of the symbol configuration.
     @discardableResult
-    public func colorTransformerer(_ transformer: ColorTransformer?) -> Self {
+    public func colorTransformer(_ transformer: ColorTransformer?) -> Self {
         var newConfiguration = self
         newConfiguration.colorTransformer = transformer
         return newConfiguration
@@ -86,9 +89,9 @@ public struct ImageSymbolConfiguration: Hashable {
     }
     
     /**
-     Creates a configuration by applying the values from the configuration you specify.
-
-     - Parameter configuration: The configuration details to apply.
+     Returns a configuration that applies the specified configuration values on top of the current configuration’s values.
+     
+     - Parameter configuration: The configuration to apply.
      - Returns: A new configuration that prioritizes the values from the configuration you specify.
      */
     public func applying(_ configuration: ImageSymbolConfiguration) -> ImageSymbolConfiguration {
@@ -98,6 +101,16 @@ public struct ImageSymbolConfiguration: Hashable {
         newConfiguration.colorTransformer = configuration.colorTransformer ?? newConfiguration.colorTransformer
         newConfiguration.imageScale = configuration.imageScale ?? newConfiguration.imageScale
         return newConfiguration
+    }
+    
+    /// Returns a configuration that applies the right configuration values on top of the left configuration’s values.
+    public static func + (lhs: ImageSymbolConfiguration, rhs: ImageSymbolConfiguration) -> ImageSymbolConfiguration {
+        lhs.applying(rhs)
+    }
+    
+    /// Applies the right configuration values on top of the left configuration’s values.
+    public static func += (lhs: inout ImageSymbolConfiguration, rhs: ImageSymbolConfiguration) {
+        lhs = lhs.applying(rhs)
     }
 
     /**
@@ -223,7 +236,7 @@ public struct ImageSymbolConfiguration: Hashable {
         case systemFont(size: CGFloat, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
 
         /// A font with the specified text style and font weight.
-        case textStyle(NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
+        case textStyle(_ style: NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
 
         /// Sets the weight of the font.
         @discardableResult
@@ -367,6 +380,47 @@ public struct ImageSymbolConfiguration: Hashable {
         public static var black: Self {
             .monochrome(.black)
         }
+        
+        /// A color configuration with monochrome white color.
+        public static var white: Self {
+            .monochrome(.white)
+        }
+        
+        #if os(macOS)
+        /// A color configuration with primary label color.
+        public static var labelColor: Self {
+            .monochrome(.labelColor)
+        }
+        /// A color configuration with secondary label color.
+        public static var secondaryLabelColor: Self {
+            .monochrome(.secondaryLabelColor)
+        }
+        /// A color configuration with tertiary label color.
+        public static var tertiaryLabelColor: Self {
+            .monochrome(.tertiaryLabelColor)
+        }
+        /// A color configuration with quaternary label color.
+        public static var quaternaryLabelColor: Self {
+            .monochrome(.quaternaryLabelColor)
+        }
+        #elseif os(iOS) || os(tvOS)
+        /// A color configuration with primary label color.
+        public static var label: Self {
+            .monochrome(.label)
+        }
+        /// A color configuration with secondary label color.
+        public static var secondaryLabel: Self {
+            .monochrome(.secondaryLabel)
+        }
+        /// A color configuration with tertiary label color.
+        public static var tertiaryLabel: Self {
+            .monochrome(.tertiaryLabel)
+        }
+        /// A color configuration with quaternary label color.
+        public static var quaternaryLabel: Self {
+            .monochrome(.quaternaryLabel)
+        }
+        #endif
 
         var renderingMode: SwiftUI.SymbolRenderingMode {
             switch self {
@@ -410,6 +464,14 @@ public struct ImageSymbolConfiguration: Hashable {
                 return nil
             }
         }
+    }
+}
+
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
+extension NSUIImage.SymbolConfiguration {
+    var symbolConfiguration: ImageSymbolConfiguration? {
+        get { getAssociatedValue(key: "symbolConfiguration", object: self, initialValue: nil) }
+        set { set(associatedValue: newValue, key: "symbolConfiguration", object: self) }
     }
 }
 
@@ -467,9 +529,40 @@ public extension ImageSymbolConfiguration {
             }
         #endif
 
+        configuration.symbolConfiguration = self
         return configuration
     }
 }
+
+#if os(macOS) || os(iOS) || os(tvOS)
+@available(macOS 12.0, iOS 16.0, tvOS 16.00, *)
+public extension NSUIImageView {
+    #if os(macOS)
+    /// The configuration values to use when rendering the image.
+    var imageSymbolConfiguration: ImageSymbolConfiguration? {
+        get { symbolConfiguration?.symbolConfiguration }
+        set { symbolConfiguration = newValue?.nsUI() }
+    }
+    #else
+    /// The configuration values to use when rendering the image.
+    var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {
+        get { preferredSymbolConfiguration?.symbolConfiguration }
+        set { preferredSymbolConfiguration = newValue?.nsUI() }
+    }
+    #endif
+}
+
+@available(macOS 12.0, iOS 16.0, tvOS 16.00, *)
+public extension NSUIButton {
+    #if os(macOS)
+    /// The configuration values to use when rendering the image.
+    var imageSymbolConfiguration: ImageSymbolConfiguration? {
+        get { symbolConfiguration?.symbolConfiguration }
+        set { symbolConfiguration = newValue?.nsUI() }
+    }
+    #endif
+}
+#endif
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 public extension View {
@@ -525,31 +618,29 @@ public extension View {
     }
 #endif
 
-#if os(macOS)
-    @available(macOS 12.0, *)
-    public extension NSImage {
+    @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
+    public extension NSUIImage {
         /// Creates a new symbol image with the specified configuration.
-        func withSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSImage? {
+        func withSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
+            #if os(macOS)
             withSymbolConfiguration(configuration.nsUI())
-        }
-
-        /// Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
-        func applyingSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
-            applyingSymbolConfiguration(configuration.nsUI())
-        }
-    }
-
-#elseif canImport(UIKit)
-    @available(iOS 16.0, tvOS 16.0, watchOS 8.0, *)
-    public extension UIImage {
-        /// Returns a new version of the current image, replacing the current configuration attributes with the specified attributes.
-        func withConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
+            #else
             withConfiguration(configuration.nsUI())
+            #endif
         }
 
         /// Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
         func applyingSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
             applyingSymbolConfiguration(configuration.nsUI())
+
+        }
+        
+        /// The configuration details for a symbol image.
+        var imageSymbolConfiguration: ImageSymbolConfiguration? {
+            #if os(macOS)
+            symbolConfiguration.symbolConfiguration
+            #else
+            symbolConfiguration?.symbolConfiguration
+            #endif
         }
     }
-#endif

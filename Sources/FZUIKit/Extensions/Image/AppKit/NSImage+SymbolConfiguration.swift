@@ -48,6 +48,7 @@ extension NSUIImage.SymbolConfiguration {
 
     /// Returns the symbol configuration with the specified symbol weight.
     func weight(_ weight: NSUIImage.SymbolWeight?) -> NSUIImage.SymbolConfiguration {
+        self.weight = weight?.fontWeight()
         let configuration = self
         configuration.weight = weight?.fontWeight()
         return configuration
@@ -121,6 +122,12 @@ extension NSUIImage.SymbolConfiguration {
         let configuration = NSUIImage.SymbolConfiguration(scale: scale)
         return configuration
     }
+    
+    /// A symbol configuration with the image symbol configuration.
+    @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
+    static func configuration(_ configuration: ImageSymbolConfiguration) -> NSUIImage.SymbolConfiguration {
+        return configuration.nsUI()
+    }
 
     /// A monochrome symbol configuration.
     static func monochrome() -> NSUIImage.SymbolConfiguration {
@@ -134,6 +141,7 @@ extension NSUIImage.SymbolConfiguration {
             #endif
         }
     }
+    
 
     /// A multicolor symbol configuration with the specified color.
     static func multicolor(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
@@ -436,7 +444,57 @@ extension NSUIImage.SymbolConfiguration {
             }
         }
 
-        enum ColorConfiguration: String {
+        /// The color configuration.
+        public enum ColorConfiguration: Hashable {
+            ///  A monochrome color configuration with the specified color.
+            case monochrome(NSUIColor? = nil)
+            
+            ///  A hierarchical color configuration with the specified color.
+            case hierarchical(NSUIColor? = nil)
+            
+            ///  A multicolor color configuration using the specified color as primary color.
+            case multicolor(NSUIColor)
+            
+            /// A palette color configuration with the specified colors.
+            case palette(primary: NSUIColor, secondary: NSUIColor, tertiary: NSUIColor? = nil)
+            
+            ///  A monochrome color configuration using the content tint color.
+            public static var monochrome = ColorConfiguration.monochrome(nil)
+            
+            ///  A hierarchical color configuration using the content tint color.
+            public static var hierarchical = ColorConfiguration.hierarchical(nil)
+        }
+        
+        /// Returns the symbol configuration with the specified color configuration.
+        public func colorConfiguration(_ configuration: ColorConfiguration) -> NSImage.SymbolConfiguration {
+            let conf: NSImage.SymbolConfiguration
+            switch configuration {
+            case .monochrome(let color):
+                if let color = color {
+                    conf = .init(paletteColors: [color]).applying(.monochrome())
+                } else {
+                    conf = .monochrome()
+                }
+            case .hierarchical(let color):
+                if let color = color {
+                    conf = .hierarchical(color)
+                } else {
+                    if #available(macOS 13.0, *) {
+                        conf = .preferringHierarchical()
+                    } else {
+                        conf = NSImage.SymbolConfiguration()
+                        conf.setValue(1, forKey: "paletteType")
+                    }
+                }
+            case .multicolor(let color):
+                conf = .multicolor(color)
+            case .palette(let primary, let secondary, let tertiary):
+                conf = .palette(primary, secondary, tertiary)
+            }
+            return applying(conf)
+        }
+
+        enum ColorConfigurationAlt: String {
             case monochrome
             case multicolor
             case hierarchical
@@ -450,8 +508,10 @@ extension NSUIImage.SymbolConfiguration {
                 }
             }
         }
+        
+        
 
-        var colorConfiguration: ColorConfiguration? {
+        var colorConfiguration: ColorConfigurationAlt? {
             #if os(macOS)
                 if colors?.isEmpty == false, let type = value(forKey: "paletteType") as? Int {
                     if type == 1 {
