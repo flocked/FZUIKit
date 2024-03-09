@@ -543,22 +543,22 @@ class NoMenuPlayerView: AVPlayerView {
     
     public override func rightMouseDown(with event: NSEvent) {
         Swift.print("video rightMouseDown")
-        super.rightMouseDown(with: event)
     }
     
     public override func rightMouseUp(with event: NSEvent) {
         Swift.print("video rightMouseUp")
-        super.rightMouseUp(with: event)
     }
     
     public override func mouseDown(with event: NSEvent) {
         Swift.print("video mouseDown")
-        super.mouseDown(with: event)
     }
     
     public override func mouseUp(with event: NSEvent) {
         Swift.print("video mouseUp")
-        super.mouseUp(with: event)
+    }
+    
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
     }
     
 }
