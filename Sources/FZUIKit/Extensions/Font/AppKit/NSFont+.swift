@@ -25,6 +25,11 @@
             return CTFontGetAscent(ctFont) + CTFontGetDescent(ctFont) + CTFontGetLeading(ctFont)
         }
         
+        /// The height, in points, of text lines.
+        var lineHeightAlt: CGFloat {
+            value(forKey: "lineHeight") as? CGFloat ?? lineHeight
+        }
+        
         internal var baselineOffset: CGFloat {
             value(forKey: "_baselineOffsetForUILayout") as? CGFloat ?? 0.0
         }

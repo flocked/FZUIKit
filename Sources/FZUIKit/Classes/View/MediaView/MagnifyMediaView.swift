@@ -52,6 +52,10 @@
         override open func rightMouseDown(with _: NSEvent) {
             mediaView.videoView.player?.togglePlayback()
         }
+        
+        open override func menu(for event: NSEvent) -> NSMenu? {
+            return nil
+        }
 
         override open func keyDown(with event: NSEvent) {
             switch event.keyCode {

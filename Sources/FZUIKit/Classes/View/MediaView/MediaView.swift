@@ -532,14 +532,13 @@ class NoMenuPlayerView: AVPlayerView {
         false
     }
     
+    override func menu(for event: NSEvent) -> NSMenu? {
+        return nil
+    }
+    
     public override var menu: NSMenu? {
-        get {
-            Swift.print("video menu")
-            return nil
-        }
-        set { 
-            
-        }
+        get { return nil }
+        set { }
     }
     
     public override func rightMouseDown(with event: NSEvent) {
