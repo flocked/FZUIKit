@@ -564,6 +564,30 @@ class NoMenuPlayerView: AVPlayerView {
 }
 
     public class NoKeyDownPlayerView: AVPlayerView {
+        
+        public override init(frame frameRect: NSRect) {
+            super.init(frame: frameRect)
+            sharedInit()
+        }
+        
+        public required init?(coder: NSCoder) {
+            super.init(coder: coder)
+            sharedInit()
+        }
+        
+        public init() {
+            super.init(frame: .zero)
+            sharedInit()
+        }
+        
+        func sharedInit() {
+            if #available(macOS 13.0, *) {
+                allowsMagnification = false
+                allowsVideoFrameAnalysis = false
+            }
+            allowsPictureInPicturePlayback = false
+        }
+                
         var _menu: NSMenu? = nil
         public override var menu: NSMenu? {
             get { _menu }
