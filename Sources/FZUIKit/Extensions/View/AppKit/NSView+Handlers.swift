@@ -673,7 +673,7 @@ extension NSView {
             }
         }
         
-        var firstResponderObservation: NSKeyValueObservation?
+        var firstResponderObservation: KeyValueObservation?
         */
     }
 }

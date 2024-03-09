@@ -383,7 +383,7 @@
 
     @available(macOS 11.3, iOS 14.5, *)
     extension WKDownload {
-        var downloadObservation: NSKeyValueObservation? {
+        var downloadObservation: KeyValueObservation? {
             get { getAssociatedValue(key: "downloadObservation", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "downloadObservation", object: self) }
         }

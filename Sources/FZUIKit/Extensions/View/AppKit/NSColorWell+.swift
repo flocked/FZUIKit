@@ -26,7 +26,7 @@ extension NSColorWell {
         }
     }
     
-    var colorObservation: NSKeyValueObservation? {
+    var colorObservation: KeyValueObservation? {
         get { getAssociatedValue(key: "colorObservation", object: self, initialValue: nil) }
         set {  set(associatedValue: newValue, key: "colorObservation", object: self) }
     }

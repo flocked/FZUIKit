@@ -63,7 +63,7 @@
             }
         }
 
-        var cornerShapeBoundsObserver: NSKeyValueObservation? {
+        var cornerShapeBoundsObserver: KeyValueObservation? {
             get { getAssociatedValue(key: "_cornerShapeBoundsObserver", object: self) }
             set { set(associatedValue: newValue, key: "_cornerShapeBoundsObserver", object: self) }
         }

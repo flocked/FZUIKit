@@ -190,7 +190,7 @@ extension NSMenu {
     
     class DelegateProxy: NSObject, NSMenuDelegate {
         var delegate: NSMenuDelegate?
-        var delegateObservation: NSKeyValueObservation? = nil
+        var delegateObservation: KeyValueObservation? = nil
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
             

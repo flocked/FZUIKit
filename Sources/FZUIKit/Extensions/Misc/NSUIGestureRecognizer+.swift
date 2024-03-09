@@ -11,6 +11,7 @@ import AppKit
 #else
 import UIKit
 #endif
+import FZSwiftUtils
 
 extension NSUIGestureRecognizer {
     /// Adds the gesture recognizer to the specified view.
@@ -31,7 +32,7 @@ extension NSUIGestureRecognizer {
 
 /// A gesture recognizer that automatically re-attachs itself to the view it's removed from.
 class ReattachingGestureRecognizer: NSUIGestureRecognizer {
-    var viewObservation: NSKeyValueObservation?
+    var viewObservation: KeyValueObservation?
     
     /// A Boolean value that indicates whether the gesture recognizer re-attachs itself to the view it's removed from.
     var reattachsWhenRemoved: Bool = true {

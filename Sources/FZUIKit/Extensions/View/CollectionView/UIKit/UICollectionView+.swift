@@ -54,7 +54,7 @@
             }
         }
 
-        var contentOffsetObserver: NSKeyValueObservation? {
+        var contentOffsetObserver: KeyValueObservation? {
             get { getAssociatedValue(key: "contentOffsetObserver", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "contentOffsetObserver", object: self) }
         }

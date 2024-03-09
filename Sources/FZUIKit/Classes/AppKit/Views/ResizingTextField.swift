@@ -8,6 +8,7 @@
 #if os(macOS)
 
     import AppKit
+    import FZSwiftUtils
 
     /// A text field that automatically resizes to fit it's text.
     open class ResizingTextField: NSTextField {
@@ -74,7 +75,7 @@
             sharedInit()
         }
 
-        var observations: [NSKeyValueObservation] = []
+        var observations: [KeyValueObservation] = []
         
         func sharedInit() {
             drawsBackground = false

@@ -85,7 +85,7 @@
             sharedInit()
         }
 
-        var obs: NSKeyValueObservation?
+        var obs: KeyValueObservation?
         func sharedInit() {
             shadowOpacity = 0
             shadowColor = nil

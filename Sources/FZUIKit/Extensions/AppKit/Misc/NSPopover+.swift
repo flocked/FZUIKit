@@ -175,7 +175,7 @@ import SwiftUI
             set { set(associatedValue: newValue, key: "noArrowView", object: self) }
         }
 
-        private var positioningViewFrameObserver: NSKeyValueObservation? {
+        private var positioningViewFrameObserver: KeyValueObservation? {
             get { getAssociatedValue(key: "positioningFrameObserver", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "positioningFrameObserver", object: self) }
         }

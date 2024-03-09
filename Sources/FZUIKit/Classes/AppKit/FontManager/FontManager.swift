@@ -59,7 +59,7 @@ public class FontManager: NSObject {
         selectedFontFamily?.members ?? []
     }
     
-    var targetObservation: NSKeyValueObservation?
+    var targetObservation: KeyValueObservation?
     var targetFontObservation: Any?
     
     /**
@@ -97,7 +97,7 @@ public class FontManager: NSObject {
     
     var targetIsFirstResonder: Bool = false
     var _targetIsFirstResonder: Bool = false
-    var targetWindowObserver: NSKeyValueObservation? = nil
+    var targetWindowObserver: KeyValueObservation? = nil
     
     /**
      The target object that updates and receives the selected font.
@@ -250,7 +250,7 @@ public class FontManager: NSObject {
         }
     }
     
-    var firstResponderObserver: NSKeyValueObservation? = nil
+    var firstResponderObserver: KeyValueObservation? = nil
     func makeTargetFirstResponder() {
         guard let fontSizeTextField = fontSizeTextField, fontSizeTextField.isFirstResponder else { return }
         if _targetIsFirstResonder {

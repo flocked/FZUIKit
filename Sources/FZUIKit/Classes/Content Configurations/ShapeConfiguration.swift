@@ -183,7 +183,7 @@
             }
         }
 
-        fileprivate var frameObserver: NSKeyValueObservation? {
+        fileprivate var frameObserver: KeyValueObservation? {
             get { getAssociatedValue(key: "frameObserver", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "frameObserver", object: self) }
         }

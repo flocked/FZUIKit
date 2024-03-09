@@ -8,6 +8,7 @@
 
 #if os(macOS)
     import AppKit
+import FZSwiftUtils
 
     /// `Toolbar` configurates a window toolbar and it's items.
     public class Toolbar: NSObject {
@@ -254,7 +255,7 @@
             return toolbar
         }()
 
-        var toolbarItemSelectionObserver: NSKeyValueObservation?
+        var toolbarItemSelectionObserver: KeyValueObservation?
 
         func setupToolbarItemSelectionObserver() {
             if itemHandlers.selectionChanged != nil {

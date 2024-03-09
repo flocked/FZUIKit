@@ -30,16 +30,16 @@ extension NSTextField {
         }
     }
     
-    /// The direction the textfield's height expands when automatic resizing is enabled.
+    /// The direction the textfield's height expands when automatic resizing is enabled and `preferredMaxLayoutWidth` is reached.
     public enum ResizingDirection {
-        /// The frameheight expands to the top.
+        /// The textfield's height expands to the top.
         case top
-        /// The height expands to the bottom.
+        /// The textfield's height expands to the bottom.
         case bottom
     }
     
-    /// The direction the textfield's height expands when automatic resizing is enabled.
-    public var automaticResizingDirection: ResizingDirection {
+    /// The direction the textfield's height expands when automatic resizing is enabled and `preferredMaxLayoutWidth` is reached.
+    public var preferredResizingDirection: ResizingDirection {
         get { getAssociatedValue(key: "resizingDirection", object: self, initialValue: .top) }
         set { set(associatedValue: newValue, key: "resizingDirection", object: self) }
     }
@@ -57,7 +57,7 @@ extension NSTextField {
         }
     }
     
-    /// A value that tells the layout system to constraint the preferred minimum width to the width of the placeholder string (see ``preferredMinLayoutWidth``).
+    /// A value that tells the layout system to constraint the preferred minimum width to the width of the placeholder string. (see ``preferredMinLayoutWidth``).
     public static let placeholderWidth: CGFloat = -1
     
     /// A value that tells the layout system to constraint the preferred maximum width to the width of the superview (see `preferredMaxLayoutWidth`).
@@ -68,7 +68,7 @@ extension NSTextField {
         if translatesAutoresizingMaskIntoConstraints {
             var newFrame = frame
             newFrame.size = calculatedFittingSize
-            if automaticResizingDirection == .bottom {
+            if preferredResizingDirection == .bottom {
                 let diff = newFrame.height - frame.height
                 newFrame.origin.y -= diff
             }
@@ -91,7 +91,7 @@ extension NSTextField {
                         if let textField = object as? NSTextField, (textField.automaticallyResizesToFit || textField.preferredMinLayoutWidth != 0.0) {
                             let size = textField.frame.size
                             let newSize = textField.calculatedFittingSize
-                            if textField.automaticResizingDirection == .bottom {
+                            if textField.preferredResizingDirection == .bottom {
                                 let diff = newSize.height - size.height
                                 Swift.print(textField.frame.origin.y)
                                 textField.frame.origin.y -= diff

@@ -107,7 +107,7 @@ extension NSView {
         }
     }
 
-    var _effectiveAppearanceKVO: NSKeyValueObservation? {
+    var _effectiveAppearanceKVO: KeyValueObservation? {
         get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
         set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
     }

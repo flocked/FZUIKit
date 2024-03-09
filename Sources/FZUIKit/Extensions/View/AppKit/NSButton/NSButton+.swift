@@ -179,7 +179,7 @@
             set { set(associatedValue: newValue, key: "stateSymbolConfiguration", object: self) }
         }
 
-        internal var buttonStateObserver: NSKeyValueObservation? {
+        internal var buttonStateObserver: KeyValueObservation? {
             get { getAssociatedValue(key: "buttonStateObserver", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "buttonStateObserver", object: self) }
         }

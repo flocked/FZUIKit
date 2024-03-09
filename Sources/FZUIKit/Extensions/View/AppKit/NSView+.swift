@@ -27,6 +27,24 @@
         public var frameOnScreen: CGRect? {
             window?.convertToScreen(frameInWindow)
         }
+        
+        /**
+         The y-coordinate of the baseline for the topmost line of text in the view.
+         
+         For views with multiple lines of text, this represents the baseline of the top row of text.
+         */
+        public var firstBaselineOffsetY: CGFloat {
+            frame.y + frame.height - firstBaselineOffsetFromTop - 0.5
+        }
+
+        /**
+         The y-coordinate of the baseline for the bottommost line of text in the view.
+         
+         For views with multiple lines of text, this represents the baseline of the bottom row of text.
+         */
+        public var lastBaselineOffsetY: CGFloat {
+            frame.y + lastBaselineOffsetFromBottom - 0.5
+        }
 
         /**
          Embeds the view in a scroll view and returns that scroll view.
@@ -725,7 +743,7 @@
             }
         }
 
-        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {            
             if NSViewAnimationKeys.contains(key) {
                 let animation = CABasicAnimation()
                 animation.timingFunction = .default

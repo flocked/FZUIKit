@@ -15,6 +15,7 @@
 
 
     public extension NSUIView {
+        
         /// A value that indicates whether a view is movable by clicking and dragging anywhere in its background.
         enum BackgroundDragOption: Hashable, ExpressibleByBooleanLiteral {
             /// The view is movable.
@@ -50,9 +51,9 @@
                 setupDragResizeGesture()
             }
         }
-
-        /// A handler that provides the moved velocity when the view ``isMovableByViewBackground``.
-        var movableByBackgroundVelocity: ((CGPoint) -> Void)? {
+        
+        /// A handler that provides the velocity of the dragging of the view by it's background when ``isMovableByViewBackground`` is enabled.
+        var backgroundDragVelocity: ((_ state: NSGestureRecognizer.State, _ velocity: CGPoint) -> Void)? {
             get { getAssociatedValue(key: "movableByBackgroundVelocity", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "movableByBackgroundVelocity", object: self) }
         }
@@ -62,13 +63,15 @@
                 if panGesture == nil {
                     panGesture = NSUIPanGestureRecognizer { [weak self] gesture in
                         guard let self = self else { return }
-                        self.movableByBackgroundVelocity?(gesture.velocity(in: self))
+                        let velocity = gesture.velocity(in: self)
                         switch gesture.state {
-                        case .began:
+                        case .began:                        backgroundDragVelocity?(.began, velocity)
                             self.dragPoint = self.frame.origin
                         case .ended:
+                            backgroundDragVelocity?(.ended, velocity)
                             self.dragPoint = self.frame.origin
                         case .changed:
+                            backgroundDragVelocity?(.changed, velocity)
                             let translation = gesture.translation(in: self)
                             var dragPoint = self.dragPoint
                             dragPoint.x += translation.x

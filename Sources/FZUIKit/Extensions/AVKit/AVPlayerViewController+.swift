@@ -54,7 +54,7 @@ extension AVPlayerViewController {
     }
     
     #if os(iOS)
-    var videoBoundsObservation: NSKeyValueObservation? {
+    var videoBoundsObservation: KeyValueObservation? {
         get { getAssociatedValue(key: "videoBoundsObservation", object: self, initialValue: nil) }
         set { set(associatedValue: newValue, key: "videoBoundsObservation", object: self) }
     }

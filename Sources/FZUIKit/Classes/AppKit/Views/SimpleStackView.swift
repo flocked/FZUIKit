@@ -93,7 +93,7 @@ import FZSwiftUtils
             fatalError("init(coder:) has not been implemented")
         }
 
-        var viewObservers: [Int: NSKeyValueObservation] = [:]
+        var viewObservers: [Int: KeyValueObservation] = [:]
         var viewDistributions: [Int: ViewDistribution] = [:]
 
         func setupManagedViews(previous: [NSUIView] = []) {

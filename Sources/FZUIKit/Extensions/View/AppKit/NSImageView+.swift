@@ -68,6 +68,10 @@ extension NSImageView {
      Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depend on the image scaling and alignment.
      */
     public var imageBounds: CGRect {
+        if let bounds = value(forKey: "_drawingRectForImage") as? CGRect {
+            return bounds
+        }
+        
         guard let imageSize = image?.size else { return .zero }
     
         var contentFrame = CGRect(.zero, frame.size)
@@ -202,100 +206,3 @@ extension NSImageView {
     }
 }
 #endif
-
-/*
- extension NSImageView {
-     static var didSwizzleImageScaling: Bool {
-         get { getAssociatedValue(key: "didSwizzleImageScaling", object: self, initialValue: false) }
-         set { set(associatedValue: newValue, key: "didSwizzleImageScaling", object: self) }
-     }
-     
-     var isScaleToFill: Bool {
-         get { getAssociatedValue(key: "isScaleToFill", object: self, initialValue: false) }
-         set {
-             set(associatedValue: newValue, key: "isScaleToFill", object: self)
-             if newValue == true {
-                 wantsLayer = true
-                 layer?.contentsGravity = .resizeAspectFill
-             }
-         }
-     }
-     
-     var layerImageView: NSView {
-         get {
-             if let view: NSView = getAssociatedValue(key: "layerImageView", object: self) {
-                 return view
-             }
-             let view = NSView()
-             view.wantsLayer = true
-             view.layer?.contentsGravity = .resizeAspectFill
-             set(associatedValue: view, key: "layerImageView", object: self)
-             return view
-         }
-     }
-     
-     @objc var swizzled_image: NSImage? {
-         get {
-             if isScaleToFill {
-                 return getAssociatedValue(key: "swizzled_image", object: self, initialValue: image)
-             } else {
-                 return self.swizzled_image
-             }
-         }
-         set {
-             if isScaleToFill {
-                 if layerImageView.superview == nil {
-                     addSubview(withConstraint: layerImageView)
-                 }
-                 set(associatedValue: newValue, key: "swizzled_image", object: self)
-                 self.swizzled_image = nil
-                 layerImageView.layer?.contents = newValue
-             } else {
-                 layerImageView.removeFromSuperview()
-                 layerImageView.layer?.contents = nil
-                 set(associatedValue: nil as NSImage?, key: "swizzled_image", object: self)
-                 self.swizzled_image = newValue
-             }
-         }
-     }
-     
-     @objc var swizzled_imageScaling: NSImageScaling {
-         get { isScaleToFill ? .scaleToFill : self.swizzled_imageScaling }
-         set {
-             guard newValue != self.swizzled_imageScaling else { return }
-             let currentImage = image
-             if newValue != .scaleToFill {
-                 self.swizzled_imageScaling = newValue
-             }
-             if newValue == .scaleToFill || isScaleToFill {
-                 image = currentImage
-             }
-             isScaleToFill = newValue == .scaleToFill
-         }
-     }
-     static func swizzleImageScaling() {
-         guard didSwizzleImageScaling == false else { return }
-         didSwizzleImageScaling = true
-         do {
-             try Swizzle(NSImageView.self) {
-                 #selector(setter: NSImageView.imageScaling) <-> #selector(setter: NSImageView.swizzled_imageScaling)
-                 #selector(getter: NSImageView.imageScaling) <-> #selector(getter: NSImageView.swizzled_imageScaling)
-                 #selector(setter: NSImageView.image) <-> #selector(setter: NSImageView.swizzled_image)
-                 #selector(getter: NSImageView.image) <-> #selector(getter: NSImageView.swizzled_image)
-             }
-         } catch {
-             Swift.debugPrint(error)
-         }
-     }
- }
-
- extension NSImageScaling {
-     public static var scaleToFill: NSImageScaling {
-         NSImageView.swizzleImageScaling()
-         return NSImageScaling(rawValue: 100) ?? .scaleProportionallyUpOrDown
-     }
-     public static var scaleToFit: NSImageScaling {
-         .scaleProportionallyUpOrDown
-     }
- }
- */

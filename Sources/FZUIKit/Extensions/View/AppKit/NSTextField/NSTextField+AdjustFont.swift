@@ -134,7 +134,7 @@
 
         func setupFontAdjustment() {
             if needsFontAdjustments {
-                guard isMethodReplaced(#selector(setter: font)) == false else { return }
+                guard isMethodReplaced(#selector(setter: font)) == false else { return }                
                 textFieldObserver = nil
                 _font = font
                 do {
@@ -178,4 +178,33 @@
             }
         }
     }
+
+extension NSObject {
+    func checkObjectPosingAsDifferentClass() -> AnyClass? {
+         let perceivedClass: AnyClass = type(of: self)
+         let actualClass: AnyClass = object_getClass(self)!
+         if actualClass != perceivedClass {
+             return actualClass
+         }
+         return nil
+     }
+    
+    func isKVORuntimeGeneratedClass(_ klass: AnyClass) -> Bool {
+        NSStringFromClass(klass).hasPrefix("NSKVO")
+    }
+    
+    var needsKVOReset: Bool {
+        if let actualClass = checkObjectPosingAsDifferentClass() {
+            return isKVORuntimeGeneratedClass(actualClass)
+        }
+        return false
+    }
+    
+    var canbeSwizzled: Bool {
+        if let actualClass = checkObjectPosingAsDifferentClass() {
+            return NSStringFromClass(actualClass).hasPrefix("InterposeKit")
+        }
+        return true
+    }
+}
 #endif

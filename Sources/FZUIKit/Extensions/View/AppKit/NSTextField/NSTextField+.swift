@@ -91,26 +91,7 @@
                 }
             }
         }
-        
-        /// The y-coordinate of the baseline for the topmost line of the text.
-        var firstBaselineY: CGFloat? {
-            guard let font = font else { return nil }
-            let defaultLineHeight = lineHeight
-            let cellFrame = cellFrame ?? frame
-            guard cellFrame.height >= defaultLineHeight else { return nil }
-            let height = font.spc ?? defaultLineHeight - font.ascenderReal
-            return cellFrame.origin.y + cellFrame.height - defaultLineHeight + height
-        }
-
-        /// The y-coordinate of the baseline for the last visible line of the text.
-        var lastBaselineY: CGFloat? {
-            guard let font = font else { return nil }
-            guard let lastLineFrame = lineFrames().last else { return nil }
-            let defaultLineHeight = lineHeight
-            let height = font.spc ?? defaultLineHeight - font.ascenderReal
-            return lastLineFrame.origin.y + height
-        }
-        
+                
         /// Returns the number of visible lines.
         var numberOfVisibleLines: Int {
             guard let font = font else { return -1 }
