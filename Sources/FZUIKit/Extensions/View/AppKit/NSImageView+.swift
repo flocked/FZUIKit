@@ -179,6 +179,7 @@ extension NSImageView {
         imageViewObserver.add(\.image) { [weak self] old, new in
             guard let self = self, old?.size != new?.size else { return }
             self.resizingOverlayContentView.frame = self.imageBounds
+            self.updateTransition()
         }
         imageViewObserver.add(\.imageFrameStyle) { [weak self] old, new in
             guard let self = self, old != new else { return }
@@ -203,6 +204,100 @@ extension NSImageView {
         get { getAssociatedValue(key: "needsResizingViewUpdate", object: self, initialValue: false) }
         set { set(associatedValue: newValue, key: "needsResizingViewUpdate", object: self) }
 
+    }
+
+    /// The transition animation when changing the displayed image.
+    public var transitionAnimation: TransitionAnimation {
+        get { getAssociatedValue(key: "TransitionAnimation", object: self, initialValue: .none) }
+        set {
+            set(associatedValue: newValue, key: "TransitionAnimation", object: self)
+            setupImageObserver()
+            updateTransition()
+        }
+    }
+    
+    
+    /// The transition animation duration when changing the displayed image.
+    public var transitionAnimationDuration: TimeInterval {
+        get { getAssociatedValue(key: "transitionAnimationDuration", object: self, initialValue: 0.1) }
+        set {
+            guard newValue != transitionAnimationDuration else { return }
+            set(associatedValue: newValue, key: "transitionAnimationDuration", object: self)
+            updateTransition()
+        }
+    }
+    
+    /// Constants that specify the transition animation when changing between images.
+    public enum TransitionAnimation {
+        /// No transition animation.
+        case none
+        
+        /// The new image fades in animated..
+        case fade
+        
+        /// The new image slides into place over any existing image from the specified direction.
+        case moveIn(_ direction: Direction = .fromLeft)
+        
+        /// The new image pushes any existing image as it slides into place from the specified direction.
+        case push(_ direction: Direction = .fromLeft)
+        
+        /// The new image is revealed gradually in the specified direction.
+        case reveal(_ direction: Direction = .fromLeft)
+        
+        var subtype: CATransitionSubtype? {
+            switch self {
+            case .moveIn(let direction), .push(let direction), .reveal(let direction):
+                return direction.subtype
+            default: return nil
+            }
+        }
+        
+        var type: CATransitionType? {
+            switch self {
+            case .fade: return .fade
+            case .moveIn: return .moveIn
+            case .push: return .push
+            case .reveal: return .reveal
+            case .none: return nil
+            }
+        }
+        
+        public enum Direction: String {
+            case fromLeft
+            case fromRight
+            case fromBottom
+            case fromTop
+            var subtype: CATransitionSubtype {
+                CATransitionSubtype(rawValue: rawValue)
+            }
+        }
+    }
+    
+    func updateTransition() {
+        if let type = transitionAnimation.type {
+            transition(CATransition(type, subtype: transitionAnimation.subtype, duration: transitionAnimationDuration))
+        } else {
+            transition(nil)
+        }
+    }
+    
+    func setupImageObserver() {
+        if transitionAnimation.type != nil {
+            if imageViewObserver.isObserving(\.imageFrameStyle) {
+                imageViewObserver.add(\.image) { [weak self] old, new in
+                    guard let self = self, old?.size != new?.size else { return }
+                    self.resizingOverlayContentView.frame = self.imageBounds
+                    self.updateTransition()
+                }
+            } else {
+                imageViewObserver.add(\.image) { [weak self] old, new in
+                    guard let self = self, old?.size != new?.size else { return }
+                    self.updateTransition()
+                }
+            }
+        } else if !imageViewObserver.isObserving(\.imageFrameStyle) {
+            imageViewObserver.remove(\.image)
+        }
     }
 }
 #endif

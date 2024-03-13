@@ -265,12 +265,21 @@
         }
 
         /// Animates a transition to changes made to the view after calling this.
-        func transition(_ transition: CATransition) {
+        func transition(_ transition: CATransition?) {
             #if os(macOS)
                 wantsLayer = true
+            if let transition = transition {
+               
                 layer?.add(transition, forKey: CATransitionType.fade.rawValue)
+            } else {
+                layer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
+            }
             #else
+            if let transition = transition {
                 layer.add(transition, forKey: CATransitionType.fade.rawValue)
+            } else {
+                layer.removeAnimation(forKey: CATransitionType.fade.rawValue)
+            }
             #endif
         }
 
