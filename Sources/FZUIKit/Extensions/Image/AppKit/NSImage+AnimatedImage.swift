@@ -31,27 +31,10 @@
             return animatedImage(with: images, duration: duration)
         }
 
-        /**
-         Creates and returns an animated image from the specified images.
-
-         - Parameters:
-            - images: The images for the animated image.
-            - duration: The duration of the animation.
-
-         - Returns: A new image object.
-         */
-        class func animatedImage(with images: [NSUIImage], duration: TimeInterval) -> NSUIImage? {
-            if let gifData = NSUIImage.gifData(from: images, duration: duration) {
-                return NSUIImage(data: gifData)
-            }
-            return nil
-        }
-
         /// A Boolean value that indicates whether the image is animated (e.g. a GIF).
         var isAnimated: Bool {
             guard framesCount > 1 else { return false }
-            let frameDuration = (representations[0] as? NSBitmapImageRep)?.value(forProperty: .currentFrameDuration)
-            return frameDuration != nil
+            return bitmapImageRep?.value(forProperty: .currentFrameDuration) != nil
         }
 
         internal var isAnimatable: Bool {
@@ -61,14 +44,10 @@
         /// The number of frames of an animated (e.g. GIF) image.
         var framesCount: Int {
             #if os(macOS)
-                if representations.count == 1, let representation = representations.first as? NSBitmapImageRep {
-                    let frameCount = representation.frameCount
-                    guard let imageSource = ImageSource(image: self) else { return frameCount }
-                    return max(frameCount, imageSource.count)
-                }
+            return bitmapImageRep?.value(forProperty: .frameCount) as? Int ?? ImageSource(image: self)?.count ?? 1
+            #else
+            return ImageSource(image: self)?.count ?? 1
             #endif
-            guard let imageSource = ImageSource(image: self) else { return 1 }
-            return imageSource.count
         }
 
         /// The animation duration of an animated (e.g. GIF) image.

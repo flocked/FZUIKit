@@ -151,13 +151,31 @@ import UniformTypeIdentifiers
 
         /// The number of frames in an animated GIF image, or `1` if the image isn't a GIF.
         var frameCount: Int {
-            (value(forProperty: .frameCount) as? Int) ?? 1
+            value(forProperty: .frameCount) as? Int ?? 1
+        }
+        
+        /// The total duration (in seconds) of all frames for an animated GIF image, or `0` if the image isn't a GIF.
+        var duration: TimeInterval {
+            if let frameCount = value(forProperty: .frameCount) as? Int {
+                let current = currentFrame
+                var duration: TimeInterval = 0.0
+                for index in 0..<frameCount {
+                    currentFrame = index
+                    duration += currentFrameDuration
+                }
+                currentFrame = current
+                return duration
+            }
+            return 0.0
         }
 
         /// The the current frame for an animated GIF image, or `0` if the image isn't a GIF.
         var currentFrame: Int {
             get { (value(forProperty: .currentFrame) as? Int) ?? 0 }
-            set { setProperty(.currentFrame, withValue: newValue) }
+            set {
+                guard newValue < frameCount else { return }
+                setProperty(.currentFrame, withValue: newValue)
+            }
         }
 
         /// The duration (in seconds) of the current frame for an animated GIF image, or `0` if the image isn't a GIF.

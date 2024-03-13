@@ -11,9 +11,10 @@
 
     public extension CATransition {
         /// Creates a transition with the specified type and duration.
-        convenience init(_ type: CATransitionType, duration: CGFloat) {
+        convenience init(_ type: CATransitionType, subtype: CATransitionSubtype? = nil, duration: CGFloat) {
             self.init()
             self.type = type
+            self.subtype = subtype ?? self.subtype
             self.duration = duration
         }
 
@@ -24,23 +25,17 @@
 
         /// A move-in transition with the specified duration and direction.
         static func moveIn(duration: CGFloat = 0.1, direction: CATransitionSubtype? = .fromLeft) -> CATransition {
-            let transition = CATransition(.moveIn, duration: duration)
-            transition.subtype = direction
-            return transition
+            return CATransition(.moveIn, subtype: direction, duration: duration)
         }
 
         /// A push transition with the specified duration and direction.
         static func push(duration: CGFloat = 0.1, direction: CATransitionSubtype? = .fromLeft) -> CATransition {
-            let transition = CATransition(.push, duration: duration)
-            transition.subtype = direction
-            return transition
+            return CATransition(.push, subtype: direction, duration: duration)
         }
 
         /// A reveal transition with the specified duration and direction.
         static func reveal(duration: CGFloat = 0.1, direction: CATransitionSubtype? = .fromLeft) -> CATransition {
-            let transition = CATransition(.reveal, duration: duration)
-            transition.subtype = direction
-            return transition
+            return CATransition(.reveal, subtype: direction, duration: duration)
         }
     }
 #endif
