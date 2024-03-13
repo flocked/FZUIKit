@@ -121,18 +121,6 @@ import FZSwiftUtils
             set { set(associatedValue: newValue, key: "_delegate", object: self) }
         }
         
-        /// A Boolean value that indicates whether the button is enabled.
-        public var changeFontAutomaticallyViaFontPanel: Bool {
-            get {getAssociatedValue(key: "changeFontAutomaticallyViaFontPanel", object: self, initialValue: false) }
-            set {
-                guard changeFontAutomaticallyViaFontPanel != newValue else { return }
-                set(associatedValue: newValue, key: "changeFontAutomaticallyViaFontPanel", object: self)
-                if newValue {
-                    NSFontPanel.shared.setupFontPanelTarget()
-                }
-            }
-        }
-        
         /// A Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
         public var endEditingOnOutsideClick: Bool {
             get { getAssociatedValue(key: "endEditingOnOutsideClick", object: self, initialValue: false) }

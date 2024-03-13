@@ -161,17 +161,33 @@ import UniformTypeIdentifiers
         }
 
         /// The duration (in seconds) of the current frame for an animated GIF image, or `0` if the image isn't a GIF.
-        var currentFrameDuration: TimeInterval { (value(forProperty: .currentFrameDuration) as? TimeInterval) ?? 0.0 }
+        var currentFrameDuration: TimeInterval {
+            get { value(forProperty: .currentFrameDuration) as? TimeInterval ?? 0.0 }
+            set {
+                if value(forProperty: .currentFrameDuration) != nil {
+                    setProperty(.currentFrameDuration, withValue: newValue)
+                }
+            }
+        }
 
         /// The number of loops to make when animating a GIF image, or `0` if the image isn't a GIF.
         var loopCount: Int {
-            (value(forProperty: .loopCount) as? Int) ?? 0
+            get { value(forProperty: .loopCount) as? Int ?? 0 }
+            set {
+                if value(forProperty: .loopCount) != nil {
+                    setProperty(.loopCount, withValue: newValue)
+                }
+            }
         }
     }
 
     public extension NSImage {
         /// The bitmap representation of the image
         var bitmapImageRep: NSBitmapImageRep? {
+            if let representation = representations.compactMap({$0 as? NSBitmapImageRep}).first {
+                return representation
+            }
+            
             if let cgImage = cgImage {
                 let imageRep = NSBitmapImageRep(cgImage: cgImage)
                 imageRep.size = size
