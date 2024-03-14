@@ -48,16 +48,24 @@
 
         /**
          Embeds the view in a scroll view and returns that scroll view.
-
+         
          If the view is already emedded in a scroll view, it will return that.
 
          The scroll view can be accessed via the view's `enclosingScrollView` property.
+         
+         - Parameter shouldManage: A Boolean value that indicates whether the scroll view should automatically manage the view.
+         - Returns: The scroll view.
          */
         @discardableResult
-        public func addEnclosingScrollView() -> NSScrollView {
-            guard enclosingScrollView == nil else { return enclosingScrollView! }
+        public func addEnclosingScrollView(shouldManage: Bool = true) -> NSScrollView {
+            guard enclosingScrollView == nil else {
+                enclosingScrollView!.shouldManageDocumentView = shouldManage
+                return enclosingScrollView!
+            }
             let scrollView = NSScrollView()
+            scrollView.frame.size = bounds.size
             scrollView.documentView = self
+            scrollView.shouldManageDocumentView = shouldManage
             return scrollView
         }
 
@@ -795,6 +803,6 @@
     }
 
     /// The `NSView` properties keys that can be animated.
-    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "documentSize"]
+    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentPosition", "documentSize"]
 
 #endif

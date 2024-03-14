@@ -40,7 +40,6 @@ public protocol Sizable: NSUIView {
 extension NSTextField: Sizable { }
 extension NSButton: Sizable { }
 extension AVPlayerView: Sizable { }
-extension NSComboBox: Sizable { }
 extension NSImageView: Sizable { }
 extension NSStepper: Sizable { }
 extension NSSlider: Sizable { }
@@ -63,22 +62,22 @@ extension Sizable {
     
     /// Asks the view to calculate and return the size that best fits.
     public func sizeThatFits() -> CGSize {
-        fittingSize(for: CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric))
+        fittingSize(for: CGSize(-1, -1))
     }
     
     /// Asks the view to calculate and return the size that best fits the specified width.
     public func sizeThatFits(width: CGFloat) -> CGSize {
-        fittingSize(for: CGSize(width, NSView.noIntrinsicMetric))
+        fittingSize(for: CGSize(width, -1))
     }
     
     /// Asks the view to calculate and return the size that best fits the specified height.
     public func sizeThatFits(height: CGFloat) -> CGSize {
-        fittingSize(for: CGSize(NSView.noIntrinsicMetric, height))
+        fittingSize(for: CGSize(-1, height))
     }
     
     /// Asks the view to calculate and return the size that best fits the specified width.
     public func sizeThatFits(width: CGFloat?, height: CGFloat?) -> CGSize {
-        fittingSize(for: CGSize(width ?? NSView.noIntrinsicMetric, height ?? NSView.noIntrinsicMetric))
+        fittingSize(for: CGSize(width ?? -1, height ?? -1))
     }
 }
 
@@ -89,10 +88,10 @@ extension Sizable {
             func fittingSize(for size: CGSize) -> CGSize {
                 guard let cell = cell else { return fittingSize }
                 var size = size
-                if size.width == NSView.noIntrinsicMetric || size.width == 0 {
+                if size.width == -1 || size.width == 0 {
                     size.width = 40000
                 }
-                if size.height == NSView.noIntrinsicMetric || size.height == 0 {
+                if size.height == -1 || size.height == 0 {
                     size.height = 40000
                 }
                 size = size.clamped(to: CGSize.zero...)
@@ -220,14 +219,14 @@ public extension Sizable where Self: NSSwitch {
              func sizeThatFits(_ size: CGSize) -> CGSize {
                  if constraints.isEmpty, translatesAutoresizingMaskIntoConstraints == false {
                      if self.orientation == .vertical {
-                         if size.width != NSView.noIntrinsicMetric, size.width > 0 {
+                         if size.width != -1, size.width > 0 {
                              let width = self.widthAnchor.constraint(equalToConstant: size.width).activate()
                              let fittingSize = self.fittingSize
                              width.activate(false)
                              return fittingSize
                          }
                      } else {
-                         if size.height != NSView.noIntrinsicMetric, size.height > 0 {
+                         if size.height != -1, size.height > 0 {
                              let height = self.heightAnchor.constraint(equalToConstant: size.height).activate()
                              let fittingSize = self.fittingSize
                              height.activate(false)

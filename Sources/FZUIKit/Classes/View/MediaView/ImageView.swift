@@ -5,13 +5,14 @@
 //  Created by Florian Zand on 13.03.24.
 //
 
+#if os(macOS)
+
 import AppKit
 import FZSwiftUtils
 
-
+/// A view that displays images.
 @IBDesignable
 open class ImageView: NSControl {
-    
     let containerView = NSView()
     let imageView = NSImageView()
     var timer: DisplayLinkTimer? = nil
@@ -222,12 +223,33 @@ open class ImageView: NSControl {
             stopAnimating()
         }
     }
+   
+    func sendAction() {
+        guard let action = action, let target = target, isFirstResponder else { return }
+        _ = target.perform(action)
+    }
+    
+    open override func becomeFirstResponder() -> Bool {
+        if acceptsFirstResponder, !isSelected {
+            isSelected = true
+        }
+        return acceptsFirstResponder
+    }
+    
+    open override func resignFirstResponder() -> Bool {
+        if isSelected {
+            isSelected = false
+        }
+        return true
+    }
     
     override open func mouseDown(with event: NSEvent) {
-        if isSelectable == .byView {
+        if isSelectable == .byView, !isFirstResponder {
             makeFirstResponder()
-        } else if isSelectable == .byImage, overlayContentView.frame.contains(event.location(in: self)) {
+            sendAction()
+        } else if isSelectable == .byImage, overlayContentView.frame.contains(event.location(in: self)), !isFirstResponder {
             makeFirstResponder()
+            sendAction()
         }
         if animationPlayback == .onMouseClick {
             toggleAnimating()
@@ -280,6 +302,7 @@ open class ImageView: NSControl {
         /// The image at the index.
         case index(Int)
     }
+    
     /// Sets the displaying image to the specified position.
     open func setImageFrame(to position: FramePosition) {
         guard imagesCount > 0 else { return }
@@ -471,6 +494,7 @@ open class ImageView: NSControl {
      */
     open var animationRepeatCount: Int = 0
     
+    /// The image tint color for template and symbol images.
     @IBInspectable open var tintColor: NSColor? {
         get { imageView.contentTintColor }
         set { imageView.contentTintColor = newValue }
@@ -506,6 +530,7 @@ open class ImageView: NSControl {
         set { imageView.isEditable = newValue }
     }
     
+    /// A value that specifies if and how the image view can be selected.
     open var isSelectable: SelectionOption = true {
         didSet {
             guard isSelectable != oldValue else { return }
@@ -514,6 +539,9 @@ open class ImageView: NSControl {
             }
         }
     }
+    
+    /// A Boolean value indicating whether the image view is selected.
+    @objc dynamic open internal(set) var isSelected: Bool = false
     
     public enum SelectionOption: Int, ExpressibleByBooleanLiteral {
         case byImage
@@ -726,17 +754,8 @@ open class ImageView: NSControl {
         super.layout()
         guard images.isEmpty == false else { return }
         if imageScaling == .scaleToFill, let imageSize = displayingImage?.size {
-            if bounds.width > bounds.height {
-                imageView.frame.size = imageSize.scaled(toWidth: bounds.width)
-                if  imageView.frame.height < bounds.height {
-                    imageView.frame.size = imageSize.scaled(toHeight: bounds.height)
-                }
-            } else {
-                imageView.frame.size = imageSize.scaled(toHeight: bounds.height)
-                if  imageView.frame.width < bounds.width {
-                    imageView.frame.size = imageSize.scaled(toWidth: bounds.width)
-                }
-            }
+            imageView.frame.size = imageSize.scaled(toFill: bounds.size)
+                        
             switch imageAlignment {
             case .alignTopLeft:
                 imageView.frame.topLeft = bounds.topLeft
@@ -799,7 +818,7 @@ open class ImageView: NSControl {
     }
     
     override open var acceptsFirstResponder: Bool { isSelectable != .off }
-    
+        
     override open func drawFocusRingMask() {
         NSBezierPath(roundedRect: focusRingMaskBounds, cornerRadius: isSelectable == .byImage ?  imageCornerRadius : cornerRadius).fill()
     }
@@ -880,3 +899,5 @@ extension CALayerContentsGravity {
         }
     }
 }
+
+#endif

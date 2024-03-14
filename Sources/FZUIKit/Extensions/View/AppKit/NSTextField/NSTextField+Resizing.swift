@@ -113,7 +113,7 @@ extension NSTextField {
     }
 
     var calculatedFittingSize: CGSize {
-        guard let cell = cell else { return frame.size }
+        guard cell != nil else { return frame.size }
         var cellSize = sizeThatFits(width: maxLayoutWidth)
         cellSize.height.round(toNearest: 0.5, .awayFromZero)
         if preferredMinLayoutWidth == Self.placeholderWidth {
@@ -128,7 +128,7 @@ extension NSTextField {
     }
         
     var placeholderStringSize: CGSize {
-        guard let cell = cell else { return .zero }
+        guard cell != nil else { return .zero }
         if let placeholder = placeholderAttributedString {
             return fittingSize(for: placeholder, maxWidth: maxLayoutWidth)
         } else if let placeholder = placeholderString {
@@ -138,7 +138,7 @@ extension NSTextField {
     }
     
     var maxLayoutWidth: CGFloat {
-        if preferredMaxLayoutWidth == NSTextField.superviewWidth, let superview = superview {
+        if preferredMaxLayoutWidth == NSTextField.superviewWidth, let superview = superview {
             return superview.frame.width - (frame.origin.x * 2)
         }
         return preferredMaxLayoutWidth

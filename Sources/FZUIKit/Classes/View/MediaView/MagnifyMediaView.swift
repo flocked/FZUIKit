@@ -67,7 +67,6 @@
                 }
             case 44:
                 if event.modifierFlags.contains(.command) {
-                    //  self.setMagnification(self.minMagnification, animationDuration: 0.1)
                     setMagnification(1.0)
                 } else {
                     zoomOut(factor: 0.3)
@@ -95,6 +94,7 @@
         }
 
         open func zoomOut(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
+            scrollView.zoom()
             zoom(factor: -factor, centeredAt: centeredAt, animationDuration: animationDuration)
         }
 
@@ -105,6 +105,12 @@
                     let factor = factor.clamped(to: -1.0 ... 1.0)
                     let newMag = (magnification + (range * factor)).clamped(to: minMagnification ... maxMagnification)
                     setMagnification(newMag, centeredAt: centeredAt, animationDuration: animationDuration)
+                    var point = CGPoint.zero
+                    point.x = bounds.size.width / 2.0
+                    point.y = bounds.size.height / 2.0
+                    scrollView.contentOffset = point
+                   
+
                 }
             }
         }
@@ -124,7 +130,6 @@
             get { mediaView.mediaURL }
             set {
                 mediaView.mediaURL = newValue
-                //    scrollView.contentView.frame.size = bounds.size
                 setMagnification(1.0)
             }
         }
@@ -133,7 +138,6 @@
             get { mediaView.image }
             set {
                 mediaView.image = newValue
-                //  scrollView.contentView.frame.size = bounds.size
                 setMagnification(1.0)
             }
         }
@@ -142,7 +146,6 @@
             get { mediaView.images }
             set {
                 mediaView.images = newValue
-                //  scrollView.contentView.frame.size = bounds.size
                 setMagnification(1.0)
             }
         }
@@ -289,7 +292,7 @@
             get { scrollView.magnification }
             set { setMagnification(newValue) }
         }
-
+        
         open var minMagnification: CGFloat {
             get { scrollView.minMagnification }
             set { scrollView.minMagnification = newValue }
@@ -331,53 +334,35 @@
             sharedInit()
         }
 
+        var boundsSize: CGSize = .zero
         override open func layout() {
             super.layout()
-            scrollView.frame.size = bounds.size
-         //   scrollView.documentView?.frame.size = bounds.size
+            scrollView.frame = bounds
+            mediaView.frame = bounds
+            guard boundsSize != .zero else {
+                boundsSize = bounds.size
+                return
+            }
+            scrollView.contentOffset.x *= (bounds.width / boundsSize.width)
+            scrollView.contentOffset.y *= (bounds.height / boundsSize.height)
+            boundsSize = bounds.size
         }
 
         private func sharedInit() {
-            wantsLayer = true
+            backgroundColor = .black
             mediaView.wantsLayer = true
             mediaView.frame = bounds
             scrollView.frame = bounds
-
-            addSubview(scrollView)
-
             scrollView.contentView = CenteredClipView()
-
-            scrollView.drawsBackground = false
-
-            mediaView.frame = scrollView.contentView.bounds
-            mediaView.autoresizingMask = .all
-
             scrollView.documentView = mediaView
-
-            allowsMagnification = true
-            contentScaling = .scaleToFit
-            minMagnification = 1.0
-            maxMagnification = 3.0
-            backgroundColor = .black
-            enclosingScrollView?.backgroundColor = .black
+            scrollView.drawsBackground = false
+            scrollView.allowsMagnification = true
+            scrollView.minMagnification = 1.0
+            scrollView.maxMagnification = 3.0
+            boundsSize = bounds.size
+            addSubview(scrollView)
         }
-
-        /// Handlers for a media view.
-        public struct Handlers {
-            /// Handler that gets called whenever the player view receives a `keyDown` event.
-            public var keyDown: ((NSEvent) -> (Bool))?
-
-            /// Handler that gets called whenever the player view receives a `mouseDown` event.
-            public var mouseDown: ((NSEvent) -> (Bool))?
-
-            /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
-            public var rightMouseDown: ((NSEvent) -> (Bool))?
-
-            /// Handler that gets called whenever the player view receives a `flagsChanged` event.
-            public var flagsChanged: ((NSEvent) -> (Bool))?
-        }
-
-        /// Handlers for the media view.
-        public var handlers: Handlers = .init()
     }
+
+
 #endif

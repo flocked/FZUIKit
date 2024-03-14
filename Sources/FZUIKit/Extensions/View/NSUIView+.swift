@@ -451,7 +451,11 @@
         /// Sets the anchor point of the view’s bounds rectangle.
         @discardableResult
         func anchorPoint(_ anchorPoint: CGPoint) -> Self {
+            #if os(macOS)
             self.anchorPoint = anchorPoint
+            #else
+            self.layer.anchorPoint = anchorPoint
+            #endif
             return self
         }
         

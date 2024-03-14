@@ -173,7 +173,11 @@ import FZSwiftUtils
                 originalWidthConstraint?.isActive = false
                 let widthConstraint = widthAnchor.constraint(equalToConstant: (size.width == .infinity || size.width == NSUIView.noIntrinsicMetric) ? 10000 : size.width)
                 widthConstraint.isActive = true
+                #if os(macOS)
                 fittingSize = self.fittingSize
+                #else
+                fittingSize = super.sizeThatFits(size)
+                #endif
                 widthConstraint.isActive = false
                 originalWidthConstraint?.isActive = true
             } else if orientation == .horizontal, size.height != .zero {
@@ -183,11 +187,19 @@ import FZSwiftUtils
                 originalHeightConstraint?.isActive = false
                 let heightConstraint = heightAnchor.constraint(equalToConstant: (size.height == .infinity || size.height == NSUIView.noIntrinsicMetric) ? 10000 : size.height)
                 heightConstraint.isActive = true
+                #if os(macOS)
                 fittingSize = self.fittingSize
+                #else
+                fittingSize = super.sizeThatFits(size)
+                #endif
                 heightConstraint.isActive = false
                 originalHeightConstraint?.isActive = true
             }
+            #if os(macOS)
             return fittingSize ?? self.fittingSize
+            #else
+            return fittingSize ?? super.sizeThatFits(size)
+            #endif
         }
 
         #if os(macOS)

@@ -53,7 +53,7 @@
         }
         
         /// A handler that provides the velocity of the dragging of the view by it's background when ``isMovableByViewBackground`` is enabled.
-        var backgroundDragVelocity: ((_ state: NSGestureRecognizer.State, _ velocity: CGPoint) -> Void)? {
+        var backgroundDragVelocity: ((_ state: NSUIGestureRecognizer.State, _ velocity: CGPoint) -> Void)? {
             get { getAssociatedValue(key: "movableByBackgroundVelocity", object: self, initialValue: nil) }
             set { set(associatedValue: newValue, key: "movableByBackgroundVelocity", object: self) }
         }
@@ -65,7 +65,8 @@
                         guard let self = self else { return }
                         let velocity = gesture.velocity(in: self)
                         switch gesture.state {
-                        case .began:                        backgroundDragVelocity?(.began, velocity)
+                        case .began:                        
+                            backgroundDragVelocity?(.began, velocity)
                             self.dragPoint = self.frame.origin
                         case .ended:
                             backgroundDragVelocity?(.ended, velocity)

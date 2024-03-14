@@ -175,6 +175,7 @@ public extension AVPlayer {
             }
         }
         
+        #if os(macOS)
         internal init?(imageScaling: ImageView.ImageScaling) {
             switch imageScaling {
             case .scaleToFill:
@@ -187,6 +188,7 @@ public extension AVPlayer {
                 return nil
             }
         }
+        #endif
     }
 
 #endif
