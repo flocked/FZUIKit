@@ -16,11 +16,19 @@
     import FZSwiftUtils
 
     open class ImageLayer: CALayer {
+        var timer: DisplayLinkTimer? = nil
+        var currentRepeatCount: Int = 0
+        var _symbolConfiguration: Any?
+        var displayingSymbolImage: NSUIImage?
+        var needsAnimationPause: Bool = false
+        var isLoadingAnimatedImage: Bool = false
+        
         /// The image displayed in the image layer.
         open var image: NSUIImage? {
             get { images.count == 1 ? images.first : nil }
             set {
                 guard newValue != self.image else { return }
+                needsAnimationPause = false
                 if let newImage = newValue {
                     #if os(macOS)
                         if newImage.isAnimated {
@@ -44,27 +52,29 @@
          */
         open var images: [NSUIImage] = [] {
             didSet {
+                needsAnimationPause = false
                 if isAnimating, !isAnimatable {
                     stopAnimating()
                 }
-                setFrame(to: .first)
+                setImageFrame(to: .first)
                 if isAnimatable, !isAnimating, autoAnimates {
                     startAnimating()
                 }
             }
         }
 
-        /// The currently displaying image.
+        /// The currently displayed image.
         open var displayingImage: NSUIImage? {
             guard currentImageIndex >= 0, currentImageIndex < images.count else { return nil }
             return images[currentImageIndex]
         }
-
+        
         #if os(macOS)
             /// Displays the specified animated image.
-            private func setAnimatedImage(_ image: NSImage) {
+            func setAnimatedImage(_ image: NSImage) {
                 if image.isAnimated, let frames = image.frames {
                     animationRepeatCount = image.animationLoopCount ?? 0
+                    isLoadingAnimatedImage = true
                     Task {
                         var duration = 0.0
                         do {
@@ -83,7 +93,7 @@
         #endif
 
         /// The scaling of the image.
-        public var imageScaling: CALayerContentsGravity {
+        open var imageScaling: CALayerContentsGravity {
             get { contentsGravity
             }
             set {
@@ -101,7 +111,7 @@
 
         /// The symbol configuration to use when rendering the image.
         @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
-        public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
+        open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
             get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
             set {
                 guard newValue != symbolConfiguration else { return }
@@ -131,7 +141,7 @@
         }
 
         /// Sets the displaying image to the specified position.
-        public func setFrame(to position: FramePosition) {
+        open func setImageFrame(to position: FramePosition) {
             if images.isEmpty == false {
                 switch position {
                 case let .index(index):
@@ -171,56 +181,52 @@
         }
 
         /// Starts animating the images in the receiver.
-        public func startAnimating() {
+        open func startAnimating() {
             if isAnimatable {
                 if !isAnimating {
-                    timerPreviousTimestamp = 0.0
-                    timerCurrentInterval = 0.0
-                    timerCurrentLoopCount = 0
-                    displayLink = DisplayLink.shared.sink(receiveValue: { [weak self]
-                        frame in
-                            if let self = self {
-                                let timeIntervalCount = frame.timestamp - self.timerPreviousTimestamp
-                                self.timerCurrentInterval = self.timerCurrentInterval + timeIntervalCount
-                                if self.timerCurrentInterval > self.timerInterval * 2.0 {
-                                    self.timerCurrentInterval = 0.0
-                                    self.setFrame(to: .nextLooped)
-                                    if self.animationRepeatCount != 0, self.currentImageIndex == 0 {
-                                        self.timerCurrentLoopCount += 1
-                                    }
-                                    if self.animationRepeatCount != 0, self.timerCurrentLoopCount >= self.animationRepeatCount {
-                                        self.displayLink?.cancel()
-                                        self.displayLink = nil
-                                        self.timerCurrentLoopCount = 0
-                                    }
-                                    self.timerPreviousTimestamp = frame.timestamp
-                                }
-                            }
-                    })
+                    currentRepeatCount = 0
+                    guard needsAnimationPause else {
+                        stopAnimating()
+                        return
+                    }
+                    timer = DisplayLinkTimer(timeInterval: .seconds(timerInterval), repeating: true) {  [weak self] timer in
+                        guard let self = self else { return }
+                        self.setImageFrame(to: .nextLooped)
+                        if self.animationRepeatCount != 0, self.currentImageIndex == 0 {
+                            self.currentRepeatCount += 1
+                        }
+                        if self.animationRepeatCount != 0, self.currentRepeatCount >= self.animationRepeatCount {
+                            self.timer?.stop()
+                            self.timer = nil
+                            self.currentRepeatCount = 0
+                        }
+                    }
                 }
             }
         }
 
         /// Pauses animating the images in the receiver.
-        public func pauseAnimating() {
-            displayLink?.cancel()
-            displayLink = nil
+        open func pauseAnimating() {
+            timer?.stop()
+            timer = nil
+            if isLoadingAnimatedImage {
+                needsAnimationPause = true
+            }
         }
-
+        
         /// Stops animating the images and displays the first image.
-        public func stopAnimating() {
-            displayLink?.cancel()
-            displayLink = nil
-            setFrame(to: .first)
+        open func stopAnimating() {
+            pauseAnimating()
+            setImageFrame(to: .first)
         }
 
         /// Returns a Boolean value indicating whether the animation is running.
-        public var isAnimating: Bool {
-            displayLink != nil
+        open var isAnimating: Bool {
+            timer != nil
         }
 
         /// Toggles the animation.
-        public func toggleAnimating() {
+        open func toggleAnimating() {
             if isAnimatable {
                 if isAnimating {
                     pauseAnimating()
@@ -233,19 +239,23 @@
         /**
          The amount of time it takes to go through one cycle of the images.
 
-         The time duration is measured in seconds. The default value of this property is 0.0, which causes the image layer to use a duration equal to the number of images multiplied by 1/30th of a second. Thus, if you had 30 images, the duration would be 1 second.
+         The time duration is measured in seconds. The default value of this property is `0`, which causes the image layer to use a duration equal to the number of images multiplied by 1/30th of a second. Thus, if you had 30 images, the duration would be 1 second.
          */
-        public var animationDuration: TimeInterval = 0.0
+        open var animationDuration: TimeInterval = 0.0 {
+            didSet {
+                timer?.timeInterval.seconds = timerInterval
+            }
+        }
 
         /**
          Specifies the number of times to repeat the animation.
 
          The default value is 0, which specifies to repeat the animation indefinitely.
          */
-        public var animationRepeatCount: Int = 0
+        open var animationRepeatCount: Int = 0
 
         /// A Boolean value indicating whether animatable images should automatically start animating.
-        public var autoAnimates: Bool = true {
+        open var autoAnimates: Bool = true {
             didSet {
                 if isAnimatable, !isAnimating, autoAnimates {
                     startAnimating()
@@ -253,21 +263,12 @@
             }
         }
 
-        private var currentImageIndex = 0 {
+        var currentImageIndex = 0 {
             didSet {
                 updateDisplayingImage()
             }
         }
-
-        var maskLayer: CALayer?
-
-        private var _symbolConfiguration: Any?
-
-        private var timerPreviousTimestamp: TimeInterval = 0.0
-        private var timerCurrentInterval: TimeInterval = 0.0
-        private var timerCurrentLoopCount: Int = 0
-
-        var displayingSymbolImage: NSUIImage?
+        
         func updateDisplayingImage() {
             if var image = displayingImage {
                 displayingSymbolImage = nil
@@ -298,10 +299,7 @@
             }
         }
 
-        private var displayLink: AnyCancellable?
-        private var timeStamp: TimeInterval = 0
-
-        private var timerInterval: TimeInterval {
+        var timerInterval: TimeInterval {
             if animationDuration == 0.0 {
                 return ImageSource.defaultFrameDuration
             } else {
@@ -309,7 +307,7 @@
             }
         }
 
-        private var isAnimatable: Bool {
+        var isAnimatable: Bool {
             images.count > 1
         }
 
@@ -357,6 +355,16 @@
             super.init()
             self.image = image
         }
+        
+        @available(macOS 11.0, iOS 13.0, tvOS 13.0,  *)
+        public init(symbolImage name: String) {
+            super.init()
+            #if os(macOS)
+            self.image = NSUIImage(systemSymbolName: name)
+            #else
+            self.image = NSUIImage(systemName: name)
+            #endif
+        }
 
         public init(layer: CALayer, image: NSUIImage) {
             super.init(layer: layer)
@@ -394,7 +402,7 @@
         }
 
         /// The transition animation when changing images.
-        public var transition: Transition = .none {
+        open var transition: Transition = .none {
             didSet {
                 guard oldValue != transition else { return }
                 removeAnimation(forKey: "transition")

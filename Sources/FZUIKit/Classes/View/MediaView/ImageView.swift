@@ -89,7 +89,7 @@
 
         private var _symbolConfiguration: Any?
         @available(macOS 12.0, iOS 15.0, *)
-        public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
+        open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
             get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
             set {
                 guard newValue != symbolConfiguration else { return }
@@ -106,8 +106,8 @@
         }
 
         /// Sets the displaying image to the specified option.
-        open func setFrame(to option: ImageLayer.FramePosition) {
-            imageLayer.setFrame(to: option)
+        open func setImageFrame(to option: ImageLayer.FramePosition) {
+            imageLayer.setImageFrame(to: option)
             invalidateIntrinsicContentSize()
         }
 
@@ -198,7 +198,7 @@
             case mouseDown
         }
 
-        public var animationPlaybackOption: AnimationPlaybackOption = .automatic {
+        open var animationPlaybackOption: AnimationPlaybackOption = .automatic {
             didSet {
                 imageLayer.autoAnimates = (animationPlaybackOption == .automatic)
                 updateTrackingAreas()
@@ -279,14 +279,14 @@
             symbolImageView?.image = displayingImage
         }
 
-        override public func alignmentRect(forFrame frame: NSRect) -> NSRect {
+        override open func alignmentRect(forFrame frame: NSRect) -> NSRect {
             updateSymbolImageView()
             let alignmentRect = symbolImageView?.alignmentRect(forFrame: frame) ?? super.alignmentRect(forFrame: frame)
             symbolImageView?.image = nil
             return alignmentRect
         }
 
-        override public func frame(forAlignmentRect alignmentRect: NSRect) -> NSRect {
+        override open func frame(forAlignmentRect alignmentRect: NSRect) -> NSRect {
             updateSymbolImageView()
             let frameForAlignmentRect = symbolImageView?.frame(forAlignmentRect: alignmentRect) ?? super.frame(forAlignmentRect: alignmentRect)
             symbolImageView?.image = nil
@@ -297,7 +297,7 @@
             imageLayer.displayingSymbolImage?.alignmentRect.size ?? displayingImage?.alignmentRect.size ?? .zero
         }
 
-        override public func viewDidChangeEffectiveAppearance() {
+        override open func viewDidChangeEffectiveAppearance() {
             super.viewDidChangeEffectiveAppearance()
             updateTintColor()
             if #available(macOS 12.0, iOS 13.0, *) {
@@ -308,7 +308,7 @@
             }
         }
 
-        override public func viewDidChangeBackingProperties() {
+        override open func viewDidChangeBackingProperties() {
             guard let window = window else { return }
             imageLayer.contentsScale = window.backingScaleFactor
         }
@@ -322,6 +322,16 @@
             super.init(frame: .zero)
             sharedInit()
             self.image = image
+        }
+        
+        @available(macOS 11.0, iOS 13.0, tvOS 13.0,  *)
+        public init(symbolImage name: String) {
+            super.init(frame: .zero)
+            #if os(macOS)
+            self.image = NSUIImage(systemSymbolName: name)
+            #else
+            self.image = NSUIImage(systemName: name)
+            #endif
         }
 
         override public init(frame frameRect: NSRect) {

@@ -349,19 +349,39 @@ public struct ImageSymbolConfiguration: Hashable {
 
     /// Constants that specify the color configuration of a symbol image.
     public enum ColorConfiguration: Hashable {
-        /// A color configuration by specifying a palette of colors.
-        case palette(NSUIColor, NSUIColor, NSUIColor? = nil)
-        ///  A monochrome color configuration using the content tint color.
-        case monochrome
+        #if os(macOS)
+        ///  A monochrome color configuration using the specified color.
+        case monochrome(NSUIColor?)
+        ///  A hierarchical color configuration using the specified color.
+        case hierarchical(NSUIColor?)
         ///  A multicolor color configuration using the color you specify as primary color.
         case multicolor(NSUIColor)
-        ///  A hierarchical color configuration using the color you specify.
-        case hierarchical(NSUIColor)
-
-        ///  A monochrome color configuration using the specified color.
-        public static func monochrome(_ color: NSUIColor) -> Self {
-            palette(color, color)
+        /// A color configuration by specifying a palette of colors.
+        case palette(NSUIColor, NSUIColor, NSUIColor? = nil)
+        
+        ///  A monochrome color configuration using the tint color.
+        public static var monochrome: Self {
+            monochrome(nil)
         }
+        ///  A hierarchical color configuration using the tint color.
+        public static var hierarchical: Self {
+            hierarchical(nil)
+        }
+        #else
+        ///  A monochrome color configuration using the specified color.
+        case monochrome(NSUIColor?)
+        ///  A hierarchical color configuration using the specified color.
+        case hierarchical(NSUIColor)
+        ///  A multicolor color configuration using the color you specify as primary color.
+        case multicolor(NSUIColor)
+        /// A color configuration by specifying a palette of colors.
+        case palette(NSUIColor, NSUIColor, NSUIColor? = nil)
+        
+        ///  A monochrome color configuration using the tint color.
+        public static var monochrome: Self {
+            monochrome(nil)
+        }
+        #endif
 
         #if os(macOS)
             /// A color configuration with monochrome accent color.
@@ -493,9 +513,17 @@ public extension ImageSymbolConfiguration {
         var configuration: NSUIImage.SymbolConfiguration
         switch color {
         case let .hierarchical(color):
-            configuration = .hierarchical(color)
-        case .monochrome:
-            configuration = .monochrome()
+            if let color = color {
+                configuration = .hierarchical(color)
+            } else {
+                configuration = ._preferringHierarchical()
+            }
+        case .monochrome(let color):
+            if let color = color {
+                configuration = .palette(color, color)
+            } else {
+                configuration = .monochrome()
+            }
         case let .palette(primary, secondary, tertiary):
             configuration = .palette(primary, secondary, tertiary)
         case let .multicolor(color):

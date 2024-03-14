@@ -433,6 +433,17 @@ extension NSUIImage.SymbolConfiguration {
 
     @available(macOS 12.0, *)
     extension NSImage.SymbolConfiguration {
+        static func _preferringHierarchical() -> NSImage.SymbolConfiguration {
+            if #available(macOS 13.0, *) {
+                return NSImage.SymbolConfiguration.preferringHierarchical()
+            } else {
+                let configuration = NSImage.SymbolConfiguration()
+                configuration.setValue(safely: 1, forKey: "paletteType")
+                configuration.setValue(safely: 2, forKey: "renderingStyle")
+                return configuration
+            }
+        }
+        
         struct Modifier: ImageModifier {
             let configuration: NSImage.SymbolConfiguration
             @ViewBuilder
@@ -445,7 +456,7 @@ extension NSUIImage.SymbolConfiguration {
         }
 
         /// The color configuration.
-        public enum ColorConfiguration: Hashable {
+        enum ColorConfiguration: Hashable {
             ///  A monochrome color configuration with the specified color.
             case monochrome(NSUIColor? = nil)
             
@@ -466,7 +477,7 @@ extension NSUIImage.SymbolConfiguration {
         }
         
         /// Returns the symbol configuration with the specified color configuration.
-        public func colorConfiguration(_ configuration: ColorConfiguration) -> NSImage.SymbolConfiguration {
+        func colorConfiguration(_ configuration: ColorConfiguration) -> NSImage.SymbolConfiguration {
             let conf: NSImage.SymbolConfiguration
             switch configuration {
             case .monochrome(let color):
