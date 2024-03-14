@@ -212,10 +212,12 @@
             set { mediaView.videoView.player = newValue }
         }
 
-        open var autoAnimatesImages: Bool {
-            get { mediaView.autoAnimatesImages }
-            set { mediaView.autoAnimatesImages = newValue }
+        open var imagePlayback: ImageView.AnimationPlaybackOption {
+            get { mediaView.imagePlayback }
+            set { mediaView.imagePlayback = newValue }
         }
+        
+        
 
         open var loopVideos: Bool {
             get { mediaView.loopVideos }
@@ -227,7 +229,7 @@
             set { mediaView.videoViewControlStyle = newValue }
         }
 
-        open var contentScaling: CALayerContentsGravity {
+        open var contentScaling: ImageView.ImageScaling {
             get { mediaView.contentScaling }
             set { mediaView.contentScaling = newValue }
         }
@@ -353,7 +355,7 @@
             scrollView.documentView = mediaView
 
             allowsMagnification = true
-            contentScaling = .resizeAspect
+            contentScaling = .scaleToFit
             minMagnification = 1.0
             maxMagnification = 3.0
             backgroundColor = .black

@@ -513,11 +513,15 @@ public extension ImageSymbolConfiguration {
         var configuration: NSUIImage.SymbolConfiguration
         switch color {
         case let .hierarchical(color):
+            #if os(macOS)
             if let color = color {
                 configuration = .hierarchical(color)
             } else {
                 configuration = ._preferringHierarchical()
             }
+            #else
+            configuration = .hierarchical(color)
+            #endif
         case .monochrome(let color):
             if let color = color {
                 configuration = .palette(color, color)

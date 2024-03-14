@@ -14,7 +14,7 @@ import SwiftUI
     public struct SimpleImageView: NSViewRepresentable {
         public typealias NSViewType = ImageView
 
-        private var imageScaling: CALayerContentsGravity
+        private var imageScaling: ImageView.ImageScaling
         private var image: NSImage?
         private var images: [NSImage]
         private var symbolConfiguration: NSImage.SymbolConfiguration?
@@ -22,7 +22,7 @@ import SwiftUI
         private var animates: Bool
 
         public init(images: [NSImage],
-                    imageScaling: CALayerContentsGravity)
+                    imageScaling: ImageView.ImageScaling)
         {
             image = nil
             self.imageScaling = imageScaling
@@ -33,7 +33,7 @@ import SwiftUI
         }
 
         public init(image: NSImage,
-                    imageScaling: CALayerContentsGravity, animates: Bool = true, symbolConfiguration: NSImage.SymbolConfiguration? = nil, tintColor: NSColor? = nil)
+                    imageScaling: ImageView.ImageScaling, animates: Bool = true, symbolConfiguration: NSImage.SymbolConfiguration? = nil, tintColor: NSColor? = nil)
         {
             self.image = image
             self.imageScaling = imageScaling
@@ -47,7 +47,7 @@ import SwiftUI
             image = NSImage(systemSymbolName: symbolName)
             self.symbolConfiguration = symbolConfiguration
             self.tintColor = tintColor
-            imageScaling = .center
+            imageScaling = .none
             images = []
             animates = false
         }
@@ -86,7 +86,7 @@ import SwiftUI
             }
         }
 
-        public func imageScaling(_ imageScaling: CALayerContentsGravity) -> SimpleImageView {
+        public func imageScaling(_ imageScaling: ImageView.ImageScaling) -> SimpleImageView {
             var view = self
             view.imageScaling = imageScaling
             return view

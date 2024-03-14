@@ -174,6 +174,19 @@ public extension AVPlayer {
                 return nil
             }
         }
+        
+        internal init?(imageScaling: ImageView.ImageScaling) {
+            switch imageScaling {
+            case .scaleToFill:
+                self = .resizeAspectFill
+            case .scaleToFit:
+                self = .resizeAspect
+            case .resize:
+                self = .resize
+            default:
+                return nil
+            }
+        }
     }
 
 #endif

@@ -149,24 +149,33 @@ import UniformTypeIdentifiers
         /// A data object that contains the representation in JPEG format with the specified compressio factor.
         func jpegData(compressionFactor _: Double) -> Data? { representation(using: .tiff, properties: [:]) }
 
-        /// The number of frames in an animated GIF image, or `1` if the image isn't a GIF.
+        /// The number of frames in an animated GIF image, or `0` if the image isn't a GIF.
         var frameCount: Int {
-            value(forProperty: .frameCount) as? Int ?? 1
+            value(forProperty: .frameCount) as? Int ?? 0
+        }
+        
+        /// Returns the frame at the specified index.
+        func frame(at index: Int) -> CGImageFrame? {
+            currentFrame = index
+            guard let image = cgImage else { return nil }
+            return CGImageFrame(image, currentFrameDuration)
+        }
+        
+        /// Returns the frame at the specified index.
+        subscript(index: Int) -> CGImageFrame? {
+            frame(at: index)
         }
         
         /// The total duration (in seconds) of all frames for an animated GIF image, or `0` if the image isn't a GIF.
         var duration: TimeInterval {
-            if let frameCount = value(forProperty: .frameCount) as? Int {
-                let current = currentFrame
-                var duration: TimeInterval = 0.0
-                for index in 0..<frameCount {
-                    currentFrame = index
-                    duration += currentFrameDuration
-                }
-                currentFrame = current
-                return duration
-            }
-            return 0.0
+            let current = currentFrame
+            var duration: TimeInterval = 0.0
+            (0..<frameCount).forEach({
+                currentFrame = $0
+                duration += currentFrameDuration
+            })
+            currentFrame = current
+            return duration
         }
 
         /// The the current frame for an animated GIF image, or `0` if the image isn't a GIF.

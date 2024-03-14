@@ -293,6 +293,30 @@ import FZSwiftUtils
                 }
             }
         }
+        
+        /// Sets the layer properties non-animated.
+        var nonAnimated: NonAnimated {
+            getAssociatedValue(key: "nonAnimated", object: self, initialValue: NonAnimated(self))
+        }
+        
+        /// Access layer properties non-animated.
+        @dynamicMemberLookup
+        class NonAnimated {
+            /// Sets the layer properties non-animated.
+            public subscript<T>(dynamicMember keyPath: ReferenceWritableKeyPath<CALayer, T>) -> T {
+                get { layer[keyPath: keyPath] }
+                set {
+                    CATransaction.performNonAnimated {
+                        layer[keyPath: keyPath] = newValue
+                    }
+                }
+            }
+            
+            init(_ layer: CALayer) {
+                self.layer = layer
+            }
+            let layer: CALayer
+        }
     }
 #endif
 

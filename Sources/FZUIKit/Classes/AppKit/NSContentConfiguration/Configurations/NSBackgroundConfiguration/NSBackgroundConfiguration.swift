@@ -54,7 +54,7 @@
         /// The background image.
         public var image: NSImage?
         /// The scaling of the background image.
-        public var imageScaling: CALayerContentsGravity = .center
+        public var imageScaling: ImageView.ImageScaling = .none
 
         /// The background view.
         public var view: NSView?

@@ -65,6 +65,12 @@
                     trackingArea = newTrackingArea
                 }
             }
+            
+            deinit {
+                if let trackingArea = trackingArea {
+                    view?.removeTrackingArea(trackingArea)
+                }
+            }
 
             private weak var view: NSView?
             private var trackingArea: NSTrackingArea?

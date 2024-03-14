@@ -17,10 +17,10 @@
             case previousPlaybackState
             case off
         }
-
-        public var autoAnimatesImages: Bool {
-            get { imageView.autoAnimates }
-            set { imageView.autoAnimates = newValue }
+        
+        open var imagePlayback: ImageView.AnimationPlaybackOption {
+            get { imageView.animationPlayback }
+            set { imageView.animationPlayback = newValue }
         }
 
         /**
@@ -68,10 +68,10 @@
         }
 
         /// The scaling of the media.
-        public var contentScaling: CALayerContentsGravity = .resizeAspect {
+        public var contentScaling: ImageView.ImageScaling = .scaleToFit {
             didSet {
                 imageView.imageScaling = contentScaling
-                videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: contentScaling) ?? .resizeAspectFill
+                videoView.videoGravity = AVLayerVideoGravity(imageScaling: contentScaling) ?? .resizeAspectFill
             }
         }
 
@@ -320,7 +320,7 @@
         private func updateVideoViewConfiguration() {
             videoView.player?.volume = volume
             videoView.controlsStyle = videoViewControlStyle
-            videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: contentScaling) ?? .resizeAspectFill
+            videoView.videoGravity =  AVLayerVideoGravity(imageScaling: contentScaling) ?? .resizeAspectFill
             videoView.player?.isMuted = isMuted
         }
 
@@ -358,7 +358,7 @@
         lazy var videoView: NoMenuPlayerView = {
             let videoView = NoMenuPlayerView()
             videoView.isHidden = true
-            videoView.videoGravity = AVLayerVideoGravity(caLayerContentsGravity: self.contentScaling) ?? .resizeAspectFill
+            videoView.videoGravity =  AVLayerVideoGravity(imageScaling: contentScaling) ?? .resizeAspectFill
             return videoView
         }()
 
@@ -385,7 +385,7 @@
         private func sharedInit() {
             wantsLayer = true
             clipsToBounds = true
-            contentScaling = .resizeAspectFill
+            contentScaling = .scaleToFit
             addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
         }
