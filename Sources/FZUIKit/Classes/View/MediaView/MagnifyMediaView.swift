@@ -334,7 +334,7 @@
         override open func layout() {
             super.layout()
             scrollView.frame.size = bounds.size
-            scrollView.documentView?.frame.size = bounds.size
+         //   scrollView.documentView?.frame.size = bounds.size
         }
 
         private func sharedInit() {
