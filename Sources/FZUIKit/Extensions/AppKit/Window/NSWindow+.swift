@@ -308,17 +308,7 @@
         }
     }
 
-extension NSWindow {    
-    var keyWindowObservation: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "keyWindowObservation", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "keyWindowObservation", object: self) }
-    }
-    
-    var mainWindowObservation: NSKeyValueObservation? {
-        get { getAssociatedValue(key: "mainWindowObservation", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "mainWindowObservation", object: self) }
-    }
-        
+extension NSWindow {
     /// A Boolean value that indicates whether the property `isKey` is KVO observable.
     public static var isKeyWindowObservable: Bool {
         get { isMethodReplaced(#selector(NSWindow.becomeKey)) }
@@ -338,12 +328,7 @@ extension NSWindow {
                        store.original(object, #selector(NSWindow.becomeKey))
                        window.didChangeValue(for: \.isKeyWindow)
                        window.isKey = true
-                       window.keyWindowObservation = NSApp.observe(\.keyWindow, options: [.prior]) { _ , changes in
-                           if changes.isPrior {
-                               window.willChangeValue(for: \.isKeyWindow)
-                               window.keyWindowObservation = nil
-                           }
-                       }
+                       window.willChangeValue(for: \.isKeyWindow)
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignKey),
@@ -356,7 +341,6 @@ extension NSWindow {
                         }
                     }
                 } catch {
-                   // handle error
                    Swift.debugPrint(error)
                 }
             } else {
@@ -385,12 +369,7 @@ extension NSWindow {
                        store.original(object, #selector(NSWindow.becomeMain))
                        window.didChangeValue(for: \.isMainWindow)
                        window.isMain = true
-                       window.mainWindowObservation = NSApp.observe(\.mainWindow, options: [.prior]) { _ , changes in
-                           if changes.isPrior {
-                               window.willChangeValue(for: \.isMainWindow)
-                               window.mainWindowObservation = nil
-                           }
-                       }
+                       window.willChangeValue(for: \.isMainWindow)
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignMain),
@@ -411,30 +390,7 @@ extension NSWindow {
             }
         }
     }
-    
-    func setIsKeyWindow(_ isKey: Bool = true) {
-        // "keyWindow", "setKeyWindow:"
-        var selector = NSSelectorFromString("setKeyWindow:")
-        if let meth = class_getInstanceMethod(object_getClass(self), selector) {
-            let imp = method_getImplementation(meth)
-            typealias ClosureType = @convention(c) (AnyObject, Selector, Bool) -> Void
-            let method: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            method(self, selector, isKey)
-        }
-    }
-    
-    func setIsMainWindow(_ isMain: Bool = true) {
-        // "mainWindow", "setMainWindow:"
-        var selector = NSSelectorFromString("setMainWindow:")
-        if let meth = class_getInstanceMethod(object_getClass(self), selector) {
-            let imp = method_getImplementation(meth)
-            typealias ClosureType = @convention(c) (AnyObject, Selector, Bool) -> Void
-            let method: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            method(self, selector, isMain)
-        }
-    }
 }
-
 
     private let NSWindowAnimationKeys = ["centerPoint"]
 #endif

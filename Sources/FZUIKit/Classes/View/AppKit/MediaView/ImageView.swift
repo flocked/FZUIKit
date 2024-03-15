@@ -530,13 +530,14 @@ open class ImageView: NSControl {
         set { imageView.isEditable = newValue }
     }
     
-    public enum ImageDropOption: Int {
+    /*
+    public enum ImageDropOption: Int {
         case single
         case multiple
         case none
     }
     
-    open var allowsDroppingImages: ImageDropOption  = .none {
+    open var allowsDroppingImages: ImageDropOption  = .none {
         didSet {
             guard oldValue != allowsDroppingImages else { return }
             if allowsDroppingImages == .none {
@@ -570,6 +571,7 @@ open class ImageView: NSControl {
             }
         }
     }
+     */
     
     /// A value that specifies if and how the image view can be selected.
     open var isSelectable: SelectionOption = false {

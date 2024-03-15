@@ -44,9 +44,9 @@
          */
         public struct DisplayingItemsHandlers {
             /// Handler that gets called whenever items start getting displayed.
-            var isDisplaying: (([IndexPath]) -> Void)?
+            public var isDisplaying: (([IndexPath]) -> Void)?
             /// Handler that gets called whenever items end getting displayed.
-            var didEndDisplaying: (([IndexPath]) -> Void)?
+            public var didEndDisplaying: (([IndexPath]) -> Void)?
         }
 
         var previousDisplayingIndexPaths: [IndexPath] {
