@@ -336,31 +336,9 @@
             scrollView
         }
         
-        let xLineView = NSView()
-        let yLineView = NSView()
-
         open override func layout() {
             super.layout()
             scrollView.frame = bounds
-            
-            
-            xLineView.frame.size.width = mediaOverlayView.frame.width
-            xLineView.frame.size.height = 2
-            xLineView.center = mediaOverlayView.bounds.center
-            
-            yLineView.frame.size.height = mediaOverlayView.frame.height
-            yLineView.frame.size.width = 2
-            yLineView.center = mediaOverlayView.bounds.center
-            
-            /*
-            yLineView.frame.size.height = mediaView.frame.height
-            xLineView.frame.size.width = 2
-            xLineView.center = mediaView.bounds.center
-            yLineView.center = mediaView.bounds.center
-             */
-            Swift.print(mediaOverlayView.frame, mediaView.frame)
-            xLineView.sendToFront()
-            yLineView.sendToFront()
         }
 
         public init() {
@@ -390,19 +368,7 @@
             sharedInit()
         }
 
-        let mediaOverlayView = NSView()
         private func sharedInit() {
-            xLineView.backgroundColor = .systemRed
-            yLineView.frame.size.height = 2
-            yLineView.backgroundColor = .systemRed
-            xLineView.frame.size.width = 2
-            
-            mediaView.overlayView = mediaOverlayView
-            
-            mediaOverlayView.addSubview(xLineView)
-            mediaOverlayView.addSubview(yLineView)
-            mediaOverlayView.backgroundColor = .controlAccentColor.withAlphaComponent(0.1)
-
             backgroundColor = .black
             mediaView.wantsLayer = true
             mediaView.frame = bounds
