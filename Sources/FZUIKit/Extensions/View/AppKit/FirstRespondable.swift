@@ -9,12 +9,6 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSView {
-    @objc public var isFirstResponder: Bool {
-        (window?.firstResponder == self)
-    }
-}
-
 /// A type that accepts first responder status of a window.
 public protocol FirstRespondable: NSUIResponder {
     
