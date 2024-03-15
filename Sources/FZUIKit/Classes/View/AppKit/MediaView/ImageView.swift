@@ -706,6 +706,7 @@ open class ImageView: NSControl {
      */
     public init(image: NSImage?) {
         super.init(frame: .zero)
+        sharedInit()
         imageView.image = image
     }
     

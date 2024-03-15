@@ -14,7 +14,7 @@
     /// A magnifiable view that presents media.
     open class MagnifyMediaView: NSView {
         public let mediaView = MediaView()
-        private let scrollView = NSScrollView()
+        private let scrollView = ScrollView()
         
         /// The video player view that is playing video.
         public var videoView: AVPlayerView {
@@ -25,28 +25,46 @@
             true
         }
 
+        /// A view for hosting layered content on top of the media view.
         open var overlayView: NSView? {
             get { mediaView.overlayView }
             set { mediaView.overlayView = newValue }
         }
 
+        /// The image tint color for template and symbol images.
         open var tintColor: NSColor? {
             get { mediaView.tintColor }
             set { mediaView.tintColor = newValue }
         }
-
-        open var doubleClickZoomFactor: CGFloat = 0.5
-
-        override open func mouseDown(with event: NSEvent) {
-            window?.makeFirstResponder(self)
-            if event.clickCount == 2 {
-                if magnification != 1.0 {
-                    setMagnification(1.0)
-                } else {
-                    let mousePoint = event.location(in: self)
-                    zoomIn(factor: doubleClickZoomFactor, centeredAt: mousePoint)
-                }
-            }
+        
+        /**
+         The amount by which to zoom the image when the user presses either the plus or minus key.
+         
+         Specify a value of `0.0` to disable zooming via keyboard.
+         */
+        open var keyDownZoomFactor: CGFloat {
+            get { scrollView.keyDownZoomFactor }
+            set { scrollView.keyDownZoomFactor = newValue }
+        }
+        
+        /**
+         The amount by which to momentarily zoom the image when the user holds the space key.
+         
+         Specify a value of `0.0` to disable zooming via space key.
+         */
+        open var spaceKeyZoomFactor: CGFloat {
+            get { scrollView.spaceKeyZoomFactor }
+            set { scrollView.spaceKeyZoomFactor = newValue }
+        }
+        
+        /**
+         The amount by which to zoom the image when the user double clicks the view.
+         
+         Specify a value of `0.0` to disable zooming via mouse clicks.
+         */
+        open var mouseClickZoomFactor: CGFloat {
+            get { scrollView.mouseClickZoomFactor }
+            set { scrollView.mouseClickZoomFactor = newValue }
         }
 
         override open func rightMouseDown(with _: NSEvent) {
@@ -55,25 +73,6 @@
         
         open override func menu(for event: NSEvent) -> NSMenu? {
             return nil
-        }
-
-        override open func keyDown(with event: NSEvent) {
-            switch event.keyCode {
-            case 30:
-                if event.modifierFlags.contains(.command) {
-                    setMagnification(maxMagnification)
-                } else {
-                    zoomIn(factor: 0.3)
-                }
-            case 44:
-                if event.modifierFlags.contains(.command) {
-                    setMagnification(1.0)
-                } else {
-                    zoomOut(factor: 0.3)
-                }
-            default:
-                super.keyDown(with: event)
-            }
         }
 
         override open var mouseDownCanMoveWindow: Bool {
@@ -89,16 +88,32 @@
             scrollView.scroll(point, animationDuration: animationDuration)
         }
 
+        /**
+         Zooms in the image by the specified factor.
+         
+         - Parameters:
+            - factor: The amount by which to zoom in the image.
+            - point: The point on which to center magnification.
+            - animationDuration: The animation duration of the zoom, or `nil` if the zoom shouldn't be animated.
+         */
         open func zoomIn(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
             zoom(factor: factor, centeredAt: centeredAt, animationDuration: animationDuration)
         }
 
+        /**
+         Zooms out the image by the specified factor.
+         
+         - Parameters:
+            - factor: The amount by which to zoom out the image.
+            - point: The point on which to center magnification.
+            - animationDuration: The animation duration of the zoom, or `nil` if the zoom shouldn't be animated.
+         */
         open func zoomOut(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
             scrollView.zoom()
             zoom(factor: -factor, centeredAt: centeredAt, animationDuration: animationDuration)
         }
 
-        open func zoom(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
+        func zoom(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
             if allowsMagnification {
                 let range = maxMagnification - minMagnification
                 if range > 0.0 {
@@ -115,6 +130,14 @@
             }
         }
 
+        /**
+         Magnifies the content by the given amount and optionally centers the result on the given point.
+
+         - Parameters:
+            - magnification: The amount by which to magnify the content.
+            - point: The point (in content view space) on which to center magnification, or `nil` if the magnification shouldn't be centered.
+            - animationDuration: The animation duration of the magnification, or `nil` if the magnification shouldn't be animated.
+         */
         open func setMagnification(_ magnification: CGFloat, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
             scrollView.setMagnification(magnification, centeredAt: centeredAt, animationDuration: animationDuration)
             if magnification == 1.0 {
@@ -134,6 +157,7 @@
             }
         }
 
+        /// The image displayed in the media view.
         open var image: NSImage? {
             get { mediaView.image }
             set {
@@ -142,6 +166,7 @@
             }
         }
 
+        /// The images displayed in the media view.
         open var images: [NSImage] {
             get { mediaView.images }
             set {
@@ -150,12 +175,14 @@
             }
         }
 
+        /// The symbol configuration of the image.
         @available(macOS 12.0, iOS 13.0, *)
         open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
             get { mediaView.symbolConfiguration }
             set { mediaView.symbolConfiguration = newValue }
         }
 
+        /// The asset in the media view.
         open var asset: AVAsset? {
             get { mediaView.asset }
             set {
@@ -165,11 +192,13 @@
             }
         }
 
+        /// A Boolean value indicating whether media is muted.
         open var isMuted: Bool {
             get { mediaView.isMuted }
             set { mediaView.isMuted = newValue }
         }
 
+        /// The volume of the media.
         open var volume: Float {
             get { mediaView.volume }
             set { mediaView.volume = newValue }
@@ -306,6 +335,33 @@
         override open var enclosingScrollView: NSScrollView? {
             scrollView
         }
+        
+        let xLineView = NSView()
+        let yLineView = NSView()
+
+        open override func layout() {
+            super.layout()
+            scrollView.frame = bounds
+            
+            
+            xLineView.frame.size.width = mediaOverlayView.frame.width
+            xLineView.frame.size.height = 2
+            xLineView.center = mediaOverlayView.bounds.center
+            
+            yLineView.frame.size.height = mediaOverlayView.frame.height
+            yLineView.frame.size.width = 2
+            yLineView.center = mediaOverlayView.bounds.center
+            
+            /*
+            yLineView.frame.size.height = mediaView.frame.height
+            xLineView.frame.size.width = 2
+            xLineView.center = mediaView.bounds.center
+            yLineView.center = mediaView.bounds.center
+             */
+            Swift.print(mediaOverlayView.frame, mediaView.frame)
+            xLineView.sendToFront()
+            yLineView.sendToFront()
+        }
 
         public init() {
             super.init(frame: .zero)
@@ -334,32 +390,24 @@
             sharedInit()
         }
 
-        var boundsSize: CGSize = .zero
-        override open func layout() {
-            super.layout()
-            scrollView.frame = bounds
-            mediaView.frame = bounds
-            guard boundsSize != .zero else {
-                boundsSize = bounds.size
-                return
-            }
-            scrollView.contentOffset.x *= (bounds.width / boundsSize.width)
-            scrollView.contentOffset.y *= (bounds.height / boundsSize.height)
-            boundsSize = bounds.size
-        }
-
+        let mediaOverlayView = NSView()
         private func sharedInit() {
+            xLineView.backgroundColor = .systemRed
+            yLineView.frame.size.height = 2
+            yLineView.backgroundColor = .systemRed
+            xLineView.frame.size.width = 2
+            
+            mediaView.overlayView = mediaOverlayView
+            
+            mediaOverlayView.addSubview(xLineView)
+            mediaOverlayView.addSubview(yLineView)
+            mediaOverlayView.backgroundColor = .controlAccentColor.withAlphaComponent(0.1)
+
             backgroundColor = .black
             mediaView.wantsLayer = true
             mediaView.frame = bounds
             scrollView.frame = bounds
-            scrollView.contentView = CenteredClipView()
             scrollView.documentView = mediaView
-            scrollView.drawsBackground = false
-            scrollView.allowsMagnification = true
-            scrollView.minMagnification = 1.0
-            scrollView.maxMagnification = 3.0
-            boundsSize = bounds.size
             addSubview(scrollView)
         }
     }

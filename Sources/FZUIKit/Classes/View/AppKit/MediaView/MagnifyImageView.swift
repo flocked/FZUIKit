@@ -12,7 +12,7 @@ import FZSwiftUtils
 /// A magnifiable view that displays images.
 open class MagnifyImageView: NSView {
     let imageView = ImageView()
-    let scrollView = NSScrollView()
+    let scrollView = ScrollView()
     
     /// The image displayed in the image view.
     @IBInspectable open var image: NSImage? {
@@ -208,9 +208,15 @@ open class MagnifyImageView: NSView {
         set { imageView.isEditable = newValue }
     }
     
+    /// A value that specifies if and how the image view can be selected.
     open var isSelectable: ImageView.SelectionOption {
         get { imageView.isSelectable }
         set { imageView.isSelectable = newValue }
+    }
+    
+    /// A Boolean value indicating whether the image view is selected.
+    open var isSelected: Bool {
+        imageView.isSelected
     }
     
     /**
@@ -362,47 +368,31 @@ open class MagnifyImageView: NSView {
      
      Specify a value of `0.0` to disable zooming via keyboard.
      */
-    open var keyPressZoomFactor: CGFloat = 0.3
+    open var keyDownZoomFactor: CGFloat {
+        get { scrollView.keyDownZoomFactor }
+        set { scrollView.keyDownZoomFactor = newValue }
+    }
+    
+    /**
+     The amount by which to momentarily zoom the image when the user holds the space key.
+     
+     Specify a value of `0.0` to disable zooming via space key.
+     */
+    open var spaceKeyZoomFactor: CGFloat {
+        get { scrollView.spaceKeyZoomFactor }
+        set { scrollView.spaceKeyZoomFactor = newValue }
+    }
     
     /**
      The amount by which to zoom the image when the user double clicks the view.
      
      Specify a value of `0.0` to disable zooming via mouse clicks.
      */
-    open var mouseClickZoomFactor: CGFloat = 0.5
-    
-    override open func keyDown(with event: NSEvent) {
-        switch event.keyCode {
-        case 30:
-            guard keyPressZoomFactor != 0.0 else { return }
-            if event.modifierFlags.contains(.command) {
-                setMagnification(maxMagnification)
-            } else {
-                zoomIn(factor: keyPressZoomFactor)
-            }
-        case 44:
-            guard keyPressZoomFactor != 0.0 else { return }
-            if event.modifierFlags.contains(.command) {
-                setMagnification(1.0)
-            } else {
-                zoomOut(factor: keyPressZoomFactor)
-            }
-        default:
-            super.keyDown(with: event)
-        }
+    open var mouseClickZoomFactor: CGFloat {
+        get { scrollView.mouseClickZoomFactor }
+        set { scrollView.mouseClickZoomFactor = newValue }
     }
-    
-    override open func mouseDown(with event: NSEvent) {
-        guard mouseClickZoomFactor != 0.0 else { return }
-        if event.clickCount == 2 {
-            if magnification != 1.0 {
-                setMagnification(1.0)
-            } else {
-                zoomIn(factor: mouseClickZoomFactor, centeredAt: event.location(in: self))
-            }
-        }
-    }
-    
+            
     /**
      Zooms in the image by the specified factor.
      
@@ -427,6 +417,25 @@ open class MagnifyImageView: NSView {
     open func zoomOut(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
         scrollView.zoom()
         scrollView.zoomOut(factor: factor, centeredAt: centeredAt, animationDuration: animationDuration)
+    }
+    
+    /**
+     Magnifies the content by the given amount and optionally centers the result on the given point.
+
+     - Parameters:
+        - magnification: The amount by which to magnify the content.
+        - point: The point (in content view space) on which to center magnification, or `nil` if the magnification shouldn't be centered.
+        - animationDuration: The animation duration of the magnification, or `nil` if the magnification shouldn't be animated.
+     */
+    open func setMagnification(_ magnification: CGFloat, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
+        scrollView.setMagnification(magnification, centeredAt: centeredAt, animationDuration: animationDuration)
+        if magnification == 1.0 {
+            scrollElasticity = .none
+            hasScrollers = false
+        } else {
+            hasScrollers = true
+            scrollElasticity = .automatic
+        }
     }
 
     
@@ -478,19 +487,13 @@ open class MagnifyImageView: NSView {
         set { self.scrollView.maxMagnification = newValue }
     }
     
-    open func setMagnification(_ magnification: CGFloat, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
-        scrollView.setMagnification(magnification, centeredAt: centeredAt, animationDuration: animationDuration)
-        if magnification == 1.0 {
-            scrollElasticity = .none
-            hasScrollers = false
-        } else {
-            hasScrollers = true
-            scrollElasticity = .automatic
-        }
-    }
-    
     open override var enclosingScrollView: NSScrollView? {
         scrollView
+    }
+    
+    open override func layout() {
+        super.layout()
+        scrollView.frame = bounds
     }
     
     /**
@@ -502,6 +505,7 @@ open class MagnifyImageView: NSView {
      */
     public init(image: NSImage?) {
         super.init(frame: .zero)
+        sharedInit()
         imageView.image = image
     }
     
@@ -527,32 +531,12 @@ open class MagnifyImageView: NSView {
     open override var intrinsicContentSize: NSSize {
         imageView.intrinsicContentSize
     }
-    
-    var boundsSize: CGSize = .zero
-    override open func layout() {
-        super.layout()
-        scrollView.frame = bounds
-        imageView.frame = bounds
-        guard boundsSize != .zero else {
-            boundsSize = bounds.size
-            return
-        }
-        scrollView.contentOffset.x *= (bounds.width / boundsSize.width)
-        scrollView.contentOffset.y *= (bounds.height / boundsSize.height)
-        boundsSize = bounds.size
-    }
 
     func sharedInit() {
         backgroundColor = .black
         imageView.frame = bounds
         scrollView.frame = bounds
-        scrollView.contentView = CenteredClipView()
         scrollView.documentView = imageView
-        scrollView.drawsBackground = false
-        scrollView.allowsMagnification = true
-        scrollView.minMagnification = 1.0
-        scrollView.maxMagnification = 3.0
-        boundsSize = bounds.size
         addSubview(scrollView)
     }
 }
