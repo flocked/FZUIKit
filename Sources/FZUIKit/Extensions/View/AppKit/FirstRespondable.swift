@@ -48,13 +48,7 @@ extension NSUIViewController: FirstRespondable { }
 
 public extension FirstRespondable where Self: NSView {
     var isFirstResponder: Bool {
-        /*
-        if let textField = self as? NSTextField {
-            window?.firstResponder == textField.currentEditor() || textField.currentEditor() == textField
-        }
-        */
-        (window?.firstResponder == self)
-        
+        window?.firstResponder == self
     }
     
     @discardableResult
