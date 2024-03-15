@@ -113,6 +113,9 @@ extension NSView {
             observe(\.bounds, handler: \.viewHandlers.bounds)
             observe(\.frame, handler: \.viewHandlers.frame)
             observe(\.superview, handler: \.viewHandlers.superview)
+            observe(\.window?.screen, handler: \.viewHandlers.screen)
+            
+            
             
             if windowHandlers.isKey != nil {
                 if  viewObserver?.isObserving(\.window?.isKey) == false {
@@ -238,6 +241,8 @@ extension NSView {
         public var effectiveAppearance: ((NSAppearance)->())?
         /// The handler that gets called when the view is the first responder.
         public var isFirstResponder: ((Bool)->())?
+        /// The handler that gets called when the screen changed.
+        public var screen: ((NSScreen?)->())?
 
         var needsObserving: Bool {
             superview != nil ||
@@ -246,7 +251,8 @@ extension NSView {
             bounds != nil ||
             frame != nil ||
             effectiveAppearance != nil ||
-            isFirstResponder != nil
+            isFirstResponder != nil ||
+            screen != nil
         }
     }
     

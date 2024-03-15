@@ -530,8 +530,49 @@ open class ImageView: NSControl {
         set { imageView.isEditable = newValue }
     }
     
+    public enum ImageDropOption: Int {
+        case single
+        case multiple
+        case none
+    }
+    
+    open var allowsDroppingImages: ImageDropOption  = .none {
+        didSet {
+            guard oldValue != allowsDroppingImages else { return }
+            if allowsDroppingImages == .none {
+                dropHandlers.canDrop = nil
+                dropHandlers.didDrop = nil
+            } else if dropHandlers.canDrop == nil {
+                dropHandlers.canDrop = { [weak self] contents,_,_ in
+                    guard let self = self else { return false }
+                    switch self.allowsDroppingImages {
+                    case .single:
+                        return contents.images.count == 1
+                    case .multiple:
+                        return !contents.images.isEmpty
+                    case .none:
+                        return false
+                    }
+                }
+                dropHandlers.didDrop = { [weak self] contents,_,_ in
+                    guard let self = self else { return }
+                    let droppedImages = contents.images
+                    switch self.allowsDroppingImages {
+                    case .single:
+                        guard droppedImages.count == 1 else { return }
+                        self.image = droppedImages.first
+                    case .multiple:
+                        guard !droppedImages.isEmpty else { return }
+                        self.images = droppedImages
+                    case .none: break
+                    }
+                }
+            }
+        }
+    }
+    
     /// A value that specifies if and how the image view can be selected.
-    open var isSelectable: SelectionOption = true {
+    open var isSelectable: SelectionOption = false {
         didSet {
             guard isSelectable != oldValue else { return }
             if isSelectable == .off {

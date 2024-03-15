@@ -21,7 +21,7 @@ extension NSMagnificationGestureRecognizer {
     }
     
     var prevMagnification: CGFloat {
-        get{ return getAssociatedValue(key: "prevMagnification", object: self, initialValue: 0.0) }
+        get{ return getAssociatedValue(key: "prevMagnification", object: self, initialValue: magnification) }
         set{ set(associatedValue: newValue, key: "prevMagnification", object: self) }
     }
     
@@ -63,6 +63,7 @@ extension NSGestureRecognizer {
                 hookSignature: (@convention(block)  (AnyObject, State) -> ()).self) { store in {
                    object, state in
                     (object as? NSMagnificationGestureRecognizer)?.updateVelocity()
+                    (object as? NSRotationGestureRecognizer)?.updateVelocity()
                    store.original(object, #selector(setter: NSGestureRecognizer.state), state)
                 }
            }
