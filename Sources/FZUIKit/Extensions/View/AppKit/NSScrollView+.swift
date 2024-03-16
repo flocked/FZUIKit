@@ -65,6 +65,7 @@
             get { documentVisibleRect.origin }
             set {
                 Swift.print("----")
+                Swift.print(contentOffset, newValue)
                 var superview = self.superview
                 while superview != nil {
                     Swift.print(superview ?? "nil")
