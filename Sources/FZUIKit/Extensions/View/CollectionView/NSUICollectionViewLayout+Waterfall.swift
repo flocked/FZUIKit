@@ -38,7 +38,7 @@
         class WaterfallLayout: NSUICollectionViewLayout {
             public typealias ItemSizeProvider = (IndexPath) -> CGSize
 
-            public convenience init(itemSizeProvider: @escaping ItemSizeProvider) {
+            public convenience init(columnCount: Int = 2,  itemSizeProvider: @escaping ItemSizeProvider) {
                 self.init()
                 self.itemSizeProvider = itemSizeProvider
             }
@@ -46,6 +46,8 @@
             public var itemSizeProvider: ItemSizeProvider? {
                 didSet { invalidateLayout() }
             }
+            
+            public var allowsChangingColumnCountByPinching: Bool = false
 
             public var columnCount: Int = 2 {
                 didSet { invalidateLayout(animated: animationDuration ?? 0.0) }
@@ -138,7 +140,14 @@
                 }
                 return collectionViewContentWidth - insets.left - insets.right
             }
-
+            
+            public override var collectionView: NSCollectionView? {
+                get {
+                    Swift.print("get collectionview", super.collectionView != nil)
+                    return super.collectionView
+                }
+            }
+            
             public func itemWidth(inSection section: Int) -> CGFloat {
                 let columnCount = columnCount(forSection: section)
                 let spaceColumCount = CGFloat(columnCount - 1)
@@ -148,7 +157,10 @@
 
             override public func prepare() {
                 super.prepare()
-
+                self.collectionView
+                Swift.print("prepare")
+                _ = collectionView
+                
                 let numberOfSections = collectionView!.numberOfSections
                 if numberOfSections == 0 {
                     return
