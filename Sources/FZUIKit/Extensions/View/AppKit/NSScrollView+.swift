@@ -64,6 +64,13 @@
         @objc open var contentOffset: CGPoint {
             get { documentVisibleRect.origin }
             set {
+                Swift.print("----")
+                var superview = self.superview
+                while superview != nil {
+                    Swift.print(superview ?? "nil")
+                    superview = superview?.superview
+                }
+                
                 NSView.swizzleAnimationForKey()
                 documentView?.scroll(newValue)
             }
