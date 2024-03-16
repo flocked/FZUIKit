@@ -12,7 +12,7 @@ import FZSwiftUtils
 /// A magnifiable view that displays images.
 open class MagnifyImageView: NSView {
     let imageView = ImageView()
-    let scrollView = ScrollView()
+    let scrollView = FZScrollView()
     
     /// The image displayed in the image view.
     @IBInspectable open var image: NSImage? {

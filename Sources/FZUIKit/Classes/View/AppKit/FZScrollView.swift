@@ -9,7 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
-open class ScrollView: NSScrollView {
+open class FZScrollView: NSScrollView {
     
     lazy var _verticalScrollElasticity = verticalScrollElasticity
     lazy var _horizontalScrollElasticity = horizontalScrollElasticity
@@ -174,8 +174,6 @@ open class ScrollView: NSScrollView {
                 boundsSize = bounds.size
                 return
             }
-            Swift.print("layout media")
-            Swift.print(bounds.size, boundsSize)
             contentOffset.x *= (bounds.width / boundsSize.width)
             contentOffset.y *= (bounds.height / boundsSize.height)
         }

@@ -1,5 +1,5 @@
 //
-//  AdvanceWebView.swift
+//  FZWebView.swift
 //
 //
 //  Created by Florian Zand on 23.02.23.
@@ -14,7 +14,7 @@
 
      */
     @available(macOS 11.3, iOS 14.5, *)
-    open class AdvanceWebView: WKWebView {
+    open class FZWebView: WKWebView {
         /// The handlers for downloading files.
         public struct DownloadHandlers {
             /// The handler that determines whether a url request should be downloaded.
@@ -190,11 +190,11 @@
     }
 
     @available(macOS 11.3, iOS 14.5, *)
-    extension AdvanceWebView {
+    extension FZWebView {
         class Delegate: NSObject {
-            let webview: AdvanceWebView
+            let webview: FZWebView
 
-            init(webview: AdvanceWebView) {
+            init(webview: FZWebView) {
                 self.webview = webview
                 super.init()
                 self.webview.navigationDelegate = self
@@ -215,7 +215,7 @@
     }
 
     @available(macOS 11.3, iOS 14.5, *)
-    extension AdvanceWebView.Delegate: WKNavigationDelegate {
+    extension FZWebView.Delegate: WKNavigationDelegate {
         public func webView(_: WKWebView, navigationAction _: WKNavigationAction, didBecome download: WKDownload) {
             Swift.debugPrint("navigationResponse didBecome", download.originalRequest?.url ?? "")
             setupDownload(download)
@@ -264,9 +264,9 @@
     }
 
     @available(macOS 11.3, iOS 14.5, *)
-    extension AdvanceWebView.Delegate: WKDownloadDelegate {
+    extension FZWebView.Delegate: WKDownloadDelegate {
         public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
-            Swift.debugPrint("[AdvanceWebView] download suggestedFilename", suggestedFilename, response.expectedContentLength)
+            Swift.debugPrint("[FZWebView] download suggestedFilename", suggestedFilename, response.expectedContentLength)
             var downloadLocation: URL?
             if let request = download.originalRequest, let handler = webview.downloadFileURLHandlers[request] {
                 downloadLocation = handler(response, suggestedFilename)
@@ -277,7 +277,7 @@
                 switch webview.downloadStrategy {
                 case .delete:
                     do {
-                        Swift.debugPrint("[AdvanceWebView] download delete", suggestedFilename, response.expectedContentLength)
+                        Swift.debugPrint("[FZWebView] download delete", suggestedFilename, response.expectedContentLength)
                         try FileManager.default.removeItem(at: downloadLocation)
                         download.fileDestinationURL = downloadLocation
                         completionHandler(downloadLocation)
@@ -286,7 +286,7 @@
                         completionHandler(nil)
                     }
                 case .ignore:
-                    Swift.debugPrint("[AdvanceWebView] download ignore", suggestedFilename, response.expectedContentLength)
+                    Swift.debugPrint("[FZWebView] download ignore", suggestedFilename, response.expectedContentLength)
                     completionHandler(nil)
                 case .resume:
                     guard download.originalRequest?.allHTTPHeaderFields?["Range"] == nil, let fileSize = downloadLocation.resources.fileSize?.bytes, fileSize < response.expectedContentLength else {
@@ -301,7 +301,7 @@
                         request = URLRequest(url: url)
                     }
                     if var request = request {
-                        Swift.debugPrint("[AdvanceWebView] download resume", suggestedFilename, response.expectedContentLength)
+                        Swift.debugPrint("[FZWebView] download resume", suggestedFilename, response.expectedContentLength)
                         completionHandler(nil)
                         request.addRangeHeader(for: downloadLocation)
                         webview.startDownload(using: request, completionHandler: { _ in })
@@ -310,7 +310,7 @@
                     }
                 }
             } else {
-                Swift.debugPrint("[AdvanceWebView] download", suggestedFilename, response.expectedContentLength)
+                Swift.debugPrint("[FZWebView] download", suggestedFilename, response.expectedContentLength)
                 download.fileDestinationURL = downloadLocation
                 completionHandler(downloadLocation)
             }
@@ -325,7 +325,7 @@
         }
 
         public func downloadDidFinish(_ download: WKDownload) {
-            Swift.debugPrint("[AdvanceWebView] download didFinish", download.originalRequest?.url ?? "")
+            Swift.debugPrint("[FZWebView] download didFinish", download.originalRequest?.url ?? "")
             if let index = webview.downloads.firstIndex(of: download) {
                 webview.downloads.remove(at: index)
             }
@@ -333,7 +333,7 @@
         }
 
         public func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
-            Swift.debugPrint("[AdvanceWebView] download failed", error, download.originalRequest?.url ?? "")
+            Swift.debugPrint("[FZWebView] download failed", error, download.originalRequest?.url ?? "")
             if let resumeData = resumeData, download.retryAmount > 0, let request = download.originalRequest, let fileDestinationURL = download.fileDestinationURL {
                 webview.downloadFileURLHandlers[request] = { _, _ in fileDestinationURL }
                 webview.resumeDownload(fromResumeData: resumeData, completionHandler: {
@@ -349,20 +349,20 @@
             if webview.downloadHandlers.didFail?(download, error, resumeData) ?? false {
                 guard let resumeData = resumeData else { return }
                 webview.resumeDownload(fromResumeData: resumeData, completionHandler: { download in
-                    Swift.debugPrint("[AdvanceWebView] download retry", download.originalRequest?.url ?? "")
+                    Swift.debugPrint("[FZWebView] download retry", download.originalRequest?.url ?? "")
 
                 })
             }
         }
 
         public func download(_: WKDownload, willPerformHTTPRedirection response: HTTPURLResponse, newRequest _: URLRequest, decisionHandler: @escaping (WKDownload.RedirectPolicy) -> Void) {
-            Swift.debugPrint("[AdvanceWebView] download willPerformHTTPRedirection", response, response.url ?? "")
+            Swift.debugPrint("[FZWebView] download willPerformHTTPRedirection", response, response.url ?? "")
             decisionHandler(.allow)
         }
     }
 
     @available(macOS 11.3, iOS 14.5, *)
-    public extension AdvanceWebView {
+    public extension FZWebView {
         class DownloadProgress: MutableProgress {
             /// The downloading progresses.
             public var downloading: [Progress] {

@@ -14,7 +14,7 @@
     /// A magnifiable view that presents media.
     open class MagnifyMediaView: NSView {
         public let mediaView = MediaView()
-        private let scrollView = ScrollView()
+        private let scrollView = FZScrollView()
         
         /// The video player view that is playing video.
         public var videoView: AVPlayerView {

@@ -64,7 +64,7 @@
         @objc open var contentOffset: CGPoint {
             get { documentVisibleRect.origin }
             set {
-                guard newValue.x.isNormal, newValue.y.isNormal else { return }
+                guard newValue.x.isFinite, newValue.y.isFinite else { return }
                 NSView.swizzleAnimationForKey()
                 documentView?.scroll(newValue)
             }
