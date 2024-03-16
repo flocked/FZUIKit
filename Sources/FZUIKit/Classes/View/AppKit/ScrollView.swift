@@ -174,6 +174,8 @@ open class ScrollView: NSScrollView {
                 boundsSize = bounds.size
                 return
             }
+            Swift.print("layout media")
+            Swift.print(bounds.size, boundsSize)
             contentOffset.x *= (bounds.width / boundsSize.width)
             contentOffset.y *= (bounds.height / boundsSize.height)
         }
