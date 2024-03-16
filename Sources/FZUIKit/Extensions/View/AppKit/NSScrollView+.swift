@@ -65,7 +65,7 @@
             get { documentVisibleRect.origin }
             set {
                 NSView.swizzleAnimationForKey()
-                contentView.bounds.origin = newValue
+                documentView?.scroll(newValue)
             }
         }
         

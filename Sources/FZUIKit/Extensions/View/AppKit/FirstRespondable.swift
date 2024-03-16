@@ -46,10 +46,21 @@ public protocol FirstRespondable: NSUIResponder {
 extension NSUIView: FirstRespondable { }
 extension NSUIViewController: FirstRespondable { }
 
+/*
+public extension NSView {
+   @objc dynamic public var isFirstResponder: Bool {
+       if let textField = self as? NSTextField {
+          return window?.firstResponder == textField.currentEditor() || textField.currentEditor() == textField || window?.firstResponder == self
+       }
+        return window?.firstResponder == self
+    }
+}
+ */
+
 public extension FirstRespondable where Self: NSView {
     var isFirstResponder: Bool {
-        window?.firstResponder == self
-    }
+         return window?.firstResponder == self
+     }
     
     @discardableResult
     func makeFirstResponder() -> Bool {
@@ -80,7 +91,9 @@ public extension FirstRespondable where Self: NSTextView {
 }
 
 public extension FirstRespondable where Self: NSTextField {
-    var isFirstResponder: Bool { currentEditor() == window?.firstResponder }
+    var isFirstResponder: Bool { 
+        window?.firstResponder == currentEditor() || window?.firstResponder == self
+    }
     
     @discardableResult
     func makeFirstResponder() -> Bool {
@@ -118,5 +131,46 @@ public extension FirstRespondable where Self: NSViewController {
         return !isFirstResponder
     }
 }
+
+/*
+extension NSView {
+   public static var isFirstResponderObservable: Bool {
+        get { NSWindow.isMethodReplaced(NSSelectorFromString("_setFirstResponder:")) }
+        set {
+            guard newValue != isFirstResponderObservable else { return }
+            if newValue {
+                do {
+                    try NSWindow.replaceMethod(
+                        NSSelectorFromString("_setFirstResponder:"),
+                        methodSignature: (@convention(c)  (AnyObject, Selector, NSResponder?) -> ()).self,
+                        hookSignature: (@convention(block)  (AnyObject, NSResponder?) -> ()).self) { store in {
+                            object, responder in
+                            if let window = object as? NSWindow, window.firstResponder != responder {
+                             //   Swift.print("new:", responder ?? "nil", "old:", window.firstResponder ?? "nil")
+                                var currentResponder = window.firstResponder as? NSView
+                                var newResponder = responder as? NSView
+                                if let textView = currentResponder as? NSTextView, textView.isFieldEditor, let editorTarget = textView.delegate as? NSView {
+                                    currentResponder = editorTarget
+                                }
+                                currentResponder?.willChangeValue(for: \.isFirstResponder)
+                                newResponder?.willChangeValue(for: \.isFirstResponder)
+                                store.original(object,  NSSelectorFromString("_setFirstResponder:"), responder)
+                                currentResponder?.didChangeValue(for: \.isFirstResponder)
+                                newResponder?.didChangeValue(for: \.isFirstResponder)
+                            } else {
+                                store.original(object,  NSSelectorFromString("_setFirstResponder:"), responder)
+                            }
+                        }
+                        }
+                } catch {
+                    Swift.debugPrint(error)
+                }
+            } else {
+                NSWindow.resetMethod(NSSelectorFromString("_setFirstResponder:"))
+            }
+        }
+    }
+}
+*/
 
 #endif
