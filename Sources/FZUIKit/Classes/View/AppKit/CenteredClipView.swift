@@ -39,9 +39,14 @@ class DragScrollGestureRecognizer: NSGestureRecognizer {
         
         let scale = (clipView.superview as? NSScrollView)?.magnification ?? 1.0
         let newPoint = event.locationInWindow
-        let newOrigin = CGPoint(x: originalOrigin.x + (clickPoint.x - newPoint.x) / scale,
+
+        
+        let newOrigin = NSPoint(x: originalOrigin.x + (clickPoint.x - newPoint.x) / scale,
                                 y: originalOrigin.y - (clickPoint.y - newPoint.y) / scale)
-        let constrainedRect = clipView.constrainBoundsRect(CGRect(newOrigin, clipView.bounds.size))
+
+        let constrainedRect = clipView.constrainBoundsRect(NSRect(origin: newOrigin, size: clipView.bounds.size))
+        
+        
         clipView.scroll(to: constrainedRect.origin)
         clipView.superview?.reflectScrolledClipView(clipView)
     }
