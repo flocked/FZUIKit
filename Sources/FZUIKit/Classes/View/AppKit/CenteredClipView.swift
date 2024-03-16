@@ -42,7 +42,7 @@ class DragScrollGestureRecognizer: NSGestureRecognizer {
 
         
         let newOrigin = NSPoint(x: originalOrigin.x + (clickPoint.x - newPoint.x) / scale,
-                                y: originalOrigin.y - (clickPoint.y - newPoint.y) / scale)
+                                y: originalOrigin.y + (clickPoint.y - newPoint.y) / scale)
 
         let constrainedRect = clipView.constrainBoundsRect(NSRect(origin: newOrigin, size: clipView.bounds.size))
         
