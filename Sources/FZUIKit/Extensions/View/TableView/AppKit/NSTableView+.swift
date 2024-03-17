@@ -7,6 +7,7 @@
 
 #if os(macOS)
     import AppKit
+    import FZSwiftUtils
 
     public extension NSTableView {
         /**
@@ -109,5 +110,63 @@
             guard let rowView = rowView(at: location) else { return nil }
             return rowView.cellViews.first(where: { $0.frame.contains(location) })
         }
+        
+        
+        
+        var isSelectedRowsObservable: Bool {
+            get { selectedRowGestureRecognizer != nil }
+            set {
+                guard newValue != isSelectedRowsObservable else { return }
+                if newValue {
+                    selectedRowGestureRecognizer = SelectedRowGestureRecognizer(selectedRows: selectedRowIndexes)
+                    addGestureRecognizer(selectedRowGestureRecognizer!)
+                    willChangeValue(for: \.selectedRowIndexes)
+                } else {
+                    selectedRowGestureRecognizer?.removeFromView()
+                    selectedRowGestureRecognizer = nil
+                }
+            }
+        }
+        
+        internal var selectedRowGestureRecognizer: SelectedRowGestureRecognizer? {
+            get { getAssociatedValue(key: "selectedRowGestureRecognizer", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "selectedRowGestureRecognizer", object: self) }
+        }
+        
+        internal class SelectedRowGestureRecognizer: NSGestureRecognizer {
+            public init(selectedRows: IndexSet) {
+                self.selectedRows = selectedRows
+                super.init(target: nil, action: nil)
+            }
+            
+            override func mouseDown(with event: NSEvent) {
+                super.mouseDown(with: event)
+                checkSelection()
+            }
+            
+            override func keyDown(with event: NSEvent) {
+                super.keyDown(with: event)
+                checkSelection()
+            }
+            
+            func checkSelection() {
+                guard let tableView = tableView, selectedRows != tableView.selectedRowIndexes else { return }
+                tableView.didChangeValue(for: \.selectedRowIndexes)
+                selectedRows = tableView.selectedRowIndexes
+                tableView.willChangeValue(for: \.selectedRowIndexes)
+            }
+            
+            var selectedRows: IndexSet
+            
+            var tableView: NSTableView? {
+                view as? NSTableView
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+        }
     }
+
+
 #endif
