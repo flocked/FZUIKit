@@ -179,8 +179,8 @@ import FZSwiftUtils
         }
 
         internal var layerObserver: KeyValueObserver<CALayer>? {
-            get { getAssociatedValue(key: "CALayer.boundsObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "CALayer.boundsObserver", object: self) }
+            get { getAssociatedValue("CALayer.boundsObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "CALayer.boundsObserver") }
         }
 
         /// The associated view using the layer.
@@ -296,7 +296,7 @@ import FZSwiftUtils
         
         /// Sets the layer properties non-animated.
         var nonAnimated: NonAnimated {
-            getAssociatedValue(key: "nonAnimated", object: self, initialValue: NonAnimated(self))
+            getAssociatedValue("nonAnimated", initialValue: NonAnimated(self))
         }
         
         /// Access layer properties non-animated.

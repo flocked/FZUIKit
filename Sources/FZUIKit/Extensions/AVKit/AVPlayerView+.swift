@@ -48,10 +48,10 @@ extension AVPlayerView {
      The default value is an empty array which indicates that the user can't drop any new media to the player view.
      */
     public var droppableMedia: [AVMediaContent]  {
-        get { getAssociatedValue(key: "dropMediaContent", object: self, initialValue: []) }
+        get { getAssociatedValue("dropMediaContent", initialValue: []) }
         set {
             let newValue = newValue.uniqued()
-            set(associatedValue: newValue, key: "dropMediaContent", object: self)
+            setAssociatedValue(newValue, key: "dropMediaContent")
             guard newValue != droppableMedia else { return }
             if !newValue.isEmpty {
                 dropHandlers.canDrop = { [weak self] items,_,_ in
@@ -94,7 +94,7 @@ extension AVPlayerView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var resizingContentOverlayView: NSView {
-        if let view: NSView = getAssociatedValue(key: "resizingContentOverlayView", object: self) {
+        if let view: NSView = getAssociatedValue("resizingContentOverlayView") {
             return view
         }
         
@@ -106,7 +106,7 @@ extension AVPlayerView {
             addSubview(overlayView)
         }
         overlayView.frame = videoBounds
-        set(associatedValue: overlayView, key: "resizingContentOverlayView", object: self)
+        setAssociatedValue(overlayView, key: "resizingContentOverlayView")
         videoBoundsObservation = observeChanges(for: \.videoBounds, handler: { [weak self] old, new in
             guard let self = self, old != new else { return }
             self.resizingContentOverlayView.frame = new
@@ -115,8 +115,8 @@ extension AVPlayerView {
     }
     
     var videoBoundsObservation: KeyValueObservation? {
-        get { getAssociatedValue(key: "videoBoundsObservation", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "videoBoundsObservation", object: self) }
+        get { getAssociatedValue("videoBoundsObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "videoBoundsObservation") }
     }
 }
 

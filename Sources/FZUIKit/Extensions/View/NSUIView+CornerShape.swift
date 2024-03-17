@@ -45,10 +45,10 @@
 
         /// The corner shape of the view.
         public var cornerShape: CornerShape? {
-            get { getAssociatedValue(key: "_cornerShape", object: self, initialValue: nil) }
+            get { getAssociatedValue("_cornerShape", initialValue: nil) }
             set {
                 let newValue = newValue?.clamped
-                set(associatedValue: newValue, key: "_cornerShape", object: self)
+                setAssociatedValue(newValue, key: "_cornerShape")
                 updateCornerShape()
                 if newValue?.needsViewObservation == true {
                     if cornerShapeBoundsObserver == nil {
@@ -64,8 +64,8 @@
         }
 
         var cornerShapeBoundsObserver: KeyValueObservation? {
-            get { getAssociatedValue(key: "_cornerShapeBoundsObserver", object: self) }
-            set { set(associatedValue: newValue, key: "_cornerShapeBoundsObserver", object: self) }
+            get { getAssociatedValue("_cornerShapeBoundsObserver") }
+            set { setAssociatedValue(newValue, key: "_cornerShapeBoundsObserver") }
         }
 
         func updateCornerShape() {

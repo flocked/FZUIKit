@@ -19,10 +19,10 @@
          - Note: If you you set this property to `true`, ``automaticallyResizesToFit`` is set to `false`.
          */
         public var adjustsFontSizeToFitWidth: Bool {
-            get { getAssociatedValue(key: "adjustsFontSizeToFitWidth", object: self, initialValue: false) }
+            get { getAssociatedValue("adjustsFontSizeToFitWidth", initialValue: false) }
             set {
                 guard newValue != adjustsFontSizeToFitWidth else { return }
-                set(associatedValue: newValue, key: "adjustsFontSizeToFitWidth", object: self)
+                setAssociatedValue(newValue, key: "adjustsFontSizeToFitWidth")
                 setupFontAdjustment()
                 if newValue {
                     automaticallyResizesToFit = false
@@ -37,11 +37,11 @@
          If the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is `true`, use this property to specify the smallest multiplier for the current font size that yields an acceptable font size for the text field’s text. If you specify a value of `0` for this property, the text field doesn’t scale the text down. The default value of this property is `0`.
          */
         public var minimumScaleFactor: CGFloat {
-            get { getAssociatedValue(key: "minimumScaleFactor", object: self, initialValue: 0.0) }
+            get { getAssociatedValue("minimumScaleFactor", initialValue: 0.0) }
             set {
                 let newValue = newValue.clamped(max: 1.0)
                 guard newValue != minimumScaleFactor else { return }
-                set(associatedValue: newValue, key: "minimumScaleFactor", object: self)
+                setAssociatedValue(newValue, key: "minimumScaleFactor")
                 setupFontAdjustment()
                 adjustFontSize()
             }
@@ -172,9 +172,9 @@
         }
         
         var _font: NSFont? {
-            get { getAssociatedValue(key: "_font", object: self, initialValue: nil) }
+            get { getAssociatedValue("_font", initialValue: nil) }
             set { 
-                set(associatedValue: newValue, key: "_font", object: self)
+                setAssociatedValue(newValue, key: "_font")
             }
         }
     }

@@ -28,9 +28,9 @@
          The handlers get called whenever the collection view is displaying new cells (e.g. when the enclosing scrollview gets scrolled to new cells).
          */
         public var displayingCellsHandlers: DisplayingItemsHandlers {
-            get { getAssociatedValue(key: "displayingItemsHandlers", object: self, initialValue: DisplayingItemsHandlers()) }
+            get { getAssociatedValue("displayingItemsHandlers", initialValue: DisplayingItemsHandlers()) }
             set {
-                set(associatedValue: newValue, key: "displayingItemsHandlers", object: self)
+                setAssociatedValue(newValue, key: "displayingItemsHandlers")
                 setupDisplayingItemsTracking()
             }
         }
@@ -48,15 +48,15 @@
         }
 
         var previousDisplayingIndexPaths: [IndexPath] {
-            get { getAssociatedValue(key: "previousDisplayingIndexPaths", object: self, initialValue: []) }
+            get { getAssociatedValue("previousDisplayingIndexPaths", initialValue: []) }
             set {
-                set(associatedValue: newValue, key: "previousDisplayingIndexPaths", object: self)
+                setAssociatedValue(newValue, key: "previousDisplayingIndexPaths")
             }
         }
 
         var contentOffsetObserver: KeyValueObservation? {
-            get { getAssociatedValue(key: "contentOffsetObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "contentOffsetObserver", object: self) }
+            get { getAssociatedValue("contentOffsetObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "contentOffsetObserver") }
         }
 
         @objc func didScroll() {

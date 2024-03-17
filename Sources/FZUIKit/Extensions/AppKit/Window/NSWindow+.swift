@@ -28,9 +28,9 @@
         
         /// The handlers for the window.
         public var handlers: Handlers {
-            get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: Handlers()) }
+            get { getAssociatedValue("windowHandlers", initialValue: Handlers()) }
             set {
-                set(associatedValue: newValue, key: "windowHandlers", object: self)
+                setAssociatedValue(newValue, key: "windowHandlers")
                 
                 if handlers.needsObserver, windowObserver == nil {
                     windowObserver = KeyValueObserver(self)
@@ -88,8 +88,8 @@
          It provides the same value as `isKeyWindow`, but can be KVO observed by enabling `isKeyWindowObservable`.
          */
         @objc public dynamic internal(set) var isKey: Bool {
-            get { NSWindow.isKeyWindowObservable ? getAssociatedValue(key: "isKey", object: self, initialValue: isKeyWindow) :  isKeyWindow }
-            set { set(associatedValue: newValue, key: "isKey", object: self) }
+            get { NSWindow.isKeyWindowObservable ? getAssociatedValue("isKey", initialValue: isKeyWindow) :  isKeyWindow }
+            set { setAssociatedValue(newValue, key: "isKey") }
         }
         
         /**
@@ -98,39 +98,39 @@
          It provides the same value as `isMainWindow`, but can be KVO observed by enabling `isMainWindowObservable`.
          */
         @objc public dynamic internal(set) var isMain: Bool {
-            get { NSWindow.isKeyWindowObservable ? getAssociatedValue(key: "isMain", object: self, initialValue: isMainWindow) :  isMainWindow }
-            set { set(associatedValue: newValue, key: "isMain", object: self) }
+            get { NSWindow.isKeyWindowObservable ? getAssociatedValue("isMain", initialValue: isMainWindow) :  isMainWindow }
+            set { setAssociatedValue(newValue, key: "isMain") }
         }
         
         var windowObserver: KeyValueObserver<NSWindow>? {
-            get { getAssociatedValue(key: "windowObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "windowObserver", object: self) }
+            get { getAssociatedValue("windowObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "windowObserver") }
         }
         
         var isKeyWindowTokens: [NotificationToken] {
-            get { getAssociatedValue(key: "isKeyWindowTokens", object: self, initialValue: []) }
-            set { set(associatedValue: newValue, key: "isKeyWindowTokens", object: self) }
+            get { getAssociatedValue("isKeyWindowTokens", initialValue: []) }
+            set { setAssociatedValue(newValue, key: "isKeyWindowTokens") }
         }
         
         var isMainWindowTokens: [NotificationToken] {
-            get { getAssociatedValue(key: "isMainWindowTokens", object: self, initialValue: []) }
-            set { set(associatedValue: newValue, key: "isMainWindowTokens", object: self) }
+            get { getAssociatedValue("isMainWindowTokens", initialValue: []) }
+            set { setAssociatedValue(newValue, key: "isMainWindowTokens") }
         }
         
         var _isKeyWindow: Bool {
-            get { getAssociatedValue(key: "_isKeyWindow", object: self, initialValue: isKeyWindow) }
+            get { getAssociatedValue("_isKeyWindow", initialValue: isKeyWindow) }
             set { 
                 guard _isKeyWindow != newValue else { return }
-                set(associatedValue: newValue, key: "_isKeyWindow", object: self)
+                setAssociatedValue(newValue, key: "_isKeyWindow")
                 handlers.isKey?(newValue)
             }
         }
         
         var _isMainWindow: Bool {
-            get { getAssociatedValue(key: "_isMainWindow", object: self, initialValue: isMainWindow) }
+            get { getAssociatedValue("_isMainWindow", initialValue: isMainWindow) }
             set { 
                 guard _isMainWindow != newValue else { return }
-                set(associatedValue: newValue, key: "_isMainWindow", object: self)
+                setAssociatedValue(newValue, key: "_isMainWindow")
                 handlers.isMain?(newValue)
             }
         }
@@ -287,9 +287,9 @@
 
         /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
         static var didSwizzleAnimationForKey: Bool {
-            get { getAssociatedValue(key: "didSwizzleAnimationForKey", object: self, initialValue: false) }
+            get { getAssociatedValue("didSwizzleAnimationForKey", initialValue: false) }
             set {
-                set(associatedValue: newValue, key: "didSwizzleAnimationForKey", object: self)
+                setAssociatedValue(newValue, key: "didSwizzleAnimationForKey")
             }
         }
 

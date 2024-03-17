@@ -490,8 +490,8 @@ public struct ImageSymbolConfiguration: Hashable {
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 extension NSUIImage.SymbolConfiguration {
     var symbolConfiguration: ImageSymbolConfiguration? {
-        get { getAssociatedValue(key: "symbolConfiguration", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "symbolConfiguration", object: self) }
+        get { getAssociatedValue("symbolConfiguration", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "symbolConfiguration") }
     }
 }
 

@@ -101,15 +101,15 @@ extension NSView {
     }
 
     var dynamicColors: DynamicColors {
-        get { getAssociatedValue(key: "dynamicColors", object: self, initialValue: DynamicColors()) }
-        set { set(associatedValue: newValue, key: "dynamicColors", object: self)
+        get { getAssociatedValue("dynamicColors", initialValue: DynamicColors()) }
+        set { setAssociatedValue(newValue, key: "dynamicColors")
             setupEffectiveAppearanceObserver()
         }
     }
 
     var _effectiveAppearanceKVO: KeyValueObservation? {
-        get { getAssociatedValue(key: "_viewEffectiveAppearanceKVO", object: self) }
-        set { set(associatedValue: newValue, key: "_viewEffectiveAppearanceKVO", object: self) }
+        get { getAssociatedValue("_viewEffectiveAppearanceKVO") }
+        set { setAssociatedValue(newValue, key: "_viewEffectiveAppearanceKVO") }
     }
 
     func setupEffectiveAppearanceObserver() {

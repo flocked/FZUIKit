@@ -41,8 +41,8 @@ import SwiftUI
 
         /// Handlers for the popover.
         public var handlers: Handlers {
-            get { getAssociatedValue(key: "handlers", object: self, initialValue: Handlers()) }
-            set { set(associatedValue: newValue, key: "handlers", object: self)
+            get { getAssociatedValue("handlers", initialValue: Handlers()) }
+            set { setAssociatedValue(newValue, key: "handlers")
                 if newValue.needsSwizzle {
                     swizzlePopover()
                 }
@@ -60,8 +60,8 @@ import SwiftUI
 
         /// A Boolean value that indicates whether the popover is detachable by the user.
         public var isDetachable: Bool {
-            get { getAssociatedValue(key: "isDetachable", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "isDetachable", object: self)
+            get { getAssociatedValue("isDetachable", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "isDetachable")
                 if newValue == true {
                     swizzlePopover()
                 }
@@ -70,8 +70,8 @@ import SwiftUI
         
         /// A Boolean value that indicates whether the popover's close button is hidden when deteched.
         public var hideDetachedCloseButton: Bool {
-            get { getAssociatedValue(key: "hideDetachedCloseButton", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "hideDetachedCloseButton", object: self)
+            get { getAssociatedValue("hideDetachedCloseButton", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "hideDetachedCloseButton")
                 if isDetached {
                     closeButton?.isHidden = newValue
                 }
@@ -166,28 +166,28 @@ import SwiftUI
         }
 
         private var willCloseObserver: NotificationToken? {
-            get { getAssociatedValue(key: "willClosePopoverObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "willClosePopoverObserver", object: self) }
+            get { getAssociatedValue("willClosePopoverObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "willClosePopoverObserver") }
         }
 
         private var noArrowView: NSView? {
-            get { getAssociatedValue(key: "noArrowView", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "noArrowView", object: self) }
+            get { getAssociatedValue("noArrowView", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "noArrowView") }
         }
 
         private var positioningViewFrameObserver: KeyValueObservation? {
-            get { getAssociatedValue(key: "positioningFrameObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "positioningFrameObserver", object: self) }
+            get { getAssociatedValue("positioningFrameObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "positioningFrameObserver") }
         }
 
         private var isOpeningPopover: Bool {
-            get { getAssociatedValue(key: "isOpeningPopover", object: self, initialValue: true) }
-            set { set(associatedValue: newValue, key: "isOpeningPopover", object: self) }
+            get { getAssociatedValue("isOpeningPopover", initialValue: true) }
+            set { setAssociatedValue(newValue, key: "isOpeningPopover") }
         }
 
         private var popoverProxy: DelegateProxy? {
-            get { getAssociatedValue(key: "popoverProxy", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "popoverProxy", object: self) }
+            get { getAssociatedValue("popoverProxy", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "popoverProxy") }
         }
 
         func swizzlePopover() {

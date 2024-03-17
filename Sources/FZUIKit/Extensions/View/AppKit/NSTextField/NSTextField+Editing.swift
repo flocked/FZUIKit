@@ -99,55 +99,55 @@
 
         /// The allowed characters the user can enter when editing.
         public var allowedCharacters: AllowedCharacters {
-            get { getAssociatedValue(key: "allowedCharacters", object: self, initialValue: .all) }
+            get { getAssociatedValue("allowedCharacters", initialValue: .all) }
             set { 
                 guard newValue != allowedCharacters else { return }
-                set(associatedValue: newValue, key: "allowedCharacters", object: self)
+                setAssociatedValue(newValue, key: "allowedCharacters")
                 observeEditing()
             }
         }
 
         /// The handlers for editing the text.
         public var editingHandlers: EditingHandler {
-            get { getAssociatedValue(key: "editingHandlers", object: self, initialValue: EditingHandler()) }
+            get { getAssociatedValue("editingHandlers", initialValue: EditingHandler()) }
             set { 
-                set(associatedValue: newValue, key: "editingHandlers", object: self)
+                setAssociatedValue(newValue, key: "editingHandlers")
                 observeEditing()
             }
         }
         
         public var isEditingText: Bool {
-            get { getAssociatedValue(key: "isEditingText", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "isEditingText", object: self) }
+            get { getAssociatedValue("isEditingText", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "isEditingText") }
         }
         
 
         /// The action to perform when the user presses the enter key.
         public var actionOnEnterKeyDown: EnterKeyAction {
-            get { getAssociatedValue(key: "actionOnEnterKeyDown", object: self, initialValue: .none) }
+            get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .none) }
             set {
                 guard actionOnEnterKeyDown != newValue else { return }
-                set(associatedValue: newValue, key: "actionOnEnterKeyDown", object: self)
+                setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
                 observeTextCommands()
             }
         }
 
         /// The action to perform when the user presses the escape key.
         public var actionOnEscapeKeyDown: EscapeKeyAction {
-            get { getAssociatedValue(key: "actionOnEscapeKeyDown", object: self, initialValue: .none) }
+            get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: .none) }
             set {
                 guard actionOnEscapeKeyDown != newValue else { return }
-                set(associatedValue: newValue, key: "actionOnEscapeKeyDown", object: self)
+                setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 observeTextCommands()
             }
         }
 
         /// The minimum numbers of characters needed when the user edits the string value.
         public var minimumNumberOfCharacters: Int? {
-            get { getAssociatedValue(key: "minimumNumberOfCharacters", object: self, initialValue: nil) }
+            get { getAssociatedValue("minimumNumberOfCharacters", initialValue: nil) }
             set {
                 guard newValue != minimumNumberOfCharacters else { return }
-                set(associatedValue: newValue, key: "minimumNumberOfCharacters", object: self)
+                setAssociatedValue(newValue, key: "minimumNumberOfCharacters")
                 if let newValue = newValue {
                     if let maximumNumberOfCharacters = maximumNumberOfCharacters, newValue > maximumNumberOfCharacters {
                         self.maximumNumberOfCharacters = newValue
@@ -162,10 +162,10 @@
 
         /// The maximum numbers of characters allowed when the user edits the string value.
         public var maximumNumberOfCharacters: Int? {
-            get { getAssociatedValue(key: "maximumNumberOfCharacters", object: self, initialValue: nil) }
+            get { getAssociatedValue("maximumNumberOfCharacters", initialValue: nil) }
             set {
                 guard newValue != maximumNumberOfCharacters else { return }
-                set(associatedValue: newValue, key: "maximumNumberOfCharacters", object: self)
+                setAssociatedValue(newValue, key: "maximumNumberOfCharacters")
                 if let newValue = newValue {
                     if let minimumNumberOfCharacters = minimumNumberOfCharacters, newValue < minimumNumberOfCharacters {
                         self.minimumNumberOfCharacters = newValue
@@ -180,10 +180,10 @@
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
         public var endEditingOnOutsideClick: Bool {
-            get { getAssociatedValue(key: "endEditingOnOutsideClick", object: self, initialValue: false) }
+            get { getAssociatedValue("endEditingOnOutsideClick", initialValue: false) }
             set { 
                 guard newValue != endEditingOnOutsideClick else { return }
-                set(associatedValue: newValue, key: "endEditingOnOutsideClick", object: self)
+                setAssociatedValue(newValue, key: "endEditingOnOutsideClick")
                 setupTextFieldObserver()
                 keyboardFocusChanged()
             }
@@ -229,18 +229,18 @@
         }
         
         var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool)? {
-            get { getAssociatedValue(key: "isSelectableEditableState", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "isSelectableEditableState", object: self) }
+            get { getAssociatedValue("isSelectableEditableState", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "isSelectableEditableState") }
         }
         
         var hasKeyboardFocusState: Bool {
-            get { getAssociatedValue(key: "hasKeyboardFocusState", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "hasKeyboardFocusState", object: self) }
+            get { getAssociatedValue("hasKeyboardFocusState", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "hasKeyboardFocusState") }
         }
         
         var mouseDownMonitor: NSEvent.Monitor? {
-            get { getAssociatedValue(key: "mouseDownMonitor", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
+            get { getAssociatedValue("mouseDownMonitor", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "mouseDownMonitor") }
         }
         
         func updateString() {
@@ -304,7 +304,7 @@
                 })
                 
                 editingNotificationTokens.append(
-                NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
+                    NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
                     self.isEditingText = false
                     self.editStartString = self.stringValue
@@ -470,35 +470,35 @@
         }
         
         var textFieldObserver: KeyValueObserver<NSTextField>? {
-            get { getAssociatedValue(key: "textFieldObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "textFieldObserver", object: self) }
+            get { getAssociatedValue("textFieldObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "textFieldObserver") }
         }
         
         var editingNotificationTokens: [NotificationToken] {
-            get { getAssociatedValue(key: "editingNotificationTokens", object: self, initialValue: []) }
+            get { getAssociatedValue("editingNotificationTokens", initialValue: []) }
             set {
-                set(associatedValue: newValue, key: "editingNotificationTokens", object: self)
+                setAssociatedValue(newValue, key: "editingNotificationTokens")
             }
         }
         
         var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
-            get { getAssociatedValue(key: "doubleClickEditGestureRecognizer", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "doubleClickEditGestureRecognizer", object: self) }
+            get { getAssociatedValue("doubleClickEditGestureRecognizer", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "doubleClickEditGestureRecognizer") }
         }
 
         var editStartString: String {
-            get { getAssociatedValue(key: "editStartString", object: self, initialValue: stringValue) }
-            set { set(associatedValue: newValue, key: "editStartString", object: self) }
+            get { getAssociatedValue("editStartString", initialValue: stringValue) }
+            set { setAssociatedValue(newValue, key: "editStartString") }
         }
 
         var previousString: String {
-            get { getAssociatedValue(key: "previousString", object: self, initialValue: stringValue) }
-            set { set(associatedValue: newValue, key: "previousString", object: self) }
+            get { getAssociatedValue("previousString", initialValue: stringValue) }
+            set { setAssociatedValue(newValue, key: "previousString") }
         }
 
         var editingRange: NSRange {
-            get { getAssociatedValue(key: "editingRange", object: self, initialValue: currentEditor()?.selectedRange ?? NSRange(location: 0, length: 0)) }
-            set { set(associatedValue: newValue, key: "editingRange", object: self) }
+            get { getAssociatedValue("editingRange", initialValue: currentEditor()?.selectedRange ?? NSRange(location: 0, length: 0)) }
+            set { setAssociatedValue(newValue, key: "editingRange") }
         }
         
         class DoubleClickEditGestureRecognizer: ReattachingGestureRecognizer {

@@ -50,7 +50,7 @@
         }
 
         var spc: CGFloat? {
-            if let spc: CGFloat = getAssociatedValue(key: "spc", object: self) {
+            if let spc: CGFloat = getAssociatedValue("spc") {
                 return spc
             }
             let components = String(describing: self).components(separatedBy: "spc=")
@@ -58,7 +58,7 @@
                 var value = components[1]
                 value.removeLast()
                 let spc = CGFloat(value)
-                FZSwiftUtils.set(associatedValue: spc, key: "spc", object: self)
+                setAssociatedValue(spc, key: "spc")
                 return spc
             }
             return nil

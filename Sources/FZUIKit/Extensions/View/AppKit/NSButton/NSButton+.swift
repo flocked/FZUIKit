@@ -169,19 +169,19 @@
         }
 
         internal var stateContentTintColor: [NSControl.StateValue: NSColor] {
-            get { getAssociatedValue(key: "stateContentTintColor", object: self, initialValue: [NSControl.StateValue: NSColor].init()) }
-            set { set(associatedValue: newValue, key: "stateContentTintColor", object: self) }
+            get { getAssociatedValue("stateContentTintColor", initialValue: [NSControl.StateValue: NSColor].init()) }
+            set { setAssociatedValue(newValue, key: "stateContentTintColor") }
         }
 
         @available(macOS 11.0, *)
         internal var stateSymbolConfiguration: [NSControl.StateValue: NSImage.SymbolConfiguration] {
-            get { getAssociatedValue(key: "stateSymbolConfiguration", object: self, initialValue: [NSControl.StateValue: NSImage.SymbolConfiguration].init()) }
-            set { set(associatedValue: newValue, key: "stateSymbolConfiguration", object: self) }
+            get { getAssociatedValue("stateSymbolConfiguration", initialValue: [NSControl.StateValue: NSImage.SymbolConfiguration].init()) }
+            set { setAssociatedValue(newValue, key: "stateSymbolConfiguration") }
         }
 
         internal var buttonStateObserver: KeyValueObservation? {
-            get { getAssociatedValue(key: "buttonStateObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "buttonStateObserver", object: self) }
+            get { getAssociatedValue("buttonStateObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "buttonStateObserver") }
         }
 
         internal func updateButtonStateObserver() {

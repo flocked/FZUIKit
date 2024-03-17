@@ -12,9 +12,9 @@ import FZSwiftUtils
 extension NSColorWell {
     /// Handler that gets called when the color changes.
     public var colorHandler: ((_ color: NSColor)->())? {
-        get { getAssociatedValue(key: "colorHandler", object: self, initialValue: nil) }
+        get { getAssociatedValue("colorHandler", initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "colorHandler", object: self)
+            setAssociatedValue(newValue, key: "colorHandler")
             if let colorHandler = newValue {
                 colorObservation = observeChanges(for: \.color) { old, new in
                     guard old != new else { return }
@@ -27,8 +27,8 @@ extension NSColorWell {
     }
     
     var colorObservation: KeyValueObservation? {
-        get { getAssociatedValue(key: "colorObservation", object: self, initialValue: nil) }
-        set {  set(associatedValue: newValue, key: "colorObservation", object: self) }
+        get { getAssociatedValue("colorObservation", initialValue: nil) }
+        set {  setAssociatedValue(newValue, key: "colorObservation") }
     }
 }
 

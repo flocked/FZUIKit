@@ -44,18 +44,18 @@
         
         /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
         var isMovableByViewBackground: BackgroundDragOption {
-            get { getAssociatedValue(key: "isMovableByViewBackground", object: self, initialValue: .off) }
+            get { getAssociatedValue("isMovableByViewBackground", initialValue: .off) }
             set {
                 guard newValue != isMovableByViewBackground else { return }
-                set(associatedValue: newValue, key: "isMovableByViewBackground", object: self)
+                setAssociatedValue(newValue, key: "isMovableByViewBackground")
                 setupDragResizeGesture()
             }
         }
         
         /// A handler that provides the velocity of the dragging of the view by it's background when ``isMovableByViewBackground`` is enabled.
         var backgroundDragVelocity: ((_ state: NSUIGestureRecognizer.State, _ velocity: CGPoint) -> Void)? {
-            get { getAssociatedValue(key: "movableByBackgroundVelocity", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "movableByBackgroundVelocity", object: self) }
+            get { getAssociatedValue("movableByBackgroundVelocity", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "movableByBackgroundVelocity") }
         }
 
         internal func setupDragResizeGesture() {
@@ -113,13 +113,13 @@
         }
 
         private var dragPoint: CGPoint {
-            get { getAssociatedValue(key: "dragPoint", object: self, initialValue: .zero) }
-            set { set(associatedValue: newValue, key: "dragPoint", object: self) }
+            get { getAssociatedValue("dragPoint", initialValue: .zero) }
+            set { setAssociatedValue(newValue, key: "dragPoint") }
         }
 
         private var panGesture: NSUIPanGestureRecognizer? {
-            get { getAssociatedValue(key: "panGesture", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "panGesture", object: self) }
+            get { getAssociatedValue("panGesture", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "panGesture") }
         }
     }
 

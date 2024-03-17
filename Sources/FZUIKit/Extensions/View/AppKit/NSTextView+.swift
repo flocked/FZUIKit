@@ -117,23 +117,23 @@ import FZSwiftUtils
         }
         
         var _delegate: TextViewDelegate? {
-            get { getAssociatedValue(key: "_delegate", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "_delegate", object: self) }
+            get { getAssociatedValue("_delegate", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "_delegate") }
         }
         
         /// A Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
         public var endEditingOnOutsideClick: Bool {
-            get { getAssociatedValue(key: "endEditingOnOutsideClick", object: self, initialValue: false) }
+            get { getAssociatedValue("endEditingOnOutsideClick", initialValue: false) }
             set {
                 guard newValue != endEditingOnOutsideClick else { return }
-                set(associatedValue: newValue, key: "endEditingOnOutsideClick", object: self)
+                setAssociatedValue(newValue, key: "endEditingOnOutsideClick")
                 setupMouseMonitor()
             }
         }
         
         var mouseDownMonitor: NSEvent.Monitor? {
-            get { getAssociatedValue(key: "mouseDownMonitor", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "mouseDownMonitor", object: self) }
+            get { getAssociatedValue("mouseDownMonitor", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "mouseDownMonitor") }
         }
 
         func setupMouseMonitor() {
@@ -186,20 +186,20 @@ import FZSwiftUtils
         
         /// The action to perform when the user presses the enter key.
         public var actionOnEnterKeyDown: EnterKeyAction {
-            get { getAssociatedValue(key: "actionOnEnterKeyDown", object: self, initialValue: .none) }
+            get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .none) }
             set {
                 guard actionOnEnterKeyDown != newValue else { return }
-                set(associatedValue: newValue, key: "actionOnEnterKeyDown", object: self)
+                setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
                 swizzleTextView()
             }
         }
 
         /// The action to perform when the user presses the escape key.
         public var actionOnEscapeKeyDown: EscapeKeyAction {
-            get { getAssociatedValue(key: "actionOnEscapeKeyDown", object: self, initialValue: .none) }
+            get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: .none) }
             set {
                 guard actionOnEscapeKeyDown != newValue else { return }
-                set(associatedValue: newValue, key: "actionOnEscapeKeyDown", object: self)
+                setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 swizzleTextView()
             }
         }

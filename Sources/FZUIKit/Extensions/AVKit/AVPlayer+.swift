@@ -12,17 +12,17 @@ import FZSwiftUtils
 extension AVPlayer {
     /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
     public var isLooping: Bool {
-        get { getAssociatedValue(key: "isLooping", object: self, initialValue: false) }
+        get { getAssociatedValue("isLooping", initialValue: false) }
         set {
             guard newValue != isLooping else { return }
-            set(associatedValue: newValue, key: "isLooping", object: self)
+            setAssociatedValue(newValue, key: "isLooping")
             setupLooping()
         }
     }
 
     var loopNotificationToken: NotificationToken? {
-        get { getAssociatedValue(key: "loopNotificationToken", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "loopNotificationToken", object: self) }
+        get { getAssociatedValue("loopNotificationToken", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "loopNotificationToken") }
     }
 
     func setupLooping() {

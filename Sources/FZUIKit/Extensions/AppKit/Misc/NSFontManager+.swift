@@ -12,9 +12,9 @@ import FZSwiftUtils
 extension NSFontManager {
     /// The handler that gets called when the selected font changes.
     public var selectedFontHandler: ((NSFont?)->())? {
-        get { getAssociatedValue(key: "selectedFontHandler", object: self, initialValue: nil) }
+        get { getAssociatedValue("selectedFontHandler", initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "selectedFontHandler", object: self)
+            setAssociatedValue(newValue, key: "selectedFontHandler")
             if newValue == nil {
                 selectedFontTarget = nil
             } else if selectedFontTarget == nil {
@@ -24,8 +24,8 @@ extension NSFontManager {
     }
     
     var selectedFontTarget: SelectedFontTarget? {
-        get {getAssociatedValue(key: "selectedFontTarget", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "selectedFontTarget", object: self) }
+        get {getAssociatedValue("selectedFontTarget", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "selectedFontTarget") }
     }
     
     class SelectedFontTarget: NSObject {

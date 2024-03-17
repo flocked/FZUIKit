@@ -12,23 +12,23 @@
     extension CAAnimation {
         /// A handler that gets called when the animation starts.
         public var onStart: (() -> Void)? {
-            get { getAssociatedValue(key: "didStart", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "didStart", object: self)
+            get { getAssociatedValue("didStart", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "didStart")
                 updateAnimationDelegate()
             }
         }
 
         /// A handler that gets called when the animation stops.
         public var onStop: (() -> Void)? {
-            get { getAssociatedValue(key: "didFinish", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "didFinish", object: self)
+            get { getAssociatedValue("didFinish", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "didFinish")
                 updateAnimationDelegate()
             }
         }
 
         var delegateProxy: DelegateProxy? {
-            get { getAssociatedValue(key: "delegateProxy", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "delegateProxy", object: self) }
+            get { getAssociatedValue("delegateProxy", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "delegateProxy") }
         }
 
         func updateAnimationDelegate() {

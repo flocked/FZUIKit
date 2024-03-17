@@ -15,19 +15,19 @@ extension NSRotationGestureRecognizer {
     @objc dynamic public var velocity: CGFloat {
         get{
             swizzleGestureState()
-            return getAssociatedValue(key: "velocity", object: self, initialValue: 1.0)
+            return getAssociatedValue("velocity", initialValue: 1.0)
         }
-        set{ set(associatedValue: newValue, key: "velocity", object: self) }
+        set{ setAssociatedValue(newValue, key: "velocity") }
     }
     
     var prevRotation: CGFloat {
-        get{ return getAssociatedValue(key: "prevRotation", object: self, initialValue: rotation) }
-        set{ set(associatedValue: newValue, key: "prevRotation", object: self) }
+        get{ return getAssociatedValue("prevRotation", initialValue: rotation) }
+        set{ setAssociatedValue(newValue, key: "prevRotation") }
     }
     
     var time: CFTimeInterval {
-        get{ return getAssociatedValue(key: "time", object: self, initialValue: CACurrentMediaTime()) }
-        set{ set(associatedValue: newValue, key: "time", object: self) }
+        get{ return getAssociatedValue("time", initialValue: CACurrentMediaTime()) }
+        set{ setAssociatedValue(newValue, key: "time") }
     }
     
     func updateVelocity() {

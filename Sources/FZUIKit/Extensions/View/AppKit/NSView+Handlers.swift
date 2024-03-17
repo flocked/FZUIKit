@@ -19,27 +19,27 @@ extension NSView {
      The provided menu is displayed when the user right-clicks the view. If you don't want to display a menu, return `nil`.
      */
     public var menuProvider: ((_ location: CGPoint)->(NSMenu?))? {
-        get { getAssociatedValue(key: "menuProvider", object: self, initialValue: nil) }
+        get { getAssociatedValue("menuProvider", initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "menuProvider", object: self)
+            setAssociatedValue(newValue, key: "menuProvider")
             setupEventMonitors()
         }
     }
     
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
-        get { getAssociatedValue(key: "windowHandlers", object: self, initialValue: WindowHandlers()) }
+        get { getAssociatedValue("windowHandlers", initialValue: WindowHandlers()) }
         set {
-            set(associatedValue: newValue, key: "windowHandlers", object: self)
+            setAssociatedValue(newValue, key: "windowHandlers")
             setupViewObservation()
         }
     }
     
     /// The handlers for mouse events.
     public var mouseHandlers: MouseHandlers {
-        get { getAssociatedValue(key: "mouseHandlers", object: self, initialValue: MouseHandlers()) }
+        get { getAssociatedValue("mouseHandlers", initialValue: MouseHandlers()) }
         set {
-            set(associatedValue: newValue, key: "mouseHandlers", object: self)
+            setAssociatedValue(newValue, key: "mouseHandlers")
             setupEventMonitors()
             setupObserverView()
         }
@@ -47,27 +47,27 @@ extension NSView {
     
     /// The handlers for mouse events.
     public var keyHandlers: KeyHandlers {
-        get { getAssociatedValue(key: "keyHandlers", object: self, initialValue: KeyHandlers()) }
+        get { getAssociatedValue("keyHandlers", initialValue: KeyHandlers()) }
         set {
-            set(associatedValue: newValue, key: "keyHandlers", object: self)
+            setAssociatedValue(newValue, key: "keyHandlers")
             setupEventMonitors()
         }
     }
     
     /// The handlers for the view state.
     public var viewHandlers: ViewHandlers {
-        get { getAssociatedValue(key: "viewHandlers", object: self, initialValue: ViewHandlers()) }
+        get { getAssociatedValue("viewHandlers", initialValue: ViewHandlers()) }
         set {
-            set(associatedValue: newValue, key: "viewHandlers", object: self)
+            setAssociatedValue(newValue, key: "viewHandlers")
             setupViewObservation()
         }
     }
     
     /// The handlers for dragging content outside the view.
     public var dragHandlers: DragHandlers {
-        get { getAssociatedValue(key: "dragHandlers", object: self, initialValue: DragHandlers()) }
+        get { getAssociatedValue("dragHandlers", initialValue: DragHandlers()) }
         set {
-            set(associatedValue: newValue, key: "dragHandlers", object: self)
+            setAssociatedValue(newValue, key: "dragHandlers")
             setupObserverView()
             setupEventMonitors()
         }
@@ -75,16 +75,16 @@ extension NSView {
     
     /// The handlers for dropping content into the view.
     public var dropHandlers: DropHandlers {
-        get { getAssociatedValue(key: "dropHandlers", object: self, initialValue: DropHandlers()) }
+        get { getAssociatedValue("dropHandlers", initialValue: DropHandlers()) }
         set {
-            set(associatedValue: newValue, key: "dropHandlers", object: self)
+            setAssociatedValue(newValue, key: "dropHandlers")
             setupObserverView()
         }
     }
         
     var observerGestureRecognizer: ObserverGestureRecognizer? {
-        get { getAssociatedValue(key: "observerGestureRecognizer", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "observerGestureRecognizer", object: self) }
+        get { getAssociatedValue("observerGestureRecognizer", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "observerGestureRecognizer") }
     }
     
     func setupEventMonitors() {
@@ -164,17 +164,17 @@ extension NSView {
     }
     
     var _isFirstResponder: Bool {
-        get { getAssociatedValue(key: "_isFirstResponder", object: self, initialValue: isFirstResponder) }
+        get { getAssociatedValue("_isFirstResponder", initialValue: isFirstResponder) }
         set { 
             guard newValue != _isFirstResponder else { return }
-            set(associatedValue: newValue, key: "_isFirstResponder", object: self)
+            setAssociatedValue(newValue, key: "_isFirstResponder")
             viewHandlers.isFirstResponder?(newValue)
         }
     }
     
     var viewObserver: KeyValueObserver<NSView>? {
-        get { getAssociatedValue(key: "viewObserver", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "viewObserver", object: self) }
+        get { getAssociatedValue("viewObserver", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "viewObserver") }
     }
     
     func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: KeyPath<NSView, ((Value)->())?>) {
@@ -191,8 +191,8 @@ extension NSView {
     }
     
     var observerView: ObserverView? {
-        get { getAssociatedValue(key: "observerView", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "observerView", object: self) }
+        get { getAssociatedValue("observerView", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "observerView") }
     }
         
     func setupObserverView() {
@@ -479,8 +479,8 @@ extension NSView {
     }
     
     var fileDragOperation: NSDragOperation {
-        get { getAssociatedValue(key: "fileDragOperation", object: self, initialValue: .copy) }
-        set { set(associatedValue: newValue, key: "fileDragOperation", object: self) }
+        get { getAssociatedValue("fileDragOperation", initialValue: .copy) }
+        set { setAssociatedValue(newValue, key: "fileDragOperation") }
     }
     
     /// The handlers for dragging content outside the view.

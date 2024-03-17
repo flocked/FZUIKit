@@ -32,10 +32,10 @@
          ```
          */
         public var configuration: NSButtonConfiguration? {
-            get { getAssociatedValue(key: "NSButton_Configuration", object: self, initialValue: nil) }
+            get { getAssociatedValue("NSButton_Configuration", initialValue: nil) }
             set {
                 let oldValue = self.configuration
-                set(associatedValue: newValue, key: "NSButton_Configuration", object: self)
+                setAssociatedValue(newValue, key: "NSButton_Configuration")
                 if newValue is NSButton.AdvanceButtonConfiguration == false {
                     contentView?.removeFromSuperview()
                     contentView = nil
@@ -61,16 +61,16 @@
          Set this property to true to have the button call `updated(for:)` when the button state changes and apply the changes to the button. The default value is true.
          */
         public var automaticallyUpdatesConfiguration: Bool {
-            get { getAssociatedValue(key: "NSButton_automaticallyUpdatesConfiguration", object: self, initialValue: true) }
+            get { getAssociatedValue("NSButton_automaticallyUpdatesConfiguration", initialValue: true) }
             set {
-                set(associatedValue: newValue, key: "NSButton_automaticallyUpdatesConfiguration", object: self)
+                setAssociatedValue(newValue, key: "NSButton_automaticallyUpdatesConfiguration")
                 setupConfigurationStateObserver()
             }
         }
 
         var keyValueObserver: KeyValueObserver<NSButton>? {
-            get { getAssociatedValue(key: "keyValueObserver", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "keyValueObserver", object: self) }
+            get { getAssociatedValue("keyValueObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "keyValueObserver") }
         }
 
         func setupConfigurationStateObserver() {
@@ -120,10 +120,10 @@
         }
 
         var isHovered: Bool {
-            get { getAssociatedValue(key: "isHovered", object: self, initialValue: false) }
+            get { getAssociatedValue("isHovered", initialValue: false) }
             set {
                 guard newValue != self.isHovered else { return }
-                set(associatedValue: newValue, key: "isHovered", object: self)
+                setAssociatedValue(newValue, key: "isHovered")
                 if automaticallyUpdatesConfiguration {
                     updateConfiguration()
                 }
@@ -201,9 +201,9 @@
          Use this property as an alternative to overriding ``updateConfiguration()``. Set a closure to respond to button state changes by updating the button configuration.
          */
         public var configurationUpdateHandler: ConfigurationUpdateHandler? {
-            get { getAssociatedValue(key: "NSButton_configurationUpdateHandler", object: self, initialValue: nil) }
+            get { getAssociatedValue("NSButton_configurationUpdateHandler", initialValue: nil) }
             set {
-                set(associatedValue: newValue, key: "NSButton_configurationUpdateHandler", object: self)
+                setAssociatedValue(newValue, key: "NSButton_configurationUpdateHandler")
                 setupConfigurationStateObserver()
                 setNeedsUpdateConfiguration()
             }
@@ -217,8 +217,8 @@
         public typealias ConfigurationUpdateHandler = (_ state: ConfigurationState) -> Void
 
         var contentView: NSButton.AdvanceButtonView? {
-            get { getAssociatedValue(key: "NSButton_contentView", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "NSButton_contentView", object: self) }
+            get { getAssociatedValue("NSButton_contentView", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "NSButton_contentView") }
         }
 
         var isPressed: Bool {

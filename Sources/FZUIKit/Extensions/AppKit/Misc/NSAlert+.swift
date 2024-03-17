@@ -77,8 +77,8 @@ extension NSAlert {
      This is an alternative way to using the alert's delegate.
      */
     public var helpHandler: (()->())? {
-        get { getAssociatedValue(key: "helpHandler", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "helpHandler", object: self)
+        get { getAssociatedValue("helpHandler", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "helpHandler")
             if newValue == nil {
                 helpDelegate = nil
             } else {
@@ -91,8 +91,8 @@ extension NSAlert {
     }
     
     var helpDelegate: HelpDelegate? {
-        get { getAssociatedValue(key: "helpDelegate", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "helpDelegate", object: self) }
+        get { getAssociatedValue("helpDelegate", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "helpDelegate") }
     }
     
     
@@ -130,9 +130,9 @@ extension NSAlert {
      To reset all supressions, remove all keys from the set.
      */
     public var suppressionKey: String? {
-        get { getAssociatedValue(key: "suppressionKey", object: self, initialValue: nil) }
+        get { getAssociatedValue("suppressionKey", initialValue: nil) }
         set {
-            set(associatedValue: newValue, key: "suppressionKey", object: self)
+            setAssociatedValue(newValue, key: "suppressionKey")
             swizzleRunModal()
         }
     }

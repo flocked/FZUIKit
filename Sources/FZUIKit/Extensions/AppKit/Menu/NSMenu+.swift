@@ -164,16 +164,16 @@ extension NSMenu {
     
     /// Handlers for the menu.
     public var handlers: Handlers {
-        get { getAssociatedValue(key: "menuHandlers", object: self, initialValue: Handlers()) }
+        get { getAssociatedValue("menuHandlers", initialValue: Handlers()) }
         set { 
-            set(associatedValue: newValue, key: "menuHandlers", object: self)
+            setAssociatedValue(newValue, key: "menuHandlers")
             setupDelegateProxy()
         }
     }
     
     var delegateProxy: DelegateProxy? {
-        get { getAssociatedValue(key: "menuProxy", object: self, initialValue: nil) }
-        set { set(associatedValue: newValue, key: "menuProxy", object: self) }
+        get { getAssociatedValue("menuProxy", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "menuProxy") }
     }
     
     func setupDelegateProxy() {

@@ -793,8 +793,8 @@
         }
         
         var mouseMovementTrackingArea: TrackingArea? {
-            get { getAssociatedValue(key: "mouseMovementTrackingArea", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "mouseMovementTrackingArea", object: self) }
+            get { getAssociatedValue("mouseMovementTrackingArea", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "mouseMovementTrackingArea") }
         }
         */
 
@@ -822,8 +822,8 @@
         }
 
         static var didSwizzleAnimationForKey: Bool {
-            get { getAssociatedValue(key: "NdidSwizzleAnimationForKey", object: self, initialValue: false) }
-            set { set(associatedValue: newValue, key: "NdidSwizzleAnimationForKey", object: self) }
+            get { getAssociatedValue("NdidSwizzleAnimationForKey", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "NdidSwizzleAnimationForKey") }
         }
         
         @objc private func realSelf() -> NSView { self }

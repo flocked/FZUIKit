@@ -16,10 +16,10 @@ extension NSTextField {
      - Note: If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
      */
     @objc open var automaticallyResizesToFit: Bool {
-        get { getAssociatedValue(key: "automaticallyResizesToFit", object: self, initialValue: false) }
+        get { getAssociatedValue("automaticallyResizesToFit", initialValue: false) }
         set {
             guard newValue != automaticallyResizesToFit else { return }
-            set(associatedValue: newValue, key: "automaticallyResizesToFit", object: self)
+            setAssociatedValue(newValue, key: "automaticallyResizesToFit")
             swizzleIntrinsicContentSize()
             observeEditing()
             if newValue {
@@ -40,8 +40,8 @@ extension NSTextField {
     
     /// The direction the textfield's height expands when automatic resizing is enabled and `preferredMaxLayoutWidth` is reached.
     public var preferredResizingDirection: ResizingDirection {
-        get { getAssociatedValue(key: "resizingDirection", object: self, initialValue: .top) }
-        set { set(associatedValue: newValue, key: "resizingDirection", object: self) }
+        get { getAssociatedValue("resizingDirection", initialValue: .top) }
+        set { setAssociatedValue(newValue, key: "resizingDirection") }
     }
     
     /**
@@ -50,9 +50,9 @@ extension NSTextField {
      Apply ``AppKit/NSTextField/placeholderWidth`` to this property, to use the placeholder width as minimum value
      */
     public var preferredMinLayoutWidth: CGFloat {
-        get { getAssociatedValue(key: "preferredMinLayoutWidth", object: self, initialValue: 0) }
+        get { getAssociatedValue("preferredMinLayoutWidth", initialValue: 0) }
         set {
-            set(associatedValue: newValue, key: "preferredMinLayoutWidth", object: self)
+            setAssociatedValue(newValue, key: "preferredMinLayoutWidth")
             resizeToFit()
         }
     }

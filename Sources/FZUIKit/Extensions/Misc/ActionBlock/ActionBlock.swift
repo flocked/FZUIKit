@@ -74,8 +74,8 @@ public extension TargetActionProtocol {
     }
     
     internal var actionTrampoline: ActionTrampoline<Self>? {
-        get { getAssociatedValue(key: "actionTrampoline", object: self) }
-        set { set(associatedValue: newValue, key: "actionTrampoline", object: self) }
+        get { FZSwiftUtils.getAssociatedValue(key: "actionTrampoline", object: self) }
+        set { FZSwiftUtils.set(associatedValue: newValue, key: "actionTrampoline", object: self) }
     }
 }
 
@@ -151,8 +151,8 @@ public extension NSObjectProtocol where Self: UIGestureRecognizer {
     }
 
     internal var actionTrampoline: ActionTrampoline<Self>? {
-        get { getAssociatedValue(key: "actionTrampoline", object: self) }
-        set { set(associatedValue: newValue, key: "actionTrampoline", object: self) }
+        get { getAssociatedValue("actionTrampoline") }
+        set { setAssociatedValue(newValue, key: "actionTrampoline") }
     }
 }
 
@@ -177,8 +177,8 @@ public extension NSObjectProtocol where Self: UIGestureRecognizer {
      }
      
      internal var actionTrampolines: [UIControl.Event.RawValue: ActionTrampoline<Self>] {
-         get { getAssociatedValue(key: "actionTrampolines", object: self, initialValue: [:]) }
-         set { set(associatedValue: newValue, key: "actionTrampolines", object: self) }
+         get { getAssociatedValue("actionTrampolines", initialValue: [:]) }
+         set { setAssociatedValue(newValue, key: "actionTrampolines") }
      }
  }
  */

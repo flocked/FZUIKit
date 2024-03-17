@@ -16,11 +16,11 @@ public extension NSUIImage {
     /// The symbol name of the image.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
-        if let symbolName: String = getAssociatedValue(key: "imageSymbolName", object: self) {
+        if let symbolName: String = getAssociatedValue("imageSymbolName") {
             return symbolName
         }
         let symbolName = _symbolName
-        set(associatedValue: symbolName, key: "imageSymbolName", object: self)
+        setAssociatedValue(symbolName, key: "imageSymbolName")
         return symbolName
     }
 

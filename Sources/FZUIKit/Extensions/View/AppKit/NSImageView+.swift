@@ -143,13 +143,13 @@ extension NSImageView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var overlayContentView: NSView {
-        if let view: NSView = getAssociatedValue(key: "overlayContentView", object: self) {
+        if let view: NSView = getAssociatedValue("overlayContentView") {
             return view
         }
         let overlayView = NSView()
         overlayView.clipsToBounds = true
         addSubview(withConstraint: overlayView)
-        set(associatedValue: overlayView, key: "overlayContentView", object: self)
+        setAssociatedValue(overlayView, key: "overlayContentView")
         return overlayView
     }
     
@@ -161,7 +161,7 @@ extension NSImageView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var resizingOverlayContentView: NSView {
-        if let view: NSView = getAssociatedValue(key: "resizingOverlayContentView", object: self) {
+        if let view: NSView = getAssociatedValue("resizingOverlayContentView") {
             return view
         }
         
@@ -169,7 +169,7 @@ extension NSImageView {
         overlayView.clipsToBounds = true
         overlayView.frame = imageBounds
         overlayContentView.addSubview(overlayView)
-        set(associatedValue: overlayView, key: "resizingOverlayContentView", object: self)
+        setAssociatedValue(overlayView, key: "resizingOverlayContentView")
         needsResizingViewUpdate = true
 
         imageViewObserver.add(\.frame) { [weak self] old, new in
@@ -197,20 +197,20 @@ extension NSImageView {
     }
     
     var imageViewObserver: KeyValueObserver<NSImageView> {
-        get { getAssociatedValue(key: "imageViewObserver", object: self, initialValue: KeyValueObserver(self)) }
+        get { getAssociatedValue("imageViewObserver", initialValue: KeyValueObserver(self)) }
     }
     
     var needsResizingViewUpdate: Bool {
-        get { getAssociatedValue(key: "needsResizingViewUpdate", object: self, initialValue: false) }
-        set { set(associatedValue: newValue, key: "needsResizingViewUpdate", object: self) }
+        get { getAssociatedValue("needsResizingViewUpdate", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "needsResizingViewUpdate") }
 
     }
 
     /// The transition animation when changing the displayed image.
     public var transitionAnimation: TransitionAnimation {
-        get { getAssociatedValue(key: "TransitionAnimation", object: self, initialValue: .none) }
+        get { getAssociatedValue("TransitionAnimation", initialValue: .none) }
         set {
-            set(associatedValue: newValue, key: "TransitionAnimation", object: self)
+            setAssociatedValue(newValue, key: "TransitionAnimation")
             setupImageObserver()
             updateTransition()
         }
@@ -219,10 +219,10 @@ extension NSImageView {
     
     /// The transition animation duration when changing the displayed image.
     public var transitionAnimationDuration: TimeInterval {
-        get { getAssociatedValue(key: "transitionAnimationDuration", object: self, initialValue: 0.1) }
+        get { getAssociatedValue("transitionAnimationDuration", initialValue: 0.1) }
         set {
             guard newValue != transitionAnimationDuration else { return }
-            set(associatedValue: newValue, key: "transitionAnimationDuration", object: self)
+            setAssociatedValue(newValue, key: "transitionAnimationDuration")
             updateTransition()
         }
     }

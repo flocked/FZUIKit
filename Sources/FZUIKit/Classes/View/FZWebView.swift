@@ -384,18 +384,18 @@
     @available(macOS 11.3, iOS 14.5, *)
     extension WKDownload {
         var downloadObservation: KeyValueObservation? {
-            get { getAssociatedValue(key: "downloadObservation", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "downloadObservation", object: self) }
+            get { getAssociatedValue("downloadObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "downloadObservation") }
         }
 
         public var retryAmount: Int {
-            get { getAssociatedValue(key: "retryAmount", object: self, initialValue: 0) }
-            set { set(associatedValue: newValue, key: "retryAmount", object: self) }
+            get { getAssociatedValue("retryAmount", initialValue: 0) }
+            set { setAssociatedValue(newValue, key: "retryAmount") }
         }
 
         var fileDestinationURL: URL? {
-            get { getAssociatedValue(key: "fileDestinationURL", object: self, initialValue: nil) }
-            set { set(associatedValue: newValue, key: "fileDestinationURL", object: self) }
+            get { getAssociatedValue("fileDestinationURL", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "fileDestinationURL") }
         }
     }
 

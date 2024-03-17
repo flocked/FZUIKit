@@ -30,9 +30,9 @@
          The handlers get called whenever the collection view is displaying new items (e.g. when the enclosing scrollview gets scrolled to new items).
          */
         public var displayingItemsHandlers: DisplayingItemsHandlers {
-            get { getAssociatedValue(key: "NSCollectionView_displayingItemsHandlers", object: self, initialValue: DisplayingItemsHandlers()) }
+            get { getAssociatedValue("NSCollectionView_displayingItemsHandlers", initialValue: DisplayingItemsHandlers()) }
             set {
-                set(associatedValue: newValue, key: "NSCollectionView_displayingItemsHandlers", object: self)
+                setAssociatedValue(newValue, key: "NSCollectionView_displayingItemsHandlers")
                 setupDisplayingItemsTracking()
             }
         }
@@ -50,9 +50,9 @@
         }
 
         var previousDisplayingIndexPaths: [IndexPath] {
-            get { getAssociatedValue(key: "NSCollectionView_previousDisplayingIndexPaths", object: self, initialValue: []) }
+            get { getAssociatedValue("NSCollectionView_previousDisplayingIndexPaths", initialValue: []) }
             set {
-                set(associatedValue: newValue, key: "NSCollectionView_previousDisplayingIndexPaths", object: self)
+                setAssociatedValue(newValue, key: "NSCollectionView_previousDisplayingIndexPaths")
             }
         }
 
