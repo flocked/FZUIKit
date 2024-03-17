@@ -770,7 +770,7 @@
                 if let trackingArea = mouseMovementTrackingArea?.trackingArea, let option = MouseMoveOption(trackingArea) {
                     return option
                 }
-                if let trackingArea = trackingAreas.first(where: { $0.options.contains(all: [.mouseMoved, .mouseEnteredAndExited]) && $0.options.contains(any: [.activeAlways, .activeInActiveApp, .activeInKeyWindow, .activeWhenFirstResponder])}) {
+                if let trackingArea = trackingAreas.first(where: { $0.options.contains([.mouseMoved, .mouseEnteredAndExited]) && $0.options.contains(any: [.activeAlways, .activeInActiveApp, .activeInKeyWindow, .activeWhenFirstResponder])}) {
                     return MouseMoveOption(trackingArea) ?? .never
                 }
                 return .never
