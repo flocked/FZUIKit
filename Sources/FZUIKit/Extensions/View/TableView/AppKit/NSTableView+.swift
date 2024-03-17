@@ -149,6 +149,7 @@
             }
             
             func checkSelection() {
+                Swift.print("checkSelection", tableView?.selectedRowIndexes.compactMap({$0}).sorted() ?? "nil")
                 guard let tableView = tableView, selectedRows != tableView.selectedRowIndexes else { return }
                 selectedRows = tableView.selectedRowIndexes
                 tableView.willChangeValue(for: \.selectedRowIndexes)
