@@ -26,7 +26,7 @@
 
          - Returns: The event monitor object.
          */
-        static func globalMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> Monitor {
+        static func monitorGlobal(_ mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> Monitor {
             Monitor.global(for: mask, handler: handler)
         }
 
@@ -43,7 +43,7 @@
 
          - Returns: The event monitor object.
          */
-        static func localMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> Monitor {
+        static func monitor(_ mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> Monitor {
             Monitor.local(for: mask, handler: handler)
         }
     }
