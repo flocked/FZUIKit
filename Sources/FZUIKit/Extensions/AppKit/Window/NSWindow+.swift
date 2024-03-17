@@ -392,6 +392,33 @@ extension NSWindow {
     }
 }
 
+extension NSTableView {
+    /// A Boolean value that indicates whether the property `isEnabled` is KVO observable.
+    public static var isEnabledObservable: Bool {
+        get { isMethodReplaced(#selector(setter: NSTableView.isEnabled)) }
+        set {
+            guard newValue != isEnabledObservable else { return }
+            if newValue {
+                do {
+                    try replaceMethod(#selector(setter: NSTableView.isEnabled),
+                    methodSignature: (@convention(c)  (AnyObject, Selector, Bool) -> ()).self,
+                    hookSignature: (@convention(block)  (AnyObject, Bool) -> ()).self) { store in {
+                        object, isEnabled in
+                        (object as? NSTableView)?.willChangeValue(for: \.isEnabled)
+                        store.original(object, #selector(setter: NSTableView.isEnabled), isEnabled)
+                        (object as? NSTableView)?.didChangeValue(for: \.isEnabled)
+                        }
+                    }
+                } catch {
+                    
+                }
+            } else {
+                resetMethod(#selector(setter: NSTableView.isEnabled))
+            }
+        }
+    }
+}
+
     private let NSWindowAnimationKeys = ["centerPoint"]
 #endif
 
