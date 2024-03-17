@@ -21,7 +21,7 @@
              */
             @objc var fontSize: CGFloat {
                 get { font?.pointSize ?? 0.0 }
-                set { Self.swizzleAnimationForKey()
+                set { NSView.swizzleAnimationForKey()
                     font = font?.withSize(newValue)
                 }
             }

@@ -63,6 +63,13 @@ public extension AttributedString {
 
     extension CGPath: CoreGraphicsType { }
 
+    extension CGPath {
+        /// Returns a bézier path object with the contents of the path.
+        public var bezierPath: NSUIBezierPath {
+            NSUIBezierPath(cgPath: self)
+        }
+    }
+
     public extension CoreGraphicsType where Self: CGPath {
         /// Creates and returns a path for the specified string and font.
         init(string: String, font: NSUIFont) {

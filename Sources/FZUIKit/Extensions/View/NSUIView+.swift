@@ -299,7 +299,7 @@
             var gradient: Gradient? {
                 get { self.optionalLayer?._gradientLayer?.gradient }
                 set {
-                    Self.swizzleAnimationForKey()
+                    NSView.swizzleAnimationForKey()
                     let newGradient = newValue ?? .init(stops: [])
                     var didSetupNewGradientLayer = false
                     if newValue?.stops.isEmpty == false {

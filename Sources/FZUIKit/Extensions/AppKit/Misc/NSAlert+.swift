@@ -120,55 +120,41 @@ extension NSAlert {
      ```
      
      ### Reset the supression key
-
-     To reset the supression of the alert and to show it again regardless if the user already did opt out showing it, use ``resetSupression(for:)``. 
      
-     You  can also use ``resetAllSupressions()`` to reset all supressions.
+     To reset the supression for alerts with a specified key to let them show again, remove the key from ``supressionKeys``.
      
      ```swift
-     NSAlert.resetSupression(for: "mySuppressionKey")
+     NSAlert.supressionKeys.remove("mySuppressionKey")
      ```
+     
+     To reset all supressions, remove all keys from the set.
      */
     public var suppressionKey: String? {
         get { getAssociatedValue(key: "suppressionKey", object: self, initialValue: nil) }
         set {
-            self.swizzleRunModal()
             set(associatedValue: newValue, key: "suppressionKey", object: self)
+            swizzleRunModal()
         }
     }
     
     /**
-     Resets the supression for alerts with the specified key.
+     All supression keys the user did opt out of showing the alert again.
      
-     It lets you show them again, regardless if the user already did opt out of showing them.
-     */
-    public static func resetSupression(for suppressionKey: String) {
-        if var supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
-            supressionKeys.remove(suppressionKey)
-            Defaults.shared["AlertSupressions"] = supressionKeys.uniqued()
-        }
-    }
-    
-    /**
-     Resets the supression for all alerts.
+     To reset the supression for alerts with a specified key to let them show again, remove the key from the set.
      
-     It lets you show them again, regardless if the user already did opt out of showing them.
+     ```swift
+     NSAlert.supressionKeys.remove("mySuppressionKey")
+     ```
+     
+     If you want to reset all supressions, remove all keys from the set.
      */
-    public static func resetAllSupressions() {
-        Defaults.shared["AlertSupressions"] = nil
-    }
-    
-    static func saveSupressionKey(_ key: String) {
-        if var supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(key) {
-            supressionKeys.append(key)
-            Defaults.shared["AlertSupressions"] = supressionKeys.uniqued()
-        } else {
-            Defaults.shared["AlertSupressions"] = [key]
-        }
+    public static var supressionKeys: Set<String> {
+        get { Defaults.shared.get("AlertSupressions", initalValue: []) }
+        set { Defaults.shared.set(newValue, for: "AlertSupressions") }
     }
     
     func swizzleRunModal() {
-        guard didSwizzleRunModal == false else { return }
+        guard !isMethodReplaced(#selector(self.runModal)) else { return }
         do {
             try replaceMethod(
                 #selector(self.runModal),
@@ -184,7 +170,7 @@ extension NSAlert {
                 alert.showsSuppressionButton = true
                 let runModal = store.original(object, #selector(self.runModal))
                 if alert.suppressionButton?.state == .on {
-                    Self.saveSupressionKey(suppressionKey)
+                    NSAlert.supressionKeys.insert(suppressionKey)
                 }
                 return runModal
             }
@@ -205,7 +191,7 @@ extension NSAlert {
                     alert.showsSuppressionButton = true
                     let wrappedHandler: ((NSApplication.ModalResponse) -> Void) = { response in
                         if alert.suppressionButton?.state == .on {
-                            Self.saveSupressionKey(suppressionKey)
+                            NSAlert.supressionKeys.insert(suppressionKey)
                         }
                         handler?(response)
                     }
@@ -213,15 +199,9 @@ extension NSAlert {
                 }
             }
             }
-            didSwizzleRunModal = true
         } catch {
             Swift.debugPrint()
         }
-    }
-    
-    var didSwizzleRunModal: Bool {
-        get { getAssociatedValue(key: "didSwizzleRunModal", object: self, initialValue: false) }
-        set { set(associatedValue: newValue, key: "didSwizzleRunModal", object: self) }
     }
 }
 

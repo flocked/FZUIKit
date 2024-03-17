@@ -27,7 +27,7 @@ public extension BackgroundColorSettable where Self: NSView {
         get { backgroundColorAnimatable }
         set {
             wantsLayer = true
-            Self.swizzleAnimationForKey()
+            NSView.swizzleAnimationForKey()
             NSView.toRealSelf(self).dynamicColors.background = newValue
             var animatableColor = newValue?.resolvedColor(for: self)
             if animatableColor == nil, isProxy() {

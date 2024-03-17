@@ -186,7 +186,7 @@
         @objc open var centerPoint: CGPoint {
             get { frame.center }
             set {
-                Self.swizzleAnimationForKey()
+                NSWindow.swizzleAnimationForKey()
                 var frame = frame
                 frame.center = newValue
                 setFrame(frame, display: true)
