@@ -80,8 +80,11 @@ extension NSTextField {
                 let transform3D = transform3D
                 let shadowPath = shadowPath
                 let clipsToBounds = clipsToBounds
-
-                cell = textFieldCell.convertToExtended()
+                do {
+                    cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
+                } catch {
+                    debugPrint(error)
+                }
                 self.wantsLayer = true
                 layer.delegate = self as? any CALayerDelegate
                 self.layer = layer
@@ -104,7 +107,11 @@ extension NSTextField {
                     self.transform3D = transform3D
                 }
             } else {
-                cell = textFieldCell.convertToExtended()
+                do {
+                    cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
+                } catch {
+                    debugPrint(error)
+                }
             }
         }
     }
@@ -220,60 +227,5 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         NSBezierPath(roundedRect: cellFrame, cornerRadius: cornerRadius).fill()
     }
 }
-
-extension NSTextFieldCell {
-    var textField: NSTextField? {
-        controlView as? NSTextField
-    }
-    
-    func convertToExtended() -> ExtendedTextFieldCell {
-        let cell = ExtendedTextFieldCell(textCell: stringValue)
-        cell.title = title
-        cell.objectValue = objectValue
-        cell.representedObject = representedObject
-        cell.attributedStringValue = attributedStringValue
-        cell.textColor = textColor
-        cell.bezelStyle = bezelStyle
-        cell.drawsBackground = drawsBackground
-        cell.backgroundColor = backgroundColor
-        cell.placeholderString = placeholderString
-        cell.placeholderAttributedString = placeholderAttributedString
-        cell.allowedInputSourceLocales = allowedInputSourceLocales
-        cell.tag = tag
-        cell.focusRingType = focusRingType
-        cell.controlSize = controlSize
-        cell.action = action
-        cell.target = target
-        cell.formatter = formatter
-        cell.isHighlighted = isHighlighted
-        cell.isSelectable = isSelectable
-        cell.alignment = alignment
-        cell.font = font
-        cell.lineBreakMode = lineBreakMode
-        cell.usesSingleLineMode = usesSingleLineMode
-        cell.userInterfaceLayoutDirection = userInterfaceLayoutDirection
-        cell.wraps = wraps
-        cell.truncatesLastVisibleLine = truncatesLastVisibleLine
-        cell.baseWritingDirection = baseWritingDirection
-        cell.isEditable = isEditable
-        cell.isEnabled = isEnabled
-        cell.isBordered = isBordered
-        cell.isBezeled = isBezeled
-        cell.bezelStyle = bezelStyle
-        cell.backgroundStyle = backgroundStyle
-        cell.allowsUndo = allowsUndo
-        cell.state = state
-        cell.baseWritingDirection = baseWritingDirection
-        cell.allowsEditingTextAttributes = allowsEditingTextAttributes
-        cell.importsGraphics = importsGraphics
-        cell.isContinuous = isContinuous
-        cell.menu = menu
-        cell.showsFirstResponder = showsFirstResponder
-        cell.refusesFirstResponder = refusesFirstResponder
-        cell.controlView = controlView
-        return cell
-    }
-}
-
 
 #endif
