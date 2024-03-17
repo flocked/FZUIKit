@@ -734,9 +734,75 @@
         
         /// Sets the text for the view’s tooltip.
         @discardableResult
-        func toolTip(_ toolTip: String?) -> Self {
+        public func toolTip(_ toolTip: String?) -> Self {
             self.toolTip = toolTip
             return self
+        }
+        
+        public enum MouseMoveOption: UInt {
+            case always = 128
+            case inActiveApp = 64
+            case inKeyWindow = 32
+            case whenFirstResponder = 16
+            case never = 0
+            
+            var trackingOption: NSTrackingArea.Options? {
+                self != .never ? NSTrackingArea.Options(rawValue: rawValue) : nil
+            }
+            
+            init?(_ trackingArea: NSTrackingArea) {
+                if let option = [MouseMoveOption.always, .inActiveApp, .inKeyWindow, .whenFirstResponder].first(where: {
+                    trackingArea.options.contains($0.trackingOption!)}) {
+                    self = option
+                } else {
+                    return nil
+                }
+            }
+        }
+                
+        /**
+         A Boolean value that indicates whether the view accepts mouse movement events.
+         
+         The value of this property is `true` when the view has any tracking area  with options `mouseEnteredAndExited` and `mouseMoved`.
+         */
+        public var acceptsMouseMovedEvents: MouseMoveOption {
+            get {
+                if let trackingArea = mouseMovementTrackingArea?.trackingArea, let option = MouseMoveOption(trackingArea) {
+                    return option
+                }
+                if let trackingArea = trackingAreas.first(where: { $0.options.contains(all: [.mouseMoved, .mouseEnteredAndExited]) && $0.options.contains(any: [.activeAlways, .activeInActiveApp, .activeInKeyWindow, .activeWhenFirstResponder])}) {
+                    return MouseMoveOption(trackingArea) ?? .never
+                }
+                return .never
+            }
+            set {
+                guard newValue != acceptsMouseMovedEvents else { return }
+                if newValue != .never {
+                    mouseMovementTrackingArea = TrackingArea(for: self, options: [.mouseMoved, .mouseEnteredAndExited, newValue.trackingOption!])
+                    guard !isMethodReplaced(NSSelectorFromString("updateTrackingAreas")) else { return }
+                    do {
+                        try replaceMethod(
+                            NSSelectorFromString("updateTrackingAreas"),
+                            methodSignature: (@convention(c) (AnyObject, Selector) -> ()).self,
+                            hookSignature: (@convention(block) (AnyObject) -> ()).self
+                        ) { store in { object in
+                            (object as? NSView)?.mouseMovementTrackingArea?.update()
+                            store.original(object, NSSelectorFromString("updateTrackingAreas"))
+                        }
+                        }
+                    } catch {
+                        debugPrint(error)
+                    }
+                } else {
+                    resetMethod(NSSelectorFromString("updateTrackingAreas"))
+                    mouseMovementTrackingArea = nil
+                }
+            }
+        }
+        
+        var mouseMovementTrackingArea: TrackingArea? {
+            get { getAssociatedValue(key: "mouseMovementTrackingArea", object: self, initialValue: nil) }
+            set { set(associatedValue: newValue, key: "mouseMovementTrackingArea", object: self) }
         }
 
         static func swizzleAnimationForKey() {

@@ -72,8 +72,8 @@
                 }
             }
 
-            private weak var view: NSView?
-            private var trackingArea: NSTrackingArea?
+            weak var view: NSView?
+            var trackingArea: NSTrackingArea?
         }
     }
 
