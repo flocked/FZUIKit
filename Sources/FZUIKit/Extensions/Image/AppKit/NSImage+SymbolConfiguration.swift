@@ -170,30 +170,30 @@ extension NSUIImage.SymbolConfiguration {
 @available(macOS 12.0, iOS 13.0, *)
 extension NSUIImage.SymbolConfiguration {
     var weight: NSUIFont.Weight? {
-        get { guard let rawValue = value(forKey: "weight", type: CGFloat.self), rawValue != CGFloat.greatestFiniteMagnitude else { return nil }
+        get { guard let rawValue: CGFloat = value(forKey: "weight"), rawValue != CGFloat.greatestFiniteMagnitude else { return nil }
             return NSUIFont.Weight(rawValue: rawValue)
         }
         set { setValue(safely: newValue?.rawValue ?? 0.0, forKey: "weight") }
     }
 
     var pointSize: CGFloat {
-        get { value(forKey: "pointSize", type: CGFloat.self) ?? 0.0 }
+        get { value(forKey: "pointSize") ?? 0.0 }
         set { setValue(safely: newValue, forKey: "pointSize") }
     }
 
     var textStyle: NSUIFont.TextStyle? {
-        get { value(forKey: "textStyle", type: NSUIFont.TextStyle.self) }
+        get { value(forKey: "textStyle") }
         set { setValue(safely: newValue, forKey: "textStyle") }
     }
 
     var prefersMulticolor: Bool {
-        get { value(forKey: "prefersMulticolor", type: Bool.self) ?? false }
+        get { value(forKey: "prefersMulticolor") ?? false }
         set { setValue(safely: newValue, forKey: "prefersMulticolor") }
     }
 
     var scale: NSUIImage.SymbolScale? {
         get { 
-            guard let rawValue = value(forKey: "scale", type: Int.self), rawValue != -1 else {
+            guard let rawValue: Int = value(forKey: "scale"), rawValue != -1 else {
                 return nil }
             return NSUIImage.SymbolScale(rawValue: rawValue)
         }
@@ -367,7 +367,7 @@ extension NSUIImage.SymbolConfiguration {
     }
 
     var colors: [NSUIColor]? {
-        get { value(forKey: Self.colorsValueKey, type: [NSUIColor].self) }
+        get { value(forKey: Self.colorsValueKey) }
         set { setValue(safely: newValue, forKey: Self.colorsValueKey) }
     }
 
