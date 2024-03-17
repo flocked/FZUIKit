@@ -43,42 +43,90 @@
                 self.itemSizeProvider = itemSizeProvider
             }
 
-            public var itemSizeProvider: ItemSizeProvider? {
+            open var itemSizeProvider: ItemSizeProvider? {
                 didSet { invalidateLayout() }
             }
             
-            public var allowsChangingColumnCountByPinching: Bool = false
+            open var isPinchable: Bool = false
 
-            public var columnCount: Int = 2 {
-                didSet { invalidateLayout(animated: animationDuration ?? 0.0) }
+            open var columnCount: Int = 2 {
+                didSet {
+                    columnCount = columnCount.clamped(min: minColumnCount)
+                    if let maxColumnCount = maxColumnCount {
+                        columnCount = columnCount.clamped(max: maxColumnCount)
+                    }
+                    guard oldValue != columnCount else { return }
+                    invalidateLayout(animated: animationDuration ?? 0.0) }
+            }
+            
+            open var minColumnCount: Int = 1 {
+                didSet {
+                    minColumnCount = minColumnCount.clamped(min: 1)
+                    if columnCount < minColumnCount {
+                        columnCount = minColumnCount
+                    }
+                }
+            }
+            
+            open var maxColumnCount: Int? {
+                didSet {
+                    if let maxColumnCount = maxColumnCount, columnCount > maxColumnCount {
+                        columnCount = maxColumnCount
+                    }
+                }
             }
 
-            public var minimumColumnSpacing: CGFloat = 10 {
-                didSet { invalidateLayout() }
+            open var minimumColumnSpacing: CGFloat = 10 {
+                didSet {
+                    guard oldValue != minimumColumnSpacing else { return }
+                    minimumColumnSpacing = minimumColumnSpacing.clamped(min: 0)
+                    invalidateLayout()
+                }
             }
 
-            public var minimumInteritemSpacing: CGFloat = 10 {
-                didSet { invalidateLayout() }
+            open var minimumInteritemSpacing: CGFloat = 10 {
+                didSet {
+                    guard oldValue != minimumInteritemSpacing else { return }
+                    minimumInteritemSpacing = minimumInteritemSpacing.clamped(min: 0)
+                    invalidateLayout()
+                }
             }
 
-            public var headerHeight: CGFloat = 0 {
-                didSet { invalidateLayout() }
+            open var headerHeight: CGFloat = 0 {
+                didSet {
+                    guard oldValue != headerHeight else { return }
+                    headerHeight = headerHeight.clamped(min: 0)
+                    invalidateLayout()
+                }
             }
 
-            public var footerHeight: CGFloat = 0 {
-                didSet { invalidateLayout() }
+            open var footerHeight: CGFloat = 0 {
+                didSet {
+                    guard oldValue != footerHeight else { return }
+                    footerHeight = footerHeight.clamped(min: 0)
+                    invalidateLayout()
+                }
             }
 
             public var sectionInset: NSUIEdgeInsets = .zero {
-                didSet { invalidateLayout() }
+                didSet {
+                    guard oldValue != sectionInset else { return }
+                    invalidateLayout()
+                }
             }
 
             public var itemRenderDirection: ItemRenderDirection = .shortestFirst {
-                didSet { invalidateLayout() }
+                didSet {
+                    guard oldValue != itemRenderDirection else { return }
+                    invalidateLayout()
+                }
             }
 
             public var sectionInsetReference: SectionInsetReference = .fromContentInset {
-                didSet { invalidateLayout() }
+                didSet {
+                    guard oldValue != sectionInsetReference else { return }
+                    invalidateLayout()
+                }
             }
 
             /*
@@ -141,13 +189,6 @@
                 return collectionViewContentWidth - insets.left - insets.right
             }
             
-            public override var collectionView: NSCollectionView? {
-                get {
-                    Swift.print("get collectionview", super.collectionView != nil)
-                    return super.collectionView
-                }
-            }
-            
             public func itemWidth(inSection section: Int) -> CGFloat {
                 let columnCount = columnCount(forSection: section)
                 let spaceColumCount = CGFloat(columnCount - 1)
@@ -157,9 +198,6 @@
 
             override public func prepare() {
                 super.prepare()
-                self.collectionView
-                Swift.print("prepare")
-                _ = collectionView
                 
                 let numberOfSections = collectionView!.numberOfSections
                 if numberOfSections == 0 {
@@ -373,4 +411,44 @@
             case fromSafeArea
         }
     }
+
+#if os(macOS)
+class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
+    var collectionView: NSCollectionView? {
+        view as? NSCollectionView
+    }
+    
+    var layout:  NSCollectionViewLayout.WaterfallLayout? {
+        collectionView?.collectionViewLayout as? NSCollectionViewLayout.WaterfallLayout
+    }
+    
+    override func keyDown(with event: NSEvent) {
+        if let layout = layout, layout.isPinchable {
+            if event.keyCode == 44 {
+                layout.columnCount += 1
+            } else if event.keyCode == 30 {
+                layout.columnCount -= 1
+            }
+        }
+        super.keyDown(with: event)
+    }
+    
+    var initalColumnCount: Int = 0
+    override var state: NSGestureRecognizer.State {
+        didSet {
+            guard let layout = layout else { return }
+            switch state {
+            case .began:
+                initalColumnCount = layout.columnCount
+            case .changed:
+                let newRowCount = ((self.initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: layout.minColumnCount...(layout.maxColumnCount ?? 1000000) ))
+                if (newRowCount != initalColumnCount) {
+                    layout.columnCount = newRowCount
+                }
+            default: break
+            }
+        }
+    }
+}
+#endif
 #endif
