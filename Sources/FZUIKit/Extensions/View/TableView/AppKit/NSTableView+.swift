@@ -138,13 +138,13 @@
                 super.init(target: nil, action: nil)
             }
             
-            override func mouseDown(with event: NSEvent) {
-                super.mouseDown(with: event)
+            override func keyUp(with event: NSEvent) {
+                super.keyUp(with: event)
                 checkSelection()
             }
             
-            override func keyDown(with event: NSEvent) {
-                super.keyDown(with: event)
+            override func mouseUp(with event: NSEvent) {
+                super.mouseUp(with: event)
                 checkSelection()
             }
             
