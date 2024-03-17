@@ -120,7 +120,6 @@
                 if newValue {
                     selectedRowGestureRecognizer = SelectedRowGestureRecognizer(selectedRows: selectedRowIndexes)
                     addGestureRecognizer(selectedRowGestureRecognizer!)
-                    willChangeValue(for: \.selectedRowIndexes)
                 } else {
                     selectedRowGestureRecognizer?.removeFromView()
                     selectedRowGestureRecognizer = nil
@@ -151,9 +150,9 @@
             
             func checkSelection() {
                 guard let tableView = tableView, selectedRows != tableView.selectedRowIndexes else { return }
-                tableView.didChangeValue(for: \.selectedRowIndexes)
                 selectedRows = tableView.selectedRowIndexes
                 tableView.willChangeValue(for: \.selectedRowIndexes)
+                tableView.didChangeValue(for: \.selectedRowIndexes)
             }
             
             var selectedRows: IndexSet
