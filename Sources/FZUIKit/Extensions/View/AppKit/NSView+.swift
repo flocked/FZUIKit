@@ -296,12 +296,12 @@
          The default value is `0.0`, which results in a view with no rounded corners.
          */
         public var cornerRadius: CGFloat {
-            get { _cornerRadius }
-            set { _cornerRadius = newValue }
+            get { _aCornerRadius }
+            set { _aCornerRadius = newValue }
         }
 
         // fix for macOS 14.0 bug
-        @objc var _cornerRadius: CGFloat {
+        @objc var _aCornerRadius: CGFloat {
             get { layer?.cornerRadius ?? 0.0 }
             set {
                 let clipsToBounds = clipsToBounds

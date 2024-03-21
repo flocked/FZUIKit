@@ -46,23 +46,27 @@
         static func monitor(_ mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> Monitor {
             Monitor.local(for: mask, handler: handler)
         }
-    }
 
-    public extension NSEvent {
-        /// A local or global event monitor which calls a handler.
         /**
          A local or global event monitor which calls a handler.
 
          Compared to `addLocalMonitorForEvents` and `addGlobalMonitorForEvents`, it will automatically remove the monitor on deinit.
          */
         class Monitor {
-            private let mask: NSEvent.EventTypeMask
+            /// An event mask specifying the events that are monitored.
+            public let mask: NSEvent.EventTypeMask
+            
+            /// The monitor type.
+            public let type: MonitorType
+            
             private var monitor: Any?
             private let handler: Any
-            private let type: MonitorType
 
-            private enum MonitorType: Int {
+            /// The monitor type.
+            public enum MonitorType: Int {
+                /// An event monitor that receives copies of events the system posts to other applications.
                 case global
+                /// An event monitor that receives copies of events the system posts to this app prior to their dispatch.
                 case local
             }
 
@@ -85,8 +89,16 @@
                 stop()
             }
 
-            private var isRunning: Bool {
-                monitor != nil
+            /// A Boolean value that indicates whether the monitor is running.
+            public var isRunning: Bool {
+                get { monitor != nil }
+                set {
+                    if newValue {
+                        start()
+                    } else {
+                        stop()
+                    }
+                }
             }
 
             /// Starts monitoring events.

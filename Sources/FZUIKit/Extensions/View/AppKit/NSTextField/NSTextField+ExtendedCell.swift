@@ -80,11 +80,19 @@ extension NSTextField {
                 let transform3D = transform3D
                 let shadowPath = shadowPath
                 let clipsToBounds = clipsToBounds
+                Swift.print(layer.sublayers ?? "nil")
                 do {
+                     let copy = try layer.archiveBasedCopy()
+                    Swift.print(layer.cornerRadius, copy.cornerRadius, layer.masksToBounds, copy.masksToBounds, clipsToBounds)
                     cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
+                     copy.delegate = self as! any CALayerDelegate
+                     self.layer = copy
+                    Swift.print(self.layer!.cornerRadius, copy.cornerRadius, self.layer!.masksToBounds, copy.masksToBounds, clipsToBounds)
                 } catch {
                     debugPrint(error)
                 }
+                self.clipsToBounds = true
+                /*
                 self.wantsLayer = true
                 layer.delegate = self as? any CALayerDelegate
                 self.layer = layer
@@ -106,6 +114,7 @@ extension NSTextField {
                 if transform3D != CATransform3DIdentity {
                     self.transform3D = transform3D
                 }
+                 */
             } else {
                 do {
                     cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)

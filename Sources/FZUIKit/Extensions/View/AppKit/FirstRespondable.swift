@@ -7,7 +7,6 @@
 
 #if os(macOS)
 import AppKit
-import FZSwiftUtils
 
 /// A type that accepts first responder status of a window.
 public protocol FirstRespondable: NSUIResponder {
@@ -45,17 +44,6 @@ public protocol FirstRespondable: NSUIResponder {
 
 extension NSUIView: FirstRespondable { }
 extension NSUIViewController: FirstRespondable { }
-
-/*
-public extension NSView {
-   @objc dynamic public var isFirstResponder: Bool {
-       if let textField = self as? NSTextField {
-          return window?.firstResponder == textField.currentEditor() || textField.currentEditor() == textField || window?.firstResponder == self
-       }
-        return window?.firstResponder == self
-    }
-}
- */
 
 public extension FirstRespondable where Self: NSView {
     var isFirstResponder: Bool {
@@ -113,7 +101,9 @@ public extension FirstRespondable where Self: NSTextField {
 }
 
 public extension FirstRespondable where Self: NSViewController {
-    var isFirstResponder: Bool { (view.window?.firstResponder == self) }
+    var isFirstResponder: Bool {
+        view.window?.firstResponder == self
+    }
     
     @discardableResult
     func makeFirstResponder() -> Bool {
