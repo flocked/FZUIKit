@@ -184,12 +184,20 @@
          The value can be animated via `animator()`.
          */
         @objc open var centerPoint: CGPoint {
-            get { frame.center }
+            get { frameAnimatable.center }
+            set { frameAnimatable.center = newValue }
+        }
+        
+        /**
+         The animatable window’s frame rectangle in screen coordinates.
+         
+         The value can be animated via `animator()`.
+         */
+        @objc open var frameAnimatable: CGRect {
+            get { frame }
             set {
                 NSWindow.swizzleAnimationForKey()
-                var frame = frame
-                frame.center = newValue
-                setFrame(frame, display: true)
+                setFrame(newValue, display: false)
             }
         }
 
@@ -277,12 +285,14 @@
         }
 
         @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-            if NSWindowAnimationKeys.contains(key) {
+            if let animation = swizzledAnimation(forKey: key) {
+                return animation
+            } else if NSWindowAnimationKeys.contains(key) {
                 let animation = CABasicAnimation()
                 animation.timingFunction = .default
                 return animation
             }
-            return swizzledAnimation(forKey: key)
+            return nil
         }
 
         /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
@@ -306,10 +316,8 @@
                 }
             }
         }
-    }
 
-extension NSWindow {
-    /// A Boolean value that indicates whether the property `isKey` is KVO observable.
+    /// A Boolean value that indicates whether the property `isKeyWindow` is KVO observable.
     public static var isKeyWindowObservable: Bool {
         get { isMethodReplaced(#selector(NSWindow.becomeKey)) }
         set {
@@ -336,8 +344,9 @@ extension NSWindow {
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
                         store.original(object, #selector(NSWindow.resignKey))
-                        (object as? NSWindow)?.didChangeValue(for: \.isKeyWindow)
-                        (object as? NSWindow)?.isKey = false
+                        guard let window = object as? NSWindow else { return }
+                        window.didChangeValue(for: \.isKeyWindow)
+                        window.isKey = false
                         }
                     }
                 } catch {
@@ -350,7 +359,7 @@ extension NSWindow {
         }
     }
     
-    /// A Boolean value that indicates whether the property `isMain` is KVO observable.
+    /// A Boolean value that indicates whether the property `isMainWindow` is KVO observable.
     public static var isMainWindowObservable: Bool {
         get { isMethodReplaced(#selector(NSWindow.becomeMain)) }
         set {
@@ -377,8 +386,9 @@ extension NSWindow {
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
                         store.original(object, #selector(NSWindow.resignMain))
-                        (object as? NSWindow)?.didChangeValue(for: \.isMainWindow)
-                        (object as? NSWindow)?.isMain = false
+                        guard let window = object as? NSWindow else { return }
+                        window.didChangeValue(for: \.isMainWindow)
+                        window.isMain = false
                         }
                     }
                 } catch {
@@ -392,33 +402,6 @@ extension NSWindow {
     }
 }
 
-extension NSTableView {
-    /// A Boolean value that indicates whether the property `isEnabled` is KVO observable.
-    public static var isEnabledObservable: Bool {
-        get { isMethodReplaced(#selector(setter: NSTableView.isEnabled)) }
-        set {
-            guard newValue != isEnabledObservable else { return }
-            if newValue {
-                do {
-                    try replaceMethod(#selector(setter: NSTableView.isEnabled),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, Bool) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject, Bool) -> ()).self) { store in {
-                        object, isEnabled in
-                        (object as? NSTableView)?.willChangeValue(for: \.isEnabled)
-                        store.original(object, #selector(setter: NSTableView.isEnabled), isEnabled)
-                        (object as? NSTableView)?.didChangeValue(for: \.isEnabled)
-                        }
-                    }
-                } catch {
-                    
-                }
-            } else {
-                resetMethod(#selector(setter: NSTableView.isEnabled))
-            }
-        }
-    }
-}
-
-    private let NSWindowAnimationKeys = ["centerPoint"]
+    private let NSWindowAnimationKeys = ["frameAnimatable", "centerPoint"]
 #endif
 

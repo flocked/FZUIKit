@@ -295,23 +295,19 @@
 
          The default value is `0.0`, which results in a view with no rounded corners.
          */
-        public var cornerRadius: CGFloat {
-            get { _aCornerRadius }
-            set { _aCornerRadius = newValue }
-        }
-
-        // fix for macOS 14.0 bug
-        @objc var _aCornerRadius: CGFloat {
-            get { layer?.cornerRadius ?? 0.0 }
+        @objc open var cornerRadius: CGFloat {
+            get {
+               return layer?.cornerRadius ?? 0.0
+            }
             set {
                 let clipsToBounds = clipsToBounds
                 wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 layer?.cornerRadius = newValue
-                // fix for macOS 14.0 bug
                 layer?.masksToBounds = clipsToBounds
             }
         }
+        
 
         /**
          The corner curve of the view.
@@ -810,15 +806,15 @@
             }
         }
 
-        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {            
-            if NSViewAnimationKeys.contains(key) {
+        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {  
+            if let animation = swizzled_Animation(forKey: key) {
+                return animation
+            } else if NSViewAnimationKeys.contains(key) {
                 let animation = CABasicAnimation()
                 animation.timingFunction = .default
-                // self.animationManager.add(animation, key: key)
                 return animation
             }
-            let animation = swizzled_Animation(forKey: key)
-            return animation
+            return nil
         }
 
         static var didSwizzleAnimationForKey: Bool {
@@ -862,6 +858,6 @@
     }
 
     /// The `NSView` properties keys that can be animated.
-    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "_cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
+    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
 
 #endif
