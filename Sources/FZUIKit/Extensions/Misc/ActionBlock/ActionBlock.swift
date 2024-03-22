@@ -74,8 +74,8 @@ public extension TargetActionProtocol {
     }
     
     internal var actionTrampoline: ActionTrampoline<Self>? {
-        get { FZSwiftUtils.getAssociatedValue(key: "actionTrampoline", object: self) }
-        set { FZSwiftUtils.set(associatedValue: newValue, key: "actionTrampoline", object: self) }
+        get { FZSwiftUtils.getAssociatedValue("actionTrampoline", object: self) }
+        set { FZSwiftUtils.setAssociatedValue(newValue, key: "actionTrampoline", object: self) }
     }
 }
 
