@@ -822,8 +822,8 @@ open class ImageView: NSControl {
             }
             containerView.frame.origin.x = imageView.frame.x.clamped(min: 0)
             containerView.frame.origin.y = imageView.frame.y.clamped(min: 0)
-            containerView.frame.size.width = imageView.frame.size.width.clamped(max: bounds.width)
-            containerView.frame.size.height = imageView.frame.size.height.clamped(max: bounds.height)
+            containerView.frame.size.width = imageView.frame.size.width.clamped(to: 0...bounds.width)
+            containerView.frame.size.height = imageView.frame.size.height.clamped(to: 0...bounds.height)
         } else {
             imageView.frame = bounds
             containerView.frame = imageView.imageBounds

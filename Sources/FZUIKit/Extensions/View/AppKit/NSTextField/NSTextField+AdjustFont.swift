@@ -39,7 +39,7 @@
         public var minimumScaleFactor: CGFloat {
             get { getAssociatedValue("minimumScaleFactor", initialValue: 0.0) }
             set {
-                let newValue = newValue.clamped(max: 1.0)
+                let newValue = newValue.clamped(to: 0.0...1.0)
                 guard newValue != minimumScaleFactor else { return }
                 setAssociatedValue(newValue, key: "minimumScaleFactor")
                 setupFontAdjustment()

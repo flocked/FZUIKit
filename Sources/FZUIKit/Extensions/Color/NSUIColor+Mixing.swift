@@ -26,7 +26,7 @@ public extension NSUIColor {
      - Returns: The resulting color object or `nil` if the colors can’t be converted.
      */
     func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: ColorBlendMode = .rgb) -> NSUIColor {
-        let fraction = fraction.clamped(max: 1.0)
+        let fraction = fraction.clamped(to: 0.0...1.0)
 
         switch mode {
         case .hsl:

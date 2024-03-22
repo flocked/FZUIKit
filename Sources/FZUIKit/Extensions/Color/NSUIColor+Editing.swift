@@ -47,7 +47,7 @@ public extension NSUIColor {
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
         var hsla = hslaComponents()
-        hsla.lightness = (hsla.lightness + amount).clamped(max: 1.0)
+        hsla.lightness = (hsla.lightness + amount).clamped(to: 0.0...1.0)
         return NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha)
     }
 
@@ -67,7 +67,7 @@ public extension NSUIColor {
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
         var hsla = hslaComponents()
-        hsla.saturation = (hsla.saturation + amount).clamped(max: 1.0)
+        hsla.saturation = (hsla.saturation + amount).clamped(to: 0.0...1.0)
         return NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha)
     }
 
@@ -89,7 +89,7 @@ public extension NSUIColor {
     final func adjustedHue(amount: CGFloat) -> NSUIColor {
         // (h * 360.0) + amount,
         var hsla = hslaComponents()
-        hsla.hue = hsla.hue + amount.clamped(max: 360)
+        hsla.hue = hsla.hue + amount.clamped(to: 0...360)
         if hsla.hue > 360 {
             hsla.hue = hsla.hue - 360
         }

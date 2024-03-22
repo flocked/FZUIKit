@@ -59,7 +59,7 @@ public extension NSUIColor {
      - Returns: The new mixed color.
      */
     public func mixed(with color: Color, by amount: CGFloat = 0.5) -> Color {
-        let amount = amount.clamped(max: 1.0)
+        let amount = amount.clamped(to: 0.0...1.0)
         let nsUIColor = NSUIColor(self)
         #if os(macOS)
             return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)) ?? nsUIColor)
@@ -94,7 +94,7 @@ public extension NSUIColor {
      - Returns: The brightened color.
      */
     public func lighter(by amount: CGFloat = 0.2) -> Color {
-        let amount = amount.clamped(max: 1.0)
+        let amount = amount.clamped(to: 0.0...1.0)
         return brightness(1.0 + amount)
     }
 
@@ -105,7 +105,7 @@ public extension NSUIColor {
      - Returns: The darkened color.
      */
     public func darkened(by amount: CGFloat = 0.2) -> Color {
-        let amount = amount.clamped(max: 1.0)
+        let amount = amount.clamped(to: 0.0...1.0)
         return brightness(1.0 - amount)
     }
 
@@ -115,7 +115,7 @@ public extension NSUIColor {
             amount = amount - 1.0
             return mixed(with: .white, by: amount)
         } else if amount < 1.0 {
-            amount = amount.clamped(max: 1.0)
+            amount = amount.clamped(to: 0.0...1.0)
             amount = 1.0 - amount
             return mixed(with: .black, by: amount)
         }
@@ -130,7 +130,7 @@ public extension NSUIColor {
      */
     public func saturated(by amount: CGFloat = 0.2) -> Color {
         var hsla = nsUIColor.hslaComponents()
-        hsla.saturation = (hsla.saturation + amount).clamped(max: 1.0)
+        hsla.saturation = (hsla.saturation + amount).clamped(to: 0.0...1.0)
         return Color(NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha))
     }
     

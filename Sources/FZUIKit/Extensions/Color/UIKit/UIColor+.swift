@@ -55,7 +55,7 @@
          - Returns: The resulting color object.
          */
         func blended(withFraction fraction: CGFloat, of color: UIColor) -> UIColor {
-            let progress = fraction.clamped(max: 1.0)
+            let progress = fraction.clamped(to: 0.0...1.0)
             let fromComponents = rgbaComponents()
             let toComponents = color.rgbaComponents()
 

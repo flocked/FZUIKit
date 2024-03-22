@@ -24,7 +24,7 @@ public extension AVPlayerItem {
             - finished: A Boolean value that indicates whether the seek operation completed.
      */
     func seek(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
-        let to: Double = duration.seconds * percentage.clamped(max: 1.0)
+        let to: Double = duration.seconds * percentage.clamped(to: 0.0...1.0)
         let seekTo = CMTime(seconds: to)
         seek(to: seekTo, completionHandler: completionHandler)
     }

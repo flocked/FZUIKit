@@ -28,7 +28,7 @@ public class FontManager: NSObject {
                 fontSize = fontSize.clamped(min: minFontSize)
             }
             if let maxFontSize = maxFontSize {
-                fontSize = fontSize.clamped(max: maxFontSize)
+                fontSize = fontSize.clamped(to: 0...maxFontSize)
             }
             fontSizeStepper?.doubleValue = fontSize
             fontSizeTextField?.doubleValue = fontSize

@@ -86,7 +86,7 @@
             set {
                 guard let maxOffset = maxContentOffset else { return }
                 NSView.swizzleAnimationForKey()
-                contentOffset = CGPoint(newValue.x.clamped(max: 1.0) * maxOffset.x, newValue.y.clamped(max: 1.0) * maxOffset.y)
+                contentOffset = CGPoint(newValue.x.clamped(to: 0.0...1.0) * maxOffset.x, newValue.y.clamped(to: 0.0...1.0) * maxOffset.y)
             }
         }
         
@@ -157,7 +157,7 @@
          */
        @objc open func setContentOffsetFractional(_ contentOffset: CGPoint, animationDuration: TimeInterval, timingCurve: CAMediaTimingFunction = .default) {
             guard let maxOffset = maxContentOffset else { return }
-            let contentOffset = CGPoint(contentOffset.x.clamped(max: 1.0) * maxOffset.x, contentOffset.y.clamped(max: 1.0) * maxOffset.y)
+            let contentOffset = CGPoint(contentOffset.x.clamped(to: 0.0...1.0) * maxOffset.x, contentOffset.y.clamped(to: 0.0...1.0) * maxOffset.y)
             setContentOffset(contentOffset, animationDuration: animationDuration, timingCurve: timingCurve)
         }
         
@@ -192,7 +192,7 @@
          */
         @objc open func setContentOffsetFractional(_ contentOffset: CGPoint, animationSpeed: TimeInterval, timingCurve: CAMediaTimingFunction = .default) {
              guard let maxOffset = maxContentOffset else { return }
-             let contentOffset = CGPoint(contentOffset.x.clamped(max: 1.0) * maxOffset.x, contentOffset.y.clamped(max: 1.0) * maxOffset.y)
+             let contentOffset = CGPoint(contentOffset.x.clamped(to: 0.0...1.0) * maxOffset.x, contentOffset.y.clamped(to: 0.0...1.0) * maxOffset.y)
              setContentOffset(contentOffset, animationSpeed: animationSpeed, timingCurve: timingCurve)
          }
         
@@ -205,7 +205,7 @@
             - animationDuration: The animation duration.
          */
         public func scroll(to point: CGPoint, animationDuration: CGFloat) {
-            let fractionalOffset = CGPoint(point.x.clamped(max: bounds.width) / bounds.width, point.y.clamped(max: bounds.height) / bounds.height)
+            let fractionalOffset = CGPoint(point.x.clamped(to: 0...bounds.width) / bounds.width, point.y.clamped(to: 0...bounds.height) / bounds.height)
             setContentOffsetFractional(fractionalOffset, animationDuration: animationDuration)
         }
         
@@ -221,7 +221,7 @@
             - animationSpeed: The animation speed.
          */
         public func scroll(to point: CGPoint, animationSpeed: CGFloat) {
-            let fractionalOffset = CGPoint(point.x.clamped(max: bounds.width) / bounds.width, point.y.clamped(max: bounds.height) / bounds.height)
+            let fractionalOffset = CGPoint(point.x.clamped(to: 0...bounds.width) / bounds.width, point.y.clamped(to: 0...bounds.height) / bounds.height)
             setContentOffsetFractional(fractionalOffset, animationSpeed: animationSpeed)
         }
         */

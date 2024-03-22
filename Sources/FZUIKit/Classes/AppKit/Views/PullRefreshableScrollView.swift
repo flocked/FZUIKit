@@ -205,13 +205,13 @@
 
             if topEdge.viewState == .elastic {
                 let minimumScroll = abs(topEdge.minimumScroll)
-                let scrollValue = abs(bounds.origin.y).clamped(max: minimumScroll)
+                let scrollValue = abs(bounds.origin.y).clamped(to: 0...minimumScroll)
                 updateHandlers.didUpdate?(.top, viewFor(edge: .top), Double(100 * scrollValue / minimumScroll))
             }
 
             if bottomEdge.viewState == .elastic {
                 let minimumScroll = abs(bottomEdge.minimumScroll) - bounds.size.height
-                let scrollValue = abs(bounds.origin.y).clamped(max: minimumScroll)
+                let scrollValue = abs(bounds.origin.y).clamped(to: 0...minimumScroll)
                 let accessoryHeight = bottomEdge.accessoryView?.frame.size.height ?? 0
                 let percentage = Double(100 * (accessoryHeight - (minimumScroll - scrollValue)) / accessoryHeight)
                 updateHandlers.didUpdate?(.bottom, viewFor(edge: .bottom), percentage)

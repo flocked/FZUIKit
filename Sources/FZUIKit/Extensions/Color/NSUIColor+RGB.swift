@@ -103,22 +103,22 @@ public extension NSUIColor {
 public struct RGBAComponents: Codable, Hashable {
     /// The red component of the color.
     public var red: CGFloat {
-        didSet { red = red.clamped(max: 1.0) }
+        didSet { red = red.clamped(to: 0.0...1.0) }
     }
 
     /// The green component of the color.
     public var green: CGFloat {
-        didSet { green = green.clamped(max: 1.0) }
+        didSet { green = green.clamped(to: 0.0...1.0) }
     }
 
     /// The blue component of the color.
     public var blue: CGFloat {
-        didSet { blue = blue.clamped(max: 1.0) }
+        didSet { blue = blue.clamped(to: 0.0...1.0) }
     }
 
     /// The alpha value of the color.
     public var alpha: CGFloat {
-        didSet { alpha = alpha.clamped(max: 1.0) }
+        didSet { alpha = alpha.clamped(to: 0.0...1.0) }
     }
 
     #if os(macOS)
@@ -147,17 +147,17 @@ public struct RGBAComponents: Codable, Hashable {
 
     /// Creates RGBA components with the specified red, green, blue and alpha components.
     public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
-        self.red = red.clamped(max: 1.0)
-        self.green = green.clamped(max: 1.0)
-        self.blue = blue.clamped(max: 1.0)
-        self.alpha = alpha.clamped(max: 1.0)
+        self.red = red.clamped(to: 0.0...1.0)
+        self.green = green.clamped(to: 0.0...1.0)
+        self.blue = blue.clamped(to: 0.0...1.0)
+        self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
     init(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat) {
-        self.red = red.clamped(max: 1.0)
-        self.green = green.clamped(max: 1.0)
-        self.blue = blue.clamped(max: 1.0)
-        self.alpha = alpha.clamped(max: 1.0)
+        self.red = red.clamped(to: 0.0...1.0)
+        self.green = green.clamped(to: 0.0...1.0)
+        self.blue = blue.clamped(to: 0.0...1.0)
+        self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 }
 

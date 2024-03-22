@@ -223,7 +223,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         case let .roundedCorners(radius):
             cornerRadius = radius
         case let .roundedCornersRelative(relative):
-            cornerRadius = (cellFrame.height/2.0) * relative.clamped(max: 1.0)
+            cornerRadius = (cellFrame.height/2.0) * relative.clamped(to: 0.0...1.0)
         default:
             break
         }

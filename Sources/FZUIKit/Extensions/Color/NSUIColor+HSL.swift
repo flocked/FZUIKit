@@ -85,7 +85,7 @@ public extension NSUIColor {
      */
     func withLightness(_ lightness: CGFloat) -> NSUIColor {
         var hslaComponents = hslaComponents()
-        hslaComponents.lightness = lightness.clamped(max: 1.0)
+        hslaComponents.lightness = lightness.clamped(to: 0.0...1.0)
         return NSUIColor(hslaComponents)
     }
 }
@@ -97,32 +97,32 @@ public struct HSLAComponents {
 
     /// The saturation component of the color.
     public var saturation: CGFloat {
-        didSet { saturation = saturation.clamped(max: 1.0) }
+        didSet { saturation = saturation.clamped(to: 0.0...1.0) }
     }
 
     /// The lightness component of the color.
     public var lightness: CGFloat {
-        didSet { lightness = lightness.clamped(max: 1.0) }
+        didSet { lightness = lightness.clamped(to: 0.0...1.0) }
     }
 
     /// The alpha value of the color.
     public var alpha: CGFloat {
-        didSet { alpha = alpha.clamped(max: 1.0) }
+        didSet { alpha = alpha.clamped(to: 0.0...1.0) }
     }
 
     /// Creates HSLA components with the specified hue, saturation, lightness and alpha components.
     public init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
         self.hue = hue
-        self.saturation = saturation.clamped(max: 1.0)
-        self.lightness = lightness.clamped(max: 1.0)
-        self.alpha = alpha.clamped(max: 1.0)
+        self.saturation = saturation.clamped(to: 0.0...1.0)
+        self.lightness = lightness.clamped(to: 0.0...1.0)
+        self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
     init(_ hue: CGFloat, _ saturation: CGFloat, _ lightness: CGFloat, _ alpha: CGFloat) {
         self.hue = hue
-        self.saturation = saturation.clamped(max: 1.0)
-        self.lightness = lightness.clamped(max: 1.0)
-        self.alpha = alpha.clamped(max: 1.0)
+        self.saturation = saturation.clamped(to: 0.0...1.0)
+        self.lightness = lightness.clamped(to: 0.0...1.0)
+        self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
     #if os(macOS)
@@ -179,9 +179,9 @@ public extension Color {
    */
    init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1.0) {
      h = hue.truncatingRemainder(dividingBy: 360.0) / 360.0
-       s = saturation.clamped(max: 1.0)
-       l = lightness.clamped(max: 1.0)
-       a = alpha.clamped(max: 1.0)
+       s = saturation.clamped(to: 0.0...1.0)
+       l = lightness.clamped(to: 0.0...1.0)
+       a = alpha.clamped(to: 0.0...1.0)
    }
 
    /**

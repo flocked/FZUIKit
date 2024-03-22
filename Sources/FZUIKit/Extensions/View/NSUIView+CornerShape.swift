@@ -37,7 +37,7 @@
 
             var clamped: Self {
                 switch self {
-                case let .roundedRelative(value): return .roundedRelative(value.clamped(max: 1.0))
+                case let .roundedRelative(value): return .roundedRelative(value.clamped(to: 0.0...1.0))
                 default: return self
                 }
             }

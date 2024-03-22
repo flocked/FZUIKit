@@ -53,7 +53,7 @@
                 didSet {
                     columnCount = columnCount.clamped(min: minColumnCount)
                     if let maxColumnCount = maxColumnCount {
-                        columnCount = columnCount.clamped(max: maxColumnCount)
+                        columnCount = columnCount.clamped(to: 0...maxColumnCount)
                     }
                     guard oldValue != columnCount else { return }
                     invalidateLayout(animated: animationDuration ?? 0.0) }

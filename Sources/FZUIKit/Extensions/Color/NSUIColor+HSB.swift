@@ -100,37 +100,37 @@ extension NSUIColor {
 public struct HSBAComponents {
     /// The hue component of the color.
     public var hue: CGFloat {
-        didSet { hue = hue.clamped(max: 1.0) }
+        didSet { hue = hue.clamped(to: 0.0...1.0) }
     }
 
     /// The saturation component of the color.
     public var saturation: CGFloat {
-        didSet { saturation = saturation.clamped(max: 1.0) }
+        didSet { saturation = saturation.clamped(to: 0.0...1.0) }
     }
 
     /// The brightness component of the color.
     public var brightness: CGFloat {
-        didSet { brightness = brightness.clamped(max: 1.0) }
+        didSet { brightness = brightness.clamped(to: 0.0...1.0) }
     }
 
     /// The alpha value of the color.
     public var alpha: CGFloat {
-        didSet { alpha = alpha.clamped(max: 1.0) }
+        didSet { alpha = alpha.clamped(to: 0.0...1.0) }
     }
 
     /// Creates HSBA components with the specified hue, saturation, brightness and alpha components.
     public init(hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) {
-        self.hue = hue.clamped(max: 1.0)
-        self.saturation = saturation.clamped(max: 1.0)
-        self.brightness = brightness.clamped(max: 1.0)
-        self.alpha = alpha.clamped(max: 1.0)
+        self.hue = hue.clamped(to: 0.0...1.0)
+        self.saturation = saturation.clamped(to: 0.0...1.0)
+        self.brightness = brightness.clamped(to: 0.0...1.0)
+        self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
     init(_ hue: CGFloat, _ saturation: CGFloat, _ brightness: CGFloat, _ alpha: CGFloat) {
-        self.hue = hue.clamped(max: 1.0)
-        self.saturation = saturation.clamped(max: 1.0)
-        self.brightness = brightness.clamped(max: 1.0)
-        self.alpha = alpha.clamped(max: 1.0)
+        self.hue = hue.clamped(to: 0.0...1.0)
+        self.saturation = saturation.clamped(to: 0.0...1.0)
+        self.brightness = brightness.clamped(to: 0.0...1.0)
+        self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
     #if os(macOS)

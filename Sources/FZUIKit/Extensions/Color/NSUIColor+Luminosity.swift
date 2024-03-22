@@ -56,7 +56,7 @@
             #else
                 let coreColour = CIColor(color: self)
             #endif
-            let rgb: [CGFloat] = [coreColour.red.clamped(max: 1.0), coreColour.green.clamped(max: 1.0), coreColour.blue.clamped(max: 1.0)]
+            let rgb: [CGFloat] = [coreColour.red.clamped(to: 0.0...1.0), coreColour.green.clamped(to: 0.0...1.0), coreColour.blue.clamped(to: 0.0...1.0)]
             guard let minRGB = rgb.min(), let maxRGB = rgb.max() else { return 1.0 }
             return (minRGB + maxRGB) / 2
         }
@@ -75,9 +75,9 @@
                 let coreColour = CIColor(color: self)
             #endif
             let alpha = coreColour.alpha
-            let red = coreColour.red.clamped(max: 1.0)
-            let green = coreColour.green.clamped(max: 1.0)
-            let blue = coreColour.blue.clamped(max: 1.0)
+            let red = coreColour.red.clamped(to: 0.0...1.0)
+            let green = coreColour.green.clamped(to: 0.0...1.0)
+            let blue = coreColour.blue.clamped(to: 0.0...1.0)
             let rgb: [CGFloat] = [red, green, blue]
             guard let minRGB = rgb.min(), let maxRGB = rgb.max() else { return self }
 
