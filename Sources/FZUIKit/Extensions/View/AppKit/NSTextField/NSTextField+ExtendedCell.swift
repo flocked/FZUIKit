@@ -73,22 +73,23 @@ extension NSTextField {
             }
             return
         }
-        let backgroundColor = layer.backgroundColor
-        let border = border
-        let innerShadow = innerShadow
-        let outerShadow = outerShadow
-        let cornerRadius = cornerRadius
-        let cornerCurve = cornerCurve
-        let roundedCorners = roundedCorners
-        let isOpaque = isOpaque
-        let mask = mask
-        let anchorPoint = anchorPoint
-        let transform = transform
-        let transform3D = transform3D
-        let shadowPath = shadowPath
-        let clipsToBounds = clipsToBounds
         do {
-            cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
+            let convertedCell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
+            let backgroundColor = layer.backgroundColor
+            let border = border
+            let innerShadow = innerShadow
+            let outerShadow = outerShadow
+            let cornerRadius = cornerRadius
+            let cornerCurve = cornerCurve
+            let roundedCorners = roundedCorners
+            let isOpaque = isOpaque
+            let mask = mask
+            let anchorPoint = anchorPoint
+            let transform = transform
+            let transform3D = transform3D
+            let shadowPath = shadowPath
+            let clipsToBounds = clipsToBounds
+            cell = convertedCell
             self.wantsLayer = true
             layer.delegate = self as? any CALayerDelegate
             self.layer = layer
