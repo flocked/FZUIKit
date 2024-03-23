@@ -11,6 +11,13 @@
     import Foundation
 
     public extension NSApplication {
+        
+        /// Returns a description of the `NSResponder` responder chain starting from the first responder.
+        var responderChainDebugDescription: String {
+            (self as AnyObject).perform(
+                NSSelectorFromString("_eventFirstResponderChainDescription")).takeUnretainedValue() as? String ?? "<Description Unavailable>"
+        }
+        
         /// All visible windows on the active space.
         var visibleWindows: [NSWindow] {
             windows.filter {
