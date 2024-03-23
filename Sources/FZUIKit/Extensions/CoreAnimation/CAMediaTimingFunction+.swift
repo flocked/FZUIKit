@@ -9,6 +9,16 @@
     import QuartzCore
 
     public extension CAMediaTimingFunction {
+        /// The control points.
+        var controlPoints: (first: CGPoint, second: CGPoint) {
+            var rawValues: [Float] = [0.0, 0.0]
+            getControlPoint(at: 1, values: &rawValues)
+            let first = CGPoint(x: CGFloat(rawValues[0]), y: CGFloat(rawValues[1]))
+            getControlPoint(at: 2, values: &rawValues)
+            let second = CGPoint(x: CGFloat(rawValues[0]), y: CGFloat(rawValues[1]))
+            return (first, second)
+        }
+        
         /// A linear timing function, which causes an animation to occur evenly over its duration.
         static var linear: CAMediaTimingFunction = .init(name: .linear)
         /// The system default timing function. Use this function to ensure that the timing of your animations matches that of most system animations.
