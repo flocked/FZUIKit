@@ -145,7 +145,7 @@
              get { return collectionView!.delegate as? NSUICollectionViewWaterfallLayoutDelegate } }
              */
 
-            public var animationDuration: TimeInterval?
+            public var animationDuration: TimeInterval? = 0.2
 
             private var columnHeights: [[CGFloat]] = []
             private var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
