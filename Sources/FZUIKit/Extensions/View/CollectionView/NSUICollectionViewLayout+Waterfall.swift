@@ -26,21 +26,21 @@
             - insets: The layout insets.
             - itemSizeProvider: The handler that provides the item sizes..
          */
-        static func waterfall(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> WaterfallLayout {
-            let layout = WaterfallLayout(itemSizeProvider: itemSizeProvider)
+        static func waterfall(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), isPinchable: Bool = false, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> WaterfallLayout {
+            let layout = WaterfallLayout(columnCount: columnCount, isPinchable: isPinchable, itemSizeProvider: itemSizeProvider)
             layout.minimumInteritemSpacing = spacing
             layout.minimumColumnSpacing = spacing
-            layout.columnCount = columnCount
             layout.sectionInset = insets
             return layout
         }
         
-        class WaterfallLayout: NSUICollectionViewLayout {
+        class WaterfallLayout: NSUICollectionViewLayout, PinchableCollectionViewLayout {            
             public typealias ItemSizeProvider = (IndexPath) -> CGSize
 
-            public convenience init(columnCount: Int = 2,  itemSizeProvider: @escaping ItemSizeProvider) {
+            public convenience init(columnCount: Int = 2, isPinchable: Bool = false, itemSizeProvider: @escaping ItemSizeProvider) {
                 self.init()
                 self.itemSizeProvider = itemSizeProvider
+                self.isPinchable = isPinchable
             }
 
             open var itemSizeProvider: ItemSizeProvider? {
@@ -48,6 +48,17 @@
             }
             
             open var isPinchable: Bool = false
+            
+            func setupPinch() {
+                guard let collectionView = collectionView else { return }
+                if isPinchable, collectionView.pinchColumnsGestureRecognizer == nil {
+                    collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer()
+                    collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
+                } else if !isPinchable, let gestureRecognizer = collectionView.pinchColumnsGestureRecognizer {
+                    collectionView.removeGestureRecognizer(gestureRecognizer)
+                    collectionView.pinchColumnsGestureRecognizer = nil
+                }
+            }
 
             open var columnCount: Int = 2 {
                 didSet {
@@ -195,10 +206,13 @@
                 let width = collectionViewContentWidth(ofSection: section)
                 return floor((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columnCount))
             }
+            
+            
 
             override public func prepare() {
                 super.prepare()
                 
+                setupPinch()
                 let numberOfSections = collectionView!.numberOfSections
                 if numberOfSections == 0 {
                     return
@@ -413,17 +427,38 @@
     }
 
 #if os(macOS)
+protocol PinchableCollectionViewLayout: AnyObject {
+    var columnCount: Int { get set }
+    var minColumnCount: Int { get }
+    var maxColumnCount: Int? { get }
+}
+
+extension NSCollectionView {
+    var pinchColumnsGestureRecognizer: PinchColumnsGestureRecognizer? {
+        get { getAssociatedValue("pinchColumnsGestureRecognizer", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "pinchColumnsGestureRecognizer") }
+    }
+}
+
 class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
     var collectionView: NSCollectionView? {
         view as? NSCollectionView
     }
     
-    var layout:  NSCollectionViewLayout.WaterfallLayout? {
-        collectionView?.collectionViewLayout as? NSCollectionViewLayout.WaterfallLayout
+    var layout:  PinchableCollectionViewLayout? {
+        collectionView?.collectionViewLayout as? PinchableCollectionViewLayout
+    }
+    
+    init() {
+        super.init(target: nil, action: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     override func keyDown(with event: NSEvent) {
-        if let layout = layout, layout.isPinchable {
+        if let layout = layout {
             if event.keyCode == 44 {
                 layout.columnCount += 1
             } else if event.keyCode == 30 {
