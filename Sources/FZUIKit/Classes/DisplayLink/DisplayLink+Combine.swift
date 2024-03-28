@@ -243,16 +243,13 @@
 
                 init() {
                     CVDisplayLinkSetOutputHandler(displayLink) { [weak self] _, inNow, inOutputTime, _, _ -> CVReturn in
-
                         let frame = Frame(
                             timestamp: inNow.pointee.timeInterval,
-                            duration: inOutputTime.pointee.timeInterval - inNow.pointee.timeInterval
+                            duration: (Double(inOutputTime.pointee.timeInterval) - Double(inNow.pointee.timeInterval)) / 2.0
                         )
-
                         DispatchQueue.main.async {
                             self?.handle(frame: frame)
                         }
-
                         return kCVReturnSuccess
                     }
                 }
