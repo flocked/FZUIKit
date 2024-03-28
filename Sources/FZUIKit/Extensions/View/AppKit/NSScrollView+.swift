@@ -49,24 +49,8 @@
             }
         }
         
-        public var contentOffsetHandler: ((_ contentOffset: CGPoint)->())? {
-            get { getAssociatedValue("contentOffsetHandler", initialValue: nil) }
-            set {
-                setAssociatedValue(newValue, key: "contentOffsetHandler")
-                if let handler = newValue {
-                    contentView.postsBoundsChangedNotifications = true
-                    contentOffsetNotificationToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: contentView) { [weak self] notification in
-                        guard let self = self else { return }
-                        handler(self.contentOffset)
-                    }
-                } else {
-                    contentOffsetNotificationToken = nil
-                }
-            }
-        }
-        
         /// Scrolls the scroll view to the top.
-        public func scrollToTop(animationDuration: TimeInterval? = nil) {
+        public func scrollToBottom(animationDuration: TimeInterval? = nil) {
             var contentOffset = contentOffset
             contentOffset.y = maxContentOffset?.y ?? contentSize.height
             if let animationDuration = animationDuration {
@@ -77,7 +61,7 @@
         }
 
         /// Scrolls the scroll view to the bottom.
-        public func scrollToBottom(animationDuration: TimeInterval? = nil) {
+        public func scrollToTop(animationDuration: TimeInterval? = nil) {
             var contentOffset = contentOffset
             contentOffset.y = 0.0
             if let animationDuration = animationDuration {
@@ -401,33 +385,29 @@
 
         /// A saved scroll position.
         public struct SavedScrollPosition {
-            let bounds: CGRect
-            let visible: CGRect
+            let offset: CGPoint
         }
 
-        /// Saves the current scroll position.
+        /**
+         Returns a value representing the current scroll position.
+         
+         To restore the saved scroll position, use ``restoreScrollPosition(_:)``.
+         
+         - Returns: The saved scroll position.
+         */
         public func saveScrollPosition() -> SavedScrollPosition {
-            SavedScrollPosition(bounds: bounds, visible: visibleRect)
+            SavedScrollPosition(offset: contentOffsetFractional)
         }
 
         /**
          Restores the specified saved scroll position.
+         
+         To save a scroll position, use ``saveScrollPosition()``.
 
          - Parameter scrollPosition: The scroll position to restore.
          */
        public func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
-            let oldBounds = scrollPosition.bounds
-            let oldVisible = scrollPosition.visible
-            let oldY = oldVisible.midY
-            let oldH = oldBounds.height
-            guard oldH > 0.0 else { return }
-
-            let fraction = (oldY - oldBounds.minY) / oldH
-            let newBounds = bounds
-            var newVisible = visibleRect
-            let newY = newBounds.minY + fraction * newBounds.height
-            newVisible.origin.y = newY - 0.5 * newVisible.height
-            scroll(newVisible.origin)
+           contentOffsetFractional = scrollPosition.offset
         }
     }
 
