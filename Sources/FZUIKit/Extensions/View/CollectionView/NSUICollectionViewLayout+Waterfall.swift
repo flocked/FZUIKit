@@ -52,7 +52,7 @@
             func setupPinch() {
                 guard let collectionView = collectionView else { return }
                 if isPinchable, collectionView.pinchColumnsGestureRecognizer == nil {
-                    collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer()
+                    collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer(target: nil, action: nil)
                     collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
                 } else if !isPinchable, let gestureRecognizer = collectionView.pinchColumnsGestureRecognizer {
                     collectionView.removeGestureRecognizer(gestureRecognizer)
@@ -424,7 +424,6 @@
         }
     }
 
-#if os(macOS)
 protocol PinchableCollectionViewLayout: AnyObject {
     var columnCount: Int { get set }
     var minColumnCount: Int { get }
@@ -432,14 +431,14 @@ protocol PinchableCollectionViewLayout: AnyObject {
     var isPinchable: Bool { get }
 }
 
-extension NSCollectionView {
+extension NSUICollectionView {
     var pinchColumnsGestureRecognizer: PinchColumnsGestureRecognizer? {
         get { getAssociatedValue("pinchColumnsGestureRecognizer", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "pinchColumnsGestureRecognizer") }
     }
 }
 
-extension NSCollectionViewLayout {
+extension NSUICollectionViewLayout {
     var _columnCount: Int? {
         get { getAssociatedValue("columnCount", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "columnCount") }
@@ -455,25 +454,33 @@ extension NSCollectionViewLayout {
         set { setAssociatedValue(newValue, key: "maxColumnCount") }
     }
     
-    var animatesColumns: Bool {
-        get { getAssociatedValue("animatesColumns", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "animatesColumns") }
+    var animateColumnChanges: Bool {
+        get { getAssociatedValue("animateColumnChanges", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "animateColumnChanges") }
     }
     
-    var columnLayoutInvalidation: ((_ columnCount: Int)->(NSCollectionViewLayout))? {
+    var columnLayoutInvalidation: ((_ columnCount: Int)->(NSUICollectionViewLayout))? {
         get { getAssociatedValue("columnLayoutInvalidation", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "columnLayoutInvalidation") }
     }
     
 }
 
-class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
-    var collectionView: NSCollectionView? {
-        view as? NSCollectionView
+class PinchColumnsGestureRecognizer: NSUIMagnificationGestureRecognizer {
+    var collectionView: NSUICollectionView? {
+        view as? NSUICollectionView
     }
     
-    var collectionViewLayout: NSCollectionViewLayout? {
-        (view as? NSCollectionView)?.collectionViewLayout
+    var collectionViewLayout: NSUICollectionViewLayout? {
+        (view as? NSUICollectionView)?.collectionViewLayout
+    }
+    
+    func checkLayout() {
+        guard let collectionView = collectionView, let collectionViewLayout = collectionViewLayout else { return }
+        if !(layout?.isPinchable == true || collectionViewLayout.columnLayoutInvalidation != nil) {
+            removeFromView()
+            collectionView.pinchColumnsGestureRecognizer = nil
+        }
     }
     
     var layout:  PinchableCollectionViewLayout? {
@@ -492,7 +499,11 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
             } else {
                 if let invalidation = collectionViewLayout?.columnLayoutInvalidation {
                     let layout = invalidation(newValue)
-                    collectionView?.setCollectionViewLayout(layout, animationDuration: collectionViewLayout?.animatesColumns == true ? 0.2 : 0.0)
+                    #if os(macOS)
+                    collectionView?.setCollectionViewLayout(layout, animationDuration: collectionViewLayout?.animateColumnChanges == true ? 0.2 : 0.0)
+                    #else
+                    collectionView?.setCollectionViewLayout(layout, animated: collectionViewLayout?.animateColumnChanges == true)
+                    #endif
                 }
             }
         }
@@ -506,16 +517,10 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
         get { layout?.maxColumnCount ?? collectionViewLayout?._maxColumnCount ?? 100000 }
     }
     
-    init() {
-        super.init(target: nil, action: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
+    #if os(macOS)
     override func keyDown(with event: NSEvent) {
         guard collectionView != nil else { return }
+        checkLayout()
         if event.keyCode == 44 {
             columnCount = (columnCount + 1).clamped(to: minColumnCount...maxColumnCount)
         } else if event.keyCode == 30 {
@@ -523,20 +528,25 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
         }
         super.keyDown(with: event)
     }
+    #endif
     
     var initalColumnCount: Int = 0
-    override var state: NSGestureRecognizer.State {
+    override var state: NSUIGestureRecognizer.State {
         didSet {
             guard collectionView != nil else { return }
+            checkLayout()
             switch state {
             case .began:
                 initalColumnCount = columnCount
             case .changed:
+                #if os(macOS)
                 columnCount = ((initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
+                #else
+                columnCount = ((initalColumnCount + Int((scale/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
+                #endif
             default: break
             }
         }
     }
 }
-#endif
 #endif

@@ -20,12 +20,12 @@
          Creates a waterfall collection view layout with the specifed amount of columns.
          
          - Parameters:
-            - columnCount: The amount of columns.
+            - columns: The amount of columns.
             - spacing: The spacing between the items.
             - insets: The layout insets.
             - itemSizeProvider: The handler that provides the item sizes..
          */
-        static func waterfallCompositional(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
+        static func waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
             var numberOfItems: (Int) -> Int = { _ in 0 }
             let layout = NSUICollectionViewCompositionalLayout { section, environment in
                 let groupLayoutSize = NSCollectionLayoutSize(
@@ -33,7 +33,7 @@
                     heightDimension: .estimated(environment.container.effectiveContentSize.height)
                 )
                 let group = NSCollectionLayoutGroup.custom(layoutSize: groupLayoutSize) { environment in
-                    let itemProvider = LayoutItemProvider(columnCount: columnCount, spacing: spacing, environment: environment, itemSizeProvider: itemSizeProvider)
+                    let itemProvider = LayoutItemProvider(columnCount: columns, spacing: spacing, environment: environment, itemSizeProvider: itemSizeProvider)
                     var items = [NSCollectionLayoutGroupCustomItem]()
                     for i in 0 ..< numberOfItems(section) {
                         let indexPath = IndexPath(item: i, section: section)
@@ -53,6 +53,29 @@
             }
             return layout
         }
+        
+        /**
+         A interactive waterfall collection view layout where the user can change the amount of columns by pinching the collection view.
+         
+         - Parameters:
+            - columns: The amount of columns.
+            - minColumns: The minimum amount of columns when pinching the collection view.
+            - maxColumns: The maximum amount of columns when pinching the collection view.
+            - animateColumns: A Boolean value that indicates whether changing the amount of columns is animated.
+            - spacing: The spacing between the items.
+            - insets: The layout insets.
+            - itemSizeProvider: The handler that provides the item sizes..
+         */
+        static func waterfallCompositional(columns: Int = 2, minColumns: Int, maxColumns: Int?, animateColumns: Bool = true, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
+            let layout = waterfallCompositional(columns: columns,spacing: spacing, insets: insets, itemSizeProvider: itemSizeProvider)
+            setupColumnLayout(layout, columns: columns, minColumns: minColumns, maxColumns: maxColumns, animateColumnChanges: animateColumns)
+            layout.columnLayoutInvalidation = { columns in
+                    .waterfallCompositional(columns: columns, minColumns: minColumns, maxColumns: maxColumns, animateColumns: animateColumns, spacing: spacing, insets: insets, itemSizeProvider: itemSizeProvider)
+            }
+            return layout
+        }
+        
+
     }
 
     public class LayoutItemProvider {
