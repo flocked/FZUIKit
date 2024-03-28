@@ -462,8 +462,8 @@ extension NSCollectionViewLayout {
     }
     
     var columnLayoutInvalidation: ((_ columnCount: Int)->(NSCollectionViewLayout))? {
-        get { getAssociatedValue("maxColumnCount", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "maxColumnCount") }
+        get { getAssociatedValue("columnLayoutInvalidation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "columnLayoutInvalidation") }
     }
     
 }
