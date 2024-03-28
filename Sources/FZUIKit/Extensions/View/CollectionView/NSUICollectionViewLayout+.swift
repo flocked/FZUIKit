@@ -190,7 +190,7 @@
             - header: The layout's supplementary header type.
             - footer: The layout's supplementary footer type.
          */
-        static func grid(columns: Int = 3, minColumns: Int, maxColumns: Int?, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
+        static func grid(columns: Int = 3, minColumns: Int, maxColumns: Int?, animateColumnChanges: Bool = true, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
             let layout = grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
             do {
                try layout.replaceMethod(
@@ -198,7 +198,6 @@
                methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                    object in
-                   Swift.print("prepare grid", (object as? NSCollectionViewLayout)?.collectionView?.pinchColumnsGestureRecognizer != nil, (object as? NSCollectionViewLayout)?._minColumnCount != nil, (object as? NSCollectionViewLayout)?._maxColumnCount != nil, (object as? NSCollectionViewLayout)?._columnCount != nil, (object as? NSCollectionViewLayout)?.columnLayoutInvalidation != nil)
                    if let collectionView = (object as? NSCollectionViewLayout)?.collectionView, collectionView.pinchColumnsGestureRecognizer == nil {
                        collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer()
                        collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
@@ -209,8 +208,17 @@
                 layout._columnCount = columns
                 layout._minColumnCount = minColumns
                 layout._maxColumnCount = maxColumns
+                layout.animatesColumns = animateColumnChanges
                 layout.columnLayoutInvalidation = { columns in
-                    return NSCollectionViewLayout.grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+                    let newLayout = NSCollectionViewLayout.grid(columns: columns, minColumns: minColumns, maxColumns: maxColumns, animateColumnChanges: animateColumnChanges, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+                 /*
+                    newLayout._columnCount = columns
+                    newLayout._minColumnCount = minColumns
+                    newLayout._maxColumnCount = maxColumns
+                    newLayout.animatesColumns = animateColumnChanges
+                    newLayout.columnLayoutInvalidation = layout.columnLayoutInvalidation
+                  */
+                    return newLayout
                 }
             } catch {
                Swift.debugPrint(error)

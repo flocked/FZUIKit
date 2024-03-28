@@ -455,6 +455,11 @@ extension NSCollectionViewLayout {
         set { setAssociatedValue(newValue, key: "maxColumnCount") }
     }
     
+    var animatesColumns: Bool {
+        get { getAssociatedValue("animatesColumns", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "animatesColumns") }
+    }
+    
     var columnLayoutInvalidation: ((_ columnCount: Int)->(NSCollectionViewLayout))? {
         get { getAssociatedValue("columnLayoutInvalidation", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "columnLayoutInvalidation") }
@@ -481,16 +486,13 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
     var columnCount: Int {
         get { layout?.columnCount ?? collectionViewLayout?._columnCount ?? 2 }
         set {
+            guard newValue != columnCount else { return }
             if let layout = layout {
                 layout.columnCount = newValue
             } else {
                 if let invalidation = collectionViewLayout?.columnLayoutInvalidation {
                     let layout = invalidation(newValue)
-                    layout._columnCount = newValue
-                    layout._minColumnCount = minColumnCount
-                    layout._maxColumnCount = maxColumnCount
-                    layout.columnLayoutInvalidation = invalidation
-                    collectionView?.setCollectionViewLayout(layout, animationDuration: 0.2)
+                    collectionView?.setCollectionViewLayout(layout, animationDuration: collectionViewLayout?.animatesColumns == true ? 0.2 : 0.0)
                 }
             }
         }
@@ -528,11 +530,6 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
             guard collectionView != nil else { return }
             switch state {
             case .began:
-                if let collectionViewLayout = collectionViewLayout {
-                    Swift.print("pinch began", collectionViewLayout._minColumnCount ?? "nil", collectionViewLayout._maxColumnCount ?? "nil", collectionViewLayout._columnCount ?? "nil", collectionViewLayout.columnLayoutInvalidation ?? "nil")
-                } else {
-                    Swift.print("pinch began nil")
-                }
                 initalColumnCount = columnCount
             case .changed:
                 columnCount = ((initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
