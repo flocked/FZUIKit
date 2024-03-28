@@ -442,13 +442,7 @@ extension NSCollectionView {
 extension NSCollectionViewLayout {
     var _columnCount: Int? {
         get { getAssociatedValue("columnCount", initialValue: nil) }
-        set {
-            guard newValue != _columnCount else { return }
-            setAssociatedValue(newValue, key: "columnCount")
-            if let newValue = newValue, let layout = columnLayoutInvalidation?(newValue) {
-                collectionView?.setCollectionViewLayout(layout, animationDuration: 0.2)
-            }
-        }
+        set { setAssociatedValue(newValue, key: "columnCount") }
     }
     
     var _minColumnCount: Int? {
@@ -490,7 +484,14 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
             if let layout = layout {
                 layout.columnCount = newValue
             } else {
-                collectionViewLayout?._columnCount = newValue
+                if let invalidation = collectionViewLayout?.columnLayoutInvalidation {
+                    let layout = invalidation(newValue)
+                    layout._columnCount = newValue
+                    layout._minColumnCount = minColumnCount
+                    layout._maxColumnCount = maxColumnCount
+                    layout.columnLayoutInvalidation = invalidation
+                    collectionView?.setCollectionViewLayout(layout, animationDuration: 0.2)
+                }
             }
         }
     }
