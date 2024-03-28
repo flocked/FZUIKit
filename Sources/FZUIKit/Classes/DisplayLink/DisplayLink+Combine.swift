@@ -247,6 +247,9 @@
                             timestamp: inNow.pointee.timeInterval,
                             duration: (Double(inOutputTime.pointee.timeInterval) - Double(inNow.pointee.timeInterval)) / 2.0
                         )
+                        let timeStamp = inNow.pointee
+                        
+                        Swift.print(timeStamp.videoTimeScale, timeStamp.videoTime, timeStamp.videoRefreshPeriod, timeStamp.rateScalar, timeStamp.hostTime)
                         DispatchQueue.main.async {
                             self?.handle(frame: frame)
                         }
