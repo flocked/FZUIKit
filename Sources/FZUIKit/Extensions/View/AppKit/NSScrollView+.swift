@@ -111,7 +111,7 @@
 
          The value can be animated via `animator()`.
          */
-        @objc open var contentOffset: CGPoint {
+        @objc dynamic open var contentOffset: CGPoint {
             get { previousContentOffset ?? documentVisibleRect.origin }
             set {
                 guard newValue.x.isFinite, newValue.y.isFinite else { return }
