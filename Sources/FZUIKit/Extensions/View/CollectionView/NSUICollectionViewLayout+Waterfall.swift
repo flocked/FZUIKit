@@ -527,6 +527,11 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
             guard collectionView != nil else { return }
             switch state {
             case .began:
+                if let collectionViewLayout = collectionViewLayout {
+                    Swift.print("pinch began", collectionViewLayout._minColumnCount ?? "nil", collectionViewLayout._maxColumnCount ?? "nil", collectionViewLayout._columnCount ?? "nil", collectionViewLayout.columnLayoutInvalidation ?? "nil")
+                } else {
+                    Swift.print("pinch began nil")
+                }
                 initalColumnCount = columnCount
             case .changed:
                 columnCount = ((initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
