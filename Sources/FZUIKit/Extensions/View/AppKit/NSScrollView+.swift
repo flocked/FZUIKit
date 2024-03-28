@@ -17,14 +17,14 @@
             set { setAssociatedValue(newValue, key: "contentOffsetNotificationToken")}
         }
         
-        var contentOffsetObservation: KeyValueObservation? {
-            get { getAssociatedValue("contentOffsetObservation", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "contentOffsetObservation")}
+        var previousContentOffset: CGPoint {
+            get { getAssociatedValue("previousContentOffset", initialValue: .zero) }
+            set { setAssociatedValue(newValue, key: "previousContentOffset")}
         }
         
-        var previousContentOffset: CGPoint? {
-            get { getAssociatedValue("previousContentOffset", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "previousContentOffset")}
+        var isChangingContentOffset: Bool {
+            get { getAssociatedValue("isChangingContentOffset", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "isChangingContentOffset")}
         }
         
         public var contentOffsetIsObservable: Bool {
@@ -33,15 +33,18 @@
                 guard newValue != contentOffsetIsObservable else { return}
                 setAssociatedValue(newValue, key: "contentOffsetIsObservable")
                 if newValue {
-                    contentOffsetObservation = contentView.observeChanges(for: \.bounds) { [weak self] old, new in
-                        guard let self = self, self.contentOffset != old.origin else { return }
-                        self.previousContentOffset = old.origin
+                    previousContentOffset = contentOffset
+                    contentView.postsBoundsChangedNotifications = true
+                    contentOffsetNotificationToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: contentView) { [weak self] notification in
+                        guard let self = self, self.contentOffset != self.previousContentOffset else { return }
+                        self.isChangingContentOffset = true
                         self.willChangeValue(for: \.contentOffset)
-                        self.previousContentOffset = nil
+                        self.isChangingContentOffset = false
+                        self.previousContentOffset = self.contentOffset
                         self.didChangeValue(for: \.contentOffset)
                     }
                 } else {
-                    contentOffsetObservation = nil
+                    contentOffsetNotificationToken = nil
                 }
             }
         }
@@ -112,7 +115,7 @@
          The value can be animated via `animator()`.
          */
         @objc dynamic open var contentOffset: CGPoint {
-            get { previousContentOffset ?? documentVisibleRect.origin }
+            get { isChangingContentOffset ? previousContentOffset : documentVisibleRect.origin }
             set {
                 guard newValue.x.isFinite, newValue.y.isFinite else { return }
                 NSView.swizzleAnimationForKey()
