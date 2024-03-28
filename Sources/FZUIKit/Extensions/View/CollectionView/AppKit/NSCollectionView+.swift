@@ -80,10 +80,11 @@
 
         /**
          Changes the collection view layout animated.
+         
          - Parameters:
-            - layout: The new collection view layout.
-            - animationDuration: The animation duration.
-            - completion: The completion handler that gets called when the animation is completed.
+            - layout: The new layout object for the collection view.
+            - animationDuration: The duration for the collection view animating changes from the current layout to the new layout. Specify a value of `0.0` to make the change without animations.
+            - completion: The completion handler that gets called when the layout transition finishes
          */
         func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animationDuration: CGFloat, completion: (() -> Void)? = nil) {
             if animationDuration > 0.0 {
@@ -95,6 +96,18 @@
                 collectionViewLayout = layout
                 completion?()
             }
+        }
+        
+        /**
+         Changes the collection view layout.
+         
+         - Parameters:
+            - layout: The new layout object for the collection view.
+            - animated: A Boolean value indicating whether the collection view should animate changes from the current layout to the new layout.
+            - completion: The completion handler that gets called when the layout transition finishes
+         */
+        func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animated: Bool, completion: (() -> Void)? = nil) {
+            setCollectionViewLayout(layout, animationDuration: animated ? 0.2 : 0.0, completion: completion)
         }
 
         /**

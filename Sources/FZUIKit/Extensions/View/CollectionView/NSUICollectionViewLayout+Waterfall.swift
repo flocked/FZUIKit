@@ -52,7 +52,7 @@
             func setupPinch() {
                 guard let collectionView = collectionView else { return }
                 if isPinchable, collectionView.pinchColumnsGestureRecognizer == nil {
-                    collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer(target: nil, action: nil)
+                    collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
                     collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
                 } else if !isPinchable, let gestureRecognizer = collectionView.pinchColumnsGestureRecognizer {
                     collectionView.removeGestureRecognizer(gestureRecognizer)
@@ -431,13 +431,6 @@ protocol PinchableCollectionViewLayout: AnyObject {
     var isPinchable: Bool { get }
 }
 
-extension NSUICollectionView {
-    var pinchColumnsGestureRecognizer: PinchColumnsGestureRecognizer? {
-        get { getAssociatedValue("pinchColumnsGestureRecognizer", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "pinchColumnsGestureRecognizer") }
-    }
-}
-
 extension NSUICollectionViewLayout {
     var _columnCount: Int? {
         get { getAssociatedValue("columnCount", initialValue: nil) }
@@ -466,86 +459,134 @@ extension NSUICollectionViewLayout {
     
 }
 
-class PinchColumnsGestureRecognizer: NSUIMagnificationGestureRecognizer {
-    var collectionView: NSUICollectionView? {
-        view as? NSUICollectionView
+extension NSUICollectionView {
+    var pinchColumnsGestureRecognizer: PinchColumnsGestureRecognizer? {
+        get { getAssociatedValue("pinchColumnsGestureRecognizer", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "pinchColumnsGestureRecognizer") }
     }
     
-    var collectionViewLayout: NSUICollectionViewLayout? {
-        (view as? NSUICollectionView)?.collectionViewLayout
-    }
-    
-    func checkLayout() {
-        guard let collectionView = collectionView, let collectionViewLayout = collectionViewLayout else { return }
-        if !(layout?.isPinchable == true || collectionViewLayout.columnLayoutInvalidation != nil) {
-            removeFromView()
-            collectionView.pinchColumnsGestureRecognizer = nil
+    class PinchColumnsGestureRecognizer: NSUIMagnificationGestureRecognizer {
+        
+        var initalColumnCount: Int = 0
+        var previousColumnCount: Int = 0
+        var displayingIndexPaths: [IndexPath] = []
+        var delayedDisplayingReset: DispatchWorkItem?
+        var delayedCollectionViewScroll: DispatchWorkItem?
+        
+        var collectionView: NSUICollectionView? {
+            view as? NSUICollectionView
         }
-    }
-    
-    var layout:  PinchableCollectionViewLayout? {
-        if let layout = collectionViewLayout as? PinchableCollectionViewLayout, layout.isPinchable {
-            return layout
+        
+        var collectionViewLayout: NSUICollectionViewLayout? {
+            (view as? NSUICollectionView)?.collectionViewLayout
         }
-        return nil
-    }
-    
-    var columnCount: Int {
-        get { layout?.columnCount ?? collectionViewLayout?._columnCount ?? 2 }
-        set {
-            guard newValue != columnCount else { return }
-            if let layout = layout {
-                layout.columnCount = newValue
-            } else {
-                if let invalidation = collectionViewLayout?.columnLayoutInvalidation {
-                    let layout = invalidation(newValue)
-                    #if os(macOS)
-                    collectionView?.setCollectionViewLayout(layout, animationDuration: collectionViewLayout?.animateColumnChanges == true ? 0.2 : 0.0)
-                    #else
-                    collectionView?.setCollectionViewLayout(layout, animated: collectionViewLayout?.animateColumnChanges == true)
-                    #endif
+        
+        var pinchLayout: PinchableCollectionViewLayout? {
+            if let layout = collectionViewLayout as? PinchableCollectionViewLayout, layout.isPinchable {
+                return layout
+            }
+            return nil
+        }
+        
+        var columnCount: Int {
+            get { pinchLayout?.columnCount ?? collectionViewLayout?._columnCount ?? 2 }
+            set {
+                guard newValue != columnCount else { return }
+                if let pinchLayout = pinchLayout {
+                    pinchLayout.columnCount = newValue
+                } else if let collectionView = collectionView, let layout = collectionViewLayout?.columnLayoutInvalidation?(newValue) {
+                    collectionView.setCollectionViewLayout(layout, animated: collectionViewLayout?.animateColumnChanges == true)
                 }
             }
         }
-    }
-    
-    var minColumnCount: Int {
-        get { layout?.minColumnCount ?? collectionViewLayout?._minColumnCount ?? 2 }
-    }
-    
-    var maxColumnCount: Int {
-        get { layout?.maxColumnCount ?? collectionViewLayout?._maxColumnCount ?? 100000 }
-    }
-    
-    #if os(macOS)
-    override func keyDown(with event: NSEvent) {
-        guard collectionView != nil else { return }
-        checkLayout()
-        if event.keyCode == 44 {
-            columnCount = (columnCount + 1).clamped(to: minColumnCount...maxColumnCount)
-        } else if event.keyCode == 30 {
-            columnCount = (columnCount - 1).clamped(to: minColumnCount...maxColumnCount)
+        
+        var minColumnCount: Int {
+            pinchLayout?.minColumnCount ?? collectionViewLayout?._minColumnCount ?? 2
         }
-        super.keyDown(with: event)
-    }
-    #endif
-    
-    var initalColumnCount: Int = 0
-    override var state: NSUIGestureRecognizer.State {
-        didSet {
-            guard collectionView != nil else { return }
-            checkLayout()
-            switch state {
-            case .began:
-                initalColumnCount = columnCount
-            case .changed:
-                #if os(macOS)
-                columnCount = ((initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
-                #else
-                columnCount = ((initalColumnCount + Int((scale/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
-                #endif
-            default: break
+        
+        var maxColumnCount: Int {
+            pinchLayout?.maxColumnCount ?? collectionViewLayout?._maxColumnCount ?? 100000
+        }
+        
+        #if os(macOS)
+        override func keyDown(with event: NSEvent) {
+            super.keyDown(with: event)
+            guard hasPinchableLayout, (event.keyCode == 44 || event.keyCode == 30) else { return }
+            let newColumnCount = (event.keyCode == 44 ? (columnCount + 1) : (columnCount - 1)).clamped(to: minColumnCount...maxColumnCount)
+            guard newColumnCount != columnCount else { return }
+            updateDisplayingIndexPaths()
+            columnCount = newColumnCount
+            scrollToDisplayingIndexPaths()
+            displayingIndexPaths.removeAll()
+        }
+        #endif
+        
+        var _hasPinchableLayout = true
+        override var state: NSUIGestureRecognizer.State {
+            didSet {
+                switch state {
+                case .began:
+                    _hasPinchableLayout = hasPinchableLayout
+                    guard _hasPinchableLayout else { return }
+                    initalColumnCount = columnCount
+                    previousColumnCount = initalColumnCount
+                    updateDisplayingIndexPaths()
+                case .changed:
+                    guard _hasPinchableLayout else { return }
+                    #if os(macOS)
+                    let newCount = ((initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
+                    #else
+                    let newCount = ((initalColumnCount + Int((scale/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
+                    #endif
+                    delayedCollectionViewScroll?.cancel()
+                    columnCount = newCount
+                    guard !displayingIndexPaths.isEmpty else { return }
+                    if newCount < previousColumnCount {
+                        let task = DispatchWorkItem { [weak self] in
+                            guard let self = self else { return }
+                            self.scrollToDisplayingIndexPaths()
+                        }
+                        delayedCollectionViewScroll = task
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: task)
+                    } else if newCount > previousColumnCount {
+                        scrollToDisplayingIndexPaths()
+                    }
+                    previousColumnCount = newCount
+                case .cancelled, .failed, .ended:
+                    guard _hasPinchableLayout, !displayingIndexPaths.isEmpty else { return }
+                    let task = DispatchWorkItem { [weak self] in
+                        guard let self = self else { return }
+                        self.displayingIndexPaths.removeAll()
+                    }
+                    delayedDisplayingReset = task
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.12, execute: task)
+                default: break
+                }
             }
+        }
+        
+        var hasPinchableLayout: Bool {
+            guard let collectionView = collectionView, let collectionViewLayout = collectionViewLayout else { return false }
+            if !(pinchLayout?.isPinchable == true || collectionViewLayout.columnLayoutInvalidation != nil) {
+                removeFromView()
+                collectionView.pinchColumnsGestureRecognizer = nil
+                return false
+            }
+            return true
+        }
+        
+        func updateDisplayingIndexPaths() {
+            delayedCollectionViewScroll?.cancel()
+            displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
+        }
+        
+        func scrollToDisplayingIndexPaths() {
+            guard !displayingIndexPaths.isEmpty, let collectionView = collectionView else { return }
+            #if os(macOS)
+            collectionView.scrollToItems(at: Set(self.displayingIndexPaths), scrollPosition: .centeredVertically)
+            #else
+            collectionView.scrollToItems(at: Set(self.displayingIndexPaths), at: .centeredVertically)
+            #endif
         }
     }
 }

@@ -207,7 +207,7 @@
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
                         if let collectionView = (object as? NSUICollectionViewLayout)?.collectionView, collectionView.pinchColumnsGestureRecognizer == nil {
-                            collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer(target: nil, action: nil)
+                            collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
                             collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
                         }
                         store.original(object, NSSelectorFromString("prepareLayout"))

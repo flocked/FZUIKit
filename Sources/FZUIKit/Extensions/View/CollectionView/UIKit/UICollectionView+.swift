@@ -21,6 +21,28 @@
             let visibleRect = frame.intersection(superview?.bounds ?? frame)
             return visibleCells.filter { $0.frame.intersects(visibleRect) }
         }
+        
+        var centerIndexPath: IndexPath? {
+            let centerPoint = frame.intersection(superview?.bounds ?? frame).center
+            if let cell = visibleCells.first(where: { $0.frame.contains(centerPoint) }) {
+                return indexPath(for: cell)
+            }
+            let displayingIndexPath = displayingIndexPaths()
+            guard !displayingIndexPath.isEmpty else { return nil }
+            let index = Int((Double(displayingIndexPath.count) / 2.0).rounded(.toPlaces(0)))
+            return displayingIndexPath[safe: index]
+        }
+        
+        func scrollToItems(at indexPaths: Set<IndexPath>, at scrollPosition: UICollectionView.ScrollPosition, animated: Bool = false) {
+            let indexPaths = indexPaths.compactMap({ if let frame = layoutAttributesForItem(at: $0)?.frame { return (indexPath: $0, frame: frame) } else { return nil }})
+            guard !indexPaths.isEmpty else { return }
+            let frames = indexPaths.compactMap({$0.frame})
+            if let index = frames.indexOfCenteredRect(), let indexPath = indexPaths[safe: index]?.indexPath {
+                scrollToItem(at: indexPath, at: scrollPosition, animated: animated)
+            } else {
+                scrollRectToVisible(frames.union(), animated: animated)
+            }
+        }
 
         /**
          The handlers for the displaying cells.
@@ -97,5 +119,16 @@
             }
         }
     }
+
+fileprivate extension CGRect {
+    func contains(any points: [CGPoint]) -> Bool {
+        for point in points {
+            if contains(point) {
+                return true
+            }
+        }
+        return false
+    }
+}
 
 #endif

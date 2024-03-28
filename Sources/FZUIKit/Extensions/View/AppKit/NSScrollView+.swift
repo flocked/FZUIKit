@@ -12,6 +12,56 @@
     import FZSwiftUtils
 
     extension NSScrollView {
+        var contentOffsetNotificationToken: NotificationToken? {
+            get { getAssociatedValue("contentOffsetNotificationToken", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "contentOffsetNotificationToken")}
+        }
+        
+        var contentOffsetObservation: KeyValueObservation? {
+            get { getAssociatedValue("contentOffsetObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "contentOffsetObservation")}
+        }
+        
+        var previousContentOffset: CGPoint? {
+            get { getAssociatedValue("previousContentOffset", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "previousContentOffset")}
+        }
+        
+        public var contentOffsetIsObservable: Bool {
+            get { getAssociatedValue("contentOffsetIsObservable", initialValue: false) }
+            set {
+                guard newValue != contentOffsetIsObservable else { return}
+                setAssociatedValue(newValue, key: "contentOffsetIsObservable")
+                if newValue {
+                    contentOffsetObservation = contentView.observeChanges(for: \.bounds) { [weak self] old, new in
+                        guard let self = self, self.contentOffset != old.origin else { return }
+                        self.previousContentOffset = old.origin
+                        self.willChangeValue(for: \.contentOffset)
+                        self.previousContentOffset = nil
+                        self.didChangeValue(for: \.contentOffset)
+                    }
+                } else {
+                    contentOffsetObservation = nil
+                }
+            }
+        }
+        
+        public var contentOffsetHandler: ((_ contentOffset: CGPoint)->())? {
+            get { getAssociatedValue("contentOffsetHandler", initialValue: nil) }
+            set {
+                setAssociatedValue(newValue, key: "contentOffsetHandler")
+                if let handler = newValue {
+                    contentView.postsBoundsChangedNotifications = true
+                    contentOffsetNotificationToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: contentView) { [weak self] notification in
+                        guard let self = self else { return }
+                        handler(self.contentOffset)
+                    }
+                } else {
+                    contentOffsetNotificationToken = nil
+                }
+            }
+        }
+        
         /// Scrolls the scroll view to the top.
         public func scrollToTop(animationDuration: TimeInterval? = nil) {
             var contentOffset = contentOffset
@@ -62,7 +112,7 @@
          The value can be animated via `animator()`.
          */
         @objc open var contentOffset: CGPoint {
-            get { documentVisibleRect.origin }
+            get { previousContentOffset ?? documentVisibleRect.origin }
             set {
                 guard newValue.x.isFinite, newValue.y.isFinite else { return }
                 NSView.swizzleAnimationForKey()
