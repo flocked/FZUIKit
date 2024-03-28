@@ -17,6 +17,7 @@
     #endif
 
     public extension NSUICollectionViewLayout {
+        #if os(macOS) || os(iOS)
         /**
          Creates a waterfall collection view layout with the specifed amount of columns.
          
@@ -26,49 +27,73 @@
             - insets: The layout insets.
             - itemSizeProvider: The handler that provides the item sizes..
          */
-        static func waterfall(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), isPinchable: Bool = false, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> WaterfallLayout {
-            let layout = WaterfallLayout(columnCount: columnCount, isPinchable: isPinchable, itemSizeProvider: itemSizeProvider)
+        static func waterfall(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> WaterfallLayout {
+            let layout = WaterfallLayout(columnCount: columnCount, isPinchable: false, itemSizeProvider: itemSizeProvider)
             layout.minimumInteritemSpacing = spacing
             layout.minimumColumnSpacing = spacing
             layout.sectionInset = insets
             return layout
         }
         
+        /**
+         A interactive waterfall layout where the user can change the amount of columns by pinching the collection view.
+
+         - Parameters:
+            - columnCount: The amount of columns.
+            - minColumns: The minimum amount of columns when pinching the collection view.
+            - maxColumns: The maximum amount of columns when pinching the collection view.
+            - spacing: The spacing between the items.
+            - insets: The layout insets.
+            - itemSizeProvider: The handler that provides the item sizes..
+         */
+        static func waterfall(columnCount: Int = 2, minColumns: Int, maxColumns: Int?, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> WaterfallLayout {
+            let layout = WaterfallLayout(columnCount: columnCount, isPinchable: true, itemSizeProvider: itemSizeProvider)
+            layout.minimumInteritemSpacing = spacing
+            layout.minimumColumnSpacing = spacing
+            layout.sectionInset = insets
+            return layout
+        }
+        #else
+        /**
+         Creates a waterfall collection view layout with the specifed amount of columns.
+         
+         - Parameters:
+            - columnCount: The amount of columns.
+            - spacing: The spacing between the items.
+            - insets: The layout insets.
+            - itemSizeProvider: The handler that provides the item sizes..
+         */
+        static func waterfall(columnCount: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> WaterfallLayout {
+            let layout = WaterfallLayout(columnCount: columnCount, itemSizeProvider: itemSizeProvider)
+            layout.minimumInteritemSpacing = spacing
+            layout.minimumColumnSpacing = spacing
+            layout.sectionInset = insets
+            return layout
+        }
+        #endif
+        
         class WaterfallLayout: NSUICollectionViewLayout, PinchableCollectionViewLayout {            
             public typealias ItemSizeProvider = (IndexPath) -> CGSize
 
+            #if os(macOS) || os(iOS)
             public convenience init(columnCount: Int = 2, isPinchable: Bool = false, itemSizeProvider: @escaping ItemSizeProvider) {
                 self.init()
                 self.itemSizeProvider = itemSizeProvider
                 self.isPinchable = isPinchable
             }
+            #else
+            public convenience init(columnCount: Int = 2, itemSizeProvider: @escaping ItemSizeProvider) {
+                self.init()
+                self.itemSizeProvider = itemSizeProvider
+            }
+            #endif
 
             open var itemSizeProvider: ItemSizeProvider? {
                 didSet { invalidateLayout() }
             }
             
+            #if os(macOS) || os(iOS)
             open var isPinchable: Bool = false
-            
-            func setupPinch() {
-                guard let collectionView = collectionView else { return }
-                if isPinchable, collectionView.pinchColumnsGestureRecognizer == nil {
-                    collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
-                    collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
-                } else if !isPinchable, let gestureRecognizer = collectionView.pinchColumnsGestureRecognizer {
-                    collectionView.removeGestureRecognizer(gestureRecognizer)
-                    collectionView.pinchColumnsGestureRecognizer = nil
-                }
-            }
-
-            open var columnCount: Int = 2 {
-                didSet {
-                    columnCount = columnCount.clamped(min: minColumnCount)
-                    if let maxColumnCount = maxColumnCount {
-                        columnCount = columnCount.clamped(to: 0...maxColumnCount)
-                    }
-                    guard oldValue != columnCount else { return }
-                    invalidateLayout(animated: animationDuration ?? 0.0) }
-            }
             
             open var minColumnCount: Int = 1 {
                 didSet {
@@ -85,6 +110,32 @@
                         columnCount = maxColumnCount
                     }
                 }
+            }
+            
+            func setupPinch() {
+                guard let collectionView = collectionView else { return }
+                if isPinchable, collectionView.pinchColumnsGestureRecognizer == nil {
+                    collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
+                    collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
+                } else if !isPinchable, let gestureRecognizer = collectionView.pinchColumnsGestureRecognizer {
+                    collectionView.removeGestureRecognizer(gestureRecognizer)
+                    collectionView.pinchColumnsGestureRecognizer = nil
+                }
+            }
+            #else
+            var minColumnCount = 0
+            var maxColumnCount: Int? = nil
+            var isPinchable = false
+            #endif
+
+            open var columnCount: Int = 2 {
+                didSet {
+                    columnCount = columnCount.clamped(min: minColumnCount)
+                    if let maxColumnCount = maxColumnCount {
+                        columnCount = columnCount.clamped(to: 0...maxColumnCount)
+                    }
+                    guard oldValue != columnCount else { return }
+                    invalidateLayout(animated: animationDuration ?? 0.0) }
             }
 
             open var minimumColumnSpacing: CGFloat = 10 {
@@ -209,8 +260,9 @@
             
             override public func prepare() {
                 super.prepare()
-                
+                #if os(macOS) || os(iOS)
                 setupPinch()
+                #endif
                 let numberOfSections = collectionView!.numberOfSections
                 if numberOfSections == 0 {
                     return
@@ -431,6 +483,7 @@ protocol PinchableCollectionViewLayout: AnyObject {
     var isPinchable: Bool { get }
 }
 
+#if os(macOS) || os(iOS)
 extension NSUICollectionViewLayout {
     var _columnCount: Int? {
         get { getAssociatedValue("columnCount", initialValue: nil) }
@@ -590,4 +643,5 @@ extension NSUICollectionView {
         }
     }
 }
+#endif
 #endif

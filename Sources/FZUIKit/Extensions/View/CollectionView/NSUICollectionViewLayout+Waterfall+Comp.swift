@@ -54,6 +54,7 @@
             return layout
         }
         
+        #if os(macOS) || os(iOS)
         /**
          A interactive waterfall collection view layout where the user can change the amount of columns by pinching the collection view.
          
@@ -74,8 +75,7 @@
             }
             return layout
         }
-        
-
+        #endif
     }
 
     public class LayoutItemProvider {

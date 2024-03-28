@@ -94,9 +94,10 @@ import SwiftUI
     public typealias NSUIScrollView = UIScrollView
     public typealias NSUITextView = UITextView
     public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
-    public typealias NSUIMagnificationGestureRecognizer = UIPinchGestureRecognizer
     public typealias NSUIScreen = UIScreen
     public typealias NSUIGestureRecognizer = UIGestureRecognizer
     public typealias NSUIButton = UIButton
-
+    #if os(iOS)
+    public typealias NSUIMagnificationGestureRecognizer = UIPinchGestureRecognizer
+    #endif
 #endif

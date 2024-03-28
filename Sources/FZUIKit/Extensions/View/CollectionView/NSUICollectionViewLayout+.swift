@@ -176,6 +176,7 @@
             }
         }
         
+        #if os(macOS) || os(iOS)
         /**
          A interactive grid layout where the user can change the amount of columns by pinching the collection view.
          
@@ -221,5 +222,6 @@
                 Swift.debugPrint(error)
             }
         }
+        #endif
     }
 #endif
