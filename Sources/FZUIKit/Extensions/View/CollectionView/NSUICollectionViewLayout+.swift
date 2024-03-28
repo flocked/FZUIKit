@@ -198,7 +198,7 @@
                methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                    object in
-                   Swift.print("prepare grid", (object as? NSCollectionViewLayout)?.collectionView != nil)
+                   Swift.print("prepare grid", (object as? NSCollectionViewLayout)?.collectionView != nil, (object as? NSCollectionViewLayout)?._minColumnCount != nil, (object as? NSCollectionViewLayout)?._maxColumnCount != nil, (object as? NSCollectionViewLayout)?._columnCount != nil, (object as? NSCollectionViewLayout)?.columnLayoutInvalidation != nil)
                    if let collectionView = (object as? NSCollectionViewLayout)?.collectionView, collectionView.pinchColumnsGestureRecognizer == nil {
                        collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer()
                        collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
