@@ -207,8 +207,6 @@
                 return floor((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columnCount))
             }
             
-            
-
             override public func prepare() {
                 super.prepare()
                 
@@ -431,6 +429,7 @@ protocol PinchableCollectionViewLayout: AnyObject {
     var columnCount: Int { get set }
     var minColumnCount: Int { get }
     var maxColumnCount: Int? { get }
+    var isPinchable: Bool { get }
 }
 
 extension NSCollectionView {
@@ -440,13 +439,68 @@ extension NSCollectionView {
     }
 }
 
+extension NSCollectionViewLayout {
+    var _columnCount: Int? {
+        get { getAssociatedValue("columnCount", initialValue: nil) }
+        set {
+            guard newValue != _columnCount else { return }
+            setAssociatedValue(newValue, key: "columnCount")
+            if let newValue = newValue, let layout = columnLayoutInvalidation?(newValue) {
+                collectionView?.setCollectionViewLayout(layout, animationDuration: 0.2)
+            }
+        }
+    }
+    
+    var _minColumnCount: Int? {
+        get { getAssociatedValue("minColumnCount", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "minColumnCount") }
+    }
+    
+    var _maxColumnCount: Int? {
+        get { getAssociatedValue("maxColumnCount", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "maxColumnCount") }
+    }
+    
+    var columnLayoutInvalidation: ((_ columnCount: Int)->(NSCollectionViewLayout))? {
+        get { getAssociatedValue("maxColumnCount", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "maxColumnCount") }
+    }
+    
+}
+
 class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
     var collectionView: NSCollectionView? {
         view as? NSCollectionView
     }
     
+    var collectionViewLayout: NSCollectionViewLayout? {
+        (view as? NSCollectionView)?.collectionViewLayout
+    }
+    
     var layout:  PinchableCollectionViewLayout? {
-        collectionView?.collectionViewLayout as? PinchableCollectionViewLayout
+        if let layout = collectionViewLayout as? PinchableCollectionViewLayout, layout.isPinchable {
+            return layout
+        }
+        return nil
+    }
+    
+    var columnCount: Int {
+        get { layout?.columnCount ?? collectionViewLayout?._columnCount ?? 2 }
+        set {
+            if let layout = layout {
+                layout.columnCount = newValue
+            } else {
+                collectionViewLayout?._columnCount = newValue
+            }
+        }
+    }
+    
+    var minColumnCount: Int {
+        get { layout?.minColumnCount ?? collectionViewLayout?._minColumnCount ?? 2 }
+    }
+    
+    var maxColumnCount: Int {
+        get { layout?.maxColumnCount ?? collectionViewLayout?._maxColumnCount ?? 100000 }
     }
     
     init() {
@@ -458,12 +512,11 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
     }
     
     override func keyDown(with event: NSEvent) {
-        if let layout = layout {
-            if event.keyCode == 44 {
-                layout.columnCount += 1
-            } else if event.keyCode == 30 {
-                layout.columnCount -= 1
-            }
+        guard collectionView != nil else { return }
+        if event.keyCode == 44 {
+            columnCount = (columnCount + 1).clamped(to: minColumnCount...maxColumnCount)
+        } else if event.keyCode == 30 {
+            columnCount = (columnCount - 1).clamped(to: minColumnCount...maxColumnCount)
         }
         super.keyDown(with: event)
     }
@@ -471,15 +524,12 @@ class PinchColumnsGestureRecognizer: NSMagnificationGestureRecognizer {
     var initalColumnCount: Int = 0
     override var state: NSGestureRecognizer.State {
         didSet {
-            guard let layout = layout else { return }
+            guard collectionView != nil else { return }
             switch state {
             case .began:
-                initalColumnCount = layout.columnCount
+                initalColumnCount = columnCount
             case .changed:
-                let newRowCount = ((self.initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: layout.minColumnCount...(layout.maxColumnCount ?? 1000000) ))
-                if (newRowCount != initalColumnCount) {
-                    layout.columnCount = newRowCount
-                }
+                columnCount = ((initalColumnCount + Int((magnification/(-0.5)).rounded())).clamped(to: minColumnCount...maxColumnCount))
             default: break
             }
         }

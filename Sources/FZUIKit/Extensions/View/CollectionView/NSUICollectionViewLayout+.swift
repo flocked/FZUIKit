@@ -129,7 +129,7 @@
          A collection view layout that displays the items in a grid.
          
          - Parameters:
-            - columns: The amount o columns for the grid.
+            - columns: The amount of columns for the grid.
             - itemAspectRatio: The aspect ratio of the items.
             - spacing: The spacing between the items.
             - insets: The insets of the layout.
@@ -175,5 +175,48 @@
                 return section
             }
         }
+        
+        #if os(macOS)
+        /**
+         A interactive grid layout where the user can change the amount of columns.
+         
+         - Parameters:
+            - columns: The amount of columns for the grid.
+            - minColumns: The minimum amount of columns
+            - maxColumns: The maximum amount of columns.
+            - itemAspectRatio: The aspect ratio of the items.
+            - spacing: The spacing between the items.
+            - insets: The insets of the layout.
+            - header: The layout's supplementary header type.
+            - footer: The layout's supplementary footer type.
+         */
+        static func grid(columns: Int = 3, minColumns: Int, maxColumns: Int?, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
+            let layout = grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+            do {
+               try layout.replaceMethod(
+                NSSelectorFromString("prepareLayout"),
+               methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+               hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+                   object in
+                   Swift.print("prepare grid", (object as? NSCollectionViewLayout)?.collectionView != nil)
+                   if let collectionView = (object as? NSCollectionViewLayout)?.collectionView, collectionView.pinchColumnsGestureRecognizer == nil {
+                       collectionView.pinchColumnsGestureRecognizer = PinchColumnsGestureRecognizer()
+                       collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
+                   }
+                   store.original(object, NSSelectorFromString("prepareLayout"))
+                   }
+               }
+                layout._columnCount = columns
+                layout._minColumnCount = minColumns
+                layout._maxColumnCount = maxColumns
+                layout.columnLayoutInvalidation = { columns in
+                    return NSCollectionViewLayout.grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+                }
+            } catch {
+               Swift.debugPrint(error)
+            }
+            return layout
+        }
+        #endif
     }
 #endif
