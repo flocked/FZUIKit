@@ -11,6 +11,7 @@
     import QuartzCore
     import simd
 
+
     /**
      This whole file exists basically because SIMD doesn't support CGFloat and without this file, you'd be doing things like `transform.position.x = Double(value)` :(
      So everything here just bridges CGFloats to Doubles and uses their simd equivalents.
@@ -67,6 +68,7 @@ extension CGVector3:  Hashable {
         CGVector3(0, 0, 0)
     }
 }
+
 
 
     // MARK: - ExpressibleByArrayLiteral

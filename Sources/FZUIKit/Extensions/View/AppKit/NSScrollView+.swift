@@ -409,6 +409,47 @@
        public func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
            contentOffsetFractional = scrollPosition.offset
         }
+              
+        /// The handlers for the scroll view.
+        public var handlers: Handlers {
+            get { getAssociatedValue("scrollViewHandlers", initialValue: Handlers()) }
+            set {
+                setAssociatedValue(newValue, key: "scrollViewHandlers")
+                func setup(_ keyPath: KeyPath<NSScrollView, (()->())?>, notification: Notification.Name) {
+                    if let handler = self[keyPath: keyPath] {
+                        scrollViewTokens[notification] = NotificationCenter.default.observe(notification, object: self) { _ in
+                            handler()
+                        }
+                    } else {
+                        scrollViewTokens[notification] = nil
+                    }
+                }
+                setup(\.handlers.userWillStartMagnify, notification: NSScrollView.willStartLiveMagnifyNotification)
+                setup(\.handlers.userDidEndMagnify, notification: NSScrollView.didEndLiveMagnifyNotification)
+                setup(\.handlers.userWillStartScroll, notification: NSScrollView.willStartLiveScrollNotification)
+                setup(\.handlers.userDidEndScroll, notification: NSScrollView.didEndLiveScrollNotification)
+                setup(\.handlers.userDidScroll, notification: NSScrollView.didLiveScrollNotification)
+            }
+        }
+        
+        /// The handlers for the scroll view.
+        public struct Handlers {
+            /// The handler that gets called at the beginning of a user-initiated magnify gesture.
+            public var userWillStartMagnify: (()->())?
+            /// The handler that gets called at the end of a user-initiated magnify gesture.
+            public var userDidEndMagnify: (()->())?
+            /// The handler that gets called at the beginning of a user-initiated scroll (gesture scroll or scroller tracking).
+            public var userWillStartScroll: (()->())?
+            /// The handler that gets called after the clipview bounds origin changed due to a user-initiated scroll.
+            public var userDidScroll: (()->())?
+            /// The handler that gets called at the end of a user-initiated scroll (gesture scroll or scroller tracking).
+            public var userDidEndScroll: (()->())?
+        }
+        
+        var scrollViewTokens: [Notification.Name : NotificationToken] {
+            get { getAssociatedValue("scrollViewTokens", initialValue: [:]) }
+            set { setAssociatedValue(newValue, key: "scrollViewTokens") }
+        }
     }
 
 #endif

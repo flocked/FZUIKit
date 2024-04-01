@@ -14,24 +14,43 @@
 
     public extension NSUIView {
         /**
-         The visual effect background of the view.
+         The visual effect of the view.
 
-         The property adds a `NSVisualEffectView` as background to the view. The default value is `nil`.
+         The property adds a `VisualEffectView` as background to the view. The default value is `nil`.
          */
         var visualEffect: VisualEffectConfiguration? {
             get {
-                visualEffectBackgroundView?.contentProperties
+                #if os(macOS)
+                if let view = self as? NSVisualEffectView {
+                    return VisualEffectConfiguration(material: view.material, blendingMode: view.blendingMode, appearance: view.appearance, state: view.state, isEmphasized: view.isEmphasized, maskImage: view.maskImage)
+                }
+                #endif
+               return visualEffectBackgroundView?.contentProperties
             }
             set {
                 if let newValue = newValue {
+                    #if os(macOS)
+                    if let view = self as? NSVisualEffectView {
+                        view.material = newValue.material
+                        view.blendingMode = newValue.blendingMode
+                        view.state = newValue.state
+                        view.isEmphasized = newValue.isEmphasized
+                        view.maskImage = newValue.maskImage
+                        view.appearance = newValue.appearance
+                    } else {
+                        if visualEffectBackgroundView == nil {
+                            visualEffectBackgroundView = TaggedVisualEffectView()
+                        }
+                        visualEffectBackgroundView?.contentProperties = newValue
+                        if let appearance = newValue.appearance {
+                            self.appearance = appearance
+                        }
+                    }
+                    #else
                     if visualEffectBackgroundView == nil {
                         visualEffectBackgroundView = TaggedVisualEffectView()
                     }
                     visualEffectBackgroundView?.contentProperties = newValue
-                    #if os(macOS)
-                        if let appearance = newValue.appearance {
-                            self.appearance = appearance
-                        }
                     #endif
                 } else {
                     visualEffectBackgroundView = nil

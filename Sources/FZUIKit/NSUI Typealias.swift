@@ -52,6 +52,7 @@ import SwiftUI
     public typealias NSUIMagnificationGestureRecognizer = NSMagnificationGestureRecognizer
     public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
     public typealias NSUIButton = NSButton
+    public typealias NSUIPasteboard = NSPasteboard
 
 #elseif canImport(UIKit)
     import UIKit
@@ -98,6 +99,7 @@ import SwiftUI
     public typealias NSUIGestureRecognizer = UIGestureRecognizer
     public typealias NSUIButton = UIButton
     #if os(iOS)
+    public typealias NSUIPasteboard = UIPasteboard
     public typealias NSUIMagnificationGestureRecognizer = UIPinchGestureRecognizer
     #endif
 #endif
