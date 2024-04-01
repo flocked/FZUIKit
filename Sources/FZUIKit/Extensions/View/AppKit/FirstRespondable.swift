@@ -12,7 +12,7 @@ import AppKit
 public protocol FirstRespondable: NSUIResponder {
     
     /**
-     Returns a Boolean value indicating whether this object is the first responder.
+     Returns a Boolean value that indicates whether this object is the first responder.
      
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      

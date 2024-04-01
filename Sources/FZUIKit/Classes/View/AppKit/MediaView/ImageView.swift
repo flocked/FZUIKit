@@ -448,7 +448,7 @@ open class ImageView: NSControl {
         setImageFrame(to: .first)
     }
 
-    /// Returns a Boolean value indicating whether the animation is running.
+    /// Returns a Boolean value that indicates whether the animation is running.
     open var isAnimating: Bool {
         timer != nil
     }

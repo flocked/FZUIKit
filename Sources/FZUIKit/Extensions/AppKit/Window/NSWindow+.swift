@@ -10,6 +10,7 @@
     import FZSwiftUtils
 
     extension NSWindow {
+        
         /// Handlers for the window.
         public struct Handlers {
             /// The handler that gets called when the window’s key state changes.
@@ -272,6 +273,36 @@
                 contentView?.visualEffect = newValue
                 appearance = visualEffect?.appearance ?? appearance
             }
+        }
+        
+        /// The close button.
+        public var closeButton: NSButton? {
+            standardWindowButton(.closeButton)
+        }
+        
+        /// The minimize button.
+        public var miniaturizeButton: NSButton? {
+            standardWindowButton(.miniaturizeButton)
+        }
+        
+        /// The zoom button.
+        public var zoomButton: NSButton? {
+            standardWindowButton(.zoomButton)
+        }
+        
+        /// The toolbar button.
+        public var toolbarButton: NSButton? {
+            standardWindowButton(.toolbarButton)
+        }
+        
+        /// The document icon button.
+        public var documentIconButton: NSButton? {
+            standardWindowButton(.documentIconButton)
+        }
+        
+        /// The document versions button.
+        public var documentVersionsButton: NSButton? {
+            standardWindowButton(.documentVersionsButton)
         }
         
         /**
