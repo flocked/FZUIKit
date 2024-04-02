@@ -93,7 +93,7 @@
                 mask.insert(.leftMouseUp)
             }
 
-            if onRightClick != nil || rightClickMenu != nil {
+            if onRightClick != nil || rightClickMenu != nil || rightClickMenuProvider != nil {
                 mask.insert(.rightMouseUp)
             }
             
