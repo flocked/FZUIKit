@@ -106,7 +106,7 @@
             }
 
             button?.sendAction(on: mask)
-            if onClick != nil || onRightClick != nil || onMouseHold != nil || onRightMouseHold != nil || rightClickMenu != nil {
+            if onClick != nil || onRightClick != nil || onMouseHold != nil || onRightMouseHold != nil || rightClickMenu != nil || rightClickMenuProvider != nil {
                 button?.actionBlock = { [weak self] button in
                     guard let self = self, let event = NSApp.currentEvent else { return }
                     switch event.type {
