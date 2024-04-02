@@ -7,14 +7,15 @@
 
 #if os(macOS)
     import AppKit
+import FZSwiftUtils
 
-    public extension NSSplitViewController {
+    extension NSSplitViewController {
         /**
          A Boolean value that indicates whether the sidebar is visible.
          
          If the split view doesn't contain a sidebar, it returns `false`.
          */
-        var isSidebarVisible: Bool {
+       @objc public dynamic var isSidebarVisible: Bool {
             get {
                 guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first else { return false }
                 return !sidebarItem.isCollapsed
@@ -23,6 +24,11 @@
                 guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first, newValue != !sidebarItem.isCollapsed else { return }
                 toggleSidebar(nil)
             }
+        }
+        
+        var _isSidebarVisible: Bool {
+            get { getAssociatedValue("_isSidebarVisible", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "_isSidebarVisible") }
         }
     }
 
