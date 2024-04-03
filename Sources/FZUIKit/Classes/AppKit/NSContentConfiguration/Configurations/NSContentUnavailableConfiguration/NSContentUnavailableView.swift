@@ -61,8 +61,8 @@
             backgroundView.configuration = appliedConfiguration.background
             hostingView.rootView = ContentView(configuration: appliedConfiguration)
             
-            hostingView.frame.origin.x = appliedConfiguration.directionalLayoutMargins.leading
-            hostingView.frame.origin.y = appliedConfiguration.directionalLayoutMargins.bottom
+            hostingView.frame.origin.x = 20
+            hostingView.frame.origin.y = 20
             hostingView.frame.size.height = bounds.height - appliedConfiguration.directionalLayoutMargins.height
             hostingView.frame.size.width = bounds.width - appliedConfiguration.directionalLayoutMargins.width
             backgroundView.frame = hostingView.frame
