@@ -59,6 +59,7 @@
 
         func updateConfiguration() {
             backgroundView.configuration = appliedConfiguration.background
+            Swift.print(appliedConfiguration.background.color, appliedConfiguration.background.visualEffect != nil)
             hostingView.rootView = ContentView(configuration: appliedConfiguration)
             
             hostingView.frame.origin.x = appliedConfiguration.directionalLayoutMargins.leading
