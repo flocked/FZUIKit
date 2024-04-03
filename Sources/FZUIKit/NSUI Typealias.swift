@@ -32,7 +32,6 @@ import SwiftUI
     public typealias NSUIViewController = NSViewController
     public typealias NSUIHostingController = NSHostingController
     public typealias NSUIStackView = NSStackView
-    public typealias NSUIRectCorner = NSRectCorner
     @available(macOS 11.0, *)
     public typealias NSUIImageSymbolScale = NSImage.SymbolScale
     @available(macOS 11.0, *)
@@ -63,7 +62,6 @@ import SwiftUI
     public typealias NSUIFontDescriptor = UIFontDescriptor
     public typealias NSUIFontTextStyle = UIFont.TextStyle
     public typealias NSUIImage = UIImage
-    public typealias NSUIRectCorner = UIRectCorner
     public typealias NSUIImageSymbolScale = UIImage.SymbolScale
     public typealias NSUIImageSymbolWeight = UIImage.SymbolWeight
 #endif

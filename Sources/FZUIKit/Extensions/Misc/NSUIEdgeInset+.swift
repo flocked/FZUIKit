@@ -20,19 +20,6 @@ public extension CGRect {
     func inset(by edgeInsets: EdgeInsets) -> CGRect {
         inset(by: NSUIEdgeInsets(edgeInsets))
     }
-
-    func inset(by edgeInsets: NSUIEdgeInsets) -> CGRect {
-        inset(by: edgeInsets.directional)
-    }
-
-    func inset(by edgeInsets: NSDirectionalEdgeInsets) -> CGRect {
-        var result = self
-        result.origin.x += edgeInsets.leading
-        result.origin.y += edgeInsets.bottom
-        result.size.width -= edgeInsets.width
-        result.size.height -= edgeInsets.height
-        return result
-    }
 }
 
 extension NSUIEdgeInsets: Hashable {

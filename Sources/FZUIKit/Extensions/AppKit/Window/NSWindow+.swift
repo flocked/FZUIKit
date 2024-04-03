@@ -84,6 +84,38 @@
         }
         
         /**
+         Sets the size of the window’s frame rectangle according to a given size.
+
+         - Parameters:
+            - size: The frame rectangle size for the window, including the title bar.
+            - expandToBottom:A Boolean value that indicates whether the window should expand it's size to the bottom.
+            - display: Specifies whether the window redraws the views that need to be displayed. When `true` the window sends a `displayIfNeeded()` message down its view hierarchy, thus redrawing all views.
+         */
+        public func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool) {
+            setSize(size, expandToBottom: expandToBottom, display: display, animate: false)
+        }
+        
+        /**
+         Sets the size of the window’s frame rectangle, with optional animation, according to a given size.
+         
+         - Parameters:
+            - size: The frame rectangle size for the window, including the title bar.
+            - expandToBottom:A Boolean value that indicates whether the window should expand it's size to the bottom.
+            - display: Specifies whether the window redraws the views that need to be displayed. When `true` the window sends a `displayIfNeeded()` message down its view hierarchy, thus redrawing all views.
+            - animate: Specifies whether the window performs a smooth resize. `true` to perform the animation, whose duration is specified by `animationResizeTime(_:)`.
+         */
+        public func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool, animate: Bool) {
+            var frame = frame
+            frame.size = size
+            if expandToBottom {
+                frame.origin.y -= (frame.height - self.frame.height)
+            }
+            setFrame(frame, display: display)
+
+            setFrame(frame, display: display, animate: animate)
+        }
+        
+        /**
          A Boolean value that indicates whether the window is the key window for the application.
          
          It provides the same value as `isKeyWindow`, but can be KVO observed by enabling `isKeyWindowObservable`.

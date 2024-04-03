@@ -11,6 +11,7 @@ import AppKit
 #else
 import UIKit
 #endif
+import FZSwiftUtils
 
 public extension NSUIRectCorner {
     /// The bottom-left and bottom-right corner of the rectangle.
