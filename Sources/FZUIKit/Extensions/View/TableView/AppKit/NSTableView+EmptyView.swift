@@ -42,27 +42,27 @@ extension NSTableView {
     func swizzleNumberOfRowsIfNeeded() {
         if let view = (self as? NSOutlineView) {
             guard !view.didSwizzleNumberOfRowsOutline else { return }
-            _numberOfRows = numberOfRows
+            isEmpty = numberOfRows <= 0
             view.swizzleNumberOfRowsOutline()
         } else if !didSwizzleNumberOfRows {
-            _numberOfRows = numberOfRows
+            isEmpty = numberOfRows <= 0
             swizzleNumberOfRows()
         }
     }
     
     func updateEmptyView() {
-        if _numberOfRows > 0 {
+        if isEmpty == false {
             _emptyContentView.removeFromSuperview()
         } else if _emptyContentView.superview == nil {
             addSubview(withConstraint: _emptyContentView)
         }
     }
     
-    var _numberOfRows: Int {
-        get { getAssociatedValue("_numberOfRows", initialValue: .max) }
+    var isEmpty: Bool {
+        get { getAssociatedValue("isEmpty", initialValue: true) }
         set {
-            guard newValue != _numberOfRows else { return }
-            setAssociatedValue(newValue, key: "_numberOfRows")
+            guard newValue != isEmpty else { return }
+            setAssociatedValue(newValue, key: "isEmpty")
             updateEmptyView()
         }
     }
@@ -80,7 +80,7 @@ extension NSTableView {
            hookSignature: (@convention(block)  (AnyObject) -> (Int)).self) { store in {
                object in
                let numberOfRows = store.original(object, #selector(getter: NSTableView.numberOfRows))
-               (object as? NSTableView)?._numberOfRows = numberOfRows
+               (object as? NSTableView)?.isEmpty = numberOfRows <= 0
                return numberOfRows
                }
            }
@@ -104,7 +104,7 @@ extension NSOutlineView {
            hookSignature: (@convention(block)  (AnyObject) -> (Int)).self) { store in {
                object in
                let numberOfRows = store.original(object, #selector(getter: NSTableView.numberOfRows))
-               (object as? NSOutlineView)?._numberOfRows = numberOfRows
+               (object as? NSOutlineView)?.isEmpty = numberOfRows <= 0
                return numberOfRows
                }
            }

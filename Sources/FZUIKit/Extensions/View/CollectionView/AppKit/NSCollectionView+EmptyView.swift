@@ -35,7 +35,7 @@ extension NSCollectionView {
     }
     
     func updateEmptyView() {
-        if _numberOfItems > 0 {
+        if isEmpty == false {
             _emptyContentView.removeFromSuperview()
         } else if _emptyContentView.superview == nil {
             addSubview(withConstraint: _emptyContentView)
@@ -48,22 +48,22 @@ extension NSCollectionView {
     
     func swizzleNumberOfSectionsIfNeeded() {
         if datasourceObservation == nil {
-            _numberOfItems = dataSource?.numberOfItems(in: self) ?? 0
+            isEmpty = (dataSource?.numberOfItems(in: self) ?? 0) <= 0
             datasourceObservation = observeChanges(for: \.dataSource) { [weak self] old, new in
                 guard let self = self else { return }
                 old?.swizzleNumberOfSections(false)
                 new?.swizzleNumberOfSections()
-                _numberOfItems = new?.numberOfItems(in: self) ?? 0
+                self.isEmpty = (new?.numberOfItems(in: self) ?? 0) <= 0
             }
             dataSource?.swizzleNumberOfSections()
         }
     }
     
-    var _numberOfItems: Int {
-        get { getAssociatedValue("_numberOfItems", initialValue: -100) }
+    var isEmpty: Bool {
+        get { getAssociatedValue("isEmpty", initialValue: true) }
         set {
-            guard newValue != _numberOfItems else { return }
-            setAssociatedValue(newValue, key: "_numberOfItems")
+            guard newValue != isEmpty else { return }
+            setAssociatedValue(newValue, key: "isEmpty")
             updateEmptyView()
         }
     }
@@ -92,9 +92,9 @@ extension NSCollectionViewDataSource {
                         object, collectionView in
                         let numberOfSections = store.original(object, #selector(NSCollectionViewDataSource.numberOfSections(in:)), collectionView)
                         if numberOfSections <= 0 {
-                            collectionView._numberOfItems = 0
+                            collectionView.isEmpty = true
                         } else if let dataSource = object as? NSCollectionViewDataSource {
-                            collectionView._numberOfItems = dataSource.collectionView(collectionView, numberOfItemsInSection: 0)
+                            collectionView.isEmpty = dataSource.collectionView(collectionView, numberOfItemsInSection: 0) <= 0
                         }
                         return numberOfSections
                     }
