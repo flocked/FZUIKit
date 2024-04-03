@@ -83,7 +83,7 @@
 
             imageView.imageScaling = appliedConfiguration.imageScaling
 
-            contentView.backgroundColor = appliedConfiguration.resolvedColor()
+            self.backgroundColor = appliedConfiguration.resolvedColor()
             contentView.visualEffect = appliedConfiguration.visualEffect
             contentView.cornerRadius = appliedConfiguration.cornerRadius
 
