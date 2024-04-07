@@ -46,12 +46,14 @@
             return source.properties()?.loopCount ?? source.properties(at: 0)?.loopCount
         }
 
+        /// The images of an animated (e.g. GIF) image asynchronously.
+        var images: ImageSequence? {
+            bitmapImageRep?.images
+        }
+        
         /// The images of an animated (e.g. GIF) image.
-        var images: [NSUIImage]? {
-            if let images = (try? frames?.collect())?.compactMap(\.image.nsUIImage) {
-                return images
-            }
-            return nil
+        func getImages() -> [NSUIImage]? {
+            bitmapImageRep?.getImages().compactMap({$0.nsImage})
         }
 
         /// The frames of an animated (e.g. GIF) image asynchronously.
