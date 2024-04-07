@@ -456,7 +456,7 @@ open class ImageView: NSControl {
     
     var timerInterval: TimeInterval {
         if animationDuration == 0.0 {
-            return ImageSource.defaultFrameDuration
+            return ImageSource.defaultFrameDuration / Double(imagesCount)
         } else {
             return animationDuration / Double(imagesCount)
         }
@@ -476,7 +476,7 @@ open class ImageView: NSControl {
             timer?.timeInterval.seconds = timerInterval
         }
     }
-
+    
     /**
      Specifies the number of times to repeat the animation.
 
@@ -896,10 +896,9 @@ open class ImageView: NSControl {
                 duration += frameDuration
                 frames.append(Frame(nil, duration: frameDuration))
             }
-            
+            representation.currentFrame = 0
             
             DispatchQueue(label: "com.fzuikit.animatedImageQueue").async {
-                representation.currentFrame = 0
                 for index in 0..<self.count {
                     representation.currentFrame = index
                     self.frames[index] = Frame(representation.cgImage?.nsImage, duration: self.frames[index].duration)
