@@ -14,6 +14,7 @@ import FZSwiftUtils
 #endif
 import UniformTypeIdentifiers
 
+
 #if os(macOS)
     public extension NSImage {
         /// A Boolean value that indicates whether the image is a symbol.
@@ -252,14 +253,14 @@ import UniformTypeIdentifiers
         /**
          Returns a data object that contains the specified image in TIFF format.
 
-         - Returns: A data object containing the TIFF data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying CGImageRef contains data in an unsupported bitmap format.
+         - Returns: A data object containing the TIFF data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
          */
         func tiffData() -> Data? { tiffRepresentation }
 
         /**
          Returns a data object that contains the specified image in PNG format.
 
-         - Returns: A data object containing the PNG data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying CGImageRef contains data in an unsupported bitmap format.
+         - Returns: A data object containing the PNG data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
          */
         func pngData() -> Data? { bitmapImageRep?.pngData }
 

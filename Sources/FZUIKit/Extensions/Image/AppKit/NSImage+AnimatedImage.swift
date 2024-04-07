@@ -10,26 +10,6 @@
     import FZSwiftUtils
 
     public extension NSImage {
-        /**
-         Creates and returns an animated image.
-
-         This method loads a series of files by appending a series of numbers to the base file name provided in the name parameter. For example, if the name parameter had ‘image’ as its contents, this method would attempt to load images from files with the names ‘image0’, ‘image1’ and so on all the way up to ‘image1024’. All images included in the animated image should share the same size and scale.
-
-         - Parameters:
-            - name: The full or partial path to the file (sans suffix).
-            - duration: The duration of the animation.
-
-         - Returns: A new image object.
-         */
-        class func animatedImageNamed(_ name: String, duration: TimeInterval) -> NSImage? {
-            var images: [NSImage] = []
-            var count = 0
-            while let image = NSImage(named: "\(name)\(count)") {
-                images.append(image)
-                count += 1
-            }
-            return animatedImage(with: images, duration: duration)
-        }
 
         /// A Boolean value that indicates whether the image is animated (e.g. a GIF).
         var isAnimated: Bool {
