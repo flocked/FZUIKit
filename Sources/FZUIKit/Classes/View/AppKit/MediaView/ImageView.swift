@@ -897,11 +897,12 @@ open class ImageView: NSControl {
                 frames[index] = Frame(nil, duration: frameDuration)
             }
             
+            
             DispatchQueue(label: "com.fzuikit.animatedImageQueue").async {
                 representation.currentFrame = 0
                 for index in 0..<self.count {
                     representation.currentFrame = index
-                    self.frames[index] = Frame(representation.cgImage?.nsImage, duration: self.frames[index].duration)
+                    self.frames[index] = Frame(representation.cgImage?.nsImage, duration: self.frames[safe: index]?.duration ?? ImageSource.defaultFrameDuration)
                 }
             }
         }
