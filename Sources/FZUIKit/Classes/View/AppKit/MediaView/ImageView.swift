@@ -65,7 +65,7 @@ open class ImageView: NSControl {
         stopAnimating()
         currentImageIndex = 0
         if isAnimatable, animationPlayback == .automatic {
-         //   startAnimating()
+            startAnimating()
         }
     }
     
@@ -884,10 +884,19 @@ open class ImageView: NSControl {
                 
         init?(_ image: NSImage) {
             guard let representation = image.bitmapImageRep, representation.frameCount > 1 else { return nil }
+            self.image = image
             self.count = representation.frameCount
             self.loopCount = representation.loopCount
-            self.duration = representation.duration
-            self.image = image
+            for index in 0..<self.count {
+                representation.currentFrame = index
+                var frameDuration = representation.currentFrameDuration
+                if frameDuration == .zero {
+                    frameDuration = ImageSource.defaultFrameDuration
+                }
+                duration += frameDuration
+                frames[index] = Frame(nil, duration: frameDuration)
+            }
+            
             DispatchQueue(label: "com.fzuikit.animatedImageQueue").async {
                 representation.currentFrame = 0
                 for index in 0..<self.count {
