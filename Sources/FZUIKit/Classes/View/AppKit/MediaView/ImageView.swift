@@ -65,7 +65,7 @@ open class ImageView: NSControl {
         stopAnimating()
         currentImageIndex = 0
         if isAnimatable, animationPlayback == .automatic {
-            startAnimating()
+         //   startAnimating()
         }
     }
     
@@ -898,7 +898,7 @@ open class ImageView: NSControl {
         }
         
         subscript(index: Int) -> NSImage? {
-            return nil
+            frames[safe: index]?.image
         }
         
         let count: Int
