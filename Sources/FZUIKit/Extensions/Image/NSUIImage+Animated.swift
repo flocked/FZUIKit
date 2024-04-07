@@ -57,6 +57,19 @@
         }
         
         /**
+         Creates and returns an animated image for the specified name.
+
+         - Parameters:
+            - name: The name of the image in the main bundle.
+            - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
+            - loopCount: The number of times that an animated image should play before stopping, or `nil` to use the loop count of the image at the specified url. A value of `0` indicates that the animated image doesn't stop.
+         */
+        static func animatedImage(named name: String, duration: TimeInterval? = nil, loopCount: Int? = nil) -> NSUIImage? {
+            guard let url = Bundle.main.url(forResource: name, withExtension: "gif") else { return nil }
+            return animatedImage(url: url, duration: duration, loopCount: loopCount)
+        }
+        
+        /**
          Creates and returns an animated image from the animated image at the specified url.
 
          - Parameters:
@@ -87,6 +100,19 @@
         convenience init?(animated images: [NSUIImage], duration: TimeInterval, loopCount: Int = 0) {
             guard let gifData = NSUIImage.gifData(from: images, duration: duration, loopCount: loopCount) else { return nil }
             self.init(data: gifData)
+        }
+        
+        /**
+         Creates an animated image from the specified name.
+         
+         - Parameters:
+            - name: The name of the image in the main bundle.
+            - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
+            - loopCount: The number of times that an animated image should play before stopping, or `nil` to use the loop count of the image at the specified url. A value of `0` indicates that the animated image doesn't stop.
+         */
+        convenience init?(animated name: String, duration: TimeInterval? = nil, loopCount: Int? = nil) {
+            guard let url = Bundle.main.url(forResource: name, withExtension: "gif") else { return nil }
+            self.init(animated: url, duration: duration, loopCount: loopCount)
         }
         
         /**
