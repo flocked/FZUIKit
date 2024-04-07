@@ -898,7 +898,7 @@ open class ImageView: NSControl {
         }
         
         subscript(index: Int) -> NSImage? {
-            frames[safe: index]?.image
+            return nil
         }
         
         let count: Int
