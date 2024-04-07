@@ -17,7 +17,6 @@
      So everything here just bridges CGFloats to Doubles and uses their simd equivalents.
      Technically CGFloat can be Float or Double (32bit or 64bit) but everything is 64bit nowadays so, if it's really necessary it can be added later.
      */
-
     public struct CGVector3 {
         var storage: simd_double3
 

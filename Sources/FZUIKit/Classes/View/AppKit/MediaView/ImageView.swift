@@ -10,9 +10,10 @@
 import AppKit
 import FZSwiftUtils
 
-/// A view that displays images.
+/// An enhanced image view.
 @IBDesignable
 open class ImageView: NSControl {
+    
     let containerView = NSView()
     let imageView = NSImageView()
     var timer: DisplayLinkTimer? = nil

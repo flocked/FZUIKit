@@ -14,7 +14,13 @@ public extension AVPlayerItem {
     var playbackPercentage: Double {
         currentTime().seconds / duration.seconds
     }
-
+    
+    /// The remaining time until the item reaches to end.
+    var remainingTime: CMTime? {
+        let remainingSeconds = duration.seconds - currentTime().seconds
+        return CMTime(seconds: remainingSeconds)
+    }
+    
     /**
      Sets the current playback time to the specified percentage.
 
@@ -38,7 +44,7 @@ public extension AVPlayerItem {
             - finished: A Boolean value that indicates whether the seek operation completed.
      */
     func seek(to time: TimeDuration, completionHandler: ((Bool) -> Void)? = nil) {
-        let seekTo = CMTime(duration: time)
+        let seekTo = CMTime(seconds: time.seconds.clamped(to: 0...duration.seconds))
         seek(to: seekTo, completionHandler: completionHandler)
     }
 }

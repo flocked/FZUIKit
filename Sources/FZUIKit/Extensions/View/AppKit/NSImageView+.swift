@@ -65,7 +65,7 @@ extension NSImageView {
     /**
      The current size and position of the image that displays within the image view’s bounds.
      
-     Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depend on the image scaling and alignment.
+     Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depends on the image scaling and alignment.
      */
     public var imageBounds: CGRect {
         if let bounds = value(forKey: "_drawingRectForImage") as? CGRect {
@@ -154,7 +154,7 @@ extension NSImageView {
     }
     
     /**
-     A view for hosting layered content on top of the image view that automatically resizes to the image size and the image scaling.
+     A view for hosting content on top of the image view that automatically resizes to the image size and the image scaling.
      
      Use this view to host content that you want layered on top of the image view. This view is managed by the image view itself and is automatically sized to fill the image view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
      

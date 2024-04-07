@@ -9,44 +9,10 @@ import AVFoundation
 import Foundation
 import FZSwiftUtils
 
-extension AVPlayer {
-    /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
-    public var isLooping: Bool {
-        get { getAssociatedValue("isLooping", initialValue: false) }
-        set {
-            guard newValue != isLooping else { return }
-            setAssociatedValue(newValue, key: "isLooping")
-            setupLooping()
-        }
-    }
-
-    var loopNotificationToken: NotificationToken? {
-        get { getAssociatedValue("loopNotificationToken", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "loopNotificationToken") }
-    }
-
-    func setupLooping() {
-        if isLooping {
-            actionAtItemEnd = .none
-            guard loopNotificationToken == nil else { return }
-            loopNotificationToken = NotificationCenter.default.observe(.AVPlayerItemDidPlayToEndTime, object: nil, queue: nil, using: { [weak self] notification in
-                guard let self = self else { return }
-                if let playerItem = notification.object as? AVPlayerItem {
-                    if self.isLooping {
-                        playerItem.seek(to: CMTime.zero, completionHandler: nil)
-                    }
-                }
-            })
-        } else {
-            actionAtItemEnd = .pause
-            loopNotificationToken = nil
-        }
-    }
-}
-
 public extension AVPlayer {
+    
     /// The playback state of the player.
-    enum State: Hashable {
+    enum State: Hashable, CustomStringConvertible {
         /// The player is playing.
         case isPlaying
         /// The player is paused.
@@ -55,6 +21,15 @@ public extension AVPlayer {
         case isStopped
         /// The player has an error.
         case error(Error)
+        
+        public var description: String {
+            switch self {
+            case .isPlaying: return "playing"
+            case .isPaused: return "paused"
+            case .isStopped: return "stopped"
+            case .error(let error):  return "error: \(error.localizedDescription)"
+            }
+        }
 
         public static func == (lhs: AVPlayer.State, rhs: AVPlayer.State) -> Bool {
             lhs.hashValue == rhs.hashValue
@@ -104,15 +79,15 @@ public extension AVPlayer {
             - finished: A Boolean value that indicates whether the seek operation completed.
      */
     func seek(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
-        if let currentItem = currentItem {
-            let duration = currentItem.duration
-            let to: Double = duration.seconds * percentage.clamped(to: 0.0...1.0)
-            let seekTo = CMTime(seconds: to)
-            if let completionHandler = completionHandler {
-                seek(to: seekTo, completionHandler: completionHandler)
-            } else {
-                seek(to: seekTo)
-            }
+        guard let currentItem = currentItem else { return }
+        
+        let duration = currentItem.duration
+        let to: Double = duration.seconds * percentage.clamped(to: 0.0...1.0)
+        let seekTo = CMTime(seconds: to)
+        if let completionHandler = completionHandler {
+            seek(to: seekTo, completionHandler: completionHandler)
+        } else {
+            seek(to: seekTo)
         }
     }
 
@@ -135,19 +110,12 @@ public extension AVPlayer {
 
     /// The remaining time until the player reaches to end.
     var remainingTime: CMTime? {
-        if let duration = currentItem?.duration {
-            let remainingSeconds = duration.seconds - currentTime().seconds
-            return CMTime(seconds: remainingSeconds)
-        }
-        return nil
+        currentItem?.remainingTime
     }
 
     /// The percentage played.
-    var currentPercentage: Double? {
-        if let duration = currentItem?.duration {
-            return currentTime().seconds / duration.seconds
-        }
-        return nil
+    var playbackPercentage: Double? {
+        currentItem?.playbackPercentage
     }
 
     /// Toggles the playback between play and pause.
@@ -158,10 +126,38 @@ public extension AVPlayer {
             play()
         }
     }
+    
+    /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
+    var isLooping: Bool {
+        get { getAssociatedValue("isLooping", initialValue: false) }
+        set {
+            guard newValue != isLooping else { return }
+            setAssociatedValue(newValue, key: "isLooping")
+            if newValue {
+                actionAtItemEnd = .none
+                loopNotificationToken = NotificationCenter.default.observe(.AVPlayerItemDidPlayToEndTime, object: nil, queue: nil, using: { [weak self] notification in
+                    guard let self = self else { return }
+                    if let playerItem = notification.object as? AVPlayerItem {
+                        if self.isLooping {
+                            playerItem.seek(to: CMTime.zero, completionHandler: nil)
+                        }
+                    }
+                })
+            } else {
+                actionAtItemEnd = .pause
+                loopNotificationToken = nil
+            }
+        }
+    }
+
+    internal var loopNotificationToken: NotificationToken? {
+        get { getAssociatedValue("loopNotificationToken", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "loopNotificationToken") }
+    }
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    public extension AVLayerVideoGravity {
+    extension AVLayerVideoGravity {
         init?(caLayerContentsGravity: CALayerContentsGravity) {
             switch caLayerContentsGravity {
             case .resizeAspectFill:
@@ -176,7 +172,7 @@ public extension AVPlayer {
         }
         
         #if os(macOS)
-        internal init?(imageScaling: ImageView.ImageScaling) {
+        init?(imageScaling: ImageView.ImageScaling) {
             switch imageScaling {
             case .scaleToFill:
                 self = .resizeAspectFill

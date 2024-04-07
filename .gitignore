@@ -12,3 +12,4 @@ DerivedData/
 Package.resolved
 *.resolved
 *.resolved
+*.xcscheme

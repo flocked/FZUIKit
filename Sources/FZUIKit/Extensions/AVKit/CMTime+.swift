@@ -19,10 +19,30 @@ public extension CMTime {
     init(duration: TimeDuration) {
         self = CMTime(seconds: duration.seconds, preferredTimescale: CMTimeScale(1.0))
     }
+    
+    static func + (lhs: Self, rhs: TimeDuration) -> Self {
+        CMTime(seconds: lhs.seconds + rhs.seconds)
+    }
+    
+    static func += (lhs: inout Self, rhs: TimeDuration) {
+        lhs = lhs + rhs
+    }
 }
 
+extension TimeDuration {
+    /**
+     Initializes a new time duration from a `CMTime`.
+
+     - Parameter time: The time.
+     */
+    public init(time: CMTime) {
+        self.init(time.seconds)
+    }
+}
+
+
 extension CMTime: Codable {
-    enum CodingKeys: CodingKey {
+    public enum CodingKeys: CodingKey {
         case value
         case timescale
         case flags
@@ -47,4 +67,24 @@ extension CMTime: Codable {
     }
 }
 
-extension CMTimeFlags: Codable {}
+extension CMTimeFlags: Codable { }
+
+extension CMTimeRange: Codable {
+    public enum CodingKeys: CodingKey {
+        case start
+        case duration
+    }
+    
+    public init(from decoder: Decoder) throws {
+        self.init()
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        start = try values.decode(CMTime.self, forKey: .start)
+        duration = try values.decode(CMTime.self, forKey: .duration)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(start, forKey: .start)
+        try container.encode(duration, forKey: .duration)
+    }
+}
