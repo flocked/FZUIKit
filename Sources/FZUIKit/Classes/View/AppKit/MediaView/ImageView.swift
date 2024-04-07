@@ -894,7 +894,7 @@ open class ImageView: NSControl {
                     frameDuration = ImageSource.defaultFrameDuration
                 }
                 duration += frameDuration
-                frames[index] = Frame(nil, duration: frameDuration)
+                frames.append(Frame(nil, duration: frameDuration))
             }
             
             
@@ -902,7 +902,7 @@ open class ImageView: NSControl {
                 representation.currentFrame = 0
                 for index in 0..<self.count {
                     representation.currentFrame = index
-                    self.frames[index] = Frame(representation.cgImage?.nsImage, duration: self.frames[safe: index]?.duration ?? ImageSource.defaultFrameDuration)
+                    self.frames[index] = Frame(representation.cgImage?.nsImage, duration: self.frames[index].duration)
                 }
             }
         }
