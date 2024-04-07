@@ -155,36 +155,3 @@ public extension AVPlayer {
         set { setAssociatedValue(newValue, key: "loopNotificationToken") }
     }
 }
-
-#if os(macOS) || os(iOS) || os(tvOS)
-    extension AVLayerVideoGravity {
-        init?(caLayerContentsGravity: CALayerContentsGravity) {
-            switch caLayerContentsGravity {
-            case .resizeAspectFill:
-                self = .resizeAspectFill
-            case .resizeAspect:
-                self = .resizeAspect
-            case .resize:
-                self = .resize
-            default:
-                return nil
-            }
-        }
-        
-        #if os(macOS)
-        init?(imageScaling: ImageView.ImageScaling) {
-            switch imageScaling {
-            case .scaleToFill:
-                self = .resizeAspectFill
-            case .scaleToFit:
-                self = .resizeAspect
-            case .resize:
-                self = .resize
-            default:
-                return nil
-            }
-        }
-        #endif
-    }
-
-#endif

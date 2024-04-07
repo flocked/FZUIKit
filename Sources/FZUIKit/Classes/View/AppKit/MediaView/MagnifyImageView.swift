@@ -198,14 +198,10 @@ open class MagnifyImageView: NSView {
         set { NSImageView.defaultPreferredImageDynamicRange = newValue }
     }
     
-    /**
-     A Boolean value indicating whether the user can drag a new image into the image view.
-     
-     When the value of this property is true, the user can set the displayed image by dragging an image onto the image view. The default value of this property is false, which causes the image view to display only the programmatically set image.
-     */
-    open var isEditable: Bool {
-        get { imageView.isEditable }
-        set { imageView.isEditable = newValue }
+    /// A value that indicates whether the user can drag new images into the image view.
+    open var allowsImageDrop: ImageView.ImageDropOption {
+        get { imageView.allowsImageDrop }
+        set { imageView.allowsImageDrop = newValue }
     }
     
     /// A value that specifies if and how the image view can be selected.

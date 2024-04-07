@@ -9,6 +9,15 @@
 import AppKit
 
 extension NSControl {
+    /// Performs the `action`.
+    public func performAction() {
+        if let actionBlock = actionBlock {
+            actionBlock(self)
+        } else if let action = action, let target = target, target.responds(to: action) {
+            _ = target.perform(action)
+        }
+    }
+    
     /// Sets the font.
     @discardableResult
     public func font(_ font: NSFont?) -> Self {

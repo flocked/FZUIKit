@@ -18,22 +18,19 @@ open class ImageView: NSControl {
     let imageView = NSImageView()
     var timer: DisplayLinkTimer? = nil
     var currentRepeatCount = 0
-    var isLoadingAnimatedImage = false
-    var needsAnimationPause = false
     var ignoreTransition = false
     var trackingArea: TrackingArea?
     let imageShadowView = NSView()
     
     /// The image displayed in the image view.
    @IBInspectable open var image: NSImage? {
-       get { images.count == 1 ? images.first : nil }
+       get { images.count == 1 ? images.first : animatedImage?.image }
         set {
             guard newValue != image else { return }
-            needsAnimationPause = false
             if let newImage = newValue {
-                if let animatedImage = AnimatedImage(newImage) {
-                    images = [newImage]
-                    self.animatedImage = animatedImage
+                if let animated = AnimatedImage(newImage) {
+                    images = []
+                    animatedImage = animated
                 } else {
                     images = [newImage]
                 }
@@ -55,28 +52,26 @@ open class ImageView: NSControl {
         didSet {
             if let animatedImage = animatedImage {
                 animationDuration = animatedImage.duration
+                animationRepeatCount = animatedImage.loopCount
                 imagesUpdated()
             }
         }
     }
     
     func imagesUpdated() {
-        needsAnimationPause = false
-        containerView.isHidden = images.isEmpty
-        imageShadowView.isHidden = images.isEmpty
-        overlayContentView.isHidden = images.isEmpty
-        if isAnimating, !isAnimatable {
-            stopAnimating()
-        }
+        containerView.isHidden = imagesCount == 0
+        imageShadowView.isHidden = containerView.isHidden
+        overlayContentView.isHidden = containerView.isHidden
+        stopAnimating()
         currentImageIndex = 0
-        if isAnimatable, !isAnimating, animationPlayback == .automatic {
+        if isAnimatable, animationPlayback == .automatic {
             startAnimating()
         }
     }
     
     /// The currently displayed image.
     open var displayingImage: NSImage? {
-        image ?? images[safe: currentImageIndex]
+        image ?? animatedImage?[currentImageIndex] ?? images[safe: currentImageIndex]
     }
     
     /// The image scaling.
@@ -179,7 +174,7 @@ open class ImageView: NSControl {
     }
     
     /// Constants that specify the playback behavior for animated images.
-    public enum AnimationPlaybackOption: Int {
+    public enum AnimationPlaybackOption: Int, Hashable {
         /// Images don't start animate automatically.
         case none
         /// Images start animating automatically.
@@ -224,11 +219,6 @@ open class ImageView: NSControl {
             stopAnimating()
         }
     }
-   
-    func sendAction() {
-        guard let action = action, let target = target, isFirstResponder else { return }
-        _ = target.perform(action)
-    }
     
     open override func becomeFirstResponder() -> Bool {
         if acceptsFirstResponder, !isSelected {
@@ -247,15 +237,13 @@ open class ImageView: NSControl {
     override open func mouseDown(with event: NSEvent) {
         if isSelectable == .byView, !isFirstResponder {
             makeFirstResponder()
-            sendAction()
+            performAction()
         } else if isSelectable == .byImage, overlayContentView.frame.contains(event.location(in: self)), !isFirstResponder {
             makeFirstResponder()
-            sendAction()
+            performAction()
         }
-        if animationPlayback == .onMouseClick {
+        if animationPlayback == .onMouseClick, overlayContentView.frame.contains(event.location(in: self)) {
             toggleAnimating()
-        } else {
-            super.mouseDown(with: event)
         }
     }
     
@@ -266,8 +254,8 @@ open class ImageView: NSControl {
     }
     
     func updateDisplayingImage() {
-        if !ignoreTransition, let trans = transitionAnimation.transition(transitionDuration) {
-            transition(trans)
+        if !ignoreTransition, let transition = transitionAnimation.transition(transitionDuration) {
+            self.transition(transition)
         }
         let oldImageSize = imageView.image?.size
         if let animatedImage = animatedImage {
@@ -350,6 +338,15 @@ open class ImageView: NSControl {
      */
     public let overlayContentView = NSView()
     
+    /**
+     The current size and position of the image that displays within the image view’s bounds.
+     
+     Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depends on the image scaling and alignment.
+     */
+    public var imageBounds: CGRect {
+        overlayContentView.frame
+    }
+    
     /// The transition animation when changing the displayed image.
     open var transitionAnimation: TransitionAnimation = .none
     
@@ -410,11 +407,6 @@ open class ImageView: NSControl {
     /// Starts animating the images.
     open func startAnimating() {
         guard isAnimatable, !isAnimating else { return }
-        guard needsAnimationPause == false else {
-            needsAnimationPause = false
-            stopAnimating()
-            return
-        }
         currentRepeatCount = 0
         
         timer = DisplayLinkTimer(timeInterval: .seconds(timerInterval), repeating: true) { [weak self] timer in
@@ -438,9 +430,6 @@ open class ImageView: NSControl {
     open func pauseAnimating() {
         timer?.stop()
         timer = nil
-        if isLoadingAnimatedImage {
-            needsAnimationPause = true
-        }
     }
 
     /// Stops animating the images and displays the first image.
@@ -520,34 +509,28 @@ open class ImageView: NSControl {
         get { NSImageView.defaultPreferredImageDynamicRange }
         set { NSImageView.defaultPreferredImageDynamicRange = newValue }
     }
-    
-    /**
-     A Boolean value indicating whether the user can drag a new image into the image view.
-     
-     When the value of this property is true, the user can set the displayed image by dragging an image onto the image view. The default value of this property is false, which causes the image view to display only the programmatically set image.
-     */
-    open var isEditable: Bool {
-        get { imageView.isEditable }
-        set { imageView.isEditable = newValue }
-    }
-    
-    /*
-    public enum ImageDropOption: Int {
+   
+    /// Constant that indicates whether the user can drag new images into the image view.
+    public enum ImageDropOption: Int, Hashable {
+        /// The user can drag a single image into the image view.
         case single
+        /// The user can drag multiple images into the image view.
         case multiple
+        /// The user can't drag any image into the image view.
         case none
     }
     
-    open var allowsDroppingImages: ImageDropOption  = .none {
+    /// A value that indicates whether the user can drag new images into the image view.
+    open var allowsImageDrop: ImageDropOption  = .none {
         didSet {
-            guard oldValue != allowsDroppingImages else { return }
-            if allowsDroppingImages == .none {
-                dropHandlers.canDrop = nil
-                dropHandlers.didDrop = nil
-            } else if dropHandlers.canDrop == nil {
-                dropHandlers.canDrop = { [weak self] contents,_,_ in
+            guard oldValue != allowsImageDrop else { return }
+            if allowsImageDrop == .none {
+                overlayContentView.dropHandlers.canDrop = nil
+                overlayContentView.dropHandlers.didDrop = nil
+            } else if overlayContentView.dropHandlers.canDrop == nil {
+                overlayContentView.dropHandlers.canDrop = { [weak self] contents,_,_ in
                     guard let self = self else { return false }
-                    switch self.allowsDroppingImages {
+                    switch self.allowsImageDrop {
                     case .single:
                         return contents.images.count == 1
                     case .multiple:
@@ -556,10 +539,10 @@ open class ImageView: NSControl {
                         return false
                     }
                 }
-                dropHandlers.didDrop = { [weak self] contents,_,_ in
+                overlayContentView.dropHandlers.didDrop = { [weak self] contents,_,_ in
                     guard let self = self else { return }
                     let droppedImages = contents.images
-                    switch self.allowsDroppingImages {
+                    switch self.allowsImageDrop {
                     case .single:
                         guard droppedImages.count == 1 else { return }
                         self.image = droppedImages.first
@@ -572,9 +555,20 @@ open class ImageView: NSControl {
             }
         }
     }
+    
+    /*
+    /**
+     A Boolean value indicating whether the user can drag a new image into the image view.
+     
+     When the value of this property is true, the user can set the displayed image by dragging an image onto the image view. The default value of this property is false, which causes the image view to display only the programmatically set image.
+     */
+    open var isEditable: Bool {
+        get { imageView.isEditable }
+        set { imageView.isEditable = newValue }
+    }
      */
     
-    /// A value that specifies if and how the image view can be selected.
+    /// A value that indicates whether the image view can be selected.
     open var isSelectable: SelectionOption = false {
         didSet {
             guard isSelectable != oldValue else { return }
@@ -584,18 +578,23 @@ open class ImageView: NSControl {
         }
     }
     
-    /// A Boolean value indicating whether the image view is selected.
-    @objc dynamic open internal(set) var isSelected: Bool = false
-    
+    /// Constant that indicates whether the user can select the image view.
     public enum SelectionOption: Int, ExpressibleByBooleanLiteral {
+        /// The user can select the image view by clickling the image.
         case byImage
+        /// The user can select the image view by clickling the image view.
         case byView
+        /// The user can't select the image.
         case off
         
         public init(booleanLiteral value: Bool) {
             self = value ? .byView : .off
         }
     }
+    
+    /// A Boolean value indicating whether the image view is selected.
+    @objc dynamic open internal(set) var isSelected: Bool = false
+
     
     /**
      A Boolean value indicating whether the image view lets the user cut, copy, and paste the image contents.
@@ -797,7 +796,7 @@ open class ImageView: NSControl {
     
     open override func layout() {
         super.layout()
-        guard images.isEmpty == false else { return }
+        guard displayingImage != nil else { return }
         if imageScaling == .scaleToFill, let imageSize = displayingImage?.size {
             imageView.frame.size = imageSize.scaled(toFill: bounds.size)
                         
@@ -872,8 +871,9 @@ open class ImageView: NSControl {
         isSelectable == .byImage ? overlayContentView.frame : bounds
     }
     
-    public class AnimatedImage {
-        public struct Frame {
+    class AnimatedImage {
+        
+        struct Frame {
             let image: NSImage?
             let duration: TimeInterval
             init(_ image: NSImage? = nil, duration: TimeInterval) {
@@ -884,40 +884,34 @@ open class ImageView: NSControl {
                 
         init?(_ image: NSImage) {
             guard let representation = image.bitmapImageRep, representation.frameCount > 1 else { return nil }
-            self.representation = representation
             self.count = representation.frameCount
-            for index in 0..<count {
-                representation.currentFrame = index
-                let frameDuration = representation.currentFrameDuration
-                self.duration += frameDuration
-                frames.append(Frame(duration: frameDuration))
-            }
-            queue.async {
-                self.setupFrames()
-            }
-        }
-        
-        func setupFrames() {
-            for index in 0..<count {
-                representation.currentFrame = index
-                if let image = representation.cgImage?.nsImage {
-                    frames[index] = Frame(image, duration: frames[index].duration)
-                    
+            self.loopCount = representation.loopCount
+            self.duration = representation.duration
+            self.image = image
+            DispatchQueue(label: "com.fzuikit.animatedImageQueue").async {
+                representation.currentFrame = 0
+                for index in 0..<self.count {
+                    representation.currentFrame = index
+                    self.frames[index] = Frame(representation.cgImage?.nsImage, duration: self.frames[index].duration)
                 }
             }
         }
         
         subscript(index: Int) -> NSImage? {
-            get {
-                return frames[safe: index]?.image
-            }
+            frames[safe: index]?.image
         }
         
-        let queue = DispatchQueue(label: "com.fzuikit.animatedImageQueue")
-        let representation: NSBitmapImageRep
         let count: Int
-        var frames: SynchronizedArray<Frame> = []
+        let loopCount: Int
         var duration: TimeInterval = 0.0
+        let image: NSImage
+        var frames: SynchronizedArray<Frame> = []
+    }
+}
+
+extension ImageView.FramePosition: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: Int) {
+        self = .index(value)
     }
 }
 

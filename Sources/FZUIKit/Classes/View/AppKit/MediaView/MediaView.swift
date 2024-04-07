@@ -12,7 +12,7 @@
     import FZSwiftUtils
 
     open class MediaView: NSView {
-        public enum VideoPlaybackOption {
+        public enum VideoPlaybackOption: Int, Hashable {
             case autostart
             case previousPlaybackState
             case off
@@ -71,7 +71,7 @@
         public var contentScaling: ImageView.ImageScaling = .scaleToFit {
             didSet {
                 imageView.imageScaling = contentScaling
-                videoView.videoGravity = AVLayerVideoGravity(imageScaling: contentScaling) ?? .resizeAspectFill
+                videoView.videoGravity = AVLayerVideoGravity(imageScaling: contentScaling)
             }
         }
 
@@ -281,7 +281,7 @@
             frame.size = fittingSize
         }
 
-        private enum VideoPlaybackState {
+        private enum VideoPlaybackState: Int, Hashable {
             case playing
             case paused
             case stopped
@@ -665,5 +665,20 @@ class NoMenuPlayerView: AVPlayerView {
             }
         }
     }
+
+extension AVLayerVideoGravity {
+    init(imageScaling: ImageView.ImageScaling) {
+        switch imageScaling {
+        case .scaleToFill:
+            self = .resizeAspectFill
+        case .scaleToFit:
+            self = .resizeAspect
+        case .resize:
+            self = .resize
+        default:
+            self = .resizeAspectFill
+        }
+    }
+}
 
 #endif
