@@ -54,12 +54,14 @@
             return nil
         }
 
-        /// The frames of an animated (e.g. GIF) image.
+        /// The frames of an animated (e.g. GIF) image asynchronously.
         var frames: ImageFrameSequence? {
-            if representations.count == 1, let representation = representations.first as? NSBitmapImageRep, representation.frameCount > 1 {
-                return ImageFrameSequence(representation)
-            }
-            return ImageSource(image: self)?.imageFrames()
+            bitmapImageRep?.frames
+        }
+        
+        /// The frames of an animated (e.g. GIF) image.
+        func getFrames() -> [CGImageFrame]? {
+            bitmapImageRep?.getFrames()
         }
     }
 #endif

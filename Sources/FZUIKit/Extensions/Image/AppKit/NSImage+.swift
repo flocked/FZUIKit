@@ -162,12 +162,6 @@ import UniformTypeIdentifiers
             return ImageFrame(image, currentFrameDuration)
         }
         
-        /// Returns the image frames for an animated GIF image.
-        var frames: [ImageFrame] {
-            guard frameCount != 0 else { return [] }
-            return (0..<frameCount).compactMap({ frame(at: $0) })
-        }
-        
         /// Returns the frame at the specified index.
         subscript(index: Int) -> ImageFrame? {
             frame(at: index)
