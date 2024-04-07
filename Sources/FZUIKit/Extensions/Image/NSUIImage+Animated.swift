@@ -29,17 +29,8 @@
             return NSUIImage(data: gifData)
         }
         #else
-        /**
-         Creates and returns an animated image from an existing set of images.
-
-         - Parameters:
-            - images: The images to be used.
-            - duration: The animation duration.
-            - loopCount: The number of times that an animated image should play before stopping. A value of `0` indicates that the animated image doesn't stop.
-         */
-        static func animatedImage(images: [NSUIImage], duration: TimeInterval, loopCount: Int) -> NSUIImage? {
-            guard let gifData = NSUIImage.gifData(from: images, duration: duration, loopCount: loopCount) else { return nil }
-            return NSUIImage(data: gifData)
+        internal static func animatedImage(images: [NSUIImage], duration: TimeInterval, loopCount: Int) -> NSUIImage? {
+            return animatedImage(with: images, duration: duration)
         }
         #endif
         
