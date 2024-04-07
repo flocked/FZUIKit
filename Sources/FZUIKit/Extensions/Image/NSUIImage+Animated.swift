@@ -60,7 +60,7 @@
          Creates and returns an animated image for the specified name.
 
          - Parameters:
-            - name: The name of the image in the main bundle.
+            - name: The name of the animated image in the main bundle.
             - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
             - loopCount: The number of times that an animated image should play before stopping, or `nil` to use the loop count of the image at the specified url. A value of `0` indicates that the animated image doesn't stop.
          */
@@ -106,7 +106,7 @@
          Creates an animated image from the specified name.
          
          - Parameters:
-            - name: The name of the image in the main bundle.
+            - name: The name of the animated image in the main bundle.
             - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
             - loopCount: The number of times that an animated image should play before stopping, or `nil` to use the loop count of the image at the specified url. A value of `0` indicates that the animated image doesn't stop.
          */
