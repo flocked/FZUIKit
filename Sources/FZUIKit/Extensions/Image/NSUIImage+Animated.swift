@@ -28,11 +28,6 @@
             guard let gifData = NSUIImage.gifData(from: images, duration: duration, loopCount: loopCount) else { return nil }
             return NSUIImage(data: gifData)
         }
-        #else
-        internal static func animatedImage(images: [NSUIImage], duration: TimeInterval, loopCount: Int) -> NSUIImage? {
-            return animatedImage(with: images, duration: duration)
-        }
-        #endif
         
         /**
          Creates and returns an animated image from the specified data of an animated image.
@@ -51,12 +46,13 @@
          Creates and returns an animated image for the specified name.
 
          - Parameters:
-            - name: The name of the animated image in the main bundle.
+            - name: The name of the image file.
+            - bundle: The bundle containing the image file.
             - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
             - loopCount: The number of times that an animated image should play before stopping, or `nil` to use the loop count of the image at the specified url. A value of `0` indicates that the animated image doesn't stop.
          */
-        static func animatedImage(named name: String, duration: TimeInterval? = nil, loopCount: Int? = nil) -> NSUIImage? {
-            guard let url = Bundle.main.url(forResource: name, withExtension: "gif") else { return nil }
+        static func animatedImage(named name: String, in bundle: Bundle = .main, duration: TimeInterval? = nil, loopCount: Int? = nil) -> NSUIImage? {
+            guard let url = bundle.url(forResource: name, withExtension: "gif") else { return nil }
             return animatedImage(url: url, duration: duration, loopCount: loopCount)
         }
         
@@ -97,12 +93,13 @@
          Creates an animated image from the specified name.
          
          - Parameters:
-            - name: The name of the animated image in the main bundle.
+            - name: The name of the image file.
+            - bundle: The bundle containing the image file.
             - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
             - loopCount: The number of times that an animated image should play before stopping, or `nil` to use the loop count of the image at the specified url. A value of `0` indicates that the animated image doesn't stop.
          */
-        convenience init?(animated name: String, duration: TimeInterval? = nil, loopCount: Int? = nil) {
-            guard let url = Bundle.main.url(forResource: name, withExtension: "gif") else { return nil }
+        convenience init?(animated name: String, in bundle: Bundle = .main, duration: TimeInterval? = nil, loopCount: Int? = nil) {
+            guard let url = bundle.url(forResource: name, withExtension: "gif") else { return nil }
             self.init(animated: url, duration: duration, loopCount: loopCount)
         }
         
@@ -157,5 +154,49 @@
             CGImageDestinationFinalize(destination)
             return data as Data
         }
+        #else
+        /**
+         Creates and returns an animated image from the specified data of an animated image.
+
+         - Parameters:
+            - data: The data of the animated image.
+            - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
+         */
+        static func animatedImage(data: Data, duration: TimeInterval? = nil) -> NSUIImage? {
+            guard let imageSource = ImageSource(data: data) else { return nil }
+            return animatedImage(imageSource: imageSource, duration: duration)
+        }
+        
+        /**
+         Creates and returns an animated image for the specified name.
+
+         - Parameters:
+            - name: The name of the image file.
+            - bundle: The bundle containing the image file.
+            - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
+         */
+        static func animatedImage(named name: String, in bundle: Bundle = .main, duration: TimeInterval? = nil) -> NSUIImage? {
+            guard let url = bundle.url(forResource: name, withExtension: "gif") else { return nil }
+            return animatedImage(url: url, duration: duration)
+        }
+        
+        /**
+         Creates and returns an animated image from the animated image at the specified url.
+
+         - Parameters:
+            - url: The url of the animated image.
+            - duration: The animation duration, or `nil` to use the duration of the image at the specified url.
+         */
+        static func animatedImage(url: URL, duration: TimeInterval? = nil) -> NSUIImage? {
+            guard let imageSource = ImageSource(url: url) else { return nil }
+            return animatedImage(imageSource: imageSource, duration: duration)
+        }
+        
+        internal static func animatedImage(imageSource: ImageSource, duration: TimeInterval? = nil) -> NSUIImage? {
+            guard let images = try? imageSource.images().collect().compactMap({$0.nsUIImage}), images.count > 1 else { return nil }
+            let duration = duration ?? imageSource.animationDuration ?? (Double(imageSource.count) * ImageSource.defaultFrameDuration)
+            return animatedImage(with: images, duration: duration)
+        }
+        #endif
     }
 #endif
