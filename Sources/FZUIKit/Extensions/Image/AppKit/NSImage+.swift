@@ -169,14 +169,6 @@ import UniformTypeIdentifiers
         
         /// The total duration (in seconds) of all frames for an animated GIF image, or `0` if the image isn't a GIF.
         var duration: TimeInterval {
-            get { getAssociatedValue("duration", initialValue: _duration) }
-            set {
-                setAssociatedValue(newValue, key: "duration")
-                _duration = newValue
-            }
-        }
-        
-        internal var _duration: TimeInterval {
             get {
                 let current = currentFrame
                 var duration: TimeInterval = 0.0
@@ -202,19 +194,15 @@ import UniformTypeIdentifiers
         /// The the current frame for an animated GIF image, or `0` if the image isn't a GIF.
         var currentFrame: Int {
             get { (value(forProperty: .currentFrame) as? Int) ?? 0 }
-            set {
-                guard newValue < frameCount else { return }
-                setProperty(.currentFrame, withValue: newValue)
-            }
+            set { setProperty(.currentFrame, withValue: newValue.clamped(to: 0...frameCount-1)) }
         }
 
         /// The duration (in seconds) of the current frame for an animated GIF image, or `0` if the image isn't a GIF.
         var currentFrameDuration: TimeInterval {
             get { value(forProperty: .currentFrameDuration) as? TimeInterval ?? 0.0 }
             set {
-                if value(forProperty: .currentFrameDuration) != nil {
-                    setProperty(.currentFrameDuration, withValue: newValue)
-                }
+                guard value(forProperty: .currentFrameDuration) != nil else { return }
+                setProperty(.currentFrameDuration, withValue: newValue)
             }
         }
 
@@ -222,9 +210,8 @@ import UniformTypeIdentifiers
         var loopCount: Int {
             get { value(forProperty: .loopCount) as? Int ?? 0 }
             set {
-                if value(forProperty: .loopCount) != nil {
-                    setProperty(.loopCount, withValue: newValue)
-                }
+                guard value(forProperty: .loopCount) != nil else { return }
+                setProperty(.loopCount, withValue: newValue)
             }
         }
     }

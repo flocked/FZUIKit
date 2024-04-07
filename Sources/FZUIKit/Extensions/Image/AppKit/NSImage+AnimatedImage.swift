@@ -10,40 +10,39 @@
     import FZSwiftUtils
 
     public extension NSImage {
-
+ 
         /// A Boolean value that indicates whether the image is animated (e.g. a GIF).
         var isAnimated: Bool {
             guard framesCount > 1 else { return false }
             return bitmapImageRep?.value(forProperty: .currentFrameDuration) != nil
         }
 
-        internal var isAnimatable: Bool {
-            framesCount > 1
-        }
-
         /// The number of frames of an animated (e.g. GIF) image.
         var framesCount: Int {
-            #if os(macOS)
-            return bitmapImageRep?.value(forProperty: .frameCount) as? Int ?? ImageSource(image: self)?.count ?? 1
-            #else
-            return ImageSource(image: self)?.count ?? 1
-            #endif
+            bitmapImageRep?.frameCount ?? ImageSource(image: self)?.count ?? 1
         }
 
         /// The animation duration of an animated (e.g. GIF) image.
-        var animationDuration: TimeInterval? {
-            guard let source = ImageSource(image: self) else { return nil }
-            return source.animationDuration
+        var animationDuration: TimeInterval {
+            get { bitmapImageRep?.duration ?? 0.0 }
+            set {
+                guard newValue != animationDuration, let bitmapImageRep = bitmapImageRep else { return }
+                let images = bitmapImageRep.getImages().compactMap({$0.nsImage})
+                guard images.count > 1 else { return }
+                guard let newBitmapImageRep = NSImage.animatedImage(images: images, duration: newValue, loopCount: bitmapImageRep.loopCount)?.bitmapImageRep else { return }
+                addRepresentation(newBitmapImageRep)
+                removeRepresentation(bitmapImageRep)
+            }
         }
 
         /**
          The number of times that an animated image should play through its frames before stopping.
 
-         A value of 0 means the animated image repeats forever.
+         A value of `0` means the animated image repeats forever.
          */
-        var animationLoopCount: Int? {
-            guard let source = ImageSource(image: self), source.count > 1 else { return nil }
-            return source.properties()?.loopCount ?? source.properties(at: 0)?.loopCount
+        var animationLoopCount: Int {
+            get { bitmapImageRep?.loopCount ?? 0 }
+            set { bitmapImageRep?.loopCount = newValue }
         }
 
         /// The images of an animated (e.g. GIF) image asynchronously.
@@ -52,8 +51,8 @@
         }
         
         /// The images of an animated (e.g. GIF) image.
-        func getImages() -> [NSUIImage]? {
-            bitmapImageRep?.getImages().compactMap({$0.nsImage})
+        func getImages() -> [NSUIImage] {
+            bitmapImageRep?.getImages().compactMap({$0.nsImage}) ?? []
         }
 
         /// The frames of an animated (e.g. GIF) image asynchronously.
@@ -62,47 +61,8 @@
         }
         
         /// The frames of an animated (e.g. GIF) image.
-        func getFrames() -> [CGImageFrame]? {
-            bitmapImageRep?.getFrames()
+        func getFrames() -> [CGImageFrame] {
+            bitmapImageRep?.getFrames() ?? []
         }
     }
 #endif
-
-/*
-  public extension NSImage {
-  func frames() -> [ImageFrame]? {
-      guard let bitmapRep = self.representations[0] as? NSBitmapImageRep,
-            let frameCount = (bitmapRep.value(forProperty: .frameCount) as? NSNumber)?.intValue, frameCount > 1 else { return nil }
-
-      var frames = [ImageFrame]()
-        for n in 0 ..< frameCount {
-            bitmapRep.setProperty(.currentFrame, withValue: NSNumber(value: n))
-            if let data = bitmapRep.representation(using: .gif, properties: [:]),
-               let image = NSImage(data: data) {
-                var frame = ImageFrame(image, ImageSource.defaultFrameDuration)
-                if let frameDuration = (bitmapRep.value(forProperty: .currentFrameDuration) as? NSNumber)?.doubleValue {
-                    frame.duration = frameDuration
-                }
-                frames.append(frame)
-            }
-        }
-      return frames
-     }
-  }
-
-  public extension UIImage {
-  func frames() async -> [ImageFrame] {
-      var frames = [ImageFrame]()
-      if let imageSource = ImageSource(image: self) {
-          let count = imageSource.count
-          for index in 0..<count {
-              if let cgImage = imageSource.getImage(at: index, options: nil) {
-                  let frame = ImageFrame(NSUIImage(cgImage: cgImage),  imageSource.properties(at: index)?.delayTime ?? ImageSource.defaultFrameDuration)
-                  frames.append(frame)
-              }
-          }
-      }
-      return frames
-     }
- }
-  */
