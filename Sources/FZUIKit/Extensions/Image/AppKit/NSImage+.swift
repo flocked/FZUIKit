@@ -155,27 +155,47 @@ import UniformTypeIdentifiers
         }
         
         /// Returns the frame at the specified index.
-        func frame(at index: Int) -> CGImageFrame? {
+        func frame(at index: Int) -> ImageFrame? {
             currentFrame = index
-            guard let image = cgImage else { return nil }
-            return CGImageFrame(image, currentFrameDuration)
+            guard let image = cgImage?.nsUIImage else { return nil }
+            return ImageFrame(image, currentFrameDuration)
         }
         
         /// Returns the frame at the specified index.
-        subscript(index: Int) -> CGImageFrame? {
+        subscript(index: Int) -> ImageFrame? {
             frame(at: index)
         }
         
         /// The total duration (in seconds) of all frames for an animated GIF image, or `0` if the image isn't a GIF.
         var duration: TimeInterval {
-            let current = currentFrame
-            var duration: TimeInterval = 0.0
-            (0..<frameCount).forEach({
-                currentFrame = $0
-                duration += currentFrameDuration
-            })
-            currentFrame = current
-            return duration
+            get { getAssociatedValue("duration", initialValue: _duration) }
+            set {
+                setAssociatedValue(newValue, key: "duration")
+                _duration = newValue
+            }
+        }
+        
+        internal var _duration: TimeInterval {
+            get {
+                let current = currentFrame
+                var duration: TimeInterval = 0.0
+                (0..<frameCount).forEach({
+                    currentFrame = $0
+                    duration += currentFrameDuration
+                })
+                currentFrame = current
+                return duration
+            }
+            set {
+                let count = frameCount
+                let duration = newValue / Double(count)
+                let current = currentFrame
+                (0..<count).forEach({
+                    currentFrame = $0
+                    currentFrameDuration = duration
+                })
+                currentFrame = current
+            }
         }
 
         /// The the current frame for an animated GIF image, or `0` if the image isn't a GIF.
