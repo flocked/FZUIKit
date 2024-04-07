@@ -154,11 +154,17 @@ import UniformTypeIdentifiers
             value(forProperty: .frameCount) as? Int ?? 0
         }
         
-        /// Returns the frame at the specified index.
+        /// Returns the image frame at the specified index.
         func frame(at index: Int) -> ImageFrame? {
             currentFrame = index
             guard let image = cgImage?.nsUIImage else { return nil }
             return ImageFrame(image, currentFrameDuration)
+        }
+        
+        /// Returns the image frames for an animated GIF image.
+        var frames: [ImageFrame] {
+            guard frameCount != 0 else { return [] }
+            return (0..<frameCount).compactMap({ frame(at: $0) })
         }
         
         /// Returns the frame at the specified index.
