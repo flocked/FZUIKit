@@ -16,11 +16,13 @@ import SwiftUI
 
 extension NSDirectionalRectEdge: Hashable { }
 
+#if os(macOS)
 public extension CGRect {
     func inset(by edgeInsets: EdgeInsets) -> CGRect {
         inset(by: NSUIEdgeInsets(edgeInsets))
     }
 }
+#endif
 
 extension NSUIEdgeInsets: Hashable {
     public static func == (lhs: NSUIEdgeInsets, rhs: NSUIEdgeInsets) -> Bool {
