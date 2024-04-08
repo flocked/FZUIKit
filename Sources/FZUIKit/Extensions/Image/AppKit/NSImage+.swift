@@ -202,6 +202,7 @@ import UniformTypeIdentifiers
             get { value(forProperty: .currentFrameDuration) as? TimeInterval ?? 0.0 }
             set {
                 guard value(forProperty: .currentFrameDuration) != nil else { return }
+                swizzleFrameDurationUpdate()
                 setProperty(.currentFrameDuration, withValue: newValue)
             }
         }
@@ -215,6 +216,40 @@ import UniformTypeIdentifiers
             }
         }
     }
+
+private extension NSBitmapImageRep {
+    ///Changing the frame duration of a bitmap representation is normally not saved, which prevents changing the animation duration. This fixes it.
+    func swizzleFrameDurationUpdate() {
+        guard !isMethodReplaced(#selector(self.setProperty(_:withValue:))) else { return }
+        let _currentFrame = currentFrame
+        do {
+           try replaceMethod(
+            #selector(self.setProperty(_:withValue:)),
+           methodSignature: (@convention(c)  (AnyObject, Selector, NSBitmapImageRep.PropertyKey, Any?) -> ()).self,
+           hookSignature: (@convention(block)  (AnyObject, NSBitmapImageRep.PropertyKey, Any?) -> ()).self) { store in {
+               object, property, value in
+               store.original(object, #selector(self.setProperty(_:withValue:)), property, value)
+               guard let object = object as? NSBitmapImageRep else { return }
+               if property == .currentFrameDuration, let value = value as? TimeInterval {
+                   object._currentFrameDuration = value
+               } else if property == .currentFrame, let index = value as? Int {
+                   store.original(object, #selector(self.setProperty(_:withValue:)), .currentFrameDuration, object._currentFrameDuration)
+               }
+               }
+           }
+            currentFrame = 0
+            _currentFrameDuration = currentFrameDuration
+            currentFrame = _currentFrame
+        } catch {
+           debugPrint(error)
+        }
+    }
+    
+    var _currentFrameDuration: TimeInterval {
+        get { getAssociatedValue("currentFrameDuration", initialValue: 0.0) }
+        set { setAssociatedValue(newValue, key: "currentFrameDuration") }
+    }
+}
 
     public extension NSImage {
         /// The bitmap representation of the image

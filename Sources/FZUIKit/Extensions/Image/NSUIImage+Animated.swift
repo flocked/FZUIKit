@@ -136,7 +136,7 @@
             self.init(animated: images, duration: duration, loopCount: loopCount)
         }
         
-        public static func gifData(from images: [NSUIImage], duration: TimeInterval, loopCount: Int = 0) -> Data? {
+        static func gifData(from images: [NSUIImage], duration: TimeInterval, loopCount: Int = 0) -> Data? {
             let frameDuration = duration / TimeInterval(images.count)
             return gifData(from: images, frameDuration: frameDuration, loopCount: loopCount)
         }
