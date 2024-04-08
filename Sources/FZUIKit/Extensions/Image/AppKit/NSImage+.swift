@@ -191,7 +191,7 @@ import UniformTypeIdentifiers
             }
         }
 
-        /// The the current frame for an animated GIF image, or `0` if the image isn't a GIF.
+        /// The current frame for an animated GIF image, or `0` if the image isn't a GIF.
         var currentFrame: Int {
             get { (value(forProperty: .currentFrame) as? Int) ?? 0 }
             set { setProperty(.currentFrame, withValue: newValue.clamped(to: 0...frameCount-1)) }
@@ -232,7 +232,7 @@ private extension NSBitmapImageRep {
                guard let object = object as? NSBitmapImageRep else { return }
                if property == .currentFrameDuration, let value = value as? TimeInterval {
                    object._currentFrameDuration = value
-               } else if property == .currentFrame, let index = value as? Int {
+               } else if property == .currentFrame {
                    store.original(object, #selector(self.setProperty(_:withValue:)), .currentFrameDuration, object._currentFrameDuration)
                }
                }
