@@ -62,10 +62,6 @@ extension NSImageView {
         return self
     }
     
-    var hasDrawingRect: Bool {
-        getAssociatedValue("", initialValue: containsProperty(named: "_drawingRectForImage"))
-    }
-    
     /**
      The current size and position of the image that displays within the image view’s bounds.
      
