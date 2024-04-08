@@ -17,13 +17,7 @@ import UniformTypeIdentifiers
 
 #if os(macOS)
     public extension NSImage {
-        /// A Boolean value that indicates whether the image is a symbol.
-        @available(macOS 11.0, *)
-        var isSymbolImage: Bool {
-            (self.value(forKey: "_isSymbolImage") as? Bool) ??
-                (symbolName != nil)
-        }
-
+        
         convenience init(cgImage: CGImage) {
             self.init(cgImage: cgImage, size: .zero)
         }
@@ -39,12 +33,20 @@ import UniformTypeIdentifiers
             }
         }
         
+        /// A Boolean value that indicates whether the image is a symbol.
+        @available(macOS 11.0, *)
+        var isSymbolImage: Bool {
+            (self.value(forKey: "_isSymbolImage") as? Bool) ??
+                (symbolName != nil)
+        }
+        
         /// Returns the image types supported by `NSImage`.
         @available(macOS 11.0, *)
         static var imageContentTypes: [UTType] {
             imageTypes.compactMap({UTType($0)})
         }
 
+        /// A `cgImage` represenation of the image.
         var cgImage: CGImage? {
             if let image = self.cgImage(forProposedRect: nil, context: nil, hints: nil) {
                 return image
@@ -54,18 +56,29 @@ import UniformTypeIdentifiers
             return CGImageSourceCreateImageAtIndex(sourceData, 0, nil)
         }
 
+        /// A `CIImage` represenation of the image.
         var ciImage: CIImage? {
             tiffRepresentation(using: .none, factor: 0).flatMap(CIImage.init)
         }
 
+        /**
+         Creates an image source that reads the image.
+
+         - Note: Loading an animated image takes time as each image frame is loaded initially. It's recommended to either use the url to the image if available, or parse the animation properties and frames via the image's `NSBitmapImageRep` representation.
+         */
         var cgImageSource: CGImageSource? {
-            if let data = tiffRepresentation {
-                return CGImageSourceCreateWithData(data as CFData, nil)
-            }
-            return nil
+            let images = representations.compactMap({$0 as? NSBitmapImageRep}).flatMap({$0.getImages()})
+            guard !images.isEmpty else { return nil }
+            let types = Set(images.compactMap { $0.utType })
+            let outputType = types.count == 1 ? (types.first ?? kUTTypeTIFF) : kUTTypeTIFF
+            guard let mutableData = CFDataCreateMutable(nil, 0), let destination = CGImageDestinationCreateWithData(mutableData, outputType, images.count, nil) else { return nil }
+            images.forEach { CGImageDestinationAddImage(destination, $0, nil) }
+            guard CGImageDestinationFinalize(destination) else { return nil }
+            return CGImageSourceCreateWithData(mutableData, nil)
         }
 
         typealias ImageOrientation = ImageSource.ImageProperties.Orientation
+        /// The image orientation.
         var orientation: ImageOrientation {
             ImageSource(image: self)?.properties()?.orientation ?? .up
         }

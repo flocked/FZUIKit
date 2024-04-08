@@ -120,6 +120,12 @@ public extension NSBitmapImageRep {
         get { getAssociatedValue("currentFrameDuration", initialValue: 0.0) }
         set { setAssociatedValue(newValue, key: "currentFrameDuration") }
     }
+    
+    private var imageSource: ImageSource? {
+        guard String(describing: value(forKey: "_tiffData")) != "nil" else { return nil }
+        return ImageSource(value(forKey: "_tiffData") as! CGImageSource)
+    }
 }
+
 
 #endif
