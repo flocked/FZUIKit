@@ -320,7 +320,7 @@
         private func updateVideoViewConfiguration() {
             videoView.player?.volume = volume
             videoView.controlsStyle = videoViewControlStyle
-            videoView.videoGravity =  AVLayerVideoGravity(imageScaling: contentScaling) ?? .resizeAspectFill
+            videoView.videoGravity =  AVLayerVideoGravity(imageScaling: contentScaling)
             videoView.player?.isMuted = isMuted
         }
 
@@ -358,7 +358,7 @@
         lazy var videoView: NoMenuPlayerView = {
             let videoView = NoMenuPlayerView()
             videoView.isHidden = true
-            videoView.videoGravity =  AVLayerVideoGravity(imageScaling: contentScaling) ?? .resizeAspectFill
+            videoView.videoGravity =  AVLayerVideoGravity(imageScaling: contentScaling)
             return videoView
         }()
 

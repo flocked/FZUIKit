@@ -345,7 +345,7 @@
          */
         public var border: BorderConfiguration {
             get {
-                let view = NSView.toRealSelf(self)
+                let view = realSelf
                 return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
             }
             set {
@@ -372,7 +372,7 @@
             set {
                 wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                NSView.toRealSelf(self).dynamicColors.border = newValue
+                realSelf.dynamicColors.border = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
@@ -399,7 +399,7 @@
          */
         public var outerShadow: ShadowConfiguration {
             get {
-                let view = NSView.toRealSelf(self)
+                let view = realSelf
                 return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
             }
             set {
@@ -422,7 +422,7 @@
             set {
                 wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                NSView.toRealSelf(self).dynamicColors.shadow = newValue
+                realSelf.dynamicColors.shadow = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
@@ -516,11 +516,11 @@
          The default value is `none()`, which results in a view with no inner shadow.
          */
         public var innerShadow: ShadowConfiguration {
-            get { NSView.toRealSelf(self).layer?.innerShadowLayer?.configuration ?? .none() }
+            get { realSelf.layer?.innerShadowLayer?.configuration ?? .none() }
             set {
                 wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                NSView.toRealSelf(self).dynamicColors.innerShadow = newValue._resolvedColor
+                realSelf.dynamicColors.innerShadow = newValue._resolvedColor
                 if innerShadowLayer == nil {
                     let innerShadowLayer = InnerShadowLayer()
                     layer?.addSublayer(withConstraint: innerShadowLayer)
@@ -823,11 +823,6 @@
             get { getAssociatedValue("NdidSwizzleAnimationForKey", initialValue: false) }
             set { setAssociatedValue(newValue, key: "NdidSwizzleAnimationForKey") }
         }
-        
-        @objc private func realSelf() -> NSView { self }
-        static func toRealSelf(_ v: NSView) -> NSView {
-            v.perform(#selector(realSelf))!.takeUnretainedValue() as! NSView
-        }
     }
 
     public extension NSView.AutoresizingMask {
@@ -861,5 +856,20 @@
 
     /// The `NSView` properties keys that can be animated.
     private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
+
+extension NSObject {
+    @objc private func _realSelf() -> NSObject { self }
+    static func toRealSelf<Object: NSObject>(_ v: Object) -> Object {
+        v.perform(#selector(_realSelf))!.takeUnretainedValue() as! Object
+    }
+}
+
+extension NSObjectProtocol where Self: NSObject {
+    /// Returns the real `self`, if the object is a proxy.
+    var realSelf: Self {
+        guard isProxy() else { return self }
+        return Self.toRealSelf(self)
+    }
+}
 
 #endif

@@ -62,6 +62,10 @@ extension NSImageView {
         return self
     }
     
+    var hasDrawingRect: Bool {
+        getAssociatedValue("", initialValue: containsProperty(named: "_drawingRectForImage"))
+    }
+    
     /**
      The current size and position of the image that displays within the image view’s bounds.
      
@@ -75,9 +79,9 @@ extension NSImageView {
         guard let imageSize = image?.size else { return .zero }
     
         var contentFrame = CGRect(.zero, frame.size)
-        switch self.imageFrameStyle {
+        switch imageFrameStyle {
         case .button, .groove:
-            contentFrame = NSInsetRect(self.bounds, 2, 2)
+            contentFrame = NSInsetRect(bounds, 2, 2)
         case .photo:
             contentFrame = CGRect(x: contentFrame.origin.x + 1, y: contentFrame.origin.x + 2, width: contentFrame.size.width - 3, height: contentFrame.size.height - 3)
         case .grayBezel:
@@ -136,7 +140,7 @@ extension NSImageView {
       }
     
     /**
-     A view for hosting layered content on top of the image view.
+     A view for hosting content on top of the image view.
      
      Use this view to host content that you want layered on top of the image view. This view is managed by the image view itself and is automatically sized to fill the image view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
      
@@ -146,52 +150,33 @@ extension NSImageView {
         if let view: NSView = getAssociatedValue("overlayContentView") {
             return view
         }
-        let overlayView = NSView()
-        overlayView.clipsToBounds = true
-        addSubview(withConstraint: overlayView)
-        setAssociatedValue(overlayView, key: "overlayContentView")
-        return overlayView
-    }
-    
-    /**
-     A view for hosting content on top of the image view that automatically resizes to the image size and the image scaling.
-     
-     Use this view to host content that you want layered on top of the image view. This view is managed by the image view itself and is automatically sized to fill the image view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
-     
-     The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
-     */
-    public var resizingOverlayContentView: NSView {
-        if let view: NSView = getAssociatedValue("resizingOverlayContentView") {
-            return view
-        }
         
         let overlayView = NSView()
         overlayView.clipsToBounds = true
         overlayView.frame = imageBounds
-        overlayContentView.addSubview(overlayView)
-        setAssociatedValue(overlayView, key: "resizingOverlayContentView")
-        needsResizingViewUpdate = true
+        addSubview(overlayView)
+        setAssociatedValue(overlayView, key: "overlayContentView")
 
         imageViewObserver.add(\.frame) { [weak self] old, new in
             guard let self = self, old != new else { return }
-            self.resizingOverlayContentView.frame = self.imageBounds
+            self.overlayContentView.frame = self.imageBounds
         }
         imageViewObserver.add(\.image) { [weak self] old, new in
             guard let self = self, old?.size != new?.size else { return }
-            self.resizingOverlayContentView.frame = self.imageBounds
+            self.overlayContentView.frame = self.imageBounds
             self.updateTransition()
         }
         imageViewObserver.add(\.imageFrameStyle) { [weak self] old, new in
             guard let self = self, old != new else { return }
-            self.resizingOverlayContentView.frame = self.imageBounds
+            self.overlayContentView.frame = self.imageBounds
         }
         imageViewObserver.add(\.imageScaling) { [weak self] old, new in
             guard let self = self, old != new else { return }
-            self.resizingOverlayContentView.frame = self.imageBounds
+            self.overlayContentView.frame = self.imageBounds
         }
         imageViewObserver.add(\.imageAlignment) { [weak self] old, new in
             guard let self = self, old != new else { return }
-            self.resizingOverlayContentView.frame = self.imageBounds
+            self.overlayContentView.frame = self.imageBounds
         }
         return overlayView
     }
@@ -199,50 +184,75 @@ extension NSImageView {
     var imageViewObserver: KeyValueObserver<NSImageView> {
         get { getAssociatedValue("imageViewObserver", initialValue: KeyValueObserver(self)) }
     }
-    
-    var needsResizingViewUpdate: Bool {
-        get { getAssociatedValue("needsResizingViewUpdate", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "needsResizingViewUpdate") }
-
-    }
 
     /// The transition animation when changing the displayed image.
     public var transitionAnimation: TransitionAnimation {
         get { getAssociatedValue("TransitionAnimation", initialValue: .none) }
         set {
+            guard newValue != transitionAnimation else { return }
             setAssociatedValue(newValue, key: "TransitionAnimation")
-            setupImageObserver()
+            if newValue.type != nil  {
+                guard transitionImageObservation == nil else { return }
+                transitionImageObservation = observeWillChange(\.image) { [weak self] _ in
+                    guard let self = self else { return }
+                    self.updateTransition()
+                }
+            } else {
+                transitionImageObservation = nil
+            }
             updateTransition()
         }
     }
     
     
-    /// The transition animation duration when changing the displayed image.
-    public var transitionAnimationDuration: TimeInterval {
-        get { getAssociatedValue("transitionAnimationDuration", initialValue: 0.1) }
+    /// The duration of the transition animation.
+    public var transitionDuration: TimeInterval {
+        get { getAssociatedValue("transitionDuration", initialValue: 0.2) }
         set {
-            guard newValue != transitionAnimationDuration else { return }
-            setAssociatedValue(newValue, key: "transitionAnimationDuration")
+            guard newValue != transitionDuration else { return }
+            setAssociatedValue(newValue, key: "transitionDuration")
             updateTransition()
         }
     }
     
-    /// Constants that specify the transition animation when changing between images.
-    public enum TransitionAnimation {
+    /// Constants that specify the transition animation when changing the displayed image.
+    public enum TransitionAnimation: Hashable, CustomStringConvertible {
         /// No transition animation.
         case none
-        
         /// The new image fades in animated..
         case fade
-        
         /// The new image slides into place over any existing image from the specified direction.
         case moveIn(_ direction: Direction = .fromLeft)
-        
         /// The new image pushes any existing image as it slides into place from the specified direction.
         case push(_ direction: Direction = .fromLeft)
-        
         /// The new image is revealed gradually in the specified direction.
         case reveal(_ direction: Direction = .fromLeft)
+        
+        /// The direction of the transition.
+        public enum Direction: String, Hashable {
+            /// From left.
+            case fromLeft
+            /// From right.
+            case fromRight
+            /// From bottom.
+            case fromBottom
+            /// From top.
+            case fromTop
+            
+            var subtype: CATransitionSubtype {
+                CATransitionSubtype(rawValue: rawValue)
+            }
+        }
+        
+        public var description: String {
+            switch self {
+            case .none: return "TransitionAnimation.none"
+            case .fade: return "TransitionAnimation.fade"
+            case .moveIn(let direction): return "TransitionAnimation.moveIn(\(direction.rawValue))"
+            case .push(let direction): return "TransitionAnimation.push(\(direction.rawValue))"
+            case .reveal(let direction): return "TransitionAnimation.reveal(\(direction.rawValue))"
+            }
+        }
         
         var subtype: CATransitionSubtype? {
             switch self {
@@ -261,42 +271,18 @@ extension NSImageView {
             case .none: return nil
             }
         }
-        
-        public enum Direction: String {
-            case fromLeft
-            case fromRight
-            case fromBottom
-            case fromTop
-            var subtype: CATransitionSubtype {
-                CATransitionSubtype(rawValue: rawValue)
-            }
-        }
+    }
+    
+    var transitionImageObservation: KeyValueObservation? {
+        get { getAssociatedValue("transitionImageObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "transitionImageObservation") }
     }
     
     func updateTransition() {
         if let type = transitionAnimation.type {
-            transition(CATransition(type, subtype: transitionAnimation.subtype, duration: transitionAnimationDuration))
+            transition(CATransition(type, subtype: transitionAnimation.subtype, duration: transitionDuration))
         } else {
             transition(nil)
-        }
-    }
-    
-    func setupImageObserver() {
-        if transitionAnimation.type != nil {
-            if imageViewObserver.isObserving(\.imageFrameStyle) {
-                imageViewObserver.add(\.image) { [weak self] old, new in
-                    guard let self = self, old?.size != new?.size else { return }
-                    self.resizingOverlayContentView.frame = self.imageBounds
-                    self.updateTransition()
-                }
-            } else {
-                imageViewObserver.add(\.image) { [weak self] old, new in
-                    guard let self = self, old?.size != new?.size else { return }
-                    self.updateTransition()
-                }
-            }
-        } else if !imageViewObserver.isObserving(\.imageFrameStyle) {
-            imageViewObserver.remove(\.image)
         }
     }
 }

@@ -351,24 +351,45 @@ open class ImageView: NSControl {
     open var transitionAnimation: TransitionAnimation = .none
     
     /// The duration of the transition animation.
-    open var transitionDuration: TimeInterval = 0.1
+    open var transitionDuration: TimeInterval = 0.2
     
     /// Constants that specify the transition animation when changing between displayed images.
-    public enum TransitionAnimation {
+    public enum TransitionAnimation: Hashable, CustomStringConvertible {
         /// No transition animation.
         case none
-        
         /// The new image fades in.
         case fade
-        
         /// The new image slides into place over any existing image from the specified direction.
         case moveIn(_ direction: Direction = .fromLeft)
-        
         /// The new image pushes any existing image as it slides into place from the specified direction.
         case push(_ direction: Direction = .fromLeft)
-        
         /// The new image is revealed gradually in the specified direction.
         case reveal(_ direction: Direction = .fromLeft)
+        
+        /// The direction of the transition.
+        public enum Direction: String, Hashable {
+            /// From left.
+            case fromLeft
+            /// From right.
+            case fromRight
+            /// From bottom.
+            case fromBottom
+            /// From top.
+            case fromTop
+            var subtype: CATransitionSubtype {
+                CATransitionSubtype(rawValue: rawValue)
+            }
+        }
+        
+        public var description: String {
+            switch self {
+            case .none: return "TransitionAnimation.none"
+            case .fade: return "TransitionAnimation.fade"
+            case .moveIn(let direction): return "TransitionAnimation.moveIn(\(direction.rawValue))"
+            case .push(let direction): return "TransitionAnimation.push(\(direction.rawValue))"
+            case .reveal(let direction): return "TransitionAnimation.reveal(\(direction.rawValue))"
+            }
+        }
         
         var type: CATransitionType? {
             switch self {
@@ -391,16 +412,6 @@ open class ImageView: NSControl {
         func transition(_ duration: TimeInterval) -> CATransition? {
             guard let type = type else { return nil }
             return CATransition(type, subtype: subtype, duration: duration)
-        }
-        
-        public enum Direction: String {
-            case fromLeft
-            case fromRight
-            case fromBottom
-            case fromTop
-            var subtype: CATransitionSubtype {
-                CATransitionSubtype(rawValue: rawValue)
-            }
         }
     }
     

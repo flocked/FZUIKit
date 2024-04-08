@@ -73,7 +73,7 @@
             /// Displays the specified animated image.
             func setAnimatedImage(_ image: NSImage) {
                 if image.isAnimated, let frames = image.frames {
-                    animationRepeatCount = image.animationLoopCount ?? 0
+                    animationRepeatCount = image.animationLoopCount
                     isLoadingAnimatedImage = true
                     Task {
                         var duration = 0.0
