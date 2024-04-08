@@ -13,8 +13,7 @@
  
         /// A Boolean value that indicates whether the image is animated (e.g. a GIF).
         var isAnimated: Bool {
-            guard framesCount > 1 else { return false }
-            return bitmapImageRep?.value(forProperty: .currentFrameDuration) != nil
+            framesCount > 1 && bitmapImageRep?.value(forProperty: .currentFrameDuration) != nil
         }
 
         /// The number of frames of an animated (e.g. GIF) image.

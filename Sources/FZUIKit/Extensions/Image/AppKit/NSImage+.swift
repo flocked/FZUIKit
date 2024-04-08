@@ -36,8 +36,7 @@ import UniformTypeIdentifiers
         /// A Boolean value that indicates whether the image is a symbol.
         @available(macOS 11.0, *)
         var isSymbolImage: Bool {
-            (self.value(forKey: "_isSymbolImage") as? Bool) ??
-                (symbolName != nil)
+            value(forKey: "_isSymbolImage") as? Bool ?? (symbolName != nil)
         }
         
         /// Returns the image types supported by `NSImage`.
@@ -64,7 +63,7 @@ import UniformTypeIdentifiers
         /**
          Creates an image source that reads the image.
 
-         - Note: Loading an animated image takes time as each image frame is loaded initially. It's recommended to either use the url to the image if available, or parse the animation properties and frames via the image's `NSBitmapImageRep` representation.
+         - Note: Loading an animated image takes time as each image frame is loaded initially. It's recommended to parse the animation properties and frames via the image's `NSBitmapImageRep` representation.
          */
         var cgImageSource: CGImageSource? {
             let images = representations.compactMap({$0 as? NSBitmapImageRep}).flatMap({$0.getImages()})
@@ -97,8 +96,8 @@ import UniformTypeIdentifiers
          */
         func withTintColor(_ color: NSColor) -> NSImage {
             if #available(macOS 12.0, *) {
-                if self.isSymbolImage {
-                    return self.withSymbolConfiguration(.init(paletteColors: [color])) ?? self
+                if isSymbolImage {
+                    return withSymbolConfiguration(.init(paletteColors: [color])) ?? self
                 }
             }
 
@@ -171,7 +170,7 @@ import UniformTypeIdentifiers
          - Returns: A data object containing the TIFF data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
          */
         func tiffData() -> Data? { tiffRepresentation }
-
+        
         /**
          Returns a data object that contains the specified image in PNG format.
 
@@ -196,9 +195,5 @@ import UniformTypeIdentifiers
         func jpegData(compressionFactor factor: Double) -> Data? {
             bitmapImageRep?.jpegData(compressionFactor: factor)
         }
-    }
-
-    extension Data {
-        var bitmap: NSBitmapImageRep? { NSBitmapImageRep(data: self) }
     }
 #endif
