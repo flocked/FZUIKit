@@ -123,6 +123,16 @@ public extension NSUIFont {
         return NSUIFont(descriptor: fontDescriptor, size: pointSize)
     }
     
+    /// Applies the specified design to the font.
+    func design(_ design: NSUIFontDescriptor.SystemDesign) -> NSUIFont {
+        let descriptor = fontDescriptor.withDesign(design)!
+        #if os(macOS)
+            return NSUIFont(descriptor: descriptor, size: pointSize)!
+        #else
+            return NSUIFont(descriptor: descriptor, size: pointSize)
+        #endif
+    }
+    
     /// Returns a new font based on the current font, but with the specified symbolic traits taking precedence over the existing ones.
     func withSymbolicTraits(_ symbolTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont? {
         #if os(macOS)
@@ -133,6 +143,16 @@ public extension NSUIFont {
         #endif
     }
     
+    /// Applies the specified symbolic traits to the font.
+    func symbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
+        var descriptor = fontDescriptor.withSymbolicTraits(symbolicTraits)
+        #if os(macOS)
+            return NSUIFont(descriptor: descriptor, size: 0)!
+        #else
+            return NSUIFont(descriptor: descriptor!, size: 0)
+        #endif
+    }
+    
     /// Returns a new font based on the current font, but with the specified face.
     func withFace(_ newFace: String) -> NSUIFont? {
         #if os(macOS)
@@ -140,6 +160,15 @@ public extension NSUIFont {
         #else
         return NSUIFont(descriptor: fontDescriptor.withFace(newFace), size: pointSize)
         #endif
+    }
+    
+    /// Applies the specified weight to the font.
+    func weight(_ weight: NSUIFont.Weight) -> NSUIFont {
+        addingAttributes([
+            NSUIFontDescriptor.AttributeName.traits: [
+                NSUIFontDescriptor.TraitKey.weight: weight.rawValue,
+            ],
+        ])
     }
 }
 
@@ -177,15 +206,6 @@ public extension NSUIFont {
             let descriptor = NSUIFontDescriptor.preferredFontDescriptor(withTextStyle: textStyle).withDesign(design)!
             return NSUIFont(descriptor: descriptor, size: 0)
         #endif
-    }
-
-    /// Applies the specified weight to the font.
-    func weight(_ weight: NSUIFont.Weight) -> NSUIFont {
-        addingAttributes([
-            NSUIFontDescriptor.AttributeName.traits: [
-                NSUIFontDescriptor.TraitKey.weight: weight.rawValue,
-            ],
-        ])
     }
 
     /// The font with a italic style.
@@ -350,26 +370,6 @@ public extension NSUIFont {
         case loose
         /// The font uses a leading value that’s less than the default.
         case tight
-    }
-
-    /// Applies the specified design to the font.
-    func design(_ design: NSUIFontDescriptor.SystemDesign) -> NSUIFont {
-        let descriptor = fontDescriptor.withDesign(design)!
-        #if os(macOS)
-            return NSUIFont(descriptor: descriptor, size: pointSize)!
-        #else
-            return NSUIFont(descriptor: descriptor, size: pointSize)
-        #endif
-    }
-
-    /// Applies the specified symbolic traits to the font.
-    func symbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
-        var descriptor = fontDescriptor.withSymbolicTraits(symbolicTraits)
-        #if os(macOS)
-            return NSUIFont(descriptor: descriptor, size: 0)!
-        #else
-            return NSUIFont(descriptor: descriptor!, size: 0)
-        #endif
     }
 
     internal func includingSymbolicTraits(_ symbolicTraits: NSUIFontDescriptor.SymbolicTraits, without: NSUIFontDescriptor.SymbolicTraits? = nil) -> NSUIFont {

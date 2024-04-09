@@ -81,42 +81,6 @@
             return font
         }
 
-        /**
-         Returns the standard system font for the specified table row size and weight.
-
-         - Parameters:
-            - size: The table row size.
-         */
-        static func systemFont(forTableRowSize size: NSTableView.RowSizeStyle) -> NSFont {
-            .systemFont(ofSize: systemFontSize(forTableRowSize: size))
-        }
-
-        /**
-         Returns the standard system font for the specified table row size and weight.
-
-         - Parameters:
-            - size: The table row size.
-            - weight: The weight of the font.
-         */
-        static func systemFont(forTableRowSize size: NSTableView.RowSizeStyle, weight: NSFont.Weight) -> NSFont {
-            .systemFont(ofSize: systemFontSize(forTableRowSize: size), weight: weight)
-        }
-
-        internal static func systemFontSize(forTableRowSize tableRowSize: NSTableView.RowSizeStyle) -> CGFloat {
-            switch tableRowSize {
-            case .small:
-                return 11.0
-            case .large:
-                if #available(macOS 11.0, *) {
-                    return 15.0
-                } else {
-                    return 13.0
-                }
-            default:
-                return 13.0
-            }
-        }
-
         func sized(toFit text: String, height: CGFloat) -> NSFont {
             let font = withSize(1)
             var textSize = text.size(withAttributes: [.font: font])
