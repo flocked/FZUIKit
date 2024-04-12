@@ -29,14 +29,11 @@ import FZSwiftUtils
             self.identifier = identifier ?? UUID().uuidString
             _items = items
             super.init()
-            //   self.delegate = DelegateProxy(toolbar: self)
             toolbar.allowsUserCustomization = allowsUserCustomization
             if allowsUserCustomization {
                 toolbar.autosavesConfiguration = true
             }
         }
-
-        //  internal var delegate: DelegateProxy!
 
         /**
          Creates a newly toolbar with the specified identifier.
@@ -317,56 +314,5 @@ import FZSwiftUtils
             return canInsert(item, index)
         }
     }
-
-    /*
-     internal extension Toolbar {
-         class DelegateProxy: NSObject, NSToolbarDelegate {
-             weak var toolbar: Toolbar!
-             init(toolbar: Toolbar!) {
-                 self.toolbar = toolbar
-             }
-
-             public func toolbarDefaultItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-                 return toolbar._items.filter { $0.isDefault }
-                     .map { $0.identifier }
-             }
-
-             public func toolbarImmovableItemIdentifiers(_: NSToolbar) -> Set<NSToolbarItem.Identifier> {
-                 return Set(self.toolbar._items.filter { $0.isImmovableItem }
-                     .map { $0.identifier })
-             }
-
-             public func toolbarAllowedItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-                 return self.toolbar._items.map { $0.identifier }
-             }
-
-             public func toolbarSelectableItemIdentifiers(_: NSToolbar) -> [NSToolbarItem.Identifier] {
-                 return self.toolbar._items.filter { $0.isSelectable }.map { $0.identifier }
-             }
-
-             public func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
-                 return self.toolbar._items.first { $0.identifier == itemIdentifier }?.item
-             }
-
-             public func toolbarWillAddItem(_ notification: Notification) {
-                 guard let willAdd = self.toolbar.itemHandlers.willAdd else { return }
-                 guard let toolbarItem = notification.userInfo?["itemKey"] as? NSToolbarItem, let item = self.toolbar._items.first(where: { $0.item == toolbarItem }) else { return }
-                 willAdd(item)
-             }
-
-             public func toolbarDidRemoveItem(_ notification: Notification) {
-                 guard let didRemove = self.toolbar.itemHandlers.didRemove else { return }
-                 guard let toolbarItem = notification.userInfo?["itemKey"] as? NSToolbarItem, let item = self.toolbar._items.first(where: { $0.item == toolbarItem }) else { return }
-                 didRemove(item)
-             }
-
-             public func toolbar(_: NSToolbar, itemIdentifier: NSToolbarItem.Identifier, canBeInsertedAt index: Int) -> Bool {
-                 guard let canInsert = self.toolbar.itemHandlers.canInsert else { return true }
-                 guard let item = self.toolbar._items.first(where: { $0.identifier == itemIdentifier }) else { return true }
-                 return canInsert(item, index)
-             }
-         }
-     }
-     */
 
 #endif

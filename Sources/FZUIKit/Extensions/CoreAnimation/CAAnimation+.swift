@@ -46,12 +46,18 @@
 
         class DelegateProxy: NSObject, CAAnimationDelegate {
             weak var animation: CAAnimation?
-            var delegate: CAAnimationDelegate?
+            weak var delegate: CAAnimationDelegate?
+            var delegateObservation: KeyValueObservation?
             init(_ animation: CAAnimation, delegate: CAAnimationDelegate? = nil) {
                 self.animation = animation
                 super.init()
                 self.delegate = delegate
                 animation.delegate = self
+                delegateObservation = animation.observeChanges(for: \.delegate) { [weak self] old, new in
+                    guard let self = self, (new as? NSObject) != self else { return }
+                    self.delegate = new
+                    self.animation?.delegate = self
+                }
             }
 
             func animationDidStart(_ anim: CAAnimation) {
@@ -65,5 +71,50 @@
             }
         }
     }
+
+/*
+ extension CAAnimation {
+     
+     /// A handler that gets called when the animation starts.
+     public var onStart: (() -> Void)? {
+         get { getAssociatedValue("didStart", initialValue: nil) }
+         set {
+             setAssociatedValue(newValue, key: "didStart")
+             if let onStart = newValue {
+                 delegateProxy.intercept(#selector(CAAnimationDelegate.animationDidStart(_:))) { _ in
+                     onStart()
+                 }
+             } else {
+                 delegateProxy.intercept(#selector(CAAnimationDelegate.animationDidStart(_:)), handler: nil)
+             }
+         }
+     }
+
+     /// A handler that gets called when the animation stops.
+     public var onStop: (() -> Void)? {
+         get { getAssociatedValue("didFinish", initialValue: nil) }
+         set {
+             setAssociatedValue(newValue, key: "didFinish")
+             if let onStop = newValue {
+                 delegateProxy.intercept(#selector(CAAnimationDelegate.animationDidStop(_:finished:))) { _ in
+                     onStop()
+                 }
+             } else {
+                 delegateProxy.intercept(#selector(CAAnimationDelegate.animationDidStop(_:finished:)), handler: nil)
+             }
+         }
+     }
+     
+     var delegateProxy: DelegateProxy {
+         AnimationDelegateProxy.create(for: self, keyPath: \.delegate)
+     }
+   
+     class AnimationDelegateProxy: DelegateProxy, CAAnimationDelegate, DelegateProxyType {
+         func setDelegate(to object: CAAnimation) {
+             object.delegate = self
+         }
+     }
+ }
+ */
 
 #endif

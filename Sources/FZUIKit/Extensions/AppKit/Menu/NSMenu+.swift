@@ -189,20 +189,16 @@ extension NSMenu {
     }
     
     class DelegateProxy: NSObject, NSMenuDelegate {
-        var delegate: NSMenuDelegate?
+        weak var delegate: NSMenuDelegate?
         var delegateObservation: KeyValueObservation? = nil
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
-            
             super.init()
             menu.delegate = self
             delegateObservation = menu.observeChanges(for: \.delegate) { [weak self] old, new in
-                guard let self = self else { return }
+                guard let self = self, new as? NSObject != self else { return }
                 self.delegate = new
-                if new == nil || (new != nil && (new as? NSObject) != self) {
-                    self.delegate = new
-                    menu.delegate = self
-                }
+                menu.delegate = self
             }
         }
         

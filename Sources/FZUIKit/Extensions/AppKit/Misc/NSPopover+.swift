@@ -224,31 +224,38 @@ import SwiftUI
         }
 
         private class DelegateProxy: NSObject, NSPopoverDelegate {
-            weak var delegate: NSPopoverDelegate?
             weak var popover: NSPopover!
+            weak var delegate: NSPopoverDelegate?
+            var delegateObservation: KeyValueObservation?
             init(delegate: NSPopoverDelegate? = nil, popover: NSPopover!) {
                 self.delegate = delegate
                 self.popover = popover
+                super.init()
+                delegateObservation = popover.observeChanges(for: \.delegate) { [weak self] old, new in
+                    guard let self = self, (new as? NSObject) != self else { return }
+                    self.delegate = new
+                    self.popover?.delegate = self
+                }
             }
 
             func popoverWillShow(_ notification: Notification) {
                 delegate?.popoverWillShow?(notification)
-                popover.handlers.willShow?()
+                popover?.handlers.willShow?()
             }
 
             func popoverDidShow(_ notification: Notification) {
                 delegate?.popoverDidShow?(notification)
-                popover.handlers.didShow?()
+                popover?.handlers.didShow?()
             }
 
             func popoverDidClose(_ notification: Notification) {
                 delegate?.popoverDidClose?(notification)
-                popover.handlers.didClose?()
+                popover?.handlers.didClose?()
             }
 
             func popoverWillClose(_ notification: Notification) {
                 delegate?.popoverWillClose?(notification)
-                popover.handlers.willClose?()
+                popover?.handlers.willClose?()
             }
 
             func popoverShouldClose(_ popover: NSPopover) -> Bool {

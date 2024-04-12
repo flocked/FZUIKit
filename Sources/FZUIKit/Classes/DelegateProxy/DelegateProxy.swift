@@ -59,7 +59,7 @@ open class DelegateProxy: __DelegateProxyObjC {
         - selector: The selector to intercept.
         - handler: The handler to be called whenever the selector is called.
      */
-    public func intercept(_ selector: Selector, _ handler: (([Any]) -> Void)?) {
+    public func intercept(_ selector: Selector, handler: (([Any]) -> Void)?) {
         if let handler = handler {
             if dict[selector] != nil {
                 dict[selector]?.append(handler)
