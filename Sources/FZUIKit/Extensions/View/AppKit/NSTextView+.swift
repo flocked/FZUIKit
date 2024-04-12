@@ -139,7 +139,7 @@ import FZSwiftUtils
         func setupMouseMonitor() {
             if endEditingOnOutsideClick {
                 if mouseDownMonitor == nil {
-                    mouseDownMonitor = NSEvent.monitor(.leftMouseDown) { [weak self] event in
+                    mouseDownMonitor = NSEvent.monitorLocal(.leftMouseDown) { [weak self] event in
                         guard let self = self, self.endEditingOnOutsideClick, self.isFirstResponder else { return event }
                         if self.bounds.contains(event.location(in: self)) == false {
                             self.resignFirstResponding()

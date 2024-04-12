@@ -1,5 +1,5 @@
 //
-//  NSApp+.swift
+//  NSApplication+.swift
 //
 //
 //  Created by Florian Zand on 14.07.22.

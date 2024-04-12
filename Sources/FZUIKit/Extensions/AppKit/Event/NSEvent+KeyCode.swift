@@ -70,34 +70,6 @@
         }
     }
 
-    public extension NSEvent.ModifierFlags {
-        var readableStringCompact: String {
-            ([
-                (.capsLock, "⇪"),
-                (.shift, "⇧"),
-                (.control, "⌃"),
-                (.option, "⌥"),
-                (.command, "⌘"),
-            ] as [(NSEvent.ModifierFlags, String)])
-                .map { self.contains($0.0) ? $0.1 : "" }
-                .joined()
-        }
-
-        var readableString: String {
-            ([
-                (.capsLock, "⇪"),
-                (.shift, "⇧"),
-                (.control, "⌃"),
-                (.option, "⌥"),
-                (.command, "⌘"),
-                (.numericPad, "numeric pad"),
-                (.help, "help"),
-                (.function, "fn"),
-            ] as [(NSEvent.ModifierFlags, String)])
-                .map { self.contains($0.0) ? $0.1 : "" }
-                .joined(separator: ", ")
-        }
-    }
 
     public extension NSEvent {
         static let NSEventKeyCodeMapping: [Int: String] = [
@@ -269,9 +241,7 @@
             0x7E: ("UP", nil),
             0x7F: ("POWER", nil), // This should be KeyCode::PC_POWER.
         ]
-    }
 
-    public extension NSEvent {
         enum KeyCode: UInt16, CaseIterable {
             case Zero = 29
             case One = 18
@@ -510,5 +480,35 @@
             }
         }
     }
+
+public extension NSEvent.ModifierFlags {
+    var readableStringCompact: String {
+        ([
+            (.capsLock, "⇪"),
+            (.shift, "⇧"),
+            (.control, "⌃"),
+            (.option, "⌥"),
+            (.command, "⌘"),
+        ] as [(NSEvent.ModifierFlags, String)])
+            .map { self.contains($0.0) ? $0.1 : "" }
+            .joined()
+    }
+
+    var readableString: String {
+        ([
+            (.capsLock, "⇪"),
+            (.shift, "⇧"),
+            (.control, "⌃"),
+            (.option, "⌥"),
+            (.command, "⌘"),
+            (.numericPad, "numeric pad"),
+            (.help, "help"),
+            (.function, "fn"),
+        ] as [(NSEvent.ModifierFlags, String)])
+            .map { self.contains($0.0) ? $0.1 : "" }
+            .joined(separator: ", ")
+    }
+}
+
 
 #endif

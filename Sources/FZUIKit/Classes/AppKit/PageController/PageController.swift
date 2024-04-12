@@ -33,7 +33,7 @@
         private func setupKeyDownMonitor() {
             if keyboardControl.isEnabled == true {
                 if keyDownMonitor == nil {
-                    keyDownMonitor = NSEvent.monitor(.keyDown) { [weak self] event in
+                    keyDownMonitor = NSEvent.monitorLocal(.keyDown) { [weak self] event in
                         guard let self = self else { return event }
                         let firstResponder = self.view.window?.firstResponder
                         if firstResponder == self || firstResponder == self.view {
