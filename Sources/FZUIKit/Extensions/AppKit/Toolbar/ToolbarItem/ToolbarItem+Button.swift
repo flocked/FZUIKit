@@ -145,7 +145,7 @@
             public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
-                    action?(self.item)
+                    action?(self)
                 }
                 return self
             }

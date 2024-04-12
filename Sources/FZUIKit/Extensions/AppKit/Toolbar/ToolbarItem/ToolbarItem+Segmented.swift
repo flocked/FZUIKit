@@ -16,11 +16,6 @@
          The item can be used with ``Toolbar``.
          */
         class Segmented: ToolbarItem {
-            /// Switching mode of the segmented control.
-            public typealias SwitchingMode = NSSegmentedControl.SwitchTracking
-            /// Style of the segmented control.
-            public typealias Style = NSSegmentedControl.Style
-
             /// The segmented control of the toolbar item.
             public let segmentedControl: NSSegmentedControl
 
@@ -33,29 +28,30 @@
             /// The type of tracking behavior the segmented control exhibits.
             @discardableResult
             public func switchingMode(_ mode: NSSegmentedControl.SwitchTracking) -> Self {
-                segmentedControl.trackingMode = mode
-                return self
+                set(\.segmentedControl.trackingMode, to: mode)
             }
 
             /// The visual style used to display the segmented control.
             @discardableResult
-            public func type(_ type: Style) -> Self {
-                segmentedControl.segmentStyle = type
-                return self
+            public func style(_ style: NSSegmentedControl.Style) -> Self {
+                set(\.segmentedControl.segmentStyle, to: style)
             }
 
             /// The color of the selected segment's bezel, in appearances that support it.
             @discardableResult
             public func selectedSegmentBezelColor(_ color: NSColor?) -> Self {
-                segmentedControl.selectedSegmentBezelColor = color
-                return self
+                set(\.segmentedControl.selectedSegmentBezelColor, to: color)
             }
 
             /// The segments of the segmented control.
             @discardableResult
             public func segments(_ segments: [NSSegment]) -> Self {
-                segmentedControl.segments = segments
-                return self
+                set(\.segmentedControl.segments, to: segments)
+            }
+            
+            @discardableResult
+            public func  segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
+                set(\.segmentedControl.segments, to: segments())
             }
 
             /// The action block that is called when the selection of the segmented control changes.
@@ -85,7 +81,7 @@
                 return self
             }
 
-            static func segmentedControl(switching: NSSegmentedControl.SwitchTracking, type: Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
+            static func segmentedControl(switching: NSSegmentedControl.SwitchTracking, type: NSSegmentedControl.Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
                 let segmentedControl = NSSegmentedControl(switching: switching, style: type, segments: segments)
                 segmentedControl.segmentDistribution = .fillEqually
                 segmentedControl.translatesAutoresizingMaskIntoConstraints = false
@@ -104,7 +100,7 @@
                 - segments: The segments of the segmented control.
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
-                                    type: Style = .automatic,
+                                    type: NSSegmentedControl.Style = .automatic,
                                     switching: NSSegmentedControl.SwitchTracking = .selectOne,
                                     segmentWidths: CGFloat? = nil,
                                     @NSSegmentedControl.Builder segments: () -> [NSSegment])

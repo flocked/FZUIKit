@@ -16,7 +16,7 @@
          The item can be used with ``Toolbar``.
          */
         class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
-            typealias SearchHandler = (NSSearchField, String, SearchState) -> Void
+            typealias SearchHandler = (String, SearchState) -> Void
 
             lazy var searchItem = NSSearchToolbarItem(identifier)
             override var item: NSToolbarItem {
@@ -37,7 +37,7 @@
 
             /// The action handler getting called when the search string value changes.
             @discardableResult
-            public func onSearch(_ action: @escaping ((_ searchfield: NSSearchField, _ stringValue: String, _ state: SearchState) -> Void)) -> Self {
+            public func onSearch(_ action: @escaping ((_ stringValue: String, _ state: SearchState) -> Void)) -> Self {
                 searchHandler = action
                 return self
             }
@@ -48,6 +48,7 @@
                 set {
                     guard newValue != searchField else { return }
                     searchItem.searchField = newValue
+                    newValue.translatesAutoresizingMaskIntoConstraints = false
                     setupSearchField()
                 }
             }
@@ -73,31 +74,31 @@
             /// /// The placeholder string of the search field.
             @discardableResult
             public func placeholderString(_ placeholder: String?) -> Self {
-                placeholderString = placeholder
-                return self
+                set(\.searchField.placeholderString, to: placeholder)
             }
 
             ///  /// The placeholder attributed string of the search field.
             @discardableResult
             public func placeholderAttributedString(_ placeholder: NSAttributedString?) -> Self {
-                placeholderAttributedString = placeholder
-                return self
+                set(\.searchField.placeholderAttributedString, to: placeholder)
             }
 
             /// The action to perform when the user pressed the enter key.
             @discardableResult
-            public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
-                searchItem.searchField.actionOnEnterKeyDown = enterAction
-                return self
+            public func actionOnEnterKeyDown(_ action: NSTextField.EnterKeyAction) -> Self {
+                set(\.searchField.actionOnEnterKeyDown, to: action)
             }
 
             /// /// The action to perform when the user pressed the escape key.
             @discardableResult
-            public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
-                searchItem.searchField.actionOnEscapeKeyDown = escapeAction
-                return self
+            public func actionOnEscapeKeyDown(_ action: NSTextField.EscapeKeyAction) -> Self {
+                set(\.searchField.actionOnEscapeKeyDown, to: action)
             }
-
+            
+            public func allowedCharacters(_ allowedCharacters: NSTextField.AllowedCharacters) -> Self {
+                set(\.searchField.allowedCharacters, to: allowedCharacters)
+            }
+            
             public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
                 super.init(identifier)
                 searchField.actionBlock = { [weak self] _ in
@@ -143,16 +144,15 @@
             }
 
             public func searchFieldDidStartSearching(_: NSSearchField) {
-                //    searchState = .isStarted
-                searchHandler?(searchField, stringValue, .didStart)
+                searchHandler?(stringValue, .didStart)
             }
 
             public func searchFieldDidEndSearching(_: NSSearchField) {
-                searchHandler?(searchField, stringValue, .didEnd)
+                searchHandler?(stringValue, .didEnd)
             }
 
             public func controlTextDidChange(_: Notification) {
-                searchHandler?(searchField, stringValue, .didUpdate)
+                searchHandler?(stringValue, .didUpdate)
             }
         }
     }

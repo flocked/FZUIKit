@@ -44,15 +44,21 @@
             /// The action block of the item.
             @discardableResult
             public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
-                item.actionBlock = action
+                if let action = action {
+                    item.actionBlock = { _ in
+                        action(self)
+                    }
+                } else {
+                    item.actionBlock = nil
+                }
                 return self
             }
 
             /// The action block of the item.
             @discardableResult
-            public func onAction(_ handler: @escaping () -> Void) -> Self {
+            public func onAction(_ action: @escaping () -> Void) -> Self {
                 item.actionBlock = { _ in
-                    handler()
+                    action()
                 }
                 return self
             }
