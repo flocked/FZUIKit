@@ -4,7 +4,7 @@
 //
 //  Created by Florian Zand on 08.06.23.
 //
-
+/*
 #if os(macOS)
     import AppKit
     #if canImport(SwiftUI)
@@ -156,3 +156,4 @@
         }
     }
 #endif
+*/

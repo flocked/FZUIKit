@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 09.04.23.
 //
 
+/*
 #if os(macOS)
     import AppKit
 
@@ -22,3 +23,4 @@
     }
 
 #endif
+*/

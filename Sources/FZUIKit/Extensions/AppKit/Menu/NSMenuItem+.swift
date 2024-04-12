@@ -54,6 +54,85 @@
             self.init(title: title)
             actionBlock = action
         }
+        
+        /**
+         Initializes and returns a menu item with the specified title.
+         - Parameter title: The title of the menu item.
+         - Returns: An instance of `NSMenuItem`.
+         */
+        convenience init(_ title: NSAttributedString) {
+            self.init(title: title)
+
+        }
+        
+        /**
+         Initializes and returns a menu item with the specified title.
+         
+         - Parameter title: The title of the menu item.
+         - Returns: An instance of `NSMenuItem`.
+         */
+        convenience init(title: NSAttributedString) {
+            self.init(title: "", action: nil, keyEquivalent: "")
+            attributedTitle = title
+            isEnabled = true
+        }
+        
+        /**
+         Initializes and returns a menu item with the specified title.
+         - Parameters:
+            - title: The title of the menu item.
+            - action: The action handler.
+         - Returns: An instance of `NSMenuItem`.
+         */
+        convenience init(_ title: NSAttributedString, action: @escaping ActionBlock) {
+            self.init(title: title)
+            actionBlock = action
+        }
+        
+        /**
+         Initializes and returns a menu item with the specified title.
+         - Parameters:
+            - title: The title of the menu item.
+            - action: The action handler.
+         - Returns: An instance of `NSMenuItem`.
+         */
+        convenience init(title: NSAttributedString, action: @escaping ActionBlock) {
+            self.init(title: title)
+            actionBlock = action
+        }
+        
+        /**
+         Initializes and returns a menu item with the specified localized title.
+         - Parameters:
+            - localizedTitle: The localized title of the menu item.
+            - table: The table of the localization.
+            - bundle: The bundle of the localization.
+            - locale: The language.
+            - comment: The comment of the localization.
+         - Returns: An instance of `NSMenuItem`.
+         */
+        @available(macOS 12, *)
+        convenience init(_ localizedTitle: String.LocalizationValue, table: String? = nil, bundle: Bundle? = nil, locale: Locale = .current, comment: StaticString? = nil) {
+            self.init(title: String(localized: localizedTitle, table: table, bundle: bundle, locale: locale, comment: comment))
+        }
+        
+        /**
+         Initializes and returns a menu item with the specified localized title.
+         
+         - Parameters:
+            - localizedTitle: The localized title of the menu item.
+            - table: The table of the localization.
+            - bundle: The bundle of the localization.
+            - locale: The language.
+            - comment: The comment of the localization.
+            - action: The action handler.
+         - Returns: An instance of `NSMenuItem`.
+         */
+        @available(macOS 12, *)
+        convenience init(_ localizedTitle: String.LocalizationValue, table: String? = nil, bundle: Bundle? = nil, locale: Locale = .current, comment: StaticString? = nil, action: @escaping ActionBlock) {
+            self.init(localizedTitle, table: table, bundle: bundle, locale: locale, comment: comment)
+            actionBlock = action
+        }
 
         /**
          Initializes and returns a menu item with the specified image.
@@ -165,8 +244,7 @@
 
          - Returns: An instance of `NSMenuItem`.
          */
-        convenience init(title: String,
-                         @MenuBuilder items: () -> [NSMenuItem])
+        convenience init(title: String, @MenuBuilder items: () -> [NSMenuItem])
         {
             self.init(title: title)
             submenu = NSMenu(title: "", items: items())
