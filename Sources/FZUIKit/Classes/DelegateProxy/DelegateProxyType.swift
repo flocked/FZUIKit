@@ -13,6 +13,7 @@ import FZSwiftUtils
 public protocol DelegateProxyType {
     associatedtype Object: NSObject
 
+    /// Intercepts the delegate of the specified object.
     func setDelegate(to object: Object)
 }
 
