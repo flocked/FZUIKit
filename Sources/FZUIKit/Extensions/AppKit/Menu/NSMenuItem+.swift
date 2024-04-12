@@ -21,21 +21,7 @@
          - Returns: An instance of `NSMenuItem`.
          */
         convenience init(_ title: String, action: ActionBlock? = nil) {
-            self.init(title: title)
-            actionBlock = action
-        }
-
-        /**
-         Initializes and returns a menu item with the specified title.
-         
-         - Parameters:
-            - title: The title of the menu item.
-            - action: The action handler.
-         - Returns: An instance of `NSMenuItem`.
-         */
-        convenience init(title: String, action: ActionBlock? = nil) {
             self.init(title: title, action: nil, keyEquivalent: "")
-            isEnabled = true
             actionBlock = action
         }
         
@@ -48,23 +34,8 @@
          - Returns: An instance of `NSMenuItem`.
          */
         convenience init(_ title: NSAttributedString, action: ActionBlock? = nil) {
-            self.init(title: title)
-            actionBlock = action
-        }
-        
-        /**
-         Initializes and returns a menu item with the specified title.
-         
-         - Parameters:
-            - title: The title of the menu item.
-            - action: The action handler.
-         - Returns: An instance of `NSMenuItem`.
-         */
-        convenience init(title: NSAttributedString, action: ActionBlock? = nil) {
-            self.init(title: "", action: nil, keyEquivalent: "")
+            self.init("", action: action)
             attributedTitle = title
-            isEnabled = true
-            actionBlock = action
         }
         
         /**
@@ -80,8 +51,7 @@
          */
         @available(macOS 12, *)
         convenience init(_ localizedTitle: String.LocalizationValue, table: String? = nil, bundle: Bundle? = nil, locale: Locale = .current, comment: StaticString? = nil, action: ActionBlock? = nil) {
-            self.init(title: String(localized: localizedTitle, table: table, bundle: bundle, locale: locale, comment: comment))
-            actionBlock = action
+            self.init(String(localized: localizedTitle, table: table, bundle: bundle, locale: locale, comment: comment), action: action)
         }
 
         /**
@@ -92,10 +62,9 @@
             - action: The action handler.
          - Returns: An instance of `NSMenuItem`.
          */
-        convenience init(title: String? = nil, image: NSImage, action: ActionBlock? = nil) {
-            self.init(title: title ?? "")
+        convenience init(_ title: String? = nil, image: NSImage, action: ActionBlock? = nil) {
+            self.init(title ?? "", action: action)
             self.image = image
-            actionBlock = action
         }
 
         /**
@@ -109,10 +78,9 @@
 
          - Returns: An instance of `NSMenuItem`.
          */
-        convenience init(title: String? = nil, view: NSView, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-            self.init(title: title ?? "")
+        convenience init(_ title: String? = nil, view: NSView, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+            self.init(title ?? "", action: action)
             self.view(view, showsHighlight: showsHighlight)
-            actionBlock = action
         }
     
         /**
@@ -126,10 +94,9 @@
 
          - Returns: An instance of `NSMenuItem`.
          */
-        convenience init<V: View>(title: String? = nil, view: V, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-            self.init(title: title ?? "")
+        convenience init<V: View>(_ title: String? = nil, view: V, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+            self.init(title ?? "", action: action)
             self.view(view, showsHighlight: showsHighlight)
-            actionBlock = action
         }
         
         /**
@@ -143,9 +110,8 @@
 
          - Returns: An instance of `NSMenuItem`.
          */
-        convenience init<V: View>(title: String? = nil, @ViewBuilder view: () -> V, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-            self.init(title: title, view: view(), showsHighlight: showsHighlight)
-            actionBlock = action
+        convenience init<V: View>(_ title: String? = nil, @ViewBuilder view: () -> V, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+            self.init(title, view: view(), showsHighlight: showsHighlight, action: action)
         }
 
         /**
@@ -157,8 +123,8 @@
 
          - Returns: An instance of `NSMenuItem`.
          */
-        convenience init(title: String, @MenuBuilder items: () -> [NSMenuItem]){
-            self.init(title: title)
+        convenience init(_ title: String, @MenuBuilder items: () -> [NSMenuItem]){
+            self.init(title)
             submenu = NSMenu(title: "", items: items())
         }
         
