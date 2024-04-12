@@ -7,14 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "include/__DelegateProxyObjC.h"
+#import "include/_DelegateProxyObjC.h"
 #import <objc/runtime.h>
 
 #define OBJECT_VALUE(object) [NSValue valueWithNonretainedObject:(object)]
 
 static NSMutableDictionary<NSValue *, NSSet<NSValue *> *> *allSelectors;
 
-@implementation __DelegateProxyObjC
+@implementation _DelegateProxyObjC
 
 - (NSSet *)selectors {
     return allSelectors[OBJECT_VALUE(self.class)];
@@ -22,7 +22,7 @@ static NSMutableDictionary<NSValue *, NSSet<NSValue *> *> *allSelectors;
 
 + (void)initialize
 {
-    @synchronized (__DelegateProxyObjC.class) {
+    @synchronized (_DelegateProxyObjC.class) {
         if (!allSelectors) {
             allSelectors = [NSMutableDictionary new];
         }

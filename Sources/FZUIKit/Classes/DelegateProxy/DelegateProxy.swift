@@ -9,7 +9,7 @@
 
 import Foundation
 import Combine
-import __DelegateProxyObjC
+import _DelegateProxyObjC
 
 /**
  A `NSObject` delegate proxy.
@@ -38,7 +38,7 @@ import __DelegateProxyObjC
  }
  ```
  */
-open class DelegateProxy: __DelegateProxyObjC {
+open class DelegateProxy: _DelegateProxyObjC {
     private var dict: [Selector: [([Any]) -> Void]] = [:]
     private var subscribers = [AnySubscriber<[Any], Never>?]()
 
