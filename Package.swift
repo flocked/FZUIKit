@@ -16,10 +16,10 @@ let package = Package(
         .package(url: "https://github.com/flocked/FZSwiftUtils.git", branch: "main"),
     ],
     targets: [
-        .target(name: "ObjcDelegateProxy"),
+        .target(name: "__ObjcDelegateProxy"),
         .target(
             name: "FZUIKit",
-            dependencies: ["FZSwiftUtils", "ObjcDelegateProxy"],
+            dependencies: ["FZSwiftUtils", "__ObjcDelegateProxy"],
             resources: [
                 .process("Resources"),
             ]            
