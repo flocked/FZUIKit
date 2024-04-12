@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface __ObjcDelegateProxy: NSObject
+@interface __DelegateProxyObjC: NSObject
 
 @property (nonnull, strong, atomic, readonly) NSSet <NSValue *> *selectors;
 
