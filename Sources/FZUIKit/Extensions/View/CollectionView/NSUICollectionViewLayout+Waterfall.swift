@@ -512,6 +512,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
         var top: CGFloat = 0.0
         var attributes = NSUICollectionViewLayoutAttributes()
+        var displayingItemFrames: [CGRect] = []
 
         for section in 0 ..< numberOfSections {
             // MARK: 1. Get section-specific metrics (minimumInteritemSpacing, sectionInset)
@@ -535,7 +536,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
             let itemCount = collectionView.numberOfItems(inSection: section)
             var itemAttributes: [NSUICollectionViewLayoutAttributes] = []
-
+            
             // Item will be put into shortest column.
             for idx in 0 ..< itemCount {
                 let indexPath = IndexPath(item: idx, section: section)
@@ -559,6 +560,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                     attributes = NSUICollectionViewLayoutAttributes(forCellWith: indexPath)
                 #endif
                 attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemWidth, height: itemHeight)
+                if displayingItems?.contains(indexPath) == true {
+                    displayingItemFrames.append( attributes.frame)
+                }
+                
                 itemAttributes.append(attributes)
                 allItemAttributes.append(attributes)
                 columnHeights[section][columnIndex] = attributes.frame.maxY + minimumInteritemSpacing
@@ -598,6 +603,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
         */
      //   didLayoutHandler?()
+        scrollToDisplayingItems(displayingItemFrames)
     }
     
     func setupDisplayingItems(_ rect: CGRect) {
@@ -615,9 +621,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     }
     
-    func scrollToDisplayingItems() {
+    func scrollToDisplayingItems(_ itemFrames: [CGRect]? = nil) {
         guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems, let scrollView = collectionView.enclosingScrollView else { return }
-        let allFrames = displayingItems.compactMap({ layoutAttributesForItem(at: $0)?.frame })
+        let allFrames = itemFrames ?? displayingItems.compactMap({ layoutAttributesForItem(at: $0)?.frame })
         isScrolling = true
         Swift.print("scrollToDisplayingItems", allFrames.union().center.y, scrollView.contentView.bounds.y)
         scrollView.contentView.bounds.y = allFrames.union().center.y
