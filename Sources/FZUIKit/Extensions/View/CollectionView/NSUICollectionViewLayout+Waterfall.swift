@@ -520,11 +520,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
-        /*
-        if let displayingItems = displayingItems, sizeChanged {
-            collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
-        }
-         */
     }
 
     override public var collectionViewContentSize: CGSize {
@@ -559,7 +554,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         Swift.print("shouldInvalidate", newBounds.width != previousBounds.width, newBounds, previousBounds, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
         guard keepItemsCenteredWhenResizing else { return false }
         guard let collectionView = collectionView else { return false }
-        guard newBounds.width != previousBounds.width else { return false }
+        guard newBounds.width != previousBounds.width, newBounds.origin != .zero else { return false }
         previousBounds = newBounds
         delayedVisibleItemsReset?.cancel()
         let task = DispatchWorkItem {
