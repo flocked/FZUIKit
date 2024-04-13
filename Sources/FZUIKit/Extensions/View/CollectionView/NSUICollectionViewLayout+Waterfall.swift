@@ -425,7 +425,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 guard old.width != new.width, collectionView.collectionViewLayout == self else { return }
                 let displaying = collectionView.displayingIndexPaths().compactMap({$0.item}).sorted()
                 let displaying1 = collectionView.displayingIndexPaths(in: self.elementsRect).compactMap({$0.item}).sorted()
-                Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, displaying, displaying != displaying1 ? displaying1 : "")
+                Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, self.displayingItems?.compactMap({$0.item}).sorted() ?? [])
 
 
 
