@@ -565,6 +565,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     var collectionViewBoundsSize: CGSize = .zero
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionViewBoundsSize, newBounds.size)
         guard newBounds.size != collectionViewBoundsSize else { return false }
         displayingItems = Set(collectionView?.displayingIndexPaths() ?? [])
         return true
