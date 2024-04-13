@@ -578,7 +578,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public var keepItemsCenteredWhenResizing: Bool = true
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard keepItemsCenteredWhenResizing else { return false }
-        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView != nil, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
+        
+        
+        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView != nil, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [], collectionView?.indexPathsForVisibleItems().compactMap({$0.item}).sorted() ?? [])
         guard newBounds.size != collectionViewBoundsSize else {
             return false }
         
