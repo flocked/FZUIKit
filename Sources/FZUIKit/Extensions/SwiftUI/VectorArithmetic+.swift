@@ -34,6 +34,7 @@ public extension VectorArithmetic {
     }
 }
 
+/*
 public extension Collection where Element: VectorArithmetic {
     /// The average value of all values in the collection. If the collection is empty, it returns `zero.
     func average() -> Element {
@@ -41,3 +42,4 @@ public extension Collection where Element: VectorArithmetic {
         return reduce(.zero, +) * Double(count)
     }
 }
+*/
