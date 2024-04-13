@@ -412,22 +412,18 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     override public func prepare() {
-        Swift.print("prepare")
+        // Swift.print("prepare")
         super.prepare()
-        guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         #if os(macOS) || os(iOS)
-        collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
+        collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
+        prepareItemAttributes()
+    }
+    
+    func prepareItemAttributes() {
+        guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         let numberOfSections = collectionView.numberOfSections
 
-        let sizeChanged = collectionViewBounds.width != collectionView.visibleRect.width
-        #if os(macOS)
-        collectionViewBoundsSize = collectionView.visibleRect.size
-        #else
-        collectionViewBoundsSize = collectionView.bounds.size
-        #endif
-        collectionViewContentOffset = collectionView.visibleRect.origin
-        collectionViewBounds = collectionView.visibleRect
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
@@ -551,8 +547,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var previousBounds: CGRect = .zero
     var isScrolling = false
     public override func shouldInvalidateLayout(forBoundsChange newBounds: NSRect) -> Bool {
-        Swift.print("shouldInvalidate", newBounds.width != previousBounds.width, newBounds, previousBounds, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
         guard keepItemsCenteredWhenResizing else { return false }
+        Swift.print("shouldInvalidate", newBounds.width != previousBounds.width, newBounds, previousBounds, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
         guard let collectionView = collectionView else { return false }
         guard newBounds.width != previousBounds.width, !isScrolling else { return false }
         previousBounds = newBounds
@@ -603,12 +599,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     var displayingItems: Set<IndexPath>?
     var delayedVisibleItemsReset: DispatchWorkItem?
-    var collectionViewBoundsSize: CGSize = .zero
-    var collectionViewContentOffset: CGPoint = .zero
     public var keepItemsCenteredWhenResizing: Bool = true
-    
-    var collectionViewBounds: CGRect = .zero
-    
+        
     /*
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         if let collectionView = collectionView {
