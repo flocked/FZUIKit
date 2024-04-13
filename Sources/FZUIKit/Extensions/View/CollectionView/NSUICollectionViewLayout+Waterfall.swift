@@ -651,7 +651,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var currentBounds: CGRect = .zero
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        if newBounds.width != currentBounds.width {
+        if newBounds.width != currentBounds.width, displayingItems == nil  {
             setupDisplayingItems(currentBounds)
             Swift.print("should apply", newBounds, currentBounds, displayingItems?.compactMap({$0.item}).sorted() ?? [], collectionView?.displayingIndexPaths(in: self.contentViewBounds).compactMap({$0.item}).sorted() ?? [])
             currentBounds = newBounds
