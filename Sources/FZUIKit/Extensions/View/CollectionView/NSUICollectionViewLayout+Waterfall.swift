@@ -518,7 +518,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             idx += 1
         }
         if let displayingItems = displayingItems, sizeChanged {
+            Swift.print("scrollStart")
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+            Swift.print("scrollEnd")
         }
     }
 
