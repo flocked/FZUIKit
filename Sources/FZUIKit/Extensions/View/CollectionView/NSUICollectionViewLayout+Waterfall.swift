@@ -437,7 +437,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                     if self.displayingItems == nil {
                         self.displayingItems = Set(collectionView.displayingIndexPaths(in: self.contentViewBounds))
                     }
-                    collectionView.collectionViewLayout?.invalidateLayout()
+                    // collectionView.collectionViewLayout?.invalidateLayout()
                     if let displayingItems = self.displayingItems {
                         collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
                     }
