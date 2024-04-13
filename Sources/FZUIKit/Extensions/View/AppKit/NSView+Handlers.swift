@@ -118,7 +118,6 @@ extension NSView {
             if viewHandlers.isLiveResizing != nil {
                 setupLiveResizingObservation()
             }
-            observe(\.isLiveResizing, handler: \.viewHandlers.isLiveResizing)
             
             if windowHandlers.isKey != nil {
                 if  viewObserver?.isObserving(\.window?.isKey) == false {
@@ -169,7 +168,9 @@ extension NSView {
     /**
      A Boolean value that indicates whether the view is currently being resized by the user.
      
-     The value is is `KVO` observable.
+     The value is `KVO` observable.
+     
+     - Note: To be able to observe the value, you have to access the property once.
      */
    @objc dynamic public internal(set) var isLiveResizing: Bool {
         get {
@@ -190,9 +191,6 @@ extension NSView {
            methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
            hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                object in
-               if let view = object as? NSView, !view.isLiveResizing {
-                   // view.isLiveResizing = true
-               }
                (object as? NSView)?.isLiveResizing = true
                store.original(object, #selector(NSView.viewWillStartLiveResize))
                }
@@ -202,9 +200,6 @@ extension NSView {
             methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
             hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                 object in
-                if let view = object as? NSView, view.isLiveResizing {
-                   // view.isLiveResizing = false
-                }
                 (object as? NSView)?.isLiveResizing = false
                 store.original(object, #selector(NSView.viewDidEndLiveResize))
                 }
