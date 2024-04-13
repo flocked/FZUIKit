@@ -420,7 +420,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if collectionViewBoundsObservation == nil {
             let view = collectionView.enclosingScrollView?.contentView ?? collectionView
             collectionViewBoundsObservation =  view.observeChanges(for: \.frame) { [weak self] old, new in
-                guard let self = self else { return }
+                guard let self = self, self.keepItemsCenteredWhenResizing else { return }
                 
                 guard old.width != new.width, collectionView.collectionViewLayout == self else { return }
                 let displaying = collectionView.displayingIndexPaths().compactMap({$0.item}).sorted()
