@@ -516,7 +516,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             idx += 1
         }
         if let displayingItems = displayingItems {
-            self.displayingItems = nil
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         }
     }
@@ -576,7 +575,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         delayedVisibleItemsReset?.cancel()
-        guard newBounds.size != collectionViewBoundsSize else { return false }
+        guard newBounds.size != collectionViewBoundsSize else { 
+            displayingItems = nil
+            return false
+        }
                 
         let task = DispatchWorkItem {
             self.displayingItems = nil
