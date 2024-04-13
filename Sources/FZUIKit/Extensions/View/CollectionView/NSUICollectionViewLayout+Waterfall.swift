@@ -409,6 +409,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         case enabled
     }
     
+    var isScrolling = false
     override public func prepare() {
         super.prepare()
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
@@ -575,14 +576,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
-        /*
-        if let displayingItems = displayingItems {
-            Swift.print("scrollStart")
-            self.displayingItems = nil
+        if let displayingItems = displayingItems, !isScrolling {
+            isScrolling = true
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
-            Swift.print("scrollEnd")
+            isScrolling = false
         }
-         */
      //   didLayoutHandler?()
     }
     
