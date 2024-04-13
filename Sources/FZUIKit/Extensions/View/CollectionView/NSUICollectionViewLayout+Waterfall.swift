@@ -520,9 +520,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        /*
         if let displayingItems = displayingItems, sizeChanged {
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         }
+         */
     }
 
     override public var collectionViewContentSize: CGSize {
@@ -568,14 +570,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if displayingItems == nil {
             self.displayingItems = Set(collectionView.displayingIndexPaths())
         }
-        if !isScrolling {
-            isScrolling = true
+      //  if !isScrolling {
+        //    isScrolling = true
             keepItemOrder = true
             invalidateLayout()
             collectionView.scrollToItems(at: displayingItems!, scrollPosition: .centeredVertically)
             keepItemOrder = false
-            isScrolling = false
-        }
+         //   isScrolling = false
+       // }
         
         return false
     }
