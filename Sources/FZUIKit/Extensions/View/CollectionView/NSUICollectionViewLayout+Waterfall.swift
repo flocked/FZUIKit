@@ -437,6 +437,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         let numberOfSections = collectionView.numberOfSections
         
+        mappedItemColumns = [:]
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
@@ -670,7 +671,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     private func nextColumnIndexForItem(at indexPath: IndexPath, keepOrder: Bool) -> Int {
-        if keepItemOrder, let mappedColumn = mappedItemColumns[indexPath] {
+        if keepOrder, let mappedColumn = mappedItemColumns[indexPath] {
             return mappedColumn
         }
         var index = 0
