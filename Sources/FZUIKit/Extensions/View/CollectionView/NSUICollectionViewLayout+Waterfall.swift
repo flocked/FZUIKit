@@ -540,10 +540,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     func scrollToDisplaying() {
         guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems else { return }
+        let itemFrames = displayingItems.compactMap({ layoutAttributesForItem(at:$0)?.frame })
         Swift.print("scrollToDisplaying")
         isScrolling = true
         keepItemOrder = true
-        collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+        collectionView.contentOffset.y =  itemFrames.unionAlt().center.y
+      //  collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         isScrolling = false
         keepItemOrder = false
     }
@@ -1055,5 +1057,25 @@ extension NSUICollectionView {
         return visibleItems.filter { $0.view.frame.intersects(rect) }
     }
 }
+
+public extension Collection where Element == CGRect {
+    func unionAlt() -> CGRect {
+        
+        let x = self.compactMap({$0.x}).min() ?? 0
+        let y = self.compactMap({$0.y}).min() ?? 0
+        
+       // Swift.print(self.sorted(by: \.y))
+        
+        
+        let maxX = self.compactMap({$0.maxX}).max() ?? 0
+        let maxY = self.compactMap({$0.y + $0.height}).max() ?? 0
+        
+        var width = sorted(by: \.x).last?.maxX ?? 0.0
+        var height = sorted(by: \.y).last?.maxY ?? 0.0
+        return CGRect(x, y, width, height)
+    }
+}
+
 #endif
 #endif
+
