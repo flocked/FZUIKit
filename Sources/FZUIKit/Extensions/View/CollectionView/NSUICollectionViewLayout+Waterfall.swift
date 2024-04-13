@@ -410,7 +410,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     override public func prepare() {
-        Swift.print("prepare")
+        Swift.print("prepare", displayingItems != nil)
         super.prepare()
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         #if os(macOS) || os(iOS)
@@ -574,11 +574,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var collectionViewBoundsSize: CGSize = .zero
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize)
+        guard newBounds.size != collectionViewBoundsSize else {
+            return false }
+        
         delayedVisibleItemsReset?.cancel()
-        guard newBounds.size != collectionViewBoundsSize else { 
-            displayingItems = nil
-            return false
-        }
                 
         let task = DispatchWorkItem {
             self.displayingItems = nil
