@@ -171,7 +171,7 @@ extension NSView {
      
      The value is is `KVO` observable.
      */
-   @objc dynamic public var isLiveResizing: Bool {
+   @objc dynamic public internal(set) var isLiveResizing: Bool {
         get {
             setupLiveResizingObservation()
             return getAssociatedValue("isLiveResizing", initialValue: false)
@@ -191,8 +191,9 @@ extension NSView {
            hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                object in
                if let view = object as? NSView, !view.isLiveResizing {
-                   view.isLiveResizing = true
+                   // view.isLiveResizing = true
                }
+               (object as? NSView)?.isLiveResizing = true
                store.original(object, #selector(NSView.viewWillStartLiveResize))
                }
            }
@@ -202,8 +203,9 @@ extension NSView {
             hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                 object in
                 if let view = object as? NSView, view.isLiveResizing {
-                    view.isLiveResizing = false
+                   // view.isLiveResizing = false
                 }
+                (object as? NSView)?.isLiveResizing = false
                 store.original(object, #selector(NSView.viewDidEndLiveResize))
                 }
             }
