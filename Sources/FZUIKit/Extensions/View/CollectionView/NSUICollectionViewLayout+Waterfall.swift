@@ -423,6 +423,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #else
         collectionViewBoundsSize = collectionView.bounds.size
         #endif
+        collectionViewContentOffset = collectionView.visibleRect.origin
         Swift.print("prepare", displayingItems != nil, sizeChanged, displayingItems?.compactMap({$0.item}).sorted() ?? [])
         headersAttributes = [:]
         footersAttributes = [:]
@@ -574,13 +575,16 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var displayingItems: Set<IndexPath>?
     var delayedVisibleItemsReset: DispatchWorkItem?
     var collectionViewBoundsSize: CGSize = .zero
-    
+    var collectionViewContentOffset: CGPoint = .zero
     public var keepItemsCenteredWhenResizing: Bool = true
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard keepItemsCenteredWhenResizing else { return false }
         
         
-        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView != nil, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [], collectionView?.indexPathsForVisibleItems().compactMap({$0.item}).sorted() ?? [], collectionView?.visibleRect ?? .zero)
+        if let collectionView = collectionView {
+            let displaying = collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)).compactMap({$0.item}).sorted()
+            Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView.visibleRect == CGRect(collectionViewContentOffset, collectionViewBoundsSize), displaying)
+        }
         guard newBounds.size != collectionViewBoundsSize else {
             return false }
         
@@ -592,7 +596,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         delayedVisibleItemsReset = task
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
         if displayingItems == nil, let collectionView = collectionView {
-            displayingItems = Set(collectionView.displayingIndexPaths())
+            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
         }
         return true
     }
@@ -842,6 +846,19 @@ struct KeyDownColumnChange {
     
     var needsGestureRecognizer: Bool {
         amount > 0 || amount == -1 || amountAlt > 0 || amountAlt == -1 || amountSecondaryAlt > 0 || amountSecondaryAlt == -1
+    }
+}
+
+extension NSUICollectionView {
+    /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
+    public func displayingIndexPaths(in rect: CGRect) -> [IndexPath] {
+        (displayingItems(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
+    }
+    
+    /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
+    public func displayingItems(in rect: CGRect) -> [NSCollectionViewItem] {
+        let visibleItems = visibleItems()
+        return visibleItems.filter { $0.view.frame.intersects(rect) }
     }
 }
 #endif
