@@ -68,7 +68,7 @@ extension NSUICollectionViewLayout {
         let layout = NSUICollectionViewCompositionalLayout { section, environment in
             let groupLayoutSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .estimated(environment.container.effectiveContentSize.height)
+                heightDimension: .fractionalWidth(1)
             )
             let group = NSCollectionLayoutGroup.custom(layoutSize: groupLayoutSize) { environment in
                 let itemProvider = WaterfallLayoutItemProvider(columnCount: columns, spacing: spacing, itemOrder: itemOrder, contentSize: environment.container.effectiveContentSize, itemSizeProvider: itemSizeProvider)
