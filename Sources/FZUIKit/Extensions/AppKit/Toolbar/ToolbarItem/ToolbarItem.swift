@@ -96,7 +96,7 @@
 
         /// Mark the item as available on the 'default' toolbar presented to the user
         @discardableResult
-        func isDefaultItem(_ isDefault: Bool) -> Self {
+        func isDefault(_ isDefault: Bool) -> Self {
             set(\.isDefault, to: isDefault)
         }
 
