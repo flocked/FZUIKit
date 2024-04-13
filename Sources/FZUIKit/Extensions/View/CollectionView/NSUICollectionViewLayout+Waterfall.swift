@@ -413,6 +413,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var mappedItemColumns: [IndexPath: Int] = [:]
 
     override public func prepare() {
+        guard !isScrolling else { return }
         super.prepare()
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         #if os(macOS) || os(iOS)
@@ -791,14 +792,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     public override func invalidateLayout() {
-        Swift.print("invalidateLayout")
         guard !isScrolling else { return }
+        Swift.print("invalidateLayout")
         super.invalidateLayout()
     }
     
     public override func invalidateLayout(with context: NSCollectionViewLayoutInvalidationContext) {
-        Swift.print("invalidateLayoutContext")
         guard !isScrolling else { return }
+        Swift.print("invalidateLayoutContext")
         super.invalidateLayout(with: context)
     }
         
