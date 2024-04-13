@@ -424,7 +424,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 
                 guard old.width != new.width, collectionView.collectionViewLayout == self else { return }
                 let displaying = collectionView.displayingIndexPaths().compactMap({$0.item}).sorted()
-                let displaying1 = collectionView.displayingIndexPaths(in: old).compactMap({$0.item}).sorted()
+                let displaying1 = collectionView.displayingIndexPaths(in: self.elementsRect).compactMap({$0.item}).sorted()
                 Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, displaying, displaying != displaying1 ? displaying1 : "")
 
 
@@ -436,7 +436,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 self.delayedVisibleItemsReset = task
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
                 if self.displayingItems == nil {
-                    self.displayingItems = Set(collectionView.displayingIndexPaths())
+                    self.displayingItems = Set(collectionView.displayingIndexPaths(in: self.elementsRect))
                 }
                 collectionView.collectionViewLayout?.invalidateLayout()
                 if let displayingItems = self.displayingItems {
@@ -697,7 +697,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         return attribute ?? NSUICollectionViewLayoutAttributes()
     }
 
+    var elementsRect: CGRect = .zero
     override public func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
+        elementsRect = rect
         var begin = 0, end = unionRects.count
 
         if let i = unionRects.firstIndex(where: { rect.intersects($0) }) {
