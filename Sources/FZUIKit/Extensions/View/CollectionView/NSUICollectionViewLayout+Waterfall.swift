@@ -418,6 +418,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #endif
         let numberOfSections = collectionView.numberOfSections
 
+        #if os(macOS)
+        collectionViewBoundsSize = collectionView.visibleRect.size
+        #else
+        collectionViewBoundsSize = collectionView.bounds.size
+        #endif
+        
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
@@ -564,9 +570,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     var collectionViewBoundsSize: CGSize = .zero
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView?.bounds.size ?? "nil", collectionView?.visibleRect.size ?? "nil", newBounds.size)
+        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView?.visibleRect.size ?? .zero, newBounds.size)
         guard newBounds.size != collectionViewBoundsSize else { return false }
-        collectionViewBoundsSize = newBounds.size
         displayingItems = Set(collectionView?.displayingIndexPaths() ?? [])
         return true
     }
