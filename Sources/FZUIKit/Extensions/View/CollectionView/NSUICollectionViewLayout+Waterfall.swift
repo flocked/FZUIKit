@@ -575,8 +575,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var delayedVisibleItemsReset: DispatchWorkItem?
     var collectionViewBoundsSize: CGSize = .zero
     
+    public var keepItemsCenteredWhenResizing: Bool = true
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize)
+        guard keepItemsCenteredWhenResizing else { return false }
+        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView != nil, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
         guard newBounds.size != collectionViewBoundsSize else {
             return false }
         
