@@ -540,6 +540,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     func scrollToDisplaying() {
         guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems else { return }
+        Swift.print("scrollToDisplaying")
         isScrolling = true
         keepItemOrder = true
         collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
@@ -619,7 +620,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             currentBounds = newBounds
             return false
         }
-        scrollToDisplayingItems()
+        scrollToDisplaying()
         Swift.print("should false", newBounds, currentBounds)
         currentBounds = newBounds
         return false
