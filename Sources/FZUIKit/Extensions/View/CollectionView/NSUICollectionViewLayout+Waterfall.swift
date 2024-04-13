@@ -515,10 +515,27 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        /*
         if let displayingItems = displayingItems {
             self.displayingItems = nil
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         }
+         */
+    }
+    
+    public override func finalizeLayoutTransition() {
+        super.finalizeLayoutTransition()
+        Swift.print("finalizeLayoutTransition")
+    }
+    
+    public override func finalizeAnimatedBoundsChange() {
+        super.finalizeAnimatedBoundsChange()
+        Swift.print("finalizeAnimatedBoundsChange")
+    }
+    
+    public override func finalizeCollectionViewUpdates() {
+        super.finalizeCollectionViewUpdates()
+        Swift.print("finalizeCollectionViewUpdates")
     }
 
     override public var collectionViewContentSize: CGSize {
