@@ -402,7 +402,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         let columns = columns(forSection: section)
         let spaceColumCount = CGFloat(columns - 1)
         let width = collectionViewContentWidth(ofSection: section)
-        return ((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns)).scaledIntegral
+        return ((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns))
     }
     
     enum AutoColumnCount {
@@ -476,7 +476,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 {
                     itemHeight = itemSize.height
                     if itemSize.width > 0 {
-                        itemHeight = (itemHeight * itemWidth / itemSize.width).scaledIntegral
+                        itemHeight = (itemHeight * itemWidth / itemSize.width)
                     } // else use default item width based on other parameters
                 }
                 #if os(macOS)
