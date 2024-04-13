@@ -517,11 +517,71 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
-        if let displayingItems = displayingItems, sizeChanged {
+        if let displayingItems = displayingItems {
             Swift.print("scrollStart")
+            self.displayingItems = nil
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
             Swift.print("scrollEnd")
         }
+    }
+    
+    var displayingItems: Set<IndexPath>?
+    var _displayingItems: Set<IndexPath>?
+
+    var delayedVisibleItemsReset: DispatchWorkItem?
+    var collectionViewBoundsSize: CGSize = .zero
+    var collectionViewContentOffset: CGPoint = .zero
+    public var keepItemsCenteredWhenResizing: Bool = true
+    var collectionViewBounds: CGRect = .zero
+    
+    override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        if let collectionView = collectionView {
+            Swift.print("shouldInvalidateLayout")
+            Swift.print("\t", newBounds, "newBounds")
+            Swift.print("\t", collectionView.visibleRect, "visibleRect")
+            Swift.print("\t", collectionView.contentOffset, "contentOffset")
+            Swift.print("\t", collectionView.documentSize, "documentSize")
+            Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
+            Swift.print("\t", collectionViewBounds, "collectionViewBounds")
+        }
+        if newBounds.width == collectionViewBounds.width {
+            collectionViewBounds = collectionView?.visibleRect ?? .zero
+            return false
+        }
+        if _displayingItems == nil, let collectionView = collectionView {
+            _displayingItems = Set(collectionView.displayingIndexPaths(in: collectionViewBounds))
+        }
+        displayingItems = _displayingItems
+        delayedVisibleItemsReset?.cancel()
+        let task = DispatchWorkItem {
+            self._displayingItems = nil
+        }
+        delayedVisibleItemsReset = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+        return true
+        
+        guard newBounds.width != (collectionView?.bounds.width ?? 0) else { return false }
+        if displayingItems == nil, let collectionView = collectionView {
+            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
+        }
+        
+        guard keepItemsCenteredWhenResizing else { return false }
+        if newBounds.size == collectionViewBoundsSize {
+            collectionViewContentOffset = newBounds.origin
+        }
+        
+        if let collectionView = collectionView {
+            let displaying = collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)).compactMap({$0.item}).sorted()
+            Swift.print("shouldInvalidateLayout", newBounds.origin, newBounds.size != collectionViewBoundsSize, collectionView.visibleRect == CGRect(collectionViewContentOffset, collectionViewBoundsSize), CGRect(collectionViewContentOffset, collectionViewBoundsSize), collectionView.contentOffset, collectionView.visibleRect,  displaying)
+        }
+        guard newBounds.size != collectionViewBoundsSize else {
+            return false }
+        
+       
+        if displayingItems == nil, let collectionView = collectionView {
+            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
+        }
+        return true
     }
 
     override public var collectionViewContentSize: CGSize {
@@ -590,63 +650,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
         return allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }
-    }
-
-    var displayingItems: Set<IndexPath>?
-    var delayedVisibleItemsReset: DispatchWorkItem?
-    var collectionViewBoundsSize: CGSize = .zero
-    var collectionViewContentOffset: CGPoint = .zero
-    public var keepItemsCenteredWhenResizing: Bool = true
-    
-    var collectionViewBounds: CGRect = .zero
-    override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        if let collectionView = collectionView {
-            Swift.print("shouldInvalidateLayout")
-            Swift.print("\t", newBounds, "newBounds")
-            Swift.print("\t", collectionView.visibleRect, "visibleRect")
-            Swift.print("\t", collectionView.contentOffset, "contentOffset")
-            Swift.print("\t", collectionView.documentSize, "documentSize")
-            Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
-            Swift.print("\t", collectionViewBounds, "collectionViewBounds")
-        }
-        if newBounds.width == collectionViewBounds.width {
-            collectionViewBounds = collectionView?.visibleRect ?? .zero
-            return false
-        }
-        if displayingItems == nil, let collectionView = collectionView {
-            displayingItems = Set(collectionView.displayingIndexPaths(in: collectionViewBounds))
-        }
-        delayedVisibleItemsReset?.cancel()
-        let task = DispatchWorkItem {
-            self.displayingItems = nil
-        }
-        delayedVisibleItemsReset = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
-        return true
-        
-        
-        guard newBounds.width != (collectionView?.bounds.width ?? 0) else { return false }
-        if displayingItems == nil, let collectionView = collectionView {
-            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
-        }
-        
-        guard keepItemsCenteredWhenResizing else { return false }
-        if newBounds.size == collectionViewBoundsSize {
-            collectionViewContentOffset = newBounds.origin
-        }
-        
-        if let collectionView = collectionView {
-            let displaying = collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)).compactMap({$0.item}).sorted()
-            Swift.print("shouldInvalidateLayout", newBounds.origin, newBounds.size != collectionViewBoundsSize, collectionView.visibleRect == CGRect(collectionViewContentOffset, collectionViewBoundsSize), CGRect(collectionViewContentOffset, collectionViewBoundsSize), collectionView.contentOffset, collectionView.visibleRect,  displaying)
-        }
-        guard newBounds.size != collectionViewBoundsSize else {
-            return false }
-        
-       
-        if displayingItems == nil, let collectionView = collectionView {
-            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
-        }
-        return true
     }
 
     private func shortestColumnIndex(inSection section: Int) -> Int {
