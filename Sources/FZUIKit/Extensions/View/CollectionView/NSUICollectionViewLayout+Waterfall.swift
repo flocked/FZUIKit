@@ -417,13 +417,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #endif
         let numberOfSections = collectionView.numberOfSections
 
-        let sizeChanged = collectionViewBounds != collectionView.visibleRect
+        let sizeChanged = collectionViewBounds.width != collectionView.visibleRect.width
         #if os(macOS)
         collectionViewBoundsSize = collectionView.visibleRect.size
         #else
         collectionViewBoundsSize = collectionView.bounds.size
         #endif
         collectionViewContentOffset = collectionView.visibleRect.origin
+        collectionViewBounds = collectionView.visibleRect
         Swift.print("prepare", CGRect(collectionViewContentOffset, collectionViewBoundsSize), collectionView.visibleRect, collectionView.contentOffset, displayingItems != nil, sizeChanged, displayingItems?.compactMap({$0.item}).sorted() ?? [])
         headersAttributes = [:]
         footersAttributes = [:]
@@ -606,9 +607,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             Swift.print("\t", collectionView.contentOffset, "contentOffset")
             Swift.print("\t", collectionView.documentSize, "documentSize")
             Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
-            Swift.print("\t", collectionView.bounds, "bounds")
+            Swift.print("\t", collectionViewBounds, "collectionViewBounds")
         }
-        if newBounds.width == (collectionView?.bounds.width ?? 0) {
+        if newBounds.width == collectionViewBounds.width {
             collectionViewBounds = collectionView?.visibleRect ?? .zero
             return false
         }
