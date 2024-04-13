@@ -498,7 +498,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #endif
         collectionViewContentOffset = collectionView.visibleRect.origin
         collectionViewBounds = collectionView.visibleRect
-        Swift.print("prepare", CGRect(collectionViewContentOffset, collectionViewBoundsSize), collectionView.visibleRect, collectionView.contentOffset, displayingItems != nil, sizeChanged, displayingItems?.compactMap({$0.item}).sorted() ?? [])
+        Swift.print("prepare", collectionView.visibleRect, displayingItems?.compactMap({$0.item}).sorted() ?? [])
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
@@ -627,9 +627,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         isScrolling = true
         let yBounds = scrollView.contentView.bounds
         let offset = scrollView.contentOffset
-        scrollView.contentView.bounds.y = allFrames.union().center.y
-        scrollView.reflectScrolledClipView(scrollView.contentView)
-        Swift.print("scrollToDisplayingItems", allFrames.union().center.y, scrollView.contentOffset, offset, scrollView.contentView.bounds, yBounds)
+        scrollView.contentOffset.y = allFrames.union().center.y
+     //   scrollView.contentView.bounds.y = allFrames.union().center.y
+     //   scrollView.reflectScrolledClipView(scrollView.contentView)
+        Swift.print("scrollToDisplaying", allFrames.union().center.y, scrollView.contentOffset, offset, scrollView.contentView.bounds, yBounds)
       //  currentBounds =
         isScrolling = false
     }
@@ -656,12 +657,15 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         if newBounds.width != currentBounds.width, displayingItems == nil  {
             setupDisplayingItems(currentBounds)
-            Swift.print("should apply", newBounds, currentBounds, displayingItems?.compactMap({$0.item}).sorted() ?? [], collectionView?.displayingIndexPaths(in: self.contentViewBounds).compactMap({$0.item}).sorted() ?? [])
+            isScrolling = true
+            invalidateLayout()
+            isScrolling = false
+            Swift.print("should true", newBounds, currentBounds, displayingItems?.compactMap({$0.item}).sorted() ?? [], collectionView?.displayingIndexPaths(in: self.contentViewBounds).compactMap({$0.item}).sorted() ?? [])
             currentBounds = newBounds
-            return true
+            return false
         }
         scrollToDisplayingItems()
-        Swift.print("should", newBounds, currentBounds)
+        Swift.print("should false", newBounds, currentBounds)
         currentBounds = newBounds
         return false
     }
@@ -754,16 +758,16 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
  //   var allItemFrames: [CGRect] = []
     override public func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
         if indexPath.section >= sectionItemAttributes.count {
-            Swift.print("layoutAttributesForItem")
+            Swift.print("itemAttributes", indexPath.item)
             return nil
         }
         let list = sectionItemAttributes[indexPath.section]
         if indexPath.item >= list.count {
-            Swift.print("layoutAttributesForItem")
+            Swift.print("itemAttributes", indexPath.item)
             return nil
         }
      //   allItemFrames.append(list[indexPath.item].frame)
-        Swift.print("layoutAttributesForItem", list[indexPath.item].frame)
+        Swift.print("itemAttributes", indexPath.item, list[indexPath.item].frame)
 
         return list[indexPath.item]
     }
@@ -801,8 +805,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if let i = unionRects.lastIndex(where: { rect.intersects($0) }) {
             end = min((i + 1) * unionSize, allItemAttributes.count)
         }
-        Swift.print("layoutAttributesForElements", rect, (allItemAttributes[begin ..< end]
-            .filter { rect.intersects($0.frame) }).compactMap({$0.frame.origin}))
+        Swift.print("elementsAttributes", rect, (allItemAttributes[begin ..< end]
+            .filter { rect.intersects($0.frame) }).compactMap({$0.frame.origin.y}))
 
         return allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }
