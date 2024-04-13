@@ -80,7 +80,7 @@ extension NSUICollectionViewLayout {
                 }
                 return items
             }
-            group.contentInsets = insets.directional
+          //  group.contentInsets = insets.directional
             
             let section = NSCollectionLayoutSection(group: group)
             // section.contentInsetsReference = configuration.contentInsetsReference

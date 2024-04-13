@@ -21,6 +21,8 @@
             public var firstResponder: ((NSResponder?)->())?
             /// The handler that gets called when the window’s frame changes.
             public var frame: ((CGRect)->())?
+            /// The handler that gets called when the user is resizing the window.
+            public var isLiveResizing: ((Bool)->())?
             
             var needsObserver: Bool {
                 frame != nil || firstResponder != nil
@@ -32,7 +34,7 @@
             get { getAssociatedValue("windowHandlers", initialValue: Handlers()) }
             set {
                 setAssociatedValue(newValue, key: "windowHandlers")
-                
+                setupLiveResizeObservation()
                 if handlers.needsObserver, windowObserver == nil {
                     windowObserver = KeyValueObserver(self)
                 } else if !handlers.needsObserver {
@@ -463,6 +465,78 @@
             }
         }
     }
+        
+        /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
+        public static var isLiveResizeObservable: Bool {
+            get { isMethodReplaced(#selector(getter: NSWindow.inLiveResize)) }
+            set {
+                guard newValue != isLiveResizeObservable else { return }
+                if newValue {
+                    guard !isMethodReplaced(#selector(getter: NSWindow.inLiveResize)) else { return }
+                    do {
+                       try replaceMethod(
+                        #selector(getter: NSWindow.inLiveResize),
+                       methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
+                       hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
+                           object in
+                           (object as? NSWindow)?.setupLiveResizeObservation()
+                           return (object as? NSWindow)?._inLiveResize ?? store.original(object, #selector(getter: NSWindow.inLiveResize))
+                           }
+                       }
+                    } catch {
+                       debugPrint(error)
+                    }
+                } else {
+                    resetMethod(#selector(getter: NSWindow.inLiveResize))
+                }
+            }
+        }
+        
+        var _inLiveResize: Bool? {
+            get { getAssociatedValue("_inLiveResize", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "_inLiveResize") }
+        }
+        
+        var liveResizeTokens: [NotificationToken] {
+            get { getAssociatedValue("liveResizeTokens", initialValue: []) }
+            set { setAssociatedValue(newValue, key: "liveResizeTokens") }
+        }
+        
+        var needsLiveResizeObservation: Bool {
+            NSWindow.isLiveResizeObservable || handlers.isLiveResizing != nil
+        }
+        
+        func setupLiveResizeObservation() {
+            if needsLiveResizeObservation {
+                guard liveResizeTokens.isEmpty else { return }
+                liveResizeTokens.append(NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { [weak self] _ in
+                    guard let self = self else { return }
+                    guard self.needsLiveResizeObservation else {
+                        self.liveResizeTokens.removeAll()
+                        return
+                    }
+                    self.handlers.isLiveResizing?(true)
+                    self._inLiveResize = false
+                    willChangeValue(for: \.inLiveResize)
+                    self._inLiveResize = nil
+                    didChangeValue(for: \.inLiveResize)
+                })
+                liveResizeTokens.append(NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { [weak self] _ in
+                    guard let self = self else { return }
+                    guard self.needsLiveResizeObservation else {
+                        self.liveResizeTokens.removeAll()
+                        return
+                    }
+                    self.handlers.isLiveResizing?(false)
+                    self._inLiveResize = true
+                    willChangeValue(for: \.inLiveResize)
+                    self._inLiveResize = nil
+                    didChangeValue(for: \.inLiveResize)
+                })
+            } else {
+                liveResizeTokens.removeAll()
+            }
+        }
 }
 
     private let NSWindowAnimationKeys = ["frameAnimatable", "centerPoint"]
