@@ -446,7 +446,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                         
                      //   collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
                        
-                        collectionView.enclosingScrollView?.contentOffset.y =  allFrames.union().center.y
+                        if let scrollView = collectionView.enclosingScrollView {
+                          //  scrollView.contentOffset.y =  allFrames.union().center.y
+                            scrollView.contentView.bounds.y = allFrames.union().center.y
+                            scrollView.reflectScrolledClipView(scrollView.contentView)
+                        }
                         Swift.print("scrollToItems end", contentView.bounds)
                     }
                 }
