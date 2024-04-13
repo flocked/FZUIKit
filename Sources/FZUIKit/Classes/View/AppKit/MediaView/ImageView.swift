@@ -789,7 +789,7 @@ open class ImageView: NSControl {
     
     open override func hitTest(_ point: NSPoint) -> NSView? {
         Swift.print("imageView", imageView.frame.contains(point), super.hitTest(point) ?? "nil")
-        return imageView.frame.contains(point) ? imageView : nil
+        return imageView.frame.contains(point) ? self : nil
         return super.hitTest(point)
     }
 
@@ -808,7 +808,7 @@ open class ImageView: NSControl {
         containerView.addSubview(imageView)
         addSubview(imageView)
         overlayContentView.frame = bounds
-        containerView.addSubview(overlayContentView)
+    //    containerView.addSubview(overlayContentView)
     }
     
     open override func layout() {
@@ -878,6 +878,7 @@ open class ImageView: NSControl {
         get { imageView.lastBaselineAnchor }
     }
     
+    /*
     override open var acceptsFirstResponder: Bool { isSelectable != .off }
         
     override open func drawFocusRingMask() {
@@ -887,6 +888,7 @@ open class ImageView: NSControl {
     override open var focusRingMaskBounds: NSRect {
         isSelectable == .byImage ? overlayContentView.frame : bounds
     }
+     */
     
     class AnimatedImage {
         
