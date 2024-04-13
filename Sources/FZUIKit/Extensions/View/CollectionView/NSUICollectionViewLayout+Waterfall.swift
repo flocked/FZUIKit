@@ -412,6 +412,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     override public func prepare() {
+        Swift.print("prepare")
         super.prepare()
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         #if os(macOS) || os(iOS)
@@ -548,6 +549,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             return nil
         }
         return list[indexPath.item]
+    }
+    
+    public override func shouldInvalidateLayout(forBoundsChange newBounds: NSRect) -> Bool {
+        return false
     }
 
     override public func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
