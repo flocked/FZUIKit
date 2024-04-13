@@ -417,7 +417,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #endif
         let numberOfSections = collectionView.numberOfSections
 
-        let sizeChanged = collectionViewBoundsSize != collectionView.visibleRect.size
+        let sizeChanged = collectionViewBounds != collectionView.visibleRect
         #if os(macOS)
         collectionViewBoundsSize = collectionView.visibleRect.size
         #else
@@ -596,7 +596,30 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var collectionViewBoundsSize: CGSize = .zero
     var collectionViewContentOffset: CGPoint = .zero
     public var keepItemsCenteredWhenResizing: Bool = true
+    
+    var collectionViewBounds: CGRect = .zero
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        if newBounds.width == (collectionView?.bounds.width ?? 0) {
+            collectionViewBounds = collectionView?.visibleRect ?? .zero
+            return false
+        }
+        if displayingItems == nil, let collectionView = collectionView {
+            displayingItems = Set(collectionView.displayingIndexPaths(in: collectionViewBounds))
+        }
+        delayedVisibleItemsReset?.cancel()
+        let task = DispatchWorkItem {
+            self.displayingItems = nil
+        }
+        delayedVisibleItemsReset = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+        return true
+        
+        
+        guard newBounds.width != (collectionView?.bounds.width ?? 0) else { return false }
+        if displayingItems == nil, let collectionView = collectionView {
+            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
+        }
+        
         if let collectionView = collectionView {
             Swift.print("shouldInvalidateLayout")
             Swift.print("\t", newBounds, "newBounds")
@@ -618,13 +641,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         guard newBounds.size != collectionViewBoundsSize else {
             return false }
         
-        delayedVisibleItemsReset?.cancel()
-                
-        let task = DispatchWorkItem {
-            self.displayingItems = nil
-        }
-        delayedVisibleItemsReset = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+       
         if displayingItems == nil, let collectionView = collectionView {
             displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
         }
