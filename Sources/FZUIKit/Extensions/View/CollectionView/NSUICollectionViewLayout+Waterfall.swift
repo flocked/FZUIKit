@@ -846,7 +846,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
         
     public override func shouldInvalidateLayout(forPreferredLayoutAttributes preferredAttributes: NSCollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSCollectionViewLayoutAttributes) -> Bool {
-        Swift.print("shouldInvalidateLayoutPreferredLayoutAttributes")
+        Swift.print("shouldInvalidateLayoutPreferredLayoutAttributes", super.shouldInvalidateLayout(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes), preferredAttributes.frame, originalAttributes.frame)
         return super.shouldInvalidateLayout(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
     }
 
