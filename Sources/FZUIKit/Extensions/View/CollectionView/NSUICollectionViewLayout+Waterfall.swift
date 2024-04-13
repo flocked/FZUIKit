@@ -81,6 +81,24 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Handler that provides the sizes for each item.
     public typealias ItemSizeProvider = (_ indexPath: IndexPath) -> CGSize
 
+    public var keepItemsCenteredWhenResizing: Bool = true
+    public var keepItemOrder: Bool = false
+    public var layoutItemAttributes: [NSUICollectionViewLayoutAttributes] = []
+    public var debug: Bool = true
+    private var _sectionInsetUsesSafeArea: Bool = false
+    private var columnHeights: [[CGFloat]] = []
+    private var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
+    private var allItemAttributes: [NSUICollectionViewLayoutAttributes] = []
+    private var headersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
+    private var footersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
+    private var unionRects: [CGRect] = []
+    private let unionSize = 20
+    private var bounds: CGRect = .zero
+    private var displayingItems: Set<IndexPath>?
+    private var delayedVisibleItemsReset: DispatchWorkItem?
+    private var isScrolling = false
+    private var mappedItemColumns: [IndexPath: Int] = [:]
+    
     #if os(macOS) || os(iOS)
     /**
      Creates a waterfall layout with the specified item size provider.
@@ -110,6 +128,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         self.itemSizeProvider = itemSizeProvider
     }
     #endif
+    
+    
+    func print(_ items: Any...) {
+        guard debug else { return }
+        Swift.debugPrint(items)
+    }
     
     func set<Value>(_ keyPath: ReferenceWritableKeyPath<CollectionViewWaterfallLayout, Value>, to value: Value) -> Self {
         self[keyPath: keyPath] = value
@@ -353,16 +377,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public func sectionInsetUsesSafeArea(_ useSafeArea: Bool) -> Self {
         set(\.sectionInsetUsesSafeArea, to: useSafeArea)
     }
-    
-    open var _sectionInsetUsesSafeArea: Bool = false
-
-    private var columnHeights: [[CGFloat]] = []
-    private var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
-    private var allItemAttributes: [NSUICollectionViewLayoutAttributes] = []
-    private var headersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
-    private var footersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
-    private var unionRects: [CGRect] = []
-    private let unionSize = 20
 
     private func columns(forSection _: Int) -> Int {
         var cCount = columns
@@ -402,33 +416,27 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         let width = collectionViewContentWidth(ofSection: section)
         return floor((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns))
     }
-    
-    enum AutoColumnCount {
-        case off
-        case resizing
-        case enabled
-    }
-    
-    var isScrolling = false
-    var mappedItemColumns: [IndexPath: Int] = [:]
 
     override public func prepare() {
         guard !isScrolling else { return }
+        guard let collectionView = collectionView else { return }
+        let widthChanged = bounds.width != collectionView.bounds.width
         super.prepare()
-        guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         #if os(macOS) || os(iOS)
         collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
+        bounds.size.width = collectionView.bounds.width
+        prepareItemAttributes(keepOrder: keepItemOrder)
+        if widthChanged {
+            scrollToDisplayingItems()
+        }
+        keepItemOrder = false
+    }
+    
+    func prepareItemAttributes(keepOrder: Bool = false) {
+        guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         let numberOfSections = collectionView.numberOfSections
-        let sizeChanged = collectionViewBounds.width != collectionView.visibleRect.width
-        #if os(macOS)
-        collectionViewBoundsSize = collectionView.visibleRect.size
-        #else
-        collectionViewBoundsSize = collectionView.bounds.size
-        #endif
-        collectionViewContentOffset = collectionView.visibleRect.origin
-        collectionViewBounds = collectionView.visibleRect
-        Swift.print("prepare", collectionView.visibleRect, displayingItems?.compactMap({$0.item}).sorted() ?? [])
+        
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
@@ -442,7 +450,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
         var top: CGFloat = 0.0
         var attributes = NSUICollectionViewLayoutAttributes()
-        var displayingItemFrames: [CGRect] = []
 
         for section in 0 ..< numberOfSections {
             // MARK: 1. Get section-specific metrics (minimumInteritemSpacing, sectionInset)
@@ -471,8 +478,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             for idx in 0 ..< itemCount {
                 let indexPath = IndexPath(item: idx, section: section)
 
-                
-                let columnIndex = nextColumnIndexForItem(at: indexPath)
+                let columnIndex = nextColumnIndexForItem(at: indexPath, keepOrder: keepOrder)
                 let xOffset = sectionInset.left + (itemWidth + minimumColumnSpacing) * CGFloat(columnIndex)
 
                 let yOffset = columnHeights[section][columnIndex]
@@ -491,9 +497,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                     attributes = NSUICollectionViewLayoutAttributes(forCellWith: indexPath)
                 #endif
                 attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemWidth, height: itemHeight)
-                if displayingItems?.contains(indexPath) == true {
-                    displayingItemFrames.append( attributes.frame)
-                }
                 mappedItemColumns[indexPath] = columnIndex
                 itemAttributes.append(attributes)
                 allItemAttributes.append(attributes)
@@ -526,27 +529,16 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
-        /*
-        if let displayingItems = displayingItems, !isScrolling {
-            isScrolling = true
-            collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
-            isScrolling = false
-        }
-        */
-     //   didLayoutHandler?()
-     //   scrollToDisplayingItems(displayingItemFrames)
-        scrollToDisplaying()
-        keepItemOrder = false
     }
     
-    func scrollToDisplaying() {
+    func scrollToDisplayingItems() {
         guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems else { return }
         let itemFrames = displayingItems.compactMap({ layoutAttributesForItem(at:$0)?.frame })
-        Swift.print("scrollToDisplaying")
+        print("scrollToDisplaying", itemFrames.unionAlt().center.y, displayingItems.compactMap({$0.item}).sorted())
         isScrolling = true
         keepItemOrder = true
-        collectionView.contentOffset.y =  itemFrames.unionAlt().center.y
-      //  collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+      //  collectionView.contentOffset.y =  itemFrames.unionAlt().center.y
+        collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         isScrolling = false
         keepItemOrder = false
     }
@@ -562,173 +554,43 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if displayingItems == nil {
             displayingItems = Set(collectionView.displayingIndexPaths(in: rect))
         }
-        // collectionView.collectionViewLayout?.invalidateLayout()
-
     }
-    
-    func scrollToDisplayingItems(_ itemFrames: [CGRect]? = nil) {
-        guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems, let scrollView = collectionView.enclosingScrollView else { return }
-        let allFrames = itemFrames ?? displayingItems.compactMap({ layoutAttributesForItem(at: $0)?.frame })
-        isScrolling = true
-        let yBounds = scrollView.contentView.bounds
-        let offset = scrollView.contentOffset
-     //   scrollView.contentOffset.y = allFrames.union().center.y
-     //   scrollView.contentView.bounds.y = allFrames.union().center.y
-     //   scrollView.reflectScrolledClipView(scrollView.contentView)
-        collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
-        Swift.print("scrollToDisplaying", allFrames.union().center.y, scrollView.contentOffset, offset, scrollView.contentView.bounds, yBounds)
-      //  currentBounds =
-        isScrolling = false
-    }
-    
-    var displayingItems: Set<IndexPath>?
-    var _displayingItems: Set<IndexPath>?
-
-    var delayedVisibleItemsReset: DispatchWorkItem?
-    var collectionViewBoundsSize: CGSize = .zero
-    var collectionViewContentOffset: CGPoint = .zero
-    public var keepItemsCenteredWhenResizing: Bool = true
-    var collectionViewBounds: CGRect = .zero
-    
-    public var willLayoutHandler: (()->())? = nil
-    public var shouldLayoutHandler: (()->(Bool))? = nil
-
-    public var didLayoutHandler: (()->())? = nil
-    
-    var collectionViewBoundsObservation: KeyValueObservation?
-    var boundsToken: NotificationToken?
-    var contentViewBounds: CGRect = .zero
-    var currentBounds: CGRect = .zero
-    
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard keepItemsCenteredWhenResizing else { return false }
-        Swift.print("should",newBounds.width != currentBounds.width, newBounds, currentBounds )
-        if newBounds.width != currentBounds.width {
-            setupDisplayingItems(currentBounds)
+        print("shouldInvalidate",newBounds.width != bounds.width, newBounds, bounds )
+        if newBounds.width != bounds.width {
+            setupDisplayingItems(bounds)
             keepItemOrder = true
             isScrolling = false
-            currentBounds = newBounds
-            return true
-        }
-        currentBounds = newBounds
-        scrollToDisplaying()
-        return false
-        
-        guard keepItemsCenteredWhenResizing else { return false }
-        if newBounds.width != currentBounds.width, displayingItems == nil  {
-            setupDisplayingItems(currentBounds)
-            isScrolling = true
             invalidateLayout()
-            isScrolling = false
-            Swift.print("should true", newBounds, currentBounds, displayingItems?.compactMap({$0.item}).sorted() ?? [], collectionView?.displayingIndexPaths(in: self.contentViewBounds).compactMap({$0.item}).sorted() ?? [])
-            currentBounds = newBounds
+            scrollToDisplayingItems()
+            bounds = newBounds
             return false
         }
-        scrollToDisplaying()
-        Swift.print("should false", newBounds, currentBounds)
-        currentBounds = newBounds
+        bounds = newBounds
+        scrollToDisplayingItems()
         return false
     }
-    /*
-    override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        if let collectionView = collectionView {
-            Swift.print("shouldInvalidateLayout")
-            Swift.print("\t", newBounds, "newBounds")
-            Swift.print("\t", collectionView.visibleRect, "visibleRect")
-            Swift.print("\t", collectionView.contentOffset, "contentOffset")
-            Swift.print("\t", collectionView.documentSize, "documentSize")
-            Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
-            Swift.print("\t", collectionViewBounds, "collectionViewBounds")
-            Swift.print("\t", collectionView.bounds, "collectionView bounds")
-            Swift.print("\t", collectionView.frame, "collectionView frame")
-            Swift.print("\t", currentBounds.width != newBounds.width, "check")
-            Swift.print("\t", collectionView.displayingIndexPaths(in: currentBounds).compactMap({$0.item}).sorted(), "displaying")
-        }
-        if currentBounds.width != newBounds.width {
-            currentBounds = newBounds
-            if let shouldLayoutHandler = shouldLayoutHandler {
-                if shouldLayoutHandler() {
-                    willLayoutHandler?()
-                    return true
-                }
-            } else {
-                willLayoutHandler?()
-                return true
-            }
-        }
-        currentBounds = newBounds
-        return false
-        
-        guard keepItemsCenteredWhenResizing else { return false }
-        if newBounds.width == collectionViewBounds.width {
-            collectionViewBounds = collectionView?.visibleRect ?? .zero
-            return false
-        }
-        if _displayingItems == nil, let collectionView = collectionView {
-            _displayingItems = Set(collectionView.displayingIndexPaths(in: collectionViewBounds))
-        }
-        displayingItems = _displayingItems
-        delayedVisibleItemsReset?.cancel()
-        let task = DispatchWorkItem {
-            self._displayingItems = nil
-        }
-        delayedVisibleItemsReset = task
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
-        return true
-        
-        guard newBounds.width != (collectionView?.bounds.width ?? 0) else { return false }
-        if displayingItems == nil, let collectionView = collectionView {
-            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
-        }
-        
-        if newBounds.size == collectionViewBoundsSize {
-            collectionViewContentOffset = newBounds.origin
-        }
-        
-        if let collectionView = collectionView {
-            let displaying = collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)).compactMap({$0.item}).sorted()
-            Swift.print("shouldInvalidateLayout", newBounds.origin, newBounds.size != collectionViewBoundsSize, collectionView.visibleRect == CGRect(collectionViewContentOffset, collectionViewBoundsSize), CGRect(collectionViewContentOffset, collectionViewBoundsSize), collectionView.contentOffset, collectionView.visibleRect,  displaying)
-        }
-        guard newBounds.size != collectionViewBoundsSize else {
-            return false }
-        
-       
-        if displayingItems == nil, let collectionView = collectionView {
-            displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
-        }
-        return true
-    }
-     */
 
     override public var collectionViewContentSize: CGSize {
-        if collectionView!.numberOfSections == 0 {
-            return .zero
-        }
-
-        var contentSize = collectionView!.bounds.size
-        contentSize.width = collectionViewContentWidth
-
-        if let height = columnHeights.last?.first {
-            contentSize.height = height
-            return contentSize
-        }
-        return .zero
+        guard let collectionView = collectionView, collectionView.numberOfSections != 0, let height = columnHeights.last?.first else { return .zero }
+       
+        return CGSize(collectionViewContentWidth, height)
     }
 
- //   var allItemFrames: [CGRect] = []
     override public func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
         if indexPath.section >= sectionItemAttributes.count {
-            Swift.print("itemAttributes", indexPath.item)
+            print("itemAttributes", indexPath.item)
             return nil
         }
         let list = sectionItemAttributes[indexPath.section]
         if indexPath.item >= list.count {
-            Swift.print("itemAttributes", indexPath.item)
+            print("itemAttributes", indexPath.item)
             return nil
         }
      //   allItemFrames.append(list[indexPath.item].frame)
-        Swift.print("itemAttributes", indexPath.item, list[indexPath.item].frame)
+        print("itemAttributes", indexPath.item, list[indexPath.item].frame)
 
         return list[indexPath.item]
     }
@@ -736,12 +598,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     
     public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint) -> NSPoint {
-        Swift.print("targetContentOffset",proposedContentOffset)
+        print("targetContentOffset",proposedContentOffset)
         return super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
     }
     
     public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint, withScrollingVelocity velocity: NSPoint) -> NSPoint {
-        Swift.print("targetContentOffsetVelocity",proposedContentOffset, velocity)
+        print("targetContentOffsetVelocity",proposedContentOffset, velocity)
         return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity)
     }
 
@@ -755,10 +617,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         return attribute ?? NSUICollectionViewLayoutAttributes()
     }
 
-    var elementsRect: CGRect = .zero
-    public var itemFrames: [CGRect] = []
     override public func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
-        elementsRect = rect
         var begin = 0, end = unionRects.count
 
         if let i = unionRects.firstIndex(where: { rect.intersects($0) }) {
@@ -767,18 +626,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if let i = unionRects.lastIndex(where: { rect.intersects($0) }) {
             end = min((i + 1) * unionSize, allItemAttributes.count)
         }
-        itemFrames = (allItemAttributes[begin ..< end]
-            .filter { rect.intersects($0.frame) }).compactMap({$0.frame}).sorted(by: \.y)
-        Swift.print("elementsAttributes", itemFrames.union())
-        for itemFrame in itemFrames {
-            Swift.print("\t", itemFrame)
-        }
-        /*
-        Swift.print("elementsAttributes", rect, (allItemAttributes[begin ..< end]
-            .filter { rect.intersects($0.frame) }).compactMap({$0.frame.origin.y}))
-*/
-        return allItemAttributes[begin ..< end]
-            .filter { rect.intersects($0.frame) }
+        layoutItemAttributes = (allItemAttributes[begin ..< end]
+            .filter { rect.intersects($0.frame) })
+        print("elementAttributes", rect, layoutItemAttributes.compactMap({$0.frame}))
+        return layoutItemAttributes
     }
 
     private func shortestColumnIndex(inSection section: Int) -> Int {
@@ -795,23 +646,22 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     public override func invalidateLayout() {
         guard !isScrolling else { return }
-        Swift.print("invalidateLayout")
+        print("invalidateLayout")
         super.invalidateLayout()
     }
     
     public override func invalidateLayout(with context: NSCollectionViewLayoutInvalidationContext) {
         guard !isScrolling else { return }
-        Swift.print("invalidateLayoutContext")
+        print("invalidateLayoutContext")
         super.invalidateLayout(with: context)
     }
         
     public override func shouldInvalidateLayout(forPreferredLayoutAttributes preferredAttributes: NSCollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSCollectionViewLayoutAttributes) -> Bool {
-        Swift.print("shouldInvalidateAttributes", super.shouldInvalidateLayout(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes), preferredAttributes.frame, originalAttributes.frame)
+        print("shouldInvalidateAttributes", super.shouldInvalidateLayout(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes), preferredAttributes.frame, originalAttributes.frame)
         return super.shouldInvalidateLayout(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
     }
-
-    public var keepItemOrder: Bool = false
-    private func nextColumnIndexForItem(at indexPath: IndexPath) -> Int {
+    
+    private func nextColumnIndexForItem(at indexPath: IndexPath, keepOrder: Bool) -> Int {
         if keepItemOrder, let mappedColumn = mappedItemColumns[indexPath] {
             return mappedColumn
         }
@@ -1069,7 +919,7 @@ public extension Collection where Element == CGRect {
         let x = self.compactMap({$0.x}).min() ?? 0
         let y = self.compactMap({$0.y}).min() ?? 0
         
-       // Swift.print(self.sorted(by: \.y))
+       // print(self.sorted(by: \.y))
         
         
         let maxX = self.compactMap({$0.maxX}).max() ?? 0
