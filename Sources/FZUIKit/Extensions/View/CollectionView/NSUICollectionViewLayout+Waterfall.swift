@@ -580,7 +580,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         guard keepItemsCenteredWhenResizing else { return false }
         
         
-        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView != nil, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [], collectionView?.indexPathsForVisibleItems().compactMap({$0.item}).sorted() ?? [])
+        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView != nil, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [], collectionView?.indexPathsForVisibleItems().compactMap({$0.item}).sorted() ?? [], collectionView?.visibleRect ?? .zero)
         guard newBounds.size != collectionViewBoundsSize else {
             return false }
         
