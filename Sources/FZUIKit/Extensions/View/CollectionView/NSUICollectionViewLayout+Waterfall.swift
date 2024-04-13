@@ -410,6 +410,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     var isScrolling = false
+    var mappedItemColumns: [IndexPath: Int] = [:]
+
     override public func prepare() {
         super.prepare()
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
@@ -541,7 +543,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             for idx in 0 ..< itemCount {
                 let indexPath = IndexPath(item: idx, section: section)
 
-                let columnIndex = nextColumnIndexForItem(idx, inSection: section)
+                
+                let columnIndex = nextColumnIndexForItem(at: indexPath)
                 let xOffset = sectionInset.left + (itemWidth + minimumColumnSpacing) * CGFloat(columnIndex)
 
                 let yOffset = columnHeights[section][columnIndex]
@@ -563,7 +566,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 if displayingItems?.contains(indexPath) == true {
                     displayingItemFrames.append( attributes.frame)
                 }
-                
+                mappedItemColumns[indexPath] = columnIndex
                 itemAttributes.append(attributes)
                 allItemAttributes.append(attributes)
                 columnHeights[section][columnIndex] = attributes.frame.maxY + minimumInteritemSpacing
@@ -851,16 +854,20 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         return super.shouldInvalidateLayout(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
     }
 
-    private func nextColumnIndexForItem(_ item: Int, inSection section: Int) -> Int {
+    public var keepItemOrder: Bool = false
+    private func nextColumnIndexForItem(at indexPath: IndexPath) -> Int {
+        if keepItemOrder, let mappedColumn = mappedItemColumns[indexPath] {
+            return mappedColumn
+        }
         var index = 0
-        let columns = columns(forSection: section)
+        let columns = columns(forSection: indexPath.section)
         switch itemRenderDirection {
         case .shortestColumn:
-            index = shortestColumnIndex(inSection: section)
+            index = shortestColumnIndex(inSection: indexPath.section)
         case .leftToRight:
-            index = item % columns
+            index = indexPath.item % columns
         case .rightToLeft:
-            index = (columns - 1) - (item % columns)
+            index = (columns - 1) - (indexPath.item % columns)
         }
         return index
     }
