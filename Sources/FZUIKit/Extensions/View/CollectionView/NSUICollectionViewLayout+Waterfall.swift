@@ -551,7 +551,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         return list[indexPath.item]
     }
     
+    var previousBounds: CGRect = .zero
     public override func shouldInvalidateLayout(forBoundsChange newBounds: NSRect) -> Bool {
+        Swift.print("shouldInvalidate", newBounds.width != previousBounds.width, newBounds, previousBounds)
+        previousBounds = newBounds
         return false
     }
 
