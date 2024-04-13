@@ -536,6 +536,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var collectionViewBounds: CGRect = .zero
     
     public var willLayoutHandler: (()->())? = nil
+    public var shouldLayoutHandler: (()->(Bool))? = nil
+
     public var didLayoutHandler: (()->())? = nil
     
     var currentBounds: CGRect = .zero
@@ -555,8 +557,15 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
         if currentBounds.width != newBounds.width {
             currentBounds = newBounds
-            willLayoutHandler?()
-            return true
+            if let shouldLayoutHandler = shouldLayoutHandler {
+                if shouldLayoutHandler() {
+                    willLayoutHandler?()
+                    return true
+                }
+            } else {
+                willLayoutHandler?()
+                return true
+            }
         }
         currentBounds = newBounds
         return false
