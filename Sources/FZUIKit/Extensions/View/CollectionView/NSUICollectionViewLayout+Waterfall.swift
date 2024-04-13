@@ -441,7 +441,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                     // collectionView.collectionViewLayout?.invalidateLayout()
                     if let displayingItems = self.displayingItems {
                         Swift.print("scrollToItems start")
+                        self.allItemFrames = []
                         collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
+                       
+                        collectionView.enclosingScrollView?.contentOffset.y =  self.allItemFrames.union().center.y
                         Swift.print("scrollToItems end", contentView.bounds)
                     }
                 }
@@ -702,6 +705,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         return .zero
     }
 
+    var allItemFrames: [CGRect] = []
     override public func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
         if indexPath.section >= sectionItemAttributes.count {
             Swift.print("layoutAttributesForItem")
@@ -712,6 +716,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             Swift.print("layoutAttributesForItem")
             return nil
         }
+        allItemFrames.append(list[indexPath.item].frame)
         Swift.print("layoutAttributesForItem", list[indexPath.item].frame)
 
         return list[indexPath.item]
