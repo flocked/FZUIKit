@@ -448,6 +448,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                        
                         if let scrollView = collectionView.enclosingScrollView {
                           //  scrollView.contentOffset.y =  allFrames.union().center.y
+                            self.contentViewBounds = contentView.bounds
                             scrollView.contentView.bounds.y = allFrames.union().center.y
                             scrollView.reflectScrolledClipView(scrollView.contentView)
                         }
