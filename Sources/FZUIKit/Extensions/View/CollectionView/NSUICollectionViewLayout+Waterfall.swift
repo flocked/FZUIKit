@@ -607,6 +607,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if newBounds.width != currentBounds.width {
             setupDisplayingItems(currentBounds)
             keepItemOrder = true
+            isScrolling = false
             currentBounds = newBounds
             return true
         }
