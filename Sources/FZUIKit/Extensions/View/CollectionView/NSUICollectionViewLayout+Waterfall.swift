@@ -619,6 +619,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 
     override public func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
+        var rect = rect
+        if isScrolling {
+            rect.origin.y = bounds.y
+        }
         var begin = 0, end = unionRects.count
 
         if let i = unionRects.firstIndex(where: { rect.intersects($0) }) {
@@ -628,9 +632,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             end = min((i + 1) * unionSize, allItemAttributes.count)
         }
         layoutItemAttributes = (allItemAttributes[begin ..< end]
-            .filter { rect.intersects($0.frame) })
-        print("elementAttributes", rect, layoutItemAttributes.compactMap({$0.frame}))
-        return layoutItemAttributes
+            .filter { rect.intersects($0.frame) }).sorted(by: \.indexPath?.item)
+        
+        print("elementAttributes", rect, layoutItemAttributes.compactMap({$0.indexPath?.item}), layoutItemAttributes.compactMap({$0.frame}))
+        return layoutItemAttributes.sorted(by: \.indexPath?.item)
     }
 
     private func shortestColumnIndex(inSection section: Int) -> Int {
