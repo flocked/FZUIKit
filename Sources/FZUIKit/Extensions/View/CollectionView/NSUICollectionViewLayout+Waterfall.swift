@@ -419,79 +419,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
         let numberOfSections = collectionView.numberOfSections
-        /*
-        if boundsToken == nil, let contentView = collectionView.enclosingScrollView?.contentView {
-            contentView.postsBoundsChangedNotifications = true
-            contentViewBounds = contentView.bounds
-            boundsToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: contentView) { [weak self] _ in
-                guard let self = self else { return }
-                if contentView.bounds.width != self.contentViewBounds.width {
-                    Swift.print("boundsToken", contentView.bounds.width != self.contentViewBounds.width, contentView.bounds, self.contentViewBounds, collectionView.displayingIndexPaths(in: self.contentViewBounds).compactMap({$0.item}).sorted() )
-                    
-                } else {
-                    Swift.print("boundsToken", contentView.bounds.width != self.contentViewBounds.width, contentView.bounds, self.contentViewBounds )
-                }
-                if contentView.bounds.width != self.contentViewBounds.width {
-                    self.delayedVisibleItemsReset?.cancel()
-                    let task = DispatchWorkItem {
-                        self.displayingItems = nil
-                    }
-                    self.delayedVisibleItemsReset = task
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
-                    if self.displayingItems == nil {
-                        self.displayingItems = Set(collectionView.displayingIndexPaths(in: self.contentViewBounds))
-                    }
-                    // collectionView.collectionViewLayout?.invalidateLayout()
-                    if let displayingItems = self.displayingItems {
-                        Swift.print("scrollToItems start")
-                        let allFrames = displayingItems.compactMap({ self.layoutAttributesForItem(at: $0)?.frame })
-                   //     self.allItemFrames = []
-                        
-                     //   collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
-                       
-                        if let scrollView = collectionView.enclosingScrollView {
-                          //  scrollView.contentOffset.y =  allFrames.union().center.y
-                            self.contentViewBounds = contentView.bounds
-                            scrollView.contentView.bounds.y = allFrames.union().center.y
-                            scrollView.reflectScrolledClipView(scrollView.contentView)
-                        }
-                        Swift.print("scrollToItems end", contentView.bounds)
-                    }
-                }
-                self.contentViewBounds = contentView.bounds
-            }
-        }
-         */
-        /*
-        if collectionViewBoundsObservation == nil {
-            let view = collectionView.enclosingScrollView?.contentView ?? collectionView
-            collectionViewBoundsObservation =  view.observeChanges(for: \.frame) { [weak self] old, new in
-                guard let self = self, self.keepItemsCenteredWhenResizing else { return }
-                
-                guard old.width != new.width, collectionView.collectionViewLayout == self else { return }
-                let displaying = collectionView.displayingIndexPaths().compactMap({$0.item}).sorted()
-                let displaying1 = collectionView.displayingIndexPaths(in: self.elementsRect).compactMap({$0.item}).sorted()
-                Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, self.displayingItems?.compactMap({$0.item}).sorted() ?? [])
-
-
-
-                self.delayedVisibleItemsReset?.cancel()
-                let task = DispatchWorkItem {
-                    self.displayingItems = nil
-                }
-                self.delayedVisibleItemsReset = task
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
-                if self.displayingItems == nil {
-                    self.displayingItems = Set(collectionView.displayingIndexPaths(in: self.elementsRect))
-                }
-                collectionView.collectionViewLayout?.invalidateLayout()
-                if let displayingItems = self.displayingItems {
-                    collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
-                }
-            }
-        }
-         */
-
         let sizeChanged = collectionViewBounds.width != collectionView.visibleRect.width
         #if os(macOS)
         collectionViewBoundsSize = collectionView.visibleRect.size
@@ -606,7 +533,18 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
         */
      //   didLayoutHandler?()
-        scrollToDisplayingItems(displayingItemFrames)
+     //   scrollToDisplayingItems(displayingItemFrames)
+        scrollToDisplaying()
+        keepItemOrder = false
+    }
+    
+    func scrollToDisplaying() {
+        guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems else { return }
+        isScrolling = true
+        keepItemOrder = true
+        collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+        isScrolling = false
+        keepItemOrder = false
     }
     
     func setupDisplayingItems(_ rect: CGRect) {
@@ -660,7 +598,17 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        guard keepItemsCenteredWhenResizing else { return false }
+        if newBounds.width != currentBounds.width {
+            setupDisplayingItems(currentBounds)
+            keepItemOrder = true
+            currentBounds = newBounds
+            return true
+        }
+        currentBounds = newBounds
+        scrollToDisplaying()
         return false
+        
         guard keepItemsCenteredWhenResizing else { return false }
         if newBounds.width != currentBounds.width, displayingItems == nil  {
             setupDisplayingItems(currentBounds)
