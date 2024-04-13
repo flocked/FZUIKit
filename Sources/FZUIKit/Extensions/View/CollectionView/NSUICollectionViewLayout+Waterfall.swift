@@ -421,8 +421,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             let view = collectionView.enclosingScrollView?.contentView ?? collectionView
             collectionViewBoundsObservation =  view.observeChanges(for: \.frame) { [weak self] old, new in
                 guard let self = self else { return }
-                Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, collectionView.collectionViewLayout == self)
+                
                 guard old.width != new.width, collectionView.collectionViewLayout == self else { return }
+                let displaying = collectionView.displayingIndexPaths().compactMap({$0.item}).sorted()
+                let displaying1 = collectionView.displayingIndexPaths(in: old).compactMap({$0.item}).sorted()
+                Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, displaying, displaying != displaying1 ? displaying1 : "")
+
+
+
                 self.delayedVisibleItemsReset?.cancel()
                 let task = DispatchWorkItem {
                     self.displayingItems = nil
