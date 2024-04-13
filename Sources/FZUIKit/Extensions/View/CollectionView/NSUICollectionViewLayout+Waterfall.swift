@@ -583,9 +583,18 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
      */
 
     override public var collectionViewContentSize: CGSize {
-        guard let collectionView = collectionView, collectionView.numberOfSections != 0, let height = columnHeights.last?.first else { return .zero }
-       
-        return CGSize(collectionViewContentWidth, height)
+        if collectionView!.numberOfSections == 0 {
+            return .zero
+        }
+
+        var contentSize = collectionView!.bounds.size
+        contentSize.width = collectionViewContentWidth
+
+        if let height = columnHeights.last?.first {
+            contentSize.height = height
+            return contentSize
+        }
+        return .zero
     }
 
     override public func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
