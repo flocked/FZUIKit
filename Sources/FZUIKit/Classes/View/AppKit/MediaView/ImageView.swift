@@ -786,12 +786,6 @@ open class ImageView: NSControl {
     open override var intrinsicContentSize: NSSize {
         imageView.intrinsicContentSize
     }
-    
-    open override func hitTest(_ point: NSPoint) -> NSView? {
-        Swift.print("imageView", imageView.frame.contains(point), super.hitTest(point) ?? "nil")
-        return self
-        return super.hitTest(point)
-    }
 
     func sharedInit() {        
         imageShadowView.clipsToBounds = false
@@ -801,16 +795,14 @@ open class ImageView: NSControl {
         imageView.animates = false
         imageView.imageScaling = imageScaling.nsImageScaling
         imageView.imageAlignment = imageAlignment
-        /*
+        
         containerView.frame = bounds
         containerView.clipsToBounds = true
         addSubview(containerView)
         containerView.addSubview(imageView)
-        addSubview(imageView)
+        
         overlayContentView.frame = bounds
-        */
-        addSubview(imageView)
-    //    containerView.addSubview(overlayContentView)
+        containerView.addSubview(overlayContentView)
     }
     
     open override func layout() {
@@ -880,7 +872,6 @@ open class ImageView: NSControl {
         get { imageView.lastBaselineAnchor }
     }
     
-    /*
     override open var acceptsFirstResponder: Bool { isSelectable != .off }
         
     override open func drawFocusRingMask() {
@@ -890,7 +881,6 @@ open class ImageView: NSControl {
     override open var focusRingMaskBounds: NSRect {
         isSelectable == .byImage ? overlayContentView.frame : bounds
     }
-     */
     
     class AnimatedImage {
         
