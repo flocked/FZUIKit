@@ -834,6 +834,21 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             .max(by: { $0.element < $1.element })?
             .offset ?? 0
     }
+    
+    public override func invalidateLayout() {
+        Swift.print("invalidateLayout")
+        super.invalidateLayout()
+    }
+    
+    public override func invalidateLayout(with context: NSCollectionViewLayoutInvalidationContext) {
+        Swift.print("invalidateLayoutContext")
+        super.invalidateLayout(with: context)
+    }
+        
+    public override func shouldInvalidateLayout(forPreferredLayoutAttributes preferredAttributes: NSCollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSCollectionViewLayoutAttributes) -> Bool {
+        Swift.print("shouldInvalidateLayoutPreferredLayoutAttributes")
+        return super.shouldInvalidateLayout(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
+    }
 
     private func nextColumnIndexForItem(_ item: Int, inSection section: Int) -> Int {
         var index = 0
