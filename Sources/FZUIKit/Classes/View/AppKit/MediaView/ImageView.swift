@@ -786,6 +786,11 @@ open class ImageView: NSControl {
     open override var intrinsicContentSize: NSSize {
         imageView.intrinsicContentSize
     }
+    
+    open override func hitTest(_ point: NSPoint) -> NSView? {
+        Swift.print("imageView", imageView.frame.contains(point), super.hitTest(point) ?? "nil")
+        return super.hitTest(point)
+    }
 
     func sharedInit() {        
         imageShadowView.clipsToBounds = false
@@ -802,7 +807,7 @@ open class ImageView: NSControl {
         containerView.addSubview(imageView)
         addSubview(imageView)
         overlayContentView.frame = bounds
-   //     containerView.addSubview(overlayContentView)
+        containerView.addSubview(overlayContentView)
     }
     
     open override func layout() {
