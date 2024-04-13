@@ -416,7 +416,30 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
         let numberOfSections = collectionView.numberOfSections
-        
+        if boundsToken == nil, let contentView = collectionView.enclosingScrollView?.contentView {
+            contentView.postsBoundsChangedNotifications = true
+            contentViewBounds = contentView.bounds
+            boundsToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: contentView) { [weak self] _ in
+                guard let self = self else { return }
+                if contentView.bounds.width != self.contentViewBounds.width {
+                    self.delayedVisibleItemsReset?.cancel()
+                    let task = DispatchWorkItem {
+                        self.displayingItems = nil
+                    }
+                    self.delayedVisibleItemsReset = task
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+                    if self.displayingItems == nil {
+                        self.displayingItems = Set(collectionView.displayingIndexPaths(in: self.contentViewBounds))
+                    }
+                    collectionView.collectionViewLayout?.invalidateLayout()
+                    if let displayingItems = self.displayingItems {
+                        collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
+                    }
+                }
+                self.contentViewBounds = contentView.bounds
+            }
+        }
+        /*
         if collectionViewBoundsObservation == nil {
             let view = collectionView.enclosingScrollView?.contentView ?? collectionView
             collectionViewBoundsObservation =  view.observeChanges(for: \.frame) { [weak self] old, new in
@@ -444,6 +467,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 }
             }
         }
+         */
 
         let sizeChanged = collectionViewBounds.width != collectionView.visibleRect.width
         #if os(macOS)
@@ -571,7 +595,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public var didLayoutHandler: (()->())? = nil
     
     var collectionViewBoundsObservation: KeyValueObservation?
-    
+    var boundsToken: NotificationToken?
+    var contentViewBounds: CGRect = .zero
     var currentBounds: CGRect = .zero
     
     /*
