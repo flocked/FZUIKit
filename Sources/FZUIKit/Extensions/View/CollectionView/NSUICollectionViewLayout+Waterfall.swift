@@ -536,12 +536,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     func scrollToDisplayingItems() {
         guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems else { return }
         let itemFrames = displayingItems.compactMap({ layoutAttributesForItem(at:$0)?.frame })
-        print("scrollToDisplaying", itemFrames.unionAlt().center.y, displayingItems.compactMap({$0.item}).sorted())
+        print("scrollToDisplaying start", itemFrames.unionAlt().center.y, displayingItems.compactMap({$0.item}).sorted())
         isScrolling = true
         keepItemOrder = true
         scrollOffset = itemFrames.unionAlt().center
       //  collectionView.contentOffset.y =  itemFrames.unionAlt().center.y
         collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+        Swift.print("scrollToDisplaying end")
         scrollOffset = nil
         isScrolling = false
         keepItemOrder = false
@@ -637,7 +638,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         layoutItemAttributes = (allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }).sorted(by: \.indexPath?.item)
         
-        print("elementAttributes", rect, layoutItemAttributes.compactMap({$0.indexPath?.item}), layoutItemAttributes.compactMap({$0.frame}))
+        print("elementAttributes", rect, scrollOffset?.y ?? "nil", layoutItemAttributes.compactMap({$0.indexPath?.item}), layoutItemAttributes.compactMap({$0.frame}))
         return layoutItemAttributes.sorted(by: \.indexPath?.item)
     }
 
