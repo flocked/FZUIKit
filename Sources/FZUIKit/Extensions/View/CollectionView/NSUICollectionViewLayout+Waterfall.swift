@@ -566,7 +566,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             isScrolling = false
             invalidateLayout()
             scrollToDisplayingItems()
-            bounds = newBounds
+            bounds.size = newBounds.size
             return false
         }
         bounds = newBounds
