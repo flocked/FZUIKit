@@ -423,7 +423,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 guard let self = self else { return }
                 Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, collectionView.collectionViewLayout == self)
                 guard old.width != new.width, collectionView.collectionViewLayout == self else { return }
-                collectionView.collectionViewLayout?.invalidateLayout()
                 self.delayedVisibleItemsReset?.cancel()
                 let task = DispatchWorkItem {
                     self.displayingItems = nil
@@ -433,6 +432,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 if self.displayingItems == nil {
                     self.displayingItems = Set(collectionView.displayingIndexPaths())
                 }
+                collectionView.collectionViewLayout?.invalidateLayout()
                 if let displayingItems = self.displayingItems {
                     collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
                 }
