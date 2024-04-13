@@ -144,7 +144,6 @@
         static func grid(columns: Int = 3, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, animateColumns: Bool = true, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
             let layout = _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer, prepareHandler: pinchUpdateHandler(isPinchable || isKeyDownControllable))
             if isPinchable || isKeyDownControllable {
-              //  layout.swizzlePrepareLayout()
                 layout.columnConfiguration = .init(columns: columns, columnRange: columnRange, isPinchable: isPinchable, animated: animateColumns, changeAmount: isKeyDownControllable ? 1 : 0, changeAmountAlt: isKeyDownControllable ? columnRange.count : 0, changeAmountAlt2: 0) { columns in
                         .grid(columns: columns, columnRange: columnRange, isPinchable: isPinchable, isKeyDownControllable: isKeyDownControllable, animateColumns: animateColumns, itemAspectRatio: itemAspectRatio, insets: insets, header: header, footer: footer)
                 }

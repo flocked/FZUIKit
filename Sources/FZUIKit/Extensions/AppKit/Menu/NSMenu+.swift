@@ -137,6 +137,17 @@
             return self
         }
         
+        /**
+         Inserts menu items into the menu at a specific location.
+         
+         - Parameters:
+            - items: The menu items to insert.
+            - index: An integer index identifying the location of the menu item in the menu.
+         */
+        func insertItems(_ items: [NSMenuItem], at index: Int) {
+            items.reversed().forEach({ insertItem($0, at: index) })
+        }
+        
         /// Adds the specified menu item to the end of the menu.
         @discardableResult
         static func += (_ menu: NSMenu, _ item: NSMenuItem) -> NSMenu {

@@ -68,7 +68,6 @@ extension NSUICollectionViewLayout {
     static func pinchUpdateHandler(_ isPinchable: Bool) -> ((NSUICollectionViewCompositionalLayout)->())? {
         guard isPinchable else { return nil }
         return { layout in
-            Swift.print("pinchUpdateHandler", layout.collectionView != nil)
             guard let collectionView = layout.collectionView, collectionView.pinchColumnsGestureRecognizer == nil else { return }
             collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
             collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
