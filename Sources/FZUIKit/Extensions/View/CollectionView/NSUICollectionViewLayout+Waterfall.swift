@@ -402,7 +402,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         let columns = columns(forSection: section)
         let spaceColumCount = CGFloat(columns - 1)
         let width = collectionViewContentWidth(ofSection: section)
-        return floor((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns))
+        return ((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns)).scaledIntegral
     }
     
     enum AutoColumnCount {
@@ -465,7 +465,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             for idx in 0 ..< itemCount {
                 let indexPath = IndexPath(item: idx, section: section)
 
-                let columnIndex = nextColumnIndexForItem(idx, inSection: section)
+                let columnIndex = nextColumnIndexForItem(indexPath)
                 let xOffset = sectionInset.left + (itemWidth + minimumColumnSpacing) * CGFloat(columnIndex)
                 mappedItemColumns[indexPath] = columnIndex
 
@@ -476,7 +476,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 {
                     itemHeight = itemSize.height
                     if itemSize.width > 0 {
-                        itemHeight = floor(itemHeight * itemWidth / itemSize.width)
+                        itemHeight = (itemHeight * itemWidth / itemSize.width).scaledIntegral
                     } // else use default item width based on other parameters
                 }
                 #if os(macOS)
@@ -665,19 +665,19 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             .offset ?? 0
     }
 
-    private func nextColumnIndexForItem(_ item: Int, inSection section: Int) -> Int {
-        if keepItemOrder, let mappedColumn = mappedItemColumns[IndexPath(item: item, section: section)] {
+    private func nextColumnIndexForItem(_ indexPath: IndexPath) -> Int {
+        if keepItemOrder, let mappedColumn = mappedItemColumns[indexPath] {
             return mappedColumn
         }
         var index = 0
-        let columns = columns(forSection: section)
+        let columns = columns(forSection: indexPath.section)
         switch itemRenderDirection {
         case .shortestColumn:
-            index = shortestColumnIndex(inSection: section)
+            index = shortestColumnIndex(inSection: indexPath.section)
         case .leftToRight:
-            index = item % columns
+            index = indexPath.item % columns
         case .rightToLeft:
-            index = (columns - 1) - (item % columns)
+            index = (columns - 1) - (indexPath.item % columns)
         }
         return index
     }
