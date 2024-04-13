@@ -544,6 +544,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
             Swift.print("\t", collectionViewBounds, "collectionViewBounds")
         }
+        guard keepItemsCenteredWhenResizing else { return false }
         if newBounds.width == collectionViewBounds.width {
             collectionViewBounds = collectionView?.visibleRect ?? .zero
             return false
@@ -565,7 +566,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
         }
         
-        guard keepItemsCenteredWhenResizing else { return false }
         if newBounds.size == collectionViewBoundsSize {
             collectionViewContentOffset = newBounds.origin
         }
