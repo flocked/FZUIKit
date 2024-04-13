@@ -418,7 +418,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 
     override public func prepare() {
-        guard !isScrolling else { return }
         guard let collectionView = collectionView else { return }
         let widthChanged = bounds.width != collectionView.bounds.width
         print("prepare", widthChanged, keepItemOrder, collectionView.bounds, bounds)
@@ -429,7 +428,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         bounds.size.width = collectionView.bounds.width
         prepareItemAttributes(keepOrder: keepItemOrder)
         if widthChanged {
-            scrollToDisplayingItems()
+            // scrollToDisplayingItems()
         }
         keepItemOrder = false
     }
@@ -628,10 +627,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 
     override public func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
-        var rect = rect
-        if let offset = scrollOffset {
-            rect.origin.y = offset.y
-        }
         var begin = 0, end = unionRects.count
 
         if let i = unionRects.firstIndex(where: { rect.intersects($0) }) {
@@ -643,8 +638,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         layoutItemAttributes = (allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }).sorted(by: \.indexPath?.item)
         
-        print("elementAttributes", rect, scrollOffset?.y ?? "nil", layoutItemAttributes.compactMap({$0.indexPath?.item}), layoutItemAttributes.compactMap({$0.frame}))
-        scrollOffset = nil
+        print("elementAttributes", rect, layoutItemAttributes.compactMap({$0.indexPath?.item}), layoutItemAttributes.compactMap({$0.frame}))
         return layoutItemAttributes.sorted(by: \.indexPath?.item)
     }
 
@@ -661,13 +655,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     public override func invalidateLayout() {
-        guard !isScrolling else { return }
         print("invalidateLayout")
         super.invalidateLayout()
     }
     
     public override func invalidateLayout(with context: NSCollectionViewLayoutInvalidationContext) {
-        guard !isScrolling else { return }
         print("invalidateLayoutContext")
         super.invalidateLayout(with: context)
     }
