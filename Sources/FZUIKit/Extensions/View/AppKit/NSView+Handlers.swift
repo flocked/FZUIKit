@@ -60,6 +60,7 @@ extension NSView {
         set {
             setAssociatedValue(newValue, key: "viewHandlers")
             setupViewObservation()
+            setupLiveResizingObservation()
         }
     }
     
@@ -163,6 +164,38 @@ extension NSView {
         }
     }
     
+    func setupLiveResizingObservation() {
+        if viewHandlers.isLiveResizing != nil {
+            guard !isMethodReplaced(#selector(NSView.viewWillStartLiveResize)) else { return  }
+            do {
+               try replaceMethod(
+               #selector(NSView.viewWillStartLiveResize),
+               methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+               hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+                   object in
+                   (object as? NSView)?.viewHandlers.isLiveResizing?(true)
+                   store.original(object, #selector(NSView.viewWillStartLiveResize))
+                   }
+               }
+                try replaceMethod(
+                #selector(NSView.viewDidEndLiveResize),
+                methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+                    object in
+                    (object as? NSView)?.viewHandlers.isLiveResizing?(false)
+                    store.original(object, #selector(NSView.viewDidEndLiveResize))
+                    }
+                }
+            } catch {
+               // handle error
+               debugPrint(error)
+            }
+        } else {
+            resetMethod(#selector(NSView.viewWillStartLiveResize))
+            resetMethod(#selector(NSView.viewDidEndLiveResize))
+        }
+    }
+    
     var _isFirstResponder: Bool {
         get { getAssociatedValue("_isFirstResponder", initialValue: isFirstResponder) }
         set { 
@@ -235,6 +268,8 @@ extension NSView {
         public var frame: ((CGRect)->())?
         /// The handler that gets called when `isHidden` changed.
         public var isHidden: ((Bool)->())?
+        /// The handler that gets called when the view is resized by the user.
+        public var isLiveResizing: ((Bool)->())?
         /// The handler that gets called when the alpha value changed.
         public var alphaValue: ((CGFloat)->())?
         /// The handler that gets called when the effective appearance changed.
