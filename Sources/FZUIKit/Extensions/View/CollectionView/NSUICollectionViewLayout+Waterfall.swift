@@ -543,6 +543,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             Swift.print("\t", collectionView.documentSize, "documentSize")
             Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
             Swift.print("\t", collectionViewBounds, "collectionViewBounds")
+            Swift.print("\t", collectionView.bounds, "collectionView bounds")
+            Swift.print("\t", collectionView.frame, "collectionView frame")
+
         }
         guard keepItemsCenteredWhenResizing else { return false }
         if newBounds.width == collectionViewBounds.width {
