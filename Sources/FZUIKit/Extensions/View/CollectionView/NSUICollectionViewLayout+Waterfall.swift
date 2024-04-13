@@ -417,6 +417,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
         let numberOfSections = collectionView.numberOfSections
+        /*
         if boundsToken == nil, let contentView = collectionView.enclosingScrollView?.contentView {
             contentView.postsBoundsChangedNotifications = true
             contentViewBounds = contentView.bounds
@@ -458,6 +459,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 self.contentViewBounds = contentView.bounds
             }
         }
+         */
         /*
         if collectionViewBoundsObservation == nil {
             let view = collectionView.enclosingScrollView?.contentView ?? collectionView
@@ -598,6 +600,30 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
      //   didLayoutHandler?()
     }
     
+    func setupDisplayingItems(_ rect: CGRect) {
+        delayedVisibleItemsReset?.cancel()
+        guard let collectionView = collectionView else { return }
+        let task = DispatchWorkItem {
+            self.displayingItems = nil
+        }
+        delayedVisibleItemsReset = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+        if displayingItems == nil {
+            displayingItems = Set(collectionView.displayingIndexPaths(in: rect))
+        }
+        // collectionView.collectionViewLayout?.invalidateLayout()
+
+    }
+    
+    func scrollToDisplayingItems() {
+        guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems, let scrollView = collectionView.enclosingScrollView else { return }
+        let allFrames = displayingItems.compactMap({ layoutAttributesForItem(at: $0)?.frame })
+        isScrolling = true
+        scrollView.contentView.bounds.y = allFrames.union().center.y
+        scrollView.reflectScrolledClipView(scrollView.contentView)
+        isScrolling = false
+    }
+    
     var displayingItems: Set<IndexPath>?
     var _displayingItems: Set<IndexPath>?
 
@@ -619,10 +645,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         if newBounds.width != currentBounds.width {
-            Swift.print("should apply", newBounds, currentBounds, collectionView?.displayingIndexPaths(in: self.contentViewBounds).compactMap({$0.item}).sorted() ?? [])
+            setupDisplayingItems(currentBounds)
+            Swift.print("should apply", newBounds, currentBounds, displayingItems?.compactMap({$0.item}).sorted() ?? [], collectionView?.displayingIndexPaths(in: self.contentViewBounds).compactMap({$0.item}).sorted() ?? [])
             currentBounds = newBounds
             return true
         }
+        scrollToDisplayingItems()
         Swift.print("should", newBounds, currentBounds)
         currentBounds = newBounds
         return false
