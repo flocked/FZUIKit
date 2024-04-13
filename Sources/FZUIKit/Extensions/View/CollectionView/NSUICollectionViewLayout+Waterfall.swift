@@ -532,14 +532,17 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
     }
     
+    var scrollOffset: CGPoint? = nil
     func scrollToDisplayingItems() {
         guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems else { return }
         let itemFrames = displayingItems.compactMap({ layoutAttributesForItem(at:$0)?.frame })
         print("scrollToDisplaying", itemFrames.unionAlt().center.y, displayingItems.compactMap({$0.item}).sorted())
         isScrolling = true
         keepItemOrder = true
+        scrollOffset = itemFrames.unionAlt().center
       //  collectionView.contentOffset.y =  itemFrames.unionAlt().center.y
         collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+        scrollOffset = nil
         isScrolling = false
         keepItemOrder = false
     }
@@ -620,8 +623,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     override public func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
         var rect = rect
-        if isScrolling {
-            rect.origin.y = bounds.y
+        if let offset = scrollOffset {
+            rect.origin.y = offset.y
         }
         var begin = 0, end = unionRects.count
 
