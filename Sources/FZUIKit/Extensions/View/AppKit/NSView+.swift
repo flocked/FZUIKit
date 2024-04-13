@@ -305,6 +305,7 @@
                 NSView.swizzleAnimationForKey()
                 layer?.cornerRadius = newValue
                 layer?.masksToBounds = clipsToBounds
+                Swift.print(clipsToBounds, layer?.masksToBounds ?? "nil", self.clipsToBounds)
             }
         }
         
