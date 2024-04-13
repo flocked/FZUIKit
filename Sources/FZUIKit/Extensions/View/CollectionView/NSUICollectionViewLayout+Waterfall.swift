@@ -540,13 +540,29 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     override public func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
         if indexPath.section >= sectionItemAttributes.count {
+            Swift.print("layoutAttributesForItem")
             return nil
         }
         let list = sectionItemAttributes[indexPath.section]
         if indexPath.item >= list.count {
+            Swift.print("layoutAttributesForItem")
             return nil
         }
+        Swift.print("layoutAttributesForItem", list[indexPath.item].frame)
+
         return list[indexPath.item]
+    }
+    
+
+    
+    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint) -> NSPoint {
+        Swift.print("targetContentOffset",proposedContentOffset)
+        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
+    }
+    
+    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint, withScrollingVelocity velocity: NSPoint) -> NSPoint {
+        Swift.print("targetContentOffsetVelocity",proposedContentOffset, velocity)
+        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity)
     }
 
     override public func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
@@ -568,6 +584,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if let i = unionRects.lastIndex(where: { rect.intersects($0) }) {
             end = min((i + 1) * unionSize, allItemAttributes.count)
         }
+        Swift.print("layoutAttributesForElements", rect, (allItemAttributes[begin ..< end]
+            .filter { rect.intersects($0.frame) }).compactMap({$0.frame.origin}))
+
         return allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }
     }
