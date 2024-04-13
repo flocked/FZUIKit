@@ -544,7 +544,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         Swift.print("scrollToDisplaying end")
         scrollOffset = nil
-        isScrolling = false
         keepItemOrder = false
     }
     
@@ -639,6 +638,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             .filter { rect.intersects($0.frame) }).sorted(by: \.indexPath?.item)
         
         print("elementAttributes", rect, scrollOffset?.y ?? "nil", layoutItemAttributes.compactMap({$0.indexPath?.item}), layoutItemAttributes.compactMap({$0.frame}))
+        scrollOffset = nil
         return layoutItemAttributes.sorted(by: \.indexPath?.item)
     }
 
