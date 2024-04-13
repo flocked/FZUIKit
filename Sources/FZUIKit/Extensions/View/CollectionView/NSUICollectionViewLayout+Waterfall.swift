@@ -413,7 +413,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         Swift.print("prepare")
         super.prepare()
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
-        collectionViewBoundsSize = collectionView.bounds.size
         #if os(macOS) || os(iOS)
         collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
@@ -565,8 +564,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     var collectionViewBoundsSize: CGSize = .zero
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionViewBoundsSize, newBounds.size)
+        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView?.frame.size ?? "nil", newBounds.size)
         guard newBounds.size != collectionViewBoundsSize else { return false }
+        collectionViewBoundsSize = newBounds.size
         displayingItems = Set(collectionView?.displayingIndexPaths() ?? [])
         return true
     }
