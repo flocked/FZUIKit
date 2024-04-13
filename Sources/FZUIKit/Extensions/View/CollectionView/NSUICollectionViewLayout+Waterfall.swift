@@ -539,11 +539,15 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         print("scrollToDisplaying start", itemFrames.unionAlt().center.y, displayingItems.compactMap({$0.item}).sorted())
         isScrolling = true
         keepItemOrder = true
-        scrollOffset = itemFrames.unionAlt().center
+        if displayingItems.isEmpty {
+            scrollOffset = nil
+        } else {
+            scrollOffset = itemFrames.unionAlt().center
+        }
+    //    scrollOffset = itemFrames.unionAlt().center
       //  collectionView.contentOffset.y =  itemFrames.unionAlt().center.y
         collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         Swift.print("scrollToDisplaying end")
-        scrollOffset = nil
         keepItemOrder = false
     }
     
