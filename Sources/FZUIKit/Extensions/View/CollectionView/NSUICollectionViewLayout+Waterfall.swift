@@ -419,7 +419,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         
         if collectionViewBoundsObservation == nil {
             collectionViewBoundsObservation = collectionView.observeChanges(for: \.bounds) { [weak self] old, new in
-                guard let self = self, old.width != new.width else { return }
+                guard let self = self else { return }
+                Swift.print("collectionBounds", old.width, new.width,  old.width != new.width, collectionView.collectionViewLayout == self)
+                guard old.width != new.width, collectionView.collectionViewLayout == self else { return }
                 collectionView.collectionViewLayout?.invalidateLayout()
                 self.delayedVisibleItemsReset?.cancel()
                 let task = DispatchWorkItem {
