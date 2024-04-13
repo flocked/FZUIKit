@@ -48,7 +48,6 @@
                 set {
                     guard newValue != searchField else { return }
                     searchItem.searchField = newValue
-                    newValue.translatesAutoresizingMaskIntoConstraints = false
                     setupSearchField()
                 }
             }
@@ -74,31 +73,31 @@
             /// /// The placeholder string of the search field.
             @discardableResult
             public func placeholderString(_ placeholder: String?) -> Self {
-                set(\.searchField.placeholderString, to: placeholder)
+                placeholderString = placeholder
+                return self
             }
 
             ///  /// The placeholder attributed string of the search field.
             @discardableResult
             public func placeholderAttributedString(_ placeholder: NSAttributedString?) -> Self {
-                set(\.searchField.placeholderAttributedString, to: placeholder)
+                placeholderAttributedString = placeholder
+                return self
             }
 
             /// The action to perform when the user pressed the enter key.
             @discardableResult
-            public func actionOnEnterKeyDown(_ action: NSTextField.EnterKeyAction) -> Self {
-                set(\.searchField.actionOnEnterKeyDown, to: action)
+            public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
+                searchItem.searchField.actionOnEnterKeyDown = enterAction
+                return self
             }
 
             /// /// The action to perform when the user pressed the escape key.
             @discardableResult
-            public func actionOnEscapeKeyDown(_ action: NSTextField.EscapeKeyAction) -> Self {
-                set(\.searchField.actionOnEscapeKeyDown, to: action)
+            public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
+                searchItem.searchField.actionOnEscapeKeyDown = escapeAction
+                return self
             }
-            
-            public func allowedCharacters(_ allowedCharacters: NSTextField.AllowedCharacters) -> Self {
-                set(\.searchField.allowedCharacters, to: allowedCharacters)
-            }
-            
+
             public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
                 super.init(identifier)
                 searchField.actionBlock = { [weak self] _ in
@@ -144,6 +143,7 @@
             }
 
             public func searchFieldDidStartSearching(_: NSSearchField) {
+                //    searchState = .isStarted
                 searchHandler?(stringValue, .didStart)
             }
 

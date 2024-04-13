@@ -14,25 +14,15 @@
 
         public let identifier: NSToolbarItem.Identifier
 
-        /// A Boolean value that indicates whether the item appears on the default toolbar.
         var isDefault = true
-        
-        /// A Boolean value that indicates whether the item can be selected.
         var isSelectable = false
-        
-        /// A Boolean value that indicates whether the item can be rearranged or removed from the toolbar by the user.
         var isImmovableItem = false
-        
+
         lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
         var item: NSToolbarItem {
             rootItem
         }
 
-        /**
-         Creates a toolbar item.
-
-         - Parameter identifier: An optional identifier of the item.
-         */
         public init(_ identifier: NSToolbarItem.Identifier? = nil) {
             self.identifier = identifier ?? .random
         }
@@ -64,7 +54,8 @@
         @available(macOS 13.0, *)
         @discardableResult
         func possibleLabels(_ labels: Set<String>) -> Self {
-            set(\.item.possibleLabels, to: labels)
+            item.possibleLabels = labels
+            return self
         }
 
         /**
@@ -87,31 +78,37 @@
             set(\.item.tag, to: tag)
         }
 
-        /// Sets the Boolean value that indicates whether the item is enabled.
+        /**
+         A Boolean value that indicates whether the item is enabled.
+         */
         @discardableResult
         func isEnabled(_ isEnabled: Bool) -> Self {
             set(\.item.isEnabled, to: isEnabled)
         }
 
-        /// Sets the Boolean value that indicates whether the item can be selected.
+        /**
+         A Boolean value that indicates whether the item can be selected.
+         */
         @discardableResult
         func isSelectable(_ isSelectable: Bool) -> Self {
             set(\.isSelectable, to: isSelectable)
         }
 
-        /// Mark the item as available on the 'default' toolbar presented to the user.
+        /// Mark the item as available on the 'default' toolbar presented to the user
         @discardableResult
-        func isDefault(_ isDefault: Bool) -> Self {
+        func isDefaultItem(_ isDefault: Bool) -> Self {
             set(\.isDefault, to: isDefault)
         }
 
-        /// Sets the Boolean value that indicates whether the item can be removed or rearranged by the user.
+        /**
+         A Boolean value that indicates whether the item can be removed or rearranged by the user.
+         */
         @discardableResult
         func isImmovable(_ isImmovable: Bool) -> Self {
             set(\.isImmovableItem, to: isImmovable)
         }
 
-        /// Sets the tooltip to display when someone hovers over the item in the toolbar.
+        /// The tooltip to display when someone hovers over the item in the toolbar.
         @discardableResult
         func toolTip(_ toolTip: String?) -> Self {
             set(\.item.toolTip, to: toolTip)
@@ -138,14 +135,16 @@
         func menuFormRepresentation(_ menuItem: NSMenuItem?) -> Self {
             set(\.item.menuFormRepresentation, to: menuItem)
         }
-    }
 
-protocol _ToolbarItem { }
-extension _ToolbarItem {
-    internal func set<Value>(_ keyPath: ReferenceWritableKeyPath<Self, Value>, to value: Value) -> Self {
-        self[keyPath: keyPath] = value
-        return self
+        internal func apply(_ modifier: @escaping (Self) -> Void) -> Self {
+            modifier(self)
+            return self
+        }
+
+        internal func set<Value>(_ keyPath: ReferenceWritableKeyPath<ToolbarItem, Value>, to value: Value) -> Self {
+            apply {
+                $0[keyPath: keyPath] = value
+            }
+        }
     }
-}
-extension ToolbarItem: _ToolbarItem { }
 #endif

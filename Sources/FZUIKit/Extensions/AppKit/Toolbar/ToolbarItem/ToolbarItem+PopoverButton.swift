@@ -26,25 +26,29 @@
             /// The title of the button.
             @discardableResult
             public func title(_ title: String) -> Self {
-                set(\.button.title, to: title)
+                button.title = title
+                return self
             }
 
             /// The alternate title of the button.
             @discardableResult
             public func alternateTitle(_ title: String) -> Self {
-                set(\.button.alternateTitle, to: title)
+                button.alternateTitle = title
+                return self
             }
 
             /// The attributed title of the button.
             @discardableResult
             public func attributedTitle(_ title: NSAttributedString) -> Self {
-                set(\.button.attributedTitle, to: title)
+                button.attributedTitle = title
+                return self
             }
 
             /// The attributed alternate title of the button.
             @discardableResult
             public func attributedAlternateTitle(_ title: NSAttributedString) -> Self {
-                set(\.button.attributedAlternateTitle, to: title)
+                button.attributedAlternateTitle = title
+                return self
             }
 
             /// The button type.
@@ -57,7 +61,8 @@
             /// The state of the button.
             @discardableResult
             public func state(_ state: NSControl.StateValue) -> Self {
-                set(\.button.state, to: state)
+                button.state = state
+                return self
             }
 
             /// The state of the button.
@@ -69,49 +74,57 @@
             /// A Boolean value that determines whether the button has a border.
             @discardableResult
             public func bordered(_ isBordered: Bool) -> Self {
-                set(\.button.isBordered, to: isBordered)
+                button.isBordered = isBordered
+                return self
             }
 
             /// A Boolean value that determines whether the button is transparent..
             @discardableResult
             public func transparent(_ isTransparent: Bool) -> Self {
-                set(\.button.isTransparent, to: isTransparent)
+                button.isTransparent = isTransparent
+                return self
             }
 
             /// The image of the button, or `nil` if none.
             @discardableResult
             public func image(_ image: NSImage?) -> Self {
-                set(\.button.image, to: image)
+                button.image = image
+                return self
             }
 
             /// The alternate image of the button, or `nil` if none.
             @discardableResult
             public func alternateImage(_ image: NSImage?) -> Self {
-                set(\.button.alternateImage, to: image)
+                button.alternateImage = image
+                return self
             }
 
             /// The image position of the button.
             @discardableResult
             public func imagePosition(_ position: NSControl.ImagePosition) -> Self {
-                set(\.button.imagePosition, to: position)
+                button.imagePosition = position
+                return self
             }
 
             /// The image scaling of the button.
             @discardableResult
             public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
-                set(\.button.imageScaling, to: imageScaling)
+                button.imageScaling = imageScaling
+                return self
             }
 
             /// The bezel style of the button.
             @discardableResult
             public func bezelStyle(_ style: NSButton.BezelStyle) -> Self {
-                set(\.button.bezelStyle, to: style)
+                button.bezelStyle = style
+                return self
             }
 
             /// The bezel color of the button, or `nil` if none.
             @discardableResult
             public func bezelColor(_ color: NSColor?) -> Self {
-                set(\.button.bezelColor, to: color)
+                button.bezelColor = color
+                return self
             }
 
             /// The key-equivalent character and modifier keys of the button.
