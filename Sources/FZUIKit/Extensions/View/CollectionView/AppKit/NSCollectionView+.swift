@@ -153,6 +153,11 @@
             set { enclosingScrollView?.documentSize = newValue }
         }
         
+        var visibleDocumentSize: CGSize {
+            get { enclosingScrollView?.visibleDocumentSize ?? .zero }
+            set { enclosingScrollView?.visibleDocumentSize = newValue }
+        }
+        
         /// A saved scroll position.
         struct SavedScrollPosition {
             let indexPaths: [IndexPath]
