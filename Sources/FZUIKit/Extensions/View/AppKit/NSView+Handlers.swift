@@ -60,7 +60,6 @@ extension NSView {
         set {
             setAssociatedValue(newValue, key: "viewHandlers")
             setupViewObservation()
-            setupLiveResizingObservation()
         }
     }
     
@@ -116,7 +115,10 @@ extension NSView {
             observe(\.superview, handler: \.viewHandlers.superview)
             observe(\.window?.screen, handler: \.viewHandlers.screen)
             
-            
+            if viewHandlers.isLiveResizing != nil {
+                setupLiveResizingObservation()
+            }
+            observe(\.isLiveResizing, handler: \.viewHandlers.isLiveResizing)
             
             if windowHandlers.isKey != nil {
                 if  viewObserver?.isObserving(\.window?.isKey) == false {
@@ -164,35 +166,46 @@ extension NSView {
         }
     }
     
+    /**
+     A Boolean value that indicates whether the view is currently being resized by the user.
+     
+     The value is is `KVO` observable.
+     */
+   @objc dynamic public var isLiveResizing: Bool {
+        get {
+            setupLiveResizingObservation()
+            return getAssociatedValue("isLiveResizing", initialValue: false)
+        }
+       set {
+           setAssociatedValue(newValue, key: "isLiveResizing")
+           viewHandlers.isLiveResizing?(newValue)
+       }
+    }
+    
     func setupLiveResizingObservation() {
-        if viewHandlers.isLiveResizing != nil {
-            guard !isMethodReplaced(#selector(NSView.viewWillStartLiveResize)) else { return  }
-            do {
-               try replaceMethod(
-               #selector(NSView.viewWillStartLiveResize),
-               methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-               hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                   object in
-                   (object as? NSView)?.viewHandlers.isLiveResizing?(true)
-                   store.original(object, #selector(NSView.viewWillStartLiveResize))
-                   }
+        guard !isMethodReplaced(#selector(NSView.viewWillStartLiveResize)) else { return  }
+        do {
+           try replaceMethod(
+           #selector(NSView.viewWillStartLiveResize),
+           methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+           hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+               object in
+               (object as? NSView)?.isLiveResizing = true
+               store.original(object, #selector(NSView.viewWillStartLiveResize))
                }
-                try replaceMethod(
-                #selector(NSView.viewDidEndLiveResize),
-                methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                    object in
-                    (object as? NSView)?.viewHandlers.isLiveResizing?(false)
-                    store.original(object, #selector(NSView.viewDidEndLiveResize))
-                    }
+           }
+            try replaceMethod(
+            #selector(NSView.viewDidEndLiveResize),
+            methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+            hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+                object in
+                (object as? NSView)?.isLiveResizing = false
+                store.original(object, #selector(NSView.viewDidEndLiveResize))
                 }
-            } catch {
-               // handle error
-               debugPrint(error)
             }
-        } else {
-            resetMethod(#selector(NSView.viewWillStartLiveResize))
-            resetMethod(#selector(NSView.viewDidEndLiveResize))
+        } catch {
+           // handle error
+           debugPrint(error)
         }
     }
     
@@ -287,7 +300,8 @@ extension NSView {
             frame != nil ||
             effectiveAppearance != nil ||
             isFirstResponder != nil ||
-            screen != nil
+            screen != nil ||
+            isLiveResizing != nil
         }
     }
     
