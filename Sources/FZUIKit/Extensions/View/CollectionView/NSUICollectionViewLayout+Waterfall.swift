@@ -132,7 +132,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     func print(_ items: Any...) {
         guard debug else { return }
-        Swift.debugPrint(items)
+        Swift.print(items)
     }
     
     func set<Value>(_ keyPath: ReferenceWritableKeyPath<CollectionViewWaterfallLayout, Value>, to value: Value) -> Self {
@@ -421,6 +421,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         guard !isScrolling else { return }
         guard let collectionView = collectionView else { return }
         let widthChanged = bounds.width != collectionView.bounds.width
+        print("prepare", widthChanged, keepItemOrder, collectionView.bounds, bounds)
         super.prepare()
         #if os(macOS) || os(iOS)
         collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
