@@ -603,6 +603,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard keepItemsCenteredWhenResizing else { return false }
+        Swift.print("should",newBounds.width != currentBounds.width, newBounds, currentBounds )
         if newBounds.width != currentBounds.width {
             setupDisplayingItems(currentBounds)
             keepItemOrder = true
