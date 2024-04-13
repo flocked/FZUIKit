@@ -798,6 +798,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 
     var elementsRect: CGRect = .zero
+    public var itemFrames: [CGRect] = []
     override public func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
         elementsRect = rect
         var begin = 0, end = unionRects.count
@@ -808,9 +809,16 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if let i = unionRects.lastIndex(where: { rect.intersects($0) }) {
             end = min((i + 1) * unionSize, allItemAttributes.count)
         }
+        itemFrames = (allItemAttributes[begin ..< end]
+            .filter { rect.intersects($0.frame) }).compactMap({$0.frame}).sorted(by: \.y)
+        Swift.print("elementsAttributes", itemFrames.union())
+        for itemFrame in itemFrames {
+            Swift.print("\t", itemFrame)
+        }
+        /*
         Swift.print("elementsAttributes", rect, (allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }).compactMap({$0.frame.origin.y}))
-
+*/
         return allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }
     }
