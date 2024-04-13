@@ -416,6 +416,25 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         collectionView.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
         let numberOfSections = collectionView.numberOfSections
+        
+        if collectionViewBoundsObservation == nil {
+            collectionViewBoundsObservation = collectionView.observeChanges(for: \.bounds) { [weak self] old, new in
+                guard let self = self, old.width != new.width else { return }
+                collectionView.collectionViewLayout?.invalidateLayout()
+                self.delayedVisibleItemsReset?.cancel()
+                let task = DispatchWorkItem {
+                    self.displayingItems = nil
+                }
+                self.delayedVisibleItemsReset = task
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: task)
+                if self.displayingItems == nil {
+                    self.displayingItems = Set(collectionView.displayingIndexPaths())
+                }
+                if let displayingItems = self.displayingItems {
+                    collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
+                }
+            }
+        }
 
         let sizeChanged = collectionViewBounds.width != collectionView.visibleRect.width
         #if os(macOS)
@@ -517,13 +536,15 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        /*
         if let displayingItems = displayingItems {
             Swift.print("scrollStart")
             self.displayingItems = nil
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
             Swift.print("scrollEnd")
         }
-        didLayoutHandler?()
+         */
+     //   didLayoutHandler?()
     }
     
     var displayingItems: Set<IndexPath>?
@@ -540,7 +561,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     public var didLayoutHandler: (()->())? = nil
     
+    var collectionViewBoundsObservation: KeyValueObservation?
+    
     var currentBounds: CGRect = .zero
+    
+    /*
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         if let collectionView = collectionView {
             Swift.print("shouldInvalidateLayout")
@@ -609,6 +634,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
         return true
     }
+     */
 
     override public var collectionViewContentSize: CGSize {
         if collectionView!.numberOfSections == 0 {
