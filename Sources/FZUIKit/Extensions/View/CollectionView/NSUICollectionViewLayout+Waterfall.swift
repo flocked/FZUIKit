@@ -515,6 +515,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        if let displayingItems = displayingItems {
+            collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+        }
     }
 
     override public var collectionViewContentSize: CGSize {
@@ -570,7 +573,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     var collectionViewBoundsSize: CGSize = .zero
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        Swift.print("shouldInvalidateLayout", newBounds.size != collectionViewBoundsSize, collectionView?.visibleRect.size ?? .zero, newBounds.size)
         guard newBounds.size != collectionViewBoundsSize else { return false }
         displayingItems = Set(collectionView?.displayingIndexPaths() ?? [])
         return true
