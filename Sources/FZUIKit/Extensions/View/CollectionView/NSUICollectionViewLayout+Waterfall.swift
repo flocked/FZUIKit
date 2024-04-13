@@ -602,6 +602,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public var keepItemsCenteredWhenResizing: Bool = true
     
     var collectionViewBounds: CGRect = .zero
+    
+    /*
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         if let collectionView = collectionView {
             Swift.print("shouldInvalidateLayout")
@@ -651,6 +653,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
         return true
     }
+    */
 
     private func shortestColumnIndex(inSection section: Int) -> Int {
         columnHeights[section].enumerated()
