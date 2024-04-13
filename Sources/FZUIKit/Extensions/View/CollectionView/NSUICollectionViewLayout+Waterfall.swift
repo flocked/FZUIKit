@@ -421,7 +421,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             contentViewBounds = contentView.bounds
             boundsToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: contentView) { [weak self] _ in
                 guard let self = self else { return }
-                Swift.print(contentView.bounds.width != self.contentViewBounds.width, contentView.bounds, self.contentViewBounds )
+                Swift.print("boundsToken", contentView.bounds.width != self.contentViewBounds.width, contentView.bounds, self.contentViewBounds )
                 if contentView.bounds.width != self.contentViewBounds.width {
                     self.delayedVisibleItemsReset?.cancel()
                     let task = DispatchWorkItem {
@@ -600,6 +600,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var contentViewBounds: CGRect = .zero
     var currentBounds: CGRect = .zero
     
+    override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        if newBounds.width != currentBounds.width {
+            currentBounds = newBounds
+            return true
+        }
+        currentBounds = newBounds
+        return false
+    }
     /*
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         if let collectionView = collectionView {
