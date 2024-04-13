@@ -792,11 +792,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     public override func invalidateLayout() {
         Swift.print("invalidateLayout")
+        guard !isScrolling else { return }
         super.invalidateLayout()
     }
     
     public override func invalidateLayout(with context: NSCollectionViewLayoutInvalidationContext) {
         Swift.print("invalidateLayoutContext")
+        guard !isScrolling else { return }
         super.invalidateLayout(with: context)
     }
         
