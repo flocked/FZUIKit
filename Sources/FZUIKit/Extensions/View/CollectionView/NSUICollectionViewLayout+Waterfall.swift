@@ -599,6 +599,15 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     var collectionViewBounds: CGRect = .zero
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        if let collectionView = collectionView {
+            Swift.print("shouldInvalidateLayout")
+            Swift.print("\t", newBounds, "newBounds")
+            Swift.print("\t", collectionView.visibleRect, "visibleRect")
+            Swift.print("\t", collectionView.contentOffset, "contentOffset")
+            Swift.print("\t", collectionView.documentSize, "documentSize")
+            Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
+            Swift.print("\t", collectionView.bounds, "bounds")
+        }
         if newBounds.width == (collectionView?.bounds.width ?? 0) {
             collectionViewBounds = collectionView?.visibleRect ?? .zero
             return false
@@ -620,15 +629,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             displayingItems = Set(collectionView.displayingIndexPaths(in: CGRect(collectionViewContentOffset, collectionViewBoundsSize)))
         }
         
-        if let collectionView = collectionView {
-            Swift.print("shouldInvalidateLayout")
-            Swift.print("\t", newBounds, "newBounds")
-            Swift.print("\t", collectionView.visibleRect, "visibleRect")
-            Swift.print("\t", collectionView.contentOffset, "contentOffset")
-            Swift.print("\t", collectionView.documentSize, "documentSize")
-            Swift.print("\t", collectionView.visibleDocumentSize, "visibleDocumentSize")
-            Swift.print("\t", collectionView.bounds, "bounds")
-        }
         guard keepItemsCenteredWhenResizing else { return false }
         if newBounds.size == collectionViewBoundsSize {
             collectionViewContentOffset = newBounds.origin
