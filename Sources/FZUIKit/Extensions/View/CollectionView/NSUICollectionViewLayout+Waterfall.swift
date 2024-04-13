@@ -657,6 +657,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        return false
         guard keepItemsCenteredWhenResizing else { return false }
         if newBounds.width != currentBounds.width, displayingItems == nil  {
             setupDisplayingItems(currentBounds)
