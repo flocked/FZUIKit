@@ -800,9 +800,9 @@ open class ImageView: NSControl {
         containerView.clipsToBounds = true
         addSubview(containerView)
         containerView.addSubview(imageView)
-        
+        addSubview(imageView)
         overlayContentView.frame = bounds
-        containerView.addSubview(overlayContentView)
+   //     containerView.addSubview(overlayContentView)
     }
     
     open override func layout() {
