@@ -801,13 +801,15 @@ open class ImageView: NSControl {
         imageView.animates = false
         imageView.imageScaling = imageScaling.nsImageScaling
         imageView.imageAlignment = imageAlignment
-        
+        /*
         containerView.frame = bounds
         containerView.clipsToBounds = true
         addSubview(containerView)
         containerView.addSubview(imageView)
         addSubview(imageView)
         overlayContentView.frame = bounds
+        */
+        addSubview(imageView)
     //    containerView.addSubview(overlayContentView)
     }
     
