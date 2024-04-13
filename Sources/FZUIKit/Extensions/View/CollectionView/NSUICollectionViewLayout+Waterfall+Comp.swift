@@ -41,7 +41,7 @@ extension NSUICollectionViewLayout {
      - itemSizeProvider: The handler that provides the item sizes..
      */
     public static func waterfallCompositional(columns: Int = 3, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, animateColumns: Bool = true, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
-        let layout = _waterfallCompositional(columns: columns,spacing: spacing, insets: insets, itemOrder: itemOrder, itemSizeProvider: itemSizeProvider)
+        let layout = _waterfallCompositional(columns: columns,spacing: spacing, insets: insets, itemOrder: itemOrder, prepareHandler: pinchUpdateHandler(isPinchable || isKeyDownControllable), itemSizeProvider: itemSizeProvider)
         if isPinchable || isKeyDownControllable {
             layout.swizzlePrepareLayout()
             layout.columnConfiguration = .init(columns: columns, columnRange: columnRange, isPinchable: isPinchable, animated: animateColumns, changeAmount: isKeyDownControllable ? 1 : 0, changeAmountAlt: isKeyDownControllable ? columnRange.count : 0, changeAmountAlt2: 0) { columns in
@@ -65,26 +65,32 @@ extension NSUICollectionViewLayout {
     }
 #endif
     
-    static func _waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
+    static func pinchUpdateHandler(_ isPinchable: Bool) -> ((NSUICollectionViewCompositionalLayout)->())? {
+        guard isPinchable else { return nil }
+        return { layout in
+            Swift.print("pinchUpdateHandler", layout.collectionView != nil)
+            guard let collectionView = layout.collectionView, collectionView.pinchColumnsGestureRecognizer == nil else { return }
+            collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
+            collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
+        }
+    }
+    
+    static func _waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, prepareHandler: ((NSUICollectionViewCompositionalLayout)->())? = nil, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
         var numberOfItems: (Int) -> Int = { _ in 0 }
-        
+        var prepareLayoutHandler: ()->() = { }
         let layout = NSUICollectionViewCompositionalLayout { section, environment in
-            var height = environment.container.effectiveContentSize.height
-            if height <= 0 {
-                height = 10
-            }
+            let height = environment.container.effectiveContentSize.height.clamped(min: 100)
             let groupLayoutSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
-                heightDimension: .estimated(100)
+                heightDimension: .estimated(height)
             )
             
             let group = NSCollectionLayoutGroup.custom(layoutSize: groupLayoutSize) { environment in
                 let itemProvider = WaterfallLayoutItemProvider(columnCount: columns, spacing: spacing, itemOrder: itemOrder, contentSize: environment.container.effectiveContentSize, itemSizeProvider: itemSizeProvider)
                 
-                
                 var items = [NSCollectionLayoutGroupCustomItem]()
                 
-                
+                prepareLayoutHandler()
                 
                 for i in 0 ..< numberOfItems(section) {
                     
@@ -102,6 +108,10 @@ extension NSUICollectionViewLayout {
         }
         numberOfItems = { [weak layout] in
             layout?.collectionView?.numberOfItems(inSection: $0) ?? 0
+        }
+        prepareLayoutHandler = { [weak layout] in
+            guard let layout = layout else { return }
+            prepareHandler?(layout)
         }
         return layout
     }

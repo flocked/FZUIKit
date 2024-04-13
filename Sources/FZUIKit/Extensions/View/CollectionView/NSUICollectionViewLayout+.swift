@@ -142,9 +142,9 @@
             - footer: The layout's supplementary footer type.
          */
         static func grid(columns: Int = 3, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, animateColumns: Bool = true, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
-            let layout = _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+            let layout = _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer, prepareHandler: pinchUpdateHandler(isPinchable || isKeyDownControllable))
             if isPinchable || isKeyDownControllable {
-                layout.swizzlePrepareLayout()
+              //  layout.swizzlePrepareLayout()
                 layout.columnConfiguration = .init(columns: columns, columnRange: columnRange, isPinchable: isPinchable, animated: animateColumns, changeAmount: isKeyDownControllable ? 1 : 0, changeAmountAlt: isKeyDownControllable ? columnRange.count : 0, changeAmountAlt2: 0) { columns in
                         .grid(columns: columns, columnRange: columnRange, isPinchable: isPinchable, isKeyDownControllable: isKeyDownControllable, animateColumns: animateColumns, itemAspectRatio: itemAspectRatio, insets: insets, header: header, footer: footer)
                 }
@@ -187,7 +187,8 @@
             _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
         }
         #endif
-        internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
+        internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, prepareHandler: ((NSUICollectionViewCompositionalLayout)->())? = nil) -> NSUICollectionViewLayout {
+            var prepareLayoutHandler: ()->() = { }
             let layout = NSUICollectionViewCompositionalLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
                 
                 // Item
@@ -206,6 +207,7 @@
                     return itemWidth * itemAspectRatio.height / itemAspectRatio.width
                 }()
 
+                prepareLayoutHandler()
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                        heightDimension: .absolute(groupHeight))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: columns)
@@ -224,6 +226,10 @@
                     section.boundarySupplementaryItems.append(footherItem)
                 }
                 return section
+            }
+            prepareLayoutHandler = { [weak layout] in
+                guard let layout = layout else { return }
+                prepareHandler?(layout)
             }
             return layout
         }
