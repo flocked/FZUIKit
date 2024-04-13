@@ -789,7 +789,7 @@ open class ImageView: NSControl {
     
     open override func hitTest(_ point: NSPoint) -> NSView? {
         Swift.print("imageView", imageView.frame.contains(point), super.hitTest(point) ?? "nil")
-        return imageView.frame.contains(point) ? self : nil
+        return self
         return super.hitTest(point)
     }
 
