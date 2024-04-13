@@ -625,9 +625,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         guard !isScrolling, let collectionView = collectionView, let displayingItems = displayingItems, let scrollView = collectionView.enclosingScrollView else { return }
         let allFrames = itemFrames ?? displayingItems.compactMap({ layoutAttributesForItem(at: $0)?.frame })
         isScrolling = true
-        Swift.print("scrollToDisplayingItems", allFrames.union().center.y, scrollView.contentView.bounds.y)
+        let yBounds = scrollView.contentView.bounds
+        let offset = scrollView.contentOffset
         scrollView.contentView.bounds.y = allFrames.union().center.y
         scrollView.reflectScrolledClipView(scrollView.contentView)
+        Swift.print("scrollToDisplayingItems", allFrames.union().center.y, scrollView.contentOffset, offset, scrollView.contentView.bounds, yBounds)
+      //  currentBounds =
         isScrolling = false
     }
     
