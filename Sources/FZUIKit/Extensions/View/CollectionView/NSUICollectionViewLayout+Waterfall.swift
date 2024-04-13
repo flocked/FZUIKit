@@ -442,7 +442,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                     if let displayingItems = self.displayingItems {
                         Swift.print("scrollToItems start")
                         collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
-                        Swift.print("scrollToItems end")
+                        Swift.print("scrollToItems end", contentView.bounds)
                     }
                 }
                 self.contentViewBounds = contentView.bounds
