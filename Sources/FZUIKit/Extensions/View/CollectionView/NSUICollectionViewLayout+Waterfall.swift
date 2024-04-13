@@ -564,6 +564,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
     }
     
+    /*
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard keepItemsCenteredWhenResizing else { return false }
         print("shouldInvalidate",newBounds.width != bounds.width, newBounds, bounds )
@@ -580,6 +581,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         scrollToDisplayingItems()
         return false
     }
+     */
 
     override public var collectionViewContentSize: CGSize {
         guard let collectionView = collectionView, collectionView.numberOfSections != 0, let height = columnHeights.last?.first else { return .zero }
