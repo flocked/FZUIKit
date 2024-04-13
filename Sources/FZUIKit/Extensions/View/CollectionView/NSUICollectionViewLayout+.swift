@@ -124,7 +124,52 @@
             let layout = NSUICollectionViewCompositionalLayout(section: layoutSection, configuration: config)
             return layout
         }
-
+                
+        #if os(macOS) || os(iOS)
+        /**
+         A interactive grid layout where the user can change the amount of columns by pinching the collection view.
+         
+         - Parameters:
+            - columns: The amount of columns for the grid.
+            - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
+            - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
+            - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
+            - animateColumns: A Boolean value that indicates whether changing the amount of columns is animated.
+            - itemAspectRatio: The aspect ratio of the items.
+            - spacing: The spacing between the items.
+            - insets: The insets of the layout.
+            - header: The layout's supplementary header type.
+            - footer: The layout's supplementary footer type.
+         */
+        static func grid(columns: Int = 3, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, animateColumns: Bool = true, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
+            let layout = _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+            layout.swizzlePrepareLayout()
+            layout.columnConfiguration = .init(columns: columns, columnRange: columnRange, isPinchable: isPinchable, animated: animateColumns, changeAmount: isKeyDownControllable ? 1 : 0, changeAmountAlt: isKeyDownControllable ? columnRange.count : 0, changeAmountAlt2: 0) { columns in
+                    .grid(columns: columns, columnRange: columnRange, isPinchable: isPinchable, isKeyDownControllable: isKeyDownControllable, animateColumns: animateColumns, itemAspectRatio: itemAspectRatio, insets: insets, header: header, footer: footer)
+                }
+            return layout
+        }
+        
+        func swizzlePrepareLayout() {
+            guard !isMethodReplaced(NSSelectorFromString("prepareLayout")) else { return }
+            do {
+                try replaceMethod(
+                    NSSelectorFromString("prepareLayout"),
+                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+                        object in
+                        if let collectionView = (object as? NSUICollectionViewLayout)?.collectionView, collectionView.pinchColumnsGestureRecognizer == nil {
+                            collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
+                            collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
+                        }
+                        store.original(object, NSSelectorFromString("prepareLayout"))
+                    }
+                    }
+            } catch {
+                Swift.debugPrint(error)
+            }
+        }
+        #else
         /**
          A collection view layout that displays the items in a grid.
          
@@ -137,6 +182,10 @@
             - footer: The layout's supplementary footer type.
          */
         static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
+            _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+        }
+        #endif
+        internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
             NSUICollectionViewCompositionalLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
 
                 // Item
@@ -175,53 +224,5 @@
                 return section
             }
         }
-        
-        #if os(macOS) || os(iOS)
-        /**
-         A interactive grid layout where the user can change the amount of columns by pinching the collection view.
-         
-         - Parameters:
-            - columns: The amount of columns for the grid.
-            - minColumns: The minimum amount of columns when pinching the collection view.
-            - maxColumns: The maximum amount of columns when pinching the collection view.
-            - animateColumns: A Boolean value that indicates whether changing the amount of columns is animated.
-            - itemAspectRatio: The aspect ratio of the items.
-            - spacing: The spacing between the items.
-            - insets: The insets of the layout.
-            - header: The layout's supplementary header type.
-            - footer: The layout's supplementary footer type.
-         */
-        static func grid(columns: Int = 3, minColumns: Int, maxColumns: Int?, animateColumns: Bool = true, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
-            let layout = grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
-            setupColumnLayout(layout, columns: columns, minColumns: minColumns, maxColumns: maxColumns, animateColumnChanges: animateColumns)
-            layout.columnLayoutInvalidation = { columns in
-                .grid(columns: columns, minColumns: minColumns, maxColumns: maxColumns, animateColumns: animateColumns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
-            }
-            return layout
-        }
-        
-        static func setupColumnLayout(_ layout: NSUICollectionViewLayout, columns: Int, minColumns: Int, maxColumns: Int?, animateColumnChanges: Bool) {
-            do {
-                try layout.replaceMethod(
-                    NSSelectorFromString("prepareLayout"),
-                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                        object in
-                        if let collectionView = (object as? NSUICollectionViewLayout)?.collectionView, collectionView.pinchColumnsGestureRecognizer == nil {
-                            collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
-                            collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
-                        }
-                        store.original(object, NSSelectorFromString("prepareLayout"))
-                    }
-                    }
-                layout._columnCount = columns
-                layout._minColumnCount = minColumns
-                layout._maxColumnCount = maxColumns
-                layout.animateColumnChanges = animateColumnChanges
-            } catch {
-                Swift.debugPrint(error)
-            }
-        }
-        #endif
     }
 #endif

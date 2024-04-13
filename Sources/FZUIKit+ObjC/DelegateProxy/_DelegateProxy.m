@@ -1,20 +1,20 @@
 //
-//  ObjcDelegateProxy.m
-//  CombineCocoa
+//  _DelegateProxy.m
+//  
 //
 //  Created by Joan Disho & Shai Mishali on 25/09/2019.
 //  Copyright © 2020 Combine Community. All rights reserved.
 //
 
+#import "include/_DelegateProxy.h"
 #import <Foundation/Foundation.h>
-#import "include/_DelegateProxyObjC.h"
 #import <objc/runtime.h>
 
 #define OBJECT_VALUE(object) [NSValue valueWithNonretainedObject:(object)]
 
 static NSMutableDictionary<NSValue *, NSSet<NSValue *> *> *allSelectors;
 
-@implementation _DelegateProxyObjC
+@implementation _DelegateProxy
 
 - (NSSet *)selectors {
     return allSelectors[OBJECT_VALUE(self.class)];
@@ -22,7 +22,7 @@ static NSMutableDictionary<NSValue *, NSSet<NSValue *> *> *allSelectors;
 
 + (void)initialize
 {
-    @synchronized (_DelegateProxyObjC.class) {
+    @synchronized (_DelegateProxy.class) {
         if (!allSelectors) {
             allSelectors = [NSMutableDictionary new];
         }

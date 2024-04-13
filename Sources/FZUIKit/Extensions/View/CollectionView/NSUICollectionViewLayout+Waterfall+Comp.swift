@@ -7,137 +7,158 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
     import Foundation
+    import FZSwiftUtils
     #if os(macOS)
         import AppKit
     #elseif canImport(UIKit)
         import UIKit
     #endif
 
-    public typealias CollectionViewItemSizeProvider = (IndexPath) -> CGSize
-
-    public extension NSUICollectionViewLayout {
-        /**
-         Creates a waterfall collection view layout with the specifed amount of columns.
-         
-         - Parameters:
-            - columns: The amount of columns.
-            - spacing: The spacing between the items.
-            - insets: The layout insets.
-            - itemSizeProvider: The handler that provides the item sizes..
-         */
-        static func waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
-            var numberOfItems: (Int) -> Int = { _ in 0 }
-            let layout = NSUICollectionViewCompositionalLayout { section, environment in
-                let groupLayoutSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1),
-                    heightDimension: .estimated(environment.container.effectiveContentSize.height)
-                )
-                let group = NSCollectionLayoutGroup.custom(layoutSize: groupLayoutSize) { environment in
-                    let itemProvider = LayoutItemProvider(columnCount: columns, spacing: spacing, environment: environment, itemSizeProvider: itemSizeProvider)
-                    var items = [NSCollectionLayoutGroupCustomItem]()
-                    for i in 0 ..< numberOfItems(section) {
-                        let indexPath = IndexPath(item: i, section: section)
-                        let item = itemProvider.item(for: indexPath)
-                        items.append(item)
-                    }
-                    return items
-                }
-                group.contentInsets = insets.directional
-
-                let section = NSCollectionLayoutSection(group: group)
-                // section.contentInsetsReference = configuration.contentInsetsReference
-                return section
-            }
-            numberOfItems = { [weak layout] in
-                layout?.collectionView?.numberOfItems(inSection: $0) ?? 0
-            }
-            return layout
-        }
-        
-        #if os(macOS) || os(iOS)
-        /**
-         A interactive waterfall collection view layout where the user can change the amount of columns by pinching the collection view.
-         
-         - Parameters:
-            - columns: The amount of columns.
-            - minColumns: The minimum amount of columns when pinching the collection view.
-            - maxColumns: The maximum amount of columns when pinching the collection view.
-            - animateColumns: A Boolean value that indicates whether changing the amount of columns is animated.
-            - spacing: The spacing between the items.
-            - insets: The layout insets.
-            - itemSizeProvider: The handler that provides the item sizes..
-         */
-        static func waterfallCompositional(columns: Int = 2, minColumns: Int, maxColumns: Int?, animateColumns: Bool = true, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
-            let layout = waterfallCompositional(columns: columns,spacing: spacing, insets: insets, itemSizeProvider: itemSizeProvider)
-            setupColumnLayout(layout, columns: columns, minColumns: minColumns, maxColumns: maxColumns, animateColumnChanges: animateColumns)
-            layout.columnLayoutInvalidation = { columns in
-                    .waterfallCompositional(columns: columns, minColumns: minColumns, maxColumns: maxColumns, animateColumns: animateColumns, spacing: spacing, insets: insets, itemSizeProvider: itemSizeProvider)
-            }
-            return layout
-        }
-        #endif
+extension NSUICollectionViewLayout {
+    
+    /// The item order of a compositional waterfall layout.
+    public enum WaterfallItemOrder {
+        /// Each item is added to the shortest column.
+        case shortestColumn
+        /// The items are added to the columns from left to right.
+        case leftToRight
+        /// The items are added to the columns from right to left.
+        case rightToLeft
     }
-
-    public class LayoutItemProvider {
+    
+#if os(macOS) || os(iOS)
+    /**
+     A interactive waterfall collection view layout where the user can change the amount of columns by pinching the collection view.
+     
+     - Parameters:
+     - columns: The amount of columns.
+     - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
+     - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
+     - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
+     - animateColumns: A Boolean value that indicates whether changing the amount of columns is animated.
+     - spacing: The spacing between the items.
+     - insets: The layout insets.
+     - itemSizeProvider: The handler that provides the item sizes..
+     */
+    public static func waterfallCompositional(columns: Int = 3, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, animateColumns: Bool = true, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
+        let layout = _waterfallCompositional(columns: columns,spacing: spacing, insets: insets, itemOrder: itemOrder, itemSizeProvider: itemSizeProvider)
+        layout.swizzlePrepareLayout()
+        layout.columnConfiguration = .init(columns: columns, columnRange: columnRange, isPinchable: isPinchable, animated: animateColumns, changeAmount: isKeyDownControllable ? 1 : 0, changeAmountAlt: isKeyDownControllable ? columnRange.count : 0, changeAmountAlt2: 0) { columns in
+                .waterfallCompositional(columns: columns, columnRange: columnRange, isPinchable: isPinchable, isKeyDownControllable: isKeyDownControllable, animateColumns: animateColumns, spacing: spacing, insets: insets, itemSizeProvider: itemSizeProvider )
+        }
+        return layout
+    }
+#else
+    /**
+     Creates a waterfall collection view layout with the specifed amount of columns.
+     
+     - Parameters:
+     - columns: The amount of columns.
+     - spacing: The spacing between the items.
+     - insets: The layout insets.
+     - itemSizeProvider: The handler that provides the item sizes..
+     */
+    public static func waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
+        _waterfallCompositional(columns: columns, spacing: spacing, insets: insets, itemOrder: itemOrder, itemSizeProvider: itemSizeProvider)
+    }
+#endif
+    
+    static func _waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
+        var numberOfItems: (Int) -> Int = { _ in 0 }
+        let layout = NSUICollectionViewCompositionalLayout { section, environment in
+            let groupLayoutSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .estimated(environment.container.effectiveContentSize.height)
+            )
+            let group = NSCollectionLayoutGroup.custom(layoutSize: groupLayoutSize) { environment in
+                let itemProvider = WaterfallLayoutItemProvider(columnCount: columns, spacing: spacing, itemOrder: itemOrder, contentSize: environment.container.effectiveContentSize, itemSizeProvider: itemSizeProvider)
+                var items = [NSCollectionLayoutGroupCustomItem]()
+                for i in 0 ..< numberOfItems(section) {
+                    let indexPath = IndexPath(item: i, section: section)
+                    let item = itemProvider.item(for: indexPath)
+                    items.append(item)
+                }
+                return items
+            }
+            group.contentInsets = insets.directional
+            
+            let section = NSCollectionLayoutSection(group: group)
+            // section.contentInsetsReference = configuration.contentInsetsReference
+            return section
+        }
+        numberOfItems = { [weak layout] in
+            layout?.collectionView?.numberOfItems(inSection: $0) ?? 0
+        }
+        return layout
+    }
+    
+    class WaterfallLayoutItemProvider {
         private var columnHeights: [CGFloat]
-        private let columnCount: CGFloat
-        private let itemSizeProvider: CollectionViewItemSizeProvider
+        private let columnCount: Int
+        private let itemSizeProvider: (IndexPath) -> CGSize
         private let spacing: CGFloat
         private let contentSize: CGSize
-
-        public init(columnCount: Int = 2,
-                    spacing: CGFloat = 8,
-                    environment: NSCollectionLayoutEnvironment,
-                    itemSizeProvider: @escaping CollectionViewItemSizeProvider)
-        {
+        private let itemWidth: CGFloat
+        private let itemOrder: WaterfallItemOrder
+        private var columnIndex: Int = 0
+        
+        init(columnCount: Int = 2, spacing: CGFloat = 8, itemOrder: WaterfallItemOrder = .shortestColumn, contentSize: CGSize, itemSizeProvider: @escaping (IndexPath) -> CGSize) {
             columnHeights = [CGFloat](repeating: 0, count: columnCount)
-            self.columnCount = CGFloat(columnCount)
+            self.columnCount = columnCount
             self.itemSizeProvider = itemSizeProvider
             self.spacing = spacing
-            contentSize = environment.container.effectiveContentSize
+            self.itemWidth = (contentSize.width - ((CGFloat(columnCount) - 1) * spacing)) / CGFloat(columnCount)
+            self.contentSize = contentSize
+            self.itemOrder = itemOrder
+            self.columnIndex = itemOrder == .leftToRight ? -1 : columnCount
         }
-
-        public func item(for indexPath: IndexPath) -> NSCollectionLayoutGroupCustomItem {
+        
+        func item(for indexPath: IndexPath) -> NSCollectionLayoutGroupCustomItem {
             let frame = frame(for: indexPath)
-            columnHeights[columnIndex()] = frame.maxY + spacing
+            columnHeights[columnIndex] = frame.maxY + spacing
             return NSCollectionLayoutGroupCustomItem(frame: frame)
         }
-
-        private func frame(for indexPath: IndexPath) -> CGRect {
+        
+        func frame(for indexPath: IndexPath) -> CGRect {
+            advanceColumnIndex()
             let size = itemSize(for: indexPath)
             let origin = itemOrigin(width: size.width)
             return CGRect(origin: origin, size: size)
         }
-
+        
         private func itemOrigin(width: CGFloat) -> CGPoint {
-            let y = columnHeights[columnIndex()].rounded()
-            let x = (width + spacing) * CGFloat(columnIndex())
+            let y = columnHeights[columnIndex].rounded()
+            let x = (width + spacing) * CGFloat(columnIndex)
             return CGPoint(x: x, y: y)
         }
-
+        
         private func itemSize(for indexPath: IndexPath) -> CGSize {
-            let width = itemWidth()
-            let height = itemHeight(for: indexPath, itemWidth: width)
-            return CGSize(width: width, height: height)
+            let height = itemHeight(for: indexPath, itemWidth: itemWidth)
+            return CGSize(width: itemWidth, height: height)
         }
-
-        private func itemWidth() -> CGFloat {
-            let spacing = (columnCount - 1) * spacing
-            return (contentSize.width - spacing) / columnCount
-        }
-
+        
         private func itemHeight(for indexPath: IndexPath, itemWidth: CGFloat) -> CGFloat {
             let itemSize = itemSizeProvider(indexPath)
             let aspectRatio = itemSize.height / itemSize.width
             let itemHeight = itemWidth * aspectRatio
             return itemHeight.rounded()
         }
-
-        private func columnIndex() -> Int {
-            columnHeights
-                .enumerated()
-                .min(by: { $0.element < $1.element })?
-                .offset ?? 0
+        
+        private func advanceColumnIndex() {
+            switch itemOrder {
+            case .shortestColumn:
+                columnIndex = columnHeights
+                    .enumerated()
+                    .min(by: { $0.element < $1.element })?
+                    .offset ?? 0
+            case .leftToRight:
+                columnIndex += 1
+                if columnIndex >= columnCount { columnIndex = 0 }
+            case .rightToLeft:
+                columnIndex -= 1
+                if columnIndex < 0 { columnIndex = columnCount - 1 }
+            }
         }
     }
+}
 #endif

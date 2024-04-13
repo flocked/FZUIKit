@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "FZUIKit",
-    platforms: [.macOS("10.15.1"), .iOS(.v14), .macCatalyst(.v14), .tvOS(.v14), .watchOS(.v6)],
+    platforms: [.macOS("10.15.1"), .iOS(.v14), .tvOS(.v14), .macCatalyst(.v14), .watchOS(.v6)],
     products: [
         .library(
             name: "FZUIKit",
@@ -16,13 +16,14 @@ let package = Package(
         .package(url: "https://github.com/flocked/FZSwiftUtils.git", branch: "main"),
     ],
     targets: [
-        .target(name: "_DelegateProxyObjC"),
         .target(
             name: "FZUIKit",
-            dependencies: ["FZSwiftUtils", "_DelegateProxyObjC"],
+            dependencies: ["FZSwiftUtils", "_DelegateProxy"],
             resources: [
                 .process("Resources"),
             ]            
         ),
+        .target(name: "_DelegateProxy",
+                path: "Sources/FZUIKit+ObjC/DelegateProxy"),
     ]
 )
