@@ -655,7 +655,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var contentViewBounds: CGRect = .zero
     var currentBounds: CGRect = .zero
     
+    
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        guard keepItemsCenteredWhenResizing else { return false }
         if newBounds.width != currentBounds.width, displayingItems == nil  {
             setupDisplayingItems(currentBounds)
             isScrolling = true
