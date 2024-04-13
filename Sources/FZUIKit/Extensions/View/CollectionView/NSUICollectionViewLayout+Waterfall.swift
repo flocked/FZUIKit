@@ -523,6 +523,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
             Swift.print("scrollEnd")
         }
+        didLayoutHandler?()
     }
     
     var displayingItems: Set<IndexPath>?
@@ -533,6 +534,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var collectionViewContentOffset: CGPoint = .zero
     public var keepItemsCenteredWhenResizing: Bool = true
     var collectionViewBounds: CGRect = .zero
+    
+    public var willLayoutHandler: (()->())? = nil
+    public var didLayoutHandler: (()->())? = nil
     
     var currentBounds: CGRect = .zero
     override public func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -551,6 +555,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
         if currentBounds.width != newBounds.width {
             currentBounds = newBounds
+            willLayoutHandler?()
             return true
         }
         currentBounds = newBounds
