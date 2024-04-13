@@ -427,7 +427,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #endif
         collectionViewContentOffset = collectionView.visibleRect.origin
         collectionViewBounds = collectionView.visibleRect
-        Swift.print("prepare", CGRect(collectionViewContentOffset, collectionViewBoundsSize), collectionView.visibleRect, collectionView.contentOffset, displayingItems != nil, sizeChanged, displayingItems?.compactMap({$0.item}).sorted() ?? [])
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
@@ -521,9 +520,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             idx += 1
         }
         if let displayingItems = displayingItems, sizeChanged {
-            Swift.print("scrollStart")
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
-            Swift.print("scrollEnd")
         }
     }
 
@@ -544,29 +541,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     override public func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
         if indexPath.section >= sectionItemAttributes.count {
-            Swift.print("layoutAttributesForItem")
             return nil
         }
         let list = sectionItemAttributes[indexPath.section]
         if indexPath.item >= list.count {
-            Swift.print("layoutAttributesForItem")
             return nil
         }
-        Swift.print("layoutAttributesForItem", list[indexPath.item].frame)
-
         return list[indexPath.item]
-    }
-    
-
-    
-    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint) -> NSPoint {
-        Swift.print("targetContentOffset",proposedContentOffset)
-        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
-    }
-    
-    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint, withScrollingVelocity velocity: NSPoint) -> NSPoint {
-        Swift.print("targetContentOffsetVelocity",proposedContentOffset, velocity)
-        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity)
     }
 
     override public func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
@@ -588,8 +569,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if let i = unionRects.lastIndex(where: { rect.intersects($0) }) {
             end = min((i + 1) * unionSize, allItemAttributes.count)
         }
-        Swift.print("layoutAttributesForElements", rect, (allItemAttributes[begin ..< end]
-            .filter { rect.intersects($0.frame) }).compactMap({$0.frame.origin}))
 
         return allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }
@@ -1546,9 +1525,7 @@ public extension Collection where Element == CGRect {
         
         let x = self.compactMap({$0.x}).min() ?? 0
         let y = self.compactMap({$0.y}).min() ?? 0
-        
-       // print(self.sorted(by: \.y))
-        
+                
         
         let maxX = self.compactMap({$0.maxX}).max() ?? 0
         let maxY = self.compactMap({$0.y + $0.height}).max() ?? 0
