@@ -440,7 +440,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                     }
                     // collectionView.collectionViewLayout?.invalidateLayout()
                     if let displayingItems = self.displayingItems {
+                        Swift.print("scrollToItems start")
                         collectionView.scrollToItems(at:  displayingItems, scrollPosition: .centeredVertically)
+                        Swift.print("scrollToItems end")
                     }
                 }
                 self.contentViewBounds = contentView.bounds
@@ -576,11 +578,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        /*
         if let displayingItems = displayingItems, !isScrolling {
             isScrolling = true
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
             isScrolling = false
         }
+        */
      //   didLayoutHandler?()
     }
     
