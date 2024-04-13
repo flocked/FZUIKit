@@ -410,7 +410,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     override public func prepare() {
-        Swift.print("prepare", displayingItems != nil, isScrolling)
         super.prepare()
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         #if os(macOS) || os(iOS)
@@ -418,11 +417,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #endif
         let numberOfSections = collectionView.numberOfSections
 
+        let sizeChanged = collectionViewBoundsSize != collectionView.visibleRect.size
         #if os(macOS)
         collectionViewBoundsSize = collectionView.visibleRect.size
         #else
         collectionViewBoundsSize = collectionView.bounds.size
         #endif
+        Swift.print("prepare", displayingItems != nil, sizeChanged)
+
         
         headersAttributes = [:]
         footersAttributes = [:]
@@ -515,13 +517,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
-        if let displayingItems = displayingItems, !isScrolling {
-            isScrolling = true
+        if let displayingItems = displayingItems, sizeChanged {
             collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
-            isScrolling = false
         }
     }
-    var isScrolling: Bool = false
 
     override public var collectionViewContentSize: CGSize {
         if collectionView!.numberOfSections == 0 {
