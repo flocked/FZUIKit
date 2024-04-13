@@ -437,7 +437,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         let numberOfSections = collectionView.numberOfSections
         
-        mappedItemColumns = [:]
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
