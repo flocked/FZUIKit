@@ -424,7 +424,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         collectionViewBoundsSize = collectionView.bounds.size
         #endif
         collectionViewContentOffset = collectionView.visibleRect.origin
-        Swift.print("prepare", displayingItems != nil, sizeChanged, displayingItems?.compactMap({$0.item}).sorted() ?? [])
+        Swift.print("prepare", CGRect(collectionViewContentOffset, collectionViewBoundsSize), collectionView.visibleRect, collectionView.contentOffset, displayingItems != nil, sizeChanged, displayingItems?.compactMap({$0.item}).sorted() ?? [])
         headersAttributes = [:]
         footersAttributes = [:]
         unionRects = []
