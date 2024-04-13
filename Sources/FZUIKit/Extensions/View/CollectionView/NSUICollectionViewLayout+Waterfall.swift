@@ -554,7 +554,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         Swift.print("shouldInvalidate", newBounds.width != previousBounds.width, newBounds, previousBounds, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
         guard keepItemsCenteredWhenResizing else { return false }
         guard let collectionView = collectionView else { return false }
-        guard newBounds.width != previousBounds.width, newBounds.origin != .zero else { return false }
+        guard newBounds.width != previousBounds.width, !isScrolling else { return false }
         previousBounds = newBounds
         delayedVisibleItemsReset?.cancel()
         let task = DispatchWorkItem {
@@ -566,12 +566,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             self.displayingItems = Set(collectionView.displayingIndexPaths())
         }
       //  if !isScrolling {
-        //    isScrolling = true
+            isScrolling = true
             keepItemOrder = true
             invalidateLayout()
             collectionView.scrollToItems(at: displayingItems!, scrollPosition: .centeredVertically)
             keepItemOrder = false
-         //   isScrolling = false
+            isScrolling = false
        // }
         
         return false
