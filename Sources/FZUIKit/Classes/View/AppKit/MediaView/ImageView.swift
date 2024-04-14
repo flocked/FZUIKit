@@ -220,6 +220,7 @@ open class ImageView: NSControl {
         }
     }
     
+    /*
     open override func becomeFirstResponder() -> Bool {
         if acceptsFirstResponder, !isSelected {
             isSelected = true
@@ -246,6 +247,7 @@ open class ImageView: NSControl {
             toggleAnimating()
         }
     }
+    */
     
     var currentImageIndex = 0 {
         didSet {
