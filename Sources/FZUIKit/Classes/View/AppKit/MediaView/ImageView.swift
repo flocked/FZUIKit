@@ -12,7 +12,7 @@ import FZSwiftUtils
 
 /// An enhanced image view.
 @IBDesignable
-open class ImageView: NSControl {
+open class ImageView: NSView {
     
     let containerView = NSView()
     let imageView = NSImageView()
