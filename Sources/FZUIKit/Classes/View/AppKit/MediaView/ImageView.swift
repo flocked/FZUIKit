@@ -234,6 +234,7 @@ open class ImageView: NSControl {
         return true
     }
     
+    /*
     override open func mouseDown(with event: NSEvent) {
         if isSelectable == .byView, !isFirstResponder {
             makeFirstResponder()
@@ -246,6 +247,7 @@ open class ImageView: NSControl {
             toggleAnimating()
         }
     }
+     */
     
     var currentImageIndex = 0 {
         didSet {
