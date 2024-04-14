@@ -94,7 +94,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
         - itemSizeProvider: The handler that provides the sizes for each item.
      */
-    public convenience init(columns: Int = 2, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), mappedItemColumns: [IndexPath: Int]? = nil, itemSizeProvider: @escaping ItemSizeProvider) {
+    public convenience init(columns: Int = 2, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemSizeProvider: @escaping ItemSizeProvider) {
         self.init()
         self.itemSizeProvider = itemSizeProvider
         self.columns = columns
@@ -105,8 +105,20 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         self.sectionInset = insets
         self.keyDownColumnChangeAmount = isKeyDownControllable ? 1 : 0
         self.keyDownAltColumnChangeAmount = isKeyDownControllable ? -1 : 0
-        self.mappedItemColumns = mappedItemColumns ?? [:]
-        self.keepItemOrder = mappedItemColumns != nil
+    }
+    
+    var itemAspectRatio: CGSize? = nil
+    public convenience init(grid columns: Int, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) {
+        self.init()
+        self.columns = columns
+        self.columnRange = columnRange
+        self.isPinchable = isPinchable
+        self.minimumInteritemSpacing = spacing
+        self.minimumColumnSpacing = spacing
+        self.sectionInset = insets
+        self.itemAspectRatio = itemAspectRatio
+        self.keyDownColumnChangeAmount = isKeyDownControllable ? 1 : 0
+        self.keyDownAltColumnChangeAmount = isKeyDownControllable ? -1 : 0
     }
     #else
     public convenience init(columns: Int = 2, itemSizeProvider: @escaping ItemSizeProvider) {
@@ -480,6 +492,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                     if itemSize.width > 0 {
                         itemHeight = (itemHeight * itemWidth / itemSize.width)
                     } // else use default item width based on other parameters
+                }
+                if let itemAspectRatio = itemAspectRatio {
+                    itemHeight = (itemAspectRatio.height / itemAspectRatio.width) * itemWidth
                 }
                 #if os(macOS)
                     attributes = NSUICollectionViewLayoutAttributes(forItemWith: indexPath)
