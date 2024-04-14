@@ -802,6 +802,7 @@ open class ImageView: NSControl {
         imageView.imageScaling = imageScaling.nsImageScaling
         imageView.imageAlignment = imageAlignment
         
+        /*
         containerView.frame = bounds
         containerView.clipsToBounds = true
         addSubview(containerView)
@@ -809,6 +810,8 @@ open class ImageView: NSControl {
         
         overlayContentView.frame = bounds
         containerView.addSubview(overlayContentView)
+        */
+        addSubview(imageView)
     }
     
     open override func layout() {
@@ -850,6 +853,7 @@ open class ImageView: NSControl {
         overlayContentView.frame = containerView.frame
     }
     
+    /*
     override open func alignmentRect(forFrame frame: NSRect) -> NSRect {
         imageView.alignmentRect(forFrame: frame)
     }
@@ -887,6 +891,7 @@ open class ImageView: NSControl {
     override open var focusRingMaskBounds: NSRect {
         isSelectable == .byImage ? overlayContentView.frame : bounds
     }
+     */
     
     class AnimatedImage {
         
