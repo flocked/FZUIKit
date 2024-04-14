@@ -106,6 +106,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         self.keyDownColumnChangeAmount = isKeyDownControllable ? 1 : 0
         self.keyDownAltColumnChangeAmount = isKeyDownControllable ? -1 : 0
         self.mappedItemColumns = mappedItemColumns ?? [:]
+        self.keepItemOrder = mappedItemColumns != nil
     }
     #else
     public convenience init(columns: Int = 2, itemSizeProvider: @escaping ItemSizeProvider) {
