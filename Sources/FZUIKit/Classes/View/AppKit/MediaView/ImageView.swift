@@ -249,6 +249,10 @@ open class ImageView: NSControl {
     }
      */
     
+    open override func hitTest(_ point: NSPoint) -> NSView? {
+        return self
+    }
+    
     var currentImageIndex = 0 {
         didSet {
             updateDisplayingImage()
