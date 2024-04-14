@@ -220,7 +220,6 @@ open class ImageView: NSControl {
         }
     }
     
-    /*
     open override func becomeFirstResponder() -> Bool {
         if acceptsFirstResponder, !isSelected {
             isSelected = true
@@ -246,8 +245,8 @@ open class ImageView: NSControl {
         if animationPlayback == .onMouseClick, overlayContentView.frame.contains(event.location(in: self)) {
             toggleAnimating()
         }
+        super.mouseDown(with: event)
     }
-    */
     
     var currentImageIndex = 0 {
         didSet {
