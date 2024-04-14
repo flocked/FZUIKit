@@ -220,6 +220,7 @@ open class ImageView: NSView {
         }
     }
     
+    /*
     open override func becomeFirstResponder() -> Bool {
         if acceptsFirstResponder, !isSelected {
             isSelected = true
@@ -233,6 +234,7 @@ open class ImageView: NSView {
         }
         return true
     }
+    */
     
     /*
     override open func mouseDown(with event: NSEvent) {
