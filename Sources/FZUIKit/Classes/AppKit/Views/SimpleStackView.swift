@@ -195,6 +195,7 @@ import FZSwiftUtils
             }.forEach { $0.constant = -spacing }
         }
 
+        /*
         override public var intrinsicContentSize: CGSize {
             sizeThatFits(CGSize(width: NSUIView.noIntrinsicMetric, height: NSUIView.noIntrinsicMetric))
         }
@@ -247,6 +248,7 @@ import FZSwiftUtils
                 _sizeThatFits(size)
             }
         #endif
+         */
 
         func updateViewConstraints() {
             viewConstraints.activate(false)
