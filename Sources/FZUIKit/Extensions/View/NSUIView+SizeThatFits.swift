@@ -84,6 +84,8 @@ extension Sizable {
 
 
     #if os(macOS)
+public extension Sizable where Self: SimpleStackView {
+}
         public extension Sizable where Self: NSTextField {
             func fittingSize(for size: CGSize) -> CGSize {
                 guard let cell = cell else { return fittingSize }

@@ -18,7 +18,7 @@ import FZSwiftUtils
 
      It's a simplified stack view compared to `NSStackView` and `UIStackView`.
      */
-    public class SimpleStackView: NSUIView {
+    open class SimpleStackView: NSUIView {
         /// The distribution for an arranged subview.
         public enum ViewDistribution: Int {
             /// The view fills the total stack view orientation (default).
@@ -36,7 +36,7 @@ import FZSwiftUtils
         }
 
         /// The array of views arranged by the stack view.
-        public var arrangedSubviews: [NSUIView] = [] {
+        open var arrangedSubviews: [NSUIView] = [] {
             didSet {
                 guard oldValue != arrangedSubviews else { return }
                 setupManagedViews(previous: oldValue)
@@ -44,7 +44,7 @@ import FZSwiftUtils
         }
 
         /// The horizontal or vertical layout direction of the stack view.
-        public var orientation: NSUIUserInterfaceLayoutOrientation = .vertical {
+        open var orientation: NSUIUserInterfaceLayoutOrientation = .vertical {
             didSet {
                 guard oldValue != orientation else { return }
                 updateViewConstraints()
@@ -52,7 +52,7 @@ import FZSwiftUtils
         }
 
         /// The spacing between views in the stack view.
-        public var spacing: CGFloat = 2.0 {
+        open var spacing: CGFloat = 2.0 {
             didSet {
                 guard oldValue != spacing else { return }
                 updateSpacing()
@@ -60,12 +60,12 @@ import FZSwiftUtils
         }
 
         /// Sets the distribution for all arranged subviews. The default value is `fill`.
-        public func setDistribution(_ distribution: ViewDistribution) {
+        open func setDistribution(_ distribution: ViewDistribution) {
             arrangedSubviews.forEach({ setDistribution(distribution, for: $0) })
         }
 
         /// Sets the distribution for an arranged subview. The default value is `fill`.
-        public func setDistribution(_ distribution: ViewDistribution, for arrangedSubview: NSUIView) {
+        open func setDistribution(_ distribution: ViewDistribution, for arrangedSubview: NSUIView) {
             guard arrangedSubviews.contains(arrangedSubview) else { return }
             let id = ObjectIdentifier(arrangedSubview).hashValue
             guard viewDistributions[id] != distribution else { return }
@@ -91,7 +91,7 @@ import FZSwiftUtils
          - Parameter views: The array of views for the new stack view.
          - Returns: A stack view initialized with the specified array of views.
          */
-        public convenience init(@Builder _ views: () -> [NSView]) {
+        public convenience init(@Builder views: () -> [NSView]) {
             self.init(views: views())
         }
 
@@ -108,7 +108,7 @@ import FZSwiftUtils
         }
         
         /// A horizontal stack view with the specified views, spacing and distribution.
-        public static func horizontal(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder _ views: () -> [NSView]) -> SimpleStackView {
+        public static func horizontal(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSView]) -> SimpleStackView {
             horizontal(views: views(), spacing: spacing, distribution: distribution)
         }
         
@@ -124,13 +124,13 @@ import FZSwiftUtils
         }
         
         /// A vertical stack view with the specified views, spacing and distribution.
-        public static func vertical(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder _ views: () -> [NSView]) -> SimpleStackView {
+        public static func vertical(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSView]) -> SimpleStackView {
             vertical(views: views(), spacing: spacing, distribution: distribution)
         }
 
         @available(*, unavailable)
-        required init?(coder _: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+        required public init?(coder: NSCoder) {
+            super.init(coder: coder)
         }
 
         var viewObservers: [Int: KeyValueObservation] = [:]
@@ -180,27 +180,30 @@ import FZSwiftUtils
         }
 
         func updateSpacing() {
-            guard !viewConstraints.isEmpty else { return }
-            viewConstraints.filter {
-                if self.orientation == .vertical {
-                    return $0.firstAttribute == .top && $0.secondItem !== self
-                } else {
-                    return $0.firstAttribute == .leading && $0.secondItem !== self
-                }
-            }.constant(spacing)
+            var constraints = viewConstraints.filter {
+                $0.firstAttribute == (orientation == .vertical ? .top : .leading)
+            }
+            if !includeLeadingAndTrailing { 
+                constraints = constraints.filter({$0.secondItem !== self})
+            }
+            constraints.constant(spacing)
 
-            viewConstraints.filter {
-                if self.orientation == .vertical {
-                    return $0.firstAttribute == .bottom && $0.secondItem !== self
-                } else {
-                    return $0.firstAttribute == .trailing && $0.secondItem !== self
-                }
-            }.constant(-spacing)
+            constraints = viewConstraints.filter {
+                $0.firstAttribute == (orientation == .vertical ? .bottom : .trailing)
+            }
+            if !includeLeadingAndTrailing {
+                constraints = constraints.filter({$0.secondItem !== self})
+            }
+            constraints.constant(-spacing)
         }
         
         #if os(macOS)
-        public func sizeToFit() {
+        open func sizeToFit() {
             frame.size = fittingSize
+        }
+        
+        open func sizeThatFits(_ size: CGSize) -> CGSize {
+            fittingSize.clamped(minSize: size.clamped(minSize: .zero))
         }
         #endif
 
@@ -259,6 +262,7 @@ import FZSwiftUtils
         #endif
          */
 
+        var includeLeadingAndTrailing: Bool = false
         func updateViewConstraints() {
             viewConstraints.activate(false)
             viewConstraints.removeAll()
@@ -268,7 +272,7 @@ import FZSwiftUtils
                 let distribution = viewDistributions[ObjectIdentifier(managedView).hashValue] ?? .fill
                 if orientation == .vertical {
                     var constraints = [
-                        managedView.topAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.topAnchor : nextAnchorView.bottomAnchor, constant: (nextAnchorView == self) ? 0 : spacing),
+                        managedView.topAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.topAnchor : nextAnchorView.bottomAnchor, constant: (nextAnchorView == self || includeLeadingAndTrailing) ? 0 : spacing),
                     ]
                     switch distribution {
                     case .fill:
@@ -287,13 +291,13 @@ import FZSwiftUtils
                         break
                     }
                     if index == nonHiddenViews.count - 1 {
-                        constraints.append(managedView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0))
+                        constraints.append(managedView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: includeLeadingAndTrailing ? -spacing : 0))
                     }
                     nextAnchorView = managedView
                     viewConstraints.append(contentsOf: constraints)
                 } else {
                     var constraints = [
-                        managedView.leadingAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.leadingAnchor : nextAnchorView.trailingAnchor, constant: (nextAnchorView == self) ? 0 : spacing),
+                        managedView.leadingAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.leadingAnchor : nextAnchorView.trailingAnchor, constant: (nextAnchorView == self || includeLeadingAndTrailing) ? 0 : spacing),
                     ]
                     switch distribution {
                     case .fill:
@@ -332,7 +336,7 @@ import FZSwiftUtils
                         constraints.append(managedView.heightAnchor.constraint(lessThanOrEqualTo: heightAnchor))
                     }
                     if index == nonHiddenViews.count - 1 {
-                        constraints.append(managedView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0))
+                        constraints.append(managedView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: includeLeadingAndTrailing ? -spacing : 0))
                     }
                     nextAnchorView = managedView
                     viewConstraints.append(contentsOf: constraints)
@@ -377,7 +381,7 @@ extension SimpleStackView {
 }
 
 /// A flexible spacer view for ``SimpleStackView`` that expands along the major axis of its containing stack view.
-public class SpacerView: NSUIView {
+open class SpacerView: NSUIView {
 
 }
 #endif
