@@ -286,11 +286,9 @@ import FZSwiftUtils
                     default:
                         break
                     }
-                    /*
                     if index == nonHiddenViews.count - 1 {
-                        constraints.append(managedView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -spacing))
+                        constraints.append(managedView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0))
                     }
-                     */
                     nextAnchorView = managedView
                     viewConstraints.append(contentsOf: constraints)
                 } else {
@@ -333,11 +331,9 @@ import FZSwiftUtils
                         }
                         constraints.append(managedView.heightAnchor.constraint(lessThanOrEqualTo: heightAnchor))
                     }
-                    /*
                     if index == nonHiddenViews.count - 1 {
-                        constraints.append(managedView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -spacing))
+                        constraints.append(managedView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0))
                     }
-                     */
                     nextAnchorView = managedView
                     viewConstraints.append(contentsOf: constraints)
                 }
