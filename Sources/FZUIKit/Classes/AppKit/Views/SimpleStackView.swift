@@ -196,6 +196,12 @@ import FZSwiftUtils
                 }
             }.forEach { $0.constant = -spacing }
         }
+        
+        #if os(macOS)
+        public func sizeToFit() {
+            frame.size = fittingSize
+        }
+        #endif
 
         /*
         override public var intrinsicContentSize: CGSize {
