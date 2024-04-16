@@ -26,7 +26,7 @@ public extension CGImage {
         }
     #endif
 
-    /// A `Image` representation of the image.
+    /// An `Image` representation of the image.
     var swiftUI: Image {
         #if os(macOS)
             return Image(nsImage)
@@ -91,5 +91,130 @@ public extension CGImage {
     enum ImageError: Error {
         case unableToCreateImageFromContext
         case invalidContext
+    }
+    
+    internal static func create(size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, bitmapInfo: CGBitmapInfo? = nil, colorSpace: CGColorSpace? = nil, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
+        guard
+            let space = colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
+            let ctx = CGContext(
+                data: nil,
+                width: Int(size.width),
+                height: Int(size.height),
+                bitsPerComponent: bitsPerComponent,
+                bytesPerRow: bytesPerRow,
+                space: space,
+                bitmapInfo: (bitmapInfo ?? CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)).rawValue
+            )
+        else {
+            throw ImageError.invalidContext
+        }
+
+        // Drawing defaults
+        ctx.setShouldAntialias(true)
+        ctx.setAllowsAntialiasing(true)
+        ctx.interpolationQuality = .high
+
+        // If a background color is set, fill it here
+        if let backgroundColor = backgroundColor {
+            ctx.saveGState()
+            ctx.setFillColor(backgroundColor)
+            ctx.fill([CGRect(origin: .zero, size: size)])
+            ctx.restoreGState()
+        }
+
+        // Perform the draw block
+        if let block = drawBlock {
+            ctx.saveGState()
+            block(ctx, size)
+            ctx.restoreGState()
+        }
+
+        guard let result = ctx.makeImage() else {
+            throw ImageError.unableToCreateImageFromContext
+        }
+        return result
+    }
+    
+    /**
+     Returns the image resized to the specified size.
+     
+     - Parameters:
+        - size: The size of the resized image.
+        - quality: The quality of resizing the image.
+     
+     - Returns: The resized image, or the image itself if resizing fails.
+     */
+    func resized(to size: CGSize, quality: CGInterpolationQuality = .high) -> CGImage {
+        let width = Int(size.width).clamped(min: 1)
+        let height = Int(size.height).clamped(min: 1)
+        
+        return (try? CGImage.create(size: size, bytesPerRow: bytesPerRow, bitmapInfo: bitmapInfo, colorSpace: colorSpace ) { context, size in
+            context.interpolationQuality = .high
+            context.draw(self, in: CGRect(.zero, size))
+         }) ?? self
+        
+        guard width != self.width || height != self.height else { return self }
+        guard let colorSpace = colorSpace else { return self }
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: alphaInfo.rawValue) else { return self }
+        
+        context.interpolationQuality = quality
+        context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage() ?? self
+    }
+    
+    /**
+     Returns the image resized to fit the specified size.
+     
+     - Parameters:
+        - size: The size of the resized image.
+        - quality: The quality of resizing the image.
+     
+     - Returns: The resized image, or the image itself if resizing fails.
+     */
+    func resized(toFit size: CGSize, quality: CGInterpolationQuality = .high) -> CGImage {
+        let size = self.size.scaled(toFit: size)
+        return resized(to: size, quality: quality)
+    }
+
+    /**
+     Returns the image resized to fill the specified size.
+     
+     - Parameters:
+        - size: The size of the resized image.
+        - quality: The quality of resizing the image.
+     
+     - Returns: The resized image, or the image itself if resizing fails.
+     */
+    func resized(toFill size: CGSize, quality: CGInterpolationQuality = .high) -> CGImage {
+        let size = self.size.scaled(toFill: size)
+        return resized(to: size, quality: quality)
+    }
+
+    /**
+     Returns the image resized to the specified width while maintaining the aspect ratio.
+     
+     - Parameters:
+        - width: The width of the resized image.
+        - quality: The quality of resizing the image.
+     
+     - Returns: The resized image, or the image itself if resizing fails.
+     */
+    func resized(toWidth width: CGFloat, quality: CGInterpolationQuality = .high) -> CGImage {
+        let size = size.scaled(toWidth: width)
+        return resized(to: size, quality: quality)
+    }
+
+    /**
+     Returns the image resized to the specified height while maintaining the aspect ratio.
+     
+     - Parameters:
+        - height: The height of the resized image.
+        - quality: The quality of resizing the image.
+     
+     - Returns: The resized image, or the image itself if resizing fails.
+     */
+    func resized(toHeight height: CGFloat, quality: CGInterpolationQuality = .high) -> CGImage {
+        let size = size.scaled(toHeight: height)
+        return resized(to: size, quality: quality)
     }
 }

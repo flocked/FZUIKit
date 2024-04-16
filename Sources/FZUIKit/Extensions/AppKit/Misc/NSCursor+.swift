@@ -122,7 +122,7 @@ import Combine
                     store.original(object, #selector(NSCursor.set))
                     NSCursorAnimator.shared.frames = frames
                     NSCursorAnimator.shared.hotSpot = hotSpot
-                    NSCursorAnimator.shared.restart()
+                    NSCursorAnimator.shared.start()
                 }
                 }
             } catch {
@@ -133,54 +133,46 @@ import Combine
         private class NSCursorAnimator {
             static let shared = NSCursorAnimator()
             
-            var displayLink: AnyCancellable? = nil
             var lastFrameTime = CFAbsoluteTimeGetCurrent()
             var frames: [ImageFrame] = [] {
                 willSet {  stop() } }
             var index: Int = 0
             var hotSpot: CGPoint = .zero
-
-            func restart() {
-                stop()
-                start()
-            }
+            var timer: DisplayLinkTimer?
             
             func start() {
-                guard frames.count >= 1 else {
+                guard !frames.isEmpty else {
                     stop()
                     return
                 }
-                guard displayLink == nil else { return }
-                lastFrameTime = CFAbsoluteTimeGetCurrent()
-                displayLink = DisplayLink.shared.sink { [weak self] frame in
+                index = 0
+                guard timer == nil else { return }
+                if index > frames.count - 1 {
+                    index = 0
+                }
+                timer = .init(timeInterval: .seconds(self.frames[safe: self.index]?.duration ?? 0.12), repeating: true) { [weak self] _ in
                     guard let self = self else { return }
-                    let current = CFAbsoluteTimeGetCurrent()
-                    Swift.print(current - self.lastFrameTime, self.frames[self.index].duration!)
-                    if current - self.lastFrameTime > self.frames[self.index].duration ?? 0.12 {
-                        self.lastFrameTime = current
-                        self.advanceImage()
-                    }
-
+                    self.advanceImage()
                 }
             }
 
             func stop() {
-                displayLink?.cancel()
-                displayLink = nil
+                timer = nil
                 index = 0
             }
             
             func advanceImage() {
-                if frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty {
+                guard let timer = timer, (frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty) else {
                     stop()
                     frames = []
-                } else {
-                    index = index + 1
-                    if index >= frames.count {
-                        index = 0
-                    }
-                    NSCursor(image: frames[index].image, hotSpot: hotSpot).set()
+                    return
                 }
+                index = index + 1
+                if index >= frames.count {
+                    index = 0
+                }
+                NSCursor(image: frames[index].image, hotSpot: hotSpot).set()
+                timer.timeInterval = .seconds(self.frames[safe: self.index]?.duration ?? 0.12)
             }
         }
     }

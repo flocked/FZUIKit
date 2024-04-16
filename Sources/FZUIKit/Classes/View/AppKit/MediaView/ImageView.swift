@@ -84,12 +84,12 @@ open class ImageView: NSControl {
     }
     
     /// Constants that specify the image scaling behavior.
-    public enum ImageScaling {
+    public enum ImageScaling: Int {
         /// The image is resized to fit the entire bounds rectangle.
         case resize
-        /// The image is resized to completely fill the bounds rectangle, while still preserving the aspect of the content.
+        /// The image is resized to completely fill the bounds rectangle, while still preserving the aspect of the image.
         case scaleToFill
-        /// The image is resized to fit the bounds rectangle, preserving the aspect of the content.
+        /// The image is resized to fit the bounds rectangle, preserving the aspect of the image.
         case scaleToFit
         /// The image isn't resized.
         case none
