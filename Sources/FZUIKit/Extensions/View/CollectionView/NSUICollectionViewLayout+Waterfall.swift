@@ -1556,22 +1556,6 @@ extension NSUICollectionView {
     }
 }
 
-public extension Collection where Element == CGRect {
-    func unionAlt() -> CGRect {
-        
-        let x = self.compactMap({$0.x}).min() ?? 0
-        let y = self.compactMap({$0.y}).min() ?? 0
-                
-        
-        let maxX = self.compactMap({$0.maxX}).max() ?? 0
-        let maxY = self.compactMap({$0.y + $0.height}).max() ?? 0
-        
-        var width = sorted(by: \.x).last?.maxX ?? 0.0
-        var height = sorted(by: \.y).last?.maxY ?? 0.0
-        return CGRect(x, y, width, height)
-    }
-}
-
 #endif
 #endif
 

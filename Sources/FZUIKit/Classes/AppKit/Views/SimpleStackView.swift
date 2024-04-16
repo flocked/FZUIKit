@@ -31,6 +31,8 @@ import FZSwiftUtils
             case trailing
             /// The view is distributed to the first baseline, This distribution only works when the stack view orientation is set to horizontal.
             case firstBaseline
+            /// The view is distributed to the last baseline, This distribution only works when the stack view orientation is set to horizontal.
+            case lastBaseline
         }
 
         /// The array of views arranged by the stack view.
@@ -310,6 +312,17 @@ import FZSwiftUtils
                             constraints.append(managedView.topAnchor.constraint(equalTo: topAnchor))
                         }
                         constraints.append(managedView.heightAnchor.constraint(lessThanOrEqualTo: heightAnchor))
+                    case .lastBaseline:
+                        if index < nonHiddenViews.count - 1 {
+                            let otherManagedView = nonHiddenViews[index + 1]
+                            constraints.append(managedView.lastBaselineAnchor.constraint(equalTo: otherManagedView.lastBaselineAnchor))
+                        } else if index > 0 {
+                            let otherManagedView = nonHiddenViews[index - 1]
+                            constraints.append(managedView.lastBaselineAnchor.constraint(equalTo: otherManagedView.lastBaselineAnchor))
+                        } else {
+                            constraints.append(managedView.topAnchor.constraint(equalTo: topAnchor))
+                        }
+                        constraints.append(managedView.heightAnchor.constraint(lessThanOrEqualTo: heightAnchor))
                     }
                     if index == nonHiddenViews.count - 1 {
                         constraints.append(managedView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -spacing))
@@ -354,5 +367,10 @@ extension SimpleStackView {
             expr.map { [$0] } ?? []
         }
     }
+}
+
+/// A flexible spacer view for ``SimpleStackView`` that expands along the major axis of its containing stack view.
+public class SpacerView: NSUIView {
+
 }
 #endif

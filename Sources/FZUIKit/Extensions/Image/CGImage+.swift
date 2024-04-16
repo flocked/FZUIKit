@@ -93,6 +93,7 @@ public extension CGImage {
         case invalidContext
     }
     
+    /*
     internal static func create(size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, bitmapInfo: CGBitmapInfo? = nil, colorSpace: CGColorSpace? = nil, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
         guard
             let space = colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
@@ -134,6 +135,7 @@ public extension CGImage {
         }
         return result
     }
+    */
     
     /**
      Returns the image resized to the specified size.
@@ -145,14 +147,6 @@ public extension CGImage {
      - Returns: The resized image, or the image itself if resizing fails.
      */
     func resized(to size: CGSize, quality: CGInterpolationQuality = .high) -> CGImage {
-        let width = Int(size.width).clamped(min: 1)
-        let height = Int(size.height).clamped(min: 1)
-        
-        return (try? CGImage.create(size: size, bytesPerRow: bytesPerRow, bitmapInfo: bitmapInfo, colorSpace: colorSpace ) { context, size in
-            context.interpolationQuality = .high
-            context.draw(self, in: CGRect(.zero, size))
-         }) ?? self
-        
         guard width != self.width || height != self.height else { return self }
         guard let colorSpace = colorSpace else { return self }
         guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: alphaInfo.rawValue) else { return self }
