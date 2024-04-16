@@ -180,21 +180,22 @@ import FZSwiftUtils
         }
 
         func updateSpacing() {
+            guard !viewConstraints.isEmpty else { return }
             viewConstraints.filter {
                 if self.orientation == .vertical {
-                    return $0.firstAttribute == .top
+                    return $0.firstAttribute == .top && $0.secondItem !== self
                 } else {
-                    return $0.firstAttribute == .leading
+                    return $0.firstAttribute == .leading && $0.secondItem !== self
                 }
-            }.forEach { $0.constant = spacing }
+            }.constant(spacing)
 
             viewConstraints.filter {
                 if self.orientation == .vertical {
-                    return $0.firstAttribute == .bottom
+                    return $0.firstAttribute == .bottom && $0.secondItem !== self
                 } else {
-                    return $0.firstAttribute == .trailing
+                    return $0.firstAttribute == .trailing && $0.secondItem !== self
                 }
-            }.forEach { $0.constant = -spacing }
+            }.constant(-spacing)
         }
         
         #if os(macOS)
@@ -267,7 +268,7 @@ import FZSwiftUtils
                 let distribution = viewDistributions[ObjectIdentifier(managedView).hashValue] ?? .fill
                 if orientation == .vertical {
                     var constraints = [
-                        managedView.topAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.topAnchor : nextAnchorView.bottomAnchor, constant: spacing),
+                        managedView.topAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.topAnchor : nextAnchorView.bottomAnchor, constant: (nextAnchorView == self) ? 0 : spacing),
                     ]
                     switch distribution {
                     case .fill:
@@ -285,14 +286,16 @@ import FZSwiftUtils
                     default:
                         break
                     }
+                    /*
                     if index == nonHiddenViews.count - 1 {
                         constraints.append(managedView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -spacing))
                     }
+                     */
                     nextAnchorView = managedView
                     viewConstraints.append(contentsOf: constraints)
                 } else {
                     var constraints = [
-                        managedView.leadingAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.leadingAnchor : nextAnchorView.trailingAnchor, constant: spacing),
+                        managedView.leadingAnchor.constraint(equalTo: (nextAnchorView == self) ? nextAnchorView.leadingAnchor : nextAnchorView.trailingAnchor, constant: (nextAnchorView == self) ? 0 : spacing),
                     ]
                     switch distribution {
                     case .fill:
@@ -330,9 +333,11 @@ import FZSwiftUtils
                         }
                         constraints.append(managedView.heightAnchor.constraint(lessThanOrEqualTo: heightAnchor))
                     }
+                    /*
                     if index == nonHiddenViews.count - 1 {
                         constraints.append(managedView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -spacing))
                     }
+                     */
                     nextAnchorView = managedView
                     viewConstraints.append(contentsOf: constraints)
                 }
