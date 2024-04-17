@@ -83,6 +83,11 @@ open class ImageView: NSControl {
         }
     }
     
+    open func imageScaling(_ imageScaling: ImageScaling) -> Self {
+        self.imageScaling = imageScaling
+        return self
+    }
+    
     /// Constants that specify the image scaling behavior.
     public enum ImageScaling: Int {
         /// The image is resized to fit the entire bounds rectangle.
@@ -479,7 +484,7 @@ open class ImageView: NSControl {
     }
 
     /**
-     The amount of time it takes to go through one cycle of the images.
+     The amount of time it takes to go through one cycle of an animated image.
 
      The time duration is measured in seconds. The default value of this property is `0.0`, which causes the image view to use a duration equal to the number of images multiplied by 1/30th of a second. Thus, if you had 30 images, the duration would be 1 second.
      */

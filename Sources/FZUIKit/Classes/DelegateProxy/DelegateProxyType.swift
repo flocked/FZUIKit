@@ -34,7 +34,7 @@ public extension DelegateProxyType where Self: DelegateProxy {
         guard let keyPath = keyPath._kvcKeyPathString else { return delegateProxy }
         let delegateObserver = object.getAssociatedValue("_delegateProxyObserver", initialValue: KeyValueObserver<Object>(object))
         guard !delegateObserver.isObserving(keyPath) else { return delegateProxy }
-        delegateObserver.add(keyPath) { old, new, _ in
+        delegateObserver.add(keyPath) { old, new in
             if let old = old as? NSObject, let new = new as? NSObject {
                 guard old != new, new != delegateProxy else { return }
                 delegateProxy.setDelegate(to: object)

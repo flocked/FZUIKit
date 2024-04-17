@@ -155,3 +155,121 @@ public extension AVPlayer {
         set { setAssociatedValue(newValue, key: "loopNotificationToken") }
     }
 }
+
+extension AVPlayer {
+    /// Playback option when loading a new item.
+    public enum ItemPlaybackOption: Int, Hashable {
+        /// New items start automatically,
+        case autostart
+        /// New items keep the playback state of the previous item.
+        case previousPlaybackState
+        /// New items are paused.
+        case pause
+    }
+    
+    /// Playback option when loading a new item.
+    public var playbackOption: ItemPlaybackOption {
+        get { getAssociatedValue("videoPlaybackOption", initialValue: .pause) }
+        set { 
+            guard newValue != playbackOption else { return }
+            setAssociatedValue(newValue, key: "videoPlaybackOption")
+            if newValue == .pause {
+                playerObservation = nil
+            } else if playerObservation == nil {
+                playerObservation = .init(self)
+                playerObservation?.addWillChange(\.currentItem) { [weak self] old in
+                    guard let self = self, old != nil else { return }
+                    self.previousItemState = self.state
+                }
+                playerObservation?.add(\.currentItem) { [weak self] old, new in
+                    guard let self = self, new != nil else { return }
+                    switch self.playbackOption {
+                    case .autostart:
+                        self.play()
+                    case .previousPlaybackState:
+                        switch self.previousItemState {
+                        case .isPlaying: self.play()
+                        default: self.pause()
+                        }
+                    case .pause:
+                        self.pause()
+                    }
+                }
+            }
+        }
+    }
+    
+    var previousItemState: AVPlayer.State {
+        get { getAssociatedValue("previousItemState", initialValue: state) }
+        set { setAssociatedValue(newValue, key: "previousItemState") }
+    }
+    
+    var playerObservation: KeyValueObserver<AVPlayer>? {
+        get { getAssociatedValue("playerObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "playerObservation") }
+    }
+    
+    /**
+     Observes the playback time and calls the specified handler.
+     
+     - Parameters:
+        - interval: The time interval at which the system invokes the handler during normal playback, according to progress of the player’s current time.
+        - queue: The dispatch queue on which the system calls the block.
+        - handler: The handler that the system periodically invokes:
+            - time: The time at which the system invokes the block.
+          
+     Example usage:
+     
+     ```swift
+     let observation = player.addPlaybackObserver(timeInterval: 0.1) { time in
+        // handle playback
+    }
+     ```
+     
+     To stop the observation, either call ``invalidate()```, or deinitalize the object.
+     */
+    public func addPlaybackObserver(timeInterval: TimeInterval, queue: dispatch_queue_t = .main, handler: @escaping (_ time: TimeDuration)->()) -> AVPlayerTimeObservation {
+        AVPlayerTimeObservation(self, interval: timeInterval, queue: queue, handler: handler)
+    }
+}
+
+/**
+ An object that observes the playback time of an `AVPlayer`.
+ 
+ To observe the value of a property that is key-value compatible, use  ``AVFoundation/AVPlayer/addPlaybackObserver(timeInterval:queue:handler:)``.
+ 
+ ```swift
+ let observation = player.addPlaybackObserver(timeInterval: 0.1) { time in
+    // handle playback
+}
+ ```
+ To stop the observation, either call ``invalidate()```, or deinitalize the object.
+ */
+public class AVPlayerTimeObservation {
+    weak var player: AVPlayer?
+    var observer: Any?
+    
+    init (_ player: AVPlayer, interval: TimeInterval, queue: dispatch_queue_t?,  handler: @escaping (TimeDuration)->()) {
+        self.player = player
+        self.observer = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: interval), queue: queue) { time in
+            handler(TimeDuration(time: time))
+        }
+    }
+    
+    ///  A Boolean value indicating whether the observation is active.
+    public var isObserving: Bool {
+        observer != nil
+    }
+    
+    /// Invalidates the observation.
+    public func invalidate() {
+        guard let observer = observer else { return }
+        player?.removeTimeObserver(observer)
+        self.observer = nil
+    }
+    
+    deinit {
+        invalidate()
+    }
+}
+
