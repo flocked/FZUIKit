@@ -460,8 +460,8 @@ public struct ImageSymbolConfiguration: Hashable {
                 return primary
             case let .hierarchical(primary):
                 return primary
-            case .monochrome:
-                return nil
+            case .monochrome(let primary):
+                return primary
             }
         }
 
