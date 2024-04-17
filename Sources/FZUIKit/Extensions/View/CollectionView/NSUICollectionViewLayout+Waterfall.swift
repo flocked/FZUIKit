@@ -1545,7 +1545,6 @@ struct KeyDownColumnChange {
 extension NSUICollectionView {
     /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
     public func displayingIndexPaths(in rect: CGRect) -> [IndexPath] {
-       // visibleCells
         #if os(macOS)
         return (displayingItems(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
         #else
