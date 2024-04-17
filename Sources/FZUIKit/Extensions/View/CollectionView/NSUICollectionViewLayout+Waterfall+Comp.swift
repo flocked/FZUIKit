@@ -50,6 +50,15 @@ extension NSUICollectionViewLayout {
         }
         return layout
     }
+    
+    static func pinchUpdateHandler(_ isPinchable: Bool) -> ((NSUICollectionViewCompositionalLayout)->())? {
+        guard isPinchable else { return nil }
+        return { layout in
+            guard let collectionView = layout.collectionView, collectionView.pinchColumnsGestureRecognizer == nil else { return }
+            collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
+            collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
+        }
+    }
 #else
     /**
      Creates a waterfall collection view layout with the specifed amount of columns.
@@ -64,15 +73,6 @@ extension NSUICollectionViewLayout {
         _waterfallCompositional(columns: columns, spacing: spacing, insets: insets, itemOrder: itemOrder, itemSizeProvider: itemSizeProvider)
     }
 #endif
-    
-    static func pinchUpdateHandler(_ isPinchable: Bool) -> ((NSUICollectionViewCompositionalLayout)->())? {
-        guard isPinchable else { return nil }
-        return { layout in
-            guard let collectionView = layout.collectionView, collectionView.pinchColumnsGestureRecognizer == nil else { return }
-            collectionView.pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
-            collectionView.addGestureRecognizer(collectionView.pinchColumnsGestureRecognizer!)
-        }
-    }
     
     static func _waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, prepareHandler: ((NSUICollectionViewCompositionalLayout)->())? = nil, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
         var numberOfItems: (Int) -> Int = { _ in 0 }

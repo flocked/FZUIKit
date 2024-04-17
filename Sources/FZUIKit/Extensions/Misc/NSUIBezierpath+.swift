@@ -253,7 +253,7 @@ import FZSwiftUtils
          */
         static func squircle(rect: CGRect) -> Self {
             assert(rect.width == rect.height)
-            return superellipse(in: rect, cornerRadius: rect.width / 2)
+            return superellipse(in: rect, cornerRadius: rect.width / 2.0)
         }
 
         func rotationTransform(byRadians radians: Double, centerPoint point: CGPoint) -> AffineTransform {

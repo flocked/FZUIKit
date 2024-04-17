@@ -91,7 +91,7 @@ import FZSwiftUtils
          - Parameter views: The array of views for the new stack view.
          - Returns: A stack view initialized with the specified array of views.
          */
-        public convenience init(@Builder views: () -> [NSView]) {
+        public convenience init(@Builder views: () -> [NSUIView]) {
             self.init(views: views())
         }
 
@@ -108,7 +108,7 @@ import FZSwiftUtils
         }
         
         /// A horizontal stack view with the specified views, spacing and distribution.
-        public static func horizontal(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSView]) -> SimpleStackView {
+        public static func horizontal(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSUIView]) -> SimpleStackView {
             horizontal(views: views(), spacing: spacing, distribution: distribution)
         }
         
@@ -124,7 +124,7 @@ import FZSwiftUtils
         }
         
         /// A vertical stack view with the specified views, spacing and distribution.
-        public static func vertical(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSView]) -> SimpleStackView {
+        public static func vertical(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSUIView]) -> SimpleStackView {
             vertical(views: views(), spacing: spacing, distribution: distribution)
         }
 

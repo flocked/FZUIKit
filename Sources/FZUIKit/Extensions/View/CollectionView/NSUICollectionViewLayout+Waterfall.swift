@@ -82,6 +82,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
 
     public var keepItemOrder: Bool = true
     public var mappedItemColumns: [IndexPath: Int] = [:]
+    var itemAspectRatio: CGSize? = nil
     
     #if os(macOS) || os(iOS)
     /**
@@ -107,7 +108,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         self.keyDownAltColumnChangeAmount = isKeyDownControllable ? -1 : 0
     }
     
-    var itemAspectRatio: CGSize? = nil
     public convenience init(grid columns: Int, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) {
         self.init()
         self.columns = columns
@@ -563,7 +563,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     var previousBounds: CGRect = .zero
     var isScrolling = false
-    public override func shouldInvalidateLayout(forBoundsChange newBounds: NSRect) -> Bool {
+    public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard keepItemsCenteredWhenResizing else { return false }
         Swift.print("shouldInvalidate", newBounds.width != previousBounds.width, newBounds, previousBounds, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
         guard let collectionView = collectionView else { return false }
@@ -582,7 +582,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             isScrolling = true
             keepItemOrder = true
             invalidateLayout()
+        #if os(macOS)
             collectionView.scrollToItems(at: displayingItems!, scrollPosition: .centeredVertically)
+        #else
+        collectionView.scrollToItems(at: displayingItems!, at: .centeredVertically)
+        #endif
             keepItemOrder = false
             isScrolling = false
        // }
@@ -1533,11 +1537,6 @@ struct KeyDownColumnChange {
         didSet { amountSecondaryAlt.clamp(min: -1) }
     }
     
-    func test() {
-        var keyDownColumnChange = KeyDownColumnChange()
-        keyDownColumnChange.amount = 4
-    }
-    
     var needsGestureRecognizer: Bool {
         amount > 0 || amount == -1 || amountAlt > 0 || amountAlt == -1 || amountSecondaryAlt > 0 || amountSecondaryAlt == -1
     }
@@ -1546,14 +1545,23 @@ struct KeyDownColumnChange {
 extension NSUICollectionView {
     /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
     public func displayingIndexPaths(in rect: CGRect) -> [IndexPath] {
-        (displayingItems(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
+       // visibleCells
+        return (displayingCells(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
     }
     
+    #if os(macOS)
     /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
     public func displayingItems(in rect: CGRect) -> [NSCollectionViewItem] {
         let visibleItems = visibleItems()
         return visibleItems.filter { $0.view.frame.intersects(rect) }
     }
+    #else
+    /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
+    public func displayingCells(in rect: CGRect) -> [UICollectionViewCell] {
+        let visibleItems = visibleCells
+        return visibleItems.filter { $0.frame.intersects(rect) }
+    }
+    #endif
 }
 
 #endif
