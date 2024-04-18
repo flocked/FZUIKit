@@ -272,39 +272,7 @@ open class StackView: NSUIView {
         var percentageLossSum: CGFloat = 0
         var equalSizeCount: CGFloat = 0
     }
-    
-    private func calculateSizes() -> LayoutCalculation? {
-        viewCalculatedValues.removeAll()
-        let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
-        guard !arrangedSubviews.isEmpty else { return nil }
-        var calculation = LayoutCalculation()
-        for arrangedSubview in arrangedSubviews {
-            let id = ObjectIdentifier(arrangedSubview).hashValue
-            let sizing = viewSizing(for: arrangedSubview)
-            switch sizing {
-            case .equal:
-                calculation.equalSizeCount += 1
-            case .fixed(let value):
-                calculation.fixedValueSum += value
-                let isSpacer = arrangedSubview as? SpacerView != nil
-                viewCalculatedValues[id] = orientation == .horizontal ? CGSize(value, isSpacer ? 0 : arrangedSubview.frame.height) : CGSize(isSpacer ? 0 : arrangedSubview.frame.width, value)
-            case .automatic:
-                #if os(macOS)
-                var fittingSize = arrangedSubview.fittingSize
-                #else
-                var fittingSize = arrangedSubview.sizeThatFits(bounds.size)
-                #endif
-                fittingSize = fittingSize.width <= 0 || fittingSize.height <= 0 ? arrangedSubview.bounds.size : fittingSize
-                calculation.fixedValueSum += orientation == .horizontal ? fittingSize.width : fittingSize.height
-                viewCalculatedValues[id] = fittingSize
-            case .percentage(let percentage):
-                calculation.percentageLossSum += percentage
-            }
-        }
-        Swift.print(calculation.fixedValueSum, bounds.width)
-        return calculation
-    }
-    
+        
     private func layoutArrangedSubviews() {
         let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
         guard !arrangedSubviews.isEmpty, let calculation = calculateSizes() else { return }
@@ -337,12 +305,39 @@ open class StackView: NSUIView {
             }
             arrangedSubview.frame = viewFrame
             offsetTracker += (orientation == .horizontal ? viewFrame.width : viewFrame.height) + spacing
-            if let spacer = arrangedSubview as? SpacerView {
-                Swift.print(bounds.width, viewFrame.size.width, width, layoutValue, ratio, bounds.width-layoutValue, subviews.compactMap({$0.frame.width}).sum())
-                
-            }
         }
         layoutDistributions()
+    }
+    
+    private func calculateSizes() -> LayoutCalculation? {
+        viewCalculatedValues.removeAll()
+        let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
+        guard !arrangedSubviews.isEmpty else { return nil }
+        var calculation = LayoutCalculation()
+        for arrangedSubview in arrangedSubviews {
+            let id = ObjectIdentifier(arrangedSubview).hashValue
+            let sizing = viewSizing(for: arrangedSubview)
+            switch sizing {
+            case .equal:
+                calculation.equalSizeCount += 1
+            case .fixed(let value):
+                calculation.fixedValueSum += value
+                let isSpacer = arrangedSubview as? SpacerView != nil
+                viewCalculatedValues[id] = orientation == .horizontal ? CGSize(value, isSpacer ? 0 : arrangedSubview.frame.height) : CGSize(isSpacer ? 0 : arrangedSubview.frame.width, value)
+            case .automatic:
+                #if os(macOS)
+                var fittingSize = arrangedSubview.fittingSize
+                #else
+                var fittingSize = arrangedSubview.sizeThatFits(bounds.size)
+                #endif
+                fittingSize = fittingSize.width <= 0 || fittingSize.height <= 0 ? arrangedSubview.bounds.size : fittingSize
+                calculation.fixedValueSum += orientation == .horizontal ? fittingSize.width : fittingSize.height
+                viewCalculatedValues[id] = fittingSize
+            case .percentage(let percentage):
+                calculation.percentageLossSum += percentage
+            }
+        }
+        return calculation
     }
     
     private func layoutDistributions() {
@@ -372,17 +367,7 @@ open class StackView: NSUIView {
                     arrangedSubview.frame.origin.y = 0-(arrangedSubview.lastBaselineOffsetFromBottom ?? 0.0)
                     #endif
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
-
                 }
-                /*
-                if let spacer = arrangedSubview as? SpacerView {
-                    if orientation == .horizontal {
-                        spacer.frame.size.height = 0
-                    } else {
-                        spacer.frame.size.width = 0
-                    }
-                }
-                 */
             }
             let baselineOffset =  0 - (baselineOffsets.min() ?? 0)
             for arrangedSubview in arrangedSubviews {
