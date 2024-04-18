@@ -191,12 +191,46 @@
             set { layer.shadowPath = newValue }
         }
         
-        var firstBaselineOffsetFromTop: CGFloat? {
-            value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
+        /**
+         The distance (in points) between the top of the view’s alignment rectangle and its topmost baseline.
+         
+         For views with multiple lines of text, this represents the baseline of the top row of text.
+         
+         - Note: For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or `nil` is returned.
+         */
+        public var firstBaselineOffsetFromTop: CGFloat? {
+            if let view = self as? UITextField {
+                return view.constraints.isEmpty ? nil : value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
+            } else if let view = self as? UITextView {
+                return view.constraints.isEmpty ? nil : value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
+            }
+            return value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
         }
         
-        var firstBaselineOffsetY: CGFloat {
-            frame.y + frame.height - (firstBaselineOffsetFromTop ?? 0.0) - 0.5
+        /**
+         The distance (in points) between the bottom of the view’s alignment rectangle and its bottommost baseline.
+         
+         For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or `nil` is returned.
+         */
+        public var lastBaselineOffsetFromBottom: CGFloat? {
+            if let view = self as? UITextField {
+                return view.constraints.isEmpty ? nil : value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
+            } else if let view = self as? UITextView {
+                return view.constraints.isEmpty ? nil : value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
+            }
+            return value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
+        }
+        
+        /**
+         The y-coordinate of the baseline for the topmost line of text in the view.
+         
+         For views with multiple lines of text, this represents the baseline of the top row of text.
+         
+         - Note: For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or else `0` is returned.
+         */
+        public var firstBaselineOffsetY: CGFloat {
+            guard firstBaselineOffsetFromTop ?? 0.0 != 0 else { return 0 }
+            return frame.y + frame.height - (firstBaselineOffsetFromTop ?? 0.0) - 0.5
         }
     }
 

@@ -34,7 +34,8 @@
          For views with multiple lines of text, this represents the baseline of the top row of text.
          */
         public var firstBaselineOffsetY: CGFloat {
-            frame.y + frame.height - firstBaselineOffsetFromTop - 0.5
+            guard firstBaselineOffsetFromTop != 0 else { return 0 }
+            return frame.y + frame.height - firstBaselineOffsetFromTop - 0.5
         }
 
         /**

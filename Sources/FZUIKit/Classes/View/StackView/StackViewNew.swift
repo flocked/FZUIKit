@@ -1,6 +1,6 @@
 //
-//  StackView.swift
-//  
+//  StackViewNew.swift
+//
 //
 //  Created by Florian Zand on 18.04.24.
 //
@@ -16,9 +16,9 @@ import FZSwiftUtils
 /**
  A view that arranges an array of views horizontally or vertically and updates their placement and sizing when the window size changes.
 
- It's a simplified stack view compared to `NSStackView` and `UIStackView`.
+ It's a simplified stack view compared to `NSStackViewNew` and `UIStackViewNew`.
  */
-open class StackView: NSUIView {
+open class StackViewNew: NSUIView {
     
     /// The distribution for an arranged subview.
     public enum ViewDistribution: Int {
@@ -34,6 +34,18 @@ open class StackView: NSUIView {
         case firstBaseline
         /// The view is distributed to the last baseline, This distribution only works when the stack view orientation is set to horizontal.
         case lastBaseline
+    }
+    
+    /// The sizing for an arranged subview.
+    public enum ViewSizing: Hashable {
+        /// The size is calculated automatically.
+        case automatic
+        /// The view has a fixed size.
+        case fixed(CGFloat)
+        /// The size is equally distributed between the view and other views set to equal.
+        case equal
+        /// The view is sited to the percentage amount.
+        case percentage(CGFloat)
     }
     
     /// Creates and returns a stack view.
@@ -64,8 +76,8 @@ open class StackView: NSUIView {
     }
     
     /// A horizontal stack view with the specified views, spacing and distribution.
-    public static func horizontal(views: [NSUIView], spacing: CGFloat = 2, distribution: ViewDistribution = .fill) -> StackView {
-        let stackView = StackView(views: views)
+    public static func horizontal(views: [NSUIView], spacing: CGFloat = 2, distribution: ViewDistribution = .fill) -> StackViewNew {
+        let stackView = StackViewNew(views: views)
         stackView.orientation = .horizontal
         stackView.spacing = spacing
         if distribution != .fill {
@@ -75,13 +87,13 @@ open class StackView: NSUIView {
     }
     
     /// A horizontal stack view with the specified views, spacing and distribution.
-    public static func horizontal(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSUIView]) -> StackView {
+    public static func horizontal(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSUIView]) -> StackViewNew {
         horizontal(views: views(), spacing: spacing, distribution: distribution)
     }
     
     /// A vertical stack view with the specified views, spacing and distribution.
-    public static func vertical(views: [NSUIView], spacing: CGFloat = 2, distribution: ViewDistribution = .fill) -> StackView {
-        let stackView = StackView(views: views)
+    public static func vertical(views: [NSUIView], spacing: CGFloat = 2, distribution: ViewDistribution = .fill) -> StackViewNew {
+        let stackView = StackViewNew(views: views)
         stackView.orientation = .vertical
         stackView.spacing = spacing
         if distribution != .fill {
@@ -91,7 +103,7 @@ open class StackView: NSUIView {
     }
     
     /// A vertical stack view with the specified views, spacing and distribution.
-    public static func vertical(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSUIView]) -> StackView {
+    public static func vertical(spacing: CGFloat = 2, distribution: ViewDistribution = .fill, @Builder views: () -> [NSUIView]) -> StackViewNew {
         vertical(views: views(), spacing: spacing, distribution: distribution)
     }
     
@@ -137,22 +149,18 @@ open class StackView: NSUIView {
         layoutArrangedSubviews()
     }
     
-    /// Sets a fixed size for an arranged subview. The default value resizes the view to a fitting size.
-    open func setFixedSize(width: CGFloat?, height: CGFloat?, for arrangedSubview: NSUIView) {
-        guard arrangedSubviews.contains(arrangedSubview) else { return }
-        let id = ObjectIdentifier(arrangedSubview).hashValue
-        if width == nil, height == nil {
-            viewFixedSizes[id] = nil
-        } else {
-            viewFixedSizes[id] = (width, height)
-        }
+    /// Sets the distribution for all arranged subviews. The default value is `fill`.
+    open func setSizing(_ sizing: ViewSizing) {
+        arrangedSubviews.forEach({ setSizing(sizing, for: $0) })
     }
     
-    enum ViewSizing {
-        case automatic
-        case fixedSize(width: CGFloat?, height: CGFloat?)
-        case equal
-        case percentage(CGFloat)
+    /// Sets the sizing for an arranged subview. The default value resizes the view is `automatic`.
+    open func setSizing(_ sizing: ViewSizing, for  arrangedSubview: NSUIView) {
+        guard arrangedSubviews.contains(arrangedSubview) else { return }
+        let id = ObjectIdentifier(arrangedSubview).hashValue
+        guard viewSizing[id] != sizing else { return }
+        viewSizing[id] = sizing
+        layoutArrangedSubviews()
     }
     
     open var edgeInsets: NSUIEdgeInsets  = .zero {
@@ -162,12 +170,9 @@ open class StackView: NSUIView {
         }
     }
     
-    var boundsCache: CGRect = .zero
     #if os(macOS)
     open override func layout() {
         super.layout()
-        guard bounds != boundsCache else { return }
-        boundsCache = bounds
         layoutArrangedSubviews()
     }
     
@@ -201,15 +206,14 @@ open class StackView: NSUIView {
     #else
     open override func layoutSubviews() {
         super.layoutSubviews()
-        guard bounds != boundsCache else { return }
-        boundsCache = bounds
         layoutArrangedSubviews()
     }
     #endif
     
     private var viewObservers: [Int: KeyValueObservation] = [:]
     private var viewDistributions: [Int: ViewDistribution] = [:]
-    private var viewFixedSizes: [Int: (width: CGFloat?, height: CGFloat?)] = [:]
+    private var viewSizing: [Int: ViewSizing] = [:]
+    private var viewCalculatedValues: [Int: CGSize] = [:]
 
     private func setupManagedViews(previous: [NSUIView] = []) {
         var removedViews: [NSUIView] = []
@@ -224,18 +228,28 @@ open class StackView: NSUIView {
                 newViews.append(managedView)
             }
         }
+        
         removedViews.forEach {
             $0.removeFromSuperview()
-            self.removeObserver(for: $0)
-            self.viewDistributions[ObjectIdentifier($0).hashValue] = nil
-            self.viewFixedSizes[ObjectIdentifier($0).hashValue] = nil
+            removeObserver(for: $0)
+            viewDistributions[ObjectIdentifier($0).hashValue] = nil
+            viewSizing[ObjectIdentifier($0).hashValue] = nil
         }
 
         newViews.forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            self.addObserver(for: $0)
-            self.viewDistributions[ObjectIdentifier($0).hashValue] = .fill
-            self.addSubview($0)
+            addObserver(for: $0)
+            viewDistributions[ObjectIdentifier($0).hashValue] = .fill
+            if let spacer = $0 as? SpacerView {
+                if let length = spacer.length {
+                    viewSizing[ObjectIdentifier($0).hashValue] = .fixed(length)
+                } else {
+                    viewSizing[ObjectIdentifier($0).hashValue] = .equal
+                }
+            } else {
+                viewSizing[ObjectIdentifier($0).hashValue] = .automatic
+            }
+            addSubview($0)
         }
         layoutArrangedSubviews()
     }
@@ -253,54 +267,79 @@ open class StackView: NSUIView {
         viewObservers[id] = nil
     }
     
-    private func layoutArrangedSubviews() {
-        guard !arrangedSubviews.isEmpty else { return }
+    struct LayoutCalculation {
+        var fixedValueSum: CGFloat = 0
+        var percentageLossSum: CGFloat = 0
+        var equalSizeCount: CGFloat = 0
+    }
+    
+    private func calculateSizes() -> LayoutCalculation? {
+        viewCalculatedValues.removeAll()
         let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
-        let spacerCount = arrangedSubviews.compactMap({$0 as? SpacerView}).filter({$0.length == nil}).count
-        
-        var sizes: [CGSize] = []
+        guard !arrangedSubviews.isEmpty else { return nil }
+        var calculation = LayoutCalculation()
         for arrangedSubview in arrangedSubviews {
-            addSubview(arrangedSubview)
-            if let spacer = arrangedSubview as? SpacerView {
-                if let length = spacer.length {
-                    sizes.append(orientation == .horizontal ? CGSize(length, bounds.height) : CGSize(bounds.width, length))
-                } else {
-                    sizes.append(CGSize(-1, -1))
-                }
-            } else {
+            let id = ObjectIdentifier(arrangedSubview).hashValue
+            let sizing = viewSizing(for: arrangedSubview)
+            switch sizing {
+            case .equal:
+                calculation.equalSizeCount += 1
+            case .fixed(let value):
+                calculation.fixedValueSum += value
+                viewCalculatedValues[id] = orientation == .horizontal ? CGSize(value, arrangedSubview.frame.height) : CGSize(arrangedSubview.frame.width, value)
+            case .automatic:
                 #if os(macOS)
                 var fittingSize = arrangedSubview.fittingSize
                 #else
                 var fittingSize = arrangedSubview.sizeThatFits(bounds.size)
                 #endif
                 fittingSize = fittingSize.width <= 0 || fittingSize.height <= 0 ? arrangedSubview.bounds.size : fittingSize
-                sizes.append(orientation == .horizontal ? fittingSize.clamped(maxHeight: bounds.height) : fittingSize.clamped(maxWidth: bounds.width))
+                calculation.fixedValueSum += orientation == .horizontal ? fittingSize.width : fittingSize.height
+                viewCalculatedValues[id] = fittingSize
+            case .percentage(let percentage):
+                calculation.percentageLossSum += percentage
             }
         }
+        return calculation
+    }
+    
+    private func layoutArrangedSubviews() {
+        let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
+        guard !arrangedSubviews.isEmpty, let calculation = calculateSizes() else { return }
+        var offsetTracker: CGFloat = orientation == .horizontal ? edgeInsets.left : edgeInsets.bottom
+        let width = bounds.size.width - (orientation == .horizontal ? calculation.fixedValueSum : 0.0) - edgeInsets.width
+        let height = bounds.size.height - (orientation == .horizontal ? 0.0 : calculation.fixedValueSum) - edgeInsets.height
+        for arrangedSubview in arrangedSubviews {
+            let id = ObjectIdentifier(arrangedSubview).hashValue
+            let sizing = viewSizing(for: arrangedSubview)
+            let layoutValue: CGFloat = orientation == .horizontal ? width : height
+            var ratio: CGFloat = 1
+            var size: CGSize?
+            switch sizing {
+            case .percentage(let percentage):
+                ratio = percentage / 100
+            case .equal:
+                ratio = (1.0 - calculation.percentageLossSum) / calculation.equalSizeCount
+            case .fixed, .automatic:
+                size = viewCalculatedValues[id]!
+            }
+            var viewFrame: CGRect = .zero
+            viewFrame.origin.x = orientation == .horizontal ? offsetTracker : 0
+            viewFrame.origin.y = orientation == .horizontal ? 0 : offsetTracker
+            if let size = size {
+                viewFrame.size = size
+            } else {
+                viewFrame.size.width = orientation == .horizontal ? layoutValue * ratio : width
+                viewFrame.size.height = orientation == .horizontal ? height : layoutValue * ratio
+            }
+            arrangedSubview.frame = viewFrame
+            offsetTracker += orientation == .horizontal ? viewFrame.width : viewFrame.height
+        }
+        layoutDistributions()
+    }
+    
+    private func layoutDistributions() {
         if orientation == .horizontal {
-            let remainingWidth = frame.width - sizes.filter({$0 != CGSize(-1, -1)}).compactMap({$0.width}).sum() - (CGFloat(arrangedSubviews.count-1) * spacing) - edgeInsets.width
-            if remainingWidth < -1.0 {
-               let remove = (remainingWidth * -1) / CGFloat(arrangedSubviews.count - spacerCount)
-                sizes = sizes.compactMap({
-                    if $0 == CGSize(-1, -1) {
-                        return $0 }
-                    else {
-                        return CGSize($0.width - remove, $0.height)
-                    }
-                })
-            }
-            let spacerSize = CGSize(remainingWidth / CGFloat(spacerCount), bounds.height)
-            var xValue = edgeInsets.left
-            for (index, arrangedSubview) in arrangedSubviews.enumerated() {
-                arrangedSubview.frame.origin.x = xValue
-                var size = sizes[index]
-                if let fixedSize = fixedSize(for: arrangedSubview) {
-                    size.width = fixedSize.width ?? size.width
-                    size.height = fixedSize.height ?? size.height
-                }
-                arrangedSubview.frame.size = size == CGSize(-1,-1) ? spacerSize : size
-                xValue = xValue + arrangedSubview.frame.size.width + spacing
-            }
             var baselineOffsets: [CGFloat] = []
             for arrangedSubview in arrangedSubviews {
                 let distribution = distribution(for: arrangedSubview) ?? .fill
@@ -336,19 +375,6 @@ open class StackView: NSUIView {
                 }
             }
         } else {
-            let remainingHeight = frame.height - sizes.filter({$0 != CGSize(-1, -1)}).compactMap({$0.height}).sum() - (CGFloat(arrangedSubviews.count-1) * spacing) - edgeInsets.height
-            let spacerSize = CGSize(bounds.width, remainingHeight / CGFloat(spacerCount))
-            var yValue =  edgeInsets.bottom
-            for (index, arrangedSubview) in arrangedSubviews.enumerated() {
-                arrangedSubview.frame.origin.y = yValue
-                var size = sizes[index]
-                if let fixedSize = fixedSize(for: arrangedSubview) {
-                    size.width = fixedSize.width ?? size.width
-                    size.height = fixedSize.height ?? size.height
-                }
-                arrangedSubview.frame.size = size == CGSize(-1,-1) ? spacerSize : size
-                yValue = yValue + arrangedSubview.frame.size.height + spacing
-            }
             for arrangedSubview in arrangedSubviews {
                 let distribution = distribution(for: arrangedSubview) ?? .fill
                 switch distribution {
@@ -370,12 +396,12 @@ open class StackView: NSUIView {
         viewDistributions[ObjectIdentifier(view).hashValue]
     }
     
-    private func fixedSize(for view: NSUIView) -> (width: CGFloat?, height: CGFloat?)? {
-        viewFixedSizes[ObjectIdentifier(view).hashValue]
+    private func viewSizing(for view: NSUIView) -> ViewSizing {
+        viewSizing[ObjectIdentifier(view).hashValue] ?? .automatic
     }
 }
 
-extension StackView {
+extension StackViewNew {
     /// A function builder type that produces an array of views.
     @resultBuilder
     public enum Builder {
