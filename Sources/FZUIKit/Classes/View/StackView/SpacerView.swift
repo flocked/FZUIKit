@@ -11,20 +11,10 @@
 #elseif os(iOS) || os(tvOS)
     import UIKit
 #endif
-import FZSwiftUtils
 
 /// A flexible spacer view for ``StackView`` that expands along the major axis of it's containing stack view.
 open class SpacerView: NSUIView {
     public var length: CGFloat? = nil
-    
-    #if os(macOS)
-    open override var fittingSize: NSSize {
-        if let length = length {
-            return CGSize(length, length)
-        }
-        return CGSize(-1, -1)
-    }
-    #endif
     
     public init() {
         super.init(frame: .zero)
@@ -40,6 +30,13 @@ open class SpacerView: NSUIView {
     }
     
     #if os(macOS)
+    open override var fittingSize: NSSize {
+        if let length = length {
+            return CGSize(length, length)
+        }
+        return CGSize(-1, -1)
+    }
+    
     open override var firstBaselineOffsetFromTop: CGFloat {
         bounds.height-0.5
     }

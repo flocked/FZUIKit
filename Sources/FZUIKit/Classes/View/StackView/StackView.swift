@@ -13,6 +13,11 @@
 #endif
 import FZSwiftUtils
 
+/**
+ A view that arranges an array of views horizontally or vertically and updates their placement and sizing when the window size changes.
+
+ It's a simplified stack view compared to `NSStackView` and `UIStackView`.
+ */
 open class StackView: NSUIView {
     
     /// The distribution for an arranged subview.
@@ -130,6 +135,13 @@ open class StackView: NSUIView {
         layoutArrangedSubviews()
     }
     
+    open var edgeInsets: NSUIEdgeInsets  = .zero {
+        didSet {
+            guard oldValue != edgeInsets else { return }
+            layoutArrangedSubviews()
+        }
+    }
+    
     #if os(macOS)
     open override func layout() {
         super.layout()
@@ -238,7 +250,7 @@ open class StackView: NSUIView {
                     sizes.append(fittingSize.clamped(maxHeight: bounds.height))
                 }
             }
-            let remainingWidth = frame.width - sizes.filter({$0 != CGSize(-1, -1)}).compactMap({$0.width}).sum() - (CGFloat(arrangedSubviews.count-1) * spacing)
+            let remainingWidth = frame.width - sizes.filter({$0 != CGSize(-1, -1)}).compactMap({$0.width}).sum() - (CGFloat(arrangedSubviews.count-1) * spacing) - edgeInsets.width
             if remainingWidth < -1.0 {
                
                let remove = (remainingWidth * -1) / CGFloat(arrangedSubviews.count - spacerCount)
@@ -252,7 +264,7 @@ open class StackView: NSUIView {
             }
             
             let spacerSize = CGSize(remainingWidth / CGFloat(spacerCount), bounds.height)
-            var xValue = 0.0
+            var xValue = edgeInsets.left
             for (index, arrangedSubview) in arrangedSubviews.enumerated() {
                 arrangedSubview.frame.origin.x = xValue
                 let size = sizes[index]
@@ -266,12 +278,12 @@ open class StackView: NSUIView {
                 case .center:
                     arrangedSubview.center.y = bounds.center.y
                 case .leading:
-                    arrangedSubview.frame.top = bounds.top
+                    arrangedSubview.frame.top = bounds.top - edgeInsets.top
                 case .trailing:
-                    arrangedSubview.frame.bottom = bounds.bottom
+                    arrangedSubview.frame.bottom = bounds.bottom + edgeInsets.bottom
                 case .fill:
-                    arrangedSubview.frame.bottom = bounds.bottom
-                    arrangedSubview.frame.size.height = bounds.height
+                    arrangedSubview.frame.bottom = bounds.bottom + edgeInsets.bottom
+                    arrangedSubview.frame.size.height = bounds.height - edgeInsets.height
                 case .firstBaseline:
                     arrangedSubview.frame.origin.y = 0
                     arrangedSubview.frame.origin.y = 0-arrangedSubview.firstBaselineOffsetY
@@ -281,7 +293,7 @@ open class StackView: NSUIView {
             let baselineOffset =  0 - (baselineOffsets.min() ?? 0)
             for arrangedSubview in arrangedSubviews {
                 if distribution(for: arrangedSubview) == .firstBaseline {
-                    arrangedSubview.frame.origin.y += baselineOffset
+                    arrangedSubview.frame.origin.y += baselineOffset + edgeInsets.bottom
                 }
             }
         } else {
@@ -304,9 +316,9 @@ open class StackView: NSUIView {
                     sizes.append(fittingSize.clamped(maxWidth: bounds.width))
                 }
             }
-            let remainingHeight = frame.height - sizes.filter({$0 != CGSize(-1, -1)}).compactMap({$0.height}).sum() - (CGFloat(arrangedSubviews.count-1) * spacing)
+            let remainingHeight = frame.height - sizes.filter({$0 != CGSize(-1, -1)}).compactMap({$0.height}).sum() - (CGFloat(arrangedSubviews.count-1) * spacing) - edgeInsets.height
             let spacerSize = CGSize(bounds.width, remainingHeight / CGFloat(spacerCount))
-            var yValue = 0.0
+            var yValue =  edgeInsets.bottom
             for (index, arrangedSubview) in arrangedSubviews.enumerated() {
                 arrangedSubview.frame.origin.y = yValue
                 let size = sizes[index]
@@ -319,18 +331,18 @@ open class StackView: NSUIView {
                 case .center:
                     arrangedSubview.center.x = bounds.center.x
                 case .leading:
-                    arrangedSubview.frame.left = bounds.left
+                    arrangedSubview.frame.left = bounds.left + edgeInsets.left
                 case .trailing:
-                    arrangedSubview.frame.right = bounds.right
+                    arrangedSubview.frame.right = bounds.right - edgeInsets.right
                 case .fill, .firstBaseline:
-                    arrangedSubview.frame.left = bounds.left
-                    arrangedSubview.frame.size.width = bounds.width
+                    arrangedSubview.frame.left = bounds.left + edgeInsets.left
+                    arrangedSubview.frame.size.width = bounds.width - edgeInsets.width
                 }
             }
         }
     }
     
-    func distribution(for view: NSUIView) -> ViewDistribution? {
+    private func distribution(for view: NSUIView) -> ViewDistribution? {
         viewDistributions[ObjectIdentifier(view).hashValue]
     }
 }
