@@ -379,9 +379,4 @@ extension SimpleStackView {
         }
     }
 }
-
-/// A flexible spacer view for ``SimpleStackView`` that expands along the major axis of its containing stack view.
-open class SpacerView: NSUIView {
-
-}
 #endif

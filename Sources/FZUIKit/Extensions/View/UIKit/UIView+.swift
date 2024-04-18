@@ -190,6 +190,14 @@
             get { layer.shadowPath }
             set { layer.shadowPath = newValue }
         }
+        
+        var firstBaselineOffsetFromTop: CGFloat? {
+            value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
+        }
+        
+        var firstBaselineOffsetY: CGFloat {
+            frame.y + frame.height - (firstBaselineOffsetFromTop ?? 0.0) - 0.5
+        }
     }
 
     extension UIView.ContentMode: CaseIterable {
