@@ -18,22 +18,20 @@ DisplayLink
 - Copyright (c) 2019, Tim Donnelly
 - https://github.com/timdonnelly/DisplayLink
 
+NSLayoutConstraint+
+- Copyright ©2018 Peter Baumgartner. All rights reserved.
+- https://github.com/boinx/BXUIKit
+
+NSMenuItem+HighlightableView
+- Copyright © 2022 Darren Ford
+
+NSUICollectionViewLayout+Waterfall
+- Copyright (c) 2014 Nicholas Tau. All rights reserved.
+
 TrackingArea
 - Copyright (c) 2023 Darren Ford
 - https://github.com/dagronf/DSFAppKitBuilder
 
-
-NSMenuItem+HighlightableView
-Copyright © 2022 Darren Ford
-
-//  NSLayoutConstraint+.swift
-
-//  Some parts are taken from https://github.com/boinx/BXUIKit
-//  Copyright ©2018 Peter Baumgartner. All rights reserved.
-
-
-//  NSUICollectionViewLayout+Waterfall.swift
-//
-//  Parts taken from:
-//  Created by Nicholas Tau on 6/30/14.
-//  Copyright (c) 2014 Nicholas Tau. All rights reserved.
+SimpleStackView
+- Copyright (c) 2019 Maximilian Mackh
+- https://github.com/mmackh/BaseComponents
