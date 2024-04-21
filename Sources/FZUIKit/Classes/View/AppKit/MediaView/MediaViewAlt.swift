@@ -340,8 +340,9 @@
             didSet { setupPlaybackHandler() }
         }
         
-        func setupPlaybackHandler() {
+        func setupPlaybackHandler(replace: Bool = true) {
             if let videoPlaybackHandler = videoPlaybackHandler {
+                guard mediaType == .video else { return } 
                 playbackObserver = mediaPlayer.addPlaybackObserver(timeInterval: playbackHandlerInterval) { time in
                     videoPlaybackHandler(time)
                 }
@@ -384,11 +385,13 @@
         private func showVideoView() {
             videoView.isHidden = false
             videoView.resizingContentOverlayView.addSubview(overlayContentView)
+            setupPlaybackHandler()
         }
 
         private func hideVideoView() {
             updatePreviousPlaybackState()
             mediaPlayer.pause()
+            playbackObserver = nil
             mediaPlayer.replaceCurrentItem(with: nil)
             videoView.isHidden = true
         }
