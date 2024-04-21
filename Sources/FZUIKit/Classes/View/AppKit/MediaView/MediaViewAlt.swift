@@ -1,5 +1,5 @@
 //
-//  MediaViewAlt.swift
+//  MediaView.swift
 //
 //
 //  Created by Florian Zand on 30.05.22.
@@ -11,14 +11,15 @@
     import Foundation
     import FZSwiftUtils
 
-    open class MediaViewAlt: NSView {
-        
+    /// A view that displays media.
+    open class MediaView: NSView {
         let imageView = ImageView().isHidden(true)
         let videoView = NoMenuPlayerView().isHidden(true)
-        private let videoPlayer = AVPlayer()
+        private let mediaPlayer = AVPlayer()
         private var playbackObserver: AVPlayerTimeObservation?
         private var previousVideoPlaybackState: AVPlayer.State = .isStopped
-        
+        private var _mediaURL: URL?
+
         /// Media type.
         public enum MediaType {
             /// Video.
@@ -29,8 +30,149 @@
             case gif
         }
         
+        /// The scaling of the media.
+        public enum MediaScaling: Int {
+            /// The media is resized to fit the entire bounds rectangle.
+            case resize
+            /// The media is resized to completely fill the bounds rectangle, while still preserving the aspect of the image.
+            case scaleToFill
+            /// The media is resized to fit the bounds rectangle, preserving the aspect of the image.
+            case scaleToFit
+            /// The media isn't resized.
+            case none
+            
+            var imageScaling: ImageView.ImageScaling {
+                ImageView.ImageScaling(rawValue: rawValue)!
+            }
+            var videoGravity: AVLayerVideoGravity {
+                AVLayerVideoGravity(imageScaling: imageScaling)
+            }
+        }
+        
+        public var mediaURL: URL? {
+            get { _mediaURL }
+            set {
+                _mediaURL = newValue
+                pause()
+                if let mediaURL = newValue {
+                    if mediaURL.fileType == .video {
+                        setupAsset(AVAsset(url: mediaURL))
+                    } else if mediaURL.fileType == .image || mediaURL.fileType == .gif, let image = NSImage(contentsOf: mediaURL) {
+                        self.image = image
+                    } else {
+                        mediaType = nil
+                        _mediaURL = nil
+                        hideImageView()
+                        hideVideoView()
+                    }
+                } else {
+                    mediaType = nil
+                    hideImageView()
+                    hideVideoView()
+                }
+                invalidateIntrinsicContentSize()
+            }
+        }
+
+        /// The image displayed in the media view.
+        public var image: NSImage? {
+            get { imageView.image }
+            set {
+                imageView.image = newValue
+                if let image = newValue {
+                    showImageView()
+                    hideVideoView()
+                    mediaType = imageView.isAnimatable ? .gif : .image
+                    _mediaURL = nil
+                    resizeOverlayView()
+                } else if mediaType == .image {
+                    hideImageView()
+                    _mediaURL = nil
+                    mediaType = nil
+                }
+            }
+        }
+
+        /// The images displayed in the media view.
+        public var images: [NSImage] {
+            get { imageView.images }
+            set {
+                imageView.images = newValue
+                if newValue.isEmpty == false {
+                    showImageView()
+                    hideVideoView()
+                    mediaType = imageView.isAnimatable ? .gif : .image
+                    _mediaURL = nil
+                    resizeOverlayView()
+                } else if mediaType == .image {
+                    hideImageView()
+                    _mediaURL = nil
+                    mediaType = nil
+                }
+            }
+        }
+        
+        /// The media asset played by the media view.
+        public var asset: AVAsset? {
+            get { mediaPlayer.currentItem?.asset }
+            set {
+                setupAsset(newValue)
+                _mediaURL = (asset as? AVURLAsset)?.url
+            }
+        }
+        
+        private func setupAsset(_ asset: AVAsset?) {
+            if let asset = asset {
+                updatePreviousPlaybackState()
+                mediaPlayer.pause()
+                mediaPlayer.replaceCurrentItem(with: AVPlayerItem(asset: asset))
+                showVideoView()
+                hideImageView()
+                mediaType = .video
+                resizeOverlayView()
+                switch videoPlaybackOption {
+                case .autostart:
+                    mediaPlayer.play()
+                case .previousPlaybackState:
+                    switch previousVideoPlaybackState {
+                    case .isPlaying:
+                        mediaPlayer.play()
+                    default:
+                        mediaPlayer.pause()
+                    }
+                case .pause:
+                    mediaPlayer.pause()
+                }
+            } else if mediaType == .video {
+                hideVideoView()
+                _mediaURL = nil
+                mediaType = nil
+            }
+        }
+        
         /// The media type currently displayed.
         public private(set) var mediaType: MediaType?
+                
+        /**
+         A view for hosting layered content on top of the media view.
+
+         Use this view to host content that you want layered on top of the media view. This view is managed by the media view itself and is automatically sized to fill the media view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
+         
+         The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
+         */
+        public let overlayContentView = NSView()
+        
+        /// The current size and position of the media that displays within the media view’s bounds.
+        public var mediaBounds: CGRect {
+            switch mediaType {
+            case .video:
+                return videoView.videoBounds
+            case .image, .gif:
+                return imageView.imageBounds
+            case nil:
+                return .zero
+            }
+        }
         
         /// The playback behavior for animated images.
         open var imageAnimationPlayback: ImageView.AnimationPlaybackOption {
@@ -58,33 +200,22 @@
             set { imageView.animationRepeatCount = newValue }
         }
 
-        public var overlayView: NSView? {
-            didSet {
-                if let overlayView = overlayView, oldValue != overlayView {
-                    oldValue?.removeFromSuperview()
-                    addSubview(withConstraint: overlayView)
-                } else {
-                    oldValue?.removeFromSuperview()
-                }
-            }
-        }
-
-        /// A Boolean value that indicates whether videos loop.
-        public var loopVideos: Bool {
-            get { videoPlayer.isLooping }
-            set { videoPlayer.isLooping = newValue }
+        /// A Boolean value that indicates whether media is looped.
+        public var isLooping: Bool {
+            get { mediaPlayer.isLooping }
+            set { mediaPlayer.isLooping = newValue }
         }
         
-        /// A Boolean value that indicates whether the audio of videos is muted.
+        /// A Boolean value that indicates whether media is muted.
         public var isMuted: Bool {
-            get { videoPlayer.isMuted }
-            set { videoPlayer.isMuted = newValue }
+            get { mediaPlayer.isMuted }
+            set { mediaPlayer.isMuted = newValue }
         }
         
-        /// The volume of videos.
+        /// The volume of the media.
         public var volume: Float {
-            get { videoPlayer.volume }
-            set { videoPlayer.volume = newValue }
+            get { mediaPlayer.volume }
+            set { mediaPlayer.volume = newValue }
         }
         
         /// The control style for videos.
@@ -93,7 +224,7 @@
             set { videoView.controlsStyle = newValue }
         }
         
-        /// Playback option when loading a new video.
+        /// Playback option when loading new me dia.
         public var videoPlaybackOption: VideoPlaybackOption = .autostart
         
         /// Playback option when loading a new video.
@@ -107,193 +238,95 @@
         }
         
         /// The scaling of the media.
-        public enum MediaScaling: Int {
-            /// The media is resized to fit the entire bounds rectangle.
-            case resize
-            /// The media is resized to completely fill the bounds rectangle, while still preserving the aspect of the image.
-            case scaleToFill
-            /// The media is resized to fit the bounds rectangle, preserving the aspect of the image.
-            case scaleToFit
-            /// The media isn't resized.
-            case none
-            
-            var imageScaling: ImageView.ImageScaling {
-                ImageView.ImageScaling(rawValue: rawValue)!
-            }
-            var videoGravity: AVLayerVideoGravity {
-                AVLayerVideoGravity(imageScaling: imageScaling)
-            }
-        }
-
-        /// The scaling of the media.
         public var mediaScaling: MediaScaling = .scaleToFit {
             didSet {
                 imageView.imageScaling = mediaScaling.imageScaling
                 videoView.videoGravity = mediaScaling.videoGravity
+                resizeOverlayView()
             }
         }
 
-        override public var intrinsicContentSize: NSSize {
-            if imageView.displayingImage != nil {
-                return imageView.intrinsicContentSize
-            }
-            if let videoSize = asset?.videoNaturalSize {
-                return videoSize
-            }
-            return .zero
-        }
-
-        public var mediaURL: URL? {
-            didSet {
-                pause()
-                if let mediaURL = mediaURL {
-                    updatePreviousPlaybackState()
-                    if mediaURL.fileType == .video {
-                        asset = AVAsset(url: mediaURL)
-                    } else if mediaURL.fileType == .image || mediaURL.fileType == .gif, let image = NSImage(contentsOf: mediaURL) {
-                        self.image = image
-                    } else {
-                        mediaType = nil
-                        self.mediaURL = nil
-                        hideImageView()
-                        hideVideoView()
-                    }
-                } else {
-                    mediaType = nil
-                    hideImageView()
-                    hideVideoView()
-                }
-                invalidateIntrinsicContentSize()
-            }
-        }
-
-        public var asset: AVAsset? {
-            get { videoPlayer.currentItem?.asset }
-            set {
-                if let asset = newValue {
-                    showVideoView()
-                    pause()
-                    mediaType = .video
-                    videoPlayer.pause()
-                    videoPlayer.replaceCurrentItem(with: AVPlayerItem(asset: asset))
-                    switch videoPlaybackOption {
-                    case .autostart:
-                        videoPlayer.play()
-                    case .previousPlaybackState:
-                        switch previousVideoPlaybackState {
-                        case .isPlaying:
-                            videoPlayer.play()
-                        default:
-                            videoPlayer.pause()
-                        }
-                    case .pause:
-                        videoPlayer.pause()
-                    }
-                    hideImageView()
-                } else if mediaType == .video {
-                    hideVideoView()
-                    mediaURL = nil
-                    mediaType = nil
-                }
-            }
-        }
-
-        /// The image displayed in the media view.
-        public var image: NSImage? {
-            get { imageView.image }
-            set {
-                if let image = newValue {
-                    showImageView()
-                    imageView.image = image
-                    hideVideoView()
-                    mediaType = imageView.isAnimatable ? .gif : .image
-                } else if mediaType == .image {
-                    hideImageView()
-                    mediaURL = nil
-                    mediaType = nil
-                }
-            }
-        }
-
-        /// The images displayed in the media view.
-        public var images: [NSImage] {
-            get { imageView.images }
-            set {
-                imageView.images = newValue
-                if newValue.isEmpty == false {
-                    showImageView()
-                    hideVideoView()
-                    mediaType = imageView.isAnimatable ? .gif : .image
-                } else if mediaType == .image {
-                    hideImageView()
-                    mediaURL = nil
-                    mediaType = nil
-                }
-            }
-        }
-
+        /// The image symbol configuration.
         @available(macOS 12.0, iOS 13.0, *)
-        public var symbolConfiguration: NSUIImage.SymbolConfiguration? {
+        public var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
             get { imageView.symbolConfiguration }
             set { imageView.symbolConfiguration = newValue }
         }
 
-        public var tintColor: NSColor? {
+        /// The image tint color for template and symbol images.
+        public var imageTintColor: NSColor? {
             get { imageView.tintColor }
             set { imageView.tintColor = newValue }
         }
         
+        /// Starts playback of the media.
         public func play() {
             imageView.startAnimating()
-            videoPlayer.play()
+            mediaPlayer.play()
         }
 
+        /// Pauses playback of the media.
         public func pause() {
             imageView.pauseAnimating()
-            videoPlayer.pause()
+            mediaPlayer.pause()
         }
 
+        /// Stops playback of the media.
         public func stop() {
             imageView.stopAnimating()
-            videoPlayer.stop()
+            mediaPlayer.stop()
         }
 
+        /// Toggles the playback between play and pause.
         public func togglePlayback() {
             imageView.toggleAnimating()
-            videoPlayer.togglePlayback()
+            mediaPlayer.togglePlayback()
         }
 
+        /// A Boolean value that indicates whether the media is playing.
         public var isPlaying: Bool {
-            imageView.isAnimating ? true : videoPlayer.state == .isPlaying
+            imageView.isAnimating ? true : mediaPlayer.state == .isPlaying
         }
 
-        public func seek(to interval: TimeDuration, completionHandler: ((Bool) -> Void)? = nil) {
-            if mediaType == .video {
-                videoPlayer.seek(to: interval, completionHandler: completionHandler)
-            }
+        /**
+         Requests that the player seek to a specified time.
+
+         - Parameters:
+            - time: The time to which to seek.
+            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+                - finished: A Boolean value that indicates whether the seek operation completed.
+         */
+        public func seekVideo(to interval: TimeDuration, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaPlayer.seek(to: interval, completionHandler: completionHandler)
         }
 
-        public func seek(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
-            if mediaType == .video {
-                videoPlayer.seek(toPercentage: percentage)
-            }
+        /**
+         Requests that the player seek to a specified percentage.
+
+         - Parameters:
+            - percentage: The percentage to which to seek.
+            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+                - finished: A Boolean value that indicates whether the seek operation completed.
+         */
+        public func seekVideo(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaPlayer.seek(toPercentage: percentage)
         }
 
+        /// The duration of the current video.
+        public var videoDuration: TimeDuration {
+            mediaPlayer.duration
+        }
+        
+        /// The playback time of the current video.
         public var videoPlaybackTime: TimeDuration {
-            get { 
-                if let seconds = videoPlayer.currentItem?.currentTime().seconds {
-                    return .seconds(seconds)
-                }
-                return .zero
-            }
-            set { videoPlayer.seek(to: newValue) }
+            get { mediaPlayer.currentTimeDuration }
+            set { mediaPlayer.currentTimeDuration = newValue }
         }
 
-        public var videoDuration: TimeDuration { .seconds(videoPlayer.currentItem?.duration.seconds ?? 0) }
-
-        public var videoPlaybackPosition: Double {
-            get { videoPlayer.currentItem?.playbackPercentage ?? .zero }
-            set { videoPlayer.seek(toPercentage: newValue) }
+        /// The playback percentage of the current video (between `0` and `1.0`).
+        public var videoPlaybackPercentage: Double {
+            get { mediaPlayer.playbackPercentage }
+            set { mediaPlayer.playbackPercentage = newValue }
         }
         
         public var playbackHandlerInterval: TimeInterval = 0.1 {
@@ -309,7 +342,7 @@
         
         func setupPlaybackHandler() {
             if let videoPlaybackHandler = videoPlaybackHandler {
-                playbackObserver = videoPlayer.addPlaybackObserver(timeInterval: playbackHandlerInterval) { time in
+                playbackObserver = mediaPlayer.addPlaybackObserver(timeInterval: playbackHandlerInterval) { time in
                     videoPlaybackHandler(time)
                 }
             } else {
@@ -317,7 +350,7 @@
             }
         }
 
-        override public var fittingSize: NSSize {
+        override public var fittingSize: CGSize {
             if mediaURL?.fileType == .image || mediaURL?.fileType == .gif {
                 return imageView.fittingSize
             } else if mediaURL?.fileType == .video {
@@ -325,19 +358,22 @@
             }
             return .zero
         }
+        
+        override public var intrinsicContentSize: NSSize {
+            switch mediaType {
+            case .video: return videoView.intrinsicContentSize
+            case .image, .gif: return imageView.intrinsicContentSize
+            case nil: return super.intrinsicContentSize
+            }
+        }
 
         public func sizeToFit() {
             frame.size = fittingSize
         }
 
-        private enum VideoPlaybackState: Int, Hashable {
-            case playing
-            case paused
-            case stopped
-        }
-
         private func showImageView() {
             imageView.isHidden = false
+            imageView.overlayContentView.addSubview(overlayContentView)
         }
 
         private func hideImageView() {
@@ -347,29 +383,49 @@
 
         private func showVideoView() {
             videoView.isHidden = false
+            videoView.resizingContentOverlayView.addSubview(overlayContentView)
         }
 
         private func hideVideoView() {
             updatePreviousPlaybackState()
-            videoPlayer.pause()
-            videoPlayer.replaceCurrentItem(with: nil)
+            mediaPlayer.pause()
+            mediaPlayer.replaceCurrentItem(with: nil)
             videoView.isHidden = true
         }
 
         private func updatePreviousPlaybackState() {
-            if let player = videoView.player {
-                previousVideoPlaybackState = player.state
+            if mediaPlayer.currentItem != nil {
+                previousVideoPlaybackState = mediaPlayer.state
             }
         }
+        
+        private func resizeOverlayView() {
+            if let contentView = overlayContentView.superview {
+                overlayContentView.frame.size = contentView.bounds.size
+            }
+        }
+        
+        open override func layout() {
+            super.layout()
+            resizeOverlayView()
+        }
 
+        /// Creates a media view that displays the media at the specified url.
         public init(mediaURL: URL) {
             super.init(frame: .zero)
             self.mediaURL = mediaURL
         }
-
-        public init(frame: CGRect, mediaURL: URL) {
-            super.init(frame: frame)
-            self.mediaURL = mediaURL
+        
+        /// Creates a media view that plays the specified asset.
+        public init(asset: AVAsset) {
+            super.init(frame: .zero)
+            self.asset = asset
+        }
+        
+        /// Creates a media view that plays the specified asset.
+        public init(image: NSImage) {
+            super.init(frame: .zero)
+            self.image = image
         }
 
         override init(frame frameRect: NSRect) {
@@ -387,12 +443,14 @@
             clipsToBounds = true
             mediaScaling = .scaleToFit
             videoView.controlsStyle = .inline
-            videoView.player = videoPlayer
-            videoPlayer.volume = 0.2
+            videoView.player = mediaPlayer
+            mediaPlayer.volume = 0.8
+            overlayContentView.clipsToBounds = true
             addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
         }
         
+        /*
         /// The appearance of the media.
         public struct MediaAppearance: Hashable {
             /// The background color of the media.
@@ -423,6 +481,7 @@
                 videoView.innerShadow = mediaAppearance.innerShadow
             }
         }
+        */
 
         override open func keyDown(with event: NSEvent) {
             if (handlers.keyDown?(event) ?? false) == false {
@@ -460,5 +519,163 @@
         /// Handlers for the media view.
         public var handlers: Handlers = .init()
     }
+
+class NoMenuPlayerView: AVPlayerView {
+    public override var acceptsFirstResponder: Bool {
+        false
+    }
+    
+    public override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        false
+    }
+    
+    override func menu(for event: NSEvent) -> NSMenu? {
+        return nil
+    }
+    
+    public override var menu: NSMenu? {
+        get { return nil }
+        set { }
+    }
+    
+    public override func rightMouseDown(with event: NSEvent) {
+        Swift.print("video rightMouseDown")
+    }
+    
+    public override func rightMouseUp(with event: NSEvent) {
+        Swift.print("video rightMouseUp")
+    }
+    
+    public override func mouseDown(with event: NSEvent) {
+        Swift.print("video mouseDown")
+    }
+    
+    public override func mouseUp(with event: NSEvent) {
+        Swift.print("video mouseUp")
+    }
+    
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
+    }
+    
+}
+
+    public class NoKeyDownPlayerView: AVPlayerView {
+        
+        public override init(frame frameRect: NSRect) {
+            super.init(frame: frameRect)
+            sharedInit()
+        }
+        
+        public required init?(coder: NSCoder) {
+            super.init(coder: coder)
+            sharedInit()
+        }
+        
+        public init() {
+            super.init(frame: .zero)
+            sharedInit()
+        }
+        
+        func sharedInit() {
+            if #available(macOS 13.0, *) {
+                allowsMagnification = false
+                allowsVideoFrameAnalysis = false
+            }
+            allowsPictureInPicturePlayback = false
+        }
+                
+        var _menu: NSMenu? = nil
+        public override var menu: NSMenu? {
+            get { _menu }
+            set { _menu = newValue }
+        }
+        
+        public override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            !ignoreMouseDown
+        }
+
+        /// A Boolean value that indicates whether to ignore `keyDown` events.
+        public var ignoreKeyDown = true
+
+        public var ignoreMouseDown = true
+
+        /// Handlers for a player view.
+        public struct Handlers {
+            /// Handler that gets called whenever the player view receives a `keyDown` event.
+            public var keyDown: ((NSEvent) -> (Bool))?
+
+            /// Handler that gets called whenever the player view receives a `mouseDown` event.
+            public var mouseDown: ((NSEvent) -> (Bool))?
+
+            /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
+            public var rightMouseDown: ((NSEvent) -> (Bool))?
+
+            /// Handler that gets called whenever the player view receives a `flagsChanged` event.
+            public var flagsChanged: ((NSEvent) -> (Bool))?
+        }
+
+        /// Handlers for the player view.
+        public var handlers: Handlers = .init()
+
+        override public func mouseDown(with event: NSEvent) {
+            if (handlers.mouseDown?(event) ?? false) == false {
+                if ignoreMouseDown {
+                    nextResponder?.mouseDown(with: event)
+                } else {
+                    super.mouseDown(with: event)
+                }
+            }
+        }
+        
+        public override func mouseUp(with event: NSEvent) {
+            
+        }
+        
+        public override var acceptsFirstResponder: Bool {
+            return false
+        }
+
+        override public func rightMouseDown(with event: NSEvent) {
+            if (handlers.rightMouseDown?(event) ?? false) == false {
+                super.rightMouseDown(with: event)
+            }
+        }
+    
+        public override func rightMouseUp(with event: NSEvent) {
+            
+        }
+
+        override public func keyDown(with event: NSEvent) {
+            if (handlers.keyDown?(event) ?? false) == false {
+                if ignoreKeyDown {
+                    nextResponder?.keyDown(with: event)
+                } else {
+                    super.keyDown(with: event)
+                }
+            }
+        }
+
+        override public func flagsChanged(with event: NSEvent) {
+            if (handlers.flagsChanged?(event) ?? false) == false {
+                super.flagsChanged(with: event)
+            }
+        }
+    }
+
+extension AVLayerVideoGravity {
+    init(imageScaling: ImageView.ImageScaling) {
+        switch imageScaling {
+        case .scaleToFill:
+            self = .resizeAspectFill
+        case .scaleToFit:
+            self = .resizeAspect
+        case .resize:
+            self = .resize
+        default:
+            self = .resizeAspectFill
+        }
+    }
+}
 
 #endif

@@ -80,7 +80,6 @@ public extension AVPlayer {
      */
     func seek(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
         guard let currentItem = currentItem else { return }
-        
         let duration = currentItem.duration
         let to: Double = duration.seconds * percentage.clamped(to: 0.0...1.0)
         let seekTo = CMTime(seconds: to)
@@ -109,13 +108,25 @@ public extension AVPlayer {
     }
 
     /// The remaining time until the player reaches to end.
-    var remainingTime: CMTime? {
-        currentItem?.remainingTime
+    var remainingTime: TimeDuration {
+        currentItem?.remainingTime ?? .zero
     }
 
-    /// The percentage played.
-    var playbackPercentage: Double? {
-        currentItem?.playbackPercentage
+    /// The current playback percentage (between `0` and `1.0`).
+    var playbackPercentage: Double {
+        get { currentItem?.playbackPercentage ?? .zero }
+        set { seek(toPercentage: newValue) }
+    }
+    
+    /// The duration of the current player item.
+    var duration: TimeDuration {
+        currentItem?.timeDuration ?? .zero
+    }
+    
+    /// The current time of the current player item as `TimeDuration`.
+    var currentTimeDuration: TimeDuration {
+        get { TimeDuration(time: currentTime()) }
+        set { seek(to: newValue.clamped(max: duration)) }
     }
 
     /// Toggles the playback between play and pause.

@@ -349,7 +349,7 @@ open class ImageView: NSControl {
      
      Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depends on the image scaling and alignment.
      */
-    public var imageBounds: CGRect {
+    @objc dynamic public var imageBounds: CGRect {
         overlayContentView.frame
     }
     
@@ -455,7 +455,7 @@ open class ImageView: NSControl {
         setImageFrame(to: .first)
     }
 
-    /// Returns a Boolean value that indicates whether the animation is running.
+    /// A Boolean value that indicates whether the animation is running.
     open var isAnimating: Bool {
         timer != nil
     }
@@ -847,7 +847,11 @@ open class ImageView: NSControl {
             imageView.frame = containerView.bounds
         }
         imageShadowView.frame = containerView.frame
-        overlayContentView.frame = containerView.frame
+        if overlayContentView.frame != containerView.frame {
+            willChangeValue(for: \.imageBounds)
+            overlayContentView.frame = containerView.frame
+            didChangeValue(for: \.imageBounds)
+        }
     }
     
     override open func alignmentRect(forFrame frame: NSRect) -> NSRect {

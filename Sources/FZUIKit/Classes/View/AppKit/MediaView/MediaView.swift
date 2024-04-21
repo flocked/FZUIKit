@@ -5,12 +5,14 @@
 //  Created by Florian Zand on 30.05.22.
 //
 
+/*
 #if os(macOS)
     import AppKit
     import AVKit
     import Foundation
     import FZSwiftUtils
 
+    /// A view that displays media.
     open class MediaView: NSView {
         public enum VideoPlaybackOption: Int, Hashable {
             case autostart
@@ -682,3 +684,4 @@ extension AVLayerVideoGravity {
 }
 
 #endif
+*/

@@ -11,6 +11,20 @@ import FZSwiftUtils
 import UniformTypeIdentifiers
 
 extension AVPlayerView {
+    /// Sets the value that determines how the player view displays video content within its bounds.
+    @discardableResult
+    func videoGravity(_ videoGravity: AVLayerVideoGravity) -> Self {
+        self.videoGravity = videoGravity
+        return self
+    }
+    
+    /// Sets the control style.
+    @discardableResult
+    func controlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
+        controlsStyle = style
+        return self
+    }
+        
     /// The media content that a player view can display.
     public enum AVMediaContent: Int, Hashable {
         /// Video media content.
@@ -97,7 +111,7 @@ extension AVPlayerView {
         if let view: NSView = getAssociatedValue("resizingContentOverlayView") {
             return view
         }
-        
+                
         let overlayView = NSView()
         overlayView.clipsToBounds = true
         if let contentOverlayView = self.contentOverlayView {

@@ -26,15 +26,14 @@
         }
 
         /// A view for hosting layered content on top of the media view.
-        open var overlayView: NSView? {
-            get { mediaView.overlayView }
-            set { mediaView.overlayView = newValue }
+        open var overlayContentView: NSView {
+            mediaView.overlayContentView
         }
 
         /// The image tint color for template and symbol images.
-        open var tintColor: NSColor? {
-            get { mediaView.tintColor }
-            set { mediaView.tintColor = newValue }
+        open var imageTintColor: NSColor? {
+            get { mediaView.imageTintColor }
+            set { mediaView.imageTintColor = newValue }
         }
         
         /**
@@ -166,20 +165,11 @@
             }
         }
 
-        /// The images displayed in the media view.
-        open var images: [NSImage] {
-            get { mediaView.images }
-            set {
-                mediaView.images = newValue
-                setMagnification(1.0)
-            }
-        }
-
         /// The symbol configuration of the image.
         @available(macOS 12.0, iOS 13.0, *)
-        open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
-            get { mediaView.symbolConfiguration }
-            set { mediaView.symbolConfiguration = newValue }
+        open var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
+            get { mediaView.imageSymbolConfiguration }
+            set { mediaView.imageSymbolConfiguration = newValue }
         }
 
         /// The asset in the media view.
@@ -209,12 +199,12 @@
             set { mediaView.videoPlaybackOption = newValue }
         }
 
-        public func seek(to interval: TimeDuration) {
-            mediaView.seek(to: interval)
+        public func seekVideo(to interval: TimeDuration) {
+            mediaView.seekVideo(to: interval)
         }
 
-        public func seek(toPercentage percentage: Double) {
-            mediaView.seek(toPercentage: percentage)
+        public func seekVideo(toPercentage percentage: Double) {
+            mediaView.seekVideo(toPercentage: percentage)
         }
 
         public var videoPlaybackTime: TimeDuration {
@@ -224,14 +214,14 @@
 
         public var videoDuration: TimeDuration { mediaView.videoDuration }
 
-        public var videoPlaybackPosition: Double {
-            get { mediaView.videoPlaybackPosition }
-            set { mediaView.videoPlaybackPosition = newValue }
+        public var videoPlaybackPercentage: Double {
+            get { mediaView.videoPlaybackPercentage }
+            set { mediaView.videoPlaybackPercentage = newValue }
         }
 
-        public var videoPlaybackPositionHandler: ((TimeDuration) -> Void)? {
-            get { mediaView.videoPlaybackPositionHandler }
-            set { mediaView.videoPlaybackPositionHandler = newValue }
+        public var videoPlaybackHandler: ((TimeDuration) -> Void)? {
+            get { mediaView.videoPlaybackHandler }
+            set { mediaView.videoPlaybackHandler = newValue }
         }
 
         override open var menu: NSMenu? {
@@ -244,16 +234,14 @@
             set { mediaView.videoView.player = newValue }
         }
 
-        open var imagePlayback: ImageView.AnimationPlaybackOption {
-            get { mediaView.imagePlayback }
-            set { mediaView.imagePlayback = newValue }
+        open var imageAnimationPlayback: ImageView.AnimationPlaybackOption {
+            get { mediaView.imageAnimationPlayback }
+            set { mediaView.imageAnimationPlayback = newValue }
         }
-        
-        
-
-        open var loopVideos: Bool {
-            get { mediaView.loopVideos }
-            set { mediaView.loopVideos = newValue }
+                
+        open var isLooping: Bool {
+            get { mediaView.isLooping }
+            set { mediaView.isLooping = newValue }
         }
 
         open var videoViewControlStyle: AVPlayerViewControlsStyle {
@@ -261,12 +249,12 @@
             set { mediaView.videoViewControlStyle = newValue }
         }
 
-        open var contentScaling: ImageView.ImageScaling {
-            get { mediaView.contentScaling }
-            set { mediaView.contentScaling = newValue }
+        open var mediaScaling: MediaView.MediaScaling {
+            get { mediaView.mediaScaling }
+            set { mediaView.mediaScaling = newValue }
         }
 
-        open var mediaType: FileType? { mediaView.mediaType }
+        open var mediaType: MediaView.MediaType? { mediaView.mediaType }
 
         open func play() {
             mediaView.play()

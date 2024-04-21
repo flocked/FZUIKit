@@ -10,15 +10,26 @@ import Foundation
 import FZSwiftUtils
 
 public extension AVPlayerItem {
-    /// Returns the current playback time as percentage.
+    /// The current playback percentage (between `0.0` and `1.0`).
     var playbackPercentage: Double {
-        currentTime().seconds / duration.seconds
+        get { currentTime().seconds / duration.seconds }
+        set { seek(toPercentage: newValue.clamped(to: 0...1.0)) }
+    }
+    
+    /// The duration of the item as `TimeDuration`.
+    var timeDuration: TimeDuration {
+        TimeDuration(time: duration)
+    }
+    
+    /// The current time of the item as `TimeDuration`.
+    var currentTimeDuration: TimeDuration {
+        get { TimeDuration(time: currentTime()) }
+        set { seek(to: newValue.clamped(max: timeDuration)) }
     }
     
     /// The remaining time until the item reaches to end.
-    var remainingTime: CMTime? {
-        let remainingSeconds = duration.seconds - currentTime().seconds
-        return CMTime(seconds: remainingSeconds)
+    var remainingTime: TimeDuration {
+        timeDuration - currentTimeDuration
     }
     
     /**
