@@ -200,12 +200,8 @@ open class StackView: NSUIView {
         var baselineOffsets: [CGFloat] = []
         for view in views {
             let distribution = distribution(for: view) ?? .fill
-            if orientation == .horizontal {
-                if distribution == .firstBaseline {
-                    baselineOffsets.append(0-view.firstBaselineOffsetY)
-                } else if distribution == .lastBaseline {
-                    baselineOffsets.append(view.lastBaselineOffsetFromBottom)
-                }
+            if orientation == .horizontal, distribution == .firstBaseline {
+                baselineOffsets.append(0-view.firstBaselineOffsetY)
             }
             if let spacer = view as? SpacerView {
                 if let length = spacer.length {
@@ -224,6 +220,10 @@ open class StackView: NSUIView {
         }
         let width = sizes.compactMap({$0.width}).max() ?? 0.0
         let height = sizes.compactMap({$0.height}).sum() + (CGFloat(views.count-1) * spacing) + (0 - (baselineOffsets.min() ?? 0))
+        if orientation == .horizontal {
+            for arrangedSubview in arrangedSubviews {
+            }
+        }
         return CGSize(width, height)
     }
     #else
@@ -381,7 +381,7 @@ open class StackView: NSUIView {
                 case .firstBaseline:
                     arrangedSubview.frame.origin.y = 0
                     arrangedSubview.frame.origin.y = 0-arrangedSubview.firstBaselineOffsetY
-                    baselineOffsets.append(-arrangedSubview.frame.origin.y)
+                    baselineOffsets.append(arrangedSubview.frame.origin.y)
                 case .lastBaseline:
                     arrangedSubview.frame.origin.y = 0
                     #if os(macOS)
@@ -392,7 +392,7 @@ open class StackView: NSUIView {
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
                 }
             }
-            let baselineOffset = (baselineOffsets.min() ?? 0)
+            let baselineOffset = 0 - (baselineOffsets.min() ?? 0)
             for arrangedSubview in arrangedSubviews {
                 if distribution(for: arrangedSubview) == .firstBaseline {
                     arrangedSubview.frame.origin.y += baselineOffset + layoutMargins.bottom
