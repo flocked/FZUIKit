@@ -13,7 +13,7 @@ public extension NSApplication.ModalResponse {
     /**
      The presentation or dismissal of the dialog or has been suppressed, because the user already opted out of showing it again.
      
-     See `NSAlert/supressionKey` for more information.
+     See ``AppKit/NSAlert/suppressionKey`` for more information.
      */
     static let suppress = NSApplication.ModalResponse((1 << 14))
     
@@ -106,11 +106,12 @@ extension NSAlert {
     /**
      The key for supression of the alert.
      
-     Provide this key to allow the user to opt out of showing the alert again. The alert shows a suppression checkbox.
+     Provide this key to allow the user to opt out of showing the alert again by showing a suppression checkbox.
      
      If the user opts out, the alert won't be shown again and will instead return as response `suppress`.
      
      ```swift
+     myAlert.supressionKey = "someKey"
      let response = myAlert.runModal()
      
      // Handle supression if needed

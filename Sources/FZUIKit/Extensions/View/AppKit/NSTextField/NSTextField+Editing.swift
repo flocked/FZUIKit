@@ -122,20 +122,30 @@
         }
         
 
-        /// The action to perform when the user presses the enter key.
+        /**
+         The action to perform when the user presses the enter key.
+         
+         - Note: This property isn't working with `NSSearchField`.
+         */
         public var actionOnEnterKeyDown: EnterKeyAction {
             get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .none) }
             set {
+                guard !(self is NSSearchField) else { return }
                 guard actionOnEnterKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
                 observeTextCommands()
             }
         }
 
-        /// The action to perform when the user presses the escape key.
+        /**
+         The action to perform when the user presses the escape key.
+         
+         - Note: This property isn't working with `NSSearchField`.
+         */
         public var actionOnEscapeKeyDown: EscapeKeyAction {
             get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: .none) }
             set {
+                guard !(self is NSSearchField) else { return }
                 guard actionOnEscapeKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 observeTextCommands()

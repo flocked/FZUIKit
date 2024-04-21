@@ -14,10 +14,12 @@ extension NSTextField {
      A Boolean value that indicates whether the text field is automatically adjust it's size to fit it's string value.
      
      - Note: If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     - Note: This property isn't working with `NSSearchField`.
      */
     @objc open var automaticallyResizesToFit: Bool {
         get { getAssociatedValue("automaticallyResizesToFit", initialValue: false) }
         set {
+            guard !(self is NSSearchField) else { return }
             guard newValue != automaticallyResizesToFit else { return }
             setAssociatedValue(newValue, key: "automaticallyResizesToFit")
             swizzleIntrinsicContentSize()
