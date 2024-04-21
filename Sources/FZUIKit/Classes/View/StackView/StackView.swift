@@ -197,7 +197,12 @@ open class StackView: NSUIView {
     open override var fittingSize: NSSize {
         let views = arrangedSubviews.filter({ !$0.isHidden })
         var sizes: [CGSize] = []
+        var baselineOffsets: [CGFloat] = []
         for view in views {
+            let distribution = distribution(for: view) ?? .fill
+            if orientation == .horizontal, distribution == .firstBaseline {
+                baselineOffsets.append(0-view.firstBaselineOffsetY)
+            }
             if let spacer = view as? SpacerView {
                 if let length = spacer.length {
                     sizes.append(CGSize(length, length))
@@ -214,7 +219,11 @@ open class StackView: NSUIView {
             return CGSize(width, height)
         }
         let width = sizes.compactMap({$0.width}).max() ?? 0.0
-        let height = sizes.compactMap({$0.height}).sum() + (CGFloat(views.count-1) * spacing)
+        let height = sizes.compactMap({$0.height}).sum() + (CGFloat(views.count-1) * spacing) + (0 - (baselineOffsets.min() ?? 0))
+        if orientation == .horizontal {
+            for arrangedSubview in arrangedSubviews {
+            }
+        }
         return CGSize(width, height)
     }
     #else
@@ -383,7 +392,7 @@ open class StackView: NSUIView {
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
                 }
             }
-            let baselineOffset =  0 - (baselineOffsets.min() ?? 0)
+            let baselineOffset = 0 - (baselineOffsets.min() ?? 0)
             for arrangedSubview in arrangedSubviews {
                 if distribution(for: arrangedSubview) == .firstBaseline {
                     arrangedSubview.frame.origin.y += baselineOffset + layoutMargins.bottom
