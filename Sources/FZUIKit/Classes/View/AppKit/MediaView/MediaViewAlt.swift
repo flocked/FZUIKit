@@ -126,9 +126,9 @@
                 updatePreviousPlaybackState()
                 mediaPlayer.pause()
                 mediaPlayer.replaceCurrentItem(with: AVPlayerItem(asset: asset))
+                mediaType = .video
                 showVideoView()
                 hideImageView()
-                mediaType = .video
                 resizeOverlayView()
                 switch videoPlaybackOption {
                 case .autostart:
@@ -342,7 +342,7 @@
         
         func setupPlaybackHandler(replace: Bool = true) {
             if let videoPlaybackHandler = videoPlaybackHandler {
-                guard mediaType == .video else { return } 
+                guard mediaType == .video else { return }
                 playbackObserver = mediaPlayer.addPlaybackObserver(timeInterval: playbackHandlerInterval) { time in
                     videoPlaybackHandler(time)
                 }
