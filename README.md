@@ -369,18 +369,18 @@ let timer = DisplayLinkTimer.scheduledTimer(timeInterval: .seconds(3.0), action:
 timer.timeInterval = .minutes(1)
 ```
 
-### NSAlert `supressionKey
+### NSAlert `supressionKey`
      
 Provide a supression key to `NSAlert` to allow the user to opt out of showing the alert again by showing a suppression checkbox.
      
 If the user opts out, the alert won't be shown again and will instead return as response `suppress`.
      
 ```swift
-let alert = NSAlert.informational("My Aleert")
+let alert = NSAlert.informational("My Alert")
 alert.supressionKey = "someKey"
 
 let response = alert.runModal()
 if response == .suppress {
-
+    // The alert was suppressed
 }
 ```
