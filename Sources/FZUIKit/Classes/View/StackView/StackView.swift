@@ -97,6 +97,7 @@ open class StackView: NSUIView {
     /// Sets the sizing for an arranged subview. The default value resizes the view is `automatic`.
     open func setSizing(_ sizing: ViewSizing, for  arrangedSubview: NSUIView) {
         guard arrangedSubviews.contains(arrangedSubview) else { return }
+        guard arrangedSubview as? SpacerView == nil else { return }
         let id = ObjectIdentifier(arrangedSubview).hashValue
         guard viewSizing[id] != sizing else { return }
         viewSizing[id] = sizing
