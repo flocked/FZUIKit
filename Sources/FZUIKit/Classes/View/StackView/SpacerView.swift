@@ -14,13 +14,17 @@
 
 /// A flexible spacer view for ``StackView`` that expands along the major axis of it's containing stack view.
 open class SpacerView: NSUIView {
-    public var length: CGFloat? = nil
+    /// The length of the spacer.
+    public let length: CGFloat?
     
+    /// Creates a flexible spacer.
     public init() {
+        self.length = nil
         super.init(frame: .zero)
     }
     
-    public init(length: CGFloat) {
+    /// Creates a spacer with the specified length.
+    public init(_ length: CGFloat) {
         self.length = length
         super.init(frame: .zero)
     }
