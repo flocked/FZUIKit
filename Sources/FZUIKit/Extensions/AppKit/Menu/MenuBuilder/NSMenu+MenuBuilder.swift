@@ -38,6 +38,17 @@
         public static func buildExpression(_ expr: NSMenuItem?) -> [NSMenuItem] {
             expr.map { [$0] } ?? []
         }
+        
+        public static func buildExpression(_ expr: String?) -> [NSMenuItem] {
+            if let string = expr {
+                return [NSMenuItem(string)]
+            }
+            return []
+        }
+        
+        public static func buildExpression(_ expr: [String]?) -> [NSMenuItem] {
+            expr?.compactMap({NSMenuItem($0)}) ?? []
+        }
     }
 
     public extension NSMenu {
