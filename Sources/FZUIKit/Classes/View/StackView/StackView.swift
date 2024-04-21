@@ -227,6 +227,7 @@ open class StackView: NSUIView {
     private var viewDistributions: [Int: ViewDistribution] = [:]
     private var viewSizing: [Int: ViewSizing] = [:]
     private var viewCalculatedValues: [Int: CGSize] = [:]
+    private var viewFrames: [Int: CGRect] = [:]
 
     private func setupManagedViews(previous: [NSUIView] = []) {
         var removedViews: [NSUIView] = []
@@ -243,24 +244,27 @@ open class StackView: NSUIView {
         }
         
         removedViews.forEach {
+            let id = ObjectIdentifier($0).hashValue
             $0.removeFromSuperview()
             removeObserver(for: $0)
-            viewDistributions[ObjectIdentifier($0).hashValue] = nil
-            viewSizing[ObjectIdentifier($0).hashValue] = nil
+            viewDistributions[id] = nil
+            viewSizing[id] = nil
+            viewFrames[id] = nil
         }
 
         newViews.forEach {
+            let id = ObjectIdentifier($0).hashValue
             $0.translatesAutoresizingMaskIntoConstraints = false
             addObserver(for: $0)
-            viewDistributions[ObjectIdentifier($0).hashValue] = .fill
+            viewDistributions[id] = .fill
             if let spacer = $0 as? SpacerView {
                 if let length = spacer.length {
-                    viewSizing[ObjectIdentifier($0).hashValue] = .fixed(length)
+                    viewSizing[id] = .fixed(length)
                 } else {
-                    viewSizing[ObjectIdentifier($0).hashValue] = .equal
+                    viewSizing[id] = .equal
                 }
             } else {
-                viewSizing[ObjectIdentifier($0).hashValue] = .automatic
+                viewSizing[id] = .automatic
             }
             addSubview($0)
         }
@@ -286,7 +290,7 @@ open class StackView: NSUIView {
         var equalSizeCount: CGFloat = 0
     }
         
-    private func layoutArrangedSubviews() {
+    private func layoutArrangedSubviews(apply: Bool = true) {
         let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
         guard !arrangedSubviews.isEmpty, let calculation = calculateSizes() else { return }
         var offsetTracker: CGFloat = orientation == .horizontal ? layoutMargins.left : layoutMargins.bottom
@@ -317,15 +321,19 @@ open class StackView: NSUIView {
                 viewFrame.size.height = orientation == .horizontal ? arrangedSubview.frame.height.clamped(max: height) : layoutValue * ratio
             }
             arrangedSubview.frame = viewFrame
+            viewFrames[id] = viewFrame
             offsetTracker += (orientation == .horizontal ? viewFrame.width : viewFrame.height) + spacing
         }
-        layoutDistributions()
+        layoutDistributions(apply: apply)
     }
     
     private func calculateSizes() -> LayoutCalculation? {
         viewCalculatedValues.removeAll()
         let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
         guard !arrangedSubviews.isEmpty else { return nil }
+        var availableSize = bounds.size
+        availableSize.width -= layoutMargins.width
+        availableSize.height -= layoutMargins.height
         var calculation = LayoutCalculation()
         for arrangedSubview in arrangedSubviews {
             let id = ObjectIdentifier(arrangedSubview).hashValue
@@ -340,10 +348,11 @@ open class StackView: NSUIView {
             case .automatic:
                 #if os(macOS)
                 var fittingSize = arrangedSubview.fittingSize
-                #else
-                var fittingSize = arrangedSubview.sizeThatFits(bounds.size)
-                #endif
+                // var fittingSize = (arrangedSubview as? Sizable)?.fittingSize(for: availableSize) ?? arrangedSubview.fittingSize
                 fittingSize = fittingSize.width <= 0 || fittingSize.height <= 0 ? arrangedSubview.bounds.size : fittingSize
+                #else
+                let fittingSize = arrangedSubview.sizeThatFits(availableSize)
+                #endif
                 calculation.fixedValueSum += orientation == .horizontal ? fittingSize.width : fittingSize.height
                 viewCalculatedValues[id] = fittingSize
             case .percentage(let percentage):
@@ -353,56 +362,70 @@ open class StackView: NSUIView {
         return calculation
     }
     
-    private func layoutDistributions() {
+    private func layoutDistributions(apply: Bool = true) {
         if orientation == .horizontal {
             var baselineOffsets: [CGFloat] = []
             for arrangedSubview in arrangedSubviews {
+                let id = ObjectIdentifier(arrangedSubview).hashValue
+                var viewFrame = viewFrames[id] ?? .zero
                 let distribution = distribution(for: arrangedSubview) ?? .fill
                 switch distribution {
                 case .center:
-                    arrangedSubview.center.y = bounds.center.y
+                    viewFrame.center.y = bounds.center.y
                 case .leading:
-                    arrangedSubview.frame.top = bounds.top - layoutMargins.top
+                    viewFrame.top = bounds.top - layoutMargins.top
                 case .trailing:
-                    arrangedSubview.frame.bottom = bounds.bottom + layoutMargins.bottom
+                    viewFrame.bottom = bounds.bottom + layoutMargins.bottom
                 case .fill:
-                    arrangedSubview.frame.bottom = bounds.bottom + layoutMargins.bottom
-                    arrangedSubview.frame.size.height = bounds.height - layoutMargins.height
+                    viewFrame.bottom = bounds.bottom + layoutMargins.bottom
+                    viewFrame.size.height = bounds.height - layoutMargins.height
                 case .firstBaseline:
-                    arrangedSubview.frame.origin.y = 0
-                    arrangedSubview.frame.origin.y = 0-arrangedSubview.firstBaselineOffsetY
+                    viewFrame.origin.y = 0
+                    viewFrame.origin.y = 0-arrangedSubview.firstBaselineOffsetY
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
                 case .lastBaseline:
-                    arrangedSubview.frame.origin.y = 0
+                    viewFrame.origin.y = 0
                     #if os(macOS)
-                    arrangedSubview.frame.origin.y = 0-arrangedSubview.lastBaselineOffsetFromBottom
+                    viewFrame.origin.y = 0-arrangedSubview.lastBaselineOffsetFromBottom
                     #else
-                    arrangedSubview.frame.origin.y = 0-(arrangedSubview.lastBaselineOffsetFromBottom ?? 0.0)
+                    viewFrame.origin.y = 0-(arrangedSubview.lastBaselineOffsetFromBottom ?? 0.0)
                     #endif
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
                 }
+                viewFrames[id] = viewFrame
             }
             let baselineOffset =  0 - (baselineOffsets.min() ?? 0)
             for arrangedSubview in arrangedSubviews {
                 if distribution(for: arrangedSubview) == .firstBaseline {
-                    arrangedSubview.frame.origin.y += baselineOffset + layoutMargins.bottom
+                    let id = ObjectIdentifier(arrangedSubview).hashValue
+                    var viewFrame = viewFrames[id] ?? .zero
+                    viewFrame.origin.y += baselineOffset + layoutMargins.bottom
+                    viewFrames[id] = viewFrame
                 }
             }
         } else {
             for arrangedSubview in arrangedSubviews {
+                let id = ObjectIdentifier(arrangedSubview).hashValue
+                var viewFrame = viewFrames[id] ?? .zero
                 let distribution = distribution(for: arrangedSubview) ?? .fill
                 switch distribution {
                 case .center:
-                    arrangedSubview.center.x = bounds.center.x
+                    viewFrame.center.x = bounds.center.x
                 case .leading:
-                    arrangedSubview.frame.left = bounds.left + layoutMargins.left
+                    viewFrame.left = bounds.left + layoutMargins.left
                 case .trailing:
-                    arrangedSubview.frame.right = bounds.right - layoutMargins.right
+                    viewFrame.right = bounds.right - layoutMargins.right
                 case .fill, .firstBaseline, .lastBaseline:
-                    arrangedSubview.frame.left = bounds.left + layoutMargins.left
-                    arrangedSubview.frame.size.width = bounds.width - layoutMargins.width
+                    viewFrame.left = bounds.left + layoutMargins.left
+                    viewFrame.size.width = bounds.width - layoutMargins.width
                 }
+                viewFrames[id] = viewFrame
             }
+        }
+        guard apply else { return }
+        for arrangedSubview in arrangedSubviews {
+            let id = ObjectIdentifier(arrangedSubview).hashValue
+            arrangedSubview.frame = viewFrames[id] ?? .zero
         }
     }
     
