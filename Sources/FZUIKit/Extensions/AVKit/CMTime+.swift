@@ -12,12 +12,12 @@ import FZSwiftUtils
 public extension CMTime {
     /// Creates a time that represents number of seconds.
     init(seconds: Double) {
-        self = CMTime(seconds: seconds, preferredTimescale: CMTimeScale(1.0))
+        self = CMTime(seconds: seconds, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     }
 
     /// Creates a time that represents the duration.
     init(duration: TimeDuration) {
-        self = CMTime(seconds: duration.seconds, preferredTimescale: CMTimeScale(1.0))
+        self = CMTime(seconds: duration.seconds, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     }
     
     static func + (lhs: Self, rhs: TimeDuration) -> Self {
