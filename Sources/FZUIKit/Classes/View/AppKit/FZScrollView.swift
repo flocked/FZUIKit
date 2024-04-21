@@ -68,11 +68,6 @@ open class FZScrollView: NSScrollView {
         }
     }
     
-    open override func scrollWheel(with event: NSEvent) {
-        super.scrollWheel(with: event)
-        Swift.print("scrollWheel")
-    }
-    
     override open func mouseDown(with event: NSEvent) {
         guard mouseClickZoomFactor != 0.0 else { return }
         if event.clickCount == 2 {
