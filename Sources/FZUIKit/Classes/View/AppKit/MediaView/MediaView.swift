@@ -217,7 +217,8 @@
                 let isMouse = event.phase.isEmpty
                 let isTrackpadBegan = event.phase.contains(.began)
                 let isTrackpadEnd = event.phase.contains(.ended)
-
+                var scrollDirection: NSUIUserInterfaceLayoutOrientation?
+                
                 if isMouse || isTrackpadBegan {
                   if event.scrollingDeltaX != 0 {
                     scrollDirection = .horizontal
@@ -231,7 +232,7 @@
                 let isNatural = event.isDirectionInvertedFromDevice
 
                 var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
-                var deltaY = isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2
+                var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2)/100.0
 
                 if isNatural {
                   deltaY = -deltaY
@@ -239,11 +240,10 @@
                   deltaX = -deltaX
                 }
                 if scrollDirection == .vertical, isVolumeControllableByScrolling {
-                    let delta = Float(deltaY/100.0)
-                    let newVolume = (volume + Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)).clamped(to: 0...1.0)
+                    let newVolume = (volume + Float(isMouse ? deltaY : scrollVolumeControl.rawValue * deltaY)).clamped(to: 0...1.0)
                     volume = newVolume
                 } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
-                    let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX
+                    let seconds = (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX
                     videoPlaybackTime += .seconds(seconds)
                 }
             } else {
@@ -251,12 +251,32 @@
             }
         }
         
-        private var scrollDirection: NSUIUserInterfaceLayoutOrientation?
-        private let volumeMap: [Float] = [0, 0.25, 0.5, 0.75, 1]
-        private let seekAmountMap: [Double] = [0, 0.05, 0.1, 0.25, 0.5]
-        private let seekAmountMapMouse: [Double] = [0, 0.5, 1, 2, 4]
-        private let volumeScrollAmount = 3
-        private let relativeSeekAmount = 3
+        var scrollVolumeControl: ScrollVolumeControl = .normal
+        var scrollSeekControl: ScrollSeekControl = .normal
+        
+        enum ScrollVolumeControl: Double {
+            case slow = 0.25
+            case normal = 0.5
+            case fast = 0.75
+            case off = 0.0
+        }
+
+        enum ScrollSeekControl: Double {
+            case verySlow = 0.05
+            case slow = 0.1
+            case normal = 0.25
+            case fast = 0.5
+            case off = 0.0
+            var mouse: Double {
+                switch self {
+                case .verySlow: return 0.5
+                case .slow: return 1
+                case .normal: return 2
+                case .fast: return 4
+                case .off: return 0
+                }
+            }
+        }
         
         /// A Boolean value that indicates whether media is muted.
         open var isMuted: Bool {
