@@ -571,7 +571,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard previousBounds.width != newBounds.width else { return false }
         previousBounds = newBounds
-        if let indexPaths = collectionView?.displayingIndexPaths() {
+        if let indexPaths = collectionView?.displayingIndexPaths(), !indexPaths.isEmpty {
             displayingItems = .init(indexPaths)
         }
         keepItemOrder = true
