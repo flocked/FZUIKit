@@ -27,19 +27,17 @@ public extension CMTime {
     static func += (lhs: inout Self, rhs: TimeDuration) {
         lhs = lhs + rhs
     }
-}
-
-extension TimeDuration {
-    /**
-     Initializes a new time duration from a `CMTime`.
-
-     - Parameter time: The time.
-     */
-    public init(time: CMTime) {
-        self.init(time.seconds)
+    
+    internal var timeDuration: TimeDuration {
+        .seconds(seconds)
     }
 }
 
+extension TimeDuration {
+    var cmTime: CMTime {
+        CMTime(seconds: seconds)
+    }
+}
 
 extension CMTime: Codable {
     public enum CodingKeys: CodingKey {

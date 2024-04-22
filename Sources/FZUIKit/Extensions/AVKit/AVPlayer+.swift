@@ -74,7 +74,7 @@ public extension AVPlayer {
      Requests that the player seek to a specified percentage.
 
      - Parameters:
-        - percentage: The percentage to which to seek.
+        - percentage: The percentage to which to seek (between `0.0` and `1.0`).
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
             - finished: A Boolean value that indicates whether the seek operation completed.
@@ -135,7 +135,7 @@ public extension AVPlayer {
     
     /// The current time of the current player item as `TimeDuration`.
     var currentTimeDuration: TimeDuration {
-        get { TimeDuration(time: currentTime()) }
+        get { currentTime().timeDuration }
         set { seek(to: newValue.clamped(max: duration)) }
     }
 
@@ -273,7 +273,7 @@ public class AVPlayerTimeObservation {
     init (_ player: AVPlayer, interval: TimeInterval, queue: dispatch_queue_t?,  handler: @escaping (TimeDuration)->()) {
         self.player = player
         self.observer = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: interval), queue: queue) { time in
-            handler(TimeDuration(time: time))
+            handler(time.timeDuration)
         }
     }
     

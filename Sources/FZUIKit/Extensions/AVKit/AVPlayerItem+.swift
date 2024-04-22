@@ -18,12 +18,12 @@ public extension AVPlayerItem {
     
     /// The duration of the item as `TimeDuration`.
     var timeDuration: TimeDuration {
-        TimeDuration(time: duration)
+        duration.timeDuration
     }
     
     /// The current time of the item as `TimeDuration`.
     var currentTimeDuration: TimeDuration {
-        get { TimeDuration(time: currentTime()) }
+        get { currentTime().timeDuration }
         set { seek(to: newValue.clamped(max: timeDuration)) }
     }
     
@@ -36,7 +36,7 @@ public extension AVPlayerItem {
      Sets the current playback time to the specified percentage.
 
      - Parameters
-        - percentage: The percentage to which to seek.
+        - percentage: The percentage to which to seek (between `0.0` and `1.0`).
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
             - finished: A Boolean value that indicates whether the seek operation completed.

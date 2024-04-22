@@ -21,10 +21,6 @@
             mediaView.videoView
         }
 
-        override open var acceptsFirstResponder: Bool {
-            true
-        }
-
         /// A view for hosting layered content on top of the media view.
         open var overlayContentView: NSView {
             mediaView.overlayContentView
@@ -66,7 +62,7 @@
             set { scrollView.mouseClickZoomFactor = newValue }
         }
 
-        override open func rightMouseDown(with _: NSEvent) {
+        open override func rightMouseDown(with _: NSEvent) {
             mediaView.videoView.player?.togglePlayback()
         }
         
@@ -74,7 +70,7 @@
             return nil
         }
 
-        override open var mouseDownCanMoveWindow: Bool {
+        open override var mouseDownCanMoveWindow: Bool {
             true
         }
 
@@ -199,39 +195,52 @@
             set { mediaView.videoPlaybackOption = newValue }
         }
 
-        public func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+        /**
+         Requests that the player seek to a specified time.
+
+         - Parameters:
+            - time: The time to which to seek.
+            - tolerance: The tolerance.
+            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+                - finished: A Boolean value that indicates whether the seek operation completed.
+         */
+        open func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
             mediaView.seekVideo(to: interval, tolerance: tolerance, completionHandler: completionHandler)
         }
 
-        public func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+        /**
+         Requests that the player seek to a specified percentage.
+
+         - Parameters:
+            - percentage: The percentage to which to seek (between `0.0` and `1.0`).
+            - tolerance: The tolerance.
+            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+                - finished: A Boolean value that indicates whether the seek operation completed.
+         */
+        open func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
             mediaView.seekVideo(toPercentage: percentage, tolerance: tolerance, completionHandler: completionHandler)
         }
 
-        public var videoPlaybackTime: TimeDuration {
+        open var videoPlaybackTime: TimeDuration {
             get { mediaView.videoPlaybackTime }
             set { mediaView.videoPlaybackTime = newValue }
         }
 
-        public var videoDuration: TimeDuration { mediaView.videoDuration }
+        open var videoDuration: TimeDuration { mediaView.videoDuration }
 
-        public var videoPlaybackPercentage: Double {
+        open var videoPlaybackPercentage: Double {
             get { mediaView.videoPlaybackPercentage }
             set { mediaView.videoPlaybackPercentage = newValue }
         }
 
-        public var videoPlaybackHandler: ((TimeDuration) -> Void)? {
+        open var videoPlaybackHandler: ((TimeDuration) -> Void)? {
             get { mediaView.videoPlaybackHandler }
             set { mediaView.videoPlaybackHandler = newValue }
         }
 
-        override open var menu: NSMenu? {
+        open override var menu: NSMenu? {
             get { mediaView.menu }
             set { mediaView.menu = newValue }
-        }
-
-        public var player: AVPlayer? {
-            get { mediaView.videoView.player }
-            set { mediaView.videoView.player = newValue }
         }
 
         open var imageAnimationPlayback: ImageView.AnimationPlaybackOption {
@@ -276,8 +285,16 @@
             mediaView.isPlaying
         }
 
-        override open var fittingSize: NSSize {
+        open override var fittingSize: NSSize {
             mediaView.fittingSize
+        }
+        
+        open override var intrinsicContentSize: NSSize {
+            mediaView.intrinsicContentSize
+        }
+        
+        open override var acceptsFirstResponder: Bool {
+            true
         }
 
         open func sizeToFit() {
@@ -320,7 +337,7 @@
             set { self.scrollView.maxMagnification = newValue }
         }
 
-        override open var enclosingScrollView: NSScrollView? {
+        open override var enclosingScrollView: NSScrollView? {
             scrollView
         }
         
@@ -345,8 +362,14 @@
             sharedInit()
             self.image = image
         }
+        
+        public init(asset: AVAsset) {
+            super.init(frame: .zero)
+            sharedInit()
+            self.asset = asset
+        }
 
-        override public init(frame frameRect: NSRect) {
+        public override init(frame frameRect: NSRect) {
             super.init(frame: frameRect)
             sharedInit()
         }
