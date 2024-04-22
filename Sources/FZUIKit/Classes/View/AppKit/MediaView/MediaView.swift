@@ -14,7 +14,7 @@
     open class MediaView: NSView {
         
         private let imageView = ImageView().isHidden(true)
-        private let videoView = NoMenuPlayerView().isHidden(true)
+        private let videoView = ScrollPlayerView().isHidden(true)
         private let player = AVPlayer()
         private var playbackObserver: AVPlayerTimeObservation?
         private var previousVideoPlaybackState: AVPlayer.State = .isStopped
@@ -313,7 +313,10 @@
         }
 
         /// A value that indicates whether the volume is controllable by scrolling up & down.
-        open var volumeScrollControl: VolumeScrollControl = .normal
+        open var volumeScrollControl: VolumeScrollControl {
+            get { .init(rawValue: videoView.volumeScrollControl.rawValue)! }
+            set { videoView.volumeScrollControl = .init(rawValue: newValue.rawValue)! }
+        }
         
         /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
         @discardableResult
@@ -335,7 +338,10 @@
         }
         
         /// A value that indicates whether the playback position is controllable by scrolling left & right.
-        open var playbackPositionScrollControl: PlaybackPositionScrollControl = .normal
+        open var playbackPositionScrollControl: PlaybackPositionScrollControl {
+            get { .init(rawValue: videoView.playbackPositionScrollControl.rawValue)! }
+            set { videoView.playbackPositionScrollControl = .init(rawValue: newValue.rawValue)! }
+        }
         
         /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
         @discardableResult
@@ -742,6 +748,7 @@
             }
         }
         
+        /*
         open override func scrollWheel(with event: NSEvent) {
             if (enclosingScrollView?.magnification ?? 1.0) == 1.0 || event.modifierFlags.contains(any: [.command, .shift]), mediaType == .video, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
                 let isMouse = event.phase.isEmpty
@@ -790,6 +797,7 @@
                 super.scrollWheel(with: event)
             }
         }
+         */
         
         class NoMenuPlayerView: AVPlayerView {
             var togglePlaybackByRightClick: Bool = false

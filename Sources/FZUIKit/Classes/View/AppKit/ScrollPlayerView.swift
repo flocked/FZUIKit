@@ -15,6 +15,9 @@ open class ScrollPlayerView: AVPlayerView {
     /// A value that indicates whether the volume is controllable by scrolling up & down.
     open var volumeScrollControl: VolumeScrollControl = .normal
     
+    /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    open var togglePlaybackByRightClick: Bool = false
+    
     /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
     @discardableResult
     open func volumeScrollControl(_ volumeScrollControl: VolumeScrollControl) -> Self {
@@ -123,6 +126,11 @@ open class ScrollPlayerView: AVPlayerView {
         } else {
             super.scrollWheel(with: event)
         }
+    }
+    
+    open override func rightMouseDown(with event: NSEvent) {
+        guard togglePlaybackByRightClick else { return }
+        player?.togglePlayback()
     }
     
     open override func hitTest(_ point: NSPoint) -> NSView? {
