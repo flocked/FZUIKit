@@ -79,7 +79,7 @@ open class ScrollPlayerView: AVPlayerView {
             } else if isTrackpadEnd {
               scrollDirection = nil
             }
-            if isTrackpadBegan, player.state == .isPlaying {
+            if isTrackpadBegan, scrollDirection == .horizontal, player.state == .isPlaying {
                 wasPlayingBeforeSeeking = true
                 player.pause()
                 // pause player
