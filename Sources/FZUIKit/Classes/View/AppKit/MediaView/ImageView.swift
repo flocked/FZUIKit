@@ -14,8 +14,8 @@ import FZSwiftUtils
 @IBDesignable
 open class ImageView: NSControl {
     
-    let containerView = ContainerView()
-    let imageView = NSImageView()
+    let containerView = ContainerView().backgroundColor(.systemRed.withAlphaComponent(0.3))
+    let imageView = NSImageView().backgroundColor(.systemGreen.withAlphaComponent(0.3))
     var timer: DisplayLinkTimer? = nil
     var currentRepeatCount = 0
     var ignoreTransition = false
