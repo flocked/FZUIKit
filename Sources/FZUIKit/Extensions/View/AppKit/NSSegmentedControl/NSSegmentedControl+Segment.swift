@@ -327,23 +327,14 @@
 
         /// Returns all segments that are selected.
         var selectedSegments: [NSSegment] {
-            indexesOfSelectedItems.compactMap { segment(at: $0) }
+            indexesOfSelectedSegments.compactMap { segment(at: $0) }
         }
 
         /// Returns all segments displayed by the segmented control.
         var segments: [NSSegment] {
-            get {
-                let count = segmentCount - 1
-                var segments: [NSSegment] = []
-                for index in 0 ... count {
-                    if let segment = segment(at: index) {
-                        segments.append(segment)
-                    }
-                }
-                return segments
-            }
+            get { (0..<segmentCount).compactMap {segment(at: $0)} }
             set {
-                segmentCount = newValue.count
+                segmentCount = newValue.count                
                 for (index, segment) in newValue.enumerated() {
                     setSegment(segment, for: index)
                 }
@@ -426,12 +417,13 @@
             segmentViews[safe: segment]?.setValue(font, forKey: "font")
         }
         
+        /// The indexes of the selected segments.
+        var indexesOfSelectedSegments: [Int] {
+            (0..<segmentCount).filter { isSelected(forSegment: $0) }
+        }
+        
         internal var segmentViews: [NSView] {
             subviews.filter({ NSStringFromClass(type(of: $0)) == "NSSegmentItemView" })
-        }
-
-        internal var indexesOfSelectedItems: [Int] {
-            (0 ..< segmentCount).filter { self.isSelected(forSegment: $0) }
         }
 
         internal func segment(withTag tag: Int) -> NSSegment? {

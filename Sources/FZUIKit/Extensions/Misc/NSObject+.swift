@@ -8,7 +8,6 @@
 import Foundation
 
 extension NSObjectProtocol where Self: NSObject {
-    
     @discardableResult
     func set<Value>(_ keyPath: ReferenceWritableKeyPath<Self, Value>, to value: Value) -> Self {
         self[keyPath: keyPath] = value

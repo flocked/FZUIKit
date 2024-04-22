@@ -28,15 +28,6 @@
                 return self
             }
 
-            /// The action block of the button when the selection changes.
-            @discardableResult
-            public func onSelect(_ handler: @escaping () -> Void) -> Self {
-                button.actionBlock = { _ in
-                    handler()
-                }
-                return self
-            }
-
             /// The menu of the popup button.
             @discardableResult
             public func menu(_ menu: NSMenu) -> Self {

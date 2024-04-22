@@ -150,15 +150,6 @@
                 return self
             }
 
-            /// The action block of the button.
-            @discardableResult
-            public func onAction(_ handler: @escaping () -> Void) -> Self {
-                button.actionBlock = { _ in
-                    handler()
-                }
-                return self
-            }
-
             static func button(for type: NSButton.BezelStyle) -> NSButton {
                 let button = NSButton(frame: .zero)
                 button.translatesAutoresizingMaskIntoConstraints = false

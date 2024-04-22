@@ -25,32 +25,48 @@
                 get { segmentedControl.segments }
                 set { segmentedControl.segments = newValue }
             }
+            
+            /// Sets the segments of the segmented control.
+            @discardableResult
+            public func segments(_ segments: [NSSegment]) -> Self {
+                segmentedControl.segments = segments
+                return self
+            }
+            
+            /// Sets the segments of the segmented control.
+            @discardableResult
+            public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
+                segmentedControl.segments = segments()
+                return self
+            }
+            
+            /// The selected segments.
+            public var selectedSegments: [NSSegment] {
+                var selectedSegments = segmentedControl.selectedSegments
+                if let index = selectedSegments.firstIndex(where: {$0.isLastSelected}) {
+                    selectedSegments = selectedSegments.remove(at: index) + selectedSegments
+                }
+                return selectedSegments
+            }
 
-            /// The type of tracking behavior the segmented control exhibits.
+            /// Sets the type of tracking behavior the segmented control exhibits.
             @discardableResult
             public func switchingMode(_ mode: NSSegmentedControl.SwitchTracking) -> Self {
                 segmentedControl.trackingMode = mode
                 return self
             }
 
-            /// The visual style used to display the segmented control.
+            /// Sets the visual style used to display the segmented control.
             @discardableResult
             public func style(_ type: NSSegmentedControl.Style) -> Self {
                 segmentedControl.segmentStyle = type
                 return self
             }
 
-            /// The color of the selected segment's bezel, in appearances that support it.
+            /// Sets the color of the selected segment's bezel, in appearances that support it.
             @discardableResult
             public func selectedSegmentBezelColor(_ color: NSColor?) -> Self {
                 segmentedControl.selectedSegmentBezelColor = color
-                return self
-            }
-
-            /// The segments of the segmented control.
-            @discardableResult
-            public func segments(_ segments: [NSSegment]) -> Self {
-                segmentedControl.segments = segments
                 return self
             }
 
@@ -66,18 +82,6 @@
                     }
                     handler(selected)
                 }
-
-                /*
-                 item.actionBlock = { [weak self] _ in
-                     guard let self = self else { return }
-                     var selected = self.segments.filter { $0.isSelected }
-                     if let index = selected.firstIndex(where: { $0.isLastSelected == true }) {
-                         let lastSelected = selected.remove(at: index)
-                         selected = lastSelected + selected
-                     }
-                     handler(selected)
-                 }
-                 */
                 return self
             }
 
@@ -121,11 +125,11 @@
             {
                 self.segmentedControl = segmentedControl
                 super.init(identifier ?? .random)
-                self.segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-                self.segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-                self.segmentedControl.segmentDistribution = .fillEqually
+                segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+                segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+                segmentedControl.segmentDistribution = .fillEqually
                 item.view = self.segmentedControl
-                self.segmentedControl.actionBlock = { [weak self] _ in
+                segmentedControl.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     self.item.actionBlock?(self.item)
                 }

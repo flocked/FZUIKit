@@ -145,15 +145,6 @@
                 return self
             }
 
-            /// The action block of the button.
-            @discardableResult
-            public func onAction(_ handler: @escaping () -> Void) -> Self {
-                button.actionBlock = { _ in
-                    handler()
-                }
-                return self
-            }
-
             func showPopover() {
                 if let p = popover {
                     p.close()
