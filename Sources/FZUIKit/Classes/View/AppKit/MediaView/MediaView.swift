@@ -544,7 +544,6 @@
             overlayContentView.clipsToBounds = true
             addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
-            AVPlayerView.swizzleScrollWheel()
             videoView.volumeScrollControl = .normal
             videoView.playbackPositionScrollControl = .normal
         }
@@ -678,78 +677,16 @@ extension AVPlayerView {
         }
     }
     
-    static func swizzleScrollWheel() {
-        guard !isMethodReplaced(#selector(Self.scrollWheel(with:))) else { return }
-        do {
-            try replaceMethod(
-                #selector(Self.scrollWheel(with:)),
-                methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
-                    object, event in
-                    Swift.print("checkkk", object)
-                    if let playerView = object as? AVPlayerView {
-                        if let event = playerView.processScrollWheel(event) {
-                            store.original(object, #selector(NSView.scrollWheel(with:)), event)
-                        }
-                    } else {
-                        store.original(object, #selector(NSView.scrollWheel(with:)), event)
-                    }
-                }
-                }
-        } catch {
-            debugPrint(error)
-        }
-    }
-    
     func setupPlayerGestureRecognizer() {
         if volumeScrollControl != .off || playbackPositionScrollControl != .off {
-            Self.swizzleScrollWheel()
+            if playerViewGestureRecognizer == nil {
+                playerViewGestureRecognizer = PlayerViewGestureRecognizer()
+                addGestureRecognizer(playerViewGestureRecognizer!)
+            }
+        } else {
+            playerViewGestureRecognizer?.removeFromView()
+            playerViewGestureRecognizer = nil
         }
-    }
-    
-    func processScrollWheel(_ event: NSEvent) -> NSEvent? {
-        if (enclosingScrollView?.magnification ?? 1.0) == 1.0, let player = player, player.currentItem != nil, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
-            let isMouse = event.phase.isEmpty
-            let isTrackpadBegan = event.phase.contains(.began)
-            let isTrackpadEnd = event.phase.contains(.ended)
-            var scrollDirection: NSUIUserInterfaceLayoutOrientation?
-            
-            if isMouse || isTrackpadBegan {
-              if event.scrollingDeltaX != 0 {
-                scrollDirection = .horizontal
-              } else if event.scrollingDeltaY != 0 {
-                scrollDirection = .vertical
-              }
-            } else if isTrackpadEnd {
-              scrollDirection = nil
-            }
-            let isPrecise = event.hasPreciseScrollingDeltas
-            let isNatural = event.isDirectionInvertedFromDevice
-
-            var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
-            var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2)/100.0
-
-            if isNatural {
-              deltaY = -deltaY
-            } else {
-              deltaX = -deltaX
-            }
-            if scrollDirection == .vertical, volumeScrollControl != .off {
-                let newVolume = (player.volume + Float(isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
-                player.volume = newVolume
-            } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
-                let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*deltaX
-                if !player.isLooping {
-                    player.currentTimeDuration = .seconds((player.currentTimeDuration.seconds + seconds).clamped(to: 0...player.duration.seconds))
-                } else {
-                    let duration = player.duration.seconds
-                    let truncating = (player.currentTimeDuration.seconds+seconds).truncatingRemainder(dividingBy: duration)
-                    player.currentTimeDuration = truncating < 0.0 ? .seconds(duration-(truncating * -1.0)) : .seconds(truncating)
-                }
-            }
-            return nil
-        }
-        return event
     }
     
     var playerViewGestureRecognizer: PlayerViewGestureRecognizer? {
@@ -774,7 +711,7 @@ class PlayerViewGestureRecognizer: NSPanGestureRecognizer {
     override var state: NSGestureRecognizer.State {
         didSet {
             guard let playerView = playerView else { return }
-            translation(in: playerView).x
+            Swift.print(translation(in: playerView))
         }
     }
 }
