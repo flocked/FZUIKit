@@ -395,7 +395,9 @@ class MediaScrollView: FZScrollView {
     }
     
     override func scrollWheel(with event: NSEvent) {
-        if magnification == 1.0, let mediaView = mediaView, mediaView.mediaType == .video {
+        if magnification == 1.0, let mediaView = mediaView, mediaView.mediaType == .video, (mediaView.isVolumeControllableByScrolling || mediaView.isPlaybackPositionControllableByScrolling) {
+            mediaView.scrollWheel(with: event)
+            /*
             let isMouse = event.phase.isEmpty
             let isTrackpadBegan = event.phase.contains(.began)
             let isTrackpadEnd = event.phase.contains(.ended)
@@ -428,13 +430,16 @@ class MediaScrollView: FZScrollView {
             let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*Double(delta)
             let newPlaybackPosition = mediaView.videoPlaybackTime + .seconds(seconds)
             Swift.print("scroll", volume, seconds, newVolume, newPlaybackPosition.seconds)
-            if scrollDirection == .horizontal, mediaView.isVolumeControllableByScrolling {
+            if scrollDirection == .vertical, mediaView.isVolumeControllableByScrolling {
                 Swift.print("volume", mediaView.volume, newVolume)
                 mediaView.volume = newVolume
-            } else if scrollDirection == .vertical, mediaView.isPlaybackPositionControllableByScrolling {
+            } else if scrollDirection == .horizontal, mediaView.isPlaybackPositionControllableByScrolling {
                 mediaView.seekVideo(to: newPlaybackPosition, tolerance: .zero)
                 Swift.print("position", mediaView.videoPlaybackTime.seconds, newPlaybackPosition.seconds)
             }
+             */
+        } else {
+            super.scrollWheel(with: event)
         }
     }
     

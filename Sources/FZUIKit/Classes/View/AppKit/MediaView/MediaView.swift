@@ -212,6 +212,52 @@
         open var isVolumeControllableByScrolling: Bool = true
         open var isPlaybackPositionControllableByScrolling: Bool = true
         
+        open override func scrollWheel(with event: NSEvent) {
+            if mediaType == .video, (isVolumeControllableByScrolling || isPlaybackPositionControllableByScrolling) {
+                let isMouse = event.phase.isEmpty
+                let isTrackpadBegan = event.phase.contains(.began)
+                let isTrackpadEnd = event.phase.contains(.ended)
+
+                // determine direction
+
+                if isMouse || isTrackpadBegan {
+                  if event.scrollingDeltaX != 0 {
+                    scrollDirection = .horizontal
+                  } else if event.scrollingDeltaY != 0 {
+                    scrollDirection = .vertical
+                  }
+                } else if isTrackpadEnd {
+                  scrollDirection = nil
+                }
+                let isPrecise = event.hasPreciseScrollingDeltas
+                let isNatural = event.isDirectionInvertedFromDevice
+
+                var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
+                var deltaY = isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2
+
+                if isNatural {
+                  deltaY = -deltaY
+                } else {
+                  deltaX = -deltaX
+                }
+                let delta = Float(scrollDirection == .horizontal ? deltaX : deltaY)
+                let volume = Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)
+                let newVolume = (self.volume + Float(isMouse ? (delta/100) : volumeMap[volumeScrollAmount] * (delta/100))).clamped(max: 1.0)
+                let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*Double(delta)
+                let newPlaybackPosition = videoPlaybackTime + .seconds(seconds)
+                Swift.print("scroll", volume, seconds, newVolume, newPlaybackPosition.seconds)
+                if scrollDirection == .vertical, isVolumeControllableByScrolling {
+                    Swift.print("volume", self.volume, newVolume)
+                    self.volume = newVolume
+                } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
+                seekVideo(to: newPlaybackPosition, tolerance: .zero)
+                    Swift.print("position", videoPlaybackTime.seconds, newPlaybackPosition.seconds)
+                }
+            } else {
+                super.scrollWheel(with: event)
+            }
+        }
+        
         /// A Boolean value that indicates whether media is muted.
         open var isMuted: Bool {
             get { player.isMuted }
