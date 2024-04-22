@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 22.04.24.
 //
 
+#if os(macOS)
 import AppKit
 import AVKit
 
@@ -109,3 +110,4 @@ open class ScrollPlayerView: AVPlayerView {
         }
     }
 }
+#endif
