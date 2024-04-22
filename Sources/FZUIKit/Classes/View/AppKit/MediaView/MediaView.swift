@@ -214,6 +214,7 @@
         open var isVolumeControllableByScrolling: Bool = true
         open var isPlaybackPositionControllableByScrolling: Bool = true
         
+        /*
         open override func scrollWheel(with event: NSEvent) {
             if (enclosingScrollView?.magnification ?? 1.0) == 1.0, mediaType == .video, (isVolumeControllableByScrolling || isPlaybackPositionControllableByScrolling) {
                 let isMouse = event.phase.isEmpty
@@ -262,6 +263,7 @@
                 super.scrollWheel(with: event)
             }
         }
+         */
 
         /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
         open var volumeScrollControl: VolumeScrollControl = .normal
@@ -542,17 +544,9 @@
             overlayContentView.clipsToBounds = true
             addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
-            Swift.print("check", videoView.contentOverlayView != nil)
-            videoOverlayView.backgroundColor = .systemRed.withAlphaComponent(0.5)
-            videoView.contentOverlayView?.addSubview(withConstraint: videoOverlayView)
-        }
-        
-        let videoOverlayView = VideoOverlayView(frame: .zero)
-        
-        class VideoOverlayView: NSView {
-            override func scrollWheel(with event: NSEvent) {
-                Swift.print("VideoOverlayView")
-            }
+            
+            videoView.volumeScrollControl = .normal
+            videoView.playbackPositionScrollControl = .normal
         }
 
         open override func keyDown(with event: NSEvent) {
@@ -638,6 +632,7 @@ extension CGFloat {
 }
 
 extension AVPlayerView {
+    /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
    public var volumeScrollControl: VolumeScrollControl {
        get { getAssociatedValue("volumeScrollControl", initialValue: .off) }
        set {
@@ -646,6 +641,25 @@ extension AVPlayerView {
            setupPlayerGestureRecognizer()
        }
    }
+    
+    /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
+    public enum VolumeScrollControl: Double {
+        case slow = 0.25
+        case normal = 0.5
+        case fast = 0.75
+        /// The volume can't be modified by scrolling.
+        case off = 0.0
+    }
+    
+    /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
+    public var playbackPositionScrollControl: PlaybackPositionScrollControl {
+        get { getAssociatedValue("playbackPositionScrollControl", initialValue: .off) }
+        set {
+            guard newValue != playbackPositionScrollControl else { return }
+            setAssociatedValue(newValue, key: "playbackPositionScrollControl")
+            setupPlayerGestureRecognizer()
+        }
+    }
     
     /// The value that indicates whether the playback position can be modified by the user by scrolling left & right.
     public enum PlaybackPositionScrollControl: Double {
@@ -664,22 +678,29 @@ extension AVPlayerView {
         }
     }
     
-    
-    /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
-    public enum VolumeScrollControl: Double {
-        case slow = 0.25
-        case normal = 0.5
-        case fast = 0.75
-        /// The volume can't be modified by scrolling.
-        case off = 0.0
-    }
-    
-    public var playbackPositionScrollControl: PlaybackPositionScrollControl {
-        get { getAssociatedValue("playbackPositionScrollControl", initialValue: .off) }
-        set {
-            guard newValue != playbackPositionScrollControl else { return }
-            setAssociatedValue(newValue, key: "playbackPositionScrollControl")
-            setupPlayerGestureRecognizer()
+    func setupPlayerGestureRecognizer() {
+        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
+            guard !isMethodReplaced(#selector(NSView.scrollWheel(with:))) else { return }
+            do {
+                try replaceMethod(
+                    #selector(NSView.scrollWheel(with:)),
+                    methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
+                    hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
+                        object, event in
+                        if let playerView = object as? AVPlayerView {
+                            if let event = playerView.processScrollWheel(event) {
+                                store.original(object, #selector(NSView.scrollWheel(with:)), event)
+                            }
+                        } else {
+                            store.original(object, #selector(NSView.scrollWheel(with:)), event)
+                        }
+                    }
+                    }
+            } catch {
+                debugPrint(error)
+            }
+        } else {
+            resetMethod(#selector(NSView.scrollWheel(with:)))
         }
     }
     
@@ -726,42 +747,6 @@ extension AVPlayerView {
             return nil
         }
         return event
-    }
-    
-    func setupPlayerGestureRecognizer() {
-        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
-            guard !isMethodReplaced(#selector(NSView.scrollWheel(with:))) else { return }
-            do {
-                try replaceMethod(
-                    #selector(NSView.scrollWheel(with:)),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
-                        object, event in
-                        if let playerView = object as? AVPlayerView {
-                            if let event = playerView.processScrollWheel(event) {
-                                store.original(object, #selector(NSView.scrollWheel(with:)), event)
-                            }
-                        } else {
-                            store.original(object, #selector(NSView.scrollWheel(with:)), event)
-                        }
-                    }
-                    }
-            } catch {
-                debugPrint(error)
-            }
-        } else {
-            resetMethod(#selector(NSView.scrollWheel(with:)))
-        }
-        
-        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
-            if playerViewGestureRecognizer == nil {
-                playerViewGestureRecognizer = PlayerViewGestureRecognizer()
-                addGestureRecognizer(playerViewGestureRecognizer!)
-            }
-        } else {
-            playerViewGestureRecognizer?.removeFromView()
-            playerViewGestureRecognizer = nil
-        }
     }
     
     var playerViewGestureRecognizer: PlayerViewGestureRecognizer? {
