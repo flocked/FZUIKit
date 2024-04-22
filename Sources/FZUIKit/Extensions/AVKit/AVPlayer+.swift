@@ -125,7 +125,7 @@ public extension AVPlayer {
     /// The current playback percentage (between `0` and `1.0`).
     var playbackPercentage: Double {
         get { currentItem?.playbackPercentage ?? .zero }
-        set { seek(toPercentage: newValue) }
+        set { seek(toPercentage: newValue, tolerance: .zero) }
     }
     
     /// The duration of the current player item.
@@ -136,7 +136,7 @@ public extension AVPlayer {
     /// The current time of the current player item as `TimeDuration`.
     var currentTimeDuration: TimeDuration {
         get { currentTime().timeDuration }
-        set { seek(to: newValue.clamped(max: duration)) }
+        set { seek(to: newValue.clamped(max: duration), tolerance: .zero) }
     }
 
     /// Toggles the playback between play and pause.
