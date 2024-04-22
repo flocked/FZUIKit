@@ -93,14 +93,11 @@
             set {
                 imageView.image = newValue
                 if newValue != nil {
-                    showImageView()
-                    hideVideoView()
                     mediaType = imageView.isAnimatable ? .gif : .image
                     _mediaURL = nil
-                    resizeOverlayView()
+                    showImageView()
                 } else if mediaType == .image {
                     hideImageView()
-                    _mediaURL = nil
                     mediaType = nil
                 }
             }
@@ -118,14 +115,11 @@
             set {
                 imageView.images = newValue
                 if newValue.isEmpty == false {
-                    showImageView()
-                    hideVideoView()
                     mediaType = imageView.isAnimatable ? .gif : .image
                     _mediaURL = nil
-                    resizeOverlayView()
+                    showImageView()
                 } else if mediaType == .image {
                     hideImageView()
-                    _mediaURL = nil
                     mediaType = nil
                 }
             }
@@ -159,19 +153,9 @@
                 player.replaceCurrentItem(with: AVPlayerItem(asset: asset))
                 mediaType = .video
                 showVideoView()
-                hideImageView()
-                resizeOverlayView()
-                switch videoPlaybackOption {
-                case .autostart:
+                if videoPlaybackOption == .autostart || (videoPlaybackOption == .previousPlaybackState && previousVideoPlaybackState == .isPlaying) {
                     player.play()
-                case .previousPlaybackState:
-                    switch previousVideoPlaybackState {
-                    case .isPlaying:
-                        player.play()
-                    default:
-                        player.pause()
-                    }
-                case .pause:
+                } else {
                     player.pause()
                 }
             } else if mediaType == .video {
@@ -201,7 +185,6 @@
             didSet {
                 imageView.imageScaling = mediaScaling.imageScaling
                 videoView.videoGravity = mediaScaling.videoGravity
-                resizeOverlayView()
             }
         }
         
@@ -397,11 +380,11 @@
         
         /// Playback option when loading a new video.
         public enum VideoPlaybackOption: Int, Hashable {
-            /// New videos automatically start.
+            /// The video automatically starts playing.
             case autostart
-            /// New videos keep the previous playback state.
+            /// The video keeps the previous playback state.
             case previousPlaybackState
-            /// New videos are paused.
+            /// The video is paused.
             case pause
         }
         
@@ -545,11 +528,6 @@
             frame.size = fittingSize
         }
         
-        open override func layout() {
-            super.layout()
-            resizeOverlayView()
-        }
-        
         // MARK: - Init
 
         /// Creates a media view that displays the media at the specified url.
@@ -579,9 +557,7 @@
             super.init(coder: coder)
             sharedInit()
         }
-        
-        // MARK: - Private
-        
+                
         private func sharedInit() {
             wantsLayer = true
             clipsToBounds = true
@@ -594,9 +570,12 @@
             addSubview(withConstraint: videoView)
         }
         
+        // MARK: - Private
+        
         private func showImageView() {
             imageView.isHidden = false
-            imageView.overlayContentView.addSubview(overlayContentView)
+            imageView.overlayContentView.addSubview(withConstraint: overlayContentView)
+            hideVideoView()
         }
 
         private func hideImageView() {
@@ -606,8 +585,9 @@
 
         private func showVideoView() {
             videoView.isHidden = false
-            videoView.resizingContentOverlayView.addSubview(overlayContentView)
+            videoView.resizingContentOverlayView.addSubview(withConstraint: overlayContentView)
             setupPlaybackHandler()
+            hideImageView()
         }
 
         private func hideVideoView() {
@@ -632,12 +612,6 @@
                 }
             } else {
                 playbackObserver = nil
-            }
-        }
-        
-        private func resizeOverlayView() {
-            if let contentView = overlayContentView.superview {
-                overlayContentView.frame.size = contentView.bounds.size
             }
         }
         

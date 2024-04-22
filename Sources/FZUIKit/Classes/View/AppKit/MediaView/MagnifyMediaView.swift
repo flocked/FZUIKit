@@ -629,8 +629,6 @@
             sharedInit()
         }
         
-        // MARK: - Private
-
         private func sharedInit() {
             backgroundColor = .black
             mediaView.wantsLayer = true
