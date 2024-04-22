@@ -747,6 +747,13 @@
                 playbackObserver = nil
             }
         }
+        
+        open override var menu: NSMenu? {
+            didSet {
+                imageView.menu = menu
+                videoView.menu = menu
+            }
+        }
     }
 
 extension CGFloat {

@@ -670,6 +670,10 @@
             scrollView.documentView = mediaView
             addSubview(scrollView)
         }
+        
+        open override var menu: NSMenu? {
+            didSet { mediaView.menu = menu }
+        }
     }
 
 #endif
