@@ -427,6 +427,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     var observation: KeyValueObservation?
     var observation1: KeyValueObservation?
+    var width: CGFloat = 0.0
     override public func prepare() {
         // Swift.print("prepare")
         super.prepare()
@@ -435,12 +436,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #endif
         Swift.print("pare", collectionView != nil)
         if observation == nil {
-            observation = collectionView?.observeChanges(for: \.bounds) { old, new in
-                guard old.width != new.width else { return }
-                Swift.print("bounds", new.width)
-            }
-            observation1 = collectionView?.observeChanges(for: \.frame) { old, new in
-                guard old.width != new.width else { return }
+            width = collectionView?.frame.width ?? 0.0
+            observation1 = collectionView?.observeChanges(for: \.frame) { [weak self] old, new in
+                guard let self = self, self.width != new.width else { return }
+                self.width = new.width
                 Swift.print("frame", new.width)
             }
         }
