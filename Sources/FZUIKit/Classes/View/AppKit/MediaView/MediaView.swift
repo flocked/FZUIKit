@@ -15,7 +15,7 @@
         
         private let imageView = ImageView().isHidden(true)
         private let videoView = ScrollPlayerView().isHidden(true)
-        public let player = AVPlayer()
+        private let player = AVPlayer()
         private var playbackObserver: AVPlayerTimeObservation?
         private var previousVideoPlaybackState: AVPlayer.State = .isStopped
         private var _mediaURL: URL?

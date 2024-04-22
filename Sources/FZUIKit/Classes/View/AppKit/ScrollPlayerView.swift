@@ -59,8 +59,12 @@ open class ScrollPlayerView: AVPlayerView {
         }
     }
     
+    var mediaView: MediaView? {
+        superview as? MediaView
+    }
+    
     var _magnification: CGFloat {
-        enclosingScrollView?.magnification ?? (superview as? MediaView)?.enclosingScrollView?.magnification ?? 1.0
+        enclosingScrollView?.magnification ?? mediaView?.enclosingScrollView?.magnification ?? 1.0
     }
     
     var scrollDirection: NSUIUserInterfaceLayoutOrientation?
@@ -107,7 +111,9 @@ open class ScrollPlayerView: AVPlayerView {
             if scrollDirection == .vertical, volumeScrollControl != .off {
               //  let newVolume = player.info.volume + (isMouse ? delta : AppData.volumeMap[volumeScrollAmount] * delta)
                 let newVolume = (Double(player.volume) + (isMouse ? delta : volumeScrollControl.value * delta)).clamped(to: 0...1.0)
+                mediaView?.willChangeValue(for: \.volume)
                 player.volume = Float(newVolume)
+                mediaView?.didChangeValue(for: \.volume)
             } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
                 let currentTime = player.currentTimeDuration.seconds
                 let duration = player.duration.seconds
