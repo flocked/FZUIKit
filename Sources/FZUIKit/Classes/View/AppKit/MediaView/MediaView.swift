@@ -244,7 +244,7 @@
                 } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
                     let seconds = (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX
                     let duration = videoPlaybackTime.seconds
-                    let truncating = (duration+seconds).truncatingRemainder(dividingBy: duration)
+                    let truncating = (duration+seconds).truncatingRemainder(dividingBy: videoDuration.seconds)
                     Swift.print(truncating == videoPlaybackTime.seconds + seconds, truncating, videoPlaybackTime.seconds + seconds)
                     
                     videoPlaybackTime += .seconds(seconds)
