@@ -268,7 +268,7 @@
         }
         
         /// The volume of the media.
-        open var volume: Float {
+        @objc dynamic open var volume: Float {
             get { player.volume }
             set { player.volume = newValue }
         }
