@@ -10,11 +10,14 @@
     import WebKit
 
     /**
+     An extended `WKWebView`.
+     
      A WKWebView with properties for current url request & current cookies and handlers for didFinishLoading & cookies.
 
      */
     @available(macOS 11.3, iOS 14.5, *)
     open class FZWebView: WKWebView {
+        
         /// The handlers for downloading files.
         public struct DownloadHandlers {
             /// The handler that determines whether a url request should be downloaded.
@@ -45,7 +48,7 @@
         open var downloadHandlers = DownloadHandlers()
 
         /// The download strategy.
-        open var downloadStrategy: DownloadStrategy = .resume
+        open var defaultDownloadStrategy: DownloadStrategy = .resume
 
         /// The progress of all downloads.
         public let downloadProgress = DownloadProgress()
@@ -63,12 +66,12 @@
         open var cookiesHandler: (([HTTPCookie]) -> Void)?
 
         /// The current url request.
-        open var currentRequest: URLRequest?
+        @objc dynamic open var currentRequest: URLRequest?
 
         /// All HTTP cookies of the current url request.
-        @objc open fileprivate(set) dynamic var currentHTTPCookies: [HTTPCookie] {
+        @objc dynamic open fileprivate(set) var currentHTTPCookies: [HTTPCookie] {
             get { _currentHTTPCookies.synchronized }
-            set {}
+            set { _currentHTTPCookies.synchronized = newValue }
         }
 
         var _currentHTTPCookies = SynchronizedArray<HTTPCookie>()
@@ -77,7 +80,9 @@
         let awaitingDownloadRequests = SynchronizedArray<URLRequest>()
         let awaitingResumeDatas = SynchronizedArray<Data>()
         let sequentialOperationQueue = OperationQueue(maxConcurrentOperationCount: 1)
-
+        let downloadFileURLHandlers = SynchronizedDictionary<URLRequest, (URLResponse, String) -> (URL)>()
+        let downloadFileStrategies = SynchronizedDictionary<URLRequest, DownloadStrategy>()
+        
         public init(frame: CGRect) {
             super.init(frame: frame, configuration: .init())
             delegate = Delegate(webview: self)
@@ -112,7 +117,7 @@
                 return nil
             } else {
                 currentRequest = nil
-                _currentHTTPCookies.removeAll()
+                currentHTTPCookies.removeAll()
                 sequentialOperationQueue.maxConcurrentOperationCount = 0
                 return super.load(request)
             }
@@ -123,8 +128,8 @@
 
          - Parameter url: The URL to download a resource from a webpage.
          */
-        open func startDownload(_ url: URL, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
-            startDownload(URLRequest(url: url), fileURLHandler: fileURLHandler, completionHandler: completionHandler)
+        open func startDownload(_ url: URL, strategy: DownloadStrategy? = nil, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
+            startDownload(URLRequest(url: url), strategy: strategy, fileURLHandler: fileURLHandler, completionHandler: completionHandler)
         }
 
         /**
@@ -132,16 +137,16 @@
 
          - Parameter request: An object that encapsulates a URL and other parameters that you need to download a resource from a webpage.
          */
-        open func startDownload(_ request: URLRequest, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
+        open func startDownload(_ request: URLRequest, strategy: DownloadStrategy? = nil, fileURLHandler: @escaping (_ response: URLResponse, _ suggestedFilename: String) -> (URL), completionHandler: @escaping (WKDownload) -> Void) {
             downloadFileURLHandlers[request] = fileURLHandler
+            downloadFileStrategies[request] = strategy ?? defaultDownloadStrategy
             startDownload(using: request, completionHandler: { download in
                 self.downloadFileURLHandlers[request] = nil
+                self.downloadFileStrategies[request] = nil
                 completionHandler(download)
             })
         }
-
-        let downloadFileURLHandlers = SynchronizedDictionary<URLRequest, (URLResponse, String) -> (URL)>()
-
+        
         override open func startDownload(using request: URLRequest, completionHandler: @escaping (WKDownload) -> Void) {
             if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
                 awaitingDownloadRequests.append(request)
@@ -203,10 +208,7 @@
             func setupDownload(_ download: WKDownload) {
                 download.delegate = self
                 webview.downloads.append(download)
-                download.downloadObservation = download.observeChanges(for: \.progress.fractionCompleted, handler: {
-                    _, _ in
-                    download.progress.updateEstimatedTimeRemaining()
-                })
+                download.progress.autoUpdateEstimatedTimeRemaining = true
                 webview.downloadProgress.addChild(download.progress)
                 webview.downloadHandlers.didStart?(download)
                 webview.sequentialOperationQueue.maxConcurrentOperationCount = 1
@@ -241,8 +243,6 @@
                     self.webview.cookiesHandler?(cookies)
                 }
 
-                self.webview._currentHTTPCookies.removeAll()
-                self.webview._currentHTTPCookies.append(contentsOf: cookies)
                 self.webview.currentHTTPCookies = cookies
             }
 
@@ -265,6 +265,7 @@
 
     @available(macOS 11.3, iOS 14.5, *)
     extension FZWebView.Delegate: WKDownloadDelegate {
+        
         public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
             Swift.debugPrint("[FZWebView] download suggestedFilename", suggestedFilename, response.expectedContentLength)
             var downloadLocation: URL?
@@ -273,8 +274,12 @@
             } else {
                 downloadLocation = webview.downloadHandlers.downloadLocation?(response, suggestedFilename)
             }
+            var downloadStrategy = webview.defaultDownloadStrategy
+            if let request = download.originalRequest, let strategy = webview.downloadFileStrategies[request] {
+                downloadStrategy = strategy
+            }
             if let downloadLocation = downloadLocation, FileManager.default.fileExists(at: downloadLocation) {
-                switch webview.downloadStrategy {
+                switch downloadStrategy {
                 case .delete:
                     do {
                         Swift.debugPrint("[FZWebView] download delete", suggestedFilename, response.expectedContentLength)
@@ -383,11 +388,7 @@
 
     @available(macOS 11.3, iOS 14.5, *)
     extension WKDownload {
-        var downloadObservation: KeyValueObservation? {
-            get { getAssociatedValue("downloadObservation", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "downloadObservation") }
-        }
-
+        /// The amount of retries when downloading via ``FZWebView`` fails.
         public var retryAmount: Int {
             get { getAssociatedValue("retryAmount", initialValue: 0) }
             set { setAssociatedValue(newValue, key: "retryAmount") }
