@@ -917,6 +917,20 @@ open class ImageView: NSControl {
         imageView.image = image
     }
     
+    /**
+     Returns an image view initialized with the specified symbol image.
+     
+     - Parameter symbolName: The name of the symbol image.
+     
+     - Returns: An initialized image view object.
+     */
+    @available(macOS 11.0, *)
+    public init(symbolName: String) {
+        super.init(frame: .zero)
+        sharedInit()
+        imageView.image = NSImage(systemSymbolName: symbolName)
+    }
+    
     public init() {
         super.init(frame: .zero)
         sharedInit()

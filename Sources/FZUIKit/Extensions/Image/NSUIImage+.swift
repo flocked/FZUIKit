@@ -13,6 +13,20 @@
 import FZSwiftUtils
 
 public extension NSUIImage {
+    /**
+     Creates an image object that contains a system symbol image.
+     
+     - Parameter systemName: The name of the system symbol image.
+     */
+    @available(macOS 11.0, *)
+    static func symbol(_ systemName: String) -> NSUIImage? {
+        #if os(macOS)
+        NSUIImage(systemSymbolName: systemName)
+        #else
+        NSUIImage(systemName: systemName)
+        #endif
+    }
+    
     /// The symbol name of the image.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {

@@ -53,15 +53,6 @@
                 }
                 return self
             }
-
-            /// The action block of the item.
-            @discardableResult
-            public func onAction(_ action: @escaping () -> Void) -> Self {
-                item.actionBlock = { _ in
-                    action()
-                }
-                return self
-            }
         }
     }
 #endif
