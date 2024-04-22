@@ -15,9 +15,6 @@ open class ScrollPlayerView: AVPlayerView {
     /// A value that indicates whether the volume is controllable by scrolling up & down.
     open var volumeScrollControl: VolumeScrollControl = .normal
     
-    /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
-    open var togglePlaybackByRightClick: Bool = false
-    
     /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
     @discardableResult
     open func volumeScrollControl(_ volumeScrollControl: VolumeScrollControl) -> Self {
@@ -59,8 +56,21 @@ open class ScrollPlayerView: AVPlayerView {
         }
     }
     
+    /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    open var togglePlaybackByRightClick: Bool = false
+    
+    /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    @discardableResult
+    open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
+        set(\.togglePlaybackByRightClick, to: togglePlaybackByRightClick)
+    }
+    
     var mediaView: MediaView? {
         superview as? MediaView
+    }
+    
+    var magnifyMediaView: MagnifyMediaView? {
+        firstSuperview(for: MagnifyMediaView.self)
     }
     
     var _magnification: CGFloat {
@@ -112,8 +122,11 @@ open class ScrollPlayerView: AVPlayerView {
               //  let newVolume = player.info.volume + (isMouse ? delta : AppData.volumeMap[volumeScrollAmount] * delta)
                 let newVolume = (Double(player.volume) + (isMouse ? delta : volumeScrollControl.value * delta)).clamped(to: 0...1.0)
                 mediaView?.willChangeValue(for: \.volume)
+                magnifyMediaView?.willChangeValue(for: \.volume)
+                Swift.print(magnifyMediaView != nil, superview?.superview ?? "nil", superview?.superview?.superview ?? "nil", superview?.superview?.superview?.superview ?? "nil")
                 player.volume = Float(newVolume)
                 mediaView?.didChangeValue(for: \.volume)
+                magnifyMediaView?.didChangeValue(for: \.volume)
             } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
                 let currentTime = player.currentTimeDuration.seconds
                 let duration = player.duration.seconds

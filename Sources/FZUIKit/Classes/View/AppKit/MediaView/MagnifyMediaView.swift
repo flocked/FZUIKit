@@ -176,7 +176,7 @@
         // MARK: - Video
         
         /// The volume of the media.
-        open var volume: CGFloat {
+       @objc dynamic open var volume: CGFloat {
             get { mediaView.volume }
             set { mediaView.volume = newValue }
         }
