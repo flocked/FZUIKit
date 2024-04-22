@@ -8,7 +8,6 @@
 #if os(macOS)
     import AppKit
     import AVKit
-    import Foundation
     import FZSwiftUtils
 
     /// A magnifiable view that presents media.
@@ -32,6 +31,12 @@
             set { mediaView.imageTintColor = newValue }
         }
         
+        /// Sets the image tint color for template and symbol images.
+        @discardableResult
+        open func imageTintColor(_ imageTintColor: NSColor?) -> Self {
+            set(\.imageTintColor, to: imageTintColor)
+        }
+        
         /**
          The amount by which to zoom the image when the user presses either the plus or minus key.
          
@@ -40,6 +45,12 @@
         open var keyDownZoomFactor: CGFloat {
             get { scrollView.keyDownZoomFactor }
             set { scrollView.keyDownZoomFactor = newValue }
+        }
+        
+        /// Sets the amount by which to zoom the image when the user presses either the plus or minus key.
+        @discardableResult
+        open func keyDownZoomFactor(_ zoomFactor: CGFloat) -> Self {
+            set(\.keyDownZoomFactor, to: zoomFactor)
         }
         
         /**
@@ -52,6 +63,12 @@
             set { scrollView.spaceKeyZoomFactor = newValue }
         }
         
+        /// Sets the amount by which to momentarily zoom the image when the user holds the space key.
+        @discardableResult
+        open func spaceKeyZoomFactor(_ zoomFactor: CGFloat) -> Self {
+            set(\.spaceKeyZoomFactor, to: zoomFactor)
+        }
+        
         /**
          The amount by which to zoom the image when the user double clicks the view.
          
@@ -60,6 +77,12 @@
         open var mouseClickZoomFactor: CGFloat {
             get { scrollView.mouseClickZoomFactor }
             set { scrollView.mouseClickZoomFactor = newValue }
+        }
+        
+        /// Sets the amount by which to zoom the image when the user double clicks the view.
+        @discardableResult
+        open func mouseClickZoomFactor(_ zoomFactor: CGFloat) -> Self {
+            set(\.mouseClickZoomFactor, to: zoomFactor)
         }
 
         open override func rightMouseDown(with _: NSEvent) {
@@ -74,6 +97,376 @@
             true
         }
 
+        /// The url to the media displayed in the media view.
+        open var mediaURL: URL? {
+            get { mediaView.mediaURL }
+            set {
+                mediaView.mediaURL = newValue
+                setMagnification(1.0)
+            }
+        }
+        
+        /// Sets the url to the media displayed in the media view.
+        @discardableResult
+        open func mediaURL(_ mediaURL: URL?) -> Self {
+            set(\.mediaURL, to: mediaURL)
+        }
+
+        /// The image displayed in the media view.
+        open var image: NSImage? {
+            get { mediaView.image }
+            set {
+                mediaView.image = newValue
+                setMagnification(1.0)
+            }
+        }
+        
+        /// Sets the image displayed in the media view.
+        @discardableResult
+        open func image(_ image: NSImage?) -> Self {
+            set(\.image, to: image)
+        }
+        
+        /// The images displayed in the media view.
+        open var images: [NSImage] {
+            get { mediaView.images }
+            set {
+                mediaView.images = newValue
+                setMagnification(1.0)
+            }
+        }
+        
+        /// Sets the images displayed in the media view.
+        @discardableResult
+        open func images(_ images: [NSImage]) -> Self {
+            set(\.images, to: images)
+        }
+
+        /// The media asset played by the media view.
+        open var asset: AVAsset? {
+            get { mediaView.asset }
+            set {
+                mediaView.asset = newValue
+                //   scrollView.contentView.frame.size = bounds.size
+                setMagnification(1.0)
+            }
+        }
+        
+        /// Sets the media asset played by the media view.
+        @discardableResult
+        open func asset(_ asset: AVAsset?) -> Self {
+            set(\.asset, to: asset)
+        }
+        
+        /// The symbol configuration of the image.
+        @available(macOS 12.0, iOS 13.0, *)
+        open var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
+            get { mediaView.imageSymbolConfiguration }
+            set { mediaView.imageSymbolConfiguration = newValue }
+        }
+        
+        /// Sets the image symbol configuration.
+        @available(macOS 12.0, iOS 13.0, *)
+        @discardableResult
+        open func imageSymbolConfiguration(_ symbolConfiguration: NSUIImage.SymbolConfiguration?) -> Self {
+            set(\.imageSymbolConfiguration, to: symbolConfiguration)
+        }
+
+        /// A Boolean value indicating whether media is muted.
+        open var isMuted: Bool {
+            get { mediaView.isMuted }
+            set { mediaView.isMuted = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether media is muted.
+        @discardableResult
+        open func isMuted(_ isMuted: Bool) -> Self {
+            set(\.isMuted, to: isMuted)
+        }
+
+        /// The volume of the media.
+        open var volume: CGFloat {
+            get { mediaView.volume }
+            set { mediaView.volume = newValue }
+        }
+        
+        /// Sets the volume of the media.
+        @discardableResult
+        open func volume(_ volume: CGFloat) -> Self {
+            set(\.volume, to: volume)
+        }
+
+        open var videoPlaybackOption: MediaView.VideoPlaybackOption {
+            get { mediaView.videoPlaybackOption }
+            set { mediaView.videoPlaybackOption = newValue }
+        }
+
+        /**
+         Requests that the player seek to a specified time.
+
+         - Parameters:
+            - time: The time to which to seek.
+            - tolerance: The tolerance.
+            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+                - finished: A Boolean value that indicates whether the seek operation completed.
+         */
+        open func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaView.seekVideo(to: interval, tolerance: tolerance, completionHandler: completionHandler)
+        }
+
+        /**
+         Requests that the player seek to a specified percentage.
+
+         - Parameters:
+            - percentage: The percentage to which to seek (between `0.0` and `1.0`).
+            - tolerance: The tolerance.
+            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
+                - finished: A Boolean value that indicates whether the seek operation completed.
+         */
+        open func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaView.seekVideo(toPercentage: percentage, tolerance: tolerance, completionHandler: completionHandler)
+        }
+        
+        /// The duration of the current video.
+        open var videoDuration: TimeDuration { mediaView.videoDuration }
+
+        /// The playback time of the current video.
+        open var videoPlaybackTime: TimeDuration {
+            get { mediaView.videoPlaybackTime }
+            set { mediaView.videoPlaybackTime = newValue }
+        }
+        
+        /// Sets the playback time of the current video.
+        @discardableResult
+        open func videoPlaybackTime(_ videoPlaybackTime: TimeDuration) -> Self {
+            set(\.videoPlaybackTime, to: videoPlaybackTime)
+        }
+
+        /// The playback percentage of the current video (between `0` and `1.0`).
+        open var videoPlaybackPercentage: Double {
+            get { mediaView.videoPlaybackPercentage }
+            set { mediaView.videoPlaybackPercentage = newValue }
+        }
+        
+        /// Sets the playback percentage of the current video (between `0` and `1.0`).
+        @discardableResult
+        open func videoPlaybackPercentage(_ percentage: Double) -> Self {
+            set(\.videoPlaybackPercentage, to: percentage)
+        }
+
+        /// The handler that is called whenever the playback position changes.
+        open var playbackPositionHandler: ((TimeDuration) -> Void)? {
+            get { mediaView.playbackPositionHandler }
+            set { mediaView.playbackPositionHandler = newValue }
+        }
+        
+        /// Sets the handler that is called whenever the playback position changes.
+        @discardableResult
+        open func playbackPositionHandler(_ handler: ((TimeDuration) -> Void)?) -> Self {
+            set(\.playbackPositionHandler, to: handler)
+        }
+        
+        /// The time interval at which the system invokes the handler during normal playback, according to progress of the current playback position.
+        open var playbackPositionHandlerInterval: TimeInterval {
+            get { mediaView.playbackPositionHandlerInterval }
+            set { mediaView.playbackPositionHandlerInterval = newValue }
+        }
+
+        open override var menu: NSMenu? {
+            get { mediaView.menu }
+            set { mediaView.menu = newValue }
+        }
+
+        /// A Boolean value that indicates whether media is looped.
+        open var imageAnimationPlayback: ImageView.AnimationPlaybackOption {
+            get { mediaView.imageAnimationPlayback }
+            set { mediaView.imageAnimationPlayback = newValue }
+        }
+                
+        /// A Boolean value that indicates whether media is looped.
+        open var isLooping: Bool {
+            get { mediaView.isLooping }
+            set { mediaView.isLooping = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether media is looped.
+        @discardableResult
+        open func isLooping(_ isLooping: Bool) -> Self {
+            set(\.isLooping, to: isLooping)
+        }
+        
+        /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
+        open var volumeScrollControl: MediaView.VolumeScrollControl {
+            get { mediaView.volumeScrollControl }
+            set { mediaView.volumeScrollControl = newValue }
+        }
+        
+        /// Sets the value that indicates whether the volume can be modified by the user by scrolling up & down.
+        @discardableResult
+        open func volumeScrollControl(_ volumeScrollControl: MediaView.VolumeScrollControl) -> Self {
+            set(\.volumeScrollControl, to: volumeScrollControl)
+        }
+        
+        /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        open var playbackPositionScrollControl: MediaView.PlaybackPositionScrollControl {
+            get { mediaView.playbackPositionScrollControl }
+            set { mediaView.playbackPositionScrollControl = newValue }
+        }
+        
+        /// Sets the value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        @discardableResult
+        open func playbackPositionScrollControl(_ playbackPositionScrollControl: MediaView.PlaybackPositionScrollControl) -> Self {
+            set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)
+        }
+
+        /// The control style for videos.
+        open var videoViewControlStyle: AVPlayerViewControlsStyle {
+            get { mediaView.videoViewControlStyle }
+            set { mediaView.videoViewControlStyle = newValue }
+        }
+        
+        /// Sets the control style for videos.
+        @discardableResult
+        open func videoViewControlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
+            set(\.videoViewControlStyle, to: style)
+        }
+
+        /// The scaling of the media.
+        open var mediaScaling: MediaView.MediaScaling {
+            get { mediaView.mediaScaling }
+            set { mediaView.mediaScaling = newValue }
+        }
+        
+        /// Sets the scaling of the media.
+        @discardableResult
+        open func mediaScaling(_ mediaScaling: MediaView.MediaScaling) -> Self {
+            set(\.mediaScaling, to: mediaScaling)
+        }
+
+        /// The media type currently displayed.
+        open var mediaType: MediaView.MediaType? { 
+            mediaView.mediaType
+        }
+
+        /// Starts playback of the media.
+        open func play() {
+            mediaView.play()
+        }
+
+        /// Pauses playback of the media.
+        open func pause() {
+            mediaView.pause()
+        }
+
+        /// Stops playback of the media.
+        open func stop() {
+            mediaView.stop()
+        }
+
+        /// Toggles the playback between play and pause.
+        open func togglePlayback() {
+            mediaView.togglePlayback()
+        }
+
+        /// A Boolean value that indicates whether the media is playing.
+        open var isPlaying: Bool {
+            mediaView.isPlaying
+        }
+
+        open override var fittingSize: NSSize {
+            mediaView.fittingSize
+        }
+        
+        open override var intrinsicContentSize: NSSize {
+            mediaView.intrinsicContentSize
+        }
+        
+        open override var acceptsFirstResponder: Bool {
+            true
+        }
+
+        open func sizeToFit() {
+            frame.size = fittingSize
+        }
+
+        /// A Boolean that indicates whether the media view has scrollers.
+        open var hasScrollers: Bool {
+            get { scrollView.hasVerticalScroller }
+            set {
+                scrollView.hasVerticalScroller = newValue
+                scrollView.hasHorizontalScroller = newValue
+            }
+        }
+        
+        /// Sets the Boolean that indicates whether the media view has scrollers.
+        @discardableResult
+        open func hasScrollers(_ hasScrollers: Bool) -> Self {
+            set(\.hasScrollers, to: hasScrollers)
+        }
+
+        /// The scrolling elasticity mode.
+        open var scrollElasticity: NSScrollView.Elasticity {
+            get { scrollView.verticalScrollElasticity }
+            set {
+                scrollView.verticalScrollElasticity = newValue
+                scrollView.horizontalScrollElasticity = newValue
+            }
+        }
+        
+        /// Sets the scrolling elasticity mode.
+        @discardableResult
+        open func scrollElasticity(_ scrollElasticity: NSScrollView.Elasticity) -> Self {
+            set(\.scrollElasticity, to: scrollElasticity)
+        }
+
+        /// A Boolean value indicating whether the user can magnify the media.
+        open var allowsMagnification: Bool {
+            get { scrollView.allowsMagnification }
+            set { scrollView.allowsMagnification = newValue }
+        }
+        
+        /// Sets the Boolean value indicating whether the user can magnify the media.
+        @discardableResult
+        open func allowsMagnification(_ allows: Bool) -> Self {
+            set(\.allowsMagnification, to: allows)
+        }
+
+        /// The amount by which the media is currently scaled.
+        open var magnification: CGFloat {
+            get { scrollView.magnification }
+            set { setMagnification(newValue) }
+        }
+        
+        /// Sets the amount by which the media is currently scaled.
+        @discardableResult
+        open func magnification(_ magnification: CGFloat) -> Self {
+            set(\.magnification, to: magnification)
+        }
+        
+        /// The minimum value to which the content can be magnified.
+        open var minMagnification: CGFloat {
+            get { scrollView.minMagnification }
+            set { scrollView.minMagnification = newValue }
+        }
+        
+        /// Sets the minimum value to which the content can be magnified.
+        @discardableResult
+        open func minMagnification(_ minMagnification: CGFloat) -> Self {
+            set(\.minMagnification, to: minMagnification)
+        }
+
+        /// The maximum value to which the content can be magnified.
+        open var maxMagnification: CGFloat {
+            get { self.scrollView.maxMagnification }
+            set { self.scrollView.maxMagnification = newValue }
+        }
+        
+        /// Sets the maximum value to which the content can be magnified.
+        @discardableResult
+        open func maxMagnification(_ maxMagnification: CGFloat) -> Self {
+            set(\.maxMagnification, to: maxMagnification)
+        }
+        
         open func scroll(to point: CGPoint) {
             scrollView.contentView.setBoundsOrigin(point)
             scrollView.scroll(scrollView.contentView, to: point)
@@ -119,8 +512,6 @@
                     point.x = bounds.size.width / 2.0
                     point.y = bounds.size.height / 2.0
                     scrollView.contentOffset = point
-                   
-
                 }
             }
         }
@@ -142,209 +533,6 @@
                 hasScrollers = true
                 scrollElasticity = .automatic
             }
-        }
-
-        open var mediaURL: URL? {
-            get { mediaView.mediaURL }
-            set {
-                mediaView.mediaURL = newValue
-                setMagnification(1.0)
-            }
-        }
-
-        /// The image displayed in the media view.
-        open var image: NSImage? {
-            get { mediaView.image }
-            set {
-                mediaView.image = newValue
-                setMagnification(1.0)
-            }
-        }
-
-        /// The symbol configuration of the image.
-        @available(macOS 12.0, iOS 13.0, *)
-        open var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
-            get { mediaView.imageSymbolConfiguration }
-            set { mediaView.imageSymbolConfiguration = newValue }
-        }
-
-        /// The asset in the media view.
-        open var asset: AVAsset? {
-            get { mediaView.asset }
-            set {
-                mediaView.asset = newValue
-                //   scrollView.contentView.frame.size = bounds.size
-                setMagnification(1.0)
-            }
-        }
-
-        /// A Boolean value indicating whether media is muted.
-        open var isMuted: Bool {
-            get { mediaView.isMuted }
-            set { mediaView.isMuted = newValue }
-        }
-
-        /// The volume of the media.
-        open var volume: Float {
-            get { mediaView.volume }
-            set { mediaView.volume = newValue }
-        }
-
-        open var videoPlaybackOption: MediaView.VideoPlaybackOption {
-            get { mediaView.videoPlaybackOption }
-            set { mediaView.videoPlaybackOption = newValue }
-        }
-
-        /**
-         Requests that the player seek to a specified time.
-
-         - Parameters:
-            - time: The time to which to seek.
-            - tolerance: The tolerance.
-            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-                - finished: A Boolean value that indicates whether the seek operation completed.
-         */
-        open func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
-            mediaView.seekVideo(to: interval, tolerance: tolerance, completionHandler: completionHandler)
-        }
-
-        /**
-         Requests that the player seek to a specified percentage.
-
-         - Parameters:
-            - percentage: The percentage to which to seek (between `0.0` and `1.0`).
-            - tolerance: The tolerance.
-            - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-                - finished: A Boolean value that indicates whether the seek operation completed.
-         */
-        open func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
-            mediaView.seekVideo(toPercentage: percentage, tolerance: tolerance, completionHandler: completionHandler)
-        }
-
-        open var videoPlaybackTime: TimeDuration {
-            get { mediaView.videoPlaybackTime }
-            set { mediaView.videoPlaybackTime = newValue }
-        }
-
-        open var videoDuration: TimeDuration { mediaView.videoDuration }
-
-        open var videoPlaybackPercentage: Double {
-            get { mediaView.videoPlaybackPercentage }
-            set { mediaView.videoPlaybackPercentage = newValue }
-        }
-
-        open var videoPlaybackHandler: ((TimeDuration) -> Void)? {
-            get { mediaView.videoPlaybackHandler }
-            set { mediaView.videoPlaybackHandler = newValue }
-        }
-
-        open override var menu: NSMenu? {
-            get { mediaView.menu }
-            set { mediaView.menu = newValue }
-        }
-
-        open var imageAnimationPlayback: ImageView.AnimationPlaybackOption {
-            get { mediaView.imageAnimationPlayback }
-            set { mediaView.imageAnimationPlayback = newValue }
-        }
-                
-        open var isLooping: Bool {
-            get { mediaView.isLooping }
-            set { mediaView.isLooping = newValue }
-        }
-        
-        open var isVolumeControllableByScrolling: Bool {
-            get { mediaView.isVolumeControllableByScrolling }
-            set { mediaView.isVolumeControllableByScrolling = newValue }
-        }
-        
-        open var isPlaybackPositionControllableByScrolling: Bool {
-            get { mediaView.isPlaybackPositionControllableByScrolling }
-            set { mediaView.isPlaybackPositionControllableByScrolling = newValue }
-        }
-
-        open var videoViewControlStyle: AVPlayerViewControlsStyle {
-            get { mediaView.videoViewControlStyle }
-            set { mediaView.videoViewControlStyle = newValue }
-        }
-
-        open var mediaScaling: MediaView.MediaScaling {
-            get { mediaView.mediaScaling }
-            set { mediaView.mediaScaling = newValue }
-        }
-
-        open var mediaType: MediaView.MediaType? { mediaView.mediaType }
-
-        open func play() {
-            mediaView.play()
-        }
-
-        open func pause() {
-            mediaView.pause()
-        }
-
-        open func stop() {
-            mediaView.stop()
-        }
-
-        open func togglePlayback() {
-            mediaView.togglePlayback()
-        }
-
-        open var isPlaying: Bool {
-            mediaView.isPlaying
-        }
-
-        open override var fittingSize: NSSize {
-            mediaView.fittingSize
-        }
-        
-        open override var intrinsicContentSize: NSSize {
-            mediaView.intrinsicContentSize
-        }
-        
-        open override var acceptsFirstResponder: Bool {
-            true
-        }
-
-        open func sizeToFit() {
-            frame.size = fittingSize
-        }
-
-        open var hasScrollers: Bool {
-            get { scrollView.hasVerticalScroller }
-            set {
-                scrollView.hasVerticalScroller = newValue
-                scrollView.hasHorizontalScroller = newValue
-            }
-        }
-
-        open var scrollElasticity: NSScrollView.Elasticity {
-            get { scrollView.verticalScrollElasticity }
-            set {
-                scrollView.verticalScrollElasticity = newValue
-                scrollView.horizontalScrollElasticity = newValue
-            }
-        }
-
-        open var allowsMagnification: Bool {
-            get { scrollView.allowsMagnification }
-            set { scrollView.allowsMagnification = newValue }
-        }
-
-        open var magnification: CGFloat {
-            get { scrollView.magnification }
-            set { setMagnification(newValue) }
-        }
-        
-        open var minMagnification: CGFloat {
-            get { scrollView.minMagnification }
-            set { scrollView.minMagnification = newValue }
-        }
-
-        open var maxMagnification: CGFloat {
-            get { self.scrollView.maxMagnification }
-            set { self.scrollView.maxMagnification = newValue }
         }
 
         open override var enclosingScrollView: NSScrollView? {

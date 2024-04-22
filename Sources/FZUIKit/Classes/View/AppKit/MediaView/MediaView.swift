@@ -52,6 +52,7 @@
             }
         }
         
+        /// The url to the media displayed in the media view.
         open var mediaURL: URL? {
             get { _mediaURL }
             set {
@@ -77,7 +78,11 @@
             }
         }
         
-        
+        /// Sets the url to the media displayed in the media view.
+        @discardableResult
+        open func mediaURL(_ mediaURL: URL?) -> Self {
+            set(\.mediaURL, to: mediaURL)
+        }
 
         /// The image displayed in the media view.
         open var image: NSImage? {
@@ -96,6 +101,12 @@
                     mediaType = nil
                 }
             }
+        }
+        
+        /// Sets the image displayed in the media view.
+        @discardableResult
+        open func image(_ image: NSImage?) -> Self {
+            set(\.image, to: image)
         }
 
         /// The images displayed in the media view.
@@ -117,6 +128,12 @@
             }
         }
         
+        /// Sets the images displayed in the media view.
+        @discardableResult
+        open func images(_ images: [NSImage]) -> Self {
+            set(\.images, to: images)
+        }
+        
         /// The media asset played by the media view.
         open var asset: AVAsset? {
             get { player.currentItem?.asset }
@@ -124,6 +141,12 @@
                 setupAsset(newValue)
                 _mediaURL = (asset as? AVURLAsset)?.url
             }
+        }
+        
+        /// Sets the media asset played by the media view.
+        @discardableResult
+        open func asset(_ asset: AVAsset?) -> Self {
+            set(\.asset, to: asset)
         }
         
         private func setupAsset(_ asset: AVAsset?) {
@@ -184,6 +207,12 @@
             get { imageView.animationPlayback }
             set { imageView.animationPlayback = newValue }
         }
+        
+        /// Sets the playback behavior for animated images.
+        @discardableResult
+        open func imageAnimationPlayback(_ animationPlayback: ImageView.AnimationPlaybackOption) -> Self {
+            set(\.imageAnimationPlayback, to: animationPlayback)
+        }
 
         /**
          The amount of time it takes to go through one cycle of an animated image.
@@ -193,6 +222,12 @@
         open var imageAnimationDuration: TimeInterval {
             get { imageView.animationDuration }
             set { imageView.animationDuration = newValue }
+        }
+        
+        /// Sets the amount of time it takes to go through one cycle of an animated image.
+        @discardableResult
+        open func imageAnimationDuration(_ duration: TimeInterval) -> Self {
+            set(\.imageAnimationDuration, to: duration)
         }
 
         /**
@@ -204,6 +239,12 @@
             get { imageView.animationRepeatCount }
             set { imageView.animationRepeatCount = newValue }
         }
+        
+        /// Sets the number of times to repeat animated images.
+        @discardableResult
+        open func imageAnimationRepeatCount(_ repeatCount: Int) -> Self {
+            set(\.imageAnimationRepeatCount, to: repeatCount)
+        }
 
         /// A Boolean value that indicates whether media is looped.
         open var isLooping: Bool {
@@ -211,65 +252,29 @@
             set { player.isLooping = newValue }
         }
         
-        open var isVolumeControllableByScrolling: Bool = true
-        open var isPlaybackPositionControllableByScrolling: Bool = true
-        
-        /*
-        open override func scrollWheel(with event: NSEvent) {
-            if (enclosingScrollView?.magnification ?? 1.0) == 1.0, mediaType == .video, (isVolumeControllableByScrolling || isPlaybackPositionControllableByScrolling) {
-                let isMouse = event.phase.isEmpty
-                let isTrackpadBegan = event.phase.contains(.began)
-                let isTrackpadEnd = event.phase.contains(.ended)
-                var scrollDirection: NSUIUserInterfaceLayoutOrientation?
-                
-                if isMouse || isTrackpadBegan {
-                  if event.scrollingDeltaX != 0 {
-                    scrollDirection = .horizontal
-                  } else if event.scrollingDeltaY != 0 {
-                    scrollDirection = .vertical
-                  }
-                } else if isTrackpadEnd {
-                  scrollDirection = nil
-                }
-                let isPrecise = event.hasPreciseScrollingDeltas
-                let isNatural = event.isDirectionInvertedFromDevice
-
-                var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
-                var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2)/100.0
-
-                if isNatural {
-                  deltaY = -deltaY
-                } else {
-                  deltaX = -deltaX
-                }
-                if scrollDirection == .vertical, isVolumeControllableByScrolling {
-                    let newVolume = (volume + Float(isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
-                    volume = newVolume
-                } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
-                    let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*deltaX
-                    if !isLooping {
-                        videoPlaybackTime = .seconds((videoPlaybackTime.seconds + seconds).clamped(to: 0...videoDuration.seconds))
-                    } else {
-                        let duration = videoDuration.seconds
-                        let truncating = (videoPlaybackTime.seconds+seconds).truncatingRemainder(dividingBy: duration)
-                        if truncating < 0.0 {
-                            videoPlaybackTime = .seconds(duration-(truncating * -1.0))
-                        } else {
-                            videoPlaybackTime = .seconds(truncating)
-                        }
-                    }
-                }
-            } else {
-                super.scrollWheel(with: event)
-            }
+        /// Sets the Boolean value that indicates whether media is looped.
+        @discardableResult
+        open func isLooping(_ isLooping: Bool) -> Self {
+            set(\.isLooping, to: isLooping)
         }
-         */
 
         /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
         open var volumeScrollControl: VolumeScrollControl = .normal
         
+        /// Sets the value that indicates whether the volume can be modified by the user by scrolling up & down.
+        @discardableResult
+        open func volumeScrollControl(_ volumeScrollControl: VolumeScrollControl) -> Self {
+            set(\.volumeScrollControl, to: volumeScrollControl)
+        }
+        
         /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
         open var playbackPositionScrollControl: PlaybackPositionScrollControl = .normal
+        
+        /// Sets the value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        @discardableResult
+        open func playbackPositionScrollControl(_ playbackPositionScrollControl: PlaybackPositionScrollControl) -> Self {
+            set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)
+        }
         
         /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
         public enum VolumeScrollControl: Double {
@@ -303,10 +308,22 @@
             set { player.isMuted = newValue }
         }
         
+        /// Sets the Boolean value that indicates whether media is muted.
+        @discardableResult
+        open func isMuted(_ isMuted: Bool) -> Self {
+            set(\.isMuted, to: isMuted)
+        }
+        
         /// The volume of the media.
-        @objc dynamic open var volume: Float {
-            get { player.volume }
-            set { player.volume = newValue }
+        @objc dynamic open var volume: CGFloat {
+            get { CGFloat(player.volume) }
+            set { player.volume = Float(newValue) }
+        }
+        
+        /// Sets the volume of the media.
+        @discardableResult
+        open func volume(_ volume: CGFloat) -> Self {
+            set(\.volume, to: volume)
         }
         
         /// The control style for videos.
@@ -315,8 +332,20 @@
             set { videoView.controlsStyle = newValue }
         }
         
-        /// Playback option when loading new me dia.
+        /// Sets the control style for videos.
+        @discardableResult
+        open func videoViewControlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
+            set(\.videoViewControlStyle, to: style)
+        }
+        
+        /// The playback option when loading new media.
         open var videoPlaybackOption: VideoPlaybackOption = .autostart
+        
+        /// The playback option when loading new media.
+        @discardableResult
+        open func videoPlaybackOption(_ option: VideoPlaybackOption) -> Self {
+            set(\.videoPlaybackOption, to: option)
+        }
         
         /// Playback option when loading a new video.
         public enum VideoPlaybackOption: Int, Hashable {
@@ -336,6 +365,12 @@
                 resizeOverlayView()
             }
         }
+        
+        /// Sets the scaling of the media.
+        @discardableResult
+        open func mediaScaling(_ mediaScaling: MediaScaling) -> Self {
+            set(\.mediaScaling, to: mediaScaling)
+        }
 
         /// The image symbol configuration.
         @available(macOS 12.0, iOS 13.0, *)
@@ -343,11 +378,24 @@
             get { imageView.symbolConfiguration }
             set { imageView.symbolConfiguration = newValue }
         }
+        
+        /// Sets the image symbol configuration.
+        @available(macOS 12.0, iOS 13.0, *)
+        @discardableResult
+        open func imageSymbolConfiguration(_ symbolConfiguration: NSUIImage.SymbolConfiguration?) -> Self {
+            set(\.imageSymbolConfiguration, to: symbolConfiguration)
+        }
 
         /// The image tint color for template and symbol images.
         open var imageTintColor: NSColor? {
             get { imageView.tintColor }
             set { imageView.tintColor = newValue }
+        }
+        
+        /// Sets the image tint color for template and symbol images.
+        @discardableResult
+        open func imageTintColor(_ imageTintColor: NSColor?) -> Self {
+            set(\.imageTintColor, to: imageTintColor)
         }
         
         /// Starts playback of the media.
@@ -415,6 +463,12 @@
             get { player.currentTimeDuration }
             set { player.currentTimeDuration = newValue }
         }
+        
+        /// Sets the playback time of the current video.
+        @discardableResult
+        open func videoPlaybackTime(_ videoPlaybackTime: TimeDuration) -> Self {
+            set(\.videoPlaybackTime, to: videoPlaybackTime)
+        }
 
         /// The playback percentage of the current video (between `0` and `1.0`).
         open var videoPlaybackPercentage: Double {
@@ -422,22 +476,36 @@
             set { player.playbackPercentage = newValue }
         }
         
-        open var playbackHandlerInterval: TimeInterval = 0.1 {
-            didSet {
-                guard oldValue != playbackHandlerInterval else { return }
-                setupPlaybackHandler()
-            }
+        /// Sets the playback percentage of the current video (between `0` and `1.0`).
+        @discardableResult
+        open func videoPlaybackPercentage(_ percentage: Double) -> Self {
+            set(\.videoPlaybackPercentage, to: percentage)
         }
 
-        open var videoPlaybackHandler: ((TimeDuration) -> Void)? {
+        /// The handler that is called whenever the playback position changes.
+        open var playbackPositionHandler: ((TimeDuration) -> Void)? {
             didSet { setupPlaybackHandler() }
         }
         
-        func setupPlaybackHandler(replace: Bool = true) {
-            if let videoPlaybackHandler = videoPlaybackHandler {
+        /// Sets the handler that is called whenever the playback position changes.
+        @discardableResult
+        open func playbackPositionHandler(_ handler: ((TimeDuration) -> Void)?) -> Self {
+            set(\.playbackPositionHandler, to: handler)
+        }
+        
+        /// The time interval at which the system invokes the handler during normal playback, according to progress of the current playback position.
+        open var playbackPositionHandlerInterval: TimeInterval = 0.1 {
+            didSet {
+                guard oldValue != playbackPositionHandlerInterval else { return }
+                setupPlaybackHandler()
+            }
+        }
+        
+        private func setupPlaybackHandler(replace: Bool = true) {
+            if let playbackPositionHandler = playbackPositionHandler {
                 guard mediaType == .video else { return }
-                playbackObserver = player.addPlaybackObserver(timeInterval: playbackHandlerInterval) { time in
-                    videoPlaybackHandler(time)
+                playbackObserver = player.addPlaybackObserver(timeInterval: playbackPositionHandlerInterval) { time in
+                    playbackPositionHandler(time)
                 }
             } else {
                 playbackObserver = nil
@@ -544,45 +612,56 @@
             overlayContentView.clipsToBounds = true
             addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
-            videoView.volumeScrollControl = .normal
-            videoView.playbackPositionScrollControl = .normal
         }
+        
+        open override func scrollWheel(with event: NSEvent) {
+            if (enclosingScrollView?.magnification ?? 1.0) == 1.0 || event.modifierFlags.contains(any: [.command, .shift]), mediaType == .video, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
+                let isMouse = event.phase.isEmpty
+                let isTrackpadBegan = event.phase.contains(.began)
+                let isTrackpadEnd = event.phase.contains(.ended)
+                var scrollDirection: NSUIUserInterfaceLayoutOrientation?
+                
+                if isMouse || isTrackpadBegan {
+                  if event.scrollingDeltaX != 0 {
+                    scrollDirection = .horizontal
+                  } else if event.scrollingDeltaY != 0 {
+                    scrollDirection = .vertical
+                  }
+                } else if isTrackpadEnd {
+                  scrollDirection = nil
+                }
+                let isPrecise = event.hasPreciseScrollingDeltas
+                let isNatural = event.isDirectionInvertedFromDevice
 
-        open override func keyDown(with event: NSEvent) {
-            if (handlers.keyDown?(event) ?? false) == false {
-                super.keyDown(with: event)
+                if scrollDirection == .vertical, volumeScrollControl != .off {
+                    var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2)/100.0
+                    if isNatural {
+                        deltaY = -deltaY
+                    }
+                    let newVolume = (volume + (isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
+                    volume = newVolume
+                } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
+                    var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
+                    if !isNatural {
+                        deltaX = -deltaX
+                    }
+                    let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*deltaX
+                    if !isLooping {
+                        videoPlaybackTime = .seconds((videoPlaybackTime.seconds + seconds).clamped(to: 0...videoDuration.seconds))
+                    } else {
+                        let duration = videoDuration.seconds
+                        let truncating = (videoPlaybackTime.seconds+seconds).truncatingRemainder(dividingBy: duration)
+                        if truncating < 0.0 {
+                            videoPlaybackTime = .seconds(duration-(truncating * -1.0))
+                        } else {
+                            videoPlaybackTime = .seconds(truncating)
+                        }
+                    }
+                }
+            } else {
+                super.scrollWheel(with: event)
             }
         }
-
-        open override func mouseDown(with event: NSEvent) {
-            if (handlers.mouseDown?(event) ?? false) == false {
-                super.mouseDown(with: event)
-            }
-        }
-
-        open override func rightMouseDown(with event: NSEvent) {
-            if (handlers.rightMouseDown?(event) ?? false) == false {
-                super.rightMouseDown(with: event)
-            }
-        }
-
-        /// Handlers for a media view.
-        public struct Handlers {
-            /// Handler that gets called whenever the player view receives a `keyDown` event.
-            public var keyDown: ((NSEvent) -> (Bool))?
-
-            /// Handler that gets called whenever the player view receives a `mouseDown` event.
-            public var mouseDown: ((NSEvent) -> (Bool))?
-
-            /// Handler that gets called whenever the player view receives a `rightMouseDown` event.
-            public var rightMouseDown: ((NSEvent) -> (Bool))?
-
-            /// Handler that gets called whenever the player view receives a `flagsChanged` event.
-            public var flagsChanged: ((NSEvent) -> (Bool))?
-        }
-
-        /// Handlers for the media view.
-        open var handlers: Handlers = .init()
     }
 
 class NoMenuPlayerView: AVPlayerView {
@@ -627,92 +706,6 @@ class NoMenuPlayerView: AVPlayerView {
 extension CGFloat {
     var unifiedDouble: Double {
         Double(copysign(1, self))
-    }
-}
-
-extension AVPlayerView {
-    /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
-   public var volumeScrollControl: VolumeScrollControl {
-       get { getAssociatedValue("volumeScrollControl", initialValue: .off) }
-       set {
-           guard newValue != volumeScrollControl else { return }
-           setAssociatedValue(newValue, key: "volumeScrollControl")
-           setupPlayerGestureRecognizer()
-       }
-   }
-    
-    /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
-    public enum VolumeScrollControl: Double {
-        case slow = 0.25
-        case normal = 0.5
-        case fast = 0.75
-        /// The volume can't be modified by scrolling.
-        case off = 0.0
-    }
-    
-    /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
-    public var playbackPositionScrollControl: PlaybackPositionScrollControl {
-        get { getAssociatedValue("playbackPositionScrollControl", initialValue: .off) }
-        set {
-            guard newValue != playbackPositionScrollControl else { return }
-            setAssociatedValue(newValue, key: "playbackPositionScrollControl")
-            setupPlayerGestureRecognizer()
-        }
-    }
-    
-    /// The value that indicates whether the playback position can be modified by the user by scrolling left & right.
-    public enum PlaybackPositionScrollControl: Double {
-        case slow = 0.1
-        case normal = 0.25
-        case fast = 0.5
-        /// The playback position can't be modified by scrolling.
-        case off = 0.0
-        var mouse: Double {
-            switch self {
-            case .slow: return 1
-            case .normal: return 2
-            case .fast: return 4
-            case .off: return 0
-            }
-        }
-    }
-    
-    func setupPlayerGestureRecognizer() {
-        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
-            if playerViewGestureRecognizer == nil {
-                playerViewGestureRecognizer = PlayerViewGestureRecognizer()
-                addGestureRecognizer(playerViewGestureRecognizer!)
-            }
-        } else {
-            playerViewGestureRecognizer?.removeFromView()
-            playerViewGestureRecognizer = nil
-        }
-    }
-    
-    var playerViewGestureRecognizer: PlayerViewGestureRecognizer? {
-        get { getAssociatedValue("playerViewGestureRecognizer", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "playerViewGestureRecognizer") }
-    }
-}
-
-class PlayerViewGestureRecognizer: NSPanGestureRecognizer {
-    var playerView: AVPlayerView? {
-        view as? AVPlayerView
-    }
-    
-    init() {
-        super.init(target: nil, action: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    override var state: NSGestureRecognizer.State {
-        didSet {
-            guard let playerView = playerView else { return }
-            Swift.print(translation(in: playerView))
-        }
     }
 }
 
