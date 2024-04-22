@@ -744,6 +744,16 @@
             }
         }
         
+        open override func hitTest(_ point: NSPoint) -> NSView? {
+            if !videoView.isHidden {
+                return videoView
+            } else if !imageView.isHidden {
+                return imageView
+            } else {
+                return self
+            }
+        }
+        
         private func setupPlaybackHandler(replace: Bool = true) {
             if let playbackPositionHandler = playbackPositionHandler {
                 guard mediaType == .video else { return }
