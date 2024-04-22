@@ -243,7 +243,7 @@
                     volume = newVolume
                 } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
                     // isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue
-                    Swift.print(isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue, (isMouse ? seekAmountMapMouse : seekAmountMap)[3])
+                    Swift.print((isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX == (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX, (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX, (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX)
                     let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX
                     videoPlaybackTime += .seconds(seconds)
                 }
