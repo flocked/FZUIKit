@@ -76,6 +76,8 @@
                 invalidateIntrinsicContentSize()
             }
         }
+        
+        
 
         /// The image displayed in the media view.
         open var image: NSImage? {
@@ -240,10 +242,10 @@
                   deltaX = -deltaX
                 }
                 if scrollDirection == .vertical, isVolumeControllableByScrolling {
-                    let newVolume = (volume + Float(isMouse ? deltaY : scrollVolumeControl.rawValue * deltaY)).clamped(to: 0...1.0)
+                    let newVolume = (volume + Float(isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
                     volume = newVolume
                 } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
-                    let seconds = (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX
+                    let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*deltaX
                     if !isLooping {
                         videoPlaybackTime = .seconds((videoPlaybackTime.seconds + seconds).clamped(to: 0...videoDuration.seconds))
                     } else {
@@ -260,26 +262,31 @@
                 super.scrollWheel(with: event)
             }
         }
+
+        /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
+        open var volumeScrollControl: VolumeScrollControl = .normal
         
-        var scrollVolumeControl: ScrollVolumeControl = .normal
-        var scrollSeekControl: ScrollSeekControl = .normal
+        /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        open var playbackPositionScrollControl: PlaybackPositionScrollControl = .normal
         
-        enum ScrollVolumeControl: Double {
+        /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
+        public enum VolumeScrollControl: Double {
             case slow = 0.25
             case normal = 0.5
             case fast = 0.75
+            /// The volume can't be modified by scrolling.
             case off = 0.0
         }
 
-        enum ScrollSeekControl: Double {
-            case verySlow = 0.05
+        /// The value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        public enum PlaybackPositionScrollControl: Double {
             case slow = 0.1
             case normal = 0.25
             case fast = 0.5
+            /// The playback position can't be modified by scrolling.
             case off = 0.0
             var mouse: Double {
                 switch self {
-                case .verySlow: return 0.5
                 case .slow: return 1
                 case .normal: return 2
                 case .fast: return 4
@@ -535,6 +542,16 @@
             overlayContentView.clipsToBounds = true
             addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
+            Swift.print("check", videoView.contentOverlayView != nil)
+            videoView.contentOverlayView?.addSubview(withConstraint: videoOverlayView)
+        }
+        
+        let videoOverlayView = VideoOverlayView(frame: .zero)
+        
+        class VideoOverlayView: NSView {
+            override func scrollWheel(with event: NSEvent) {
+                Swift.print("VideoOverlayView")
+            }
         }
 
         open override func keyDown(with event: NSEvent) {
@@ -616,6 +633,160 @@ class NoMenuPlayerView: AVPlayerView {
 extension CGFloat {
     var unifiedDouble: Double {
         Double(copysign(1, self))
+    }
+}
+
+extension AVPlayerView {
+   public var volumeScrollControl: VolumeScrollControl {
+       get { getAssociatedValue("volumeScrollControl", initialValue: .off) }
+       set {
+           guard newValue != volumeScrollControl else { return }
+           setAssociatedValue(newValue, key: "volumeScrollControl")
+           setupPlayerGestureRecognizer()
+       }
+   }
+    
+    /// The value that indicates whether the playback position can be modified by the user by scrolling left & right.
+    public enum PlaybackPositionScrollControl: Double {
+        case slow = 0.1
+        case normal = 0.25
+        case fast = 0.5
+        /// The playback position can't be modified by scrolling.
+        case off = 0.0
+        var mouse: Double {
+            switch self {
+            case .slow: return 1
+            case .normal: return 2
+            case .fast: return 4
+            case .off: return 0
+            }
+        }
+    }
+    
+    
+    /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
+    public enum VolumeScrollControl: Double {
+        case slow = 0.25
+        case normal = 0.5
+        case fast = 0.75
+        /// The volume can't be modified by scrolling.
+        case off = 0.0
+    }
+    
+    public var playbackPositionScrollControl: PlaybackPositionScrollControl {
+        get { getAssociatedValue("playbackPositionScrollControl", initialValue: .off) }
+        set {
+            guard newValue != playbackPositionScrollControl else { return }
+            setAssociatedValue(newValue, key: "playbackPositionScrollControl")
+            setupPlayerGestureRecognizer()
+        }
+    }
+    
+    func processScrollWheel(_ event: NSEvent) -> NSEvent? {
+        if (enclosingScrollView?.magnification ?? 1.0) == 1.0, let player = player, player.currentItem != nil, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
+            let isMouse = event.phase.isEmpty
+            let isTrackpadBegan = event.phase.contains(.began)
+            let isTrackpadEnd = event.phase.contains(.ended)
+            var scrollDirection: NSUIUserInterfaceLayoutOrientation?
+            
+            if isMouse || isTrackpadBegan {
+              if event.scrollingDeltaX != 0 {
+                scrollDirection = .horizontal
+              } else if event.scrollingDeltaY != 0 {
+                scrollDirection = .vertical
+              }
+            } else if isTrackpadEnd {
+              scrollDirection = nil
+            }
+            let isPrecise = event.hasPreciseScrollingDeltas
+            let isNatural = event.isDirectionInvertedFromDevice
+
+            var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
+            var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2)/100.0
+
+            if isNatural {
+              deltaY = -deltaY
+            } else {
+              deltaX = -deltaX
+            }
+            if scrollDirection == .vertical, volumeScrollControl != .off {
+                let newVolume = (player.volume + Float(isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
+                player.volume = newVolume
+            } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
+                let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*deltaX
+                if !player.isLooping {
+                    player.currentTimeDuration = .seconds((player.currentTimeDuration.seconds + seconds).clamped(to: 0...player.duration.seconds))
+                } else {
+                    let duration = player.duration.seconds
+                    let truncating = (player.currentTimeDuration.seconds+seconds).truncatingRemainder(dividingBy: duration)
+                    player.currentTimeDuration = truncating < 0.0 ? .seconds(duration-(truncating * -1.0)) : .seconds(truncating)
+                }
+            }
+            return nil
+        }
+        return event
+    }
+    
+    func setupPlayerGestureRecognizer() {
+        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
+            guard !isMethodReplaced(#selector(NSView.scrollWheel(with:))) else { return }
+            do {
+                try replaceMethod(
+                    #selector(NSView.scrollWheel(with:)),
+                    methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
+                    hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
+                        object, event in
+                        if let playerView = object as? AVPlayerView {
+                            if let event = playerView.processScrollWheel(event) {
+                                store.original(object, #selector(NSView.scrollWheel(with:)), event)
+                            }
+                        } else {
+                            store.original(object, #selector(NSView.scrollWheel(with:)), event)
+                        }
+                    }
+                    }
+            } catch {
+                debugPrint(error)
+            }
+        } else {
+            resetMethod(#selector(NSView.scrollWheel(with:)))
+        }
+        
+        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
+            if playerViewGestureRecognizer == nil {
+                playerViewGestureRecognizer = PlayerViewGestureRecognizer()
+                addGestureRecognizer(playerViewGestureRecognizer!)
+            }
+        } else {
+            playerViewGestureRecognizer?.removeFromView()
+            playerViewGestureRecognizer = nil
+        }
+    }
+    
+    var playerViewGestureRecognizer: PlayerViewGestureRecognizer? {
+        get { getAssociatedValue("playerViewGestureRecognizer", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "playerViewGestureRecognizer") }
+    }
+}
+
+class PlayerViewGestureRecognizer: NSPanGestureRecognizer {
+    var playerView: AVPlayerView? {
+        view as? AVPlayerView
+    }
+    
+    init() {
+        super.init(target: nil, action: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    override var state: NSGestureRecognizer.State {
+        didSet {
+            guard let playerView = playerView else { return }
+            translation(in: playerView).x
+        }
     }
 }
 

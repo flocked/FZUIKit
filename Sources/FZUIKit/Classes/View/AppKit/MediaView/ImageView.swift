@@ -39,6 +39,12 @@ open class ImageView: NSControl {
             }
         }
     }
+    
+    /// Sets the image displayed in the image view.
+    @discardableResult
+    open func image(_ image: NSImage?) -> Self {
+        set(\.image, to: image)
+    }
 
     /// The images displayed by the image view.
     open var images: [NSImage] = [] {
@@ -46,6 +52,12 @@ open class ImageView: NSControl {
             animatedImage = nil
             imagesUpdated()
         }
+    }
+    
+    /// Sets the images displayed by the image view.
+    @discardableResult
+    open func images(_ images: [NSImage]) -> Self {
+        set(\.images, to: images)
     }
     
     var animatedImage: AnimatedImage? = nil {
@@ -83,9 +95,10 @@ open class ImageView: NSControl {
         }
     }
     
+    /// Sets the image scaling.
+    @discardableResult
     open func imageScaling(_ imageScaling: ImageScaling) -> Self {
-        self.imageScaling = imageScaling
-        return self
+        set(\.imageScaling, to: imageScaling)
     }
     
     /// Constants that specify the image scaling behavior.
@@ -117,6 +130,12 @@ open class ImageView: NSControl {
         }
     }
     
+    /// Sets the image alignment inside the image view.
+    @discardableResult
+    open func imageAlignment(_ alignment: NSImageAlignment) -> Self {
+        set(\.imageAlignment, to: alignment)
+    }
+    
     /// The corner radius of the image.
     open var imageCornerRadius: CGFloat {
         get { containerView.cornerRadius }
@@ -124,6 +143,12 @@ open class ImageView: NSControl {
             containerView.cornerRadius = newValue
             imageShadowView.cornerRadius = newValue
         }
+    }
+    
+    /// Sets the corner radius of the image.
+    @discardableResult
+    open func imageCornerRadius(_ cornerRadius: CGFloat) -> Self {
+        set(\.imageCornerRadius, to: cornerRadius)
     }
     
     /// The corner curve of the image.
@@ -135,6 +160,12 @@ open class ImageView: NSControl {
         }
     }
     
+    /// Sets the corner curve of the image.
+    @discardableResult
+    open func imageCornerCurve(_ cornerCurve: CALayerCornerCurve) -> Self {
+        set(\.imageCornerCurve, to: cornerCurve)
+    }
+    
     /// The rounded corners of the image.
     open var imageRoundedCorners: CACornerMask {
         get { containerView.roundedCorners }
@@ -144,16 +175,34 @@ open class ImageView: NSControl {
         }
     }
     
+    /// Sets the rounded corners of the image.
+    @discardableResult
+    open func imageRoundedCorners(_ roundedCorners: CACornerMask) -> Self {
+        set(\.imageRoundedCorners, to: roundedCorners)
+    }
+    
     /// The background color of the image.
     open var imageBackgroundColor: NSColor? {
         get { containerView.backgroundColor }
         set { containerView.backgroundColor = newValue }
     }
     
+    /// Sets the background color of the image.
+    @discardableResult
+    open func imageBackgroundColor(_ backgroundColor: NSColor?) -> Self {
+        set(\.imageBackgroundColor, to: backgroundColor)
+    }
+    
     /// The inner shadow of the image.
     open var imageInnerShadow: ShadowConfiguration {
         get { containerView.innerShadow }
         set { containerView.innerShadow = newValue }
+    }
+    
+    /// Sets the inner shadow of the image.
+    @discardableResult
+    open func imageInnerShadow(_ shadow: ShadowConfiguration) -> Self {
+        set(\.imageInnerShadow, to: shadow)
     }
     
     /// The outer shadow of the image.
@@ -165,10 +214,22 @@ open class ImageView: NSControl {
         }
     }
     
+    /// Sets the outer shadow of the image.
+    @discardableResult
+    open func imageShadow(_ shadow: ShadowConfiguration) -> Self {
+        set(\.imageShadow, to: shadow)
+    }
+    
     /// The border of the image.
     open var imageBorder: BorderConfiguration {
         get { containerView.border }
         set { containerView.border = newValue }
+    }
+    
+    /// Sets the border of the image.
+    @discardableResult
+    open func imageBorder(_ border: BorderConfiguration) -> Self {
+        set(\.imageBorder, to: border)
     }
     
     /// The symbol configuration of the image.
@@ -176,6 +237,13 @@ open class ImageView: NSControl {
     open var symbolConfiguration: NSImage.SymbolConfiguration? {
         get { imageView.symbolConfiguration }
         set { imageView.symbolConfiguration = newValue }
+    }
+    
+    /// Sets the symbol configuration of the image.
+    @discardableResult
+    @available(macOS 11.0, *)
+    open func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
+        set(\.symbolConfiguration, to: symbolConfiguration)
     }
     
     /// Constants that specify the playback behavior for animated images.
@@ -206,6 +274,12 @@ open class ImageView: NSControl {
                 trackingArea = nil
             }
         }
+    }
+    
+    /// Sets the playback behavior for animated images.
+    @discardableResult
+    open func animationPlayback(_ animationPlayback: AnimationPlaybackOption) -> Self {
+        set(\.animationPlayback, to: animationPlayback)
     }
     
     open override func updateTrackingAreas() {
@@ -356,8 +430,20 @@ open class ImageView: NSControl {
     /// The transition animation when changing the displayed image.
     open var transitionAnimation: TransitionAnimation = .none
     
+    /// Sets the transition animation when changing the displayed image.
+    @discardableResult
+    open func transitionAnimation(_ transition: TransitionAnimation) -> Self {
+        set(\.transitionAnimation, to: transition)
+    }
+    
     /// The duration of the transition animation.
     open var transitionDuration: TimeInterval = 0.2
+    
+    /// Sets the duration of the transition animation.
+    @discardableResult
+    open func transitionDuration(_ duration: TimeInterval) -> Self {
+        set(\.transitionDuration, to: duration)
+    }
     
     /// Constants that specify the transition animation when changing between displayed images.
     public enum TransitionAnimation: Hashable, CustomStringConvertible {
@@ -494,6 +580,12 @@ open class ImageView: NSControl {
         }
     }
     
+    /// Sets the amount of time it takes to go through one cycle of an animated image.
+    @discardableResult
+    open func animationDuration(_ duration: TimeInterval) -> Self {
+        set(\.animationDuration, to: duration)
+    }
+    
     /**
      Specifies the number of times to repeat the animation.
 
@@ -501,10 +593,22 @@ open class ImageView: NSControl {
      */
     open var animationRepeatCount: Int = 0
     
+    /// Sets the number of times to repeat the animation.
+    @discardableResult
+    open func animationRepeatCount(_ repeatCount: Int) -> Self {
+        set(\.animationRepeatCount, to: repeatCount)
+    }
+    
     /// The image tint color for template and symbol images.
     @IBInspectable open var tintColor: NSColor? {
         get { imageView.contentTintColor }
         set { imageView.contentTintColor = newValue }
+    }
+    
+    /// Sets the image tint color for template and symbol images.
+    @discardableResult
+    open func tintColor(_ tintColor: NSColor?) -> Self {
+        set(\.tintColor, to: tintColor)
     }
     
     /// The dynamic range of the image.
@@ -518,6 +622,13 @@ open class ImageView: NSControl {
     open var preferredImageDynamicRange: NSImage.DynamicRange {
         get { imageView.preferredImageDynamicRange }
         set { imageView.preferredImageDynamicRange = newValue }
+    }
+    
+    /// Sets the preferred dynamic image range.
+    @discardableResult
+    @available(macOS 14.0, *)
+    open func preferredImageDynamicRange(_ dynamicRange: NSImage.DynamicRange) -> Self {
+        set(\.preferredImageDynamicRange, to: dynamicRange)
     }
     
     /// The default preferred dynamic image range.
@@ -573,6 +684,12 @@ open class ImageView: NSControl {
         }
     }
     
+    /// Sets the value that indicates whether the user can drag new images into the image view.
+    @discardableResult
+    open func allowsImageDrop(_ allowsImageDrop: ImageDropOption) -> Self {
+        set(\.allowsImageDrop, to: allowsImageDrop)
+    }
+    
     /*
     /**
      A Boolean value indicating whether the user can drag a new image into the image view.
@@ -593,6 +710,12 @@ open class ImageView: NSControl {
                 resignFirstResponding()
             }
         }
+    }
+    
+    /// Sets the value that indicates whether the image view can be selected.
+    @discardableResult
+    open func isSelectable(_ isSelectable: SelectionOption) -> Self {
+        set(\.isSelectable, to: isSelectable)
     }
     
     /// Constant that indicates whether the user can select the image view.
@@ -621,6 +744,12 @@ open class ImageView: NSControl {
     open var allowsCutCopyPaste: Bool {
         get { imageView.allowsCutCopyPaste }
         set { imageView.allowsCutCopyPaste = newValue }
+    }
+    
+    /// Sets the Boolean value indicating whether the image view lets the user cut, copy, and paste the image contents.
+    @discardableResult
+    open func allowsCutCopyPaste(_ allowsCutCopyPaste: Bool) -> Self {
+        set(\.allowsCutCopyPaste, to: allowsCutCopyPaste)
     }
     
     /**
@@ -966,6 +1095,14 @@ extension CALayerContentsGravity {
         case .bottomRight: return .alignBottomRight
         default: return .alignCenter
         }
+    }
+}
+
+extension NSObjectProtocol where Self: NSObject {
+    @discardableResult
+    func set<Value>(_ keyPath: ReferenceWritableKeyPath<Self, Value>, to value: Value) -> Self {
+        self[keyPath: keyPath] = value
+        return self
     }
 }
 
