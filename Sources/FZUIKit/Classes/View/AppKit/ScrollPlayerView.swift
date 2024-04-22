@@ -60,6 +60,80 @@ open class ScrollPlayerView: AVPlayerView {
         enclosingScrollView?.magnification ?? (superview as? MediaView)?.enclosingScrollView?.magnification ?? 1.0
     }
     
+    var scrollDirection: NSUIUserInterfaceLayoutOrientation?
+    var wasPlayingBeforeSeeking: Bool = false
+    open override func scrollWheel(with event: NSEvent) {
+        if event.modifierFlags.contains(any: [.command, .shift]) || _magnification == 1.0, let player = player, player.currentItem != nil, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
+            let isMouse = event.phase.isEmpty
+            let isTrackpadBegan = event.phase.contains(.began)
+            let isTrackpadEnd = event.phase.contains(.ended)
+
+            // determine direction
+
+            if isMouse || isTrackpadBegan {
+              if event.scrollingDeltaX != 0 {
+                scrollDirection = .horizontal
+              } else if event.scrollingDeltaY != 0 {
+                scrollDirection = .vertical
+              }
+            } else if isTrackpadEnd {
+              scrollDirection = nil
+            }
+            if isTrackpadBegan, player.state == .isPlaying {
+                wasPlayingBeforeSeeking = true
+                player.pause()
+                // pause player
+            } else if isTrackpadEnd, wasPlayingBeforeSeeking {
+                player.play()
+                wasPlayingBeforeSeeking = false
+            }
+            
+            let isPrecise = event.hasPreciseScrollingDeltas
+            let isNatural = event.isDirectionInvertedFromDevice
+
+            var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unified
+            var deltaY = isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unified * 2
+
+            if isNatural {
+              deltaY = -deltaY
+            } else {
+              deltaX = -deltaX
+            }
+
+            let delta = scrollDirection == .horizontal ? deltaX : deltaY/100.0
+            if scrollDirection == .vertical, volumeScrollControl != .off {
+              //  let newVolume = player.info.volume + (isMouse ? delta : AppData.volumeMap[volumeScrollAmount] * delta)
+                let newVolume = (Double(player.volume) + (isMouse ? delta : volumeScrollControl.rawValue * delta)).clamped(to: 0...1.0)
+                player.volume = Float(newVolume)
+            } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
+                let currentTime = player.currentTimeDuration.seconds
+                let duration = player.duration.seconds
+                let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*delta
+                if !player.isLooping {
+                    player.currentTimeDuration = .seconds((currentTime + seconds).clamped(to: 0...duration))
+                } else {
+                    let truncating = (currentTime+seconds).truncatingRemainder(dividingBy: duration)
+                    if truncating < 0.0 {
+                        player.currentTimeDuration = .seconds(duration-(truncating * -1.0))
+                    } else {
+                        player.currentTimeDuration = .seconds(truncating)
+                    }
+                }
+            }
+        } else {
+            super.scrollWheel(with: event)
+        }
+    }
+    
+    open override func hitTest(_ point: NSPoint) -> NSView? {
+        guard (volumeScrollControl != .off || playbackPositionScrollControl != .off), let event = NSEvent.current else { return super.hitTest(point) }
+        if (event.type == .leftMouseDown || event.type == .leftMouseUp) {
+            return super.hitTest(point)
+        }
+        return self
+    }
+    
+    /*
     open override func scrollWheel(with event: NSEvent) {
         Swift.print("scrollWheel", _magnification == 1.0, player != nil, player?.currentItem != nil, volumeScrollControl != .off, playbackPositionScrollControl != .off)
         if event.modifierFlags.contains(any: [.command, .shift]) || _magnification == 1.0, let player = player, player.currentItem != nil, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
@@ -110,5 +184,6 @@ open class ScrollPlayerView: AVPlayerView {
             super.scrollWheel(with: event)
         }
     }
+     */
 }
 #endif
