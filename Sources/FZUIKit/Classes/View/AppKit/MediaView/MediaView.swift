@@ -707,7 +707,7 @@
         
         private func showImageView() {
             imageView.isHidden = false
-            // imageView.overlayContentView.addSubview(withConstraint: overlayContentView)
+            imageView.overlayContentView.addSubview(withConstraint: overlayContentView)
             hideVideoView()
         }
 
@@ -718,7 +718,7 @@
 
         private func showVideoView() {
             videoView.isHidden = false
-            // videoView.resizingContentOverlayView.addSubview(withConstraint: overlayContentView)
+            videoView.resizingContentOverlayView.addSubview(withConstraint: overlayContentView)
             setupPlaybackHandler()
             hideImageView()
         }
@@ -734,23 +734,6 @@
         private func updatePreviousPlaybackState() {
             if player.currentItem != nil {
                 previousVideoPlaybackState = player.state
-            }
-        }
-        
-        open override var menu: NSMenu? {
-            didSet {
-                imageView.menu = menu
-                videoView.menu = menu
-            }
-        }
-        
-        open override func hitTest(_ point: NSPoint) -> NSView? {
-            if !videoView.isHidden {
-                return videoView
-            } else if !imageView.isHidden {
-                return imageView
-            } else {
-                return self
             }
         }
         
