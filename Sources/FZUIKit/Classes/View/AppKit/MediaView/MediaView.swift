@@ -293,11 +293,12 @@
 
          - Parameters:
             - time: The time to which to seek.
+            - tolerance: The tolerance.
             - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
                 - finished: A Boolean value that indicates whether the seek operation completed.
          */
-        public func seekVideo(to interval: TimeDuration, completionHandler: ((Bool) -> Void)? = nil) {
-            mediaPlayer.seek(to: interval, completionHandler: completionHandler)
+        public func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaPlayer.seek(to: interval, tolerance: tolerance, completionHandler: completionHandler)
         }
 
         /**
@@ -305,11 +306,12 @@
 
          - Parameters:
             - percentage: The percentage to which to seek.
+            - tolerance: The tolerance.
             - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
                 - finished: A Boolean value that indicates whether the seek operation completed.
          */
-        public func seekVideo(toPercentage percentage: Double, completionHandler: ((Bool) -> Void)? = nil) {
-            mediaPlayer.seek(toPercentage: percentage)
+        public func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaPlayer.seek(toPercentage: percentage, tolerance: tolerance, completionHandler: completionHandler)
         }
 
         /// The duration of the current video.

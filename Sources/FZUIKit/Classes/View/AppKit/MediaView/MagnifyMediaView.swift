@@ -199,12 +199,12 @@
             set { mediaView.videoPlaybackOption = newValue }
         }
 
-        public func seekVideo(to interval: TimeDuration) {
-            mediaView.seekVideo(to: interval)
+        public func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaView.seekVideo(to: interval, tolerance: tolerance, completionHandler: completionHandler)
         }
 
-        public func seekVideo(toPercentage percentage: Double) {
-            mediaView.seekVideo(toPercentage: percentage)
+        public func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
+            mediaView.seekVideo(toPercentage: percentage, tolerance: tolerance, completionHandler: completionHandler)
         }
 
         public var videoPlaybackTime: TimeDuration {
