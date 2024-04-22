@@ -686,6 +686,7 @@ extension AVPlayerView {
                 methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
                     object, event in
+                    Swift.print("checkkk")
                     if let playerView = object as? AVPlayerView {
                         if let event = playerView.processScrollWheel(event) {
                             store.original(object, #selector(NSView.scrollWheel(with:)), event)
