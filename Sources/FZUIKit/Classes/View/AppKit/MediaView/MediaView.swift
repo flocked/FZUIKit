@@ -13,7 +13,7 @@
     /// A view that displays media.
     open class MediaView: NSView {
         let imageView = ImageView().isHidden(true)
-        let videoView = NoMenuPlayerView().isHidden(true)
+        let videoView = AVPlayerView().isHidden(true)
         private let player = AVPlayer()
         private var playbackObserver: AVPlayerTimeObservation?
         private var previousVideoPlaybackState: AVPlayer.State = .isStopped
