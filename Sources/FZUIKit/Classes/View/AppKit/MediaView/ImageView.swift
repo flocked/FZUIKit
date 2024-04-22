@@ -969,6 +969,7 @@ open class ImageView: NSControl {
             containerView.frame.size.width = imageView.frame.size.width.clamped(to: 0...bounds.width)
             containerView.frame.size.height = imageView.frame.size.height.clamped(to: 0...bounds.height)
         } else {
+            imageView.frame = bounds
             containerView.frame = imageView.imageBounds
             imageView.frame = containerView.bounds
         }
