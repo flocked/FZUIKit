@@ -569,6 +569,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var previousBounds: CGRect = .zero
     var isScrolling = false
     public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        return false
         guard previousBounds.width != newBounds.width else { return false }
         previousBounds = newBounds
         if let indexPaths = collectionView?.displayingIndexPaths(), !indexPaths.isEmpty {
