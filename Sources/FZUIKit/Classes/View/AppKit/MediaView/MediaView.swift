@@ -12,6 +12,7 @@
 
     /// A view that displays media.
     open class MediaView: NSView {
+        
         let imageView = ImageView().isHidden(true)
         let videoView = AVPlayerView().isHidden(true)
         private let player = AVPlayer()
@@ -51,6 +52,8 @@
                 }
             }
         }
+        
+        // MARK: - Media
         
         /// The url to the media displayed in the media view.
         open var mediaURL: URL? {
@@ -180,15 +183,6 @@
         
         /// The media type currently displayed.
         open private(set) var mediaType: MediaType?
-                
-        /**
-         A view for hosting layered content on top of the media view.
-
-         Use this view to host content that you want layered on top of the media view. This view is managed by the media view itself and is automatically sized to fill the media view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
-         
-         The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
-         */
-        public let overlayContentView = NSView()
         
         /// The current size and position of the media that displays within the media view’s bounds.
         open var mediaBounds: CGRect {
@@ -200,6 +194,58 @@
             case nil:
                 return .zero
             }
+        }
+        
+        /// The scaling of the media.
+        open var mediaScaling: MediaScaling = .scaleToFit {
+            didSet {
+                imageView.imageScaling = mediaScaling.imageScaling
+                videoView.videoGravity = mediaScaling.videoGravity
+                resizeOverlayView()
+            }
+        }
+        
+        /// Sets the scaling of the media.
+        @discardableResult
+        open func mediaScaling(_ mediaScaling: MediaScaling) -> Self {
+            set(\.mediaScaling, to: mediaScaling)
+        }
+        
+        /**
+         A view for hosting layered content on top of the media view.
+
+         Use this view to host content that you want layered on top of the media view. This view is managed by the media view itself and is automatically sized to fill the media view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
+         
+         The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
+         */
+        public let overlayContentView = NSView()
+        
+        // MARK: - Image
+        
+        /// The image tint color for template and symbol images.
+        open var imageTintColor: NSColor? {
+            get { imageView.tintColor }
+            set { imageView.tintColor = newValue }
+        }
+        
+        /// Sets the image tint color for template and symbol images.
+        @discardableResult
+        open func imageTintColor(_ imageTintColor: NSColor?) -> Self {
+            set(\.imageTintColor, to: imageTintColor)
+        }
+        
+        /// The image symbol configuration.
+        @available(macOS 12.0, iOS 13.0, *)
+        open var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
+            get { imageView.symbolConfiguration }
+            set { imageView.symbolConfiguration = newValue }
+        }
+        
+        /// Sets the image symbol configuration.
+        @available(macOS 12.0, iOS 13.0, *)
+        @discardableResult
+        open func imageSymbolConfiguration(_ symbolConfiguration: NSUIImage.SymbolConfiguration?) -> Self {
+            set(\.imageSymbolConfiguration, to: symbolConfiguration)
         }
         
         /// The playback behavior for animated images.
@@ -245,6 +291,32 @@
         open func imageAnimationRepeatCount(_ repeatCount: Int) -> Self {
             set(\.imageAnimationRepeatCount, to: repeatCount)
         }
+        
+        // MARK: - Video
+        
+        /// The volume of the media.
+        @objc dynamic open var volume: CGFloat {
+            get { CGFloat(player.volume) }
+            set { player.volume = Float(newValue) }
+        }
+        
+        /// Sets the volume of the media.
+        @discardableResult
+        open func volume(_ volume: CGFloat) -> Self {
+            set(\.volume, to: volume)
+        }
+        
+        /// A Boolean value that indicates whether media is muted.
+        open var isMuted: Bool {
+            get { player.isMuted }
+            set { player.isMuted = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether media is muted.
+        @discardableResult
+        open func isMuted(_ isMuted: Bool) -> Self {
+            set(\.isMuted, to: isMuted)
+        }
 
         /// A Boolean value that indicates whether media is looped.
         open var isLooping: Bool {
@@ -267,15 +339,6 @@
             set(\.volumeScrollControl, to: volumeScrollControl)
         }
         
-        /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
-        open var playbackPositionScrollControl: PlaybackPositionScrollControl = .normal
-        
-        /// Sets the value that indicates whether the playback position can be modified by the user by scrolling left & right.
-        @discardableResult
-        open func playbackPositionScrollControl(_ playbackPositionScrollControl: PlaybackPositionScrollControl) -> Self {
-            set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)
-        }
-        
         /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
         public enum VolumeScrollControl: Double {
             case slow = 0.25
@@ -283,6 +346,15 @@
             case fast = 0.75
             /// The volume can't be modified by scrolling.
             case off = 0.0
+        }
+        
+        /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        open var playbackPositionScrollControl: PlaybackPositionScrollControl = .normal
+        
+        /// Sets the value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        @discardableResult
+        open func playbackPositionScrollControl(_ playbackPositionScrollControl: PlaybackPositionScrollControl) -> Self {
+            set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)
         }
 
         /// The value that indicates whether the playback position can be modified by the user by scrolling left & right.
@@ -302,40 +374,16 @@
             }
         }
         
-        /// A Boolean value that indicates whether media is muted.
-        open var isMuted: Bool {
-            get { player.isMuted }
-            set { player.isMuted = newValue }
-        }
-        
-        /// Sets the Boolean value that indicates whether media is muted.
-        @discardableResult
-        open func isMuted(_ isMuted: Bool) -> Self {
-            set(\.isMuted, to: isMuted)
-        }
-        
-        /// The volume of the media.
-        @objc dynamic open var volume: CGFloat {
-            get { CGFloat(player.volume) }
-            set { player.volume = Float(newValue) }
-        }
-        
-        /// Sets the volume of the media.
-        @discardableResult
-        open func volume(_ volume: CGFloat) -> Self {
-            set(\.volume, to: volume)
-        }
-        
         /// The control style for videos.
-        open var videoViewControlStyle: AVPlayerViewControlsStyle  {
+        open var videoControlStyle: AVPlayerViewControlsStyle  {
             get { videoView.controlsStyle }
             set { videoView.controlsStyle = newValue }
         }
         
         /// Sets the control style for videos.
         @discardableResult
-        open func videoViewControlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
-            set(\.videoViewControlStyle, to: style)
+        open func videoControlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
+            set(\.videoControlStyle, to: style)
         }
         
         /// The playback option when loading new media.
@@ -357,46 +405,7 @@
             case pause
         }
         
-        /// The scaling of the media.
-        open var mediaScaling: MediaScaling = .scaleToFit {
-            didSet {
-                imageView.imageScaling = mediaScaling.imageScaling
-                videoView.videoGravity = mediaScaling.videoGravity
-                resizeOverlayView()
-            }
-        }
-        
-        /// Sets the scaling of the media.
-        @discardableResult
-        open func mediaScaling(_ mediaScaling: MediaScaling) -> Self {
-            set(\.mediaScaling, to: mediaScaling)
-        }
-
-        /// The image symbol configuration.
-        @available(macOS 12.0, iOS 13.0, *)
-        open var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
-            get { imageView.symbolConfiguration }
-            set { imageView.symbolConfiguration = newValue }
-        }
-        
-        /// Sets the image symbol configuration.
-        @available(macOS 12.0, iOS 13.0, *)
-        @discardableResult
-        open func imageSymbolConfiguration(_ symbolConfiguration: NSUIImage.SymbolConfiguration?) -> Self {
-            set(\.imageSymbolConfiguration, to: symbolConfiguration)
-        }
-
-        /// The image tint color for template and symbol images.
-        open var imageTintColor: NSColor? {
-            get { imageView.tintColor }
-            set { imageView.tintColor = newValue }
-        }
-        
-        /// Sets the image tint color for template and symbol images.
-        @discardableResult
-        open func imageTintColor(_ imageTintColor: NSColor?) -> Self {
-            set(\.imageTintColor, to: imageTintColor)
-        }
+        // MARK: - Playback
         
         /// Starts playback of the media.
         open func play() {
@@ -501,16 +510,7 @@
             }
         }
         
-        private func setupPlaybackHandler(replace: Bool = true) {
-            if let playbackPositionHandler = playbackPositionHandler {
-                guard mediaType == .video else { return }
-                playbackObserver = player.addPlaybackObserver(timeInterval: playbackPositionHandlerInterval) { time in
-                    playbackPositionHandler(time)
-                }
-            } else {
-                playbackObserver = nil
-            }
-        }
+        // MARK: - Layout
 
         open override var fittingSize: CGSize {
             if mediaURL?.fileType == .image || mediaURL?.fileType == .gif {
@@ -532,7 +532,56 @@
         open func sizeToFit() {
             frame.size = fittingSize
         }
+        
+        open override func layout() {
+            super.layout()
+            resizeOverlayView()
+        }
+        
+        // MARK: - Init
 
+        /// Creates a media view that displays the media at the specified url.
+        public init(mediaURL: URL) {
+            super.init(frame: .zero)
+            self.mediaURL = mediaURL
+        }
+        
+        /// Creates a media view that plays the specified asset.
+        public init(image: NSImage) {
+            super.init(frame: .zero)
+            self.image = image
+        }
+        
+        /// Creates a media view that plays the specified asset.
+        public init(asset: AVAsset) {
+            super.init(frame: .zero)
+            self.asset = asset
+        }
+
+        public override init(frame frameRect: NSRect) {
+            super.init(frame: frameRect)
+            sharedInit()
+        }
+
+        public required init?(coder: NSCoder) {
+            super.init(coder: coder)
+            sharedInit()
+        }
+        
+        // MARK: - Private
+        
+        private func sharedInit() {
+            wantsLayer = true
+            clipsToBounds = true
+            mediaScaling = .scaleToFit
+            videoView.controlsStyle = .inline
+            videoView.player = player
+            player.volume = 0.8
+            overlayContentView.clipsToBounds = true
+            addSubview(withConstraint: imageView)
+            addSubview(withConstraint: videoView)
+        }
+        
         private func showImageView() {
             imageView.isHidden = false
             imageView.overlayContentView.addSubview(overlayContentView)
@@ -563,55 +612,21 @@
             }
         }
         
+        private func setupPlaybackHandler(replace: Bool = true) {
+            if let playbackPositionHandler = playbackPositionHandler {
+                guard mediaType == .video else { return }
+                playbackObserver = player.addPlaybackObserver(timeInterval: playbackPositionHandlerInterval) { time in
+                    playbackPositionHandler(time)
+                }
+            } else {
+                playbackObserver = nil
+            }
+        }
+        
         private func resizeOverlayView() {
             if let contentView = overlayContentView.superview {
                 overlayContentView.frame.size = contentView.bounds.size
             }
-        }
-        
-        open override func layout() {
-            super.layout()
-            resizeOverlayView()
-        }
-
-        /// Creates a media view that displays the media at the specified url.
-        public init(mediaURL: URL) {
-            super.init(frame: .zero)
-            self.mediaURL = mediaURL
-        }
-        
-        /// Creates a media view that plays the specified asset.
-        public init(image: NSImage) {
-            super.init(frame: .zero)
-            self.image = image
-        }
-        
-        /// Creates a media view that plays the specified asset.
-        public init(asset: AVAsset) {
-            super.init(frame: .zero)
-            self.asset = asset
-        }
-
-        public override init(frame frameRect: NSRect) {
-            super.init(frame: frameRect)
-            sharedInit()
-        }
-
-        public required init?(coder: NSCoder) {
-            super.init(coder: coder)
-            sharedInit()
-        }
-        
-        private func sharedInit() {
-            wantsLayer = true
-            clipsToBounds = true
-            mediaScaling = .scaleToFit
-            videoView.controlsStyle = .inline
-            videoView.player = player
-            player.volume = 0.8
-            overlayContentView.clipsToBounds = true
-            addSubview(withConstraint: imageView)
-            addSubview(withConstraint: videoView)
         }
         
         open override func scrollWheel(with event: NSEvent) {

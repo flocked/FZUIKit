@@ -346,7 +346,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().border`.
          */
-        public var border: BorderConfiguration {
+       @objc public var border: BorderConfiguration {
             get {
                 let view = realSelf
                 return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
@@ -400,7 +400,7 @@
 
          The default value is `none()`, which results in a view with no outer shadow.
          */
-        public var outerShadow: ShadowConfiguration {
+        @objc public var outerShadow: ShadowConfiguration {
             get {
                 let view = realSelf
                 return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
@@ -518,7 +518,7 @@
 
          The default value is `none()`, which results in a view with no inner shadow.
          */
-        public var innerShadow: ShadowConfiguration {
+      @objc public var innerShadow: ShadowConfiguration {
             get { realSelf.layer?.innerShadowLayer?.configuration ?? .none() }
             set {
                 wantsLayer = true
@@ -859,20 +859,5 @@
 
     /// The `NSView` properties keys that can be animated.
     private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
-
-extension NSObject {
-    @objc private func _realSelf() -> NSObject { self }
-    static func toRealSelf<Object: NSObject>(_ v: Object) -> Object {
-        v.perform(#selector(_realSelf))!.takeUnretainedValue() as! Object
-    }
-}
-
-extension NSObjectProtocol where Self: NSObject {
-    /// Returns the real `self`, if the object is a proxy.
-    var realSelf: Self {
-        guard isProxy() else { return self }
-        return Self.toRealSelf(self)
-    }
-}
 
 #endif
