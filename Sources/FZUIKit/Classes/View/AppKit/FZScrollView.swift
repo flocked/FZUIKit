@@ -121,16 +121,6 @@ open class FZScrollView: NSScrollView {
         }
     }
     
-    open override func rightMouseDown(with event: NSEvent) {
-        Swift.print("rightDown scrollView")
-        super.rightMouseDown(with: event)
-    }
-    
-    open override func rightMouseUp(with event: NSEvent) {
-        Swift.print("rightUp scrollView")
-        super.rightMouseUp(with: event)
-    }
-    
     /**
      Initializes the scroll view with the specified document view.
      

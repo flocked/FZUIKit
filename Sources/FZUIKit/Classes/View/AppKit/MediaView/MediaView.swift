@@ -699,15 +699,15 @@
             videoView.player = player
             player.volume = 0.8
             overlayContentView.clipsToBounds = true
-            addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
+            addSubview(withConstraint: imageView)
         }
         
         // MARK: - Private
         
         private func showImageView() {
             imageView.isHidden = false
-            imageView.overlayContentView.addSubview(withConstraint: overlayContentView)
+            // imageView.overlayContentView.addSubview(withConstraint: overlayContentView)
             hideVideoView()
         }
 
@@ -718,7 +718,7 @@
 
         private func showVideoView() {
             videoView.isHidden = false
-            videoView.resizingContentOverlayView.addSubview(withConstraint: overlayContentView)
+            // videoView.resizingContentOverlayView.addSubview(withConstraint: overlayContentView)
             setupPlaybackHandler()
             hideImageView()
         }
@@ -747,17 +747,6 @@
                 playbackObserver = nil
             }
         }
-        
-        open override func rightMouseDown(with event: NSEvent) {
-            Swift.print("rightDown mediaView")
-            super.rightMouseDown(with: event)
-        }
-        
-        open override func rightMouseUp(with event: NSEvent) {
-            Swift.print("rightUp mediaView")
-            super.rightMouseUp(with: event)
-        }
-        
     }
 
 extension CGFloat {

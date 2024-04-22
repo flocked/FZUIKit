@@ -670,16 +670,6 @@
             scrollView.documentView = mediaView
             addSubview(scrollView)
         }
-        
-        open override func rightMouseDown(with event: NSEvent) {
-            Swift.print("rightDown magnify")
-            super.rightMouseDown(with: event)
-        }
-        
-        open override func rightMouseUp(with event: NSEvent) {
-            Swift.print("rightUp magnify")
-            super.rightMouseUp(with: event)
-        }
     }
 
 #endif
