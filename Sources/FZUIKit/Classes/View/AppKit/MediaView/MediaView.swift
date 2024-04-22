@@ -737,6 +737,13 @@
             }
         }
         
+        open override var menu: NSMenu? {
+            didSet {
+                imageView.menu = menu
+                videoView.menu = menu
+            }
+        }
+        
         private func setupPlaybackHandler(replace: Bool = true) {
             if let playbackPositionHandler = playbackPositionHandler {
                 guard mediaType == .video else { return }
