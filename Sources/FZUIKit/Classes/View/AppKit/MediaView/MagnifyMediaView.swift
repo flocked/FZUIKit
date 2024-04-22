@@ -264,6 +264,18 @@
             set(\.videoPlaybackOption, to: option)
         }
         
+        /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
+        open var togglePlaybackByRightClick: Bool {
+            get { mediaView.togglePlaybackByRightClick }
+            set { mediaView.togglePlaybackByRightClick = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
+        @discardableResult
+        open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
+            set(\.togglePlaybackByRightClick, to: togglePlaybackByRightClick)
+        }
+        
         // MARK: - Playback
         
         /// Starts playback of the media.
@@ -626,27 +638,6 @@
             scrollView.frame = bounds
             scrollView.documentView = mediaView
             addSubview(scrollView)
-        }
-        
-        open override func menu(for event: NSEvent) -> NSMenu? {
-            return nil
-        }
-
-        open override var mouseDownCanMoveWindow: Bool {
-            true
-        }
-        
-        open override func rightMouseDown(with _: NSEvent) {
-            mediaView.videoView.player?.togglePlayback()
-        }
-        
-        open override var menu: NSMenu? {
-            get { mediaView.menu }
-            set { mediaView.menu = newValue }
-        }
-        
-        open override var acceptsFirstResponder: Bool {
-            true
         }
     }
 

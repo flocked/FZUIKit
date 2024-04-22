@@ -13,8 +13,8 @@
     /// A view that displays media.
     open class MediaView: NSView {
         
-        let imageView = ImageView().isHidden(true)
-        let videoView = AVPlayerView().isHidden(true)
+        private let imageView = ImageView().isHidden(true)
+        private let videoView = NoMenuPlayerView().isHidden(true)
         private let player = AVPlayer()
         private var playbackObserver: AVPlayerTimeObservation?
         private var previousVideoPlaybackState: AVPlayer.State = .isStopped
@@ -405,6 +405,18 @@
             case pause
         }
         
+        /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
+        open var togglePlaybackByRightClick: Bool {
+            get { videoView.togglePlaybackByRightClick }
+            set { videoView.togglePlaybackByRightClick = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
+        @discardableResult
+        open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
+            set(\.togglePlaybackByRightClick, to: togglePlaybackByRightClick)
+        }
+        
         // MARK: - Playback
         
         /// Starts playback of the media.
@@ -679,6 +691,8 @@
         }
         
         class NoMenuPlayerView: AVPlayerView {
+            var togglePlaybackByRightClick: Bool = false
+            
             override var acceptsFirstResponder: Bool {
                 false
             }
@@ -697,7 +711,8 @@
             }
             
             override func rightMouseDown(with event: NSEvent) {
-                
+                guard togglePlaybackByRightClick else { return }
+                player?.togglePlayback()
             }
             
             override func rightMouseUp(with event: NSEvent) {
