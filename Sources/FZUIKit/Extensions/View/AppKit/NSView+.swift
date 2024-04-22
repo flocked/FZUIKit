@@ -297,13 +297,6 @@
          The default value is `0.0`, which results in a view with no rounded corners.
          */
         @objc open var cornerRadius: CGFloat {
-            get { aCornerRadius }
-            set {
-                aCornerRadius = newValue
-            }
-        }
-        
-        var aCornerRadius: CGFloat {
             get { layer?.cornerRadius ?? 0.0 }
             set {
                 let clipsToBounds = clipsToBounds
@@ -312,10 +305,8 @@
                 layer?.cornerRadius = newValue
                 self.clipsToBounds = clipsToBounds
                 layer?.masksToBounds = clipsToBounds
-                print("clipsToBounds", clipsToBounds, layer?.masksToBounds ?? "nil", self.clipsToBounds)
             }
         }
-        
 
         /**
          The corner curve of the view.

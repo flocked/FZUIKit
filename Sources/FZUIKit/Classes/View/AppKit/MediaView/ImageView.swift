@@ -1066,7 +1066,8 @@ open class ImageView: NSControl {
     
     class ContainerView: NSView {
         let containerView = NSView()
-        
+        var didSetup = false
+
         override var subviews: [NSView] {
             get { didSetup ? containerView.subviews : super.subviews }
             set {
@@ -1125,7 +1126,6 @@ open class ImageView: NSControl {
             sharedInit()
         }
         
-        var didSetup = false
         func sharedInit() {
             clipsToBounds = false
             containerView.clipsToBounds = true
@@ -1138,30 +1138,6 @@ open class ImageView: NSControl {
 extension ImageView.FramePosition: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) {
         self = .index(value)
-    }
-}
-
-extension CALayerContentsGravity {
-    var scaling: NSImageScaling {
-        switch self {
-        case .resize: return .scaleAxesIndependently
-        case .resizeAspect: return .scaleProportionallyUpOrDown
-        default: return .scaleNone
-        }
-    }
-    
-    var alignment: NSImageAlignment {
-        switch self {
-        case .topLeft: return .alignTopLeft
-        case .topRight: return .alignTopRight
-        case .top: return .alignTop
-        case .right: return .alignRight
-        case .left: return .alignLeft
-        case .bottom: return .alignBottom
-        case .bottomLeft: return .alignBottomLeft
-        case .bottomRight: return .alignBottomRight
-        default: return .alignCenter
-        }
     }
 }
 
