@@ -123,7 +123,6 @@ open class ScrollPlayerView: AVPlayerView {
                 let newVolume = (Double(player.volume) + (isMouse ? delta : volumeScrollControl.value * delta)).clamped(to: 0...1.0)
                 mediaView?.willChangeValue(for: \.volume)
                 magnifyMediaView?.willChangeValue(for: \.volume)
-                Swift.print(magnifyMediaView != nil, superview?.superview ?? "nil", superview?.superview?.superview ?? "nil", superview?.superview?.superview?.superview ?? "nil")
                 player.volume = Float(newVolume)
                 mediaView?.didChangeValue(for: \.volume)
                 magnifyMediaView?.didChangeValue(for: \.volume)
