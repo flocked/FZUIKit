@@ -79,11 +79,13 @@ open class ScrollPlayerView: AVPlayerView {
             let isPrecise = event.hasPreciseScrollingDeltas
             let isNatural = event.isDirectionInvertedFromDevice
 
+            Swift.print("gg")
             if scrollDirection == .vertical, volumeScrollControl != .off {
                 var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unified * 2)/100.0
                 if isNatural {
                     deltaY = -deltaY
                 }
+                Swift.print(Double(player.volume), (Double(player.volume) + (isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0), (isMouse ? deltaY : volumeScrollControl.rawValue * deltaY))
                 let newVolume = (Double(player.volume) + (isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
                 player.volume = Float(newVolume)
             } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
