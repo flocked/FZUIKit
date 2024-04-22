@@ -14,7 +14,7 @@
     /// A magnifiable view that presents media.
     open class MagnifyMediaView: NSView {
         public let mediaView = MediaView()
-        let scrollView = MediaScrollView()
+        let scrollView = FZScrollView()
         
         /// The video player view that is playing video.
         public var videoView: AVPlayerView {
@@ -252,6 +252,16 @@
             get { mediaView.isLooping }
             set { mediaView.isLooping = newValue }
         }
+        
+        open var isVolumeControllableByScrolling: Bool {
+            get { mediaView.isVolumeControllableByScrolling }
+            set { mediaView.isVolumeControllableByScrolling = newValue }
+        }
+        
+        open var isPlaybackPositionControllableByScrolling: Bool {
+            get { mediaView.isPlaybackPositionControllableByScrolling }
+            set { mediaView.isPlaybackPositionControllableByScrolling = newValue }
+        }
 
         open var videoViewControlStyle: AVPlayerViewControlsStyle {
             get { mediaView.videoViewControlStyle }
@@ -388,69 +398,5 @@
             addSubview(scrollView)
         }
     }
-
-class MediaScrollView: FZScrollView {
-    var mediaView: MediaView? {
-        documentView as? MediaView
-    }
-    
-    override func scrollWheel(with event: NSEvent) {
-        if magnification == 1.0, let mediaView = mediaView, mediaView.mediaType == .video, (mediaView.isVolumeControllableByScrolling || mediaView.isPlaybackPositionControllableByScrolling) {
-            mediaView.scrollWheel(with: event)
-            /*
-            let isMouse = event.phase.isEmpty
-            let isTrackpadBegan = event.phase.contains(.began)
-            let isTrackpadEnd = event.phase.contains(.ended)
-
-            // determine direction
-
-            if isMouse || isTrackpadBegan {
-              if event.scrollingDeltaX != 0 {
-                scrollDirection = .horizontal
-              } else if event.scrollingDeltaY != 0 {
-                scrollDirection = .vertical
-              }
-            } else if isTrackpadEnd {
-              scrollDirection = nil
-            }
-            let isPrecise = event.hasPreciseScrollingDeltas
-            let isNatural = event.isDirectionInvertedFromDevice
-
-            var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
-            var deltaY = isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2
-
-            if isNatural {
-              deltaY = -deltaY
-            } else {
-              deltaX = -deltaX
-            }
-            let delta = Float(scrollDirection == .horizontal ? deltaX : deltaY)
-            let volume = Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)
-            let newVolume = (mediaView.volume + Float(isMouse ? (delta/100) : volumeMap[volumeScrollAmount] * (delta/100))).clamped(max: 1.0)
-            let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*Double(delta)
-            let newPlaybackPosition = mediaView.videoPlaybackTime + .seconds(seconds)
-            Swift.print("scroll", volume, seconds, newVolume, newPlaybackPosition.seconds)
-            if scrollDirection == .vertical, mediaView.isVolumeControllableByScrolling {
-                Swift.print("volume", mediaView.volume, newVolume)
-                mediaView.volume = newVolume
-            } else if scrollDirection == .horizontal, mediaView.isPlaybackPositionControllableByScrolling {
-                mediaView.seekVideo(to: newPlaybackPosition, tolerance: .zero)
-                Swift.print("position", mediaView.videoPlaybackTime.seconds, newPlaybackPosition.seconds)
-            }
-             */
-        } else {
-            super.scrollWheel(with: event)
-        }
-    }
-    
-
-
-}
-
-extension CGFloat {
-    var unifiedDouble: Double {
-        Double(copysign(1, self))
-    }
-}
 
 #endif

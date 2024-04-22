@@ -213,13 +213,10 @@
         open var isPlaybackPositionControllableByScrolling: Bool = true
         
         open override func scrollWheel(with event: NSEvent) {
-            
             if (enclosingScrollView?.magnification ?? 1.0) == 1.0, mediaType == .video, (isVolumeControllableByScrolling || isPlaybackPositionControllableByScrolling) {
                 let isMouse = event.phase.isEmpty
                 let isTrackpadBegan = event.phase.contains(.began)
                 let isTrackpadEnd = event.phase.contains(.ended)
-
-                // determine direction
 
                 if isMouse || isTrackpadBegan {
                   if event.scrollingDeltaX != 0 {
@@ -242,28 +239,22 @@
                   deltaX = -deltaX
                 }
                 let delta = Float(scrollDirection == .horizontal ? deltaX : deltaY)
-                let volume = Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)
-                let newVolume = (self.volume + Float(isMouse ? (delta/100) : volumeMap[volumeScrollAmount] * (delta/100))).clamped(max: 1.0)
-                let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*Double(delta)
-                let newPlaybackPosition = videoPlaybackTime + .seconds(seconds)
-                Swift.print("scroll", volume, seconds, newVolume, newPlaybackPosition.seconds)
                 if scrollDirection == .vertical, isVolumeControllableByScrolling {
+                    let volume = Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)
+                    let newVolume = (self.volume + Float(isMouse ? (delta/100) : volumeMap[volumeScrollAmount] * (delta/100))).clamped(to: 0...1.0)
                     Swift.print("volume", self.volume, newVolume)
                     self.volume = newVolume
                 } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
+                    let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*Double(delta)
+                    let newPlaybackPosition = videoPlaybackTime + .seconds(seconds)
                 seekVideo(to: newPlaybackPosition, tolerance: .zero)
-                    Swift.print("position", videoPlaybackTime.seconds, newPlaybackPosition.seconds)
                 }
             } else {
                 super.scrollWheel(with: event)
             }
         }
         
-        private enum ScrollDirection {
-          case horizontal
-          case vertical
-        }
-        private var scrollDirection: ScrollDirection?
+        private var scrollDirection: NSUIUserInterfaceLayoutOrientation?
         private let volumeMap: [Float] = [0, 0.25, 0.5, 0.75, 1]
         private let seekAmountMap: [Double] = [0, 0.05, 0.1, 0.25, 0.5]
         private let seekAmountMapMouse: [Double] = [0, 0.5, 1, 2, 4]
@@ -592,6 +583,12 @@ class NoMenuPlayerView: AVPlayerView {
     
     override func hitTest(_ point: NSPoint) -> NSView? {
         return nil
+    }
+}
+
+extension CGFloat {
+    var unifiedDouble: Double {
+        Double(copysign(1, self))
     }
 }
 
