@@ -433,6 +433,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         #if os(macOS) || os(iOS)
         collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
+        Swift.print("pare", collectionView != nil)
         if observation == nil {
             observation = collectionView?.observeChanges(for: \.bounds) { old, new in
                 guard old.width != new.width else { return }
