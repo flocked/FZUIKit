@@ -1107,10 +1107,7 @@ open class ImageView: NSControl {
         }
         
         override var outerShadow: ShadowConfiguration {
-            didSet {
-                backgroundColor = outerShadow.resolvedColor()
-                clipsToBounds = false
-            }
+            didSet { backgroundColor = outerShadow.resolvedColor() }
         }
         
         init() {
