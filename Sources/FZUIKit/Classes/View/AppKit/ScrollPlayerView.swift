@@ -147,8 +147,11 @@ open class ScrollPlayerView: AVPlayerView {
     }
     
     open override func rightMouseDown(with event: NSEvent) {
-        guard togglePlaybackByRightClick else { return }
-        player?.togglePlayback()
+        if togglePlaybackByRightClick, menu == nil, let player = player {
+            player.togglePlayback()
+        } else {
+            super.rightMouseDown(with: event)
+        }
     }
     
     open override func hitTest(_ point: NSPoint) -> NSView? {
