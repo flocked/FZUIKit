@@ -133,5 +133,16 @@
         func menuFormRepresentation(_ menuItem: NSMenuItem?) -> Self {
             set(\.item.menuFormRepresentation, to: menuItem)
         }
+        
+        internal func apply(_ modifier: @escaping (Self) -> Void) -> Self {
+            modifier(self)
+            return self
+        }
+
+        internal func set<Value>(_ keyPath: ReferenceWritableKeyPath<ToolbarItem, Value>, to value: Value) -> Self {
+            apply {
+                $0[keyPath: keyPath] = value
+            }
+        }
     }
 #endif
