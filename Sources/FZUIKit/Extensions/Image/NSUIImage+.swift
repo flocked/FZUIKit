@@ -35,7 +35,6 @@ public extension NSUIImage {
 
     internal var _symbolName: String? {
         #if os(macOS)
-        let description = String(describing: self)
         return String(describing: self).matches(between: "symbol = ", and: ">").first?.string
         #else
         guard isSymbolImage else { return nil }

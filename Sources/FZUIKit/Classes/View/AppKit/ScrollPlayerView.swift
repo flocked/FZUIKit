@@ -22,12 +22,16 @@ open class ScrollPlayerView: AVPlayerView {
     }
     
     /// The value that indicates whether the volume is controllable by scrolling up & down.
-    public enum VolumeScrollControl: Double {
-        case slow = 0.25
-        case normal = 0.5
-        case fast = 0.75
-        /// The volume can't be modified by scrolling.
-        case off = 0.0
+    public enum VolumeScrollControl: Int {
+        /// The volume isn't controllable by scrolling.
+        case off = 0
+        case slow = 1
+        case normal = 2
+        case fast = 3
+        
+        var value: Double {
+            [0.0, 0.25, 0.5, 0.75][rawValue]
+        }
     }
     
     /// A value that indicates whether the playback position is controllable by scrolling left & right.
@@ -40,19 +44,15 @@ open class ScrollPlayerView: AVPlayerView {
     }
 
     /// The value that indicates whether the playback position is controllable by scrolling left & right.
-    public enum PlaybackPositionScrollControl: Double {
-        case slow = 0.1
-        case normal = 0.25
-        case fast = 0.5
-        /// The playback position can't be modified by scrolling.
-        case off = 0.0
-        var mouse: Double {
-            switch self {
-            case .slow: return 1
-            case .normal: return 2
-            case .fast: return 4
-            case .off: return 0
-            }
+    public enum PlaybackPositionScrollControl: Int {
+        /// The playback position isn't controllable by scrolling.
+        case off = 0
+        case slow = 1
+        case normal = 2
+        case fast = 3
+        
+        func value(isMouse: Bool) -> Double {
+            (isMouse ? [0, 1, 2, 4] : [0.0, 0.1, 0.25, 0.5])[rawValue]
         }
     }
     
@@ -103,12 +103,12 @@ open class ScrollPlayerView: AVPlayerView {
             let delta = scrollDirection == .horizontal ? deltaX : deltaY/100.0
             if scrollDirection == .vertical, volumeScrollControl != .off {
               //  let newVolume = player.info.volume + (isMouse ? delta : AppData.volumeMap[volumeScrollAmount] * delta)
-                let newVolume = (Double(player.volume) + (isMouse ? delta : volumeScrollControl.rawValue * delta)).clamped(to: 0...1.0)
+                let newVolume = (Double(player.volume) + (isMouse ? delta : volumeScrollControl.value * delta)).clamped(to: 0...1.0)
                 player.volume = Float(newVolume)
             } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
                 let currentTime = player.currentTimeDuration.seconds
                 let duration = player.duration.seconds
-                let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*delta
+                let seconds = playbackPositionScrollControl.value(isMouse: isMouse)*delta
                 if !player.isLooping {
                     player.currentTimeDuration = .seconds((currentTime + seconds).clamped(to: 0...duration))
                 } else {
@@ -132,58 +132,5 @@ open class ScrollPlayerView: AVPlayerView {
         }
         return self
     }
-    
-    /*
-    open override func scrollWheel(with event: NSEvent) {
-        Swift.print("scrollWheel", _magnification == 1.0, player != nil, player?.currentItem != nil, volumeScrollControl != .off, playbackPositionScrollControl != .off)
-        if event.modifierFlags.contains(any: [.command, .shift]) || _magnification == 1.0, let player = player, player.currentItem != nil, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
-            let isMouse = event.phase.isEmpty
-            let isTrackpadBegan = event.phase.contains(.began)
-            let isTrackpadEnd = event.phase.contains(.ended)
-            var scrollDirection: NSUIUserInterfaceLayoutOrientation?
-            
-            if isMouse || isTrackpadBegan {
-              if event.scrollingDeltaX != 0 {
-                scrollDirection = .horizontal
-              } else if event.scrollingDeltaY != 0 {
-                scrollDirection = .vertical
-              }
-            } else if isTrackpadEnd {
-              scrollDirection = nil
-            }
-            let isPrecise = event.hasPreciseScrollingDeltas
-            let isNatural = event.isDirectionInvertedFromDevice
-
-            if scrollDirection == .vertical, volumeScrollControl != .off {
-                var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unified * 2)/100.0
-                if isNatural {
-                    deltaY = -deltaY
-                }
-                let newVolume = (Double(player.volume) + (isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
-                player.volume = Float(newVolume)
-            } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
-                let currentTime = player.currentTimeDuration.seconds
-                let duration = player.duration.seconds
-                var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unified
-                if !isNatural {
-                    deltaX = -deltaX
-                }
-                let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*deltaX
-                if !player.isLooping {
-                    player.currentTimeDuration = .seconds((currentTime + seconds).clamped(to: 0...duration))
-                } else {
-                    let truncating = (currentTime+seconds).truncatingRemainder(dividingBy: duration)
-                    if truncating < 0.0 {
-                        player.currentTimeDuration = .seconds(duration-(truncating * -1.0))
-                    } else {
-                        player.currentTimeDuration = .seconds(truncating)
-                    }
-                }
-            }
-        } else {
-            super.scrollWheel(with: event)
-        }
-    }
-     */
 }
 #endif
