@@ -1087,7 +1087,10 @@ open class ImageView: NSControl {
         }
         
         override var cornerRadius: CGFloat {
-            didSet { containerView.cornerRadius = cornerRadius }
+            didSet { 
+                containerView.cornerRadius = cornerRadius
+                clipsToBounds = false
+            }
         }
         
         override var cornerCurve: CALayerCornerCurve {
@@ -1106,6 +1109,7 @@ open class ImageView: NSControl {
         override var outerShadow: ShadowConfiguration {
             didSet {
                 backgroundColor = outerShadow.resolvedColor()
+                clipsToBounds = false
             }
         }
         
