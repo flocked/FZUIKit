@@ -707,7 +707,7 @@
         
         private func showImageView() {
             imageView.isHidden = false
-            imageView.overlayContentView.addSubview(withConstraint: overlayContentView)
+            // imageView.overlayContentView.addSubview(withConstraint: overlayContentView)
             hideVideoView()
         }
 
@@ -718,7 +718,7 @@
 
         private func showVideoView() {
             videoView.isHidden = false
-            videoView.resizingContentOverlayView.addSubview(withConstraint: overlayContentView)
+            // videoView.resizingContentOverlayView.addSubview(withConstraint: overlayContentView)
             setupPlaybackHandler()
             hideImageView()
         }
