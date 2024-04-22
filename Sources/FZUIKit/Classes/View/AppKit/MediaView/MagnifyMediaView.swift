@@ -577,6 +577,32 @@
             scrollView
         }
         
+        // MARK: - Transition
+        
+        /// The transition animation when changing the displayed image.
+        open var transitionAnimation: MediaView.TransitionAnimation {
+            get { mediaView.transitionAnimation }
+            set { mediaView.transitionAnimation = newValue }
+        }
+        
+        /// Sets the transition animation when changing the displayed media.
+        @discardableResult
+        open func transitionAnimation(_ transition: MediaView.TransitionAnimation) -> Self {
+            set(\.transitionAnimation, to: transition)
+        }
+        
+        /// The duration of the transition animation.
+        open var transitionDuration: TimeInterval {
+            get { mediaView.transitionDuration }
+            set { mediaView.transitionDuration = newValue }
+        }
+        
+        /// Sets the duration of the transition animation.
+        @discardableResult
+        open func transitionDuration(_ duration: TimeInterval) -> Self {
+            set(\.transitionDuration, to: duration)
+        }
+        
         // MARK: - Layout
         
         /// A view for hosting layered content on top of the media view.

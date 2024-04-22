@@ -541,10 +541,12 @@
             }
         }
         
+        // MARK: - Transition
+        
         /// The transition animation when changing the displayed image.
         open var transitionAnimation: TransitionAnimation = .none
         
-        /// Sets the transition animation when changing the displayed image.
+        /// Sets the transition animation when changing the displayed media.
         @discardableResult
         open func transitionAnimation(_ transition: TransitionAnimation) -> Self {
             set(\.transitionAnimation, to: transition)
@@ -559,17 +561,17 @@
             set(\.transitionDuration, to: duration)
         }
         
-        /// Constants that specify the transition animation when changing between displayed images.
+        /// Constants that specify the transition animation when changing between displayed media.
         public enum TransitionAnimation: Hashable, CustomStringConvertible {
             /// No transition animation.
             case none
-            /// The new image fades in.
+            /// The new media fades in.
             case fade
-            /// The new image slides into place over any existing image from the specified direction.
+            /// The new media slides into place over any existing media from the specified direction.
             case moveIn(_ direction: Direction = .fromLeft)
-            /// The new image pushes any existing image as it slides into place from the specified direction.
+            /// The new media pushes any existing media as it slides into place from the specified direction.
             case push(_ direction: Direction = .fromLeft)
-            /// The new image is revealed gradually in the specified direction.
+            /// The new media is revealed gradually in the specified direction.
             case reveal(_ direction: Direction = .fromLeft)
             
             /// The direction of the transition.
