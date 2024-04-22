@@ -258,6 +258,17 @@
             }
         }
         
+        private enum ScrollDirection {
+          case horizontal
+          case vertical
+        }
+        private var scrollDirection: ScrollDirection?
+        private let volumeMap: [Float] = [0, 0.25, 0.5, 0.75, 1]
+        private let seekAmountMap: [Double] = [0, 0.05, 0.1, 0.25, 0.5]
+        private let seekAmountMapMouse: [Double] = [0, 0.5, 1, 2, 4]
+        private let volumeScrollAmount = 3
+        private let relativeSeekAmount = 3
+        
         /// A Boolean value that indicates whether media is muted.
         open var isMuted: Bool {
             get { player.isMuted }
