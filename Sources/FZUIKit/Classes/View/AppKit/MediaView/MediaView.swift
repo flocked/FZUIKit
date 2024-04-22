@@ -213,7 +213,8 @@
         open var isPlaybackPositionControllableByScrolling: Bool = true
         
         open override func scrollWheel(with event: NSEvent) {
-            if mediaType == .video, (isVolumeControllableByScrolling || isPlaybackPositionControllableByScrolling) {
+            
+            if (enclosingScrollView?.magnification ?? 1.0) == 1.0, mediaType == .video, (isVolumeControllableByScrolling || isPlaybackPositionControllableByScrolling) {
                 let isMouse = event.phase.isEmpty
                 let isTrackpadBegan = event.phase.contains(.began)
                 let isTrackpadEnd = event.phase.contains(.ended)

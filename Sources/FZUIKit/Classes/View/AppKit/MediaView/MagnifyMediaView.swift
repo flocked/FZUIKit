@@ -443,17 +443,7 @@ class MediaScrollView: FZScrollView {
         }
     }
     
-    enum ScrollDirection {
-      case horizontal
-      case vertical
-    }
-    var scrollDirection: ScrollDirection?
-    let volumeMap: [Float] = [0, 0.25, 0.5, 0.75, 1]
-    let seekAmountMap: [Double] = [0, 0.05, 0.1, 0.25, 0.5]
-    let seekAmountMapMouse: [Double] = [0, 0.5, 1, 2, 4]
 
-    let volumeScrollAmount = 3
-    let relativeSeekAmount = 3
 
 }
 
