@@ -438,8 +438,15 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         if observation == nil {
             width = collectionView?.frame.width ?? 0.0
             observation1 = collectionView?.observeChanges(for: \.frame) { [weak self] old, new in
-                guard let self = self, self.width != new.width else { return }
+                guard let self = self, self.width != new.width, let collectionView = self.collectionView else { return }
                 self.width = new.width
+                let displayingItems = Set(collectionView.displayingIndexPaths())
+                self.keepItemOrder = true
+                self.invalidateLayout()
+                if !displayingItems.isEmpty {
+                    collectionView.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+                }
+                self.keepItemOrder = false
                 Swift.print("frame", new.width)
             }
         }
