@@ -153,7 +153,7 @@ open class ScrollPlayerView: AVPlayerView {
     
     open override func hitTest(_ point: NSPoint) -> NSView? {
         guard (volumeScrollControl != .off || playbackPositionScrollControl != .off), let event = NSEvent.current else { return super.hitTest(point) }
-        if (event.type == .leftMouseDown || event.type == .leftMouseUp) {
+        if (event.type == .leftMouseDown || event.type == .leftMouseUp || event.type == .rightMouseDown || event.type == .rightMouseUp) {
             return super.hitTest(point)
         }
         return self
