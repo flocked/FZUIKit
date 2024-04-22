@@ -526,6 +526,23 @@ open class ImageView: NSControl {
         pauseAnimating()
         setImageFrame(to: .first)
     }
+    
+    enum AnimationPlaybackState: Int {
+        case isAnimating
+        case isPaused
+        case isStopped
+    }
+    
+    var animationPlaybackState: AnimationPlaybackState {
+        get { isAnimating ? .isAnimating : currentImageIndex > 0 ? .isPaused : .isStopped }
+        set {
+            switch newValue {
+            case .isAnimating: startAnimating()
+            case .isPaused: pauseAnimating()
+            case .isStopped: stopAnimating()
+            }
+        }
+    }
 
     /// A Boolean value that indicates whether the animation is running.
     open var isAnimating: Bool {

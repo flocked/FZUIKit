@@ -67,13 +67,11 @@
                     } else if mediaURL.fileType == .image || mediaURL.fileType == .gif, let image = NSImage(contentsOf: mediaURL) {
                         self.image = image
                     } else {
-                        mediaType = nil
                         _mediaURL = nil
                         hideImageView()
                         hideVideoView()
                     }
                 } else {
-                    mediaType = nil
                     hideImageView()
                     hideVideoView()
                 }
@@ -91,14 +89,15 @@
         open var image: NSImage? {
             get { imageView.image }
             set {
+                if let transition = transitionAnimation.transition(transitionDuration) {
+                    self.transition(transition)
+                }
                 imageView.image = newValue
                 if newValue != nil {
-                    mediaType = imageView.isAnimatable ? .gif : .image
                     _mediaURL = nil
                     showImageView()
                 } else if mediaType == .image {
                     hideImageView()
-                    mediaType = nil
                 }
             }
         }
@@ -113,14 +112,15 @@
         open var images: [NSImage] {
             get { imageView.images }
             set {
+                if let transition = transitionAnimation.transition(transitionDuration) {
+                    self.transition(transition)
+                }
                 imageView.images = newValue
                 if newValue.isEmpty == false {
-                    mediaType = imageView.isAnimatable ? .gif : .image
                     _mediaURL = nil
                     showImageView()
                 } else if mediaType == .image {
                     hideImageView()
-                    mediaType = nil
                 }
             }
         }
@@ -147,11 +147,13 @@
         }
         
         private func setupAsset(_ asset: AVAsset?) {
+            if let transition = transitionAnimation.transition(transitionDuration) {
+                self.transition(transition)
+            }
             if let asset = asset {
                 updatePreviousPlaybackState()
                 player.pause()
                 player.replaceCurrentItem(with: AVPlayerItem(asset: asset))
-                mediaType = .video
                 showVideoView()
                 if videoPlaybackOption == .autostart || (videoPlaybackOption == .previousPlaybackState && previousVideoPlaybackState == .isPlaying) {
                     player.play()
@@ -161,12 +163,18 @@
             } else if mediaType == .video {
                 hideVideoView()
                 _mediaURL = nil
-                mediaType = nil
             }
         }
         
         /// The media type currently displayed.
-        open private(set) var mediaType: MediaType?
+        open var mediaType: MediaType? {
+            if !videoView.isHidden {
+                return .video
+            } else if !imageView.isHidden {
+                return imageView.isAnimatable ? .gif : .image
+            }
+            return nil
+        }
         
         /// The current size and position of the media that displays within the media view’s bounds.
         open var mediaBounds: CGRect {
@@ -193,15 +201,6 @@
         open func mediaScaling(_ mediaScaling: MediaScaling) -> Self {
             set(\.mediaScaling, to: mediaScaling)
         }
-        
-        /**
-         A view for hosting layered content on top of the media view.
-
-         Use this view to host content that you want layered on top of the media view. This view is managed by the media view itself and is automatically sized to fill the media view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
-         
-         The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
-         */
-        public let overlayContentView = NSView()
         
         // MARK: - Image
         
@@ -323,12 +322,16 @@
         }
         
         /// The value that indicates whether the volume is controllable by scrolling up & down.
-        public enum VolumeScrollControl: Double {
-            case slow = 0.25
-            case normal = 0.5
-            case fast = 0.75
-            /// The volume can't be modified by scrolling.
-            case off = 0.0
+        public enum VolumeScrollControl: Int {
+            /// The volume isn't controllable by scrolling.
+            case off = 0
+            case slow = 1
+            case normal = 2
+            case fast = 3
+            
+            var value: Double {
+                [0.0, 0.25, 0.5, 0.75][rawValue]
+            }
         }
         
         /// A value that indicates whether the playback position is controllable by scrolling left & right.
@@ -341,19 +344,15 @@
         }
 
         /// The value that indicates whether the playback position is controllable by scrolling left & right.
-        public enum PlaybackPositionScrollControl: Double {
-            case slow = 0.1
-            case normal = 0.25
-            case fast = 0.5
-            /// The playback position can't be modified by scrolling.
-            case off = 0.0
-            var mouse: Double {
-                switch self {
-                case .slow: return 1
-                case .normal: return 2
-                case .fast: return 4
-                case .off: return 0
-                }
+        public enum PlaybackPositionScrollControl: Int {
+            /// The playback position isn't controllable by scrolling.
+            case off = 0
+            case slow = 1
+            case normal = 2
+            case fast = 3
+            
+            func value(isMouse: Bool) -> Double {
+                (isMouse ? [0, 1, 2, 4] : [0.0, 0.1, 0.25, 0.5])[rawValue]
             }
         }
         
@@ -425,10 +424,47 @@
             imageView.toggleAnimating()
             player.togglePlayback()
         }
-
-        /// A Boolean value that indicates whether the media is playing.
-        open var isPlaying: Bool {
-            imageView.isAnimating ? true : player.state == .isPlaying
+        
+        /// The playback state of the displayed media.
+        open var playbackState: PlaybackState {
+            get {
+                switch mediaType {
+                case .video:
+                    switch player.state {
+                    case .isPlaying: return .isPlaying
+                    case .isPaused: return .isPaused
+                    default: return .isStopped
+                    }
+                case .image, .gif:
+                    return .init(rawValue: imageView.animationPlaybackState.rawValue)!
+                case nil:
+                    return .isStopped
+                }
+            }
+            set {
+                guard mediaType != nil else { return }
+                switch newValue {
+                case .isPlaying: play()
+                case .isPaused: pause()
+                case .isStopped: stop()
+                }
+            }
+        }
+        
+        /// Sets the playback state of the displayed media.
+        @discardableResult
+        open func playbackState(_ playbackState: PlaybackState) -> Self {
+            set(\.playbackState, to: playbackState)
+        }
+        
+        /// The media playback state.
+        public enum PlaybackState: Int {
+            /// Is playing.
+            case isPlaying
+            /// Is paused.
+            case isPaused
+            /// Is stopped.
+            case isStopped
         }
 
         /**
@@ -505,7 +541,96 @@
             }
         }
         
+        /// The transition animation when changing the displayed image.
+        open var transitionAnimation: TransitionAnimation = .none
+        
+        /// Sets the transition animation when changing the displayed image.
+        @discardableResult
+        open func transitionAnimation(_ transition: TransitionAnimation) -> Self {
+            set(\.transitionAnimation, to: transition)
+        }
+        
+        /// The duration of the transition animation.
+        open var transitionDuration: TimeInterval = 0.2
+        
+        /// Sets the duration of the transition animation.
+        @discardableResult
+        open func transitionDuration(_ duration: TimeInterval) -> Self {
+            set(\.transitionDuration, to: duration)
+        }
+        
+        /// Constants that specify the transition animation when changing between displayed images.
+        public enum TransitionAnimation: Hashable, CustomStringConvertible {
+            /// No transition animation.
+            case none
+            /// The new image fades in.
+            case fade
+            /// The new image slides into place over any existing image from the specified direction.
+            case moveIn(_ direction: Direction = .fromLeft)
+            /// The new image pushes any existing image as it slides into place from the specified direction.
+            case push(_ direction: Direction = .fromLeft)
+            /// The new image is revealed gradually in the specified direction.
+            case reveal(_ direction: Direction = .fromLeft)
+            
+            /// The direction of the transition.
+            public enum Direction: String, Hashable {
+                /// From left.
+                case fromLeft
+                /// From right.
+                case fromRight
+                /// From bottom.
+                case fromBottom
+                /// From top.
+                case fromTop
+                var subtype: CATransitionSubtype {
+                    CATransitionSubtype(rawValue: rawValue)
+                }
+            }
+            
+            public var description: String {
+                switch self {
+                case .none: return "TransitionAnimation.none"
+                case .fade: return "TransitionAnimation.fade"
+                case .moveIn(let direction): return "TransitionAnimation.moveIn(\(direction.rawValue))"
+                case .push(let direction): return "TransitionAnimation.push(\(direction.rawValue))"
+                case .reveal(let direction): return "TransitionAnimation.reveal(\(direction.rawValue))"
+                }
+            }
+            
+            var type: CATransitionType? {
+                switch self {
+                case .fade: return .fade
+                case .moveIn: return .moveIn
+                case .push: return .push
+                case .reveal: return .reveal
+                case .none: return nil
+                }
+            }
+            
+            var subtype: CATransitionSubtype? {
+                switch self {
+                case .moveIn(let direction), .push(let direction), .reveal(let direction):
+                    return direction.subtype
+                default: return nil
+                }
+            }
+            
+            func transition(_ duration: TimeInterval) -> CATransition? {
+                guard let type = type else { return nil }
+                return CATransition(type, subtype: subtype, duration: duration)
+            }
+        }
+        
         // MARK: - Layout
+        
+        /**
+         A view for hosting layered content on top of the media view.
+
+         Use this view to host content that you want layered on top of the media view. This view is managed by the media view itself and is automatically sized to fill the media view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
+         
+         The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
+         */
+        public let overlayContentView = NSView()
 
         open override var fittingSize: CGSize {
             if mediaURL?.fileType == .image || mediaURL?.fileType == .gif {
@@ -639,14 +764,14 @@
                     if isNatural {
                         deltaY = -deltaY
                     }
-                    let newVolume = (volume + (isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
+                    let newVolume = (volume + (isMouse ? deltaY : volumeScrollControl.value * deltaY)).clamped(to: 0...1.0)
                     volume = newVolume
                 } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
                     var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unified
                     if !isNatural {
                         deltaX = -deltaX
                     }
-                    let seconds = (isMouse ? playbackPositionScrollControl.mouse : playbackPositionScrollControl.rawValue)*deltaX
+                    let seconds = playbackPositionScrollControl.value(isMouse: isMouse)*deltaX
                     if !isLooping {
                         videoPlaybackTime = .seconds((videoPlaybackTime.seconds + seconds).clamped(to: 0...videoDuration.seconds))
                     } else {

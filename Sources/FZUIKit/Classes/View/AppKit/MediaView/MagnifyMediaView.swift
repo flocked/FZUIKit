@@ -101,11 +101,6 @@
             set(\.mediaScaling, to: mediaScaling)
         }
         
-        /// A view for hosting layered content on top of the media view.
-        open var overlayContentView: NSView {
-            mediaView.overlayContentView
-        }
-        
         // MARK: - Image
         
         /// The image tint color for template and symbol images.
@@ -297,10 +292,17 @@
         open func togglePlayback() {
             mediaView.togglePlayback()
         }
-
-        /// A Boolean value that indicates whether the media is playing.
-        open var isPlaying: Bool {
-            mediaView.isPlaying
+        
+        /// The playback state of the displayed media.
+        open var playbackState: MediaView.PlaybackState {
+            get { mediaView.playbackState }
+            set { mediaView.playbackState = newValue }
+        }
+        
+        /// Sets the playback state of the displayed media.
+        @discardableResult
+        open func playbackState(_ playbackState: MediaView.PlaybackState) -> Self {
+            set(\.playbackState, to: playbackState)
         }
 
         /**
@@ -576,6 +578,11 @@
         }
         
         // MARK: - Layout
+        
+        /// A view for hosting layered content on top of the media view.
+        open var overlayContentView: NSView {
+            mediaView.overlayContentView
+        }
 
         open override var fittingSize: NSSize {
             mediaView.fittingSize
