@@ -748,98 +748,16 @@
             }
         }
         
-        /*
-        open override func scrollWheel(with event: NSEvent) {
-            if (enclosingScrollView?.magnification ?? 1.0) == 1.0 || event.modifierFlags.contains(any: [.command, .shift]), mediaType == .video, (volumeScrollControl != .off || playbackPositionScrollControl != .off) {
-                let isMouse = event.phase.isEmpty
-                let isTrackpadBegan = event.phase.contains(.began)
-                let isTrackpadEnd = event.phase.contains(.ended)
-                var scrollDirection: NSUIUserInterfaceLayoutOrientation?
-                
-                if isMouse || isTrackpadBegan {
-                  if event.scrollingDeltaX != 0 {
-                    scrollDirection = .horizontal
-                  } else if event.scrollingDeltaY != 0 {
-                    scrollDirection = .vertical
-                  }
-                } else if isTrackpadEnd {
-                  scrollDirection = nil
-                }
-                let isPrecise = event.hasPreciseScrollingDeltas
-                let isNatural = event.isDirectionInvertedFromDevice
-
-                if scrollDirection == .vertical, volumeScrollControl != .off {
-                    var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unified * 2)/100.0
-                    if isNatural {
-                        deltaY = -deltaY
-                    }
-                    let newVolume = (volume + (isMouse ? deltaY : volumeScrollControl.value * deltaY)).clamped(to: 0...1.0)
-                    volume = newVolume
-                } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
-                    var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unified
-                    if !isNatural {
-                        deltaX = -deltaX
-                    }
-                    let seconds = playbackPositionScrollControl.value(isMouse: isMouse)*deltaX
-                    if !isLooping {
-                        videoPlaybackTime = .seconds((videoPlaybackTime.seconds + seconds).clamped(to: 0...videoDuration.seconds))
-                    } else {
-                        let duration = videoDuration.seconds
-                        let truncating = (videoPlaybackTime.seconds+seconds).truncatingRemainder(dividingBy: duration)
-                        if truncating < 0.0 {
-                            videoPlaybackTime = .seconds(duration-(truncating * -1.0))
-                        } else {
-                            videoPlaybackTime = .seconds(truncating)
-                        }
-                    }
-                }
-            } else {
-                super.scrollWheel(with: event)
-            }
+        open override func rightMouseDown(with event: NSEvent) {
+            Swift.print("rightDown mediaView")
+            super.rightMouseDown(with: event)
         }
-         */
         
-        class NoMenuPlayerView: AVPlayerView {
-            var togglePlaybackByRightClick: Bool = false
-            
-            override var acceptsFirstResponder: Bool {
-                false
-            }
-            
-            override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
-                false
-            }
-            
-            override func menu(for event: NSEvent) -> NSMenu? {
-                return nil
-            }
-            
-            override var menu: NSMenu? {
-                get { return nil }
-                set { }
-            }
-            
-            override func rightMouseDown(with event: NSEvent) {
-                guard togglePlaybackByRightClick else { return }
-                player?.togglePlayback()
-            }
-            
-            override func rightMouseUp(with event: NSEvent) {
-                
-            }
-            
-            override func mouseDown(with event: NSEvent) {
-                
-            }
-            
-            override func mouseUp(with event: NSEvent) {
-                
-            }
-            
-            override func hitTest(_ point: NSPoint) -> NSView? {
-                return nil
-            }
+        open override func rightMouseUp(with event: NSEvent) {
+            Swift.print("rightUp mediaView")
+            super.rightMouseUp(with: event)
         }
+        
     }
 
 extension CGFloat {

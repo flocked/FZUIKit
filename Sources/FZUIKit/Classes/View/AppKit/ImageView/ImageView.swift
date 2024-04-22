@@ -1010,6 +1010,16 @@ open class ImageView: NSControl {
         }
     }
     
+    open override func rightMouseDown(with event: NSEvent) {
+        Swift.print("rightDown imageView")
+        super.rightMouseDown(with: event)
+    }
+    
+    open override func rightMouseUp(with event: NSEvent) {
+        Swift.print("rightUp imageView")
+        super.rightMouseUp(with: event)
+    }
+    
     open override func alignmentRect(forFrame frame: NSRect) -> NSRect {
         imageView.alignmentRect(forFrame: frame)
     }
