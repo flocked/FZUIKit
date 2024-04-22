@@ -14,7 +14,7 @@
     /// A magnifiable view that presents media.
     open class MagnifyMediaView: NSView {
         public let mediaView = MediaView()
-        open var scrollView = FZScrollView()
+        let scrollView = MediaScrollView()
         
         /// The video player view that is playing video.
         public var videoView: AVPlayerView {
@@ -389,5 +389,69 @@
         }
     }
 
+class MediaScrollView: FZScrollView {
+    var mediaView: MediaView? {
+        documentView as? MediaView
+    }
+    
+    override func scrollWheel(with event: NSEvent) {
+        if magnification == 1.0, let mediaView = mediaView, mediaView.mediaType == .video {
+            let isMouse = event.phase.isEmpty
+            let isTrackpadBegan = event.phase.contains(.began)
+            let isTrackpadEnd = event.phase.contains(.ended)
+
+            // determine direction
+
+            if isMouse || isTrackpadBegan {
+              if event.scrollingDeltaX != 0 {
+                scrollDirection = .horizontal
+              } else if event.scrollingDeltaY != 0 {
+                scrollDirection = .vertical
+              }
+            } else if isTrackpadEnd {
+              scrollDirection = nil
+            }
+            let isPrecise = event.hasPreciseScrollingDeltas
+            let isNatural = event.isDirectionInvertedFromDevice
+
+            var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
+            var deltaY = isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2
+
+            if isNatural {
+              deltaY = -deltaY
+            } else {
+              deltaX = -deltaX
+            }
+            let delta = Float(scrollDirection == .horizontal ? deltaX : deltaY)
+            let volume = Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)
+            let newVolume = (mediaView.volume + Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)).clamped(max: 1.0)
+            let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*Double(delta)
+            let newSeconds = mediaView.videoPlaybackTime + .seconds(seconds)
+            Swift.print("scroll", volume, seconds)
+            if newVolume != mediaView.volume {
+               // mediaView.volume = newVolume
+            }
+        }
+    }
+    
+    enum ScrollDirection {
+      case horizontal
+      case vertical
+    }
+    var scrollDirection: ScrollDirection?
+    let volumeMap: [Float] = [0, 0.25, 0.5, 0.75, 1]
+    let seekAmountMap: [Double] = [0, 0.05, 0.1, 0.25, 0.5]
+    let seekAmountMapMouse: [Double] = [0, 0.5, 1, 2, 4]
+
+    let volumeScrollAmount = 3
+    let relativeSeekAmount = 3
+
+}
+
+extension CGFloat {
+    var unifiedDouble: Double {
+        Double(copysign(1, self))
+    }
+}
 
 #endif
