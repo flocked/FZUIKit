@@ -220,10 +220,6 @@ open class StackView: NSUIView {
         }
         let width = sizes.compactMap({$0.width}).max() ?? 0.0
         let height = sizes.compactMap({$0.height}).sum() + (CGFloat(views.count-1) * spacing) + (0 - (baselineOffsets.min() ?? 0))
-        if orientation == .horizontal {
-            for arrangedSubview in arrangedSubviews {
-            }
-        }
         return CGSize(width, height)
     }
     #else
