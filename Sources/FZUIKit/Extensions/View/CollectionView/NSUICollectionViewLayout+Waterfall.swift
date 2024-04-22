@@ -533,6 +533,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        if let displayingItems = displayingItems {
+            self.collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+            self.displayingItems = nil
+        }
         keepItemOrder = false
     }
 
@@ -567,6 +571,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard previousBounds.width != newBounds.width else { return false }
         previousBounds = newBounds
+        if let indexPaths = collectionView?.displayingIndexPaths() {
+            displayingItems = .init(indexPaths)
+        }
         keepItemOrder = true
         return true
         /*
