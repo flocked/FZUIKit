@@ -216,25 +216,25 @@
             set(\.isLooping, to: isLooping)
         }
         
-        /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
+        /// A value that indicates whether the volume is controllable by scrolling up & down.
         open var volumeScrollControl: MediaView.VolumeScrollControl {
             get { mediaView.volumeScrollControl }
             set { mediaView.volumeScrollControl = newValue }
         }
         
-        /// Sets the value that indicates whether the volume can be modified by the user by scrolling up & down.
+        /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
         @discardableResult
         open func volumeScrollControl(_ volumeScrollControl: MediaView.VolumeScrollControl) -> Self {
             set(\.volumeScrollControl, to: volumeScrollControl)
         }
         
-        /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        /// A value that indicates whether the playback position is controllable by scrolling left & right.
         open var playbackPositionScrollControl: MediaView.PlaybackPositionScrollControl {
             get { mediaView.playbackPositionScrollControl }
             set { mediaView.playbackPositionScrollControl = newValue }
         }
         
-        /// Sets the value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
         @discardableResult
         open func playbackPositionScrollControl(_ playbackPositionScrollControl: MediaView.PlaybackPositionScrollControl) -> Self {
             set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)

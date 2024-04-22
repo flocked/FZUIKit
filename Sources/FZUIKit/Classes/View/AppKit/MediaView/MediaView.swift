@@ -330,16 +330,16 @@
             set(\.isLooping, to: isLooping)
         }
 
-        /// A value that indicates whether the volume can be modified by the user by scrolling up & down.
+        /// A value that indicates whether the volume is controllable by scrolling up & down.
         open var volumeScrollControl: VolumeScrollControl = .normal
         
-        /// Sets the value that indicates whether the volume can be modified by the user by scrolling up & down.
+        /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
         @discardableResult
         open func volumeScrollControl(_ volumeScrollControl: VolumeScrollControl) -> Self {
             set(\.volumeScrollControl, to: volumeScrollControl)
         }
         
-        /// The value that indicates whether the volume can be modified by the user by scrolling up & down.
+        /// The value that indicates whether the volume is controllable by scrolling up & down.
         public enum VolumeScrollControl: Double {
             case slow = 0.25
             case normal = 0.5
@@ -348,16 +348,16 @@
             case off = 0.0
         }
         
-        /// A value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        /// A value that indicates whether the playback position is controllable by scrolling left & right.
         open var playbackPositionScrollControl: PlaybackPositionScrollControl = .normal
         
-        /// Sets the value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
         @discardableResult
         open func playbackPositionScrollControl(_ playbackPositionScrollControl: PlaybackPositionScrollControl) -> Self {
             set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)
         }
 
-        /// The value that indicates whether the playback position can be modified by the user by scrolling left & right.
+        /// The value that indicates whether the playback position is controllable by scrolling left & right.
         public enum PlaybackPositionScrollControl: Double {
             case slow = 0.1
             case normal = 0.25
@@ -649,14 +649,14 @@
                 let isNatural = event.isDirectionInvertedFromDevice
 
                 if scrollDirection == .vertical, volumeScrollControl != .off {
-                    var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unifiedDouble * 2)/100.0
+                    var deltaY = (isPrecise ? Double(event.scrollingDeltaY) : event.scrollingDeltaY.unified * 2)/100.0
                     if isNatural {
                         deltaY = -deltaY
                     }
                     let newVolume = (volume + (isMouse ? deltaY : volumeScrollControl.rawValue * deltaY)).clamped(to: 0...1.0)
                     volume = newVolume
                 } else if scrollDirection == .horizontal, playbackPositionScrollControl != .off {
-                    var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unifiedDouble
+                    var deltaX = isPrecise ? Double(event.scrollingDeltaX) : event.scrollingDeltaX.unified
                     if !isNatural {
                         deltaX = -deltaX
                     }
@@ -677,50 +677,50 @@
                 super.scrollWheel(with: event)
             }
         }
-    }
-
-class NoMenuPlayerView: AVPlayerView {
-    override var acceptsFirstResponder: Bool {
-        false
-    }
-    
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
-        false
-    }
-    
-    override func menu(for event: NSEvent) -> NSMenu? {
-        return nil
-    }
-    
-    override var menu: NSMenu? {
-        get { return nil }
-        set { }
-    }
-    
-    override func rightMouseDown(with event: NSEvent) {
         
+        class NoMenuPlayerView: AVPlayerView {
+            override var acceptsFirstResponder: Bool {
+                false
+            }
+            
+            override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+                false
+            }
+            
+            override func menu(for event: NSEvent) -> NSMenu? {
+                return nil
+            }
+            
+            override var menu: NSMenu? {
+                get { return nil }
+                set { }
+            }
+            
+            override func rightMouseDown(with event: NSEvent) {
+                
+            }
+            
+            override func rightMouseUp(with event: NSEvent) {
+                
+            }
+            
+            override func mouseDown(with event: NSEvent) {
+                
+            }
+            
+            override func mouseUp(with event: NSEvent) {
+                
+            }
+            
+            override func hitTest(_ point: NSPoint) -> NSView? {
+                return nil
+            }
+        }
     }
-    
-    override func rightMouseUp(with event: NSEvent) {
-        
-    }
-    
-    override func mouseDown(with event: NSEvent) {
-        
-    }
-    
-    override func mouseUp(with event: NSEvent) {
-        
-    }
-    
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        return nil
-    }
-}
 
 extension CGFloat {
-    var unifiedDouble: Double {
-        Double(copysign(1, self))
+    var unified: CGFloat {
+        copysign(1, self)
     }
 }
 
