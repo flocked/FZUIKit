@@ -182,6 +182,7 @@ extension NSView {
      
      The value is `KVO` observable.
      
+     T
      - Note: To be able to observe the value, you have to access the property once.
      */
    @objc dynamic public internal(set) var isLiveResizing: Bool {

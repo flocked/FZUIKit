@@ -107,23 +107,20 @@ extension NSView {
         }
     }
 
-    var _effectiveAppearanceKVO: KeyValueObservation? {
-        get { getAssociatedValue("_viewEffectiveAppearanceKVO") }
-        set { setAssociatedValue(newValue, key: "_viewEffectiveAppearanceKVO") }
+    var effectiveAppearanceObservation: KeyValueObservation? {
+        get { getAssociatedValue("effectiveAppearanceObservation") }
+        set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
     }
 
     func setupEffectiveAppearanceObserver() {
-        
-        
         if dynamicColors.needsAppearanceObserver {
-            if _effectiveAppearanceKVO == nil {
-                _effectiveAppearanceKVO = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
+            if effectiveAppearanceObservation == nil {
+                effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
                     self?.updateEffectiveColors()
                 }
             }
         } else {
-            _effectiveAppearanceKVO?.invalidate()
-            _effectiveAppearanceKVO = nil
+            effectiveAppearanceObservation = nil
         }
     }
 
@@ -151,8 +148,7 @@ extension NSView {
         }
 
         if dynamicColors.needsAppearanceObserver == false {
-            _effectiveAppearanceKVO?.invalidate()
-            _effectiveAppearanceKVO = nil
+            effectiveAppearanceObservation = nil
         }
     }
 }

@@ -13,7 +13,7 @@
     #endif
 
     public extension NSUIView {
-        var optionalLayer: CALayer? {
+        internal var optionalLayer: CALayer? {
             #if os(macOS)
                 wantsLayer = true
             #endif
@@ -228,6 +228,14 @@
             }
             return nil
         }
+        
+        /// An array of all enclosing superviews.
+        func superviewChain() -> [NSView] {
+            if let superview = superview {
+                return [superview] + superview.superviewChain()
+            }
+            return []
+        }
 
         /**
          An array of all subviews upto the maximum depth.
@@ -284,8 +292,8 @@
         }
 
         /// Recursive description of the view useful for debugging.
-        var recursiveDescription: NSString {
-            value(forKey: "recursiveDescription") as! NSString
+        var recursiveDescription: String {
+            value(forKey: "recursiveDescription") as? String ?? ""
         }
 
         #if os(macOS)
@@ -328,7 +336,7 @@
                     self.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
                 }
             }
-
+        
         #elseif canImport(UIKit)
             /**
              The background gradient of the view.
@@ -345,6 +353,11 @@
                 }
             }
         #endif
+        
+        /// Sets the background gradient of the view.
+        func gradient( _ gradient: Gradient?) -> Self {
+            set(\.gradient, to: gradient)
+        }
 
         internal var gradientLocations: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }

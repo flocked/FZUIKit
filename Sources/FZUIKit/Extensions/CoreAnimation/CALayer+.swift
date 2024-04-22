@@ -179,8 +179,8 @@ import FZSwiftUtils
         }
 
         internal var layerObserver: KeyValueObserver<CALayer>? {
-            get { getAssociatedValue("CALayer.boundsObserver", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "CALayer.boundsObserver") }
+            get { getAssociatedValue("layerObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "layerObserver") }
         }
 
         /// The associated view using the layer.

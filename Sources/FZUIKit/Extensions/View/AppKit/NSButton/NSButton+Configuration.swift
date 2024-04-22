@@ -68,23 +68,23 @@
             }
         }
 
-        var keyValueObserver: KeyValueObserver<NSButton>? {
-            get { getAssociatedValue("keyValueObserver", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "keyValueObserver") }
+        var buttonObserver: KeyValueObserver<NSButton>? {
+            get { getAssociatedValue("buttonObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "buttonObserver") }
         }
 
         func setupConfigurationStateObserver() {
             if automaticallyUpdatesConfiguration == true || configurationUpdateHandler != nil {
-                if keyValueObserver == nil {
-                    keyValueObserver = KeyValueObserver(self)
-                    keyValueObserver?.add(\.state) { [weak self] old, new in
+                if buttonObserver == nil {
+                    buttonObserver = KeyValueObserver(self)
+                    buttonObserver?.add(\.state) { [weak self] old, new in
                         guard let self = self, old != new else { return }
                         if self.automaticallyUpdatesConfiguration {
                             self.updateConfiguration()
                         }
                         self.configurationUpdateHandler?(self.configurationState)
                     }
-                    keyValueObserver?.add(\.isEnabled) { [weak self] old, new in
+                    buttonObserver?.add(\.isEnabled) { [weak self] old, new in
                         guard let self = self, old != new else { return }
                         if self.automaticallyUpdatesConfiguration {
                             self.updateConfiguration()
@@ -92,7 +92,7 @@
                         self.configurationUpdateHandler?(self.configurationState)
                     }
                     /*
-                     keyValueObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
+                     buttonObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
                      */
                 }
                 if mouseHandlers.exited == nil {
@@ -114,7 +114,7 @@
                     }
                 }
             } else {
-                keyValueObserver = nil
+                buttonObserver = nil
                 mouseHandlers = .init()
             }
         }
