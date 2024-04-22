@@ -533,6 +533,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        keepItemOrder = false
     }
 
     override public var collectionViewContentSize: CGSize {
@@ -564,6 +565,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var previousBounds: CGRect = .zero
     var isScrolling = false
     public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+        guard previousBounds.width != newBounds.width else { return false }
+        previousBounds = newBounds
+        keepItemOrder = true
+        return true
+        /*
         guard keepItemsCenteredWhenResizing else { return false }
         Swift.print("shouldInvalidate", newBounds.width != previousBounds.width, newBounds, previousBounds, collectionView?.displayingIndexPaths().compactMap({$0.item}).sorted() ?? [])
         guard let collectionView = collectionView else { return false }
@@ -592,6 +598,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
        // }
         
         return false
+         */
     }
 
     override public func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
