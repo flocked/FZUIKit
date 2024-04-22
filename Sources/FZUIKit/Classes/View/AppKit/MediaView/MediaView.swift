@@ -209,6 +209,9 @@
             set { player.isLooping = newValue }
         }
         
+        open var isVolumeControllableByScrolling: Bool = true
+        open var isPlaybackPositionControllableByScrolling: Bool = true
+        
         /// A Boolean value that indicates whether media is muted.
         open var isMuted: Bool {
             get { player.isMuted }

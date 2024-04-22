@@ -426,15 +426,14 @@ class MediaScrollView: FZScrollView {
             let volume = Float(isMouse ? delta : volumeMap[volumeScrollAmount] * delta)
             let newVolume = (mediaView.volume + Float(isMouse ? (delta/100) : volumeMap[volumeScrollAmount] * (delta/100))).clamped(max: 1.0)
             let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*Double(delta)
-            let newSeconds = mediaView.videoPlaybackTime + .seconds(seconds)
-            Swift.print("scroll", volume, seconds, newVolume, newSeconds)
-            if scrollDirection == .horizontal {
+            let newPlaybackPosition = mediaView.videoPlaybackTime + .seconds(seconds)
+            Swift.print("scroll", volume, seconds, newVolume, newPlaybackPosition.seconds)
+            if scrollDirection == .horizontal, mediaView.isVolumeControllableByScrolling {
                 Swift.print("volume", mediaView.volume, newVolume)
-            } else {
-                Swift.print("position", mediaView.videoPlaybackTime, newSeconds)
-            }
-            if newVolume != mediaView.volume {
-               // mediaView.volume = newVolume
+                mediaView.volume = newVolume
+            } else if scrollDirection == .vertical, mediaView.isPlaybackPositionControllableByScrolling {
+                mediaView.seekVideo(to: newPlaybackPosition, tolerance: .zero)
+                Swift.print("position", mediaView.videoPlaybackTime.seconds, newPlaybackPosition.seconds)
             }
         }
     }
