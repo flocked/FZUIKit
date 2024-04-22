@@ -23,10 +23,13 @@ open class ScrollPlayerView: AVPlayerView {
     
     /// The value that indicates whether the volume is controllable by scrolling up & down.
     public enum VolumeScrollControl: Int {
-        /// The volume isn't controllable by scrolling.
+        /// Scrolling doesn't change the volume.
         case off = 0
+        /// Scrolling changes the volume slowly.
         case slow = 1
+        /// Scrolling changes the volume.
         case normal = 2
+        /// Scrolling changes the volume fastly.
         case fast = 3
         
         var value: Double {
@@ -45,10 +48,13 @@ open class ScrollPlayerView: AVPlayerView {
 
     /// The value that indicates whether the playback position is controllable by scrolling left & right.
     public enum PlaybackPositionScrollControl: Int {
-        /// The playback position isn't controllable by scrolling.
+        /// Scrolling doesn't change the playback position.
         case off = 0
+        /// Scrolling changes the playback position slowly.
         case slow = 1
+        /// Scrolling changes the playback position.
         case normal = 2
+        /// Scrolling changes the playback position fastly.
         case fast = 3
         
         func value(isMouse: Bool) -> Double {
@@ -155,15 +161,10 @@ open class ScrollPlayerView: AVPlayerView {
     }
     
     open override func hitTest(_ point: NSPoint) -> NSView? {
-        guard (volumeScrollControl != .off || playbackPositionScrollControl != .off), let event = NSEvent.current else { return super.hitTest(point) }
-        if event.type == .scrollWheel {
+        if volumeScrollControl != .off || playbackPositionScrollControl != .off, NSEvent.current?.type == .scrollWheel {
             return self
         }
         return super.hitTest(point)
-        if (event.type == .leftMouseDown || event.type == .leftMouseUp || event.type == .rightMouseDown || event.type == .rightMouseUp) {
-            return super.hitTest(point)
-        }
-        return self
     }
 }
 #endif

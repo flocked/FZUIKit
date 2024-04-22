@@ -5,15 +5,68 @@
 //  Created by Florian Zand on 21.10.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
-    #if os(macOS)
-        import AppKit
-        import SwiftUI
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
-    import AVKit
+#if os(macOS)
+import AppKit
+import SwiftUI
+import AVKit
 
+public protocol Sizable: NSUIView {
+        /**
+         Asks the view to calculate and return the size that best fits the specified size.
+
+         The default implementation of this method returns the existing size of the view. Subclasses can override this method to return a custom value based on the desired layout of any subviews.
+
+         This method does not resize the receiver.
+
+         - Parameter size:  The size for which the view should calculate its best-fitting size.
+         - Returns: A new size that fits the receiver’s subviews.
+         */
+        func sizeThatFits(_ size: CGSize) -> CGSize
+        /**
+         Resizes and moves the receiver view so it just encloses its subviews.
+
+         Call this method when you want to resize the current view so that it uses the most appropriate amount of space.
+
+         You should not override this method. If you want to change the default sizing information for your view, override the `sizeThatFits(_:)` instead. That method performs any needed calculations and returns them to this method, which then makes the change.
+         */
+        func sizeToFit()
+    }
+
+// extension NSView: Sizable { }
+extension NSControl: Sizable { }
+
+extension Sizable {
+    public func sizeThatFits(_ size: CGSize) -> CGSize {
+        bounds.size
+    }
+    
+    /// Resizes the view to a fitting size.
+    public func sizeToFit() {
+        frame.size = sizeThatFits()
+    }
+    
+    /// Asks the view to calculate and return the size that best fits.
+    public func sizeThatFits() -> CGSize {
+        sizeThatFits(CGSize(NSView.noIntrinsicMetric, NSView.noIntrinsicMetric))
+    }
+    
+    /// Asks the view to calculate and return the size that best fits the specified width.
+    public func sizeThatFits(width: CGFloat) -> CGSize {
+        sizeThatFits(CGSize(width, NSView.noIntrinsicMetric))
+    }
+    
+    /// Asks the view to calculate and return the size that best fits the specified height.
+    public func sizeThatFits(height: CGFloat) -> CGSize {
+        sizeThatFits( CGSize(NSView.noIntrinsicMetric, height))
+    }
+    
+    /// Asks the view to calculate and return the size that best fits the specified width.
+    public func sizeThatFits(width: CGFloat?, height: CGFloat?) -> CGSize {
+        sizeThatFits(CGSize(width ?? NSView.noIntrinsicMetric, height ?? NSView.noIntrinsicMetric))
+    }
+}
+
+/*
 public protocol Sizable: NSUIView {
         /**
          Asks the view to calculate and return the size that best fits the specified size.
@@ -36,7 +89,6 @@ public protocol Sizable: NSUIView {
         func sizeToFit()
     }
 
-#if os(macOS)
 extension NSTextField: Sizable { }
 extension NSButton: Sizable { }
 extension AVPlayerView: Sizable { }
@@ -49,10 +101,6 @@ extension NSProgressIndicator: Sizable { }
 extension NSLevelIndicator: Sizable { }
 extension NSPathControl: Sizable { }
 extension NSDatePicker: Sizable { }
-
-#else
-
-#endif
 
 extension Sizable {
     /// Resizes the view to a fitting size.
@@ -81,9 +129,6 @@ extension Sizable {
     }
 }
 
-
-
-    #if os(macOS)
 public extension Sizable where Self: SimpleStackView {
 }
 // Smaller value fixed compared to bigger
@@ -242,5 +287,5 @@ public extension Sizable where Self: NSSwitch {
              }
          }
           */
-    #endif
+ */
 #endif

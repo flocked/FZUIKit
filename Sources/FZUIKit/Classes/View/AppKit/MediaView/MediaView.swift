@@ -326,10 +326,13 @@
         
         /// The value that indicates whether the volume is controllable by scrolling up & down.
         public enum VolumeScrollControl: Int {
-            /// The volume isn't controllable by scrolling.
+            /// Scrolling doesn't change the volume.
             case off = 0
+            /// Scrolling changes the volume slowly.
             case slow = 1
+            /// Scrolling changes the volume.
             case normal = 2
+            /// Scrolling changes the volume fastly.
             case fast = 3
             
             var value: Double {
@@ -351,10 +354,13 @@
 
         /// The value that indicates whether the playback position is controllable by scrolling left & right.
         public enum PlaybackPositionScrollControl: Int {
-            /// The playback position isn't controllable by scrolling.
+            /// Scrolling doesn't change the playback position.
             case off = 0
+            /// Scrolling changes the playback position slowly.
             case slow = 1
+            /// Scrolling changes the playback position.
             case normal = 2
+            /// Scrolling changes the playback position fastly.
             case fast = 3
             
             func value(isMouse: Bool) -> Double {
