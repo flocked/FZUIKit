@@ -242,7 +242,7 @@
                     let newVolume = (volume + Float(isMouse ? deltaY : volumeMap[volumeScrollAmount] * deltaY)).clamped(to: 0...1.0)
                     volume = newVolume
                 } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
-                    let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX
+                    let seconds = (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX
                     videoPlaybackTime += .seconds(seconds)
                 }
             } else {
