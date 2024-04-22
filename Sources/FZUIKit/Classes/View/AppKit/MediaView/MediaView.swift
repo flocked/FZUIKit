@@ -13,7 +13,7 @@
     /// A view that displays media.
     open class MediaView: NSView {
         let imageView = ImageView().isHidden(true)
-        let videoView = AVPlayerView().isHidden(true)
+        let videoView = NoMenuPlayerView().isHidden(true)
         private let player = AVPlayer()
         private var playbackObserver: AVPlayerTimeObservation?
         private var previousVideoPlaybackState: AVPlayer.State = .isStopped
@@ -678,29 +678,31 @@ extension AVPlayerView {
         }
     }
     
-    func setupPlayerGestureRecognizer() {
-        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
-            guard !isMethodReplaced(#selector(NSView.scrollWheel(with:))) else { return }
-            do {
-                try replaceMethod(
-                    #selector(NSView.scrollWheel(with:)),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
-                        object, event in
-                        if let playerView = object as? AVPlayerView {
-                            if let event = playerView.processScrollWheel(event) {
-                                store.original(object, #selector(NSView.scrollWheel(with:)), event)
-                            }
-                        } else {
+    static func swizzleScrollWheel() {
+        guard !isMethodReplaced(#selector(NSView.scrollWheel(with:))) else { return }
+        do {
+            try replaceMethod(
+                #selector(NSView.scrollWheel(with:)),
+                methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
+                hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
+                    object, event in
+                    if let playerView = object as? AVPlayerView {
+                        if let event = playerView.processScrollWheel(event) {
                             store.original(object, #selector(NSView.scrollWheel(with:)), event)
                         }
+                    } else {
+                        store.original(object, #selector(NSView.scrollWheel(with:)), event)
                     }
-                    }
-            } catch {
-                debugPrint(error)
-            }
-        } else {
-            resetMethod(#selector(NSView.scrollWheel(with:)))
+                }
+                }
+        } catch {
+            debugPrint(error)
+        }
+    }
+    
+    func setupPlayerGestureRecognizer() {
+        if volumeScrollControl != .off || playbackPositionScrollControl != .off {
+            Self.swizzleScrollWheel()
         }
     }
     
