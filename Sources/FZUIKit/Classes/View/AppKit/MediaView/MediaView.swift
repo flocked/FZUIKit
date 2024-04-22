@@ -543,6 +543,7 @@
             addSubview(withConstraint: imageView)
             addSubview(withConstraint: videoView)
             Swift.print("check", videoView.contentOverlayView != nil)
+            videoOverlayView.backgroundColor = .systemRed.withAlphaComponent(0.5)
             videoView.contentOverlayView?.addSubview(withConstraint: videoOverlayView)
         }
         
