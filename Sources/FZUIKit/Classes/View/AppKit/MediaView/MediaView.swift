@@ -242,10 +242,10 @@
                     let newVolume = (volume + Float(isMouse ? deltaY : volumeMap[volumeScrollAmount] * deltaY)).clamped(to: 0...1.0)
                     volume = newVolume
                 } else if scrollDirection == .horizontal, isPlaybackPositionControllableByScrolling {
-                    // isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue
+                    // (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)
                     Swift.print((isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX == (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX, (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)*deltaX, (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX)
-                    let seconds = (isMouse ? seekAmountMapMouse : seekAmountMap)[3]*deltaX
-                    videoPlaybackTime += .seconds(seconds)
+                    let seconds = (videoPlaybackTime.seconds + (isMouse ? scrollSeekControl.mouse : scrollSeekControl.rawValue)).truncatingRemainder(dividingBy: videoPlaybackTime.seconds)
+                    videoPlaybackTime = .seconds(seconds)
                 }
             } else {
                 super.scrollWheel(with: event)
