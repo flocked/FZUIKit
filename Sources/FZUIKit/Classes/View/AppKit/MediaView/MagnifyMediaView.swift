@@ -10,7 +10,7 @@
     import AVKit
     import FZSwiftUtils
 
-    /// A magnifiable view that presents media.
+    /// A magnifiable view that displays media.
     open class MagnifyMediaView: NSView {
         
         let mediaView = MediaView()

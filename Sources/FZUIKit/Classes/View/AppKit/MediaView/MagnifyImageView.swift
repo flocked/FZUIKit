@@ -20,10 +20,22 @@ open class MagnifyImageView: NSView {
         set { imageView.image = newValue }
     }
     
+    /// Sets the image displayed in the image view.
+    @discardableResult
+    open func image(_ image: NSImage?) -> Self {
+        set(\.image, to: image)
+    }
+    
     /// The images displayed by the image view.
     open var images: [NSImage] {
         get { imageView.images }
         set { imageView.images = newValue }
+    }
+    
+    /// Sets the images displayed by the image view.
+    @discardableResult
+    open func images(_ images: [NSImage]) -> Self {
+        set(\.images, to: images)
     }
     
     /// The currently displayed image.
@@ -37,10 +49,22 @@ open class MagnifyImageView: NSView {
         set { imageView.imageScaling = newValue }
     }
     
+    /// Sets the image scaling.
+    @discardableResult
+    open func imageScaling(_ imageScaling: ImageView.ImageScaling) -> Self {
+        set(\.imageScaling, to: imageScaling)
+    }
+    
     /// The image alignment inside the image view.
     open var imageAlignment: NSImageAlignment {
         get { imageView.imageAlignment }
         set { imageView.imageAlignment = newValue }
+    }
+    
+    /// Sets the image alignment inside the image view.
+    @discardableResult
+    open func imageAlignment(_ alignment: NSImageAlignment) -> Self {
+        set(\.imageAlignment, to: alignment)
     }
     
     /// The corner radius of the image.
@@ -49,10 +73,22 @@ open class MagnifyImageView: NSView {
         set { imageView.imageCornerRadius = newValue }
     }
     
+    /// Sets the corner radius of the image.
+    @discardableResult
+    open func imageCornerRadius(_ cornerRadius: CGFloat) -> Self {
+        set(\.imageCornerRadius, to: cornerRadius)
+    }
+    
     /// The corner curve of the image.
     open var imageCornerCurve: CALayerCornerCurve {
         get { imageView.imageCornerCurve }
         set { imageView.imageCornerCurve = newValue }
+    }
+    
+    /// Sets the corner curve of the image.
+    @discardableResult
+    open func imageCornerCurve(_ cornerCurve: CALayerCornerCurve) -> Self {
+        set(\.imageCornerCurve, to: cornerCurve)
     }
     
     /// The rounded corners of the image.
@@ -61,16 +97,22 @@ open class MagnifyImageView: NSView {
         set { imageView.imageRoundedCorners = newValue }
     }
     
+    /// Sets the rounded corners of the image.
+    @discardableResult
+    open func imageRoundedCorners(_ roundedCorners: CACornerMask) -> Self {
+        set(\.imageRoundedCorners, to: roundedCorners)
+    }
+    
     /// The background color of the image.
     open var imageBackgroundColor: NSColor? {
         get { imageView.imageBackgroundColor }
         set { imageView.imageBackgroundColor = newValue }
     }
     
-    /// The inner shadow of the image.
-    open var imageInnerShadow: ShadowConfiguration {
-        get { imageView.imageInnerShadow }
-        set { imageView.imageInnerShadow = newValue }
+    /// Sets the background color of the image.
+    @discardableResult
+    open func imageBackgroundColor(_ backgroundColor: NSColor?) -> Self {
+        set(\.imageBackgroundColor, to: backgroundColor)
     }
     
     /// The outer shadow of the image.
@@ -80,10 +122,34 @@ open class MagnifyImageView: NSView {
 
     }
     
+    /// Sets the outer shadow of the image.
+    @discardableResult
+    open func imageShadow(_ shadow: ShadowConfiguration) -> Self {
+        set(\.imageShadow, to: shadow)
+    }
+    
+    /// The inner shadow of the image.
+    open var imageInnerShadow: ShadowConfiguration {
+        get { imageView.imageInnerShadow }
+        set { imageView.imageInnerShadow = newValue }
+    }
+    
+    /// Sets the inner shadow of the image.
+    @discardableResult
+    open func imageInnerShadow(_ shadow: ShadowConfiguration) -> Self {
+        set(\.imageInnerShadow, to: shadow)
+    }
+    
     /// The border of the image.
     open var imageBorder: BorderConfiguration {
         get { imageView.imageBorder }
         set { imageView.imageBorder = newValue }
+    }
+    
+    /// Sets the border of the image.
+    @discardableResult
+    open func imageBorder(_ border: BorderConfiguration) -> Self {
+        set(\.imageBorder, to: border)
     }
     
     /// The symbol configuration of the image.
@@ -93,10 +159,23 @@ open class MagnifyImageView: NSView {
         set { imageView.symbolConfiguration = newValue }
     }
     
+    /// Sets the symbol configuration of the image.
+    @discardableResult
+    @available(macOS 11.0, *)
+    open func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
+        set(\.symbolConfiguration, to: symbolConfiguration)
+    }
+    
     /// The playback behavior for animated images.
     open var animationPlayback: ImageView.AnimationPlaybackOption {
         get { imageView.animationPlayback }
         set { imageView.animationPlayback = newValue }
+    }
+    
+    /// Sets the playback behavior for animated images.
+    @discardableResult
+    open func animationPlayback(_ animationPlayback: ImageView.AnimationPlaybackOption) -> Self {
+        set(\.animationPlayback, to: animationPlayback)
     }
     
     /// Sets the displaying image to the specified position.
@@ -121,10 +200,22 @@ open class MagnifyImageView: NSView {
         set { imageView.transitionAnimation = newValue }
     }
     
+    /// Sets the transition animation when changing the displayed image.
+    @discardableResult
+    open func transitionAnimation(_ transition: ImageView.TransitionAnimation) -> Self {
+        set(\.transitionAnimation, to: transition)
+    }
+    
     /// The duration of the transition animation.
     open var transitionDuration: TimeInterval {
         get { imageView.transitionDuration }
         set { imageView.transitionDuration = newValue }
+    }
+    
+    /// Sets the duration of the transition animation.
+    @discardableResult
+    open func transitionDuration(_ duration: TimeInterval) -> Self {
+        set(\.transitionDuration, to: duration)
     }
     
     /// Starts animating the images.
@@ -162,6 +253,12 @@ open class MagnifyImageView: NSView {
         set { imageView.animationDuration = newValue }
     }
     
+    /// Sets the amount of time it takes to go through one cycle of an animated image.
+    @discardableResult
+    open func animationDuration(_ duration: TimeInterval) -> Self {
+        set(\.animationDuration, to: duration)
+    }
+    
     /**
      Specifies the number of times to repeat the animation.
 
@@ -172,10 +269,22 @@ open class MagnifyImageView: NSView {
         set { imageView.animationRepeatCount = newValue }
     }
     
+    /// Sets the number of times to repeat the animation.
+    @discardableResult
+    open func animationRepeatCount(_ repeatCount: Int) -> Self {
+        set(\.animationRepeatCount, to: repeatCount)
+    }
+    
     /// The image tint color for template and symbol images.
     @IBInspectable open var tintColor: NSColor? {
         get { imageView.tintColor }
         set { imageView.tintColor = newValue }
+    }
+    
+    /// Sets the image tint color for template and symbol images.
+    @discardableResult
+    open func tintColor(_ tintColor: NSColor?) -> Self {
+        set(\.tintColor, to: tintColor)
     }
     
     /// The dynamic range of the image.
@@ -191,6 +300,13 @@ open class MagnifyImageView: NSView {
         set { imageView.preferredImageDynamicRange = newValue }
     }
     
+    /// Sets the preferred dynamic image range.
+    @discardableResult
+    @available(macOS 14.0, *)
+    open func preferredImageDynamicRange(_ dynamicRange: NSImage.DynamicRange) -> Self {
+        set(\.preferredImageDynamicRange, to: dynamicRange)
+    }
+    
     /// The default preferred dynamic image range.
     @available(macOS 14.0, *)
     open class var defaultPreferredImageDynamicRange: NSImage.DynamicRange {
@@ -204,10 +320,22 @@ open class MagnifyImageView: NSView {
         set { imageView.allowsImageDrop = newValue }
     }
     
+    /// Sets the value that indicates whether the user can drag new images into the image view.
+    @discardableResult
+    open func allowsImageDrop(_ allowsImageDrop: ImageView.ImageDropOption) -> Self {
+        set(\.allowsImageDrop, to: allowsImageDrop)
+    }
+    
     /// A value that specifies if and how the image view can be selected.
     open var isSelectable: ImageView.SelectionOption {
         get { imageView.isSelectable }
         set { imageView.isSelectable = newValue }
+    }
+    
+    /// Sets the value that indicates whether the image view can be selected.
+    @discardableResult
+    open func isSelectable(_ isSelectable: ImageView.SelectionOption) -> Self {
+        set(\.isSelectable, to: isSelectable)
     }
     
     /// A Boolean value indicating whether the image view is selected.
@@ -225,6 +353,12 @@ open class MagnifyImageView: NSView {
         set { imageView.allowsCutCopyPaste = newValue }
     }
     
+    /// Sets the Boolean value indicating whether the image view lets the user cut, copy, and paste the image contents.
+    @discardableResult
+    open func allowsCutCopyPaste(_ allowsCutCopyPaste: Bool) -> Self {
+        set(\.allowsCutCopyPaste, to: allowsCutCopyPaste)
+    }
+    
     /**
      Adds an indefinite symbol effect to the image view with the specified options and animation.
      
@@ -235,7 +369,7 @@ open class MagnifyImageView: NSView {
     */
     @MainActor
     @available(macOS 14.0, *)
-    func addSymbolEffect(
+    open func addSymbolEffect(
         _ effect: some IndefiniteSymbolEffect & SymbolEffect,
         options: SymbolEffectOptions = .default,
         animated: Bool = true) {
@@ -252,7 +386,7 @@ open class MagnifyImageView: NSView {
     */
     @MainActor
     @available(macOS 14.0, *)
-    func addSymbolEffect(
+    open func addSymbolEffect(
         _ effect: some DiscreteSymbolEffect & SymbolEffect,
         options: SymbolEffectOptions = .default,
         animated: Bool = true) {
@@ -269,7 +403,7 @@ open class MagnifyImageView: NSView {
      */
     @MainActor
     @available(macOS 14.0, *)
-    func addSymbolEffect(
+    open func addSymbolEffect(
         _ effect: some DiscreteSymbolEffect & IndefiniteSymbolEffect & SymbolEffect,
         options: SymbolEffectOptions = .default,
         animated: Bool = true) {
@@ -286,7 +420,7 @@ open class MagnifyImageView: NSView {
      */
     @MainActor
     @available(macOS 14.0, *)
-    func setSymbolImage(
+    open func setSymbolImage(
         _ image: NSImage,
         contentTransition: some ContentTransitionSymbolEffect & SymbolEffect,
         options: SymbolEffectOptions = .default) {
@@ -303,7 +437,7 @@ open class MagnifyImageView: NSView {
      */
     @MainActor
     @available(macOS 14.0, *)
-    func removeSymbolEffect(
+    open func removeSymbolEffect(
         ofType effect: some IndefiniteSymbolEffect & SymbolEffect,
         options: SymbolEffectOptions = .default,
         animated: Bool = true) {
@@ -320,7 +454,7 @@ open class MagnifyImageView: NSView {
      */
     @MainActor
     @available(macOS 14.0, *)
-    func removeSymbolEffect(
+    open func removeSymbolEffect(
         ofType effect: some DiscreteSymbolEffect & IndefiniteSymbolEffect & SymbolEffect,
         options: SymbolEffectOptions = .default,
         animated: Bool = true) {
@@ -337,7 +471,7 @@ open class MagnifyImageView: NSView {
      */
     @MainActor
     @available(macOS 14.0, *)
-    func removeSymbolEffect(
+    open func removeSymbolEffect(
         ofType effect: some DiscreteSymbolEffect & SymbolEffect,
         options: SymbolEffectOptions = .default,
         animated: Bool = true) {
@@ -353,10 +487,90 @@ open class MagnifyImageView: NSView {
      */
     @MainActor
     @available(macOS 14.0, *)
-    func removeAllSymbolEffects(
+    open func removeAllSymbolEffects(
         options: SymbolEffectOptions = .default,
         animated: Bool = true) {
             imageView.removeAllSymbolEffects(options: options, animated: animated)
+    }
+    
+    // MARK: - Scroll
+    
+    /// A Boolean that indicates whether the media view has scrollers.
+    open var hasScrollers: Bool {
+        get { scrollView.hasVerticalScroller }
+        set {
+            scrollView.hasVerticalScroller = newValue
+            scrollView.hasHorizontalScroller = newValue
+        }
+    }
+    
+    /// Sets the Boolean that indicates whether the media view has scrollers.
+    @discardableResult
+    open func hasScrollers(_ hasScrollers: Bool) -> Self {
+        set(\.hasScrollers, to: hasScrollers)
+    }
+
+    /// The scrolling elasticity mode.
+    open var scrollElasticity: NSScrollView.Elasticity {
+        get { scrollView.verticalScrollElasticity }
+        set {
+            scrollView.verticalScrollElasticity = newValue
+            scrollView.horizontalScrollElasticity = newValue
+        }
+    }
+    
+    /// Sets the scrolling elasticity mode.
+    @discardableResult
+    open func scrollElasticity(_ scrollElasticity: NSScrollView.Elasticity) -> Self {
+        set(\.scrollElasticity, to: scrollElasticity)
+    }
+
+    /// A Boolean value indicating whether the user can magnify the media.
+    open var allowsMagnification: Bool {
+        get { scrollView.allowsMagnification }
+        set { scrollView.allowsMagnification = newValue }
+    }
+    
+    /// Sets the Boolean value indicating whether the user can magnify the media.
+    @discardableResult
+    open func allowsMagnification(_ allows: Bool) -> Self {
+        set(\.allowsMagnification, to: allows)
+    }
+
+    /// The amount by which the media is currently scaled.
+    open var magnification: CGFloat {
+        get { scrollView.magnification }
+        set { setMagnification(newValue) }
+    }
+    
+    /// Sets the amount by which the media is currently scaled.
+    @discardableResult
+    open func magnification(_ magnification: CGFloat) -> Self {
+        set(\.magnification, to: magnification)
+    }
+    
+    /// The minimum value to which the content can be magnified.
+    open var minMagnification: CGFloat {
+        get { scrollView.minMagnification }
+        set { scrollView.minMagnification = newValue }
+    }
+    
+    /// Sets the minimum value to which the content can be magnified.
+    @discardableResult
+    open func minMagnification(_ minMagnification: CGFloat) -> Self {
+        set(\.minMagnification, to: minMagnification)
+    }
+
+    /// The maximum value to which the content can be magnified.
+    open var maxMagnification: CGFloat {
+        get { self.scrollView.maxMagnification }
+        set { self.scrollView.maxMagnification = newValue }
+    }
+    
+    /// Sets the maximum value to which the content can be magnified.
+    @discardableResult
+    open func maxMagnification(_ maxMagnification: CGFloat) -> Self {
+        set(\.maxMagnification, to: maxMagnification)
     }
     
     /**
@@ -369,6 +583,12 @@ open class MagnifyImageView: NSView {
         set { scrollView.keyDownZoomFactor = newValue }
     }
     
+    /// Sets the amount by which to zoom the image when the user presses either the plus or minus key.
+    @discardableResult
+    open func keyDownZoomFactor(_ zoomFactor: CGFloat) -> Self {
+        set(\.keyDownZoomFactor, to: zoomFactor)
+    }
+    
     /**
      The amount by which to momentarily zoom the image when the user holds the space key.
      
@@ -377,6 +597,12 @@ open class MagnifyImageView: NSView {
     open var spaceKeyZoomFactor: CGFloat {
         get { scrollView.spaceKeyZoomFactor }
         set { scrollView.spaceKeyZoomFactor = newValue }
+    }
+    
+    /// Sets the amount by which to momentarily zoom the image when the user holds the space key.
+    @discardableResult
+    open func spaceKeyZoomFactor(_ zoomFactor: CGFloat) -> Self {
+        set(\.spaceKeyZoomFactor, to: zoomFactor)
     }
     
     /**
@@ -388,7 +614,22 @@ open class MagnifyImageView: NSView {
         get { scrollView.mouseClickZoomFactor }
         set { scrollView.mouseClickZoomFactor = newValue }
     }
-            
+    
+    /// Sets the amount by which to zoom the image when the user double clicks the view.
+    @discardableResult
+    open func mouseClickZoomFactor(_ zoomFactor: CGFloat) -> Self {
+        set(\.mouseClickZoomFactor, to: zoomFactor)
+    }
+
+    open func scroll(to point: CGPoint) {
+        scrollView.contentView.setBoundsOrigin(point)
+        scrollView.scroll(scrollView.contentView, to: point)
+    }
+
+    open func scroll(to point: CGPoint, animationDuration: TimeInterval) {
+        scrollView.scroll(point, animationDuration: animationDuration)
+    }
+
     /**
      Zooms in the image by the specified factor.
      
@@ -398,10 +639,9 @@ open class MagnifyImageView: NSView {
         - animationDuration: The animation duration of the zoom, or `nil` if the zoom shouldn't be animated.
      */
     open func zoomIn(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
-        scrollView.zoomIn(factor: factor, centeredAt: centeredAt, animationDuration: animationDuration)
+        zoom(factor: factor, centeredAt: centeredAt, animationDuration: animationDuration)
     }
 
-    
     /**
      Zooms out the image by the specified factor.
      
@@ -412,9 +652,24 @@ open class MagnifyImageView: NSView {
      */
     open func zoomOut(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
         scrollView.zoom()
-        scrollView.zoomOut(factor: factor, centeredAt: centeredAt, animationDuration: animationDuration)
+        zoom(factor: -factor, centeredAt: centeredAt, animationDuration: animationDuration)
     }
-    
+
+    func zoom(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
+        if allowsMagnification {
+            let range = maxMagnification - minMagnification
+            if range > 0.0 {
+                let factor = factor.clamped(to: -1.0 ... 1.0)
+                let newMag = (magnification + (range * factor)).clamped(to: minMagnification ... maxMagnification)
+                setMagnification(newMag, centeredAt: centeredAt, animationDuration: animationDuration)
+                var point = CGPoint.zero
+                point.x = bounds.size.width / 2.0
+                point.y = bounds.size.height / 2.0
+                scrollView.contentOffset = point
+            }
+        }
+    }
+
     /**
      Magnifies the content by the given amount and optionally centers the result on the given point.
 
@@ -434,55 +689,6 @@ open class MagnifyImageView: NSView {
         }
     }
 
-    
-    /// A Boolean that indicates whether the scroll view has scrollers.
-    open var hasScrollers: Bool {
-        get { scrollView.hasVerticalScroller }
-        set {
-            scrollView.hasVerticalScroller = newValue
-            scrollView.hasHorizontalScroller = newValue
-        }
-    }
-
-    /// The scroll view’s scrolling elasticity mode.
-    open var scrollElasticity: NSScrollView.Elasticity {
-        get { scrollView.verticalScrollElasticity }
-        set {
-            scrollView.verticalScrollElasticity = newValue
-            scrollView.horizontalScrollElasticity = newValue
-        }
-    }
-    
-    /// A Boolean that indicates whether the scroll view automatically hides its scroll bars when they are not needed.
-    open var autohidesScrollers: Bool {
-        get { scrollView.autohidesScrollers }
-        set { scrollView.autohidesScrollers = newValue }
-    }
-    
-    /// A Boolean value indicating whether the user can magnify the scroll view.
-    open var allowsMagnification: Bool {
-        get { scrollView.allowsMagnification }
-        set { scrollView.allowsMagnification = newValue }
-    }
-
-    /// The amount by which the content is currently scaled.
-    open var magnification: CGFloat {
-        get { scrollView.magnification }
-        set { setMagnification(newValue) }
-    }
-    
-    /// The minimum value to which the content can be magnified.
-    open var minMagnification: CGFloat {
-        get { scrollView.minMagnification }
-        set { scrollView.minMagnification = newValue }
-    }
-    
-    /// The maximum value to which the content can be magnified.
-    open var maxMagnification: CGFloat {
-        get { self.scrollView.maxMagnification }
-        set { self.scrollView.maxMagnification = newValue }
-    }
-    
     open override var enclosingScrollView: NSScrollView? {
         scrollView
     }
@@ -491,6 +697,8 @@ open class MagnifyImageView: NSView {
         super.layout()
         scrollView.frame = bounds
     }
+    
+    // MARK: - Init
     
     /**
      Returns an image view initialized with the specified image.

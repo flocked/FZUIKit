@@ -6,7 +6,6 @@
 //
 
 #if os(macOS)
-
 import AppKit
 import FZSwiftUtils
 
@@ -182,18 +181,6 @@ open class ImageView: NSControl {
         set(\.imageBackgroundColor, to: backgroundColor)
     }
     
-    /// The inner shadow of the image.
-    open var imageInnerShadow: ShadowConfiguration {
-        get { containerView.innerShadow }
-        set { containerView.innerShadow = newValue }
-    }
-    
-    /// Sets the inner shadow of the image.
-    @discardableResult
-    open func imageInnerShadow(_ shadow: ShadowConfiguration) -> Self {
-        set(\.imageInnerShadow, to: shadow)
-    }
-    
     /// The outer shadow of the image.
     open var imageShadow: ShadowConfiguration {
         get { containerView.outerShadow }
@@ -204,6 +191,18 @@ open class ImageView: NSControl {
     @discardableResult
     open func imageShadow(_ shadow: ShadowConfiguration) -> Self {
         set(\.imageShadow, to: shadow)
+    }
+    
+    /// The inner shadow of the image.
+    open var imageInnerShadow: ShadowConfiguration {
+        get { containerView.innerShadow }
+        set { containerView.innerShadow = newValue }
+    }
+    
+    /// Sets the inner shadow of the image.
+    @discardableResult
+    open func imageInnerShadow(_ shadow: ShadowConfiguration) -> Self {
+        set(\.imageInnerShadow, to: shadow)
     }
     
     /// The border of the image.
