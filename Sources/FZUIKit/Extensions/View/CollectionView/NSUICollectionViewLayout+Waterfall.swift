@@ -425,12 +425,22 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         case enabled
     }
     
+    var observation: KeyValueObservation?
+    var observation1: KeyValueObservation?
     override public func prepare() {
         // Swift.print("prepare")
         super.prepare()
         #if os(macOS) || os(iOS)
         collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
+        observation = collectionView?.observeChanges(for: \.bounds) { old, new in
+            guard old.width != new.width else { return }
+            Swift.print("bounds", new.width)
+        }
+        observation1 = collectionView?.observeChanges(for: \.frame) { old, new in
+            guard old.width != new.width else { return }
+            Swift.print("frame", new.width)
+        }
         prepareItemAttributes()
     }
     
