@@ -657,7 +657,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let union2 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
         
         let newSize = collectionViewContentSize
-        Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", displaying.compactMap({layoutAttributesForItem(at: $0)?.frame.origin.y}), union1.origin.y, union2.origin.y )
+        Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", union1, union2)
         
         
       //  self.contentOffset.y *= (new.height / old.height)
