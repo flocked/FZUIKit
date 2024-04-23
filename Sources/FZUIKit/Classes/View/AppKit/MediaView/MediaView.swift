@@ -645,6 +645,8 @@
             }
         }
         
+        /*
+        
         // MARK: - Media Drop
         
         /**
@@ -697,6 +699,7 @@
             let fileURL = contents.fileURLs.filter({if let fileType = $0.fileType, fileTypes.contains(fileType) { return true} else { return false }}).first
             return (image, fileURL)
         }
+        */
         
         // MARK: - Layout
         

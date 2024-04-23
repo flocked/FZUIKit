@@ -13,12 +13,17 @@ import FZSwiftUtils
 @IBDesignable
 open class ImageView: NSControl {
     
-    let containerView = ContainerView().backgroundColor(.systemRed.withAlphaComponent(0.3))
-    let imageView = NSImageView().backgroundColor(.systemGreen.withAlphaComponent(0.3))
+    let containerView = ContainerView()
+    let imageView = NSImageView()
     var timer: DisplayLinkTimer? = nil
     var currentRepeatCount = 0
     var ignoreTransition = false
     var trackingArea: TrackingArea?
+    var currentImageIndex = 0 {
+        didSet { updateDisplayingImage() }
+    }
+    
+    // MARK: - Specifying the image
     
     /// The image displayed in the image view.
    @IBInspectable open var image: NSImage? {
@@ -82,6 +87,40 @@ open class ImageView: NSControl {
     open var displayingImage: NSImage? {
         image ?? animatedImage?[currentImageIndex] ?? images[safe: currentImageIndex]
     }
+    
+    /// The symbol configuration of the image.
+    @available(macOS 11.0, *)
+    open var symbolConfiguration: NSImage.SymbolConfiguration? {
+        get { imageView.symbolConfiguration }
+        set { imageView.symbolConfiguration = newValue }
+    }
+    
+    /// Sets the symbol configuration of the image.
+    @discardableResult
+    @available(macOS 11.0, *)
+    open func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
+        set(\.symbolConfiguration, to: symbolConfiguration)
+    }
+        
+    /**
+     A view for hosting layered content on top of the image view.
+     
+     Use this view to host content that you want layered on top of the image view. This view is managed by the image view itself and is automatically sized to fill the image view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
+     
+     The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
+     */
+    public let overlayContentView = NSView()
+    
+    /**
+     The current size and position of the image that displays within the image view’s bounds.
+     
+     Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depends on the image scaling and alignment.
+     */
+    @objc dynamic public var imageBounds: CGRect {
+        overlayContentView.frame
+    }
+                
+    // MARK: - Specifying the visual characteristics
     
     /// The image scaling.
     open var imageScaling: ImageScaling = .scaleToFit {
@@ -216,281 +255,20 @@ open class ImageView: NSControl {
     open func imageBorder(_ border: BorderConfiguration) -> Self {
         set(\.imageBorder, to: border)
     }
-    
-    /// The symbol configuration of the image.
-    @available(macOS 11.0, *)
-    open var symbolConfiguration: NSImage.SymbolConfiguration? {
-        get { imageView.symbolConfiguration }
-        set { imageView.symbolConfiguration = newValue }
+        
+    /// The image tint color for template and symbol images.
+    @IBInspectable open var tintColor: NSColor? {
+        get { imageView.contentTintColor }
+        set { imageView.contentTintColor = newValue }
     }
     
-    /// Sets the symbol configuration of the image.
+    /// Sets the image tint color for template and symbol images.
     @discardableResult
-    @available(macOS 11.0, *)
-    open func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
-        set(\.symbolConfiguration, to: symbolConfiguration)
+    open func tintColor(_ tintColor: NSColor?) -> Self {
+        set(\.tintColor, to: tintColor)
     }
     
-    /// Constants that specify the playback behavior for animated images.
-    public enum AnimationPlaybackOption: Int, Hashable {
-        /// Images don't start animate automatically.
-        case none
-        /// Images start animating automatically.
-        case automatic
-        /// Images start animating when the mouse enteres the view and stop animating when the mouse exists the view.
-        case onMouseHover
-        /// A mouse down click toggles animating the images.
-        case onMouseClick
-    }
-
-    /// The playback behavior for animated images.
-    open var animationPlayback: AnimationPlaybackOption = .automatic {
-        didSet {
-            guard oldValue != animationPlayback else { return }
-            if animationPlayback == .automatic {
-                startAnimating()
-            } else {
-                stopAnimating()
-            }
-            if animationPlayback == .onMouseHover {
-                trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways])
-                updateTrackingAreas()
-            } else {
-                trackingArea = nil
-            }
-        }
-    }
-    
-    /// Sets the playback behavior for animated images.
-    @discardableResult
-    open func animationPlayback(_ animationPlayback: AnimationPlaybackOption) -> Self {
-        set(\.animationPlayback, to: animationPlayback)
-    }
-    
-    open override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-        trackingArea?.update()
-    }
-    
-    open override func mouseEntered(with event: NSEvent) {
-        if animationPlayback == .onMouseHover {
-            startAnimating()
-        }
-    }
-
-    open override func mouseExited(with event: NSEvent) {
-        if animationPlayback == .onMouseHover {
-            stopAnimating()
-        }
-    }
-    
-    open override func becomeFirstResponder() -> Bool {
-        if acceptsFirstResponder, !isSelected {
-            isSelected = true
-        }
-        return acceptsFirstResponder
-    }
-    
-    open override func resignFirstResponder() -> Bool {
-        if isSelected {
-            isSelected = false
-        }
-        return true
-    }
-    
-    open override func mouseDown(with event: NSEvent) {
-        if isSelectable == .byView, !isFirstResponder {
-            makeFirstResponder()
-            performAction()
-        } else if isSelectable == .byImage, overlayContentView.frame.contains(event.location(in: self)), !isFirstResponder {
-            makeFirstResponder()
-            performAction()
-        }
-        if animationPlayback == .onMouseClick, overlayContentView.frame.contains(event.location(in: self)) {
-            toggleAnimating()
-        }
-        super.mouseDown(with: event)
-    }
-    
-    var currentImageIndex = 0 {
-        didSet {
-            updateDisplayingImage()
-        }
-    }
-    
-    func updateDisplayingImage() {
-        if !ignoreTransition, let transition = transitionAnimation.transition(transitionDuration) {
-            self.transition(transition)
-        }
-        let oldImageSize = imageView.image?.size
-        if let animatedImage = animatedImage {
-            imageView.image = animatedImage[currentImageIndex]
-        } else {
-            imageView.image = displayingImage
-        }
-        if oldImageSize != imageView.image?.size {
-            layout()
-        }
-    }
-    
-    var imagesCount: Int {
-        animatedImage?.count ?? images.count
-    }
-    
-    /// The image frame position.
-    public enum FramePosition: Hashable {
-        /// The first image.
-        case first
-        /// The last image.
-        case last
-        /// A random image.
-        case random
-        /// The next image.
-        case next
-        /// The next image looped.
-        case nextLooped
-        /// The previous image.
-        case previous
-        /// The previous image looped.
-        case previousLooped
-        /// The image at the index.
-        case index(Int)
-    }
-    
-    /// Sets the displaying image to the specified position.
-    open func setImageFrame(to position: FramePosition) {
-        guard imagesCount > 0 else { return }
-        switch position {
-        case let .index(index):
-            if index >= 0, index < imagesCount {
-                currentImageIndex = index
-            }
-        case .first:
-            currentImageIndex = 0
-        case .last:
-            currentImageIndex = imagesCount - 1
-        case .random:
-            currentImageIndex = Int.random(in: 0 ... imagesCount - 1)
-        case .next:
-            currentImageIndex += 1
-            if currentImageIndex >= imagesCount {
-                currentImageIndex = imagesCount - 1
-            }
-        case .nextLooped:
-            currentImageIndex += 1
-            if currentImageIndex >= imagesCount {
-                currentImageIndex = 0
-            }
-        case .previous:
-            currentImageIndex -= 1
-            if currentImageIndex < 0 {
-                currentImageIndex = 0
-            }
-        case .previousLooped:
-            currentImageIndex -= 1
-            if currentImageIndex < 0 {
-                currentImageIndex = imagesCount - 1
-            }
-        }
-    }
-    
-    /**
-     A view for hosting layered content on top of the image view.
-     
-     Use this view to host content that you want layered on top of the image view. This view is managed by the image view itself and is automatically sized to fill the image view’s frame rectangle. Add your subviews and use layout constraints to position them within the view.
-     
-     The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
-     */
-    public let overlayContentView = NSView()
-    
-    /**
-     The current size and position of the image that displays within the image view’s bounds.
-     
-     Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depends on the image scaling and alignment.
-     */
-    @objc dynamic public var imageBounds: CGRect {
-        overlayContentView.frame
-    }
-    
-    /// The transition animation when changing the displayed image.
-    open var transitionAnimation: TransitionAnimation = .none
-    
-    /// Sets the transition animation when changing the displayed image.
-    @discardableResult
-    open func transitionAnimation(_ transition: TransitionAnimation) -> Self {
-        set(\.transitionAnimation, to: transition)
-    }
-    
-    /// The duration of the transition animation.
-    open var transitionDuration: TimeInterval = 0.2
-    
-    /// Sets the duration of the transition animation.
-    @discardableResult
-    open func transitionDuration(_ duration: TimeInterval) -> Self {
-        set(\.transitionDuration, to: duration)
-    }
-    
-    /// Constants that specify the transition animation when changing between displayed images.
-    public enum TransitionAnimation: Hashable, CustomStringConvertible {
-        /// No transition animation.
-        case none
-        /// The new image fades in.
-        case fade
-        /// The new image slides into place over any existing image from the specified direction.
-        case moveIn(_ direction: Direction = .fromLeft)
-        /// The new image pushes any existing image as it slides into place from the specified direction.
-        case push(_ direction: Direction = .fromLeft)
-        /// The new image is revealed gradually in the specified direction.
-        case reveal(_ direction: Direction = .fromLeft)
-        
-        /// The direction of the transition.
-        public enum Direction: String, Hashable {
-            /// From left.
-            case fromLeft
-            /// From right.
-            case fromRight
-            /// From bottom.
-            case fromBottom
-            /// From top.
-            case fromTop
-            var subtype: CATransitionSubtype {
-                CATransitionSubtype(rawValue: rawValue)
-            }
-        }
-        
-        public var description: String {
-            switch self {
-            case .none: return "TransitionAnimation.none"
-            case .fade: return "TransitionAnimation.fade"
-            case .moveIn(let direction): return "TransitionAnimation.moveIn(\(direction.rawValue))"
-            case .push(let direction): return "TransitionAnimation.push(\(direction.rawValue))"
-            case .reveal(let direction): return "TransitionAnimation.reveal(\(direction.rawValue))"
-            }
-        }
-        
-        var type: CATransitionType? {
-            switch self {
-            case .fade: return .fade
-            case .moveIn: return .moveIn
-            case .push: return .push
-            case .reveal: return .reveal
-            case .none: return nil
-            }
-        }
-        
-        var subtype: CATransitionSubtype? {
-            switch self {
-            case .moveIn(let direction), .push(let direction), .reveal(let direction):
-                return direction.subtype
-            default: return nil
-            }
-        }
-        
-        func transition(_ duration: TimeInterval) -> CATransition? {
-            guard let type = type else { return nil }
-            return CATransition(type, subtype: subtype, duration: duration)
-        }
-    }
+    // MARK: - Configurating animations
     
     /// Starts animating the images.
     open func startAnimating() {
@@ -600,18 +378,126 @@ open class ImageView: NSControl {
     open func animationRepeatCount(_ repeatCount: Int) -> Self {
         set(\.animationRepeatCount, to: repeatCount)
     }
-    
-    /// The image tint color for template and symbol images.
-    @IBInspectable open var tintColor: NSColor? {
-        get { imageView.contentTintColor }
-        set { imageView.contentTintColor = newValue }
+
+    /// The playback behavior for animated images.
+    open var animationPlayback: AnimationPlaybackOption = .automatic {
+        didSet {
+            guard oldValue != animationPlayback else { return }
+            if animationPlayback == .automatic {
+                startAnimating()
+            } else {
+                stopAnimating()
+            }
+            if animationPlayback == .onMouseHover {
+                trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways])
+                updateTrackingAreas()
+            } else {
+                trackingArea = nil
+            }
+        }
     }
     
-    /// Sets the image tint color for template and symbol images.
+    /// Sets the playback behavior for animated images.
     @discardableResult
-    open func tintColor(_ tintColor: NSColor?) -> Self {
-        set(\.tintColor, to: tintColor)
+    open func animationPlayback(_ animationPlayback: AnimationPlaybackOption) -> Self {
+        set(\.animationPlayback, to: animationPlayback)
     }
+    
+    /// Constants that specify the playback behavior for animated images.
+    public enum AnimationPlaybackOption: Int, Hashable {
+        /// Images don't start animate automatically.
+        case none
+        /// Images start animating automatically.
+        case automatic
+        /// Images start animating when the mouse enteres the view and stop animating when the mouse exists the view.
+        case onMouseHover
+        /// A mouse down click toggles animating the images.
+        case onMouseClick
+    }
+    
+    // MARK: - Configurating transitions
+    
+    /// The transition animation when changing the displayed image.
+    open var transitionAnimation: TransitionAnimation = .none
+    
+    /// Sets the transition animation when changing the displayed image.
+    @discardableResult
+    open func transitionAnimation(_ transition: TransitionAnimation) -> Self {
+        set(\.transitionAnimation, to: transition)
+    }
+    
+    /// The duration of the transition animation.
+    open var transitionDuration: TimeInterval = 0.2
+    
+    /// Sets the duration of the transition animation.
+    @discardableResult
+    open func transitionDuration(_ duration: TimeInterval) -> Self {
+        set(\.transitionDuration, to: duration)
+    }
+    
+    /// Constants that specify the transition animation when changing between displayed images.
+    public enum TransitionAnimation: Hashable, CustomStringConvertible {
+        /// No transition animation.
+        case none
+        /// The new image fades in.
+        case fade
+        /// The new image slides into place over any existing image from the specified direction.
+        case moveIn(_ direction: Direction = .fromLeft)
+        /// The new image pushes any existing image as it slides into place from the specified direction.
+        case push(_ direction: Direction = .fromLeft)
+        /// The new image is revealed gradually in the specified direction.
+        case reveal(_ direction: Direction = .fromLeft)
+        
+        /// The direction of the transition.
+        public enum Direction: String, Hashable {
+            /// From left.
+            case fromLeft
+            /// From right.
+            case fromRight
+            /// From bottom.
+            case fromBottom
+            /// From top.
+            case fromTop
+            var subtype: CATransitionSubtype {
+                CATransitionSubtype(rawValue: rawValue)
+            }
+        }
+        
+        public var description: String {
+            switch self {
+            case .none: return "TransitionAnimation.none"
+            case .fade: return "TransitionAnimation.fade"
+            case .moveIn(let direction): return "TransitionAnimation.moveIn(\(direction.rawValue))"
+            case .push(let direction): return "TransitionAnimation.push(\(direction.rawValue))"
+            case .reveal(let direction): return "TransitionAnimation.reveal(\(direction.rawValue))"
+            }
+        }
+        
+        var type: CATransitionType? {
+            switch self {
+            case .fade: return .fade
+            case .moveIn: return .moveIn
+            case .push: return .push
+            case .reveal: return .reveal
+            case .none: return nil
+            }
+        }
+        
+        var subtype: CATransitionSubtype? {
+            switch self {
+            case .moveIn(let direction), .push(let direction), .reveal(let direction):
+                return direction.subtype
+            default: return nil
+            }
+        }
+        
+        func transition(_ duration: TimeInterval) -> CATransition? {
+            guard let type = type else { return nil }
+            return CATransition(type, subtype: subtype, duration: duration)
+        }
+    }
+    
+    // MARK: - Specifying the dynamic range
     
     /// The dynamic range of the image.
     @available(macOS 14.0, *)
@@ -639,91 +525,8 @@ open class ImageView: NSControl {
         get { NSImageView.defaultPreferredImageDynamicRange }
         set { NSImageView.defaultPreferredImageDynamicRange = newValue }
     }
-   
-    /// Constant that indicates whether the user can drag new images into the image view.
-    public enum ImageDropOption: Int, Hashable {
-        /// The user can drag a single image into the image view.
-        case single
-        /// The user can drag multiple images into the image view.
-        case multiple
-        /// The user can't drag any image into the image view.
-        case none
-    }
     
-    /// A value that indicates whether the user can drag new images into the image view.
-    open var allowsImageDrop: ImageDropOption  = .none {
-        didSet {
-            guard oldValue != allowsImageDrop else { return }
-            if allowsImageDrop == .none {
-                overlayContentView.dropHandlers.canDrop = nil
-                overlayContentView.dropHandlers.didDrop = nil
-            } else if overlayContentView.dropHandlers.canDrop == nil {
-                overlayContentView.dropHandlers.canDrop = { [weak self] contents,_,_ in
-                    guard let self = self else { return false }
-                    switch self.allowsImageDrop {
-                    case .single:
-                        if contents.images.count == 1 {
-                            return true
-                        }
-                        return contents.fileURLs.filter({$0.fileType?.isImageType == true }).count == 1
-                    case .multiple:
-                        if !contents.images.isEmpty {
-                            return true
-                        }
-                        return !contents.fileURLs.filter({$0.fileType?.isImageType == true }).isEmpty
-                    case .none:
-                        return false
-                    }
-                }
-                overlayContentView.dropHandlers.didDrop = { [weak self] contents,_,_ in
-                    guard let self = self else { return }
-                    let images = contents.images
-                    let imageURLs = contents.fileURLs.filter({$0.fileType?.isImageType == true })
-                    switch self.allowsImageDrop {
-                    case .single:
-                        if images.count == 1, let image = images.first
-                        {
-                            self.image = image
-                            self.performAction()
-                        } else if imageURLs.count == 1, let image = NSImage(contentsOf: imageURLs.first!) {
-                            self.image = image
-                            self.performAction()
-                        }
-                    case .multiple:
-                        if !images.isEmpty {
-                            self.images = images
-                            self.performAction()
-                        } else {
-                           let images = imageURLs.compactMap({NSImage(contentsOf: $0)})
-                            if !images.isEmpty {
-                                self.images = images
-                                self.performAction()
-                            }
-                        }
-                    case .none: break
-                    }
-                }
-            }
-        }
-    }
-    
-    /// Sets the value that indicates whether the user can drag new images into the image view.
-    @discardableResult
-    open func allowsImageDrop(_ allowsImageDrop: ImageDropOption) -> Self {
-        set(\.allowsImageDrop, to: allowsImageDrop)
-    }
-    
-    /*
-    /**
-     A Boolean value indicating whether the user can drag a new image into the image view.
-     
-     When the value of this property is true, the user can set the displayed image by dragging an image onto the image view. The default value of this property is false, which causes the image view to display only the programmatically set image.
-     */
-    open var isEditable: Bool {
-        get { imageView.isEditable }
-        set { imageView.isEditable = newValue }
-    }
-     */
+    // MARK: - Responding to user events
     
     /// A value that indicates whether the image view can be selected.
     open var isSelectable: SelectionOption = false {
@@ -758,6 +561,21 @@ open class ImageView: NSControl {
     /// A Boolean value indicating whether the image view is selected.
     @objc dynamic open internal(set) var isSelected: Bool = false
 
+    /**
+     A Boolean value indicating whether the user can drag a new image into the image view.
+     
+     When the value of this property is `true`, the user can set the displayed image by dragging an image onto the image view. The action is called.
+     */
+    open var isEditable: Bool {
+        get { imageView.isEditable }
+        set { imageView.isEditable = newValue }
+    }
+    
+    /// Sets the Boolean value indicating whether the user can drag a new image into the image view.
+    @discardableResult
+    open func isEditable(_ isEditable: Bool) -> Self {
+        set(\.isEditable, to: isEditable)
+    }
     
     /**
      A Boolean value indicating whether the image view lets the user cut, copy, and paste the image contents.
@@ -775,6 +593,9 @@ open class ImageView: NSControl {
         set(\.allowsCutCopyPaste, to: allowsCutCopyPaste)
     }
     
+    // MARK: - Configuring symbol effects
+
+        
     /**
      Adds an indefinite symbol effect to the image view with the specified options and animation.
      
@@ -972,6 +793,10 @@ open class ImageView: NSControl {
         
         overlayContentView.frame = bounds
         containerView.addSubview(overlayContentView)
+        imageView.actionBlock = { [weak self] _ in
+            guard let self = self else { return }
+            self.performAction()
+        }
     }
     
     open override func layout() {
@@ -1012,6 +837,127 @@ open class ImageView: NSControl {
             willChangeValue(for: \.imageBounds)
             overlayContentView.frame = containerView.frame
             didChangeValue(for: \.imageBounds)
+        }
+    }
+    
+    open override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        trackingArea?.update()
+    }
+    
+    open override func mouseEntered(with event: NSEvent) {
+        if animationPlayback == .onMouseHover {
+            startAnimating()
+        }
+    }
+
+    open override func mouseExited(with event: NSEvent) {
+        if animationPlayback == .onMouseHover {
+            stopAnimating()
+        }
+    }
+    
+    open override func becomeFirstResponder() -> Bool {
+        if acceptsFirstResponder, !isSelected {
+            isSelected = true
+        }
+        return acceptsFirstResponder
+    }
+    
+    open override func resignFirstResponder() -> Bool {
+        if isSelected {
+            isSelected = false
+        }
+        return true
+    }
+    
+    open override func mouseDown(with event: NSEvent) {
+        if isSelectable == .byView, !isFirstResponder {
+            makeFirstResponder()
+            performAction()
+        } else if isSelectable == .byImage, overlayContentView.frame.contains(event.location(in: self)), !isFirstResponder {
+            makeFirstResponder()
+            performAction()
+        }
+        if animationPlayback == .onMouseClick, overlayContentView.frame.contains(event.location(in: self)) {
+            toggleAnimating()
+        }
+        super.mouseDown(with: event)
+    }
+    
+    func updateDisplayingImage() {
+        if !ignoreTransition, let transition = transitionAnimation.transition(transitionDuration) {
+            self.transition(transition)
+        }
+        let oldImageSize = imageView.image?.size
+        if let animatedImage = animatedImage {
+            imageView.image = animatedImage[currentImageIndex]
+        } else {
+            imageView.image = displayingImage
+        }
+        if oldImageSize != imageView.image?.size {
+            layout()
+        }
+    }
+    
+    var imagesCount: Int {
+        animatedImage?.count ?? images.count
+    }
+    
+    /// The image frame position.
+    public enum FramePosition: Hashable {
+        /// The first image.
+        case first
+        /// The last image.
+        case last
+        /// A random image.
+        case random
+        /// The next image.
+        case next
+        /// The next image looped.
+        case nextLooped
+        /// The previous image.
+        case previous
+        /// The previous image looped.
+        case previousLooped
+        /// The image at the index.
+        case index(Int)
+    }
+    
+    /// Sets the displaying image to the specified position.
+    open func setImageFrame(to position: FramePosition) {
+        guard imagesCount > 0 else { return }
+        switch position {
+        case let .index(index):
+            if index >= 0, index < imagesCount {
+                currentImageIndex = index
+            }
+        case .first:
+            currentImageIndex = 0
+        case .last:
+            currentImageIndex = imagesCount - 1
+        case .random:
+            currentImageIndex = Int.random(in: 0 ... imagesCount - 1)
+        case .next:
+            currentImageIndex += 1
+            if currentImageIndex >= imagesCount {
+                currentImageIndex = imagesCount - 1
+            }
+        case .nextLooped:
+            currentImageIndex += 1
+            if currentImageIndex >= imagesCount {
+                currentImageIndex = 0
+            }
+        case .previous:
+            currentImageIndex -= 1
+            if currentImageIndex < 0 {
+                currentImageIndex = 0
+            }
+        case .previousLooped:
+            currentImageIndex -= 1
+            if currentImageIndex < 0 {
+                currentImageIndex = imagesCount - 1
+            }
         }
     }
     

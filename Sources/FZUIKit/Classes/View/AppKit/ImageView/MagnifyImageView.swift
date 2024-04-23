@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// A magnifiable view that displays images.
-open class MagnifyImageView: NSView {
+open class MagnifyImageView: NSControl {
     let imageView = ImageView()
     let scrollView = FZScrollView()
     
@@ -314,18 +314,6 @@ open class MagnifyImageView: NSView {
         set { NSImageView.defaultPreferredImageDynamicRange = newValue }
     }
     
-    /// A value that indicates whether the user can drag new images into the image view.
-    open var allowsImageDrop: ImageView.ImageDropOption {
-        get { imageView.allowsImageDrop }
-        set { imageView.allowsImageDrop = newValue }
-    }
-    
-    /// Sets the value that indicates whether the user can drag new images into the image view.
-    @discardableResult
-    open func allowsImageDrop(_ allowsImageDrop: ImageView.ImageDropOption) -> Self {
-        set(\.allowsImageDrop, to: allowsImageDrop)
-    }
-    
     /// A value that specifies if and how the image view can be selected.
     open var isSelectable: ImageView.SelectionOption {
         get { imageView.isSelectable }
@@ -341,6 +329,22 @@ open class MagnifyImageView: NSView {
     /// A Boolean value indicating whether the image view is selected.
     open var isSelected: Bool {
         imageView.isSelected
+    }
+    
+    /**
+     A Boolean value indicating whether the user can drag a new image into the image view.
+     
+     When the value of this property is `true`, the user can set the displayed image by dragging an image onto the image view. The action is called.
+     */
+    open var isEditable: Bool {
+        get { imageView.isEditable }
+        set { imageView.isEditable = newValue }
+    }
+    
+    /// Sets the Boolean value indicating whether the user can drag a new image into the image view.
+    @discardableResult
+    open func isEditable(_ isEditable: Bool) -> Self {
+        set(\.isEditable, to: isEditable)
     }
     
     /**
@@ -742,6 +746,10 @@ open class MagnifyImageView: NSView {
         scrollView.frame = bounds
         scrollView.documentView = imageView
         addSubview(scrollView)
+        imageView.actionBlock = { [weak self] _ in
+            guard let self = self else { return }
+            self.performAction()
+        }
     }
 }
 

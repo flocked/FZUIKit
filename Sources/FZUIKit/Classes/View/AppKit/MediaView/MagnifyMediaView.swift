@@ -603,6 +603,7 @@
             set(\.transitionDuration, to: duration)
         }
         
+        /*
         // MARK: - Media Drop
         
         /**
@@ -624,6 +625,7 @@
         open func allowedMediaDroping(_ mediaTypes: [MediaView.MediaType]) -> Self {
             set(\.allowedMediaDroping, to: mediaTypes)
         }
+         */
         
         // MARK: - Layout
         

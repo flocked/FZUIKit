@@ -35,7 +35,7 @@
          */
         public var firstBaselineOffsetY: CGFloat {
             guard firstBaselineOffsetFromTop != 0 else { return 0 }
-            return frame.y + frame.height - firstBaselineOffsetFromTop - 0.5
+            return frame.y + frame.height - firstBaselineOffsetFromTop 
         }
 
         /**
