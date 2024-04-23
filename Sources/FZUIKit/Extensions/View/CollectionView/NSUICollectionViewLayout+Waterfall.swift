@@ -497,53 +497,17 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let width = collectionViewContentWidth(ofSection: section)
         return ((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns))
     }
-    
-    private var windowResizingNotifications: [NotificationToken] = []
-    private var isScrolling = false
 
     override open func prepare() {
-        Swift.print("prepare")
         super.prepare()
-        #if os(macOS) || os(iOS)
-        collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
-        #endif
-        #if os(macOS)
-        observeWindowLiveResizing()
-        #endif
-        prepareItemAttributes()
-        keepItemOrder = false
-    }
-    
-    func scrollToPreviousDisplayingItems() {
-        guard !isScrolling, let displayingItems = displayingItems else { return }
-        if windowResizingNotifications.isEmpty {
-            self.displayingItems = nil
+        if didCalcuateItemAttributes == false {
+            #if os(macOS) || os(iOS)
+            collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
+            #endif
+            prepareItemAttributes()
+        } else {
+            didCalcuateItemAttributes = false
         }
-        isScrolling = true
-        Swift.print("scroll start")
-        collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
-        Swift.print("scroll end")
-        isScrolling = false
-    }
-    
-    #if os(macOS)
-    private func observeWindowLiveResizing() {
-        guard windowResizingNotifications.isEmpty else { return }
-        windowResizingNotifications.append(NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
-            guard let self = self, let collectionView = self.collectionView else { return }
-            self.displayingItems = .init(collectionView.displayingIndexPaths())
-        })
-        windowResizingNotifications.append(NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
-            guard let self = self else { return }
-            self.displayingItems = nil
-        })
-    }
-    #endif
-    
-    public override func finalizeAnimatedBoundsChange() {
-        keepItemOrder = true
-        scrollToPreviousDisplayingItems()
-        keepItemOrder = false
     }
     
     private func prepareItemAttributes() {
@@ -645,27 +609,21 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
+        keepItemOrder = false
     }
     
+    private var didCalcuateItemAttributes: Bool = false
     public override func invalidationContext(forBoundsChange newBounds: NSRect) -> NSCollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds)
-        let oldSize = collectionViewContentSize
+        
         keepItemOrder = true
         let displaying: [IndexPath] = collectionView?.displayingIndexPaths() ?? []
         let union1 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
-        let union1A = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).unionAlt()
         prepareItemAttributes()
         let union2 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
-        let union2A = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).unionAlt()
-
-        let newSize = collectionViewContentSize
-        Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", union1, union2, union1A, union2A)
-        
-        
-      //  self.contentOffset.y *= (new.height / old.height)
-
-        
+        // Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", union1, union2, union1A, union2A)
         context.contentOffsetAdjustment = CGPoint(0, union2.height - union1.height)
+        didCalcuateItemAttributes = true
         return context
     }
 
@@ -697,9 +655,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     
     override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard previousBounds.width != newBounds.width else { return false }
-        if windowResizingNotifications.isEmpty, let indexPaths = collectionView?.displayingIndexPaths() {
-            displayingItems = .init(indexPaths)
-        }
         previousBounds = newBounds
         keepItemOrder = true
         return true
