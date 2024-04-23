@@ -70,16 +70,16 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     /// Handler that provides the sizes for each item.
     public typealias ItemSizeProvider = (_ indexPath: IndexPath) -> CGSize
     
-    #if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS)
     /**
      Creates a waterfall layout with the specified item size provider.
      
      - Parameters:
-        - columns: The amount of columns.
-        - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
-        - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
-        - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
-        - itemSizeProvider: The handler that provides the sizes for each item.
+     - columns: The amount of columns.
+     - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
+     - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
+     - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
+     - itemSizeProvider: The handler that provides the sizes for each item.
      */
     public convenience init(columns: Int = 2, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemSizeProvider: @escaping ItemSizeProvider) {
         self.init()
@@ -98,13 +98,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
      Creates a grid collection view layout.
      
      - Parameters:
-        - columns: The amount of columns for the grid.
-        - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
-        - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
-        - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
-        - spacing: The spacing between the items.
-        - insets: The insets of the layout.
-        - itemAspectRatio: The aspect ratio of the items.
+     - columns: The amount of columns for the grid.
+     - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
+     - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
+     - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
+     - spacing: The spacing between the items.
+     - insets: The insets of the layout.
+     - itemAspectRatio: The aspect ratio of the items.
      */
     public convenience init(grid columns: Int, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) {
         self.init()
@@ -123,13 +123,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
      Creates a grid collection view layout.
      
      - Parameters:
-        - columns: The amount of columns for the grid.
-        - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
-        - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
-        - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
-        - spacing: The spacing between the items.
-        - insets: The insets of the layout.
-        - itemAspectRatio: The aspect ratio of the items.
+     - columns: The amount of columns for the grid.
+     - columnRange: The range of columns that the user can change to, if `isPinchable` or `isKeyDownControllable` is set to `true`.
+     - isPinchable: A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
+     - isKeyDownControllable: A Boolean value that indicates whether the user can change the amount of columns by pressing the `plus` or `minus` key.
+     - spacing: The spacing between the items.
+     - insets: The insets of the layout.
+     - itemAspectRatio: The aspect ratio of the items.
      */
     public static func grid(columns: Int, columnRange: ClosedRange<Int> = 1...12, isPinchable: Bool = false, isKeyDownControllable: Bool = false, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> CollectionViewWaterfallLayout {
         let layout = CollectionViewWaterfallLayout()
@@ -144,7 +144,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         layout.keyDownAltColumnChangeAmount = isKeyDownControllable ? -1 : 0
         return layout
     }
-    #else
+#else
     public convenience init(columns: Int = 2, itemSizeProvider: @escaping ItemSizeProvider) {
         self.init()
         self.itemSizeProvider = itemSizeProvider
@@ -153,10 +153,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
      Creates a grid collection view layout.
      
      - Parameters:
-        - columns: The amount of columns for the grid.
-        - spacing: The spacing between the items.
-        - insets: The insets of the layout.
-        - itemAspectRatio: The aspect ratio of the items.
+     - columns: The amount of columns for the grid.
+     - spacing: The spacing between the items.
+     - insets: The insets of the layout.
+     - itemAspectRatio: The aspect ratio of the items.
      */
     public convenience init(grid columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) {
         self.init()
@@ -171,10 +171,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
      Creates a grid collection view layout.
      
      - Parameters:
-        - columns: The amount of columns for the grid.
-        - spacing: The spacing between the items.
-        - insets: The insets of the layout.
-        - itemAspectRatio: The aspect ratio of the items.
+     - columns: The amount of columns for the grid.
+     - spacing: The spacing between the items.
+     - insets: The insets of the layout.
+     - itemAspectRatio: The aspect ratio of the items.
      */
     public static func grid(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> CollectionViewWaterfallLayout {
         let layout = CollectionViewWaterfallLayout()
@@ -185,13 +185,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         layout.itemAspectRatio = itemAspectRatio
         return layout
     }
-    #endif
+#endif
     
     private func set<Value>(_ keyPath: ReferenceWritableKeyPath<CollectionViewWaterfallLayout, Value>, to value: Value) -> Self {
         self[keyPath: keyPath] = value
         return self
     }
-
+    
     /// The handler that provides the sizes for each item.
     open var itemSizeProvider: ItemSizeProvider? {
         didSet { invalidateLayout() }
@@ -211,7 +211,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         set(\.columns, to: columns)
     }
     
-    #if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS)
     /**
      A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
      
@@ -295,13 +295,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         isPinchable || keyDownColumnChangeAmount > 0 || keyDownAltColumnChangeAmount > 0
     }
     
-    #else
+#else
     var isPinchable = false
     var keyDownColumnChangeAmount = 0
     var keyDownAltColumnChangeAmount = 0
     var keyDownAlt2ColumnChangeAmount = 0
     var columnRange = 1...12
-    #endif
+#endif
     
     /// The animation duration when changing the amount of columns, or `nil` for no animation.
     open var animationDuration: TimeInterval? = 0.2 {
@@ -313,7 +313,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     open func animationDuration(_ duration:  TimeInterval?) -> Self {
         set(\.animationDuration, to: duration)
     }
-
+    
     /// The minimum spacing between the columns.
     open var minimumColumnSpacing: CGFloat = 10 {
         didSet {
@@ -329,17 +329,17 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     open func minimumColumnSpacing(_ spacing:  CGFloat) -> Self {
         set(\.minimumColumnSpacing, to: spacing)
     }
-
+    
     /*
-    /// The minimum amount of space between the items
-    open override var minimumInteritemSpacing: CGFloat  {
-        didSet {
-            minimumInteritemSpacing.clamp(min: 0)
-            guard oldValue != minimumInteritemSpacing else { return }
-            minimumInteritemSpacing = minimumInteritemSpacing.clamped(min: 0)
-            invalidateLayout()
-        }
-    }
+     /// The minimum amount of space between the items
+     open override var minimumInteritemSpacing: CGFloat  {
+     didSet {
+     minimumInteritemSpacing.clamp(min: 0)
+     guard oldValue != minimumInteritemSpacing else { return }
+     minimumInteritemSpacing = minimumInteritemSpacing.clamped(min: 0)
+     invalidateLayout()
+     }
+     }
      */
     
     /// Sets the minimum amount of space between the items
@@ -347,7 +347,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     open func minimumInteritemSpacing(_ spacing:  CGFloat) -> Self {
         set(\.minimumInteritemSpacing, to: spacing)
     }
-
+    
     /// The height of the header.
     open var headerHeight: CGFloat = 0 {
         didSet {
@@ -363,7 +363,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     open func headerHeight(_ height:  CGFloat) -> Self {
         set(\.headerHeight, to: height)
     }
-
+    
     /// The height of the footer.
     open var footerHeight: CGFloat = 0 {
         didSet {
@@ -379,7 +379,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     open func footerHeight(_ height:  CGFloat) -> Self {
         set(\.footerHeight, to: height)
     }
-
+    
     /// The order each item is displayed.
     open var itemRenderDirection: ItemSortOrder = .shortestColumn {
         didSet {
@@ -396,7 +396,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     
     public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint) -> NSPoint {
         Swift.print("targetContentOffset")
-       return super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
+        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
     }
     
     public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint, withScrollingVelocity velocity: NSPoint) -> NSPoint {
@@ -415,14 +415,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     }
     
     /*
-    /// The margins used to lay out content in a section.
-    open override var sectionInset: NSUIEdgeInsets {
-        didSet {
-            guard oldValue != sectionInset else { return }
-            invalidateLayout()
-        }
-    }
-    */
+     /// The margins used to lay out content in a section.
+     open override var sectionInset: NSUIEdgeInsets {
+     didSet {
+     guard oldValue != sectionInset else { return }
+     invalidateLayout()
+     }
+     }
+     */
     
     /// Sets the margins used to lay out content in a section.
     @discardableResult
@@ -466,27 +466,27 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         }
         return cCount
     }
-
-    #if os(macOS)
-        private var collectionViewContentWidth: CGFloat {
-            guard let collectionView = collectionView else { return 0 }
-            let insetsWidth: CGFloat
-            if #available(macOS 11.0, *) {
-                insetsWidth = (sectionInsetUsesSafeArea ? collectionView.safeAreaInsets : collectionView.enclosingScrollView?.contentInsets)?.width ?? 0
-            } else {
-                insetsWidth = collectionView.enclosingScrollView?.contentInsets.width ?? 0
-            }
-            return collectionView.bounds.size.width - insetsWidth
+    
+#if os(macOS)
+    private var collectionViewContentWidth: CGFloat {
+        guard let collectionView = collectionView else { return 0 }
+        let insetsWidth: CGFloat
+        if #available(macOS 11.0, *) {
+            insetsWidth = (sectionInsetUsesSafeArea ? collectionView.safeAreaInsets : collectionView.enclosingScrollView?.contentInsets)?.width ?? 0
+        } else {
+            insetsWidth = collectionView.enclosingScrollView?.contentInsets.width ?? 0
         }
-
-    #elseif canImport(UIKit)
-        private var collectionViewContentWidth: CGFloat {
-            guard let collectionView = collectionView else { return 0 }
-            let insetsWidth = sectionInsetUsesSafeArea ? collectionView.adjustedContentInset.width : collectionView.contentInset.width
-            return collectionView.bounds.size.width - insetsWidth
-        }
-    #endif
-
+        return collectionView.bounds.size.width - insetsWidth
+    }
+    
+#elseif canImport(UIKit)
+    private var collectionViewContentWidth: CGFloat {
+        guard let collectionView = collectionView else { return 0 }
+        let insetsWidth = sectionInsetUsesSafeArea ? collectionView.adjustedContentInset.width : collectionView.contentInset.width
+        return collectionView.bounds.size.width - insetsWidth
+    }
+#endif
+    
     private func collectionViewContentWidth(ofSection section: Int) -> CGFloat {
         return collectionViewContentWidth - sectionInset.width
     }
@@ -498,32 +498,45 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         return ((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns))
     }
     
-    var tokens: [NotificationToken] = []
+    private var windowResizingNotifications: [NotificationToken] = []
+    private var isScrolling = false
+
     override open func prepare() {
         super.prepare()
         #if os(macOS) || os(iOS)
-        if tokens.isEmpty {
-            tokens.append(NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
-                guard let self = self, let collectionView = self.collectionView else { return }
-                self.displayingItems = .init(collectionView.displayingIndexPaths())
-            })
-            tokens.append(NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
-                guard let self = self else { return }
-                self.displayingItems = nil
-            })
-        }
         collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
+        #if os(macOS)
+        observeWindowLiveResizing()
+        #endif
         prepareItemAttributes()
-        if !isSCrolling, let displayingItems = displayingItems {
-            isSCrolling = true
-            keepItemOrder = true
-            collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
-            isSCrolling = false
-            keepItemOrder = false
-        }
+        scrollToPreviousDisplayingItems()
+        keepItemOrder = false
     }
-    var isSCrolling = false
+    
+    func scrollToPreviousDisplayingItems() {
+        guard !isScrolling, let displayingItems = displayingItems else { return }
+        if windowResizingNotifications.isEmpty {
+            self.displayingItems = nil
+        }
+        isScrolling = true
+        collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+        isScrolling = false
+    }
+    
+    #if os(macOS)
+    private func observeWindowLiveResizing() {
+        guard windowResizingNotifications.isEmpty else { return }
+        windowResizingNotifications.append(NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
+            guard let self = self, let collectionView = self.collectionView else { return }
+            self.displayingItems = .init(collectionView.displayingIndexPaths())
+        })
+        windowResizingNotifications.append(NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
+            guard let self = self else { return }
+            self.displayingItems = nil
+        })
+    }
+    #endif
     
     private func prepareItemAttributes() {
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
@@ -624,7 +637,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
-        keepItemOrder = false
     }
 
     override open var collectionViewContentSize: CGSize {
@@ -655,9 +667,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     
     override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard previousBounds.width != newBounds.width else { return false }
-        
-        if tokens.isEmpty, let displaying = collectionView?.displayingIndexPaths() {
-            displayingItems = .init(displaying)
+        if windowResizingNotifications.isEmpty, let indexPaths = collectionView?.displayingIndexPaths() {
+            displayingItems = .init(indexPaths)
         }
         previousBounds = newBounds
         keepItemOrder = true
