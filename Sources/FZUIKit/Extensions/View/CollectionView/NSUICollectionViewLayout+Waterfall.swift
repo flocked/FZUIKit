@@ -651,7 +651,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let context = super.invalidationContext(forBoundsChange: newBounds)
         let oldSize = collectionViewContentSize
         keepItemOrder = true
-        let displaying: Set<IndexPath> = collectionView?.indexPathsForVisibleItems() ?? []
+        let displaying: [IndexPath] = collectionView?.displayingIndexPaths() ?? []
         let union1 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
         let union1A = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).unionAlt()
         prepareItemAttributes()
@@ -665,7 +665,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
       //  self.contentOffset.y *= (new.height / old.height)
 
         
-        context.contentOffsetAdjustment = CGPoint(0, union2A.height - union1A.height)
+        context.contentOffsetAdjustment = CGPoint(0, union2.height - union1.height)
         return context
     }
 
