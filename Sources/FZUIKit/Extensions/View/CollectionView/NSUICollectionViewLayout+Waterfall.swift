@@ -656,7 +656,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         Swift.print("invalidation", oldSize, newSize)
         
         
-        context.contentOffsetAdjustment = CGPoint(0, newSize.height - oldSize.height)
+        context.contentOffsetAdjustment = CGPoint(0, oldSize.height - newSize.height)
         return context
     }
 
