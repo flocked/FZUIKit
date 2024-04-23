@@ -230,7 +230,7 @@
         }
         
         /// An array of all enclosing superviews.
-        func superviewChain() -> [NSView] {
+        func superviewChain() -> [NSUIView] {
             if let superview = superview {
                 return [superview] + superview.superviewChain()
             }

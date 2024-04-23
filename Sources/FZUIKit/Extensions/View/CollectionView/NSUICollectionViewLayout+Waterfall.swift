@@ -394,16 +394,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         set(\.itemRenderDirection, to: direction)
     }
     
-    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint) -> NSPoint {
-        Swift.print("targetContentOffset")
-        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
-    }
-    
-    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint, withScrollingVelocity velocity: NSPoint) -> NSPoint {
-        Swift.print("targetContentOffsetVelocity")
-        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity)
-    }
-    
     /// The order each item is displayed.
     public enum ItemSortOrder: Int {
         /// Each item is added to the shortest column.
@@ -456,9 +446,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     private var itemAspectRatio: CGSize? = nil
     private var _sectionInsetUsesSafeArea: Bool = false
     private var previousBounds: CGRect = .zero
-    private var displayingItems: Set<IndexPath>?
     private var delayedVisibleItemsReset: DispatchWorkItem?
-    
+    private var didCalcuateItemAttributes: Bool = false
+
     private func columns(forSection _: Int) -> Int {
         var cCount = columns
         if cCount == -1 {
@@ -612,21 +602,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         keepItemOrder = false
     }
     
-    private var didCalcuateItemAttributes: Bool = false
-    public override func invalidationContext(forBoundsChange newBounds: NSRect) -> NSCollectionViewLayoutInvalidationContext {
-        let context = super.invalidationContext(forBoundsChange: newBounds)
-        
-        keepItemOrder = true
-        let displaying: [IndexPath] = collectionView?.displayingIndexPaths() ?? []
-        let union1 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
-        prepareItemAttributes()
-        let union2 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
-        // Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", union1, union2, union1A, union2A)
-        context.contentOffsetAdjustment = CGPoint(0, union2.height - union1.height)
-        didCalcuateItemAttributes = true
-        return context
-    }
-
     override open var collectionViewContentSize: CGSize {
         if collectionView!.numberOfSections == 0 {
             return .zero
@@ -653,11 +628,22 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         return list[indexPath.item]
     }
     
-    override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+    open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard previousBounds.width != newBounds.width else { return false }
         previousBounds = newBounds
-        keepItemOrder = true
         return true
+    }
+    
+    open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
+        let context = super.invalidationContext(forBoundsChange: newBounds)
+        keepItemOrder = true
+        let displaying = collectionView?.displayingIndexPaths() ?? []
+        let old = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
+        prepareItemAttributes()
+        let new = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
+        context.contentOffsetAdjustment = CGPoint(0, new.height - old.height)
+        didCalcuateItemAttributes = true
+        return context
     }
 
     override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
