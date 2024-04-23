@@ -222,15 +222,15 @@
         }
         
         /**
-         The y-coordinate of the baseline for the topmost line of text in the view.
+         The coordinate of the baseline for the topmost line of text in the view.
          
          For views with multiple lines of text, this represents the baseline of the top row of text.
          
          - Note: For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or else `0` is returned.
          */
-        public var firstBaselineOffsetY: CGFloat {
-            guard firstBaselineOffsetFromTop ?? 0.0 != 0 else { return 0 }
-            return frame.y + frame.height - (firstBaselineOffsetFromTop ?? 0.0) - 0.5
+        public var firstBaselineOffset: CGPoint {
+            guard firstBaselineOffsetFromTop ?? 0.0 != 0 else { return frame.origin }
+            return CGPoint(frame.x, frame.y + frame.height - (firstBaselineOffsetFromTop ?? 0.0) - 0.5)
         }
     }
 

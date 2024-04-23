@@ -29,22 +29,30 @@
         }
         
         /**
-         The y-coordinate of the baseline for the topmost line of text in the view.
+         The coordinate of the baseline for the topmost line of text in the view.
          
          For views with multiple lines of text, this represents the baseline of the top row of text.
          */
-        public var firstBaselineOffsetY: CGFloat {
-            guard firstBaselineOffsetFromTop != 0 else { return 0 }
-            return frame.y + frame.height - firstBaselineOffsetFromTop 
+        public var firstBaselineOffset: CGPoint {
+            get {
+                guard firstBaselineOffsetFromTop != 0 else { return frame.origin }
+                return CGPoint(frame.x, frame.y + frame.height - firstBaselineOffsetFromTop - 0.5)
+            }
+            set { frame.origin = CGPoint(newValue.x, newValue.y - firstBaselineOffsetFromBottom) }
+        }
+        
+        var firstBaselineOffsetFromBottom: CGFloat {
+            frame.height - firstBaselineOffsetFromTop - 0.5
         }
 
         /**
-         The y-coordinate of the baseline for the bottommost line of text in the view.
+         The coordinate of the baseline for the bottommost line of text in the view.
          
          For views with multiple lines of text, this represents the baseline of the bottom row of text.
          */
-        public var lastBaselineOffsetY: CGFloat {
-            frame.y + lastBaselineOffsetFromBottom - 0.5
+        public var lastBaselineOffset: CGPoint {
+            get { CGPoint(frame.x, frame.y + lastBaselineOffsetFromBottom - 0.5) }
+            set { frame.origin = CGPoint(newValue.x, newValue.y + lastBaselineOffsetFromBottom - 0.5) }
         }
 
         /**

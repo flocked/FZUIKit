@@ -66,7 +66,7 @@
         #endif
     }
 
-public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableCollectionViewLayout {
+public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, PinchableCollectionViewLayout {
     /// Handler that provides the sizes for each item.
     public typealias ItemSizeProvider = (_ indexPath: IndexPath) -> CGSize
     
@@ -331,7 +331,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 
     /// The minimum amount of space between the items
-    open var minimumInteritemSpacing: CGFloat = 10 {
+    open override var minimumInteritemSpacing: CGFloat  {
         didSet {
             minimumInteritemSpacing.clamp(min: 0)
             guard oldValue != minimumInteritemSpacing else { return }
@@ -403,7 +403,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     /// The margins used to lay out content in a section.
-    open var sectionInset: NSUIEdgeInsets = .init(10) {
+    open override var sectionInset: NSUIEdgeInsets {
         didSet {
             guard oldValue != sectionInset else { return }
             invalidateLayout()

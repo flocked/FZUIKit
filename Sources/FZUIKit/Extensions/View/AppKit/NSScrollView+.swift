@@ -352,7 +352,7 @@
             }
         }
         
-        /// A Boolean value that indicates whether the scroll view should automatically manages it's document view.
+        /// A Boolean value that indicates whether the scroll view should automatically manage it's document view.
         @objc open var shouldManageDocumentView: Bool {
             get { getAssociatedValue("manageDocumentView", initialValue: false) }
             set {

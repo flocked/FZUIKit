@@ -201,7 +201,7 @@ open class StackView: NSUIView {
         for view in views {
             let distribution = distribution(for: view) ?? .fill
             if orientation == .horizontal, distribution == .firstBaseline {
-                baselineOffsets.append(0-view.firstBaselineOffsetY)
+                baselineOffsets.append(0-view.firstBaselineOffset.y)
             }
             if let spacer = view as? SpacerView {
                 if let length = spacer.length {
@@ -377,7 +377,7 @@ open class StackView: NSUIView {
                     arrangedSubview.frame.size.height = bounds.height - layoutMargins.height
                 case .firstBaseline:
                     arrangedSubview.frame.origin.y = 0
-                    arrangedSubview.frame.origin.y = 0-arrangedSubview.firstBaselineOffsetY
+                    arrangedSubview.frame.origin.y = 0-arrangedSubview.firstBaselineOffset.y
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
                 case .lastBaseline:
                     arrangedSubview.frame.origin.y = 0
