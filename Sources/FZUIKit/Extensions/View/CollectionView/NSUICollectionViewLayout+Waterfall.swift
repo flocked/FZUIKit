@@ -651,19 +651,21 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let context = super.invalidationContext(forBoundsChange: newBounds)
         let oldSize = collectionViewContentSize
         keepItemOrder = true
-        let displaying: Set<IndexPath> = collectionView?.indexPathsForVisibleItems() ?? []        
+        let displaying: Set<IndexPath> = collectionView?.indexPathsForVisibleItems() ?? []
         let union1 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
+        let union1A = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).unionAlt()
         prepareItemAttributes()
         let union2 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
-        
+        let union2A = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).unionAlt()
+
         let newSize = collectionViewContentSize
-        Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", union1, union2)
+        Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", union1, union2, union1A, union2A)
         
         
       //  self.contentOffset.y *= (new.height / old.height)
 
         
-        context.contentOffsetAdjustment = CGPoint(0, oldSize.height - newSize.height)
+        context.contentOffsetAdjustment = CGPoint(0, union2.height - union1.height)
         return context
     }
 
@@ -978,6 +980,17 @@ extension NSUICollectionView {
         return visibleItems.filter { $0.frame.intersects(rect) }
     }
     #endif
+}
+
+extension Collection where Element == CGRect {
+    /// The union of all rectangles in the collection.
+    func unionAlt() -> CGRect {
+        let x = self.compactMap({$0.minX}).min() ?? 0.0
+        let y = self.compactMap({$0.minY}).min() ?? 0.0
+        let maxX = self.compactMap({$0.maxX}).max() ?? 0.0
+        let maxY = self.compactMap({$0.maxY}).max() ?? 0.0
+        return CGRect(x, y, maxX - x, maxY - y)
+    }
 }
 
 #endif
