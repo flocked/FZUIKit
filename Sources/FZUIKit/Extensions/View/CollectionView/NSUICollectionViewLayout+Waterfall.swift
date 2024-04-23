@@ -637,15 +637,20 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds)
         keepItemOrder = true
-        let displaying = collectionView?.displayingIndexPaths() ?? []
+        guard let collectionView = collectionView, collectionView.contentOffset.y > 0 else { return context }
+        let displaying = collectionView.displayingIndexPaths()
         let old = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
         let oldSize = collectionViewContentSize
         prepareItemAttributes()
         let newSize = collectionViewContentSize
+        collectionView.enclosingScrollView?.shouldManageDocumentView
         let new = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
         Swift.print("union", new.height - old.height, new.height, old.height)
         Swift.print("size", newSize.height - oldSize.height, newSize.height, oldSize.height)
-        Swift.print("offset", collectionView?.contentOffset ?? "nil")
+        Swift.print("diff", collectionView.contentOffset.y - (collectionView.contentOffset.y * (new.height / old.height)))
+        Swift.print("diff", (collectionView.contentOffset.y * (new.height / old.height)) - collectionView.contentOffset.y)
+        // collectionView.contentOffset.y - (collectionView.contentOffset.y * (new.height / old.height))
+        
         context.contentOffsetAdjustment = CGPoint(0, new.height - old.height)
         didCalcuateItemAttributes = true
         return context
