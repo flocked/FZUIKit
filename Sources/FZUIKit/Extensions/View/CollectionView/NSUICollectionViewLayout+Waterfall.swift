@@ -517,8 +517,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         prepareItemAttributes()
         if !isSCrolling, let displayingItems = displayingItems {
             isSCrolling = true
+            keepItemOrder = true
             collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
             isSCrolling = false
+            keepItemOrder = false
         }
     }
     var isSCrolling = false
