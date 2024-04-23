@@ -677,22 +677,27 @@ open class ImageView: NSControl {
                 }
                 overlayContentView.dropHandlers.didDrop = { [weak self] contents,_,_ in
                     guard let self = self else { return }
-                    let droppedImages = contents.images
+                    let images = contents.images
                     let imageURLs = contents.fileURLs.filter({$0.fileType?.isImageType == true })
                     switch self.allowsImageDrop {
                     case .single:
-                        if droppedImages.count == 1 {
-                            self.image = droppedImages.first
+                        if images.count == 1, let image = images.first
+                        {
+                            self.image = image
+                            self.performAction()
                         } else if imageURLs.count == 1, let image = NSImage(contentsOf: imageURLs.first!) {
                             self.image = image
+                            self.performAction()
                         }
                     case .multiple:
-                        if !droppedImages.isEmpty {
-                            self.images = droppedImages
+                        if !images.isEmpty {
+                            self.images = images
+                            self.performAction()
                         } else {
                            let images = imageURLs.compactMap({NSImage(contentsOf: $0)})
                             if !images.isEmpty {
                                 self.images = images
+                                self.performAction()
                             }
                         }
                     case .none: break

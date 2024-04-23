@@ -11,8 +11,8 @@
     import FZSwiftUtils
 
     /// A view that displays media.
-    open class MediaView: NSView {
-        
+    open class MediaView: NSControl {
+                                
         public let imageView = ImageView().isHidden(true)
         public let videoView = ScrollPlayerView().isHidden(true)
         private let player = AVPlayer()
@@ -28,6 +28,14 @@
             case image
             /// GIF.
             case gif
+            
+            var fileType: FileType {
+                switch self {
+                case .video: return .video
+                case .image: return .image
+                case .gif: return .gif
+                }
+            }
         }
         
         /// The scaling of the media.
@@ -59,19 +67,21 @@
         open var mediaURL: URL? {
             get { _mediaURL }
             set {
-                _mediaURL = newValue
                 pause()
                 if let mediaURL = newValue {
                     if mediaURL.fileType == .video {
                         setupAsset(AVAsset(url: mediaURL))
+                        _mediaURL = newValue
                     } else if mediaURL.fileType == .image || mediaURL.fileType == .gif, let image = NSImage(contentsOf: mediaURL) {
                         self.image = image
+                        _mediaURL = newValue
                     } else {
                         _mediaURL = nil
                         hideImageView()
                         hideVideoView()
                     }
                 } else {
+                    _mediaURL = nil
                     hideImageView()
                     hideVideoView()
                 }
@@ -635,6 +645,59 @@
             }
         }
         
+        // MARK: - Media Drop
+        
+        /**
+         The media types that the user can drop to the media view.
+         
+         If the user drops any of the specified media types to the view, the action is called.
+         */
+        open var allowedMediaDroping: [MediaType]  = [] {
+            didSet {
+                guard oldValue != allowedMediaDroping else { return }
+                if allowedMediaDroping.isEmpty {
+                    overlayContentView.dropHandlers.canDrop = nil
+                    overlayContentView.dropHandlers.didDrop = nil
+                } else if overlayContentView.dropHandlers.canDrop == nil {
+                    overlayContentView.dropHandlers.canDrop = { [weak self] contents,_,_ in
+                        guard let self = self else { return false }
+                        let content = self.processPasteboard(contents)
+                        return content.image != nil || content.fileURL != nil
+                    }
+                    overlayContentView.dropHandlers.didDrop = { [weak self] contents,_,_ in
+                        guard let self = self else { return }
+                        let content = self.processPasteboard(contents)
+                        if let image = content.image {
+                            self.image = image
+                            self.performAction()
+                        } else if let fileURL = content.fileURL {
+                            self.mediaURL = fileURL
+                            if self.mediaURL != nil {
+                                self.performAction()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        /**
+         Sets the media types that the user can drop to the media view.
+         
+         If the user drops any of the specified media types to the view, the action is called.
+         */
+        @discardableResult
+        open func allowedMediaDroping(_ mediaTypes: [MediaType]) -> Self {
+            set(\.allowedMediaDroping, to: mediaTypes)
+        }
+        
+        func processPasteboard(_ contents: [PasteboardContent]) -> (image: NSImage?, fileURL: URL?) {
+            let image = allowedMediaDroping.contains(.image) ? contents.images.first : nil
+            let fileTypes = allowedMediaDroping.compactMap({$0.fileType})
+            let fileURL = contents.fileURLs.filter({if let fileType = $0.fileType, fileTypes.contains(fileType) { return true} else { return false }}).first
+            return (image, fileURL)
+        }
+        
         // MARK: - Layout
         
         /**
@@ -661,10 +724,6 @@
             case .image, .gif: return imageView.intrinsicContentSize
             case nil: return super.intrinsicContentSize
             }
-        }
-
-        open func sizeToFit() {
-            frame.size = fittingSize
         }
         
         // MARK: - Init

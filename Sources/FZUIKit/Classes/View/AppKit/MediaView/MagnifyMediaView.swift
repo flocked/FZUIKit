@@ -603,6 +603,28 @@
             set(\.transitionDuration, to: duration)
         }
         
+        // MARK: - Media Drop
+        
+        /**
+         The media types that the user can drop to the media view.
+         
+         If the user drops any of the specified media types to the view, the action is called.
+         */
+        open var allowedMediaDroping: [MediaView.MediaType] {
+            get { mediaView.allowedMediaDroping }
+            set { mediaView.allowedMediaDroping = newValue }
+        }
+        
+        /**
+         Sets the media types that the user can drop to the media view.
+         
+         If the user drops any of the specified media types to the view, the action is called.
+         */
+        @discardableResult
+        open func allowedMediaDroping(_ mediaTypes: [MediaView.MediaType]) -> Self {
+            set(\.allowedMediaDroping, to: mediaTypes)
+        }
+        
         // MARK: - Layout
         
         /// A view for hosting layered content on top of the media view.
