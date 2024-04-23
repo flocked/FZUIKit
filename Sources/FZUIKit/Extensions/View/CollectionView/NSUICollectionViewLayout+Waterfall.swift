@@ -330,6 +330,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         set(\.minimumColumnSpacing, to: spacing)
     }
 
+    /*
     /// The minimum amount of space between the items
     open override var minimumInteritemSpacing: CGFloat  {
         didSet {
@@ -339,6 +340,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             invalidateLayout()
         }
     }
+     */
     
     /// Sets the minimum amount of space between the items
     @discardableResult
@@ -402,6 +404,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         case rightToLeft
     }
     
+    /*
     /// The margins used to lay out content in a section.
     open override var sectionInset: NSUIEdgeInsets {
         didSet {
@@ -409,6 +412,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             invalidateLayout()
         }
     }
+    */
     
     /// Sets the margins used to lay out content in a section.
     @discardableResult
