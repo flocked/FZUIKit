@@ -651,13 +651,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let context = super.invalidationContext(forBoundsChange: newBounds)
         let oldSize = collectionViewContentSize
         keepItemOrder = true
-        let displaying: [IndexPath] = collectionView?.displayingIndexPaths() ?? []
+        let displaying: Set<IndexPath> = collectionView?.indexPathsForVisibleItems() ?? []        
         let union1 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
         prepareItemAttributes()
         let union2 = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
         
         let newSize = collectionViewContentSize
-        Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", union1.origin.y, union2.origin.y )
+        Swift.print(newBounds.width.rounded(.toPlaces(1)),  "w:", oldSize.width.rounded(.toPlaces(1)), newSize.width.rounded(.toPlaces(1)), "h:", oldSize.height.rounded(.toPlaces(1)), newSize.height.rounded(.toPlaces(1)), "p:", newSize.height / oldSize.height, "-", newSize.height - oldSize.height, oldSize.height - newSize.height, "u:", displaying.count, union1.origin.y, union2.origin.y )
         
         
       //  self.contentOffset.y *= (new.height / old.height)
