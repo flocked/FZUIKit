@@ -603,14 +603,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 
     override open func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
-        if indexPath.section >= sectionItemAttributes.count {
-            return nil
-        }
-        let list = sectionItemAttributes[indexPath.section]
-        if indexPath.item >= list.count {
-            return nil
-        }
-        return list[indexPath.item]
+        sectionItemAttributes[safe: indexPath.section]?[safe: indexPath.item]
     }
     
     open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
