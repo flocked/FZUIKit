@@ -59,14 +59,14 @@
         static func waterfall(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> CollectionViewWaterfallLayout {
             let layout = CollectionViewWaterfallLayout(columns: columns, itemSizeProvider: itemSizeProvider)
             layout.minimumInteritemSpacing = spacing
-            layout.minimumColumnSpacing = spacing
+            layout.columnSpacing = spacing
             layout.sectionInset = insets
             return layout
         }
         #endif
     }
 
-public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, PinchableCollectionViewLayout {
+public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableCollectionViewLayout {
     /// Handler that provides the sizes for each item.
     public typealias ItemSizeProvider = (_ indexPath: IndexPath) -> CGSize
     
@@ -88,7 +88,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         self.columnRange = columnRange
         self.isPinchable = isPinchable
         self.minimumInteritemSpacing = spacing
-        self.minimumColumnSpacing = spacing
+        self.columnSpacing = spacing
         self.sectionInset = insets
         self.keyDownColumnChangeAmount = isKeyDownControllable ? 1 : 0
         self.keyDownAltColumnChangeAmount = isKeyDownControllable ? -1 : 0
@@ -112,7 +112,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         self.columnRange = columnRange
         self.isPinchable = isPinchable
         self.minimumInteritemSpacing = spacing
-        self.minimumColumnSpacing = spacing
+        self.columnSpacing = spacing
         self.sectionInset = insets
         self.itemAspectRatio = itemAspectRatio
         self.keyDownColumnChangeAmount = isKeyDownControllable ? 1 : 0
@@ -137,7 +137,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         layout.columnRange = columnRange
         layout.isPinchable = isPinchable
         layout.minimumInteritemSpacing = spacing
-        layout.minimumColumnSpacing = spacing
+        layout.columnSpacing = spacing
         layout.sectionInset = insets
         layout.itemAspectRatio = itemAspectRatio
         layout.keyDownColumnChangeAmount = isKeyDownControllable ? 1 : 0
@@ -162,7 +162,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         self.init()
         self.columns = columns
         self.minimumInteritemSpacing = spacing
-        self.minimumColumnSpacing = spacing
+        self.columnSpacing = spacing
         self.sectionInset = insets
         self.itemAspectRatio = itemAspectRatio
     }
@@ -180,7 +180,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let layout = CollectionViewWaterfallLayout()
         layout.columns = columns
         layout.minimumInteritemSpacing = spacing
-        layout.minimumColumnSpacing = spacing
+        layout.columnSpacing = spacing
         layout.sectionInset = insets
         layout.itemAspectRatio = itemAspectRatio
         return layout
@@ -314,33 +314,31 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         set(\.animationDuration, to: duration)
     }
     
-    /// The minimum spacing between the columns.
-    open var minimumColumnSpacing: CGFloat = 10 {
+    /// The spacing between the columns.
+    open var columnSpacing: CGFloat = 10 {
         didSet {
-            minimumColumnSpacing.clamp(min: 0)
-            guard oldValue != minimumColumnSpacing else { return }
-            minimumColumnSpacing = minimumColumnSpacing.clamped(min: 0)
+            columnSpacing.clamp(min: 0)
+            guard oldValue != columnSpacing else { return }
+            columnSpacing = columnSpacing.clamped(min: 0)
             invalidateLayout()
         }
     }
     
-    /// Sets the minimum spacing between the columns.
+    /// Sets the spacing between the columns.
     @discardableResult
-    open func minimumColumnSpacing(_ spacing:  CGFloat) -> Self {
-        set(\.minimumColumnSpacing, to: spacing)
+    open func columnSpacing(_ spacing:  CGFloat) -> Self {
+        set(\.columnSpacing, to: spacing)
     }
     
-    /*
      /// The minimum amount of space between the items
-     open override var minimumInteritemSpacing: CGFloat  {
-     didSet {
-     minimumInteritemSpacing.clamp(min: 0)
-     guard oldValue != minimumInteritemSpacing else { return }
-     minimumInteritemSpacing = minimumInteritemSpacing.clamped(min: 0)
-     invalidateLayout()
+     open var minimumInteritemSpacing: CGFloat = 10.0  {
+         didSet {
+             minimumInteritemSpacing.clamp(min: 0)
+             guard oldValue != minimumInteritemSpacing else { return }
+             minimumInteritemSpacing = minimumInteritemSpacing.clamped(min: 0)
+             invalidateLayout()
+         }
      }
-     }
-     */
     
     /// Sets the minimum amount of space between the items
     @discardableResult
@@ -404,15 +402,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         case rightToLeft
     }
     
-    /*
      /// The margins used to lay out content in a section.
-     open override var sectionInset: NSUIEdgeInsets {
-     didSet {
-     guard oldValue != sectionInset else { return }
-     invalidateLayout()
+    open var sectionInset: NSUIEdgeInsets = NSUIEdgeInsets(10) {
+         didSet {
+             guard oldValue != sectionInset else { return }
+             invalidateLayout()
+         }
      }
-     }
-     */
     
     /// Sets the margins used to lay out content in a section.
     @discardableResult
@@ -441,7 +437,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     private var footersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
     private var unionRects: [CGRect] = []
     private let unionSize = 20
-    private var keepItemOrder: Bool = true
     private var mappedItemColumns: [IndexPath: Int] = [:]
     private var itemAspectRatio: CGSize? = nil
     private var _sectionInsetUsesSafeArea: Bool = false
@@ -485,7 +480,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let columns = columns(forSection: section)
         let spaceColumCount = CGFloat(columns - 1)
         let width = collectionViewContentWidth(ofSection: section)
-        return ((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns))
+        return ((width - (spaceColumCount * columnSpacing)) / CGFloat(columns))
     }
 
     override open func prepare() {
@@ -500,7 +495,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         }
     }
     
-    private func prepareItemAttributes() {
+    private func prepareItemAttributes(keepItemOrder: Bool = false) {
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         let numberOfSections = collectionView.numberOfSections
 
@@ -545,8 +540,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             for idx in 0 ..< itemCount {
                 let indexPath = IndexPath(item: idx, section: section)
 
-                let columnIndex = nextColumnIndexForItem(indexPath)
-                let xOffset = sectionInset.left + (itemWidth + minimumColumnSpacing) * CGFloat(columnIndex)
+                let columnIndex = nextColumnIndexForItem(indexPath, keepItemOrder: keepItemOrder)
+                let xOffset = sectionInset.left + (itemWidth + columnSpacing) * CGFloat(columnIndex)
                 mappedItemColumns[indexPath] = columnIndex
 
                 let yOffset = columnHeights[section][columnIndex]
@@ -599,7 +594,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             unionRects.append(rect1.union(rect2))
             idx += 1
         }
-        keepItemOrder = false
     }
     
     override open var collectionViewContentSize: CGSize {
@@ -636,23 +630,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     
     open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds)
-        keepItemOrder = true
-        guard let collectionView = collectionView, collectionView.contentOffset.y > 0 else { return context }
-        let displaying = collectionView.displayingIndexPaths()
-        let old = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
+        let contentOffset = collectionView?.contentOffset.y ?? 0.0
         let oldSize = collectionViewContentSize
-        prepareItemAttributes()
+        prepareItemAttributes(keepItemOrder: true)
         let newSize = collectionViewContentSize
-        collectionView.enclosingScrollView?.shouldManageDocumentView
-        let new = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
-        Swift.print("union", new.height - old.height, new.height, old.height)
-        Swift.print("size", newSize.height - oldSize.height, newSize.height, oldSize.height)
-        Swift.print("diff", collectionView.contentOffset.y - (collectionView.contentOffset.y * (new.height / old.height)))
-        Swift.print("diff", (collectionView.contentOffset.y * (newSize.height / old.height)) - collectionView.contentOffset.y)
-        // collectionView.contentOffset.y - (collectionView.contentOffset.y * (new.height / old.height))
-        
-       // context.contentOffsetAdjustment = CGPoint(0, new.height - old.height)
-        context.contentOffsetAdjustment = CGPoint(0, (collectionView.contentOffset.y * (newSize.height / oldSize.height)) - collectionView.contentOffset.y)
+        context.contentOffsetAdjustment.y = (contentOffset * (newSize.height / oldSize.height)) - contentOffset
         didCalcuateItemAttributes = true
         return context
     }
@@ -693,7 +675,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             .offset ?? 0
     }
 
-    private func nextColumnIndexForItem(_ indexPath: IndexPath) -> Int {
+    private func nextColumnIndexForItem(_ indexPath: IndexPath, keepItemOrder: Bool) -> Int {
         if keepItemOrder, let mappedColumn = mappedItemColumns[indexPath] {
             return mappedColumn
         }
