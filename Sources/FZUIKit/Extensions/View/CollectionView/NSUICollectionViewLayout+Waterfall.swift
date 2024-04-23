@@ -505,8 +505,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         #endif
         prepareItemAttributes()
         if let displayingItems = displayingItems {
-            collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
             self.displayingItems = nil
+            collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
         }
     }
     
