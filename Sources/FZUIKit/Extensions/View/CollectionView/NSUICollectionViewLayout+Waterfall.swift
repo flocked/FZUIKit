@@ -193,16 +193,11 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     /// The handler that provides the sizes for each item.
-    open var itemSizeProvider: ItemSizeProvider? {
-        didSet { invalidateLayout() }
-    }
+    open var itemSizeProvider: ItemSizeProvider?
     
     /// The amount of columns.
     open var columns: Int = 2 {
-        didSet {
-            columns = columns.clamped(to: columnRange)
-            guard oldValue != columns else { return }
-            invalidateLayout(animated: animationDuration ?? 0.0) }
+        didSet { columns = columns.clamped(to: columnRange) }
     }
     
     /// Sets the amount of columns.
@@ -316,12 +311,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     /// The spacing between the columns.
     open var columnSpacing: CGFloat = 10 {
-        didSet {
-            columnSpacing.clamp(min: 0)
-            guard oldValue != columnSpacing else { return }
-            columnSpacing = columnSpacing.clamped(min: 0)
-            invalidateLayout()
-        }
+        didSet { columnSpacing = columnSpacing.clamped(min: 0) }
     }
     
     /// Sets the spacing between the columns.
@@ -332,12 +322,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
      /// The spacing between the items.
      open var itemSpacing: CGFloat = 10.0  {
-         didSet {
-             itemSpacing.clamp(min: 0)
-             guard oldValue != itemSpacing else { return }
-             itemSpacing = itemSpacing.clamped(min: 0)
-             invalidateLayout()
-         }
+         didSet { itemSpacing = itemSpacing.clamped(min: 0) }
      }
     
     /// Sets the spacing between the items.
@@ -348,12 +333,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     /// The height of the header.
     open var headerHeight: CGFloat = 0 {
-        didSet {
-            headerHeight.clamp(min: 0)
-            guard oldValue != headerHeight else { return }
-            headerHeight = headerHeight.clamped(min: 0)
-            invalidateLayout()
-        }
+        didSet { headerHeight = headerHeight.clamped(min: 0) }
     }
     
     /// Sets the height of the header.
@@ -364,12 +344,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     /// The height of the footer.
     open var footerHeight: CGFloat = 0 {
-        didSet {
-            footerHeight.clamp(min: 0)
-            guard oldValue != footerHeight else { return }
-            footerHeight = footerHeight.clamped(min: 0)
-            invalidateLayout()
-        }
+        didSet { footerHeight = footerHeight.clamped(min: 0) }
     }
     
     /// Sets the height of the footer.
@@ -379,12 +354,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     /// The order each item is displayed.
-    open var itemRenderDirection: ItemSortOrder = .shortestColumn {
-        didSet {
-            guard oldValue != itemRenderDirection else { return }
-            invalidateLayout()
-        }
-    }
+    open var itemRenderDirection: ItemSortOrder = .shortestColumn
     
     /// Sets the order each item is displayed.
     @discardableResult
@@ -403,12 +373,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
      /// The margins used to lay out content in a section.
-    open var sectionInset: NSUIEdgeInsets = NSUIEdgeInsets(10) {
-         didSet {
-             guard oldValue != sectionInset else { return }
-             invalidateLayout()
-         }
-     }
+    open var sectionInset: NSUIEdgeInsets = NSUIEdgeInsets(10)
     
     /// Sets the margins used to lay out content in a section.
     @discardableResult
@@ -677,7 +642,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 }
 
-protocol PinchableCollectionViewLayout: AnyObject {
+protocol PinchableCollectionViewLayout: NSUICollectionViewLayout {
     var columns: Int { get set }
     var columnRange: ClosedRange<Int> { get }
     var isPinchable: Bool { get }
@@ -754,6 +719,7 @@ extension NSUICollectionView {
                 guard newValue != columns else { return }
                 if let pinchLayout = pinchLayout {
                     pinchLayout.columns = newValue
+                    pinchLayout.invalidateLayout(animated: 0.2)
                 } else if let collectionView = collectionView, let layout = configuration?.invalidation(newValue) {
                     collectionView.setCollectionViewLayout(layout, animated: configuration?.animated == true)
                 }
