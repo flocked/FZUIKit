@@ -665,7 +665,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
       //  self.contentOffset.y *= (new.height / old.height)
 
         
-        context.contentOffsetAdjustment = CGPoint(0, union2.height - union1.height)
+        context.contentOffsetAdjustment = CGPoint(0, union2A.height - union1A.height)
         return context
     }
 
