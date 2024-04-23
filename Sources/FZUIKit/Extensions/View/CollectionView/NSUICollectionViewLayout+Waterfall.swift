@@ -645,6 +645,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         let new = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
         Swift.print("union", new.height - old.height, new.height, old.height)
         Swift.print("size", newSize.height - oldSize.height, newSize.height, oldSize.height)
+        Swift.print("offset", collectionView?.contentOffset ?? "nil")
         context.contentOffsetAdjustment = CGPoint(0, new.height - old.height)
         didCalcuateItemAttributes = true
         return context
