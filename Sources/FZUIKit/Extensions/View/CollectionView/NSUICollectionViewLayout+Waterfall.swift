@@ -649,12 +649,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     
     public override func invalidationContext(forBoundsChange newBounds: NSRect) -> NSCollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds)
-        let size = collectionViewContentSize
+        let oldSize = collectionViewContentSize
         keepItemOrder = true
         prepareItemAttributes()
         let newSize = collectionViewContentSize
-        Swift.print("invalidation", size, newSize)
-        // context.contentOffsetAdjustment
+        Swift.print("invalidation", oldSize, newSize)
+        
+        
+        context.contentOffsetAdjustment = CGPoint(0, newSize.height - oldSize.height)
         return context
     }
 
