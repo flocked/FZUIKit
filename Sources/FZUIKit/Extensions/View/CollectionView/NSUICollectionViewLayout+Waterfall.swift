@@ -362,11 +362,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         set(\.itemRenderDirection, to: direction)
     }
     
-    public override func invalidateLayout() {
-        Swift.print("invalidateLayout")
-        super.invalidateLayout()
-    }
-    
     /// The order each item is displayed.
     public enum ItemSortOrder: Int {
         /// Each item is added to the shortest column.
