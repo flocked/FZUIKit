@@ -636,6 +636,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     
     open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds)
+        Swift.print("current", context.contentOffsetAdjustment)
         keepItemOrder = true
         let displaying = collectionView?.displayingIndexPaths() ?? []
         let old = displaying.compactMap({layoutAttributesForItem(at: $0)?.frame}).union()
