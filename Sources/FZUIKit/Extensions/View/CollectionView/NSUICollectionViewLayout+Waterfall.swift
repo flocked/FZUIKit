@@ -648,7 +648,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         Swift.print("union", new.height - old.height, new.height, old.height)
         Swift.print("size", newSize.height - oldSize.height, newSize.height, oldSize.height)
         Swift.print("diff", collectionView.contentOffset.y - (collectionView.contentOffset.y * (new.height / old.height)))
-        Swift.print("diff", (collectionView.contentOffset.y * (new.height / old.height)) - collectionView.contentOffset.y)
+        Swift.print("diff", (collectionView.contentOffset.y * (newSize.height / oldSize.height)) - collectionView.contentOffset.y)
         // collectionView.contentOffset.y - (collectionView.contentOffset.y * (new.height / old.height))
         
        // context.contentOffsetAdjustment = CGPoint(0, new.height - old.height)
