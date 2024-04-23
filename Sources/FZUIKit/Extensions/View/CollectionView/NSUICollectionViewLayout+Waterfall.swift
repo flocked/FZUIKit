@@ -646,6 +646,17 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             idx += 1
         }
     }
+    
+    public override func invalidationContext(forBoundsChange newBounds: NSRect) -> NSCollectionViewLayoutInvalidationContext {
+        let context = super.invalidationContext(forBoundsChange: newBounds)
+        let size = collectionViewContentSize
+        keepItemOrder = true
+        prepareItemAttributes()
+        let newSize = collectionViewContentSize
+        Swift.print("invalidation", size, newSize)
+        // context.contentOffsetAdjustment
+        return context
+    }
 
     override open var collectionViewContentSize: CGSize {
         if collectionView!.numberOfSections == 0 {
