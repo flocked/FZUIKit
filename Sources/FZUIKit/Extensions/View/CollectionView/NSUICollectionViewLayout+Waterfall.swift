@@ -394,6 +394,16 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         set(\.itemRenderDirection, to: direction)
     }
     
+    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint) -> NSPoint {
+        Swift.print("targetContentOffset")
+       return super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
+    }
+    
+    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint, withScrollingVelocity velocity: NSPoint) -> NSPoint {
+        Swift.print("targetContentOffsetVelocity")
+        return super.targetContentOffset(forProposedContentOffset: proposedContentOffset, withScrollingVelocity: velocity)
+    }
+    
     /// The order each item is displayed.
     public enum ItemSortOrder: Int {
         /// Each item is added to the shortest column.
@@ -494,6 +504,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
         prepareItemAttributes()
+        if let displayingItems = displayingItems {
+            collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+            self.displayingItems = nil
+        }
     }
     
     private func prepareItemAttributes() {
@@ -626,6 +640,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     
     override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard previousBounds.width != newBounds.width else { return false }
+        
+        if let displaying = collectionView?.displayingIndexPaths() {
+            displayingItems = .init(displaying)
+        }
         previousBounds = newBounds
         keepItemOrder = true
         return true
