@@ -498,17 +498,30 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         return ((width - (spaceColumCount * minimumColumnSpacing)) / CGFloat(columns))
     }
     
+    var tokens: [NotificationToken] = []
     override open func prepare() {
         super.prepare()
         #if os(macOS) || os(iOS)
+        if tokens.isEmpty {
+            tokens.append(NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
+                guard let self = self, let collectionView = self.collectionView else { return }
+                self.displayingItems = .init(collectionView.displayingIndexPaths())
+            })
+            tokens.append(NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: collectionView?.window) { [weak self] _ in
+                guard let self = self else { return }
+                self.displayingItems = nil
+            })
+        }
         collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
         #endif
         prepareItemAttributes()
-        if let displayingItems = displayingItems {
-            self.displayingItems = nil
+        if !isSCrolling, let displayingItems = displayingItems {
+            isSCrolling = true
             collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+            isSCrolling = false
         }
     }
+    var isSCrolling = false
     
     private func prepareItemAttributes() {
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
@@ -641,7 +654,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     override open func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard previousBounds.width != newBounds.width else { return false }
         
-        if let displaying = collectionView?.displayingIndexPaths() {
+        if tokens.isEmpty, let displaying = collectionView?.displayingIndexPaths() {
             displayingItems = .init(displaying)
         }
         previousBounds = newBounds
