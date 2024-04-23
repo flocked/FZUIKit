@@ -502,6 +502,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
     private var isScrolling = false
 
     override open func prepare() {
+        Swift.print("prepare")
         super.prepare()
         #if os(macOS) || os(iOS)
         collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
@@ -510,7 +511,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         observeWindowLiveResizing()
         #endif
         prepareItemAttributes()
-        scrollToPreviousDisplayingItems()
         keepItemOrder = false
     }
     
@@ -520,7 +520,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
             self.displayingItems = nil
         }
         isScrolling = true
+        Swift.print("scroll start")
         collectionView?.scrollToItems(at: displayingItems, scrollPosition: .centeredVertically)
+        Swift.print("scroll end")
         isScrolling = false
     }
     
@@ -537,6 +539,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewFlowLayout, Pincha
         })
     }
     #endif
+    
+    public override func finalizeAnimatedBoundsChange() {
+        keepItemOrder = true
+        scrollToPreviousDisplayingItems()
+        keepItemOrder = false
+    }
     
     private func prepareItemAttributes() {
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
