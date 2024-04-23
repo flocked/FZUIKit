@@ -58,7 +58,7 @@
          */
         static func waterfall(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemSizeProvider: @escaping (IndexPath) -> CGSize) -> CollectionViewWaterfallLayout {
             let layout = CollectionViewWaterfallLayout(columns: columns, itemSizeProvider: itemSizeProvider)
-            layout.minimumInteritemSpacing = spacing
+            layout.itemSpacing = spacing
             layout.columnSpacing = spacing
             layout.sectionInset = insets
             return layout
@@ -87,7 +87,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         self.columns = columns
         self.columnRange = columnRange
         self.isPinchable = isPinchable
-        self.minimumInteritemSpacing = spacing
+        self.itemSpacing = spacing
         self.columnSpacing = spacing
         self.sectionInset = insets
         self.keyDownColumnChangeAmount = isKeyDownControllable ? 1 : 0
@@ -111,7 +111,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         self.columns = columns
         self.columnRange = columnRange
         self.isPinchable = isPinchable
-        self.minimumInteritemSpacing = spacing
+        self.itemSpacing = spacing
         self.columnSpacing = spacing
         self.sectionInset = insets
         self.itemAspectRatio = itemAspectRatio
@@ -136,7 +136,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         layout.columns = columns
         layout.columnRange = columnRange
         layout.isPinchable = isPinchable
-        layout.minimumInteritemSpacing = spacing
+        layout.itemSpacing = spacing
         layout.columnSpacing = spacing
         layout.sectionInset = insets
         layout.itemAspectRatio = itemAspectRatio
@@ -161,7 +161,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public convenience init(grid columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) {
         self.init()
         self.columns = columns
-        self.minimumInteritemSpacing = spacing
+        self.itemSpacing = spacing
         self.columnSpacing = spacing
         self.sectionInset = insets
         self.itemAspectRatio = itemAspectRatio
@@ -179,7 +179,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     public static func grid(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> CollectionViewWaterfallLayout {
         let layout = CollectionViewWaterfallLayout()
         layout.columns = columns
-        layout.minimumInteritemSpacing = spacing
+        layout.itemSpacing = spacing
         layout.columnSpacing = spacing
         layout.sectionInset = insets
         layout.itemAspectRatio = itemAspectRatio
@@ -330,20 +330,20 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         set(\.columnSpacing, to: spacing)
     }
     
-     /// The minimum amount of space between the items
-     open var minimumInteritemSpacing: CGFloat = 10.0  {
+     /// The spacing between the items.
+     open var itemSpacing: CGFloat = 10.0  {
          didSet {
-             minimumInteritemSpacing.clamp(min: 0)
-             guard oldValue != minimumInteritemSpacing else { return }
-             minimumInteritemSpacing = minimumInteritemSpacing.clamped(min: 0)
+             itemSpacing.clamp(min: 0)
+             guard oldValue != itemSpacing else { return }
+             itemSpacing = itemSpacing.clamped(min: 0)
              invalidateLayout()
          }
      }
     
-    /// Sets the minimum amount of space between the items
+    /// Sets the spacing between the items.
     @discardableResult
-    open func minimumInteritemSpacing(_ spacing:  CGFloat) -> Self {
-        set(\.minimumInteritemSpacing, to: spacing)
+    open func itemSpacing(_ spacing:  CGFloat) -> Self {
+        set(\.itemSpacing, to: spacing)
     }
     
     /// The height of the header.
@@ -441,7 +441,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     private var itemAspectRatio: CGSize? = nil
     private var _sectionInsetUsesSafeArea: Bool = false
     private var previousBounds: CGRect = .zero
-    private var delayedVisibleItemsReset: DispatchWorkItem?
     private var didCalcuateItemAttributes: Bool = false
 
     private func columns(forSection _: Int) -> Int {
@@ -514,7 +513,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         var attributes = NSUICollectionViewLayoutAttributes()
 
         for section in 0 ..< numberOfSections {
-            // MARK: 1. Get section-specific metrics (minimumInteritemSpacing, sectionInset)
+            // MARK: 1. Get section-specific metrics (itemSpacing, sectionInset)
 
             let columns = columnHeights[section].count
             let itemWidth = itemWidth(inSection: section)
@@ -565,14 +564,14 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemWidth, height: itemHeight)
                 itemAttributes.append(attributes)
                 allItemAttributes.append(attributes)
-                columnHeights[section][columnIndex] = attributes.frame.maxY + minimumInteritemSpacing
+                columnHeights[section][columnIndex] = attributes.frame.maxY + itemSpacing
             }
             sectionItemAttributes.append(itemAttributes)
 
             // MARK: 4. Section footer
 
             let columnIndex = longestColumnIndex(inSection: section)
-            top = columnHeights[section][columnIndex] - minimumInteritemSpacing + sectionInset.bottom
+            top = columnHeights[section][columnIndex] - itemSpacing + sectionInset.bottom
 
             if footerHeight > 0 {
                 attributes = NSUICollectionViewLayoutAttributes(forSupplementaryViewOfKind: NSUICollectionView.elementKindSectionFooter, with: IndexPath(item: 0, section: section))
@@ -597,18 +596,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     override open var collectionViewContentSize: CGSize {
-        if collectionView!.numberOfSections == 0 {
+        guard let collectionView = collectionView, collectionView.numberOfSections > 0, let height = columnHeights.last?.first else {
             return .zero
         }
-
-        var contentSize = collectionView!.bounds.size
-        contentSize.width = collectionViewContentWidth
-
-        if let height = columnHeights.last?.first {
-            contentSize.height = height
-            return contentSize
-        }
-        return .zero
+        return CGSize(collectionView.bounds.width, height)
     }
 
     override open func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
