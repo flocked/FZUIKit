@@ -354,12 +354,12 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     /// The order each item is displayed.
-    open var itemRenderDirection: ItemSortOrder = .shortestColumn
+    open var itemOrder: ItemSortOrder = .shortestColumn
     
     /// Sets the order each item is displayed.
     @discardableResult
-    open func itemRenderDirection(_ direction:  ItemSortOrder) -> Self {
-        set(\.itemRenderDirection, to: direction)
+    open func itemOrder(_ direction:  ItemSortOrder) -> Self {
+        set(\.itemOrder, to: direction)
     }
     
     /// The order each item is displayed.
@@ -630,7 +630,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         }
         var index = 0
         let columns = columns(forSection: indexPath.section)
-        switch itemRenderDirection {
+        switch itemOrder {
         case .shortestColumn:
             index = shortestColumnIndex(inSection: indexPath.section)
         case .leftToRight:

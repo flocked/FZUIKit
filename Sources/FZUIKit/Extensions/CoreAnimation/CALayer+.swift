@@ -236,6 +236,14 @@ import FZSwiftUtils
             }
             return nil
         }
+        
+        /// An array of all enclosing superlayers..
+        func supervlayerChain() -> [CALayer] {
+            if let superlayer = superlayer {
+                return [superlayer] + superlayer.supervlayerChain()
+            }
+            return []
+        }
 
         /// Returns the first sublayer of a specific type.
         func firstSublayer<V: CALayer>(type _: V.Type) -> V? {
