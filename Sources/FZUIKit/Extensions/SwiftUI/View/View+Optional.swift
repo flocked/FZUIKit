@@ -72,4 +72,14 @@ public extension View {
             self
         }
     }
+    
+    @ViewBuilder
+    @available(macOS 11.0, *)
+    func help(_ helpKey: LocalizedStringKey?) -> some View {
+        if let helpKey = helpKey {
+            help(helpKey)
+        } else {
+            self
+        }
+    }
 }
