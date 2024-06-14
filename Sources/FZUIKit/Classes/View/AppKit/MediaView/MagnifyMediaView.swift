@@ -357,6 +357,12 @@
         open func videoPlaybackPercentage(_ percentage: Double) -> Self {
             set(\.videoPlaybackPercentage, to: percentage)
         }
+        
+        /// The handler that is called whenever the playback reached to the end time.
+        open var playbackReachedEndHandler: (() -> Void)? {
+            get { mediaView.playbackReachedEndHandler }
+            set { mediaView.playbackReachedEndHandler = newValue }
+        }
 
         /// The handler that is called whenever the playback position changes.
         open var playbackPositionHandler: ((TimeDuration) -> Void)? {

@@ -154,26 +154,65 @@ public extension AVPlayer {
         set {
             guard newValue != isLooping else { return }
             setAssociatedValue(newValue, key: "isLooping")
-            if newValue {
-                actionAtItemEnd = .none
-                loopNotificationToken = NotificationCenter.default.observe(.AVPlayerItemDidPlayToEndTime, object: nil, queue: nil, using: { [weak self] notification in
-                    guard let self = self else { return }
-                    if let playerItem = notification.object as? AVPlayerItem {
-                        if self.isLooping {
-                            playerItem.seek(to: CMTime.zero, completionHandler: nil)
-                        }
-                    }
-                })
-            } else {
-                actionAtItemEnd = .pause
-                loopNotificationToken = nil
-            }
+            setupItemPlaybackEndedObservation()
         }
     }
-
-    internal var loopNotificationToken: NotificationToken? {
-        get { getAssociatedValue("loopNotificationToken", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "loopNotificationToken") }
+    
+    /// The handlers for the item current item.
+    struct ItemHandlers {
+        /// The handler that gets called when the current item did play to the end time.
+        public var playedToEnd: (()->())?
+        /// The handler that gets called when the current item failed to play to the end time.
+        public var failedToPlayToEnd: (()->())?
+        /// The handler that gets called when the playback of the current item available.
+        public var playbackStalled: (()->())?
+        /// The handler that gets called when a new error log for the current item is available.
+        public var newErrorLog: (()->())?
+        /// The handler that gets called when a new network access log for the current item is available.
+        public var newAccessLog: (()->())?
+    }
+    
+    /// Handlers for the item current item.
+    var itemHandlers: ItemHandlers {
+        get { getAssociatedValue("itemHandlers", initialValue: ItemHandlers()) }
+        set {
+            setAssociatedValue(newValue, key: "itemHandlers")
+            observeNotifications(for: .AVPlayerItemFailedToPlayToEndTime, handler: itemHandlers.failedToPlayToEnd)
+            observeNotifications(for: .AVPlayerItemNewAccessLogEntry, handler: itemHandlers.newAccessLog)
+            observeNotifications(for: .AVPlayerItemNewErrorLogEntry, handler: itemHandlers.newErrorLog)
+            observeNotifications(for: .AVPlayerItemPlaybackStalled, handler: itemHandlers.playbackStalled)
+            setupItemPlaybackEndedObservation()
+        }
+    }
+    
+    internal func observeNotifications(for name: Notification.Name, handler: (()->())?) {
+        if let handler = handler {
+            itemNotificationTokens[name] = NotificationCenter.default.observe(name, object: nil, queue: nil, using: { [weak self] notification in
+                guard let self = self, let playerItem = notification.object as? AVPlayerItem, playerItem == currentItem else { return }
+                handler()
+            })
+        } else {
+            itemNotificationTokens[name] = nil
+        }
+    }
+    
+    internal func setupItemPlaybackEndedObservation() {
+        if isLooping || itemHandlers.playedToEnd != nil {
+            observeNotifications(for: .AVPlayerItemDidPlayToEndTime) {
+                self.itemHandlers.playedToEnd?()
+                if self.isLooping {
+                    self.currentItem?.seek(to: CMTime.zero, completionHandler: nil)
+                }
+            }
+        } else {
+            observeNotifications(for: .AVPlayerItemDidPlayToEndTime, handler: nil)
+        }
+        actionAtItemEnd = isLooping ? .none : .pause
+    }
+    
+    internal var itemNotificationTokens: [Notification.Name : NotificationToken] {
+        get { getAssociatedValue("itemNotificationTokens", initialValue: [:]) }
+        set { setAssociatedValue(newValue, key: "itemNotificationTokens") }
     }
 }
 

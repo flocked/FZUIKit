@@ -543,6 +543,11 @@
         open func videoPlaybackPercentage(_ percentage: Double) -> Self {
             set(\.videoPlaybackPercentage, to: percentage)
         }
+        
+        /// The handler that is called whenever the playback reached to the end time.
+        open var playbackReachedEndHandler: (() -> Void)? {
+            didSet { player.itemHandlers.playedToEnd = playbackReachedEndHandler }
+        }
 
         /// The handler that is called whenever the playback position changes.
         open var playbackPositionHandler: ((TimeDuration) -> Void)? {
@@ -559,6 +564,14 @@
         open var playbackPositionHandlerInterval: TimeInterval = 0.1 {
             didSet {
                 guard oldValue != playbackPositionHandlerInterval else { return }
+                setupPlaybackHandler()
+            }
+        }
+        
+        /// The handler that is called whenever the playback position changes.
+        open var playbackReachedEndHandler: ((TimeDuration) -> Void)? {
+            didSet {
+                player
                 setupPlaybackHandler()
             }
         }
