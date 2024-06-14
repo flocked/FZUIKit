@@ -568,14 +568,6 @@
             }
         }
         
-        /// The handler that is called whenever the playback position changes.
-        open var playbackReachedEndHandler: ((TimeDuration) -> Void)? {
-            didSet {
-                player
-                setupPlaybackHandler()
-            }
-        }
-        
         // MARK: - Transition
         
         /// The transition animation when changing the displayed image.
