@@ -29,7 +29,7 @@ extension NSCollectionView {
     }
     
     /// A handler that is called whenever the collection view is empty.
-    public var emptyContentHandler: ((Bool)->())? {
+    public var emptyContentHandler: ((_ isEmpty: Bool)->())? {
         get { getAssociatedValue("emptyContentHandler", initialValue: nil) }
         set { 
             setAssociatedValue(newValue, key: "emptyContentHandler")
@@ -65,7 +65,7 @@ extension NSCollectionView {
     }
     
     var isEmpty: Bool {
-        get { getAssociatedValue("isEmpty", initialValue: true) }
+        get { getAssociatedValue("isEmpty", initialValue: (0..<numberOfSections).compactMap({ numberOfItems(inSection: $0) }).sum() == 0) }
         set {
             guard newValue != isEmpty else { return }
             setAssociatedValue(newValue, key: "isEmpty")
