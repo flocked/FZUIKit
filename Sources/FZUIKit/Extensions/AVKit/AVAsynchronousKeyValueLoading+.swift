@@ -9,7 +9,7 @@ import Foundation
 import AVFoundation
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-extension AVAsynchronousKeyValueLoading {
+public extension AVAsynchronousKeyValueLoading {
     /**
      Loads a property synchronously and returns the value to the completion handler.
      
