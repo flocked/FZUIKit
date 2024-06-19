@@ -15,8 +15,7 @@
         /**
          Returns the windows of a application visible on the scrren.
 
-         - Parameters:
-            - application: The application for the windows
+         - Parameter application: The application for the windows
 
          - Returns: The visible windows of the application.
          */
@@ -25,8 +24,8 @@
         }
 
         /// Returns the identifier of the display.
-        var displayID: CGDirectDisplayID {
-            deviceDescription[.screenNumber] as? CGDirectDisplayID ?? 0
+        var displayID: CGDirectDisplayID? {
+            deviceDescription[.screenNumber] as? CGDirectDisplayID
         }
 
         /// Returns the ordered index of the screen.
@@ -35,9 +34,10 @@
             return screens.firstIndex(of: self)
         }
 
-        // Returns the bounds of the screen in the global display coordinate space.
-        var quartzFrame: CGRect {
-            CGDisplayBounds(displayID)
+        /// The bounds of the screen in the global display coordinate space.
+        var quartzFrame: CGRect? {
+            guard let displayID = displayID else { return nil }
+            return CGDisplayBounds(displayID)
         }
 
         /// A Boolean value that indicates whether the mouse cursor is visble on the screen.
@@ -45,6 +45,35 @@
             Self.withMouse == self
         }
 
+        /// A Boolean value that indicates whether the screen is built-in.
+        var isBuiltIn: Bool {
+            CGDisplayIsBuiltin(displayID ?? 0) != 0
+        }
+
+        /// A Boolean value that indicates whether the screen is virtual (e.g. Sidecar or Airplay screens)
+        var isVirtual: Bool {
+            localizedName.contains("dummy") || localizedName.contains("airplay") || localizedName.contains("sidecar")
+        }
+        
+        /// A Boolean value that indicates whether the screen is Airplay.
+        var isAirplay: Bool {
+            localizedName.lowercased().contains("airplay")
+        }
+        
+        /// A Boolean value that indicates whether the screen is Sidecar.
+        var isSidecar: Bool {
+            localizedName.lowercased().contains("sidecar")
+        }
+        
+        /// The bounds of the screen in the global display coordinate space.
+        var displayBounds: CGRect {
+            guard let displayID else {
+                debugPrint("ERROR: Failed to get NSScreen.displayID in NSScreen.displayBounds")
+                return CGRect(x: frame.minX, y: self.frame.maxY - frame.maxY, width: frame.width, height: frame.height)
+            }
+            return CGDisplayBounds(displayID)
+        }
+        
         /// Returns the screeen which includes the mouse cursor.
         static var withMouse: NSScreen? {
             let mouseLocation = NSEvent.mouseLocation
@@ -53,34 +82,19 @@
             return screenWithMouse
         }
 
-        //// Returns the AirPlay screen.
-        static var airplay: NSScreen? {
-            NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("airplay") })
-        }
-
-        /// Returns the Sidecar screen.
-        static var sidecar: NSScreen? {
-            NSScreen.screens.first(where: { $0.localizedName.lowercased().contains("sidecar") })
-        }
-
         /// Returns the built-in screen.
         static var builtIn: NSScreen? {
-            NSScreen.screens.first(where: { CGDisplayIsBuiltin($0.displayID) != 0 })
+            NSScreen.screens.first(where: {$0.isBuiltIn})
+        }
+        
+        //// Returns the first AirPlay screen.
+        static var airplay: NSScreen? {
+            NSScreen.screens.first(where: {$0.isAirplay})
         }
 
-        /// A Boolean value that indicates whether the screen is built-in.
-        var isBuiltIn: Bool {
-            self == NSScreen.builtIn
-        }
-
-        /// A Boolean value that indicates whether the screen is virtual (e.g. Sidecar or Airplay screens)
-        var isVirtual: Bool {
-            var isVirtual = false
-            let name = localizedName
-            if name.contains("dummy") || name.contains("airplay") || name.contains("sidecar") {
-                isVirtual = true
-            }
-            return isVirtual
+        /// Returns the first Sidecar screen.
+        static var sidecar: NSScreen? {
+            NSScreen.screens.first(where: {$0.isSidecar})
         }
 
         /**
@@ -89,33 +103,36 @@
          - Parameter point: The point which the screen should contain.
          */
         static func screen(at point: NSPoint) -> NSScreen? {
-            var returnScreen: NSScreen?
-            let screens = NSScreen.screens
-            for screen in screens {
-                if NSMouseInRect(point, screen.frame, false) {
-                    returnScreen = screen
-                }
-            }
-            return returnScreen
+            NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) })
         }
+        
+        /**
+         Enables / Disables the screen sleep and returns a Boolean value that indicates whether it succeeded.
 
+         - Parameter shouldScreenSleep: A Boolean value that indicates whether the screen sleep is enabled.
+         */
+        @discardableResult
+        static func enableScreenSleep(_ shouldScreenSleep: Bool) -> Bool {
+            shouldScreenSleep ? enableScreenSleep() : disableScreenSleep()
+        }
+        
+        /// Enables screen sleep and returns a Boolean value that indicates whether enabling succeeded.
+        @discardableResult
+        private static func enableScreenSleep() -> Bool {
+            guard _screenSleepIsDisabled == true else { return true }
+            _screenSleepIsDisabled = !(IOPMAssertionRelease(noSleepAssertionID) == kIOReturnSuccess)
+            return _screenSleepIsDisabled == false
+        }
+        
         /// Disables screen sleep and returns a Boolean value that indicates whether disabling succeeded.
         @discardableResult
-        static func disableScreenSleep() -> Bool {
+        private static func disableScreenSleep() -> Bool {
             guard _screenSleepIsDisabled == false else { return true }
             _screenSleepIsDisabled = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep as CFString,
                                                                  IOPMAssertionLevel(kIOPMAssertionLevelOn),
                                                                  "Unknown reason" as CFString,
                                                                  &noSleepAssertionID) == kIOReturnSuccess
             return _screenSleepIsDisabled
-        }
-
-        /// Enables screen sleep and returns a Boolean value that indicates whether enabling succeeded.
-        @discardableResult
-        static func enableScreenSleep() -> Bool {
-            guard _screenSleepIsDisabled == true else { return true }
-            _screenSleepIsDisabled = !(IOPMAssertionRelease(noSleepAssertionID) == kIOReturnSuccess)
-            return _screenSleepIsDisabled == false
         }
 
         private static var _screenSleepIsDisabled: Bool {

@@ -537,6 +537,57 @@
                 liveResizeTokens.removeAll()
             }
         }
+        
+        /// The option for selecting a tab in the tab group of the window.
+        public enum TabSelection {
+            /// Selects the next tab.
+            case next
+            /// Selects the next tab looping.
+            case nextLooping
+            /// Selects the previous tab.
+            case previous
+            /// Selects the previous tab looping.
+            case previousLooping
+            /// Selects a random tab.
+            case random
+            /// Selects the tab at the specified index.
+            case index(Int)
+        }
+        
+        /**
+         Selects the tab in the tab group of the window with the specified selection option.
+         
+         - Parameter option: The tab selection option.
+         */
+        public func selectTab(_ option: TabSelection) {
+            switch option {
+            case .next:
+                selectNextTab(nil)
+            case .nextLooping:
+                if let tabGroup = tabGroup, tabGroup.windows.count > 1, tabGroup.indexOfSelectedTab == tabGroup.windows.count - 1 {
+                    tabGroup.windows.first?.makeKeyAndOrderFront(nil)
+                } else {
+                    selectNextTab(nil)
+                }
+            case .previous:
+                selectPreviousTab(nil)
+            case .previousLooping:
+                if let tabGroup = tabGroup, tabGroup.windows.count > 1, tabGroup.indexOfSelectedTab == 0 {
+                    tabGroup.windows.last?.makeKeyAndOrderFront(nil)
+                } else {
+                    selectPreviousTab(nil)
+                }
+            case .random:
+                guard let tabGroup = tabGroup else { return }
+                var windows = tabGroup.windows
+                if let selectedWindow = tabGroup.selectedWindow {
+                    windows = windows.filter({$0 != selectedWindow})
+                }
+                windows.randomElement()?.makeKeyAndOrderFront(nil)
+            case .index(let index):
+                tabGroup?.windows[safe: index]?.makeKeyAndOrderFront(nil)
+            }
+        }
 }
 
     private let NSWindowAnimationKeys = ["frameAnimatable", "centerPoint"]

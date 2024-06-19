@@ -163,4 +163,11 @@ extension NSEvent.EventTypeMask: Hashable {
             contains(.deviceIndependentFlagsMask)
         }
     }
+
+extension CGEvent {
+    /// The location of the mouse pointer.
+    public static var mouseLocation: CGPoint? {
+        CGEvent(source: nil)?.location
+    }
+}
 #endif
