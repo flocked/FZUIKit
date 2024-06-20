@@ -79,7 +79,7 @@
             - modifierFlags: The pressed modifier keys.
             - location: The location of the event.
          */
-        static func keyDownEvent(keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero) -> NSEvent? {
+        static func keyDown(keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero) -> NSEvent? {
             keyEvent(keyCode: keyCode, modifierFlags: modifierFlags, location: location, keyDown: true)
         }
         
@@ -91,7 +91,7 @@
             - modifierFlags: The pressed modifier keys.
             - location: The location of the event.
          */
-        static func keyUpEvent(keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero) -> NSEvent? {
+        static func keyUp(keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero) -> NSEvent? {
             keyEvent(keyCode: keyCode, modifierFlags: modifierFlags, location: location, keyDown: false)
         }
         
@@ -100,6 +100,20 @@
             cgEvent.flags = modifierFlags.cgEventFlags
             cgEvent.location = location
             return NSEvent(cgEvent: cgEvent)
+        }
+        
+        /**
+         Creates and returns a new mouse event.
+         
+         - Parameters:
+            - type: The mouse event type.
+            - location: The cursor location in the base coordinate system of the window specified by windowNum.
+            - modifierFlags: The position of the mouse cursor in global coordinates.
+            - clickCount: The number of mouse clicks associated with the mouse event.
+            - pressure: A value from `0.0` to `1.0` indicating the pressure applied to the input device on a mouse event, used for an appropriate device such as a graphics tablet. For devices that aren’t pressure-sensitive, the value should be either `0.0` or `1.0`.
+         */
+        static func mouse(_ type: NSEvent.EventType, location: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0) -> NSEvent? {
+            NSEvent.mouseEvent(with: type, location: location, modifierFlags: modifierFlags, timestamp: .nan, windowNumber: 0, context: nil, eventNumber: Int.random(in: 0...Int.max), clickCount: clickCount, pressure: pressure)
         }
     }
 
