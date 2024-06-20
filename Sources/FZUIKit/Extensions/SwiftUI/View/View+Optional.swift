@@ -72,9 +72,9 @@ public extension View {
             self
         }
     }
-    
+
     @ViewBuilder
-    @available(macOS 11.0, *)
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     func help(_ helpKey: LocalizedStringKey?) -> some View {
         if let helpKey = helpKey {
             help(helpKey)
