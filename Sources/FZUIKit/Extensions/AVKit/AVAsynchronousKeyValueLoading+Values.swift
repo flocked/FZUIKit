@@ -35,6 +35,9 @@ public class AVKeyValues<T: AVAsynchronousKeyValueLoading> {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVKeyValues where T: AVAsset {
+    
+    // MARK: - Loading Duration and Timing
+    
     /// A time value that represents the duration of the asset.
     var duration: CMTime? {
         try? object?.load(.duration)
@@ -50,15 +53,21 @@ public extension AVKeyValues where T: AVAsset {
         try? object?.load(.minimumTimeOffsetFromLive)
     }
     
+    // MARK: - Loading Tracks
+    
     /// The tracks of media that an asset contains.
     var tracks: [AVAssetTrack]? {
         try? object?.load(.tracks)
     }
     
+    // MARK: - Loading Track Groups
+    
     /// The track groups an asset contains.
     var trackGroups: [AVAssetTrackGroup]? {
         try? object?.load(.trackGroups)
     }
+    
+    // MARK: - Loading Metadata
     
     /// The metadata items that an asset contains for common metadata identifiers.
     var metadata: [AVMetadataItem]? {
@@ -79,6 +88,8 @@ public extension AVKeyValues where T: AVAsset {
     var lyrics: String? {
         try? object?.load(.lyrics)
     }
+    
+    // MARK: - Loading Suitability
     
     /// A Boolean value that indicates whether an asset contains playable content.
     var isPlayable: Bool? {
@@ -116,6 +127,8 @@ public extension AVKeyValues where T: AVAsset {
     }
     #endif
     
+    // MARK: - Loading Asset Preferences
+    
     /// The asset’s rate preference for playing its media.
     var preferredRate: Float? {
         try? object?.load(.preferredRate)
@@ -138,6 +151,8 @@ public extension AVKeyValues where T: AVAsset {
     }
     #endif
     
+    // MARK: - Loading Media Selections
+    
     /// The available media selections for an asset.
     var allMediaSelections: [AVMediaSelection]? {
         try? object?.load(.allMediaSelections)
@@ -153,16 +168,22 @@ public extension AVKeyValues where T: AVAsset {
         try? object?.load(.availableMediaCharacteristicsWithMediaSelectionOptions)
     }
     
+    // MARK: - Loading Chapter Metadata
+    
     /// The locales of an asset’s chapter metadata.
     var availableChapterLocales: [Locale]? {
         try? object?.load(.availableChapterLocales)
     }
+    
+    // MARK: - Content Protections
     
     #if os(macOS) || os(iOS) || os(tvOS)
     /// A Boolean value that indicates whether the asset contains protected content.
     var hasProtectedContent: Bool? {
         try? object?.load(.hasProtectedContent)
     }
+    
+    // MARK: - Fragment Support
     
     /// A Boolean value that indicates whether you can extend the asset by fragments.
     var canContainFragments: Bool? {
@@ -183,6 +204,9 @@ public extension AVKeyValues where T: AVAsset {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVKeyValues where T: AVURLAsset {
+    
+    // MARK: - Loading Variants
+
     /// An array of variants that an asset contains.
     var variants: [AVAssetVariant]? {
         try? object?.load(.variants)
@@ -191,6 +215,9 @@ public extension AVKeyValues where T: AVURLAsset {
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVKeyValues where T: AVMetadataItem {
+    
+    // MARK: - Loading Values
+    
     /// The value of the metadata item.
     var value: (NSCopying & NSObjectProtocol)? {
         try? object?.load(.value)
