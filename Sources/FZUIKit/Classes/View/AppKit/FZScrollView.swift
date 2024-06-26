@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  FZScrollView.swift
 //  
 //
 //  Created by Florian Zand on 14.03.24.

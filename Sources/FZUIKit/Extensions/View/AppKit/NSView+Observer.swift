@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSView+Observer.swift
 //  
 //
 //  Created by Florian Zand on 26.02.24.

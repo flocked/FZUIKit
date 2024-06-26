@@ -18,6 +18,10 @@ DisplayLink
 - Copyright (c) 2019, Tim Donnelly
 - https://github.com/timdonnelly/DisplayLink
 
+LaunchAtLogin
+- Copyright (c) Sindre Sorhus.
+- https://github.com/sindresorhus/LaunchAtLogin-Modern/
+
 NSLayoutConstraint+
 - Copyright ©2018 Peter Baumgartner. All rights reserved.
 - https://github.com/boinx/BXUIKit
