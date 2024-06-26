@@ -61,12 +61,19 @@ public enum LaunchAtLogin {
         return nil
     }
     
-    /// Returns a checbox button for the specified language that toggles “launch at login” for your app.
-    public static func checkboxButton(for locale: Locale = .current) -> NSButton {
+    /**
+     Returns a checbox button for the specified language that toggles “launch at login” for your app.
+     
+     - Parameters:
+        - locale: The longuage of the checkbox text. The defaults shows the text in the current language of the app.
+        - action: An optional action handler to be called when the user changes "launch at login."
+     */
+    public static func checkboxButton(for locale: Locale = .current, action: (()->())? = nil) -> NSButton {
         let button = NSButton(checkboxWithTitle: localizedString(for: locale), target: nil, action: nil).state(isEnabled ? .on : .off)
         button.actionBlock = { button in
             self.isEnabled = button.state == .off ? false : true
             button.state = self.isEnabled ? .on : .off
+            action?()
         }
         return button
     }
@@ -111,25 +118,27 @@ extension LaunchAtLogin {
 	/**
 	A `Toggle` view with a predefined binding and label that toggles “launch at login” for your app.
 
-	```
+	```swift
 	struct ContentView: View {
 		var body: some View {
-			LaunchAtLogin.Toggle()
+            LaunchAtLogin.Toggle()
 		}
 	}
 	```
 
-	The default label tries to find a tanslation of `"Launch at login"` for the current language of the app, or english if no translation for the current language could be found.. It can be overridden for localization and other needs:
-
-	```
-	struct ContentView: View {
-		var body: some View {
-			LaunchAtLogin.Toggle {
-				Text("Launch at login")
-			}
-		}
-	}
-	```
+    The default label shows a translation of `"Launch at login"` for the current language of the app, or English if no translation for the current language could be found.. You can also specify another language:
+    
+    ```swift
+     LaunchAtLogin.Toggle(locale: Locale(identifier: "en-us"))
+    ```
+     
+    You can also override the text for custom localization and other needs:
+     
+    ```swift
+    LaunchAtLogin.Toggle {
+        Text("Launch at login")
+    }
+    ```
 	*/
 	public struct Toggle<Label: View>: View {
 		@ObservedObject private var launchAtLogin = LaunchAtLogin.observable
@@ -169,15 +178,14 @@ extension LaunchAtLogin.Toggle<Text> {
 
 	This initializer creates a `Text` view on your behalf with the provided `title`.
 
-	- Parameters:
-		- title: A string that describes the purpose of the toggle.
+	- Parameter title: A string that describes the purpose of the toggle.
 	*/
 	public init(_ title: some StringProtocol) {
 		label = Text(title)
 	}
 
     /**
-    Creates a toggle that generates its label from a localized string of "Launch at Login" for the specified language, or English if no translation for the language could be found..
+    Creates a toggle with a localized string of "Launch at Login" for the specified language, or English if no translation for the language could be found..
 
     - Parameter locale: The language for the translation.
     */
