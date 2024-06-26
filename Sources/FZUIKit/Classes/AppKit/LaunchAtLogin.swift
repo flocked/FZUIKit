@@ -9,10 +9,31 @@
 import SwiftUI
 import ServiceManagement
 import os.log
+import AppKit
 
 @available(macOS 13.0, *)
 public enum LaunchAtLogin {
 	fileprivate static let observable = Observable()
+    
+    fileprivate static let launchAtLoginTranslations: [String: String] = [
+        "en": "Launch At Login",            // English
+        "es": "Iniciar al Iniciar Sesión",  // Spanish
+        "fr": "Lancer à la Connexion",      // French
+        "de": "Beim Anmelden Starten",      // German
+        "zh": "登录时启动",                  // Chinese (Simplified)
+        "ja": "ログイン時に起動",            // Japanese
+        "ko": "로그인 시 실행",              // Korean
+        "it": "Avvia al Login",             // Italian
+        "pt": "Iniciar ao Login",           // Portuguese
+        "ru": "Запуск при Входе",           // Russian
+        "ar": "تشغيل عند تسجيل الدخول",      // Arabic
+        "nl": "Starten bij Inloggen",       // Dutch
+        "sv": "Starta vid Inloggning",      // Swedish
+        "da": "Start ved Login",            // Danish
+        "nb": "Start ved Innlogging",       // Norwegian (Bokmål)
+        "fi": "Käynnistä Kirjautuessa",     // Finnish
+        "tr": "Girişte Başlat"              // Turkish
+    ]
 
 	/// A Boolean value that indicates whether the app automatically launches at login.
 	public static var isEnabled: Bool {
@@ -46,6 +67,22 @@ public enum LaunchAtLogin {
 		return event?.eventID == kAEOpenApplication
 			&& event?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
 	}
+    
+    /// Returns the localized string of "Launch at Login" for the specified language, or English if no translation for the language could be found..
+    public static func localizedString(for locale: Locale = .current) -> String {
+        guard let languageCode = locale.language.languageCode?.identifier else { return launchAtLoginTranslations["en"]! }
+        return launchAtLoginTranslations[languageCode] ?? launchAtLoginTranslations["en"]!
+    }
+    
+    /// Returns a checbox button for the specified language that toggles “launch at login” for your app.
+    public static func checkboxButton(for locale: Locale = .current) -> NSButton {
+        let button = NSButton(checkboxWithTitle: localizedString(for: locale), target: nil, action: nil).state(isEnabled ? .on : .off)
+        button.actionBlock = { button in
+            self.isEnabled = button.state == .off ? false : true
+            button.state = self.isEnabled ? .on : .off
+        }
+        return button
+    }
 }
 
 @available(macOS 13.0, *)
@@ -63,7 +100,7 @@ extension LaunchAtLogin {
 @available(macOS 13.0, *)
 extension LaunchAtLogin {
 	/**
-	This package comes with a `LaunchAtLogin.Toggle` view which is like the built-in `Toggle` but with a predefined binding and label. Clicking the view toggles “launch at login” for your app.
+	A `Toggle` view with a predefined binding and label that toggles “launch at login” for your app.
 
 	```
 	struct ContentView: View {
@@ -73,7 +110,7 @@ extension LaunchAtLogin {
 	}
 	```
 
-	The default label is `"Launch at login"`, but it can be overridden for localization and other needs:
+	The default label tries to find a tanslation of `"Launch at login"` for the current language of the app, or english if no translation for the current language could be found.. It can be overridden for localization and other needs:
 
 	```
 	struct ContentView: View {
@@ -131,11 +168,9 @@ extension LaunchAtLogin.Toggle<Text> {
 		label = Text(title)
 	}
 
-	/**
-	Creates a toggle with the default title of `Launch at login`.
-	*/
+	/// Creates a toggle with the default title of `Launch at login`.
 	public init() {
-		self.init("Launch at login")
+		self.init(LaunchAtLogin.localizedString())
 	}
 }
 #endif
