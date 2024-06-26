@@ -1,40 +1,19 @@
 //
 //  LaunchAtLogin.swift
 //
-//
+//  Parts taken from:
 //  Copyright (c) Sindre Sorhus
+//
+//  Created by Florian Zand on 18.04.24.
 //
 
 #if os(macOS) || targetEnvironment(macCatalyst)
 import SwiftUI
 import ServiceManagement
-import os.log
 import AppKit
 
 @available(macOS 13.0, *)
 public enum LaunchAtLogin {
-	fileprivate static let observable = Observable()
-    
-    fileprivate static let launchAtLoginTranslations: [String: String] = [
-        "en": "Launch At Login",            // English
-        "es": "Iniciar al Iniciar Sesión",  // Spanish
-        "fr": "Lancer à la Connexion",      // French
-        "de": "Beim Anmelden Starten",      // German
-        "zh": "登录时启动",                  // Chinese (Simplified)
-        "ja": "ログイン時に起動",            // Japanese
-        "ko": "로그인 시 실행",              // Korean
-        "it": "Avvia al Login",             // Italian
-        "pt": "Iniciar ao Login",           // Portuguese
-        "ru": "Запуск при Входе",           // Russian
-        "ar": "تشغيل عند تسجيل الدخول",      // Arabic
-        "nl": "Starten bij Inloggen",       // Dutch
-        "sv": "Starta vid Inloggning",      // Swedish
-        "da": "Start ved Login",            // Danish
-        "nb": "Start ved Innlogging",       // Norwegian (Bokmål)
-        "fi": "Käynnistä Kirjautuessa",     // Finnish
-        "tr": "Girişte Başlat"              // Turkish
-    ]
-
 	/// A Boolean value that indicates whether the app automatically launches at login.
 	public static var isEnabled: Bool {
 		get { SMAppService.mainApp.status == .enabled }
@@ -83,6 +62,28 @@ public enum LaunchAtLogin {
         }
         return button
     }
+    
+    fileprivate static let observable = Observable()
+    
+    fileprivate static let launchAtLoginTranslations: [String: String] = [
+        "en": "Launch At Login",            // English
+        "es": "Iniciar al Iniciar Sesión",  // Spanish
+        "fr": "Lancer à la Connexion",      // French
+        "de": "Beim Anmelden Starten",      // German
+        "zh": "登录时启动",                  // Chinese (Simplified)
+        "ja": "ログイン時に起動",            // Japanese
+        "ko": "로그인 시 실행",              // Korean
+        "it": "Avvia al Login",             // Italian
+        "pt": "Iniciar ao Login",           // Portuguese
+        "ru": "Запуск при Входе",           // Russian
+        "ar": "تشغيل عند تسجيل الدخول",      // Arabic
+        "nl": "Starten bij Inloggen",       // Dutch
+        "sv": "Starta vid Inloggning",      // Swedish
+        "da": "Start ved Login",            // Danish
+        "nb": "Start ved Innlogging",       // Norwegian (Bokmål)
+        "fi": "Käynnistä Kirjautuessa",     // Finnish
+        "tr": "Girişte Başlat"              // Turkish
+    ]
 }
 
 @available(macOS 13.0, *)
