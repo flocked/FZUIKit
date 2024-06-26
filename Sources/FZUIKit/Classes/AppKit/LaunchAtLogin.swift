@@ -49,8 +49,16 @@ public enum LaunchAtLogin {
     
     /// Returns the localized string of "Launch at Login" for the specified language, or English if no translation for the language could be found..
     public static func localizedString(for locale: Locale = .current) -> String {
-        guard let languageCode = locale.language.languageCode?.identifier else { return launchAtLoginTranslations["en"]! }
-        return launchAtLoginTranslations[languageCode] ?? launchAtLoginTranslations["en"]!
+        localizedString(for: locale.language) ?? launchAtLoginTranslations["en"]!
+    }
+    
+    fileprivate static func localizedString(for language: Locale.Language) -> String? {
+        if let languageCode = language.languageCode, let translation = launchAtLoginTranslations[languageCode.identifier] {
+            return translation
+        } else if let parent = language.parent {
+            return localizedString(for: parent)
+        }
+        return nil
     }
     
     /// Returns a checbox button for the specified language that toggles “launch at login” for your app.
@@ -130,8 +138,7 @@ extension LaunchAtLogin {
 		/**
 		Creates a toggle that displays a custom label.
 
-		- Parameters:
-			- label: A view that describes the purpose of the toggle.
+		- Parameter label: A view that describes the purpose of the toggle.
 		*/
 		public init(@ViewBuilder label: () -> Label) {
 			self.label = label()
@@ -169,9 +176,13 @@ extension LaunchAtLogin.Toggle<Text> {
 		label = Text(title)
 	}
 
-	/// Creates a toggle with the default title of `Launch at login`.
-	public init() {
-		self.init(LaunchAtLogin.localizedString())
-	}
+    /**
+    Creates a toggle that generates its label from a localized string of "Launch at Login" for the specified language, or English if no translation for the language could be found..
+
+    - Parameter locale: The language for the translation.
+    */
+    public init(locale: Locale = .current) {
+        self.init(LaunchAtLogin.localizedString(for: locale))
+    }
 }
 #endif
