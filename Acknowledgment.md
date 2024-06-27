@@ -1,6 +1,10 @@
-Color extensions
+Color Extensions
 - Copyright (c) 2015-present Yannick Loriot
 - https://github.com/yannickl/DynamicColor
+
+Color+Image
+- Copyright (c) 2016 Jathu Satkunarajah
+- https://github.com/jathu/UIImageColors
 
 DateTextField
 - Copyright (c) 2020 Click On Tyler
@@ -29,9 +33,6 @@ NSLayoutConstraint+
 NSMenuItem+HighlightableView
 - Copyright © 2022 Darren Ford
 
-NSUICollectionViewLayout+Waterfall
-- Copyright (c) 2014 Nicholas Tau. All rights reserved.
-
 TrackingArea
 - Copyright (c) 2023 Darren Ford
 - https://github.com/dagronf/DSFAppKitBuilder
@@ -39,3 +40,7 @@ TrackingArea
 SimpleStackView
 - Copyright (c) 2019 Maximilian Mackh
 - https://github.com/mmackh/BaseComponents
+
+WaterfallCollectionLayout
+- Copyright (c) 2014 Nicholas Tau
+- https://github.com/1xiaocainiao/PinterestSwift-CHTCollectionViewWaterfallLayout
