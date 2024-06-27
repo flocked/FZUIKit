@@ -8,12 +8,32 @@
 import AVFoundation
 import Foundation
 import FZSwiftUtils
+import Combine
 
 public extension AVPlayerItem {
     /// The current playback percentage (between `0.0` and `1.0`).
     var playbackPercentage: Double {
         get { currentTime().seconds / duration.seconds }
         set { seek(toPercentage: newValue.clamped(to: 0...1.0)) }
+    }
+    
+    /// The handler that gets changed when the status of the item changes.
+    var statusHandler: ((Status)->())? {
+        get { getAssociatedValue("statusHandler", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "statusHandler")
+            if let statusHandler = newValue {
+                statusObservation = publisher(for: \.status).sink { status in
+                    statusHandler(status)
+                }
+            } else {
+                statusObservation = nil
+            }
+        }
+    }
+    
+    internal var statusObservation: AnyCancellable? {
+        get { getAssociatedValue("statusObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "statusObservation") }
     }
     
     /// The duration of the item as `TimeDuration`.

@@ -165,10 +165,7 @@
                 updatePreviousPlaybackState()
                 player.pause()
                 let item = AVPlayerItem(asset: asset)
-                assetStatusObservation = item.observeChanges(for: \.status) { [weak self] old, new in
-                    guard old != new, let self = self else { return }
-                    self.assetStatusHandler?(new)
-                }
+                setupAssetStatusHandler()
                 player.replaceCurrentItem(with: item)
                 showVideoView()
                 if videoPlaybackOption == .autostart || (videoPlaybackOption == .previousPlaybackState && previousVideoPlaybackState == .isPlaying) {
@@ -183,12 +180,23 @@
         }
         
         /// The handler that gets called when the status of the media asset changes.
-        open var assetStatusHandler: ((AVPlayerItem.Status)->())? = nil
+        open var assetStatusHandler: ((AVPlayerItem.Status)->())? = nil {
+            didSet { setupAssetStatusHandler() }
+        }
         
         /// Sets the handler that gets called when the status of the media asset changes.
         @discardableResult
         open func assetStatusHandler(_ handler: ((AVPlayerItem.Status)->())?) -> Self {
             set(\.assetStatusHandler, to: handler)
+        }
+        
+        func setupAssetStatusHandler() {
+            if let item = player.currentItem {
+                item.statusHandler = { [weak self] status in
+                    guard let self = self else { return }
+                    self.assetStatusHandler?(status)
+                }
+            }
         }
         
         var assetStatusObservation: KeyValueObservation?
