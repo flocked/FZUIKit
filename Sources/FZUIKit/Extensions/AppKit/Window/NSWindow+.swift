@@ -287,19 +287,6 @@
         public func insertTabbedWindow(_ window: NSWindow, position: NSWindowTabGroup.TabPosition = .afterCurrent, select: Bool = true) {
             tabGroup?.insertWindow(window, position: position, select: select)
         }
-                
-        /// A collection of the windows that are currently grouped together by this window tab group.
-        public var tabbedWindows: [NSWindow] {
-            get { tabGroup?.windows ?? [] }
-            set {
-                guard let tabGroup = tabGroup else { return }
-                let removed = tabGroup.windows.filter({ !newValue.contains($0) })
-                removed.forEach({ tabGroup.removeWindow($0) })
-                newValue.enumerated().forEach({
-                    tabGroup.insertWindow($0.element, position: .atIndex($0.offset))
-                })
-            }
-        }
 
         /// Returns the tab bar height, or `0`, if the tab bar isn't visible.
         public var tabBarHeight: CGFloat {
@@ -415,6 +402,15 @@
             guard newValue != isKeyWindowObservable else { return }
             if newValue {
                 do {
+                    try replaceMethod(
+                     #selector(getter: NSWindow.isKeyWindow),
+                    methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
+                    hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
+                        object in
+                        (object as? NSWindow)?.setupLiveResizeObservation()
+                        return (object as? NSWindow)?._isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
+                        }
+                    }
                    try replaceMethod(#selector(NSWindow.becomeKey),
                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
@@ -427,7 +423,6 @@
                        store.original(object, #selector(NSWindow.becomeKey))
                        window.didChangeValue(for: \.isKeyWindow)
                        window.isKey = true
-                       window.willChangeValue(for: \.isKeyWindow)
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignKey),
@@ -436,6 +431,10 @@
                         object in
                         store.original(object, #selector(NSWindow.resignKey))
                         guard let window = object as? NSWindow else { return }
+                        // window.__isKeyWindow = true
+                        window.willChangeValue(for: \.isKeyWindow)
+                        store.original(object, #selector(NSWindow.resignKey))
+                        // window.__isKeyWindow = nil
                         window.didChangeValue(for: \.isKeyWindow)
                         window.isKey = false
                         }
@@ -446,6 +445,7 @@
             } else {
                 resetMethod(#selector(NSWindow.becomeKey))
                 resetMethod(#selector(NSWindow.resignKey))
+                resetMethod(#selector(getter: NSWindow.isKeyWindow))
             }
         }
     }
@@ -457,6 +457,15 @@
             guard newValue != isMainWindowObservable else { return }
             if newValue {
                 do {
+                    try replaceMethod(
+                     #selector(getter: NSWindow.isMainWindow),
+                    methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
+                    hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
+                        object in
+                        (object as? NSWindow)?.setupLiveResizeObservation()
+                        return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
+                        }
+                    }
                    try replaceMethod(#selector(NSWindow.becomeMain),
                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
@@ -469,15 +478,17 @@
                        store.original(object, #selector(NSWindow.becomeMain))
                        window.didChangeValue(for: \.isMainWindow)
                        window.isMain = true
-                       window.willChangeValue(for: \.isMainWindow)
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignMain),
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
-                        store.original(object, #selector(NSWindow.resignMain))
                         guard let window = object as? NSWindow else { return }
+                        //window.__isMainWindow = true
+                        window.willChangeValue(for: \.isMainWindow)
+                        store.original(object, #selector(NSWindow.resignMain))
+                        // window.__isMainWindow = nil
                         window.didChangeValue(for: \.isMainWindow)
                         window.isMain = false
                         }
@@ -488,6 +499,7 @@
             } else {
                 resetMethod(#selector(NSWindow.becomeMain))
                 resetMethod(#selector(NSWindow.resignMain))
+                resetMethod(#selector(getter: NSWindow.isMainWindow))
             }
         }
     }
@@ -521,6 +533,16 @@
         var _inLiveResize: Bool? {
             get { getAssociatedValue("_inLiveResize", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "_inLiveResize") }
+        }
+        
+        var __isMainWindow: Bool? {
+            get { getAssociatedValue("__isMainWindow", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "__isMainWindow") }
+        }
+        
+        var __isKeyWindow: Bool? {
+            get { getAssociatedValue("__isKeyWindow", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "__isKeyWindow") }
         }
         
         var liveResizeTokens: [NotificationToken] {
