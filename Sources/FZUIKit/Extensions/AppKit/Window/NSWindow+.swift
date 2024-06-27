@@ -287,6 +287,19 @@
         public func insertTabbedWindow(_ window: NSWindow, position: NSWindowTabGroup.TabPosition = .afterCurrent, select: Bool = true) {
             tabGroup?.insertWindow(window, position: position, select: select)
         }
+                
+        /// A collection of the windows that are currently grouped together by this window tab group.
+        public var tabbedWindows: [NSWindow] {
+            get { tabGroup?.windows ?? [] }
+            set {
+                guard let tabGroup = tabGroup else { return }
+                let removed = tabGroup.windows.filter({ !newValue.contains($0) })
+                removed.forEach({ tabGroup.removeWindow($0) })
+                newValue.enumerated().forEach({
+                    tabGroup.insertWindow($0.element, position: .atIndex($0.offset))
+                })
+            }
+        }
 
         /// Returns the tab bar height, or `0`, if the tab bar isn't visible.
         public var tabBarHeight: CGFloat {
