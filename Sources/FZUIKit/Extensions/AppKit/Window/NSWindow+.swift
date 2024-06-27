@@ -402,17 +402,14 @@
             guard newValue != isKeyWindowObservable else { return }
             if newValue {
                 do {
-                    /*
                     try replaceMethod(
                      #selector(getter: NSWindow.isKeyWindow),
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
                     hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                         object in
-                        (object as? NSWindow)?.setupLiveResizeObservation()
                         return (object as? NSWindow)?._isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
                         }
                     }
-                     */
                    try replaceMethod(#selector(NSWindow.becomeKey),
                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
@@ -464,8 +461,7 @@
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
                     hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                         object in
-                        store.original(object, #selector(getter: NSWindow.isMainWindow))
-                      //  return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
+                        return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
                         }
                     }
                    try replaceMethod(#selector(NSWindow.becomeMain),
