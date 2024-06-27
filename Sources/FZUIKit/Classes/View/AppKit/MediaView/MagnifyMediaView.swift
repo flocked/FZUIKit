@@ -16,6 +16,11 @@
         private let mediaView = MediaView()
         private let scrollView = FZScrollView()
         
+        /// The player for media assets.
+        public var player: AVPlayer {
+            mediaView.player
+        }
+        
         // MARK: - Media
         
         /// The url to the media displayed in the media view.
