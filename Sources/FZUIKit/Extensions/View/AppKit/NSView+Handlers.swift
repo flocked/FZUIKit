@@ -116,7 +116,13 @@ extension NSView {
             observe(\.window?.screen, handler: \.viewHandlers.screen)
             
             if viewHandlers.isLiveResizing != nil {
-                setupLiveResizingObservation()
+                NSView.isLiveResizingObservable = true
+                viewObserver?.add(\.inLiveResize) { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.viewHandlers.isLiveResizing?(new)
+                }
+            } else {
+                viewObserver?.remove(\.inLiveResize)
             }
             
             if windowHandlers.isLiveResizing != nil {
@@ -155,10 +161,6 @@ extension NSView {
                 viewObserver?.remove(\.window?.isMainWindow)
             }
             
-            if windowHandlers.isMain != nil {
-                NSWindow.isMainWindowObservable = true
-            }
-            
             if viewHandlers.isFirstResponder != nil {
                 _isFirstResponder = isFirstResponder
                 viewObserver?.add(\.window?.firstResponder) { [weak self] _, firstResponder in
@@ -177,6 +179,7 @@ extension NSView {
         }
     }
     
+    /*
     /**
      A Boolean value that indicates whether the view is currently being resized by the user.
      
@@ -222,6 +225,7 @@ extension NSView {
            debugPrint(error)
         }
     }
+     */
     
     /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
     public static var isLiveResizingObservable: Bool {

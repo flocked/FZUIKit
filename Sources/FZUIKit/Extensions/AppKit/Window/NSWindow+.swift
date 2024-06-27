@@ -25,7 +25,11 @@
             public var isLiveResizing: ((Bool)->())?
             
             var needsObserver: Bool {
-                frame != nil || firstResponder != nil
+                isKey != nil ||
+                isMain != nil ||
+                firstResponder != nil ||
+                frame != nil  ||
+                isLiveResizing != nil
             }
         }
         
@@ -77,6 +81,16 @@
                     }
                 } else {
                     windowObserver?.remove(\.isMainWindow)
+                }
+                
+                if handlers.isLiveResizing != nil {
+                    NSWindow.isLiveResizeObservable = true
+                    windowObserver?.add(\.inLiveResize) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.handlers.isLiveResizing?(new)
+                    }
+                } else {
+                    windowObserver?.remove(\.inLiveResize)
                 }
             }
         }
