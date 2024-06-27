@@ -9,9 +9,9 @@ import AppKit
 import FZSwiftUtils
 
 /**
- A structure that encapsulat view.s a state for an
+ A structure that encapsulates a state for a view.
 
- A view configuration state encompasses the common states that affect the appearance of the view — states like selected, emphasized, or enabled. You can use it to update the appearance.
+ A view configuration state encompasses the common states that affect the appearance of the view — states like enabled, selected, or emphasized. You can use it to update the appearance.
 
  Typically, you don’t create a configuration state yourself. To obtain a configuration state either use the view's `configurationUpdateHandler` or override its `updateConfiguration(using:)` method in a subclass and use the state parameter. Outside of this method, you can get the configuration state by using its `configurationState` property.
 
