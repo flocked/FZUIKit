@@ -165,8 +165,8 @@
                 updatePreviousPlaybackState()
                 player.pause()
                 let item = AVPlayerItem(asset: asset)
-                setupAssetStatusHandler()
                 player.replaceCurrentItem(with: item)
+                setupAssetStatusHandler()
                 showVideoView()
                 if videoPlaybackOption == .autostart || (videoPlaybackOption == .previousPlaybackState && previousVideoPlaybackState == .isPlaying) {
                     player.play()
@@ -192,9 +192,13 @@
         
         func setupAssetStatusHandler() {
             if let item = player.currentItem {
-                item.statusHandler = { [weak self] status in
-                    guard let self = self else { return }
-                    self.assetStatusHandler?(status)
+                if item.status == .readyToPlay {
+                    self.assetStatusHandler?(.readyToPlay)
+                } else {
+                    item.statusHandler = { [weak self] status in
+                        guard let self = self else { return }
+                        self.assetStatusHandler?(status)
+                    }
                 }
             }
         }
