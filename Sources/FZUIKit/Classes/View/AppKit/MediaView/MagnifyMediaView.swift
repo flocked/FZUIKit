@@ -13,7 +13,7 @@
     /// A magnifiable view that displays media.
     open class MagnifyMediaView: NSView {
         
-        private let mediaView = MediaView()
+        public let mediaView = MediaView()
         private let scrollView = FZScrollView()
         
         /// The player for media assets.
