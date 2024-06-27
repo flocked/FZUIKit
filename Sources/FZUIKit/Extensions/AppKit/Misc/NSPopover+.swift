@@ -27,7 +27,9 @@ import SwiftUI
             public var didDetach: (() -> Void)?
             /// Handler that determines whether the popover should detach.
             public var shouldDetach: (() -> (Bool))?
-
+            /// The handler that gets called when the appearance changes.
+            public var effectiveAppearance: ((NSAppearance)->())?
+            
             var needsSwizzle: Bool {
                 willShow != nil ||
                     didShow != nil ||
@@ -35,18 +37,33 @@ import SwiftUI
                     didClose != nil ||
                     shouldClose != nil ||
                     didDetach != nil ||
-                    shouldDetach != nil
+                    shouldDetach != nil ||
+                effectiveAppearance != nil
             }
         }
 
         /// Handlers for the popover.
         public var handlers: Handlers {
             get { getAssociatedValue("handlers", initialValue: Handlers()) }
-            set { setAssociatedValue(newValue, key: "handlers")
+            set { 
+                setAssociatedValue(newValue, key: "handlers")
                 if newValue.needsSwizzle {
                     swizzlePopover()
                 }
+                if newValue.effectiveAppearance != nil {
+                    effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.handlers.effectiveAppearance?(new)
+                    }
+                } else {
+                    effectiveAppearanceObservation = nil
+                }
             }
+        }
+        
+        var effectiveAppearanceObservation: KeyValueObservation? {
+            get { getAssociatedValue("effectiveAppearanceObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
         }
 
         /// Creates and returns a popover with the specified view.

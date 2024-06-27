@@ -23,13 +23,16 @@
             public var frame: ((CGRect)->())?
             /// The handler that gets called when the user is resizing the window.
             public var isLiveResizing: ((Bool)->())?
+            /// The handler that gets called when the appearance changes.
+            public var effectiveAppearance: ((NSAppearance)->())?
             
             var needsObserver: Bool {
                 isKey != nil ||
                 isMain != nil ||
                 firstResponder != nil ||
                 frame != nil  ||
-                isLiveResizing != nil
+                isLiveResizing != nil ||
+                effectiveAppearance != nil
             }
         }
         
@@ -52,6 +55,15 @@
                     }
                 } else {
                     windowObserver?.remove(\.firstResponder)
+                }
+                
+                if handlers.effectiveAppearance != nil {
+                    windowObserver?.add(\.effectiveAppearance) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.handlers.effectiveAppearance?(new)
+                    }
+                } else {
+                    windowObserver?.remove(\.effectiveAppearance)
                 }
                 
                 if handlers.frame != nil {

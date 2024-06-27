@@ -165,11 +165,14 @@ extension NSMenu {
         public var willOpen: (()->())?
         /// The handlers that gets called when the menu will open.
         public var willHighlight: ((NSMenuItem?)->())?
-        
+        /// The handler that gets called when the appearance changes.
+        public var effectiveAppearance: ((NSAppearance)->())?
+
         var needsDelegate: Bool {
             didClose != nil ||
             willOpen != nil ||
-            willHighlight != nil
+            willHighlight != nil ||
+            effectiveAppearance != nil
         }
     }
     
@@ -179,7 +182,20 @@ extension NSMenu {
         set { 
             setAssociatedValue(newValue, key: "menuHandlers")
             setupDelegateProxy()
+            if newValue.effectiveAppearance != nil {
+                effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.handlers.effectiveAppearance?(new)
+                }
+            } else {
+                effectiveAppearanceObservation = nil
+            }
         }
+    }
+    
+    var effectiveAppearanceObservation: KeyValueObservation? {
+        get { getAssociatedValue("effectiveAppearanceObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
     }
     
     var delegateProxy: DelegateProxy? {

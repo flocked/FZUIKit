@@ -10,9 +10,16 @@
     import FZSwiftUtils
 
     extension NSView {
+        public var contentConfiguration: NSContentConfiguration? {
+            get { getAssociatedValue("viewContentConfiguration", initialValue: nil) }
+            set {
+                setAssociatedValue(newValue, key: "viewContentConfiguration")
+            }
+        }
+        
         /// Sets type of focus ring drawn around the view.
         @discardableResult
-        func focusRingType(_ type: NSFocusRingType) -> Self {
+        public func focusRingType(_ type: NSFocusRingType) -> Self {
             self.focusRingType = type
             return self
         }
