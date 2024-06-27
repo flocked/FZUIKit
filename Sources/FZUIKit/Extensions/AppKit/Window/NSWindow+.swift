@@ -459,17 +459,15 @@
             guard newValue != isMainWindowObservable else { return }
             if newValue {
                 do {
-                    /*
                     try replaceMethod(
                      #selector(getter: NSWindow.isMainWindow),
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
                     hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                         object in
-                        (object as? NSWindow)?.setupLiveResizeObservation()
-                        return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
+                        store.original(object, #selector(getter: NSWindow.isMainWindow))
+                      //  return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
                         }
                     }
-                    */
                    try replaceMethod(#selector(NSWindow.becomeMain),
                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
