@@ -179,54 +179,6 @@ extension NSView {
         }
     }
     
-    /*
-    /**
-     A Boolean value that indicates whether the view is currently being resized by the user.
-     
-     The value is `KVO` observable.
-     
-     T
-     - Note: To be able to observe the value, you have to access the property once.
-     */
-   @objc dynamic public internal(set) var isLiveResizing: Bool {
-        get {
-            setupLiveResizingObservation()
-            return getAssociatedValue("isLiveResizing", initialValue: false)
-        }
-       set {
-           setAssociatedValue(newValue, key: "isLiveResizing")
-           viewHandlers.isLiveResizing?(newValue)
-       }
-    }
-    
-    func setupLiveResizingObservation() {
-        guard !isMethodReplaced(#selector(NSView.viewWillStartLiveResize)) else { return  }
-        do {
-           try replaceMethod(
-           #selector(NSView.viewWillStartLiveResize),
-           methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-           hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-               object in
-               (object as? NSView)?.isLiveResizing = true
-               store.original(object, #selector(NSView.viewWillStartLiveResize))
-               }
-           }
-            try replaceMethod(
-            #selector(NSView.viewDidEndLiveResize),
-            methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-            hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                object in
-                (object as? NSView)?.isLiveResizing = false
-                store.original(object, #selector(NSView.viewDidEndLiveResize))
-                }
-            }
-        } catch {
-           // handle error
-           debugPrint(error)
-        }
-    }
-     */
-    
     /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
     public static var isLiveResizingObservable: Bool {
         get { isMethodReplaced(#selector(NSView.viewWillStartLiveResize)) }
