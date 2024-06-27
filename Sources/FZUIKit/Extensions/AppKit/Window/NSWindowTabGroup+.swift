@@ -10,20 +10,30 @@
     import AppKit
 
     public extension NSWindowTabGroup {
+        /// A collection of the windows that are currently grouped together by this window tab group excluding the selected.
+        var nonSelectedWindows: [NSWindow] {
+            var windows = windows
+            if let index = indexOfSelectedTab {
+                windows.remove(at: index)
+            }
+            return windows
+        }
         
-        /// The mode how to insert a window as tab.
-        enum TabInsertionMode {
-            /// Inserts the window before the specified window.
+        /// The position of an inserted tab.
+        enum TabPosition {
+            /// Inserts the tab before the specified window.
             case before(NSWindow)
-            /// Inserts the window after the specified window.
+            /// Inserts the tab after the specified window.
             case after(NSWindow)
-            /// Inserts the window at the beginning of the tab group.
+            /// Inserts the tab at the beginning of the tab group.
             case atStart
-            /// Inserts the window at the end of the tab group.
+            /// Inserts the tab at the end of the tab group.
             case atEnd
-            /// Inserts the window after the current tab.
+            /// Inserts the tab after the current tab.
             case afterCurrent
-            /// Inserts the window at the specified index.
+            /// Inserts the tab before the current tab.
+            case beforeCurrent
+            /// Inserts the tab at the specified index.
             case atIndex(Int)
         }
 
@@ -44,19 +54,29 @@
          
          - Parameters:
             - window: The window to insert.
-            - insertionMode: The option how to insert the window. The default value is `afterCurrent`.
+            - position: A value that indicates the position of the added tab.
+            - select: A Boolean value that indicates whether to select the inserted tab.
          */
-        func insertWindow(_ window: NSWindow, _ insertionMode: TabInsertionMode = .afterCurrent) {
-            switch insertionMode {
+        func insertWindow(_ window: NSWindow, position: TabPosition = .afterCurrent, select: Bool = true) {
+            switch position {
             case .atStart:
                 insertWindow(window, at: 0)
+                if select {
+                    window.makeKeyAndOrderFront(nil)
+                }
             case .atEnd:
                 addWindow(window)
+                if select {
+                    window.makeKeyAndOrderFront(nil)
+                }
             case let .before(thisWindow):
                 if let foundIndex = indexOfWindow(thisWindow) {
                     insertWindow(window, at: foundIndex)
                 } else {
                     addWindow(window)
+                }
+                if select {
+                    window.makeKeyAndOrderFront(nil)
                 }
             case let .after(thisWindow):
                 if let foundIndex = indexOfWindow(thisWindow) {
@@ -64,13 +84,29 @@
                 } else {
                     addWindow(window)
                 }
+                if select {
+                    window.makeKeyAndOrderFront(nil)
+                }
             case let .atIndex(index):
                 if index >= 0, index <= windows.count {
                     insertWindow(window, at: index)
+                    if select {
+                        window.makeKeyAndOrderFront(nil)
+                    }
                 }
             case .afterCurrent:
                 if let index = indexOfSelectedTab {
                     insertWindow(window, at: index + 1)
+                    if select {
+                        window.makeKeyAndOrderFront(nil)
+                    }
+                }
+            case .beforeCurrent:
+                if let index = indexOfSelectedTab {
+                    insertWindow(window, at: index)
+                    if select {
+                        window.makeKeyAndOrderFront(nil)
+                    }
                 }
             }
         }

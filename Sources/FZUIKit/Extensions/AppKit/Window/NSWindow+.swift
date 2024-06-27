@@ -270,9 +270,27 @@
                 return tabGroup?.isTabBarVisible ?? false
             }
             set {
-                guard let tabbedWindows = tabbedWindows, tabbedWindows.count > 1, let tabGroup = tabGroup, tabGroup.isTabBarVisible != newValue else { return }
+                guard let tabGroup = tabGroup, tabGroup.isTabBarVisible != newValue else { return }
                 toggleTabBar(nil)
             }
+        }
+        
+        /// A Boolean value indicating if the tab overview is currently displayed.
+        public var isTabBarOverviewVisible: Bool {
+            get { tabGroup?.isOverviewVisible ?? false }
+            set { tabGroup?.isOverviewVisible = newValue }
+        }
+        
+        /**
+         Inserts the provided window as tab.
+
+         - Parameters:
+            - window: The window to insert.
+            - position: A value that indicates the position of the added tab.
+            - select: A Boolean value that indicates whether to select the inserted tab.
+         */
+        public func insertTabbedWindow(_ window: NSWindow, position: NSWindowTabGroup.TabPosition = .afterCurrent, select: Bool = true) {
+            tabGroup?.insertWindow(window, position: position, select: select)
         }
 
         /// Returns the tab bar height, or `0`, if the tab bar isn't visible.
