@@ -117,26 +117,6 @@
             setFrame(frame, display: display, animate: animate)
         }
         
-        /**
-         A Boolean value that indicates whether the window is the key window for the application.
-         
-         It provides the same value as `isKeyWindow`, but can be KVO observed by enabling `isKeyWindowObservable`.
-         */
-        @objc public dynamic internal(set) var isKey: Bool {
-            get { NSWindow.isKeyWindowObservable ? getAssociatedValue("isKey", initialValue: isKeyWindow) :  isKeyWindow }
-            set { setAssociatedValue(newValue, key: "isKey") }
-        }
-        
-        /**
-         A Boolean value that indicates whether the window is the application’s main window.
-         
-         It provides the same value as `isMainWindow`, but can be KVO observed by enabling `isMainWindowObservable`.
-         */
-        @objc public dynamic internal(set) var isMain: Bool {
-            get { NSWindow.isKeyWindowObservable ? getAssociatedValue("isMain", initialValue: isMainWindow) :  isMainWindow }
-            set { setAssociatedValue(newValue, key: "isMain") }
-        }
-        
         var windowObserver: KeyValueObserver<NSWindow>? {
             get { getAssociatedValue("windowObserver", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "windowObserver") }
@@ -422,7 +402,6 @@
                        window.willChangeValue(for: \.isKeyWindow)
                        store.original(object, #selector(NSWindow.becomeKey))
                        window.didChangeValue(for: \.isKeyWindow)
-                       window.isKey = true
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignKey),
@@ -435,7 +414,6 @@
                         window.willChangeValue(for: \.isKeyWindow)
                         window.__isKeyWindow = nil
                         window.didChangeValue(for: \.isKeyWindow)
-                        window.isKey = false
                         }
                     }
                 } catch {
@@ -475,7 +453,6 @@
                        window.willChangeValue(for: \.isMainWindow)
                        store.original(object, #selector(NSWindow.becomeMain))
                        window.didChangeValue(for: \.isMainWindow)
-                       window.isMain = true
                        }
                    }
                     try replaceMethod(#selector(NSWindow.resignMain),
@@ -488,7 +465,6 @@
                         window.willChangeValue(for: \.isMainWindow)
                         window.__isMainWindow = nil
                         window.didChangeValue(for: \.isMainWindow)
-                        window.isMain = false
                         }
                     }
                 } catch {

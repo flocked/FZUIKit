@@ -132,27 +132,27 @@ extension NSView {
             }
             
             if windowHandlers.isKey != nil {
-                if  viewObserver?.isObserving(\.window?.isKey) == false {
+                if  viewObserver?.isObserving(\.window?.isKeyWindow) == false {
                     NSWindow.isKeyWindowObservable = true
-                    viewObserver?.add(\.window?.isKey) { [weak self] _, new in
+                    viewObserver?.add(\.window?.isKeyWindow) { [weak self] _, new in
                         guard let self = self, let new = new else { return }
                         self.windowHandlers.isKey?(new)
                     }
                 }
             } else {
-                viewObserver?.remove(\.window?.isKey)
+                viewObserver?.remove(\.window?.isKeyWindow)
             }
             
             if windowHandlers.isMain != nil {
-                if  viewObserver?.isObserving(\.window?.isMain) == false {
+                if  viewObserver?.isObserving(\.window?.isMainWindow) == false {
                     NSWindow.isMainWindowObservable = true
-                    viewObserver?.add(\.window?.isMain) { [weak self] _, new in
+                    viewObserver?.add(\.window?.isMainWindow) { [weak self] _, new in
                         guard let self = self, let new = new else { return }
                         self.windowHandlers.isMain?(new)
                     }
                 }
             } else {
-                viewObserver?.remove(\.window?.isMain)
+                viewObserver?.remove(\.window?.isMainWindow)
             }
             
             if windowHandlers.isMain != nil {
