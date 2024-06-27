@@ -79,6 +79,18 @@
             set(\.asset, to: asset)
         }
         
+        /// The handler that gets called when the status of the media asset changes.
+        open var assetStatusHandler: ((AVPlayerItem.Status)->())? {
+            get { mediaView.assetStatusHandler }
+            set { mediaView.assetStatusHandler = newValue }
+        }
+        
+        /// Sets the handler that gets called when the status of the media asset changes.
+        @discardableResult
+        open func assetStatusHandler(_ handler: ((AVPlayerItem.Status)->())?) -> Self {
+            set(\.assetStatusHandler, to: handler)
+        }
+        
         /// The media type currently displayed.
         open var mediaType: MediaView.MediaType? {
             mediaView.mediaType

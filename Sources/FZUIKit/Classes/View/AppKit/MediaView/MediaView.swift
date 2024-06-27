@@ -163,7 +163,12 @@
             if let asset = asset {
                 updatePreviousPlaybackState()
                 player.pause()
-                player.replaceCurrentItem(with: AVPlayerItem(asset: asset))
+                let item = AVPlayerItem(asset: asset)
+                assetStatusObservation = item.observeChanges(for: \.status) { [weak self] old, new in
+                    guard old != new, let self = self else { return }
+                    self.assetStatusHandler?(new)
+                }
+                player.replaceCurrentItem(with: item)
                 showVideoView()
                 if videoPlaybackOption == .autostart || (videoPlaybackOption == .previousPlaybackState && previousVideoPlaybackState == .isPlaying) {
                     player.play()
@@ -175,6 +180,17 @@
                 _mediaURL = nil
             }
         }
+        
+        /// The handler that gets called when the status of the media asset changes.
+        open var assetStatusHandler: ((AVPlayerItem.Status)->())? = nil
+        
+        /// Sets the handler that gets called when the status of the media asset changes.
+        @discardableResult
+        open func assetStatusHandler(_ handler: ((AVPlayerItem.Status)->())?) -> Self {
+            set(\.assetStatusHandler, to: handler)
+        }
+        
+        var assetStatusObservation: KeyValueObservation?
         
         /// The media type currently displayed.
         open var mediaType: MediaType? {
@@ -800,6 +816,7 @@
             updatePreviousPlaybackState()
             player.pause()
             playbackObserver = nil
+            assetStatusObservation = nil
             player.replaceCurrentItem(with: nil)
             videoView.isHidden = true
         }
