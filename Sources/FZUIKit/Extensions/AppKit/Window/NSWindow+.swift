@@ -407,7 +407,7 @@
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
                     hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                         object in
-                        return (object as? NSWindow)?._isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
+                      store.original(object, #selector(getter: NSWindow.isKeyWindow))
                         }
                     }
                    try replaceMethod(#selector(NSWindow.becomeKey),
@@ -461,7 +461,7 @@
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
                     hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                         object in
-                        return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
+                        store.original(object, #selector(getter: NSWindow.isMainWindow))
                         }
                     }
                    try replaceMethod(#selector(NSWindow.becomeMain),
