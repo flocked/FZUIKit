@@ -46,6 +46,8 @@
                         guard let self = self, old != new else { return }
                         self.handlers.firstResponder?(new)
                     }
+                } else {
+                    windowObserver?.remove(\.firstResponder)
                 }
                 
                 if handlers.frame != nil {
@@ -53,34 +55,28 @@
                         guard let self = self, old != new else { return }
                         self.handlers.frame?(new)
                     }
+                } else {
+                    windowObserver?.remove(\.frame)
                 }
                 
-                if handlers.isKey != nil, isKeyWindowTokens.isEmpty {
-                    _isKeyWindow = isKeyWindow
-                    isKeyWindowTokens.append(NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { [weak self] _ in
-                        guard let self = self else { return }
-                        self._isKeyWindow = true
-                    })
-                    isKeyWindowTokens.append(NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { [weak self] _ in
-                        guard let self = self else { return }
-                        self._isKeyWindow = false
-                    })
-                } else if handlers.isKey == nil {
-                    isKeyWindowTokens.removeAll()
+                if handlers.isKey != nil {
+                    NSWindow.isKeyWindowObservable = true
+                    windowObserver?.add(\.isKeyWindow) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.handlers.isKey?(new)
+                    }
+                } else {
+                    windowObserver?.remove(\.isKeyWindow)
                 }
                 
-                if handlers.isMain != nil, isMainWindowTokens.isEmpty {
-                    _isMainWindow = isMainWindow
-                    isMainWindowTokens.append(NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { [weak self] _ in
-                        guard let self = self else { return }
-                        self._isMainWindow = true
-                    })
-                    isMainWindowTokens.append(NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { [weak self] _ in
-                        guard let self = self else { return }
-                        self._isMainWindow = false
-                    })
-                } else if handlers.isMain == nil {
-                    isMainWindowTokens.removeAll()
+                if handlers.isMain != nil {
+                    NSWindow.isMainWindowObservable = true
+                    windowObserver?.add(\.isMainWindow) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        self.handlers.isMain?(new)
+                    }
+                } else {
+                    windowObserver?.remove(\.isMainWindow)
                 }
             }
         }
@@ -120,34 +116,6 @@
         var windowObserver: KeyValueObserver<NSWindow>? {
             get { getAssociatedValue("windowObserver", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "windowObserver") }
-        }
-        
-        var isKeyWindowTokens: [NotificationToken] {
-            get { getAssociatedValue("isKeyWindowTokens", initialValue: []) }
-            set { setAssociatedValue(newValue, key: "isKeyWindowTokens") }
-        }
-        
-        var isMainWindowTokens: [NotificationToken] {
-            get { getAssociatedValue("isMainWindowTokens", initialValue: []) }
-            set { setAssociatedValue(newValue, key: "isMainWindowTokens") }
-        }
-        
-        var _isKeyWindow: Bool {
-            get { getAssociatedValue("_isKeyWindow", initialValue: isKeyWindow) }
-            set { 
-                guard _isKeyWindow != newValue else { return }
-                setAssociatedValue(newValue, key: "_isKeyWindow")
-                handlers.isKey?(newValue)
-            }
-        }
-        
-        var _isMainWindow: Bool {
-            get { getAssociatedValue("_isMainWindow", initialValue: isMainWindow) }
-            set { 
-                guard _isMainWindow != newValue else { return }
-                setAssociatedValue(newValue, key: "_isMainWindow")
-                handlers.isMain?(newValue)
-            }
         }
                 
         /// A Boolean value that indicates whether the window is fullscreen.
@@ -388,7 +356,7 @@
                     hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                         object in
                         (object as? NSWindow)?.setupLiveResizeObservation()
-                        return (object as? NSWindow)?.__isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
+                        return (object as? NSWindow)?._isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
                         }
                     }
                    try replaceMethod(#selector(NSWindow.becomeKey),
@@ -410,9 +378,9 @@
                         object in
                         store.original(object, #selector(NSWindow.resignKey))
                         guard let window = object as? NSWindow else { return }
-                        window.__isKeyWindow = true
+                        window._isKeyWindow = true
                         window.willChangeValue(for: \.isKeyWindow)
-                        window.__isKeyWindow = nil
+                        window._isKeyWindow = nil
                         window.didChangeValue(for: \.isKeyWindow)
                         }
                     }
@@ -439,7 +407,7 @@
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
                     hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                         object in
-                        return (object as? NSWindow)?.__isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
+                        return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
                         }
                     }
                    try replaceMethod(#selector(NSWindow.becomeMain),
@@ -461,9 +429,9 @@
                         object in
                         store.original(object, #selector(NSWindow.resignMain))
                         guard let window = object as? NSWindow else { return }
-                        window.__isMainWindow = true
+                        window._isMainWindow = true
                         window.willChangeValue(for: \.isMainWindow)
-                        window.__isMainWindow = nil
+                        window._isMainWindow = nil
                         window.didChangeValue(for: \.isMainWindow)
                         }
                     }
@@ -509,14 +477,14 @@
             set { setAssociatedValue(newValue, key: "_inLiveResize") }
         }
         
-        var __isMainWindow: Bool? {
-            get { getAssociatedValue("__isMainWindow", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "__isMainWindow") }
+        var _isMainWindow: Bool? {
+            get { getAssociatedValue("_isMainWindow", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "_isMainWindow") }
         }
         
-        var __isKeyWindow: Bool? {
-            get { getAssociatedValue("__isKeyWindow", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "__isKeyWindow") }
+        var _isKeyWindow: Bool? {
+            get { getAssociatedValue("_isKeyWindow", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "_isKeyWindow") }
         }
         
         var liveResizeTokens: [NotificationToken] {
