@@ -263,12 +263,7 @@
 
         /// A Boolean value that indicates whether window currently displays a tab bar.
         public var isTabBarVisible: Bool {
-            get {
-                if tabbedWindows == nil {
-                    return false
-                }
-                return tabGroup?.isTabBarVisible ?? false
-            }
+            get { tabGroup?.isTabBarVisible ?? false }
             set {
                 guard let tabGroup = tabGroup, tabGroup.isTabBarVisible != newValue else { return }
                 toggleTabBar(nil)
