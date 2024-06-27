@@ -1,15 +1,16 @@
 //
-//  FontManagerNew.swift
+//  FontManagerAlt.swift
 //
 //
 //  Created by Florian Zand on 02.03.24.
 //
 
+/*
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
 
-class FontManagerNew {
+class FontManagerAlt {
     var fontFamilyIndex = -1 {
         didSet {
             guard oldValue != fontFamilyIndex else { return }
@@ -154,3 +155,4 @@ class FontManagerNew {
     public weak var fontSizeStepper: NSStepper?
 }
 #endif
+*/
