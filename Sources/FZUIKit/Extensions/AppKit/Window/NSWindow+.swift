@@ -431,10 +431,9 @@
                         object in
                         store.original(object, #selector(NSWindow.resignKey))
                         guard let window = object as? NSWindow else { return }
-                        // window.__isKeyWindow = true
+                        window.__isKeyWindow = true
                         window.willChangeValue(for: \.isKeyWindow)
-                        store.original(object, #selector(NSWindow.resignKey))
-                        // window.__isKeyWindow = nil
+                        window.__isKeyWindow = nil
                         window.didChangeValue(for: \.isKeyWindow)
                         window.isKey = false
                         }
@@ -483,11 +482,11 @@
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
-                        guard let window = object as? NSWindow else { return }
-                        //window.__isMainWindow = true
-                        window.willChangeValue(for: \.isMainWindow)
                         store.original(object, #selector(NSWindow.resignMain))
-                        // window.__isMainWindow = nil
+                        guard let window = object as? NSWindow else { return }
+                        window.__isMainWindow = true
+                        window.willChangeValue(for: \.isMainWindow)
+                        window.__isMainWindow = nil
                         window.didChangeValue(for: \.isMainWindow)
                         window.isMain = false
                         }
