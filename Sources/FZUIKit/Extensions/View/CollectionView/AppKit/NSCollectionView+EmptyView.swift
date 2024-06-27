@@ -20,11 +20,11 @@ extension NSCollectionView {
     
     /// A content configuration that is displayed whenever the collection view is empty.
     public var emptyContentConfiguration: NSContentConfiguration? {
-        get { _emptyContentView.configuration }
+        get { _emptyContentView.contentConfiguration }
         set {
             swizzleNumberOfSectionsIfNeeded()
             updateEmptyView()
-            _emptyContentView.configuration = newValue
+            _emptyContentView.contentConfiguration = newValue
         }
     }
     

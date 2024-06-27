@@ -21,11 +21,11 @@ extension NSTableView {
     
     /// A content configuration that is displayed whenever the table view is empty.
     public var emptyContentConfiguration: NSContentConfiguration? {
-        get { _emptyContentView.configuration }
+        get { _emptyContentView.contentConfiguration }
         set {
             swizzleNumberOfRowsIfNeeded()
             updateEmptyView()
-            _emptyContentView.configuration = newValue
+            _emptyContentView.contentConfiguration = newValue
         }
     }
     
