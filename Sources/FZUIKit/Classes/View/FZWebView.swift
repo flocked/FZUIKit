@@ -58,6 +58,9 @@
 
         /// The handler that returns the current url request when the web view finishes loading a website.
         open var requestHandler: ((URLRequest?) -> Void)?
+        
+        /// The handler that returns the current url response when the web view finishes loading a website.
+        open var responseHandler: ((URLResponse?) -> Void)?
 
         /// The handlers that get called when the webview requests a specific url.
         open var urlHandlers = SynchronizedDictionary<URL, () -> Void>()
@@ -66,15 +69,29 @@
         open var cookiesHandler: (([HTTPCookie]) -> Void)?
 
         /// The current url request.
-        @objc dynamic open var currentRequest: URLRequest?
+        @objc dynamic open var currentRequest: URLRequest? {
+            didSet {
+                guard oldValue != currentRequest else { return }
+                requestHandler?(currentRequest)
+            }
+        }
         
         /// The current url response.
-        @objc dynamic open var currentResponse: URLResponse?
+        @objc dynamic open var currentResponse: URLResponse? {
+            didSet {
+                guard oldValue != currentResponse else { return }
+                responseHandler?(currentResponse)
+            }
+        }
 
         /// All HTTP cookies of the current url request.
         @objc dynamic open fileprivate(set) var currentHTTPCookies: [HTTPCookie] {
             get { _currentHTTPCookies.synchronized }
-            set { _currentHTTPCookies.synchronized = newValue }
+            set { 
+                guard newValue != currentHTTPCookies else { return }
+                _currentHTTPCookies.synchronized = newValue
+                cookiesHandler?(newValue)
+            }
         }
 
         var _currentHTTPCookies = SynchronizedArray<HTTPCookie>()
@@ -121,7 +138,7 @@
             } else {
                 currentRequest = nil
                 currentResponse = nil
-                currentHTTPCookies.removeAll()
+                currentHTTPCookies = []
                 sequentialOperationQueue.maxConcurrentOperationCount = 0
                 return super.load(request)
             }
@@ -238,7 +255,6 @@
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            let oldCurrentRequest = webview.currentRequest
             webview.currentRequest = navigationAction.request
             let store = webView.configuration.websiteDataStore
             store.httpCookieStore.getAllCookies { cookies in
@@ -248,15 +264,7 @@
                     domain = [components.removeLast(), components.removeLast()].reversed().joined(separator: ".")
                 }
                 let cookies = cookies.filter { $0.domain.contains(domain) }
-                if !cookies.isEmpty, cookies != self.webview.currentHTTPCookies {
-                    self.webview.cookiesHandler?(cookies)
-                }
-
                 self.webview.currentHTTPCookies = cookies
-            }
-
-            if oldCurrentRequest != navigationAction.request {
-                webview.requestHandler?(navigationAction.request)
             }
 
             if let url = navigationAction.request.url, let handler = webview.urlHandlers[url] {
