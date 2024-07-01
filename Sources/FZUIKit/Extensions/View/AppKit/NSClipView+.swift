@@ -10,6 +10,13 @@ import AppKit
 import FZSwiftUtils
 
 extension NSClipView {
+    /// Sets the Boolean value that indicates whether the clip view draws its background.
+    @discardableResult
+    public func drawsBackground(_ draws: Bool) -> Self {
+        drawsBackground = draws
+        return self
+    }
+    
     /**
      Changes the origin of the clip view’s bounds rectangle animted to newOrigin.
      

@@ -12,6 +12,13 @@
     import FZSwiftUtils
 
     extension NSScrollView {
+        /// Sets the Boolean value that indicates whether the scroll view draws its background.
+        @discardableResult
+        public func drawsBackground(_ draws: Bool) -> Self {
+            drawsBackground = draws
+            return self
+        }
+        
         var contentOffsetNotificationToken: NotificationToken? {
             get { getAssociatedValue("contentOffsetNotificationToken", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "contentOffsetNotificationToken")}

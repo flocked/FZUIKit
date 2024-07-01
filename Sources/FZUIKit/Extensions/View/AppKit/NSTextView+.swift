@@ -14,6 +14,13 @@
 import FZSwiftUtils
 
     extension NSTextView {
+        /// Sets the Boolean value that indicates whether the text view draws its background.
+        @discardableResult
+        public func drawsBackground(_ draws: Bool) -> Self {
+            drawsBackground = draws
+            return self
+        }
+        
         /// The attributed string.
         public var attributedString: NSAttributedString! {
             set {

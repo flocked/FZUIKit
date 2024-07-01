@@ -41,6 +41,13 @@
             }
         }
         
+        /// Sets the Boolean value that controls whether the text field’s cell draws a background color behind the text.
+        @discardableResult
+        func drawsBackground(_ draws: Bool) -> Self {
+            drawsBackground = draws
+            return self
+        }
+        
         /// Deselects all text.
         func deselectAll() {
             currentEditor()?.selectedRange = NSRange(location: 0, length: 0)
