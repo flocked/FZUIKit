@@ -7,33 +7,20 @@
 
 #if os(macOS)
     import AppKit
+    import FZSwiftUtils
 
     public extension NSTableView {
         /**
-         Reloads the table view on the main thread.
-
-         - Parameters:
-            - maintainingSelection: A Boolean value that indicates whether the table view should maintain it's selection after reloading.
-            - completionHandler: The handler that gets called when the table view finishes reloading.
+         Marks the table view as needing redisplay, so it will reload the data for visible cells and draw the new values.
+         
+         - Parameter maintainingSelection: A Boolean value that indicates whether the table view should maintain it's selection after reloading.
          */
-        func reloadOnMainThread(maintainingSelection: Bool = false, completionHandler: (() -> Void)? = nil) {
-            DispatchQueue.main.async {
-                if maintainingSelection {
-                    self.reloadMaintainingSelection()
-                } else {
-                    self.reloadData()
-                }
-                completionHandler?()
-            }
-        }
-
-        internal func reloadMaintainingSelection(completionHandler: (() -> Void)? = nil) {
+        func reloadData(maintainingSelection: Bool) {
             let selectedRowIndexes = selectedRowIndexes
             reloadData()
-            if selectedRowIndexes.isEmpty == false {
+            if maintainingSelection, !selectedRowIndexes.isEmpty {
                 selectRowIndexes(selectedRowIndexes, byExtendingSelection: false)
             }
-            completionHandler?()
         }
 
         /**
@@ -42,13 +29,7 @@
          - Returns: The array of row indexes corresponding to the currently visible rows.
          */
         func visibleRowIndexes() -> [Int] {
-            let visibleRects = visibleRect
-            let visibleRange = rows(in: visibleRects)
-            var rows = [Int]()
-            for i in visibleRange.location ..< visibleRange.location + visibleRange.length {
-                rows.append(i)
-            }
-            return rows
+            rows(in: visibleRect).array
         }
 
         /**
@@ -57,7 +38,7 @@
          - Returns: The array of row views corresponding to the currently visible row views.
          */
         func visibleRows() -> [NSTableRowView] {
-            visibleRowIndexes().compactMap { self.rowView(atRow: $0, makeIfNecessary: false) }
+            visibleRowIndexes().compactMap{rowView(atRow: $0, makeIfNecessary: false)}
         }
 
         /**
@@ -66,7 +47,7 @@
          - Returns: The array of columns corresponding to the currently visible table columns.
          */
         var visibleColumns: [NSTableColumn] {
-            columnIndexes(in: visibleRect).compactMap { self.tableColumns[$0] }
+            columnIndexes(in: visibleRect).compactMap { tableColumns[$0] }
         }
 
         /**
@@ -111,7 +92,7 @@
         }
         
         /// Creates a table view with the specified table columns.
-        convenience init(@ColumnBuilder _ columns: () -> [NSTableColumn]) {
+        convenience init(@ColumnBuilder columns: () -> [NSTableColumn]) {
             self.init(frame: .zero)
             tableColumns(columns)
         }
@@ -128,7 +109,6 @@
                     moveColumn(oldIndex, toColumn: index)
                 }
             }
-            // self.selectionHighlightStyle = style
             return self
         }
         
