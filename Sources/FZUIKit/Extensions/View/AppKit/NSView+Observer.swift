@@ -22,19 +22,6 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
     override func flagsChanged(with event: NSEvent) {
         view?.keyHandlers.flagsChanged?(event)
         super.flagsChanged(with: event)
-        guard let view = view, let menuProvider = view.menuProvider, let location = menuProviderLocation else { return }
-            if let menu = menuProvider(location, event.modifierFlags) {
-                menuProviderLocation = location
-                menu.handlers.didClose = {
-                    self.menuProviderLocation = nil
-                    if view.menu == menu {
-                        view.menu = nil
-                    }
-                }
-                view.menu = menu
-            } else {
-                view.menu = nil
-            }
     }
     
     override func mouseDown(with event: NSEvent) {
@@ -98,24 +85,42 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
         super.rotate(with: event)
     }
     
+    func validateMenuProvider(event: NSEvent) {
+        guard let view = view, let menuProvider = view.menuProvider else { return }
+        let location = event.location(in: view)
+        if let menu = menuProvider(location, event.modifierFlags) {
+            
+        }
+    }
+    
     func setupMenuProvider(for event: NSEvent) {
         guard let view = view, let menuProvider = view.menuProvider else { return }
         let location = event.location(in: view)
         if let menu = menuProvider(location, event.modifierFlags) {
-            menuProviderLocation = location
             menu.handlers.didClose = {
-                self.menuProviderLocation = nil
+                self.flagsEventMonitor = nil
                 if view.menu == menu {
                     view.menu = nil
                 }
             }
             view.menu = menu
+            flagsEventMonitor = NSEvent.monitorLocal(.flagsChanged) { event in
+                if let newMenu = menuProvider(location, event.modifierFlags) {
+                    newMenu.handlers.didClose = {
+                        if view.menu == newMenu {
+                            view.menu = nil
+                        }
+                    }
+                    view.menu = newMenu
+                }
+                return event
+            }
         } else {
             view.menu = nil
         }
     }
     
-    var menuProviderLocation: CGPoint? = nil
+    var flagsEventMonitor: NSEvent.Monitor? = nil
     var didStartDragging = false
     var mouseDownLocation: CGPoint = .zero
     static let minimumDragDistance: CGFloat = 4.0
