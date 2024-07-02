@@ -325,12 +325,16 @@
             self.segments = segments()
         }
 
-        /// Returns all segments that are selected.
+        /**
+         The selected segments.
+         
+         To get the last selected segment, check the selected segment where ``NSSegment/isLastSelected`` is `true.`
+         */
         var selectedSegments: [NSSegment] {
             indexesOfSelectedSegments.compactMap { segment(at: $0) }
         }
 
-        /// Returns all segments displayed by the segmented control.
+        /// The segments displayed by the segmented control.
         var segments: [NSSegment] {
             get { (0..<segmentCount).compactMap {segment(at: $0)} }
             set {

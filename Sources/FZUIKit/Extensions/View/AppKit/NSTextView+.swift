@@ -14,10 +14,31 @@
 import FZSwiftUtils
 
     extension NSTextView {
+        /// Creates a text view with an enclosing scroll view.
+        public static func scrolling() -> NSTextView {
+            let textView = NSTextView()
+            textView.addEnclosingScrollView()
+            return textView
+        }
+        
         /// Sets the Boolean value that indicates whether the text view draws its background.
         @discardableResult
         public func drawsBackground(_ draws: Bool) -> Self {
             drawsBackground = draws
+            return self
+        }
+        
+        /// Sets the text view’s background color.
+        @discardableResult
+        public func backgroundColor(_ color: NSColor) -> Self {
+            backgroundColor = color
+            return self
+        }
+        
+        /// Sets the text.
+        @discardableResult
+        public func string(_ string: String) -> Self {
+            self.string = string
             return self
         }
         
@@ -29,6 +50,13 @@ import FZSwiftUtils
                 textStorage?.replaceCharacters(in: range, with: newValue)
             }
             get { textStorage?.copy() as? NSAttributedString }
+        }
+        
+        /// Sets the attributed text.
+        @discardableResult
+        public func attributedString(_ attributedString: NSAttributedString) -> Self {
+            self.attributedString = attributedString
+            return self
         }
         
         /// The ranges of characters selected in the text view.
@@ -138,6 +166,13 @@ import FZSwiftUtils
             }
         }
         
+        /// Sets the Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
+        @discardableResult
+        public func endEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
+            self.endEditingOnOutsideClick = endsEditing
+            return self
+        }
+        
         var mouseDownMonitor: NSEvent.Monitor? {
             get { getAssociatedValue("mouseDownMonitor", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "mouseDownMonitor") }
@@ -200,6 +235,13 @@ import FZSwiftUtils
                 swizzleTextView()
             }
         }
+        
+        /// Sets the action to perform when the user pressed the enter key.
+        @discardableResult
+        public func actionOnEnterKeyDown(_ enterAction: EnterKeyAction) -> Self {
+            actionOnEnterKeyDown = enterAction
+            return self
+        }
 
         /// The action to perform when the user presses the escape key.
         public var actionOnEscapeKeyDown: EscapeKeyAction {
@@ -209,6 +251,13 @@ import FZSwiftUtils
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 swizzleTextView()
             }
+        }
+
+        /// Sets the action to perform when the user pressed the escape key.
+        @discardableResult
+        public func actionOnEscapeKeyDown(_ escapeAction: EscapeKeyAction) -> Self {
+            actionOnEscapeKeyDown = escapeAction
+            return self
         }
         
         var needsSwizzling: Bool {

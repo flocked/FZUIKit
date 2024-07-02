@@ -21,7 +21,7 @@
                 menuItem
             }
 
-            /// A Boolean value that determines whether the toolbar item displays an indicator of additional functionality.
+            /// Sets the Boolean value that determines whether the toolbar item displays an indicator of additional functionality.
             @discardableResult
             public func showsIndicator(_ showsIndicator: Bool) -> Self {
                 menuItem.showsIndicator = showsIndicator
@@ -34,7 +34,7 @@
                 set { menuItem.showsIndicator = newValue }
             }
 
-            /// The menu presented from the toolbar item.
+            /// Sets the menu presented from the toolbar item.
             @discardableResult
             public func menu(_ menu: NSMenu) -> Self {
                 menuItem.menu = menu
@@ -47,6 +47,7 @@
                 set { menuItem.menu = newValue }
             }
 
+            /// Sets the menu presented from the toolbar item.
             public func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
                 menuItem.menu = NSMenu(items: items())
                 return self

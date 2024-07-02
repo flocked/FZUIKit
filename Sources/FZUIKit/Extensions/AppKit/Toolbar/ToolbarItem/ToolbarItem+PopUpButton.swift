@@ -14,13 +14,13 @@
 
          The item can be used with ``Toolbar``.
          */
-        class PopupButton: ToolbarItem {
+        class PopUpButton: ToolbarItem {
             /// The popup button.
             public let button: NSPopUpButton
 
             /// The action block of the button when the selection changes.
             @discardableResult
-            public func onSelect(_ action: ToolbarItem.ActionBlock?) -> Self {
+            public func onSelect(_ action: ((ToolbarItem.PopUpButton)->())?) -> Self {
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     action?(self)
@@ -28,7 +28,7 @@
                 return self
             }
 
-            /// The menu of the popup button.
+            /// Sets the menu of the popup button.
             @discardableResult
             public func menu(_ menu: NSMenu) -> Self {
                 button.menu = menu
@@ -41,21 +41,21 @@
                 set { button.menu = newValue }
             }
 
-            /// The menu items of the popup button.
+            /// Sets the menu items of the popup button.
             @discardableResult
             public func items(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
                 button.menu = NSMenu(title: "", items: items())
                 return self
             }
 
-            /// The string that is displayed on the popup button when the user isn’t pressing the mouse button.
+            /// Sets the string that is displayed on the popup button when the user isn’t pressing the mouse button.
             @discardableResult
             public func title(_ title: String) -> Self {
                 button.setTitle(title)
                 return self
             }
 
-            /// A Boolean value indicating whether the button displays a pull-down or pop-up menu.
+            /// Sets the Boolean value indicating whether the button displays a pull-down or pop-up menu.
             @discardableResult
             public func pullsDown(pullsDown: Bool) -> Self {
                 button.pullsDown = pullsDown
@@ -68,14 +68,14 @@
                 set { button.pullsDown = newValue }
             }
 
-            /// The index of the selected item, or `nil` if none is selected.
+            /// The index of the selected item, or `nil` if no item is selected.
             public var indexOfSelectedItem: Int? {
                 get { (button.indexOfSelectedItem != -1) ? button.indexOfSelectedItem : nil }
                 set { button.selectItem(at: newValue ?? -1)
                 }
             }
 
-            /// The selected menu item, or `nil` if none is selected.
+            /// The selected menu item, or `nil` if no tem is selected.
             public var selectedItem: NSMenuItem? {
                 get { button.selectedItem }
                 set { button.select(newValue) }
@@ -109,16 +109,6 @@
                 return self
             }
 
-            static func button() -> NSPopUpButton {
-                let button = NSPopUpButton(frame: .zero, pullsDown: true)
-                button.translatesAutoresizingMaskIntoConstraints = true
-                button.bezelStyle = .texturedRounded
-                button.imagePosition = .imageOnly
-                button.imageScaling = .scaleProportionallyDown
-                (button.cell as? NSPopUpButtonCell)?.arrowPosition = .arrowAtBottom
-                return button
-            }
-
             /**
              Creates a popup button toolbar item.
 
@@ -127,7 +117,11 @@
                 - items: The menu items of the popup button.
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
-                let button = Self.button()
+                let button = NSPopUpButton(frame: .zero, pullsDown: true)
+                button.bezelStyle = .texturedRounded
+                button.imagePosition = .imageOnly
+                button.imageScaling = .scaleProportionallyDown
+                button.arrowPosition = .arrowAtBottom
                 button.menu = NSMenu(title: "", items: items())
                 self.init(identifier, popUpButton: button)
             }
@@ -140,9 +134,9 @@
                 - popUpButton: The popup button of the item.
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil, popUpButton: NSPopUpButton) {
+                popUpButton.translatesAutoresizingMaskIntoConstraints = true
                 button = popUpButton
                 super.init(identifier)
-                button.translatesAutoresizingMaskIntoConstraints = false
                 item.view = button
             }
         }

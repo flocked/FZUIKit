@@ -84,14 +84,14 @@
                 return self
             }
 
-            /// The action to perform when the user pressed the enter key.
+            /// Sets the action to perform when the user pressed the enter key.
             @discardableResult
             public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
                 searchItem.searchField.actionOnEnterKeyDown = enterAction
                 return self
             }
 
-            /// /// The action to perform when the user pressed the escape key.
+            /// Sets the action to perform when the user pressed the escape key.
             @discardableResult
             public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
                 searchItem.searchField.actionOnEscapeKeyDown = escapeAction

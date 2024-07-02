@@ -14,8 +14,7 @@
         /**
          Initializes a text field that automatically resizes to fit it's string value.
          
-         - Parameters:
-            - stringValue: A string to use as the content of the label.
+         - Parameter stringValue: A string to use as the content of the label.
          
          - Returns: An initialized `NSTextField`.
          */
@@ -29,7 +28,51 @@
             self.resizeToFit()
         }
         
-        /// The receiver’s number formatter.
+        /**
+         Creates a text field for use as a label.
+         
+         - Parameter string: The string value of the text field.
+         */
+        static func label(_ stringValue: String = "") -> NSTextField {
+            NSTextField(labelWithString: stringValue).backgroundColor(nil)
+        }
+        
+        /**
+         Creates a wrapping text field for use as a multiline label.
+         
+         - Parameter string: The string value of the text field.
+         */
+        static func wrappingLabel(_ stringValue: String = "") -> NSTextField {
+            NSTextField(wrappingLabelWithString: stringValue)
+                .isSelectable(false)
+                .isEditable(false)
+        }
+        
+        /**
+         Creates a bordered and bezeled editing text field.
+         
+         - Parameters:
+            - string: The string value of the text field.
+            - placeholder: The place holder of the text field.
+            - rounded: A Boolean value that indicates whether the text field's bezel is rounded.
+         */
+        static func editing(_ string: String = "", placeholder: String? = nil, rounded: Bool = false) -> NSTextField {
+            NSTextField(string: string)
+                .isBordered(true)
+                .placeholder(placeholder)
+                .bezelStyle(rounded ? .roundedBezel : .squareBezel)
+        }
+        
+        /**
+         Creates a text field that automatically resizes to fit it's string value.
+         
+         - Parameter string: The string value of the text field.
+         */
+        static func resizing(_ stringValue: String = "") -> NSTextField {
+            NSTextField(resizingLabel: stringValue)
+        }
+        
+        /// The text field’s number formatter.
         var numberFormatter: NumberFormatter? {
             get { formatter as? NumberFormatter }
             set {
@@ -41,10 +84,38 @@
             }
         }
         
+        /// Sets the text field’s number formatter.
+        @discardableResult
+        func numberFormatter(_ formatter: NumberFormatter?) -> Self {
+            numberFormatter = formatter
+            return self
+        }
+        
+        /// Sets the string the text field displays when empty to help the user understand the text field’s purpose.
+        @discardableResult
+        func placeholder(_ placeholder: String?) -> Self {
+            placeholderString = placeholder
+            return self
+        }
+        
+        /// Sets attributed string the text field displays when empty to help the user understand the text field’s purpose.
+        @discardableResult
+        func placeholderAttributed(_ placeholder: NSAttributedString?) -> Self {
+            placeholderAttributedString = placeholder
+            return self
+        }
+        
         /// Sets the Boolean value that controls whether the text field’s cell draws a background color behind the text.
         @discardableResult
         func drawsBackground(_ draws: Bool) -> Self {
             drawsBackground = draws
+            return self
+        }
+        
+        /// Sets the color of the background the text field’s cell draws behind the text.
+        @discardableResult
+        func backgroundColor(_ color: NSColor) -> Self {
+            backgroundColor = color
             return self
         }
         
@@ -124,6 +195,13 @@
             set { cell?.truncatesLastVisibleLine = newValue }
         }
         
+        /// Sets the Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
+        @discardableResult
+        func truncatesLastVisibleLine(_ truncates: Bool) -> Self {
+            truncatesLastVisibleLine = truncates
+            return self
+        }
+        
         /**
          A Boolean value indicating whether the text field wraps text whose length that exceeds the text field’s frame.
          
@@ -136,6 +214,13 @@
             set { cell?.wraps = newValue }
         }
         
+        /// Sets the Boolean value indicating whether the text field wraps text whose length that exceeds the text field’s frame.
+        @discardableResult
+        func wraps(_ wraps: Bool) -> Self {
+            self.wraps = wraps
+            return self
+        }
+        
         /**
          A Boolean value indicating whether excess text scrolls past the text field’s bounds.
          
@@ -144,6 +229,13 @@
         var isScrollable: Bool {
             get { cell?.isScrollable ?? false }
             set { cell?.isScrollable = newValue }
+        }
+        
+        /// Sets the Boolean value indicating whether excess text scrolls past the text field’s bounds.
+        @discardableResult
+        func isScrollable(_ isScrollable: Bool) -> Self {
+            self.isScrollable = isScrollable
+            return self
         }
         
         /// Sets the color of the text field’s content.
@@ -160,31 +252,10 @@
             return self
         }
         
-        /// Sets the Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
-        @discardableResult
-        func truncatesLastVisibleLine(_ truncates: Bool) -> Self {
-            truncatesLastVisibleLine = truncates
-            return self
-        }
-        
         /// Sets the Boolean value that controls whether the user can edit the value in the text field.
         @discardableResult
         func isEditable(_ isEditable: Bool) -> Self {
             self.isEditable = isEditable
-            return self
-        }
-        
-        /// Sets the Boolean value indicating whether excess text scrolls past the text field’s bounds.
-        @discardableResult
-        func isScrollable(_ isScrollable: Bool) -> Self {
-            self.isScrollable = isScrollable
-            return self
-        }
-        
-        /// Sets the Boolean value indicating whether the text field wraps text whose length that exceeds the text field’s frame.
-        @discardableResult
-        func wraps(_ wraps: Bool) -> Self {
-            self.wraps = wraps
             return self
         }
         
@@ -221,27 +292,6 @@
         @discardableResult
         func maximumNumberOfLines(_ lines: Int) -> Self {
             maximumNumberOfLines = lines
-            return self
-        }
-        
-        /// Sets the minimum numbers of characters needed when the user edits the string value.
-        @discardableResult
-        func minimumNumberOfCharacters(_ minimum: Int) -> Self {
-            minimumNumberOfCharacters = minimum
-            return self
-        }
-        
-        /// Sets the maximum numbers of characters allowed when the user edits the string value.
-        @discardableResult
-        func maximumNumberOfCharacters(_ maximum: Int) -> Self {
-            maximumNumberOfCharacters = maximum
-            return self
-        }
-        
-        /// Sets the allowed characters the user can enter when editing.
-        @discardableResult
-        func allowedCharacters(_ characters: AllowedCharacters) -> Self {
-            allowedCharacters = characters
             return self
         }
         

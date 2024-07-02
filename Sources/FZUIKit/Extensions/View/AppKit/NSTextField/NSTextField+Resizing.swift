@@ -32,6 +32,18 @@ extension NSTextField {
         }
     }
     
+    /**
+     Sets Boolean value that indicates whether the text field is automatically adjust it's size to fit it's string value.
+     
+     - Note: If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     - Note: This property isn't working with `NSSearchField`.
+     */
+    @discardableResult
+    @objc open func automaticallyResizesToFit(_ resizesToFit: Bool) -> Self {
+        automaticallyResizesToFit = resizesToFit
+        return self
+    }
+    
     /// The direction the textfield's height expands when automatic resizing is enabled and `preferredMaxLayoutWidth` is reached.
     public enum ResizingDirection {
         /// The textfield's height expands to the top.
@@ -46,17 +58,35 @@ extension NSTextField {
         set { setAssociatedValue(newValue, key: "resizingDirection") }
     }
     
+    /// Sets the direction the textfield's height expands when automatic resizing is enabled and `preferredMaxLayoutWidth` is reached.
+    @discardableResult
+    public func preferredResizingDirection(_ direction: ResizingDirection) -> Self {
+        preferredResizingDirection = direction
+        return self
+    }
+    
     /**
      The preferred minimum width of the text field.
      
      Apply ``AppKit/NSTextField/placeholderWidth`` to this property, to use the placeholder width as minimum value
      */
-    public var preferredMinLayoutWidth: CGFloat {
+    @objc open var preferredMinLayoutWidth: CGFloat {
         get { getAssociatedValue("preferredMinLayoutWidth", initialValue: 0) }
         set {
             setAssociatedValue(newValue, key: "preferredMinLayoutWidth")
             resizeToFit()
         }
+    }
+    
+    /**
+     Sets the preferred minimum width of the text field.
+     
+     Apply ``AppKit/NSTextField/placeholderWidth`` to this property, to use the placeholder width as minimum value
+     */
+    @discardableResult
+    @objc open func preferredMinLayoutWidth(_ minWidth: CGFloat) -> Self {
+        preferredMinLayoutWidth = minWidth
+        return self
     }
     
     /// A value that tells the layout system to constraint the preferred minimum width to the width of the placeholder string. (see ``preferredMinLayoutWidth``).

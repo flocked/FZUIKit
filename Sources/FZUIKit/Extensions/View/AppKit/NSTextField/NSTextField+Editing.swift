@@ -106,6 +106,14 @@
                 observeEditing()
             }
         }
+        
+        /// Sets the allowed characters the user can enter when editing.
+        @discardableResult
+        public func allowedCharacters(_ allowedCharacters: AllowedCharacters) -> Self {
+            self.allowedCharacters = allowedCharacters
+            return self
+        }
+
 
         /// The handlers for editing the text.
         public var editingHandlers: EditingHandler {
@@ -116,11 +124,10 @@
             }
         }
         
-        public var isEditingText: Bool {
+        var isEditingText: Bool {
             get { getAssociatedValue("isEditingText", initialValue: false) }
             set { setAssociatedValue(newValue, key: "isEditingText") }
         }
-        
 
         /**
          The action to perform when the user presses the enter key.
@@ -136,6 +143,13 @@
                 observeTextCommands()
             }
         }
+        
+        /// Sets the action to perform when the user pressed the enter key.
+        @discardableResult
+        public func actionOnEnterKeyDown(_ enterAction: EnterKeyAction) -> Self {
+            actionOnEnterKeyDown = enterAction
+            return self
+        }
 
         /**
          The action to perform when the user presses the escape key.
@@ -150,6 +164,13 @@
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 observeTextCommands()
             }
+        }
+        
+        /// Sets the action to perform when the user pressed the escape key.
+        @discardableResult
+        public func actionOnEscapeKeyDown(_ escapeAction: EscapeKeyAction) -> Self {
+            actionOnEscapeKeyDown = escapeAction
+            return self
         }
 
         /// The minimum numbers of characters needed when the user edits the string value.
@@ -169,6 +190,13 @@
                 observeEditing()
             }
         }
+        
+        /// Sets the minimum numbers of characters needed when the user edits the string value.
+        @discardableResult
+        public func minimumNumberOfCharacters(_ minimum: Int?) -> Self {
+            minimumNumberOfCharacters = minimum
+            return self
+        }
 
         /// The maximum numbers of characters allowed when the user edits the string value.
         public var maximumNumberOfCharacters: Int? {
@@ -187,6 +215,13 @@
                 observeEditing()
             }
         }
+        
+        /// Sets maximum numbers of characters allowed when the user edits the string value.
+        @discardableResult
+        public func maximumNumberOfCharacters(_ maximum: Int?) -> Self {
+            maximumNumberOfCharacters = maximum
+            return self
+        }
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
         public var endEditingOnOutsideClick: Bool {
@@ -197,6 +232,13 @@
                 setupTextFieldObserver()
                 keyboardFocusChanged()
             }
+        }
+        
+        /// Sets the Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
+        @discardableResult
+        public func endEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
+            endEditingOnOutsideClick = endsEditing
+            return self
         }
         
         /// A Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
@@ -214,6 +256,13 @@
                 setupTextFieldObserver()
                 keyboardFocusChanged()
             }
+        }
+        
+        /// Sets Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
+        @discardableResult
+        public func isEditableByDoubleClick(_ isEditableByDoubleClick: Bool) -> Self {
+            self.isEditableByDoubleClick = isEditableByDoubleClick
+            return self
         }
         
         func keyboardFocusChanged() {

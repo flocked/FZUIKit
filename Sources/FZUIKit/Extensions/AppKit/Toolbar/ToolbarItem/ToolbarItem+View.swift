@@ -21,6 +21,20 @@
                 get { item.view! }
                 set { item.view = newValue }
             }
+            
+            /// Sets the view of the toolbar item.
+            @discardableResult
+            public func view(_ view: NSView) -> Self {
+                self.view = view
+                return self
+            }
+            
+            /// Sets a `SwiftUI` view as the view of the toolbar item.
+            @discardableResult
+            public func view(_ view: some SwiftUI.View) -> Self {
+                self.view = NSHostingView(rootView: view)
+                return self
+            }
 
             /**
              Creates a view toolbar item.
@@ -30,7 +44,7 @@
                 - view: The view of the item.
              */
             public init(
-                _ identifier: NSToolbarItem.Identifier,
+                _ identifier: NSToolbarItem.Identifier? = nil,
                 view: NSView
             ) {
                 super.init(identifier)
@@ -45,7 +59,7 @@
                 - view: The `SwiftUI` view of the item.
              */
             public convenience init(
-                _ identifier: NSToolbarItem.Identifier,
+                _ identifier: NSToolbarItem.Identifier? = nil,
                 view: some SwiftUI.View
             ) {
                 self.init(identifier, view: NSHostingView(rootView: view))

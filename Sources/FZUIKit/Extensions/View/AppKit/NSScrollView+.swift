@@ -19,6 +19,219 @@
             return self
         }
         
+        /// Sets the color of the content view’s background.
+        @discardableResult
+        public func backgroundColor(_ color: NSColor) -> Self {
+            backgroundColor = color
+            return self
+        }
+        
+        /// Sets the value that specifies the appearance of the scroll view’s border.
+        @discardableResult
+        public func borderType(_ type: NSBorderType) -> Self {
+            borderType = type
+            return self
+        }
+        
+        /// Sets the view the scroll view scrolls within its content view.
+        @discardableResult
+        public func documentView(_ view: NSView?) -> Self {
+            documentView = view
+            return self
+        }
+        
+        /// Sets the scroll view’s content view, the view that clips the document view.
+        @discardableResult
+        public func contentView(_ view: NSClipView) -> Self {
+            contentView = view
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view has a vertical and horizontal scroller.
+        @discardableResult
+        public func hasScroller(_ hasScroller: Bool) -> Self {
+            self.hasVerticalScroller = hasScroller
+            self.hasHorizontalScroller = hasScroller
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view has a vertical scroller.
+        @discardableResult
+        public func hasVerticalScroller(_ hasScroller: Bool) -> Self {
+            self.hasVerticalScroller = hasScroller
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view has a horizontal scroller.
+        @discardableResult
+        public func hasHorizontalScroller(_ hasScroller: Bool) -> Self {
+            self.hasHorizontalScroller = hasScroller
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view keeps a vertical and horizontal ruler object.
+        @discardableResult
+        public func hasRuler(_ hasRuler: Bool) -> Self {
+            self.hasVerticalRuler = hasRuler
+            self.hasHorizontalScroller = hasRuler
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view keeps a vertical ruler object.
+        @discardableResult
+        public func hasVerticalRuler(_ hasRuler: Bool) -> Self {
+            self.hasVerticalRuler = hasRuler
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view keeps a horizontal ruler object.
+        @discardableResult
+        public func hasHorizontalRuler(_ hasRuler: Bool) -> Self {
+            self.hasHorizontalRuler = hasRuler
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view displays its rulers.
+        @discardableResult
+        public func rulersVisible(_ visible: Bool) -> Self {
+            self.rulersVisible = visible
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view automatically adjusts its content insets.
+        @discardableResult
+        public func automaticallyAdjustsContentInsets(_ adjusts: Bool) -> Self {
+            self.automaticallyAdjustsContentInsets = adjusts
+            return self
+        }
+        
+        /// Sets the distance that the scroll view’s subviews are inset from the enclosing scroll view during tiling.
+        @discardableResult
+        public func contentInsets(_ insets: NSEdgeInsets) -> Self {
+            self.contentInsets = insets
+            return self
+        }
+        
+        /// Sets the distance the scrollers are inset from the edge of the scroll view.
+        @discardableResult
+        public func scrollerInsets(_ insets: NSEdgeInsets) -> Self {
+            self.scrollerInsets = insets
+            return self
+        }
+        
+        /// Sets the knob style of scroll views that use the overlay scroller style.
+        @discardableResult
+        public func scrollerKnobStyle(_ style: NSScroller.KnobStyle) -> Self {
+            self.scrollerKnobStyle = style
+            return self
+        }
+        
+        /// Sets the scroller style used by the scroll view.
+        @discardableResult
+        public func scrollerStyle(_ style: NSScroller.Style) -> Self {
+            self.scrollerStyle = style
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the scroll view redraws its document view while scrolling continuously.
+        @discardableResult
+        public func scrollsDynamically(_ scrollsDynamically: Bool) -> Self {
+            self.scrollsDynamically = scrollsDynamically
+            return self
+        }
+        
+        /// Sets the scroll view’s vertical and horizontal scrolling elasticity mode.
+        @discardableResult
+        public func scrollElasticity(_ elasticity: Elasticity) -> Self {
+            self.horizontalScrollElasticity = elasticity
+            self.verticalScrollElasticity = elasticity
+            return self
+        }
+        
+        /// Sets the scroll view’s vertical scrolling elasticity mode.
+        @discardableResult
+        public func verticalScrollElasticity(_ elasticity: Elasticity) -> Self {
+            self.verticalScrollElasticity = elasticity
+            return self
+        }
+        
+        /// Sets the scroll view’s horizontal scrolling elasticity mode.
+        @discardableResult
+        public func horizontalScrollElasticity(_ elasticity: Elasticity) -> Self {
+            self.horizontalScrollElasticity = elasticity
+            return self
+        }
+        
+        /// Sets the Boolean that indicates whether the user is allowed to magnify the scroll view.
+        @discardableResult
+        public func allowsMagnification(_ allows: Bool) -> Self {
+            self.allowsMagnification = allows
+            return self
+        }
+        
+        /// Sets the amount by which the content is currently scaled.
+        @discardableResult
+        public func magnification(_ magnification: CGFloat) -> Self {
+            self.magnification = magnification
+            return self
+        }
+        
+        /// Sets the minimum value to which the content can be magnified.
+        @discardableResult
+        public func minMagnification(_ minMagnification: CGFloat) -> Self {
+            self.minMagnification = minMagnification
+            return self
+        }
+        
+        /// Sets the maximum value to which the content can be magnified.
+        @discardableResult
+        public func maxMagnification(_ maxMagnification: CGFloat) -> Self {
+            self.maxMagnification = maxMagnification
+            return self
+        }
+        
+        /// Sets the scroll view’s line by line scroll amount.
+        @discardableResult
+        public func lineScroll(_ lineScroll: CGFloat) -> Self {
+            self.lineScroll = lineScroll
+            return self
+        }
+        
+        /// Sets the scroll view’s horizontal line by line scroll amount.
+        @discardableResult
+        public func horizontalLineScroll(_ lineScroll: CGFloat) -> Self {
+            self.horizontalLineScroll = lineScroll
+            return self
+        }
+        
+        /// Sets the scroll view’s vertical line by line scroll amount.
+        @discardableResult
+        public func verticalLineScroll(_ lineScroll: CGFloat) -> Self {
+            self.verticalLineScroll = lineScroll
+            return self
+        }
+        
+        /// Sets the amount of the document view kept visible when scrolling page by page.
+        @discardableResult
+        public func pageScroll(_ pageScroll: CGFloat) -> Self {
+            self.pageScroll = pageScroll
+            return self
+        }
+        
+        /// Sets the amount of the document view kept visible when scrolling horizontally page by page.
+        @discardableResult
+        public func horizontalPageScroll(_ pageScroll: CGFloat) -> Self {
+            self.horizontalPageScroll = pageScroll
+            return self
+        }
+        
+        /// Sets the amount of the document view kept visible when scrolling vertically page by page.
+        @discardableResult
+        public func verticalPageScroll(_ pageScroll: CGFloat) -> Self {
+            self.verticalPageScroll = pageScroll
+            return self
+        }
+                                                
         var contentOffsetNotificationToken: NotificationToken? {
             get { getAssociatedValue("contentOffsetNotificationToken", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "contentOffsetNotificationToken")}

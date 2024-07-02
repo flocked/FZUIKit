@@ -18,28 +18,28 @@
             /// The button of the item.
             public let button: NSButton
 
-            /// The title of the button.
+            /// Sets the title of the button.
             @discardableResult
             public func title(_ title: String) -> Self {
                 button.title = title
                 return self
             }
 
-            /// The alternate title of the button.
+            /// Sets the alternate title of the button.
             @discardableResult
             public func alternateTitle(_ title: String) -> Self {
                 button.alternateTitle = title
                 return self
             }
 
-            /// The attributed title of the button.
+            /// Sets the attributed title of the button.
             @discardableResult
             public func attributedTitle(_ title: NSAttributedString) -> Self {
                 button.attributedTitle = title
                 return self
             }
 
-            /// The attributed alternate title of the button.
+            /// Sets the attributed alternate title of the button.
             @discardableResult
             public func attributedAlternateTitle(_ title: NSAttributedString) -> Self {
                 button.attributedAlternateTitle = title
@@ -60,21 +60,21 @@
                 return self
             }
 
-            /// Sets             whether the button has a border.
+            /// Sets the Boolean Value indiciating whether the button has a border.
             @discardableResult
             public func bordered(_ isBordered: Bool) -> Self {
                 button.isBordered = isBordered
                 return self
             }
 
-            /// Sets whether the button is transparent.
+            /// Sets the Boolean Value indiciating whether the button is transparent.
             @discardableResult
             public func transparent(_ isTransparent: Bool) -> Self {
                 button.isTransparent = isTransparent
                 return self
             }
 
-            /// The image of the button, or `nil` if none.
+            /// Sets the image of the button, or `nil` if none.
             @discardableResult
             public func image(_ image: NSImage?) -> Self {
                 button.image = image
@@ -82,14 +82,14 @@
             }
 
             @available(macOS 11.0, *)
-            /// The symbol image of the button.
+            /// Sets the symbol image of the button.
             @discardableResult
             public func image(symbolName: String) -> Self {
                 button.image = NSImage(systemSymbolName: symbolName) ?? button.image
                 return self
             }
 
-            /// The alternate image of the button, or `nil` if none.
+            /// Sets the alternate image of the button, or `nil` if none.
             @discardableResult
             public func alternateImage(_ image: NSImage?) -> Self {
                 button.alternateImage = image
@@ -97,7 +97,7 @@
             }
 
             @available(macOS 11.0, *)
-            /// The alternate symbol image of the button.
+            /// Sets the alternate symbol image of the button.
             @discardableResult
             public func alternateImage(symbolName: String) -> Self {
                 button.alternateImage = NSImage(systemSymbolName: symbolName) ?? button.image
@@ -111,7 +111,7 @@
                 return self
             }
 
-            /// The image scaling of the button.
+            /// Sets the image scaling of the button.
             @discardableResult
             public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
                 button.imageScaling = imageScaling
@@ -140,9 +140,9 @@
                 return self
             }
 
-            /// The action block of the button.
+            /// Sets the action block of the button.
             @discardableResult
-            public func onAction(_ action: ToolbarItem.ActionBlock?) -> Self {
+            public func onAction(_ action: ((ToolbarItem.Button)->())?) -> Self {
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     action?(self)

@@ -75,9 +75,9 @@
          */
         @discardableResult
         public func addEnclosingScrollView(shouldManage: Bool = true) -> NSScrollView {
-            guard enclosingScrollView == nil else {
-                enclosingScrollView!.shouldManageDocumentView = shouldManage
-                return enclosingScrollView!
+            if let scrollView = enclosingScrollView {
+                scrollView.shouldManageDocumentView = shouldManage
+                return scrollView
             }
             let scrollView = NSScrollView()
             scrollView.frame.size = bounds.size

@@ -25,7 +25,7 @@
                 groupItem
             }
 
-            /// The selection mode of the grouped toolbar item.
+            /// Sets the selection mode of the grouped toolbar item.
             @discardableResult
             public func selectionMode(_ mode: SelectionMode) -> Self {
                 groupItem.selectionMode = mode
@@ -38,7 +38,7 @@
                 set { groupItem.selectionMode = newValue }
             }
 
-            /// A value that represents how a toolbar displays the grouped toolbar item.
+            /// Sets the value that represents how a toolbar displays the grouped toolbar item.
             @discardableResult
             public func controlRepresentation(_ representation: ControlRepresentation) -> Self {
                 groupItem.controlRepresentation = representation
@@ -51,7 +51,7 @@
                 set { groupItem.controlRepresentation = newValue }
             }
 
-            /// The subitems of the grouped toolbar item.
+            /// Sets the subitems of the grouped toolbar item.
             @discardableResult
             public func subitems(_ items: [NSToolbarItem]) -> Self {
                 groupItem.subitems = items
@@ -64,7 +64,7 @@
                 set { groupItem.subitems = newValue }
             }
 
-            /// The index value for the most recently selected subitem of the grouped toolbar item.
+            /// Sets the index value for the most recently selected subitem of the grouped toolbar item.
             @discardableResult
             public func selectedIndex(_ selectedIndex: Int) -> Self {
                 self.selectedIndex = selectedIndex
@@ -77,7 +77,7 @@
                 set { groupItem.selectedIndex = newValue }
             }
 
-            /// The index values of the selected items in the group.
+            /// Sets the index values of the selected items in the group.
             @discardableResult
             public func selectedIndexes(_ selectedIndexes: [Int]) -> Self {
                 self.selectedIndexes = selectedIndexes
@@ -90,7 +90,7 @@
                 set { groupItem.selectedIndexes = newValue }
             }
 
-            /// The subitems of the item.
+            /// Sets the subitems of the item.
             @discardableResult
             public func subitems(@NSToolbar.Builder builder: () -> [NSToolbarItem]) -> Self {
                 groupItem.subitems = builder()

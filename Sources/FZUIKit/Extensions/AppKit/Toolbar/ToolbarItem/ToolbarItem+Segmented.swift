@@ -26,6 +26,15 @@
                 set { segmentedControl.segments = newValue }
             }
             
+            /**
+             The selected segments.
+             
+             To get the last selected segment, check the selected segment where ``NSSegment/isLastSelected`` is `true.`
+             */
+            public var selectedSegments: [NSSegment] {
+                segmentedControl.selectedSegments
+            }
+            
             /// Sets the segments of the segmented control.
             @discardableResult
             public func segments(_ segments: [NSSegment]) -> Self {
@@ -38,15 +47,6 @@
             public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
                 segmentedControl.segments = segments()
                 return self
-            }
-            
-            /// The selected segments.
-            public var selectedSegments: [NSSegment] {
-                var selectedSegments = segmentedControl.selectedSegments
-                if let index = selectedSegments.firstIndex(where: {$0.isLastSelected}) {
-                    selectedSegments = selectedSegments.remove(at: index) + selectedSegments
-                }
-                return selectedSegments
             }
 
             /// Sets the type of tracking behavior the segmented control exhibits.
@@ -70,27 +70,14 @@
                 return self
             }
 
-            /// The action block that is called when the selection of the segmented control changes.
+            /// Sets the action block that is called when the selection of the segmented control changes.
             @discardableResult
-            public func onSelection(_ handler: @escaping ([NSSegment]) -> Void) -> Self {
+            public func onSelection(_ handler: ((ToolbarItem.Segmented)->())?) -> Self {
                 segmentedControl.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
-                    var selected = self.segments.filter(\.isSelected)
-                    if let index = selected.firstIndex(where: { $0.isLastSelected == true }) {
-                        let lastSelected = selected.remove(at: index)
-                        selected = lastSelected + selected
-                    }
-                    handler(selected)
+                    handler?(self)
                 }
                 return self
-            }
-
-            static func segmentedControl(switching: NSSegmentedControl.SwitchTracking, style: NSSegmentedControl.Style, @NSSegmentedControl.Builder segments: () -> [NSSegment]) -> NSSegmentedControl {
-                let segmentedControl = NSSegmentedControl(switching: switching, style: style, segments: segments)
-                segmentedControl.segmentDistribution = .fillEqually
-                segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-                segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-                return segmentedControl
             }
 
             /**
@@ -109,8 +96,7 @@
                                     segmentWidths: CGFloat? = nil,
                                     @NSSegmentedControl.Builder segments: () -> [NSSegment])
             {
-                let segmentedControl = NSSegmentedControl(switching: switching, style: style, segments: segments)
-                self.init(identifier, segmentedControl: segmentedControl)
+                self.init(identifier, segmentedControl: NSSegmentedControl(switching: switching, style: style, segments: segments))
             }
 
             /**
@@ -124,15 +110,11 @@
                         segmentedControl: NSSegmentedControl)
             {
                 self.segmentedControl = segmentedControl
-                super.init(identifier ?? .random)
+                super.init(identifier)
                 segmentedControl.translatesAutoresizingMaskIntoConstraints = false
                 segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
                 segmentedControl.segmentDistribution = .fillEqually
                 item.view = self.segmentedControl
-                segmentedControl.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    self.item.actionBlock?(self.item)
-                }
             }
         }
     }
