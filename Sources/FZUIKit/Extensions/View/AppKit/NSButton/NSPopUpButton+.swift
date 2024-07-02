@@ -87,13 +87,6 @@
             return self
         }
         
-        /// Sets the menu associated with the pop-up button.
-        @discardableResult
-        func menu(_ menu: NSMenu?) -> Self {
-            self.menu = menu
-            return self
-        }
-        
         /// Sets the Boolean value indicating whether the button displays a pull-down or pop-up menu.
         @discardableResult
         func pullsDown(_ pullsDown: Bool) -> Self {
