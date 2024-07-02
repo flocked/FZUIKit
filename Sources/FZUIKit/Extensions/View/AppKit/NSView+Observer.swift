@@ -88,7 +88,7 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
     func setupMenuProvider(for event: NSEvent) {
         guard let view = view, let menuProvider = view.menuProvider else { return }
         let location = event.location(in: view)
-        if let menu = menuProvider(location) {
+        if let menu = menuProvider(location, event) {
             menu.handlers.didClose = {
                 if view.menu == menu {
                     view.menu = nil
