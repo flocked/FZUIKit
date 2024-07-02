@@ -521,6 +521,20 @@
             return self
         }
         
+        /// Sets the view’s frame size.
+        @discardableResult
+        func size(_ size: CGSize) -> Self {
+            self.frame.size = size
+            return self
+        }
+        
+        /// Sets the view’s frame origin, which defines its position in its superview’s coordinate system.
+        @discardableResult
+        func origin(_ origin: CGPoint) -> Self {
+            self.frame.origin = origin
+            return self
+        }
+        
         /// Sets the center point of the view’s frame rectangle.
         @discardableResult
         func center(_ center: CGPoint) -> Self {

@@ -574,13 +574,13 @@
         
         /// A Boolean value that indicates whether the scroll view should automatically manage it's document view.
         @objc open var shouldManageDocumentView: Bool {
-            get { getAssociatedValue("manageDocumentView", initialValue: false) }
+            get { scrollViewObserver != nil }
             set {
                 guard newValue != shouldManageDocumentView else { return }
-                setAssociatedValue(newValue, key: "manageDocumentView")
                 if newValue {
                     documentView?.frame = bounds
                     scrollViewObserver = KeyValueObserver(self)
+                    /*
                     scrollViewObserver?.add(\.documentView) { [weak self] old, new in
                         guard let self = self, old != new, let new = new else { return }
                         new.frame = self.bounds
@@ -592,10 +592,18 @@
                         self.contentOffset.x *= (new.width / old.width)
                         self.contentOffset.y *= (new.height / old.height)
                     }
+                     */
                 } else {
                     scrollViewObserver = nil
                 }
             }
+        }
+        
+        /// Sets the Boolean value that indicates whether the scroll view should automatically manage it's document view.
+        @discardableResult
+        @objc open func shouldManageDocumentView(manages: Bool) -> Self {
+            self.shouldManageDocumentView = manages
+            return self
         }
         
         var scrollViewObserver: KeyValueObserver<NSScrollView>? {
