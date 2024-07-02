@@ -578,16 +578,15 @@
             set {
                 guard newValue != shouldManageDocumentView else { return }
                 if newValue {
-                    documentView?.frame = bounds
                     scrollViewObserver = KeyValueObserver(self)
-                    scrollViewObserver?.add(\.documentView) { [weak self] old, new in
+                    if let documentView = documentView {
+                        documentView.frame = bounds
+                    } else {
+                        scrollViewObserver?.add(\.documentView) { [weak self] old, new in
+                            guard let self = self, old != new, let new = new else { return }
+                            new.frame = self.bounds
+                        }
                     }
-                    /*
-                    scrollViewObserver?.add(\.documentView) { [weak self] old, new in
-                        guard let self = self, old != new, let new = new else { return }
-                        new.frame = self.bounds
-                    }
-                     */
                     scrollViewObserver?.add(\.frame) { [weak self] old, new in
                         guard let self = self, old != new, let documentView = self.documentView else { return }
                         documentView.frame = CGRect(.zero, new.size)
