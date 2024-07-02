@@ -109,5 +109,199 @@
             guard let rowView = rowView(at: location) else { return nil }
             return rowView.cellViews.first(where: { $0.frame.contains(location) })
         }
+        
+        /// Creates a table view with the specified table columns.
+        convenience init(@ColumnBuilder _ columns: () -> [NSTableColumn]) {
+            self.init(frame: .zero)
+            tableColumns(columns)
+        }
+        
+        /// Sets the table columns.
+        @discardableResult
+        func tableColumns(_ columns: [NSTableColumn]) -> Self {
+            let toRemove = tableColumns.filter({!columns.contains($0)})
+            toRemove.forEach({removeTableColumn($0)})
+            let toAdd = columns.filter({!tableColumns.contains($0)})
+            toAdd.forEach({addTableColumn($0)})
+            for (index, column) in columns.enumerated() {
+                if let oldIndex = tableColumns.firstIndex(of: column) {
+                    moveColumn(oldIndex, toColumn: index)
+                }
+            }
+            // self.selectionHighlightStyle = style
+            return self
+        }
+        
+        /// Sets the table columns.
+        @discardableResult
+        func tableColumns(@ColumnBuilder _ columns: () -> [NSTableColumn]) -> Self {
+            tableColumns(columns())
+        }
+        
+        /// Sets the selection highlight style used by the table view to indicate row and column selection.
+        @discardableResult
+        func selectionHighlightStyle(_ style: SelectionHighlightStyle) -> Self {
+            self.selectionHighlightStyle = style
+            return self
+        }
+        
+        /// Sets the row size style (small, medium, large, or custom) used by the table view.
+        @discardableResult
+        func rowSizeStyle(_ style: RowSizeStyle) -> Self {
+            self.rowSizeStyle = style
+            return self
+        }
+        
+        /// Sets the grid lines drawn by the table view.
+        @discardableResult
+        func gridStyleMask(_ gridStyleMask: GridLineStyle) -> Self {
+            self.gridStyleMask = gridStyleMask
+            return self
+        }
+        
+        /// Sets the view used to draw headers over columns.
+        @discardableResult
+        func headerView(_ headerView: NSTableHeaderView?) -> Self {
+            self.headerView = headerView
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether a table row’s actions are visible.
+        @discardableResult
+        func rowActionsVisible(_ visible: Bool) -> Self {
+            self.rowActionsVisible = visible
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the table view allows the user to type characters to select rows.
+        @discardableResult
+        func allowsTypeSelect(_ allows: Bool) -> Self {
+            self.allowsTypeSelect = allows
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the table view draws grouped rows as if they are floating.
+        @discardableResult
+        func floatsGroupRows(_ floats: Bool) -> Self {
+            self.floatsGroupRows = floats
+            return self
+        }
+          
+        /// Sets the Boolean value indicating whether the table view uses alternating row colors for its background.
+        @discardableResult
+        func usesAlternatingRowBackgroundColors(_ uses: Bool) -> Self {
+            self.usesAlternatingRowBackgroundColors = uses
+            return self
+        }
+        
+        /// Sets the color used to draw the background of the table.
+        @discardableResult
+        func backgroundColor(_ color: NSColor) -> Self {
+            self.backgroundColor = color
+            return self
+        }
+        
+        /// Sets the color used to draw grid lines.
+        @discardableResult
+        func gridColor(_ color: NSColor) -> Self {
+            self.gridColor = color
+            return self
+        }
+        
+        /// Sets the style that the table view uses.
+        @available(macOS 11.0, *)
+        @discardableResult
+        func style(_ style: Style) -> Self {
+            self.style = style
+            return self
+        }
+        
+        /// Sets height of each row in the table.
+        @discardableResult
+        func rowHeight(_ rowHeight: CGFloat) -> Self {
+            self.rowHeight = rowHeight
+            return self
+        }
+        
+        /// Sets horizontal and vertical spacing between cells.
+        @discardableResult
+        func intercellSpacing(_ spacing: CGSize) -> Self {
+            self.intercellSpacing = spacing
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the table view uses autolayout to calculate the height of rows.
+        @discardableResult
+        func usesAutomaticRowHeights(_ uses: Bool) -> Self {
+            self.usesAutomaticRowHeights = uses
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the table view allows the user to select columns by clicking their headers.
+        @discardableResult
+        func allowsColumnSelection(_ allows: Bool) -> Self {
+            self.allowsColumnSelection = allows
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the table view allows the user to rearrange columns by dragging their headers.
+        @discardableResult
+        func allowsColumnReordering(_ allows: Bool) -> Self {
+            self.allowsColumnReordering = allows
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the table view allows the user to resize columns by dragging between their headers.
+        @discardableResult
+        func allowsColumnResizing(_ allows: Bool) -> Self {
+            self.allowsColumnResizing = allows
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the table view allows the user to select zero columns or rows.
+        @discardableResult
+        func allowsEmptySelection(_ allows: Bool) -> Self {
+            self.allowsEmptySelection = allows
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the table view allows the user to select more than one column or row at a time.
+        @discardableResult
+        func allowsMultipleSelection(_ allows: Bool) -> Self {
+            self.allowsMultipleSelection = allows
+            return self
+        }
+        
+        /// A function builder type that produces an array of table columns.
+        @resultBuilder
+        enum ColumnBuilder {
+            public static func buildBlock(_ block: [NSTableColumn]...) -> [NSTableColumn] {
+                block.flatMap { $0 }
+            }
+
+            public static func buildOptional(_ item: [NSTableColumn]?) -> [NSTableColumn] {
+                item ?? []
+            }
+
+            public static func buildEither(first: [NSTableColumn]?) -> [NSTableColumn] {
+                first ?? []
+            }
+
+            public static func buildEither(second: [NSTableColumn]?) -> [NSTableColumn] {
+                second ?? []
+            }
+
+            public static func buildArray(_ components: [[NSTableColumn]]) -> [NSTableColumn] {
+                components.flatMap { $0 }
+            }
+
+            public static func buildExpression(_ expr: [NSTableColumn]?) -> [NSTableColumn] {
+                expr ?? []
+            }
+
+            public static func buildExpression(_ expr: NSTableColumn?) -> [NSTableColumn] {
+                expr.map { [$0] } ?? []
+            }
+        }
     }
 #endif
