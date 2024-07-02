@@ -22,6 +22,19 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
     override func flagsChanged(with event: NSEvent) {
         view?.keyHandlers.flagsChanged?(event)
         super.flagsChanged(with: event)
+        guard let view = view, let menuProvider = view.menuProvider, let location = menuProviderLocation else { return }
+            if let menu = menuProvider(location, event.modifierFlags) {
+                menuProviderLocation = location
+                menu.handlers.didClose = {
+                    self.menuProviderLocation = nil
+                    if view.menu == menu {
+                        view.menu = nil
+                    }
+                }
+                view.menu = menu
+            } else {
+                view.menu = nil
+            }
     }
     
     override func mouseDown(with event: NSEvent) {
@@ -88,8 +101,10 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
     func setupMenuProvider(for event: NSEvent) {
         guard let view = view, let menuProvider = view.menuProvider else { return }
         let location = event.location(in: view)
-        if let menu = menuProvider(location, event) {
+        if let menu = menuProvider(location, event.modifierFlags) {
+            menuProviderLocation = location
             menu.handlers.didClose = {
+                self.menuProviderLocation = nil
                 if view.menu == menu {
                     view.menu = nil
                 }
@@ -100,10 +115,11 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
         }
     }
     
+    var menuProviderLocation: CGPoint? = nil
     var didStartDragging = false
     var mouseDownLocation: CGPoint = .zero
     static let minimumDragDistance: CGFloat = 4.0
-    
+
     func setupDraggingSession(for event: NSEvent) {
         guard let view = view, let canDrag = view.dragHandlers.canDrag, !didStartDragging else { return }
         let location = event.location(in: view)
