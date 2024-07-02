@@ -71,15 +71,15 @@
          The scroll view can be accessed via the view's `enclosingScrollView` property.
          
          - Parameters:
-            - shouldManage: A Boolean value that indicates whether the scroll view should automatically manage the view.
+            - managed: A Boolean value that indicates whether the scroll view should automatically manage the view.
             - drawsBackground: A Boolean value that indicates whether the scroll view draws it's background.
             - bordered: A Boolean value that indicates whether the scroll view is bordered.
          - Returns: The scroll view.
          */
         @discardableResult
-        public func addEnclosingScrollView(shouldManage: Bool = true, drawsBackground: Bool = false, bordered: Bool = false) -> NSScrollView {
+        public func addEnclosingScrollView(managed: Bool = true, drawsBackground: Bool = false, bordered: Bool = false) -> NSScrollView {
             if let scrollView = enclosingScrollView {
-                scrollView.shouldManageDocumentView = shouldManage
+                scrollView.managesDocumentView = managed
                 return scrollView
             }
             let scrollView = NSScrollView()
@@ -87,7 +87,7 @@
                 .borderType(bordered ? .lineBorder : .noBorder)
                 .size(bounds.size)
                 .documentView(self)
-                scrollView.shouldManageDocumentView = shouldManage
+                scrollView.managesDocumentView = managed
             return scrollView
         }
 
