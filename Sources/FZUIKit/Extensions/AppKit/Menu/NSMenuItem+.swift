@@ -352,7 +352,46 @@
         func submenu(_ menu: NSMenu?) -> Self {
             submenu = menu
             return self
-        }        
+        }      
+        
+        /// The visibilty of an item when it is visible in it's menu.
+        enum Visiblity: Int {
+            /// The default option that uses the menu item's `isHidden` property.
+            case normal
+            /// The item is visible when the option key is hold.
+            case optionHold
+            /// The item is visible if the option key is pressed while the menu opens.
+            case optionHoldOnMenuOpen
+        }
+        
+        
+        /// The visibilty of the item.
+        var visiblity: Visiblity {
+            get { getAssociatedValue("visiblity", initialValue: .normal) }
+            set {
+                setAssociatedValue(newValue, key: "visiblity")
+                if newValue == .normal {
+                    menuObservation = nil
+                } else if menuObservation == nil {
+                    menu?.setupDelegateProxy()
+                    menuObservation = observeChanges(for: \.menu) { old, new in
+                        new?.setupDelegateProxy()
+                    }
+                }
+            }
+        }
+        
+        /// Sets the visibilty of the item when it is visible in it's menu.
+        @discardableResult
+        func visiblity(_ visiblity: Visiblity) -> Self {
+            self.visiblity = visiblity
+            return self
+        }
+        
+        internal var menuObservation: KeyValueObservation? {
+            get { getAssociatedValue("menuObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "menuObservation") }
+        }
     }
 
 @available(macOS 14.0, *)
@@ -437,67 +476,6 @@ public extension NSMenuItem {
         menu.selectionMode = selectionMode
         paletteItem.submenu = menu
         return paletteItem
-    }
-}
-
-extension NSMenuItem {
-    /// The visibilty of an item when it is visible in it's menu.
-    public enum Visiblity: Int {
-        /// The default option that uses the menu item's `isHidden` property.
-        case normal
-        /// The item is visible when the option key is hold.
-        case optionHold
-        /// The item is visible if the option key is pressed while the menu opens.
-        case optionHoldOnMenuOpen
-    }
-    
-    
-    /**
-     The visibilty of the item when it is visible in it's menu.
-     
-     To enable support of this property, you have to enable ``AppKit/NSMenu/usesItemVisibilityOptions`` of the menu that displays the item.
-     */
-    public var visiblity: Visiblity {
-        get { getAssociatedValue("visiblity", initialValue: .normal) }
-        set { 
-            setAssociatedValue(newValue, key: "visiblity")
-            if newValue == .normal {
-                menuObservation = nil
-            } else if menuObservation == nil {
-                menu?.setupDelegateProxy()
-                menuObservation = observeChanges(for: \.menu) { old, new in
-                    new?.setupDelegateProxy()
-                }
-            }
-        }
-    }
-    
-    /// Sets the visibilty of the item when it is visible in it's menu.
-    @discardableResult
-    public func visiblity(_ visiblity: Visiblity) -> Self {
-        self.visiblity = visiblity
-        return self
-    }
-    
-    var menuObservation: KeyValueObservation? {
-        get { getAssociatedValue("menuObservation", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "menuObservation") }
-    }
-}
-
-extension NSMenu {
-    /**
-     Adds a menu item that is hidden by default and is showen when the option key is hold.
-     
-     This method is a shortcut of setting the item's ``AppKit/NSMenuItem/visiblity-swift.property`` to `optionHold`, enabling the menu's ``AppKit/NSMenu/usesItemVisibilityOptions`` and adding the item.
-     */
-    public func addHiddenOptionItem(_ item: NSMenuItem) {
-        item.visiblity = .optionHold
-        addItem(item)
-    }
-    
-    var hiddenOptionItems: [NSMenuItem] {
-        items.filter({ $0.visiblity == .optionHold })
     }
 }
 #endif

@@ -89,39 +89,13 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
         guard let view = view, let menuProvider = view.menuProvider else { return }
         let location = event.location(in: view)
         if let menu = menuProvider(location) {
-            if !menu.hiddenOptionItems.isEmpty {
-                menu.handlers.willOpen = {
-                    menu.hiddenOptionItems.forEach({$0.isHidden = true})
-                    guard self.menuObserver == nil else { return }
-                    self.menuObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
-                        self.menuRecievedEvents(menu: menu)
-                    })
-                    CFRunLoopAddObserver(CFRunLoopGetCurrent(), self.menuObserver, CFRunLoopMode.commonModes)
-                }
-            }
-            menu.handlers.didClose = {
-                if self.menuObserver != nil {
-                    CFRunLoopObserverInvalidate(self.menuObserver)
-                    self.menuObserver = nil
-                }
-                if view.menu == menu {
-                    view.menu = nil
-                }
-            }
+            menu.setupDelegateProxy(itemProviderView: view)
             view.menu = menu
         } else {
             view.menu = nil
         }
     }
     
-    func menuRecievedEvents(menu: NSMenu) {
-        let event = CGEvent(source: nil)
-        let flags: CGEventFlags = event!.flags
-        let optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
-        menu.hiddenOptionItems.forEach({$0.isHidden = !optionKeyIsPressed})
-    }
-    
-    var menuObserver: CFRunLoopObserver?
     var didStartDragging = false
     var mouseDownLocation: CGPoint = .zero
     static let minimumDragDistance: CGFloat = 4.0
