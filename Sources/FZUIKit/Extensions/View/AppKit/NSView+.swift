@@ -75,14 +75,19 @@
          */
         @discardableResult
         public func addEnclosingScrollView(shouldManage: Bool = true) -> NSScrollView {
+            Swift.print("addEnclosing_0")
             if let scrollView = enclosingScrollView {
                 scrollView.shouldManageDocumentView = shouldManage
                 return scrollView
             }
+            Swift.print("addEnclosing_1")
             let scrollView = NSScrollView()
             scrollView.frame.size = bounds.size
+            Swift.print("addEnclosing_2")
             scrollView.documentView = self
+            Swift.print("addEnclosing_3")
             scrollView.shouldManageDocumentView = shouldManage
+            Swift.print("addEnclosing_4")
             return scrollView
         }
 
