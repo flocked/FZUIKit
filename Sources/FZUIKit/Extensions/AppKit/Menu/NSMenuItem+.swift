@@ -449,6 +449,8 @@ extension NSMenuItem {
 extension NSMenu {
     public func addHiddenOptionItem(_ item: NSMenuItem) {
         item.hiddenOptionItem = true
+        item.isHidden = true
+        addItem(item)
         if menuEventObserver == nil {
             menuEventObserver = MenuEventObserver()
             delegate = menuEventObserver
@@ -481,12 +483,15 @@ extension NSMenu {
         }
         
         fileprivate func menuRecievedEvents(menu: NSMenu) {
-            Swift.print("menuRecievedEvents")
 
             
             // Get global modifier key flags
             let event = CGEvent(source: nil)
             let flags: CGEventFlags = event!.flags
+            
+            Swift.print("menuRecievedEvents", flags)
+
+            
             let optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
             menu.items.filter({$0.hiddenOptionItem}).forEach({$0.isHidden = !optionKeyIsPressed})
         }
