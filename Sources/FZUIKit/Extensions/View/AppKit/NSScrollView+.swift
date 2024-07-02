@@ -580,6 +580,8 @@
                 if newValue {
                     documentView?.frame = bounds
                     scrollViewObserver = KeyValueObserver(self)
+                    scrollViewObserver?.add(\.documentView) { [weak self] old, new in
+                    }
                     /*
                     scrollViewObserver?.add(\.documentView) { [weak self] old, new in
                         guard let self = self, old != new, let new = new else { return }
