@@ -453,6 +453,7 @@ extension NSMenu {
             menuEventObserver = MenuEventObserver()
             delegate = menuEventObserver
         }
+        Swift.print("addHiddenOptionItem", delegate ?? "nil")
     }
     
     var menuEventObserver: MenuEventObserver? {
@@ -464,6 +465,7 @@ extension NSMenu {
         var menuObserver: CFRunLoopObserver?
 
         func menuWillOpen(_ menu: NSMenu) {
+            Swift.print("menuWillOpen")
             guard menuObserver == nil else { return }
             menuObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
                 self.menuRecievedEvents(menu: menu)
@@ -472,12 +474,16 @@ extension NSMenu {
         }
         
         func menuDidClose(_ menu: NSMenu) {
+            Swift.print("menuDidClose")
             guard menuObserver != nil else { return }
             CFRunLoopObserverInvalidate(menuObserver)
             menuObserver = nil
         }
         
         fileprivate func menuRecievedEvents(menu: NSMenu) {
+            Swift.print("menuRecievedEvents")
+
+            
             // Get global modifier key flags
             let event = CGEvent(source: nil)
             let flags: CGEventFlags = event!.flags
