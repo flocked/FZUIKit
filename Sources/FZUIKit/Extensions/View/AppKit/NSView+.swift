@@ -86,7 +86,7 @@
             Swift.print("addEnclosing_2")
             scrollView.documentView = self
             Swift.print("addEnclosing_3")
-            scrollView.shouldManageDocumentView = shouldManage
+        //    scrollView.shouldManageDocumentView = shouldManage
             Swift.print("addEnclosing_4")
             return scrollView
         }
