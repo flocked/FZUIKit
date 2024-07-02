@@ -72,23 +72,23 @@
          
          - Parameters:
             - managed: A Boolean value that indicates whether the scroll view should automatically manage the view.
-            - drawsBackground: A Boolean value that indicates whether the scroll view draws it's background.
             - bordered: A Boolean value that indicates whether the scroll view is bordered.
+            - drawsBackground: A Boolean value that indicates whether the scroll view draws it's background.
          - Returns: The scroll view.
          */
         @discardableResult
-        public func addEnclosingScrollView(managed: Bool = true, drawsBackground: Bool = false, bordered: Bool = false) -> NSScrollView {
+        public func addEnclosingScrollView(managed: Bool = true, bordered: Bool = false, drawsBackground: Bool = false) -> NSScrollView {
             if let scrollView = enclosingScrollView {
-                scrollView.managesDocumentView = managed
-                return scrollView
+                return scrollView.managesDocumentView(managed)
             }
-            let scrollView = NSScrollView()
-                .drawsBackground(drawsBackground)
-                .borderType(bordered ? .lineBorder : .noBorder)
+            return NSScrollView()
                 .size(bounds.size)
+                .drawsBackground(drawsBackground)
+                .backgroundColor(drawsBackground ? .controlBackgroundColor : .clear)
+                .borderType(bordered ? .lineBorder : .noBorder)
                 .documentView(self)
-                scrollView.managesDocumentView = managed
-            return scrollView
+                .hasScroller(true)
+                .managesDocumentView(managed)
         }
 
         /**

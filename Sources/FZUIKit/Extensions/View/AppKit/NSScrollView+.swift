@@ -602,7 +602,7 @@
         
         /// Sets the Boolean value that indicates whether the scroll view should automatically manage it's document view.
         @discardableResult
-        @objc open func managesDocumentView(manages: Bool) -> Self {
+        @objc open func managesDocumentView(_ manages: Bool) -> Self {
             self.managesDocumentView = manages
             return self
         }
