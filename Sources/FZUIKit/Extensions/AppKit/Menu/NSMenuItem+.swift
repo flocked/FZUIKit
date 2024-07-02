@@ -438,4 +438,52 @@ public extension NSMenuItem {
         return paletteItem
     }
 }
+
+extension NSMenuItem {
+    var hiddenOptionItem: Bool {
+        get { getAssociatedValue("hiddenOptionItem", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "hiddenOptionItem") }
+    }
+}
+
+extension NSMenu {
+    public func addHiddenOptionItem(_ item: NSMenuItem) {
+        item.hiddenOptionItem = true
+        if menuEventObserver == nil {
+            menuEventObserver = MenuEventObserver()
+            delegate = menuEventObserver
+        }
+    }
+    
+    var menuEventObserver: MenuEventObserver? {
+        get { getAssociatedValue("menuEventObserver", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "menuEventObserver") }
+    }
+    
+    class MenuEventObserver: NSObject, NSMenuDelegate {
+        var menuObserver: CFRunLoopObserver?
+
+        func menuWillOpen(_ menu: NSMenu) {
+            guard menuObserver == nil else { return }
+            menuObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
+                self.menuRecievedEvents(menu: menu)
+            })
+            CFRunLoopAddObserver(CFRunLoopGetCurrent(), menuObserver, CFRunLoopMode.commonModes)
+        }
+        
+        func menuDidClose(_ menu: NSMenu) {
+            guard menuObserver != nil else { return }
+            CFRunLoopObserverInvalidate(menuObserver)
+            menuObserver = nil
+        }
+        
+        fileprivate func menuRecievedEvents(menu: NSMenu) {
+            // Get global modifier key flags
+            let event = CGEvent(source: nil)
+            let flags: CGEventFlags = event!.flags
+            let optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
+            menu.items.filter({$0.hiddenOptionItem}).forEach({$0.isHidden = !optionKeyIsPressed})
+        }
+    }
+}
 #endif
