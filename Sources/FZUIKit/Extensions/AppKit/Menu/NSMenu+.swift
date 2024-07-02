@@ -219,7 +219,7 @@ extension NSMenu {
     }
     
     func setupDelegateProxy() {
-        if usesItemVisibilityOptions || handlers.needsDelegate || items.contains(where: {$0.view is MenuItemView}) {
+        if !hiddenOptionItems.isEmpty || handlers.needsDelegate || items.contains(where: {$0.view is MenuItemView}) {
             if delegateProxy == nil {
                 delegateProxy = DelegateProxy(self)
             }
@@ -254,7 +254,7 @@ extension NSMenu {
             menu.items.filter({ $0.visiblity != .normal }).forEach({ $0.isHidden = !optionPressed })
             delegate?.menuWillOpen?(menu)
             let hiddenOptionItems = menu.hiddenOptionItems
-            if !hiddenOptionItems.isEmpty, menu.usesItemVisibilityOptions, eventObserver == nil {
+            if !hiddenOptionItems.isEmpty, eventObserver == nil {
                 eventObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
                     self.menuRecievedEvents(menu: menu)
                 })

@@ -10,6 +10,7 @@
     import AppKit
     import Foundation
     import SwiftUI
+    import FZSwiftUtils
 
     public extension NSMenuItem {
         /**
@@ -458,7 +459,17 @@ extension NSMenuItem {
      */
     public var visiblity: Visiblity {
         get { getAssociatedValue("visiblity", initialValue: .normal) }
-        set { setAssociatedValue(newValue, key: "visiblity") }
+        set { 
+            setAssociatedValue(newValue, key: "visiblity")
+            if newValue == .normal {
+                menuObservation = nil
+            } else if menuObservation == nil {
+                menu?.setupDelegateProxy()
+                menuObservation = observeChanges(for: \.menu) { old, new in
+                    new?.setupDelegateProxy()
+                }
+            }
+        }
     }
     
     /// Sets the visibilty of the item when it is visible in it's menu.
@@ -467,30 +478,14 @@ extension NSMenuItem {
         self.visiblity = visiblity
         return self
     }
+    
+    var menuObservation: KeyValueObservation? {
+        get { getAssociatedValue("menuObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "menuObservation") }
+    }
 }
 
 extension NSMenu {
-    /**
-     A Boolean value that indicates whether the visibilty of the items is considered by their `visibilty` property.
-     
-     Set this value to `true`, to enable  support of the ``AppKit/NSMenuItem/visiblity-swift.property`` property of the items that it's displays.
-     */
-    public var usesItemVisibilityOptions: Bool {
-        get { getAssociatedValue("usesItemVisibilityOptions", initialValue: false) }
-        set {
-            guard newValue != usesItemVisibilityOptions else { return }
-            setAssociatedValue(newValue, key: "usesItemVisibilityOptions")
-            setupDelegateProxy()
-        }
-    }
-    
-    /// Sets the Boolean value that indicates whether the visibilty of the items is considered by their `visibilty` property.
-    @discardableResult
-    public func usesItemVisibilityOptions(_ uses: Bool) -> Self {
-        self.usesItemVisibilityOptions = uses
-        return self
-    }
-    
     /**
      Adds a menu item that is hidden by default and is showen when the option key is hold.
      
@@ -498,7 +493,6 @@ extension NSMenu {
      */
     public func addHiddenOptionItem(_ item: NSMenuItem) {
         item.visiblity = .optionHold
-        usesItemVisibilityOptions = true
         addItem(item)
     }
     
