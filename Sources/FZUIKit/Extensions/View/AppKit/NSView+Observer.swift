@@ -85,26 +85,24 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
         super.rotate(with: event)
     }
     
-    func validateMenuProvider(event: NSEvent) {
-        guard let view = view, let menuProvider = view.menuProvider else { return }
-        let location = event.location(in: view)
-        if let menu = menuProvider(location, event.modifierFlags) {
-            
-        }
-    }
-    
     func setupMenuProvider(for event: NSEvent) {
         guard let view = view, let menuProvider = view.menuProvider else { return }
         let location = event.location(in: view)
         if let menu = menuProvider(location, event.modifierFlags) {
             menu.handlers.didClose = {
                 self.flagsEventMonitor = nil
+                self.keyDownEventMonitor = nil
                 if view.menu == menu {
                     view.menu = nil
                 }
             }
             view.menu = menu
+            keyDownEventMonitor = NSEvent.monitorLocal(.keyDown) { event in
+                Swift.print("keyDownEventMonitor")
+                return event
+            }
             flagsEventMonitor = NSEvent.monitorLocal(.flagsChanged) { event in
+                Swift.print("flagsEventMonitor")
                 if let newMenu = menuProvider(location, event.modifierFlags) {
                     newMenu.handlers.didClose = {
                         if view.menu == newMenu {
@@ -121,6 +119,7 @@ class ObserverGestureRecognizer: ReattachingGestureRecognizer {
     }
     
     var flagsEventMonitor: NSEvent.Monitor? = nil
+    var keyDownEventMonitor: NSEvent.Monitor? = nil
     var didStartDragging = false
     var mouseDownLocation: CGPoint = .zero
     static let minimumDragDistance: CGFloat = 4.0
