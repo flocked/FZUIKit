@@ -32,7 +32,7 @@ extension NSView {
 
      The provided menu is displayed when the user right-clicks the view. If you don't want to display a menu, return `nil`.
      */
-    public var menuProvider: ((_ location: CGPoint, _ modifierFlags: NSEvent.ModifierFlags)->(NSMenu?))? {
+    public var menuProvider: ((_ location: CGPoint)->(NSMenu?))? {
         get { getAssociatedValue("menuProvider", initialValue: nil) }
         set {
             setAssociatedValue(newValue, key: "menuProvider")
