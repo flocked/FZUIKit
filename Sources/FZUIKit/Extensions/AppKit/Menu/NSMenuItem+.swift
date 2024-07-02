@@ -440,61 +440,70 @@ public extension NSMenuItem {
 }
 
 extension NSMenuItem {
-    var hiddenOptionItem: Bool {
-        get { getAssociatedValue("hiddenOptionItem", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "hiddenOptionItem") }
+    /// The visibilty of an item when it is visible in it's menu.
+    public enum Visiblity: Int {
+        /// The default option that uses the menu item's `isHidden` property.
+        case normal
+        /// The item is visible when the option key is hold.
+        case optionHold
+        /// The item is visible if the option key is pressed while the menu opens.
+        case optionHoldOnMenuOpen
+    }
+    
+    
+    /**
+     The visibilty of the item when it is visible in it's menu.
+     
+     To enable support of this property, you have to enable ``AppKit/NSMenu/usesItemVisibilityOptions`` of the menu that displays the item.
+     */
+    public var visiblity: Visiblity {
+        get { getAssociatedValue("visiblity", initialValue: .normal) }
+        set { setAssociatedValue(newValue, key: "visiblity") }
+    }
+    
+    /// Sets the visibilty of the item when it is visible in it's menu.
+    @discardableResult
+    public func visiblity(_ visiblity: Visiblity) -> Self {
+        self.visiblity = visiblity
+        return self
     }
 }
 
 extension NSMenu {
+    /**
+     A Boolean value that indicates whether the visibilty of the items is considered by their `visibilty` property.
+     
+     Set this value to `true`, to enable  support of the ``AppKit/NSMenuItem/visiblity-swift.property`` property of the items that it's displays.
+     */
+    public var usesItemVisibilityOptions: Bool {
+        get { getAssociatedValue("usesItemVisibilityOptions", initialValue: false) }
+        set {
+            guard newValue != usesItemVisibilityOptions else { return }
+            setAssociatedValue(newValue, key: "usesItemVisibilityOptions")
+            setupDelegateProxy()
+        }
+    }
+    
+    /// Sets the Boolean value that indicates whether the visibilty of the items is considered by their `visibilty` property.
+    @discardableResult
+    public func usesItemVisibilityOptions(_ uses: Bool) -> Self {
+        self.usesItemVisibilityOptions = uses
+        return self
+    }
+    
+    /**
+     Adds a menu item that is hidden by default and is showen when the option key is hold.
+     
+     This method is a shortcut of setting the item's ``AppKit/NSMenuItem/visiblity-swift.property`` to `optionHold`, enabling the menu's ``AppKit/NSMenu/usesItemVisibilityOptions`` and adding the item.
+     */
     public func addHiddenOptionItem(_ item: NSMenuItem) {
-        item.hiddenOptionItem = true
-        item.isHidden = true
+        item.visiblity = .optionHold
+        usesItemVisibilityOptions = true
         addItem(item)
-        if menuEventObserver == nil {
-            menuEventObserver = MenuEventObserver()
-            delegate = menuEventObserver
-        }
-        Swift.print("addHiddenOptionItem", delegate ?? "nil")
     }
     
-    var menuEventObserver: MenuEventObserver? {
-        get { getAssociatedValue("menuEventObserver", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "menuEventObserver") }
-    }
-    
-    class MenuEventObserver: NSObject, NSMenuDelegate {
-        var menuObserver: CFRunLoopObserver?
-
-        func menuWillOpen(_ menu: NSMenu) {
-            Swift.print("menuWillOpen")
-            guard menuObserver == nil else { return }
-            menuObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
-                self.menuRecievedEvents(menu: menu)
-            })
-            CFRunLoopAddObserver(CFRunLoopGetCurrent(), menuObserver, CFRunLoopMode.commonModes)
-        }
-        
-        func menuDidClose(_ menu: NSMenu) {
-            Swift.print("menuDidClose")
-            guard menuObserver != nil else { return }
-            CFRunLoopObserverInvalidate(menuObserver)
-            menuObserver = nil
-        }
-        
-        fileprivate func menuRecievedEvents(menu: NSMenu) {
-
-            
-            // Get global modifier key flags
-            let event = CGEvent(source: nil)
-            let flags: CGEventFlags = event!.flags
-            
-            Swift.print("menuRecievedEvents", flags)
-
-            
-            let optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
-            menu.items.filter({$0.hiddenOptionItem}).forEach({$0.isHidden = !optionKeyIsPressed})
-        }
+    var hiddenOptionItems: [NSMenuItem] {
+        items.filter({ $0.visiblity == .optionHold })
     }
 }
 #endif

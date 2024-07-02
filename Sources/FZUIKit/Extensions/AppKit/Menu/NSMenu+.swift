@@ -219,7 +219,7 @@ extension NSMenu {
     }
     
     func setupDelegateProxy() {
-        if handlers.needsDelegate || items.contains(where: {$0.view is MenuItemView}) {
+        if usesItemVisibilityOptions || handlers.needsDelegate || items.contains(where: {$0.view is MenuItemView}) {
             if delegateProxy == nil {
                 delegateProxy = DelegateProxy(self)
             }
@@ -232,6 +232,9 @@ extension NSMenu {
     
     class DelegateProxy: NSObject, NSMenuDelegate {
         weak var delegate: NSMenuDelegate?
+        
+        var eventObserver: CFRunLoopObserver?
+        
         var delegateObservation: KeyValueObservation? = nil
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
@@ -244,18 +247,36 @@ extension NSMenu {
             }
         }
         
-        func menuDidClose(_ menu: NSMenu) {
-            if menu.delegate === self {
-                menu.handlers.didClose?()
+        func menuWillOpen(_ menu: NSMenu) {
+            guard menu.delegate === self else { return }
+            menu.handlers.willOpen?()
+            let optionPressed = NSEvent.current?.modifierFlags.contains([.option]) == true
+            menu.items.filter({ $0.visiblity != .normal }).forEach({ $0.isHidden = !optionPressed })
+            delegate?.menuWillOpen?(menu)
+            let hiddenOptionItems = menu.hiddenOptionItems
+            if !hiddenOptionItems.isEmpty, menu.usesItemVisibilityOptions, eventObserver == nil {
+                eventObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
+                    self.menuRecievedEvents(menu: menu)
+                })
+                CFRunLoopAddObserver(CFRunLoopGetCurrent(), eventObserver, CFRunLoopMode.commonModes)
             }
-            delegate?.menuDidClose?(menu)
         }
         
-        func menuWillOpen(_ menu: NSMenu) {
-            if menu.delegate === self {
-                menu.handlers.willOpen?()
+        func menuDidClose(_ menu: NSMenu) {
+            guard menu.delegate === self else { return }
+            menu.handlers.didClose?()
+            delegate?.menuDidClose?(menu)
+            if eventObserver != nil {
+                CFRunLoopObserverInvalidate(eventObserver)
+                eventObserver = nil
             }
-            delegate?.menuWillOpen?(menu)
+        }
+        
+        func menuRecievedEvents(menu: NSMenu) {
+            let event = CGEvent(source: nil)
+            let flags: CGEventFlags = event!.flags
+            let optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
+            menu.hiddenOptionItems.forEach({$0.isHidden = !optionKeyIsPressed})
         }
         
         func numberOfItems(in menu: NSMenu) -> Int {
