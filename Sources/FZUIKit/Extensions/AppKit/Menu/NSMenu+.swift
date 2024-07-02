@@ -42,6 +42,21 @@
             return self
         }
         
+        /**
+         Adds a menu item and it's alternative to the end of the menu.
+         
+         The anternate item is displayed, when the specified modifier mask is pressed by the user.
+         
+         - Parameters:
+            - item: The menu item to add to the menu.
+            - alternative: The alternative menu item to add to the menu.
+            - modifierMask: The modifier mask for displaying the alternate menu item. The default value is `option.`
+         */
+        func addItem(_ item: NSMenuItem, alternate: NSMenuItem, modifierMask: NSEvent.ModifierFlags = [.option]) {
+            addItem(item)
+            addItem(alternate.isAlternate(true).keyEquivalentModifierMask(modifierMask))
+        }
+        
         /// The menu items in the menu.
         @discardableResult
         func items(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
