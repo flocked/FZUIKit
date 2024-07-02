@@ -13,6 +13,20 @@ import UniformTypeIdentifiers
 #endif
 
 extension NSView {
+    /// Sets the menu.
+    @discardableResult
+    public func menu(_ menu: NSMenu?) -> Self {
+        self.menu = menu
+        return self
+    }
+    
+    /// Sets the menu with the specified items.
+    @discardableResult
+    public func menu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+        self.menu = NSMenu(items)
+        return self
+    }
+    
     /**
      Handler that provides the menu for a right-click.
 
