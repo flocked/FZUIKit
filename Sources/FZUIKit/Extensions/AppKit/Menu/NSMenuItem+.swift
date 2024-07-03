@@ -356,14 +356,16 @@
         
         /// The visibilty of an item when it is visible in it's menu.
         enum Visiblity: Int {
-            /// The default option that uses the menu item's `isHidden` property.
+            /// The default option that uses the menu item's `isHidden` property.^
             case normal
-            /// The item is visible when the option key is hold.
+            /// The item is visible while the option key is hold.
             case optionHold
             /// The item is visible if the option key is pressed while the menu opens.
             case optionHoldOnMenuOpen
         }
         
+        // holdingOption
+        // holdingOptionOn
         
         /// The visibilty of the item.
         var visiblity: Visiblity {

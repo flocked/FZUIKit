@@ -278,9 +278,13 @@ extension NSMenu {
         }
         
         func menuRecievedEvents(menu: NSMenu) {
+            if let fla = CGEvent(source: nil)?.flags, CGEventFlags(rawValue: fla.rawValue & CGEventFlags.maskAlternate.rawValue) == .maskAlternate {
+                
+            }
             let event = CGEvent(source: nil)
             let flags: CGEventFlags = event!.flags
-            let optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
+            var optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
+            optionKeyIsPressed = CGEvent(source: nil)?.flags.contains(.maskAlternate) == true
             menu.items.filter({ $0.visiblity == .optionHold }).forEach({$0.isHidden = !optionKeyIsPressed})
         }
         
