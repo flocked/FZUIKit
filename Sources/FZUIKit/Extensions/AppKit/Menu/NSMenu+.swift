@@ -184,8 +184,8 @@ extension NSMenu {
         public var effectiveAppearance: ((NSAppearance)->())?
 
         var needsDelegate: Bool {
-            didClose != nil ||
             willOpen != nil ||
+            didClose != nil ||
             willHighlight != nil ||
             effectiveAppearance != nil
         }
@@ -214,12 +214,12 @@ extension NSMenu {
     }
     
     var delegateProxy: DelegateProxy? {
-        get { getAssociatedValue("menuProxy", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "menuProxy") }
+        get { getAssociatedValue("delegateProxy", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
     
     func setupDelegateProxy(itemProviderView: NSView? = nil) {
-        if itemProviderView != nil || !items.filter({ $0.visiblity == .optionHold }).isEmpty || handlers.needsDelegate || items.contains(where: {$0.view is MenuItemView}) {
+        if itemProviderView != nil ||  items.contains(where: { $0.visiblity != .normal || $0.view is MenuItemView }) || handlers.needsDelegate {
             if delegateProxy == nil {
                 delegateProxy = DelegateProxy(self)
             }
@@ -235,8 +235,8 @@ extension NSMenu {
         weak var delegate: NSMenuDelegate?
         weak var itemProviderView: NSView?
         var eventObserver: CFRunLoopObserver?
+        var delegateObservation: KeyValueObservation?
         
-        var delegateObservation: KeyValueObservation? = nil
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
             super.init()
@@ -271,20 +271,14 @@ extension NSMenu {
                 CFRunLoopObserverInvalidate(eventObserver)
                 eventObserver = nil
             }
-            if let view = itemProviderView, view.menu == menu {
-                view.menu = nil
+            if itemProviderView?.menu == menu {
+                itemProviderView?.menu = nil
             }
-            self.itemProviderView = nil
+            itemProviderView = nil
         }
         
         func menuRecievedEvents(menu: NSMenu) {
-            if let fla = CGEvent(source: nil)?.flags, CGEventFlags(rawValue: fla.rawValue & CGEventFlags.maskAlternate.rawValue) == .maskAlternate {
-                
-            }
-            let event = CGEvent(source: nil)
-            let flags: CGEventFlags = event!.flags
-            var optionKeyIsPressed = CGEventFlags(rawValue: flags.rawValue & CGEventFlags.maskAlternate.rawValue) == CGEventFlags.maskAlternate
-            optionKeyIsPressed = CGEvent(source: nil)?.flags.contains(.maskAlternate) == true
+            let optionKeyIsPressed = CGEvent(source: nil)?.flags.contains(.maskAlternate) == true
             menu.items.filter({ $0.visiblity == .optionHold }).forEach({$0.isHidden = !optionKeyIsPressed})
         }
         
