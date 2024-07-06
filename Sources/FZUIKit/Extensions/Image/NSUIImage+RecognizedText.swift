@@ -14,7 +14,7 @@ import UIKit
 import Vision
 
 public extension NSUIImage {
-    /// Returns the recognized texts to the completion handler.
+    /// Returns the recognized texts in the image to the completion handler.
     func recognizedTexts(completion: @escaping (_ recognizedTexts: [VNRecognizedText])->()) {
         if let cgImage = cgImage {
             cgImage.recognizedTexts(completion: completion)
@@ -25,7 +25,7 @@ public extension NSUIImage {
 }
 
 public extension CGImage {
-    /// Returns the recognized texts to the completion handler.
+    /// Returns the recognized texts in the image to the completion handler.
     func recognizedTexts(completion: @escaping (_ recognizedTexts: [VNRecognizedText])->()) {
         let requestHandler = VNImageRequestHandler(cgImage: self)
         let request = VNRecognizeTextRequest() { request, error in
@@ -47,7 +47,7 @@ public extension CGImage {
 }
 
 public extension CIImage {
-    /// Returns the recognized texts to the completion handler.
+    /// Returns the recognized texts in the image to the completion handler.
     func recognizedTexts(completion: @escaping (_ recognizedTexts: [VNRecognizedText])->()) {
         let requestHandler = VNImageRequestHandler(ciImage: self)
         let request = VNRecognizeTextRequest() { request, error in
