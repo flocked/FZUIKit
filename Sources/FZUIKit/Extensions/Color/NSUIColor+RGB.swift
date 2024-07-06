@@ -57,7 +57,7 @@ public extension NSUIColor {
     /**
      Returns a new color object with the specified red component.
 
-     - Parameter red: The red component value of the new color object, specified as a value from 0.0 to 1.0. Red values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Parameter red: The red component value of the new color object, specified as a value from `0.0` to `1.0.` Red values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
      - Returns: The new color object.
      */
     func withRed(_ red: CGFloat) -> NSUIColor {
@@ -68,7 +68,7 @@ public extension NSUIColor {
     /**
      Returns a new color object with the specified green component.
 
-     - Parameter green: The green component value of the new color object, specified as a value from 0.0 to 1.0. Green values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Parameter green: The green component value of the new color object, specified as a value from `0.0` to `1.0.` Green values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
      - Returns: The new color object.
      */
     func withGreen(_ green: CGFloat) -> NSUIColor {
@@ -79,7 +79,7 @@ public extension NSUIColor {
     /**
      Returns a new color object with the specified blue component.
 
-     - Parameter blue: The blue component value of the new color object, specified as a value from 0.0 to 1.0. Blue values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Parameter blue: The blue component value of the new color object, specified as a value from `0.0` to `1.0.` Blue values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
      - Returns: The new color object.
      */
     func withBlue(_ blue: CGFloat) -> NSUIColor {
@@ -90,7 +90,7 @@ public extension NSUIColor {
     /**
      Returns a new color object with the specified alpha component.
 
-     - Parameter alpha: The alpha component value of the new color object, specified as a value from 0.0 to 1.0. Alpha values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Parameter alpha: The alpha component value of the new color object, specified as a value from `0.0` to `1.0.` Alpha values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
      - Returns: The new color object.
      */
     func withAlpha(_ alpha: CGFloat) -> NSUIColor {

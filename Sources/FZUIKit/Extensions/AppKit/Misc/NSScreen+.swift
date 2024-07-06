@@ -74,6 +74,12 @@
             return CGDisplayBounds(displayID)
         }
         
+        /// Returns an image containing the contents of the screen.
+        var screenshot: CGImage? {
+            guard let displayID = displayID else { return nil }
+            return CGDisplayCreateImage(displayID)
+        }
+        
         /// Returns the screeen which includes the mouse cursor.
         static var withMouse: NSScreen? {
             let mouseLocation = NSEvent.mouseLocation
