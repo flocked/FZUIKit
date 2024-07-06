@@ -15,55 +15,59 @@ import Vision
 
 public extension NSUIImage {
     /// Returns the recognized texts in the image to the completion handler.
-    func recognizedTexts(completion: @escaping (_ recognizedTexts: [VNRecognizedText])->()) {
+    func recognizedTexts(completion: @escaping (_ result: Result<[VNRecognizedText], Error>)->()) {
         if let cgImage = cgImage {
             cgImage.recognizedTexts(completion: completion)
         } else {
-            completion([])
+            completion(.failure(TextRecognizionErrors.noCGImage))
         }
+    }
+    
+    /// Errors for recognizing texts in an image.
+    enum TextRecognizionErrors: Error {
+        /// Unable to convert the image to a `CGImage`.
+        case noCGImage
+        /// Unable to recognize text.
+        case unableToRecognizeText
     }
 }
 
 public extension CGImage {
     /// Returns the recognized texts in the image to the completion handler.
-    func recognizedTexts(completion: @escaping (_ recognizedTexts: [VNRecognizedText])->()) {
+    func recognizedTexts(completion: @escaping (_ result: Result<[VNRecognizedText], Error>)->()) {
         let requestHandler = VNImageRequestHandler(cgImage: self)
         let request = VNRecognizeTextRequest() { request, error in
-            guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                completion([])
-                return
+            if let recognizedTexts = (request.results as? [VNRecognizedTextObservation])?.compactMap({ $0.topCandidates(1).first}) {
+                completion(.success(recognizedTexts))
+            } else {
+                completion(.failure(error ?? NSUIImage.TextRecognizionErrors.unableToRecognizeText))
             }
-            let recognizedTexts = observations.compactMap { $0.topCandidates(1).first }
-            completion(recognizedTexts)
         }
 
         do {
             try requestHandler.perform([request])
         } catch {
-            debugPrint("Unable to perform the requests: \(error).")
-            completion([])
+            completion(.failure(error))
         }
     }
 }
 
 public extension CIImage {
     /// Returns the recognized texts in the image to the completion handler.
-    func recognizedTexts(completion: @escaping (_ recognizedTexts: [VNRecognizedText])->()) {
+    func recognizedTexts(completion: @escaping (_ result: Result<[VNRecognizedText], Error>)->()) {
         let requestHandler = VNImageRequestHandler(ciImage: self)
         let request = VNRecognizeTextRequest() { request, error in
-            guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                completion([])
-                return
+            if let recognizedTexts = (request.results as? [VNRecognizedTextObservation])?.compactMap({ $0.topCandidates(1).first}) {
+                completion(.success(recognizedTexts))
+            } else {
+                completion(.failure(error ?? NSUIImage.TextRecognizionErrors.unableToRecognizeText))
             }
-            let recognizedTexts = observations.compactMap { $0.topCandidates(1).first }
-            completion(recognizedTexts)
         }
 
         do {
             try requestHandler.perform([request])
         } catch {
-            debugPrint("Unable to perform the requests: \(error).")
-            completion([])
+            completion(.failure(error))
         }
     }
 }
