@@ -18,6 +18,8 @@ public extension NSUIImage {
     func recognizedTexts(completion: @escaping (_ result: Result<[VNRecognizedText], Error>)->()) {
         if let cgImage = cgImage {
             cgImage.recognizedTexts(completion: completion)
+        } else if let ciImage = ciImage {
+            ciImage.recognizedTexts(completion: completion)
         } else {
             completion(.failure(TextRecognizionErrors.noCGImage))
         }
