@@ -157,19 +157,19 @@ import FZSwiftUtils
         }
         
         /// A Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
-        public var endEditingOnOutsideClick: Bool {
-            get { getAssociatedValue("endEditingOnOutsideClick", initialValue: false) }
+        public var endsEditingOnOutsideClick: Bool {
+            get { getAssociatedValue("endsEditingOnOutsideClick", initialValue: false) }
             set {
-                guard newValue != endEditingOnOutsideClick else { return }
-                setAssociatedValue(newValue, key: "endEditingOnOutsideClick")
+                guard newValue != endsEditingOnOutsideClick else { return }
+                setAssociatedValue(newValue, key: "endsEditingOnOutsideClick")
                 setupMouseMonitor()
             }
         }
         
         /// Sets the Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
         @discardableResult
-        public func endEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
-            self.endEditingOnOutsideClick = endsEditing
+        public func endsEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
+            self.endsEditingOnOutsideClick = endsEditing
             return self
         }
         
@@ -179,10 +179,10 @@ import FZSwiftUtils
         }
 
         func setupMouseMonitor() {
-            if endEditingOnOutsideClick {
+            if endsEditingOnOutsideClick {
                 if mouseDownMonitor == nil {
                     mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
-                        guard let self = self, self.endEditingOnOutsideClick, self.isFirstResponder else { return event }
+                        guard let self = self, self.endsEditingOnOutsideClick, self.isFirstResponder else { return event }
                         if self.bounds.contains(event.location(in: self)) == false {
                             self.resignFirstResponding()
                         }

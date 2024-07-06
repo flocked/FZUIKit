@@ -224,11 +224,11 @@
         }
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
-        public var endEditingOnOutsideClick: Bool {
-            get { getAssociatedValue("endEditingOnOutsideClick", initialValue: false) }
+        public var endsEditingOnOutsideClick: Bool {
+            get { getAssociatedValue("endsEditingOnOutsideClick", initialValue: false) }
             set { 
-                guard newValue != endEditingOnOutsideClick else { return }
-                setAssociatedValue(newValue, key: "endEditingOnOutsideClick")
+                guard newValue != endsEditingOnOutsideClick else { return }
+                setAssociatedValue(newValue, key: "endsEditingOnOutsideClick")
                 setupTextFieldObserver()
                 keyboardFocusChanged()
             }
@@ -236,8 +236,8 @@
         
         /// Sets the Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
         @discardableResult
-        public func endEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
-            endEditingOnOutsideClick = endsEditing
+        public func endsEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
+            endsEditingOnOutsideClick = endsEditing
             return self
         }
         
@@ -272,10 +272,10 @@
                 self.isEditable = isSelectableEditableState.isEditable
                 self.isSelectableEditableState = nil
             }
-            if hasKeyboardFocus, endEditingOnOutsideClick {
+            if hasKeyboardFocus, endsEditingOnOutsideClick {
                 guard mouseDownMonitor == nil else { return }
                 mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
-                    guard let self = self, self.endEditingOnOutsideClick, self.hasKeyboardFocus else { return event }
+                    guard let self = self, self.endsEditingOnOutsideClick, self.hasKeyboardFocus else { return event }
                     if self.bounds.contains(event.location(in: self)) == false {
                         self.updateString()
                         self.resignFirstResponding()
@@ -437,7 +437,7 @@
         }
         
         func setupTextFieldObserver() {
-            if needsFontAdjustments || automaticallyResizesToFit || endEditingOnOutsideClick || isEditableByDoubleClick {
+            if needsFontAdjustments || automaticallyResizesToFit || endsEditingOnOutsideClick || isEditableByDoubleClick {
                 if textFieldObserver == nil {
                     textFieldObserver = KeyValueObserver(self)
                 }
@@ -446,7 +446,7 @@
             }
             guard let textFieldObserver = textFieldObserver else { return }
             
-            if endEditingOnOutsideClick || isEditableByDoubleClick {
+            if endsEditingOnOutsideClick || isEditableByDoubleClick {
                 guard textFieldObserver.isObserving(\.window?.firstResponder) == false else { return }
                 textFieldObserver.add( \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self else { return }

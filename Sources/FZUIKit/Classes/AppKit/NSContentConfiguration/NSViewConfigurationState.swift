@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 28.12.23.
 //
 
+#if os(macOS)
 import AppKit
 import FZSwiftUtils
 
@@ -159,3 +160,4 @@ public class __NSViewConfigurationStateObjcNew: NSObject, NSCopying {
         __NSViewConfigurationStateObjcNew(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isEmphasized: isEmphasized, isFocused: isFocused, isExpanded: isExpanded, customStates: customStates)
     }
 }
+#endif

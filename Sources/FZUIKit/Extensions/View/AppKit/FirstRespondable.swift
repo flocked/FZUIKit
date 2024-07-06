@@ -12,7 +12,7 @@ import AppKit
 public protocol FirstRespondable: NSUIResponder {
     
     /**
-     Returns a Boolean value that indicates whether this object is the first responder.
+     A Boolean value that indicates whether this object is the first responder.
      
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      
@@ -82,15 +82,7 @@ public extension FirstRespondable where Self: NSTextField {
     var isFirstResponder: Bool { 
         window?.firstResponder == currentEditor() || window?.firstResponder == self
     }
-    
-    @discardableResult
-    func makeFirstResponder() -> Bool {
-        if !isFirstResponder, acceptsFirstResponder {
-            window?.makeFirstResponder(self)
-        }
-        return isFirstResponder
-    }
-    
+        
     @discardableResult
     func resignFirstResponding() -> Bool {
         if isFirstResponder {

@@ -15,5 +15,12 @@ extension NSMatrix {
         drawsBackground = draws
         return self
     }
+    
+    /// Sets the Boolean value that indicates whether the matrix draws its background.
+    @discardableResult
+    public func backgroundColor(_ color: NSColor) -> Self {
+        backgroundColor = color
+        return self
+    }
 }
 #endif
