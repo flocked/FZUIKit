@@ -2,7 +2,7 @@
 //  StackView.swift
 //
 //  Parts taken from:
-//  Taken from Maximilian Mackh
+//  Maximilian Mackh
 //
 //  Created by Florian Zand on 18.04.24.
 //

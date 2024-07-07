@@ -45,6 +45,10 @@ SimpleStackView
 - Copyright (c) 2019 Maximilian Mackh
 - https://github.com/mmackh/BaseComponents
 
+Stackview
+- Copyright (c) 2019 Maximilian Mackh
+- https://github.com/mmackh/BaseComponents
+
 WaterfallCollectionLayout
 - Copyright (c) 2014 Nicholas Tau
 - https://github.com/1xiaocainiao/PinterestSwift-CHTCollectionViewWaterfallLayout

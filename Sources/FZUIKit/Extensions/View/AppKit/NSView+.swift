@@ -14,8 +14,7 @@
         /// Sets type of focus ring drawn around the view.
         @discardableResult
         public func focusRingType(_ type: NSFocusRingType) -> Self {
-            self.focusRingType = type
-            return self
+            set(\.focusRingType, to: type)
         }
         
         /**
@@ -740,8 +739,7 @@
         /// Sets the text for the view’s tooltip.
         @discardableResult
         public func toolTip(_ toolTip: String?) -> Self {
-            self.toolTip = toolTip
-            return self
+            set(\.toolTip, to: toolTip)
         }
         
         static func swizzleAnimationForKey() {

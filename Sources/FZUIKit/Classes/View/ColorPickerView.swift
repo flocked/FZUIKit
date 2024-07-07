@@ -2,7 +2,7 @@
 //  ColorPickerView.swift
 //
 //  Parts taken from:
-//  Taken from steventroughtonsmith
+//  steventroughtonsmith
 //
 //  Created by Florian Zand on 03.02.23.
 //

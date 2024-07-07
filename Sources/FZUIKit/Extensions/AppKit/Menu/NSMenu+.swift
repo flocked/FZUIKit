@@ -38,8 +38,7 @@
         /// The menu items in the menu.
         @discardableResult
         func items(_ items: [NSMenuItem]) -> Self {
-            self.items = items
-            return self
+            set(\.items, to: items)
         }
         
         /**
@@ -60,96 +59,83 @@
         /// The menu items in the menu.
         @discardableResult
         func items(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
-            self.items = items()
-            return self
+            set(\.items, to: items())
         }
         
         /// A Boolean value that indicates whether the menu automatically enables and disables its menu items.
         @discardableResult
         func autoenablesItems(_ autoenables: Bool) -> Self {
-            autoenablesItems = autoenables
-            return self
+            set(\.autoenablesItems, to: autoenables)
         }
         
         /// The font of the menu and its submenus.
         @discardableResult
         func font(_ font: NSFont!) -> Self {
-            self.font = font
-            return self
+            set(\.font, to: font)
         }
         
         /// The title of the menu.
         @discardableResult
         func title(_ title: String) -> Self {
-            self.title = title
-            return self
+            set(\.title, to: title)
         }
         
         /// The menu items that are currently selected.
         @available(macOS 14.0, *)
         @discardableResult
         func selectedItems(_ items: [NSMenuItem]) -> Self {
-            self.selectedItems = items
-            return self
+            set(\.selectedItems, to: selectedItems)
         }
         
         /// The menu items that are currently selected.
         @available(macOS 14.0, *)
         @discardableResult
         func selectedItems(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
-            self.selectedItems = items()
-            return self
+            set(\.selectedItems, to: items())
         }
         
         /// The selection mode of the menu.
         @available(macOS 14.0, *)
         @discardableResult
         func selectionMode(_ selectionMode: NSMenu.SelectionMode) -> Self {
-            self.selectionMode = selectionMode
-            return self
+            set(\.selectionMode, to: selectionMode)
         }
         
         /// The minimum width of the menu in screen coordinates.
         @discardableResult
         func minimumWidth(_ minimumWidth: CGFloat) -> Self {
-            self.minimumWidth = minimumWidth
-            return self
+            set(\.minimumWidth, to: minimumWidth)
         }
         
         /// The presentation style of the menu.
         @available(macOS 14.0, *)
         @discardableResult
         func presentationStyle(_ presentationStyle: NSMenu.PresentationStyle) -> Self {
-            self.presentationStyle = presentationStyle
-            return self
+            set(\.presentationStyle, to: presentationStyle)
         }
         
         /// A Boolean value that indicates whether the pop-up menu allows appending of contextual menu plug-in items.
         @discardableResult
         func allowsContextMenuPlugIns(_ allows: Bool) -> Self {
-            allowsContextMenuPlugIns = allows
-            return self
+            set(\.allowsContextMenuPlugIns, to: allows)
         }
         
         /// A Boolean value that indicates whether the menu displays the state column.
         @discardableResult
         func showsStateColumn(_ shows: Bool) -> Self {
-            showsStateColumn = shows
-            return self
+            set(\.showsStateColumn, to: shows)
         }
         
         /// Configures the layout direction of menu items in the menu.
         @discardableResult
         func userInterfaceLayoutDirection(_ direction: NSUserInterfaceLayoutDirection) -> Self {
-            userInterfaceLayoutDirection = direction
-            return self
+            set(\.userInterfaceLayoutDirection, to: direction)
         }
         
         /// The delegate of the menu.
         @discardableResult
         func delegate(_ delegate: NSMenuDelegate?) -> Self {
-            self.delegate = delegate
-            return self
+            set(\.delegate, to: delegate)
         }
         
         /**
