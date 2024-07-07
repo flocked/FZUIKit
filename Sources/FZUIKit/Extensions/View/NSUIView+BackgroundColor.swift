@@ -102,7 +102,6 @@ extension NSView {
         get { getAssociatedValue("dynamicColors", initialValue: DynamicColors()) }
         set { setAssociatedValue(newValue, key: "dynamicColors")
             setupEffectiveAppearanceObserver()
-            Swift.print("set dynamicColors")
         }
     }
 
