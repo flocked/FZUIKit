@@ -8,12 +8,6 @@
 import Foundation
 
 extension NSObjectProtocol where Self: NSObject {
-    @discardableResult
-    func set<Value>(_ keyPath: ReferenceWritableKeyPath<Self, Value>, to value: Value) -> Self {
-        self[keyPath: keyPath] = value
-        return self
-    }
-    
     /// Returns the real `self`, if the object is a proxy.
     var realSelf: Self {
         guard isProxy() else { return self }

@@ -45,7 +45,8 @@
         /// Sets the label that appears for this item in the toolbar.
         @discardableResult
         func label(_ label: String?) -> Self {
-            set(\.item.label, to: label ?? "")
+            item.label = label ?? ""
+            return self
         }
 
         /**
@@ -67,7 +68,8 @@
          */
         @discardableResult
         func paletteLabel(_ paletteLabel: String?) -> Self {
-            set(\.item.paletteLabel, to: paletteLabel ?? "")
+            item.paletteLabel = paletteLabel ?? ""
+            return self
         }
 
         /**
@@ -77,13 +79,15 @@
          */
         @discardableResult
         func tag(_ tag: Int) -> Self {
-            set(\.item.tag, to: tag)
+            item.tag = tag
+            return self
         }
 
         /// Sets the Boolean value that indicates whether the item is enabled.
         @discardableResult
         func isEnabled(_ isEnabled: Bool) -> Self {
-            set(\.item.isEnabled, to: isEnabled)
+            item.isEnabled = isEnabled
+            return self
         }
 
         /**
@@ -91,25 +95,29 @@
          */
         @discardableResult
         func isSelectable(_ isSelectable: Bool) -> Self {
-            set(\.isSelectable, to: isSelectable)
+            self.isSelectable = isSelectable
+            return self
         }
 
         /// Mark the item as available on the 'default' toolbar presented to the user
         @discardableResult
         func isDefault(_ isDefault: Bool) -> Self {
-            set(\.isDefault, to: isDefault)
+            self.isDefault = isDefault
+            return self
         }
 
         /// Sets the Boolean value that indicates whether the item can be removed or rearranged by the user.
         @discardableResult
         func isImmovable(_ isImmovable: Bool) -> Self {
-            set(\.isImmovableItem, to: isImmovable)
+            isImmovableItem = isImmovable
+            return self
         }
 
         /// Sets the tooltip to display when someone hovers over the item in the toolbar.
         @discardableResult
         func toolTip(_ toolTip: String?) -> Self {
-            set(\.item.toolTip, to: toolTip)
+            item.toolTip = toolTip
+            return self
         }
 
         /**
@@ -121,7 +129,8 @@
          */
         @discardableResult
         func visibilityPriority(_ priority: NSToolbarItem.VisibilityPriority) -> Self {
-            set(\.item.visibilityPriority, to: priority)
+            item.visibilityPriority = priority
+            return self
         }
 
         /**
@@ -131,7 +140,8 @@
          */
         @discardableResult
         func menuFormRepresentation(_ menuItem: NSMenuItem?) -> Self {
-            set(\.item.menuFormRepresentation, to: menuItem)
+            item.menuFormRepresentation = menuItem
+            return self
         }
         
         internal func apply(_ modifier: @escaping (Self) -> Void) -> Self {

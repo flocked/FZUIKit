@@ -46,7 +46,8 @@ open class ImageView: NSControl {
     /// Sets the image displayed in the image view.
     @discardableResult
     open func image(_ image: NSImage?) -> Self {
-        set(\.image, to: image)
+        self.image = image
+        return self
     }
 
     /// The images displayed by the image view.
@@ -60,7 +61,8 @@ open class ImageView: NSControl {
     /// Sets the images displayed by the image view.
     @discardableResult
     open func images(_ images: [NSImage]) -> Self {
-        set(\.images, to: images)
+        self.images = images
+        return self
     }
     
     var animatedImage: AnimatedImage? = nil {
@@ -99,7 +101,8 @@ open class ImageView: NSControl {
     @discardableResult
     @available(macOS 11.0, *)
     open func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
-        set(\.symbolConfiguration, to: symbolConfiguration)
+        self.symbolConfiguration = symbolConfiguration
+        return self
     }
         
     /**
@@ -134,7 +137,8 @@ open class ImageView: NSControl {
     /// Sets the image scaling.
     @discardableResult
     open func imageScaling(_ imageScaling: ImageScaling) -> Self {
-        set(\.imageScaling, to: imageScaling)
+        self.imageScaling = imageScaling
+        return self
     }
     
     /// Constants that specify the image scaling behavior.
@@ -169,7 +173,8 @@ open class ImageView: NSControl {
     /// Sets the image alignment inside the image view.
     @discardableResult
     open func imageAlignment(_ alignment: NSImageAlignment) -> Self {
-        set(\.imageAlignment, to: alignment)
+        self.imageAlignment = alignment
+        return self
     }
     
     /// The corner radius of the image.
@@ -181,7 +186,8 @@ open class ImageView: NSControl {
     /// Sets the corner radius of the image.
     @discardableResult
     open func imageCornerRadius(_ cornerRadius: CGFloat) -> Self {
-        set(\.imageCornerRadius, to: cornerRadius)
+        self.imageCornerRadius = cornerRadius
+        return self
     }
     
     /// The corner curve of the image.
@@ -193,19 +199,21 @@ open class ImageView: NSControl {
     /// Sets the corner curve of the image.
     @discardableResult
     open func imageCornerCurve(_ cornerCurve: CALayerCornerCurve) -> Self {
-        set(\.imageCornerCurve, to: cornerCurve)
+        self.imageCornerCurve = cornerCurve
+        return self
     }
     
     /// The rounded corners of the image.
     open var imageRoundedCorners: CACornerMask {
         get { containerView.roundedCorners }
-        set {  containerView.roundedCorners = newValue }
+        set { containerView.roundedCorners = newValue }
     }
     
     /// Sets the rounded corners of the image.
     @discardableResult
     open func imageRoundedCorners(_ roundedCorners: CACornerMask) -> Self {
-        set(\.imageRoundedCorners, to: roundedCorners)
+        self.imageRoundedCorners = roundedCorners
+        return self
     }
     
     /// The background color of the image.
@@ -217,7 +225,8 @@ open class ImageView: NSControl {
     /// Sets the background color of the image.
     @discardableResult
     open func imageBackgroundColor(_ backgroundColor: NSColor?) -> Self {
-        set(\.imageBackgroundColor, to: backgroundColor)
+        self.imageBackgroundColor = backgroundColor
+        return self
     }
     
     /// The outer shadow of the image.
@@ -229,7 +238,8 @@ open class ImageView: NSControl {
     /// Sets the outer shadow of the image.
     @discardableResult
     open func imageShadow(_ shadow: ShadowConfiguration) -> Self {
-        set(\.imageShadow, to: shadow)
+        self.imageShadow = shadow
+        return self
     }
     
     /// The inner shadow of the image.
@@ -241,7 +251,8 @@ open class ImageView: NSControl {
     /// Sets the inner shadow of the image.
     @discardableResult
     open func imageInnerShadow(_ shadow: ShadowConfiguration) -> Self {
-        set(\.imageInnerShadow, to: shadow)
+        self.imageInnerShadow = shadow
+        return self
     }
     
     /// The border of the image.
@@ -253,7 +264,8 @@ open class ImageView: NSControl {
     /// Sets the border of the image.
     @discardableResult
     open func imageBorder(_ border: BorderConfiguration) -> Self {
-        set(\.imageBorder, to: border)
+        self.imageBorder = border
+        return self
     }
         
     /// The image tint color for template and symbol images.
@@ -265,7 +277,8 @@ open class ImageView: NSControl {
     /// Sets the image tint color for template and symbol images.
     @discardableResult
     open func tintColor(_ tintColor: NSColor?) -> Self {
-        set(\.tintColor, to: tintColor)
+        self.tintColor = tintColor
+        return self
     }
     
     // MARK: - Configurating animations
@@ -363,7 +376,8 @@ open class ImageView: NSControl {
     /// Sets the amount of time it takes to go through one cycle of an animated image.
     @discardableResult
     open func animationDuration(_ duration: TimeInterval) -> Self {
-        set(\.animationDuration, to: duration)
+        self.animationDuration = duration
+        return self
     }
     
     /**
@@ -376,7 +390,8 @@ open class ImageView: NSControl {
     /// Sets the number of times to repeat the animation.
     @discardableResult
     open func animationRepeatCount(_ repeatCount: Int) -> Self {
-        set(\.animationRepeatCount, to: repeatCount)
+        self.animationRepeatCount = repeatCount
+        return self
     }
 
     /// The playback behavior for animated images.
@@ -400,7 +415,8 @@ open class ImageView: NSControl {
     /// Sets the playback behavior for animated images.
     @discardableResult
     open func animationPlayback(_ animationPlayback: AnimationPlaybackOption) -> Self {
-        set(\.animationPlayback, to: animationPlayback)
+        self.animationPlayback = animationPlayback
+        return self
     }
     
     /// Constants that specify the playback behavior for animated images.
@@ -423,7 +439,8 @@ open class ImageView: NSControl {
     /// Sets the transition animation when changing the displayed image.
     @discardableResult
     open func transitionAnimation(_ transition: TransitionAnimation) -> Self {
-        set(\.transitionAnimation, to: transition)
+        self.transitionAnimation = transition
+        return self
     }
     
     /// The duration of the transition animation.
@@ -432,7 +449,8 @@ open class ImageView: NSControl {
     /// Sets the duration of the transition animation.
     @discardableResult
     open func transitionDuration(_ duration: TimeInterval) -> Self {
-        set(\.transitionDuration, to: duration)
+        self.transitionDuration = duration
+        return self
     }
     
     /// Constants that specify the transition animation when changing between displayed images.
@@ -516,7 +534,8 @@ open class ImageView: NSControl {
     @discardableResult
     @available(macOS 14.0, *)
     open func preferredImageDynamicRange(_ dynamicRange: NSImage.DynamicRange) -> Self {
-        set(\.preferredImageDynamicRange, to: dynamicRange)
+        self.preferredImageDynamicRange = dynamicRange
+        return self
     }
     
     /// The default preferred dynamic image range.
@@ -541,7 +560,8 @@ open class ImageView: NSControl {
     /// Sets the value that indicates whether the image view can be selected.
     @discardableResult
     open func isSelectable(_ isSelectable: SelectionOption) -> Self {
-        set(\.isSelectable, to: isSelectable)
+        self.isSelectable = isSelectable
+        return self
     }
     
     /// Constant that indicates whether the user can select the image view.
@@ -574,7 +594,8 @@ open class ImageView: NSControl {
     /// Sets the Boolean value indicating whether the user can drag a new image into the image view.
     @discardableResult
     open func isEditable(_ isEditable: Bool) -> Self {
-        set(\.isEditable, to: isEditable)
+        self.isEditable = isEditable
+        return self
     }
     
     /**
@@ -590,7 +611,8 @@ open class ImageView: NSControl {
     /// Sets the Boolean value indicating whether the image view lets the user cut, copy, and paste the image contents.
     @discardableResult
     open func allowsCutCopyPaste(_ allowsCutCopyPaste: Bool) -> Self {
-        set(\.allowsCutCopyPaste, to: allowsCutCopyPaste)
+        self.allowsCutCopyPaste = allowsCutCopyPaste
+        return self
     }
     
     // MARK: - Configuring symbol effects

@@ -203,7 +203,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the amount of columns.
     @discardableResult
     open func columns(_ columns: Int) -> Self {
-        set(\.columns, to: columns)
+        self.columns = columns
+        return self
     }
     
 #if os(macOS) || os(iOS)
@@ -225,7 +226,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
      */
     @discardableResult
     open func isPinchable(_ isPinchable: Bool) -> Self {
-        set(\.isPinchable, to: isPinchable)
+        self.isPinchable = isPinchable
+        return self
     }
     
     /// The amount of columns added or removed when the user presses the `plus` / `minus` key.
@@ -239,7 +241,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the amount of columns added or removed when the user presses the `plus` / `minus` key.
     @discardableResult
     open func keyDownColumnChangeAmount(_ amount: Int) -> Self {
-        set(\.keyDownColumnChangeAmount, to: amount)
+        self.keyDownColumnChangeAmount = amount
+        return self
     }
     
     /**
@@ -257,7 +260,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the amount of columns added or removed when the user presses the `plus` / `minus` key while holding `command`.
     @discardableResult
     open func keyDownAltColumnChangeAmount(_ amount: Int) -> Self {
-        set(\.keyDownAltColumnChangeAmount, to: amount)
+        keyDownAltColumnChangeAmount = amount
+        return self
     }
     
     /**
@@ -283,7 +287,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the range of columns that the user can change to, if ``isPinchable`` or ``isKeyDownControllable`` is set to `true`.
     @discardableResult
     open func columnRange(_ range: ClosedRange<Int>) -> Self {
-        set(\.columnRange, to: range)
+        columnRange = range
+        return self
     }
     
     var needsPinchGestureRecognizer: Bool {
@@ -306,7 +311,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the animation duration when changing the amount of columns, or `nil` for no animation.
     @discardableResult
     open func animationDuration(_ duration:  TimeInterval?) -> Self {
-        set(\.animationDuration, to: duration)
+        animationDuration = duration
+        return self
     }
     
     /// The spacing between the columns.
@@ -317,7 +323,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the spacing between the columns.
     @discardableResult
     open func columnSpacing(_ spacing:  CGFloat) -> Self {
-        set(\.columnSpacing, to: spacing)
+        columnSpacing = spacing
+        return self
     }
     
      /// The spacing between the items.
@@ -328,7 +335,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the spacing between the items.
     @discardableResult
     open func itemSpacing(_ spacing:  CGFloat) -> Self {
-        set(\.itemSpacing, to: spacing)
+        self.itemSpacing = spacing
+        return self
     }
     
     /// The height of the header.
@@ -339,7 +347,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the height of the header.
     @discardableResult
     open func headerHeight(_ height:  CGFloat) -> Self {
-        set(\.headerHeight, to: height)
+        headerHeight = height
+        return self
     }
     
     /// The height of the footer.
@@ -350,7 +359,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the height of the footer.
     @discardableResult
     open func footerHeight(_ height:  CGFloat) -> Self {
-        set(\.footerHeight, to: height)
+        footerHeight = height
+        return self
     }
     
     /// The order each item is displayed.
@@ -359,7 +369,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     /// Sets the order each item is displayed.
     @discardableResult
     open func itemOrder(_ direction:  ItemSortOrder) -> Self {
-        set(\.itemOrder, to: direction)
+        itemOrder = direction
+        return self
     }
     
     /// The order each item is displayed.
@@ -377,8 +388,9 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     
     /// Sets the margins used to lay out content in a section.
     @discardableResult
-    open func sectionInset(_ inset:  NSUIEdgeInsets) -> Self {
-        set(\.sectionInset, to: inset)
+    open func sectionInset(_ inset: NSUIEdgeInsets) -> Self {
+        sectionInset = inset
+        return self
     }
     
     /// A Boolean value that indicates whether to apply the ``sectionInset`` to the  safe area of the collection view.
@@ -392,7 +404,8 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     @available(macOS 11, iOS 13, *)
     @discardableResult
     open func sectionInsetUsesSafeArea(_ useSafeArea: Bool) -> Self {
-        set(\.sectionInsetUsesSafeArea, to: useSafeArea)
+        sectionInsetUsesSafeArea = useSafeArea
+        return self
     }
     
     private var columnHeights: [[CGFloat]] = []

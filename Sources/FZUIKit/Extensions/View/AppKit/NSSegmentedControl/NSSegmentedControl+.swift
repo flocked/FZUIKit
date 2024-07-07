@@ -29,13 +29,15 @@
         /// Sets the type of tracking behavior the control exhibits.
         @discardableResult
         func trackingMode(_ mode: SwitchTracking) -> Self {
-            set(\.trackingMode, to: mode)
+            trackingMode = mode
+            return self
         }
         
         /// Sets the visual style used to display the control.
         @discardableResult
         func style(_ style: Style) -> Self {
-            set(\.segmentStyle, to: style)
+            segmentStyle = style
+            return self
         }
         
         /// The indexes of the selected segments.

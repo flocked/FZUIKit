@@ -356,7 +356,8 @@
         
         /// Sets the background gradient of the view.
         public func gradient( _ gradient: Gradient?) -> Self {
-            set(\.gradient, to: gradient)
+            self.gradient = gradient
+            return self
         }
 
         internal var gradientLocations: [CGFloat] {

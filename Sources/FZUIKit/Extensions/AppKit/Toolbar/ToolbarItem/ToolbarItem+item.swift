@@ -18,19 +18,22 @@
             /// The title of the item.
             @discardableResult
             public func title(_ title: String) -> Self {
-                set(\.item.title, to: title)
+                item.title = title
+                return self
             }
 
             /// The image of the item, or `nil` if none.
             @discardableResult
             public func image(_ image: NSImage?) -> Self {
-                set(\.item.image, to: image)
+                item.image = image
+                return self
             }
 
             /// A Boolean value that indicates whether the toolbar item has a bordered style.
             @discardableResult
             public func bordered(_ isBordered: Bool) -> Self {
-                set(\.item.isBordered, to: isBordered)
+                item.isBordered = isBordered
+                return self
             }
 
             @available(macOS 11.0, *)

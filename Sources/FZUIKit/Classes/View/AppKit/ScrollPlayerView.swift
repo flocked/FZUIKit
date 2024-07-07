@@ -18,7 +18,8 @@ open class ScrollPlayerView: AVPlayerView {
     /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
     @discardableResult
     open func volumeScrollControl(_ volumeScrollControl: VolumeScrollControl) -> Self {
-        set(\.volumeScrollControl, to: volumeScrollControl)
+        self.volumeScrollControl = volumeScrollControl
+        return self
     }
     
     /// The value that indicates whether the volume is controllable by scrolling up & down.
@@ -43,7 +44,8 @@ open class ScrollPlayerView: AVPlayerView {
     /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
     @discardableResult
     open func playbackPositionScrollControl(_ playbackPositionScrollControl: PlaybackPositionScrollControl) -> Self {
-        set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)
+        self.playbackPositionScrollControl = playbackPositionScrollControl
+        return self
     }
 
     /// The value that indicates whether the playback position is controllable by scrolling left & right.
@@ -68,7 +70,8 @@ open class ScrollPlayerView: AVPlayerView {
     /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
     @discardableResult
     open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
-        set(\.togglePlaybackByRightClick, to: togglePlaybackByRightClick)
+        self.togglePlaybackByRightClick = togglePlaybackByRightClick
+        return self
     }
     
     var mediaView: MediaView? {

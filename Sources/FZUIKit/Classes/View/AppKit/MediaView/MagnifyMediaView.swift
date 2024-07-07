@@ -35,7 +35,8 @@
         /// Sets the url to the media displayed in the media view.
         @discardableResult
         open func mediaURL(_ mediaURL: URL?) -> Self {
-            set(\.mediaURL, to: mediaURL)
+            self.mediaURL = mediaURL
+            return self
         }
 
         /// The image displayed in the media view.
@@ -50,7 +51,8 @@
         /// Sets the image displayed in the media view.
         @discardableResult
         open func image(_ image: NSImage?) -> Self {
-            set(\.image, to: image)
+            self.image = image
+            return self
         }
         
         /// The images displayed in the media view.
@@ -65,7 +67,8 @@
         /// Sets the images displayed in the media view.
         @discardableResult
         open func images(_ images: [NSImage]) -> Self {
-            set(\.images, to: images)
+            self.images = images
+            return self
         }
 
         /// The media asset played by the media view.
@@ -81,7 +84,8 @@
         /// Sets the media asset played by the media view.
         @discardableResult
         open func asset(_ asset: AVAsset?) -> Self {
-            set(\.asset, to: asset)
+            self.asset = asset
+            return self
         }
         
         /// The handler that gets called when the status of the media asset changes.
@@ -93,7 +97,8 @@
         /// Sets the handler that gets called when the status of the media asset changes.
         @discardableResult
         open func assetStatusHandler(_ handler: ((AVPlayerItem.Status)->())?) -> Self {
-            set(\.assetStatusHandler, to: handler)
+            assetStatusHandler = handler
+            return self
         }
         
         /// The media type currently displayed.
@@ -115,7 +120,8 @@
         /// Sets the scaling of the media.
         @discardableResult
         open func mediaScaling(_ mediaScaling: MediaView.MediaScaling) -> Self {
-            set(\.mediaScaling, to: mediaScaling)
+            self.mediaScaling = mediaScaling
+            return self
         }
         
         // MARK: - Image
@@ -129,7 +135,8 @@
         /// Sets the image tint color for template and symbol images.
         @discardableResult
         open func imageTintColor(_ imageTintColor: NSColor?) -> Self {
-            set(\.imageTintColor, to: imageTintColor)
+            self.imageTintColor = imageTintColor
+            return self
         }
         
         /// The symbol configuration of the image.
@@ -143,7 +150,8 @@
         @available(macOS 12.0, iOS 13.0, *)
         @discardableResult
         open func imageSymbolConfiguration(_ symbolConfiguration: NSUIImage.SymbolConfiguration?) -> Self {
-            set(\.imageSymbolConfiguration, to: symbolConfiguration)
+            imageSymbolConfiguration = symbolConfiguration
+            return self
         }
         
         /// A Boolean value that indicates whether media is looped.
@@ -155,7 +163,8 @@
         /// Sets the playback behavior for animated images.
         @discardableResult
         open func imageAnimationPlayback(_ animationPlayback: ImageView.AnimationPlaybackOption) -> Self {
-            set(\.imageAnimationPlayback, to: animationPlayback)
+            imageAnimationPlayback = animationPlayback
+            return self
         }
         
         /**
@@ -171,7 +180,8 @@
         /// Sets the amount of time it takes to go through one cycle of an animated image.
         @discardableResult
         open func imageAnimationDuration(_ duration: TimeInterval) -> Self {
-            set(\.imageAnimationDuration, to: duration)
+            imageAnimationDuration = duration
+            return self
         }
         
         /**
@@ -187,7 +197,8 @@
         /// Sets the number of times to repeat animated images.
         @discardableResult
         open func imageAnimationRepeatCount(_ repeatCount: Int) -> Self {
-            set(\.imageAnimationRepeatCount, to: repeatCount)
+            imageAnimationRepeatCount = repeatCount
+            return self
         }
         
         // MARK: - Video
@@ -201,7 +212,8 @@
         /// Sets the volume of the media.
         @discardableResult
         open func volume(_ volume: CGFloat) -> Self {
-            set(\.volume, to: volume)
+            self.volume = volume
+            return self
         }
 
         /// A Boolean value indicating whether media is muted.
@@ -213,7 +225,8 @@
         /// Sets the Boolean value that indicates whether media is muted.
         @discardableResult
         open func isMuted(_ isMuted: Bool) -> Self {
-            set(\.isMuted, to: isMuted)
+            self.isMuted = isMuted
+            return self
         }
         
         /// A Boolean value that indicates whether media is looped.
@@ -225,7 +238,8 @@
         /// Sets the Boolean value that indicates whether media is looped.
         @discardableResult
         open func isLooping(_ isLooping: Bool) -> Self {
-            set(\.isLooping, to: isLooping)
+            self.isLooping = isLooping
+            return self
         }
         
         /// A value that indicates whether the volume is controllable by scrolling up & down.
@@ -237,7 +251,8 @@
         /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
         @discardableResult
         open func volumeScrollControl(_ volumeScrollControl: MediaView.VolumeScrollControl) -> Self {
-            set(\.volumeScrollControl, to: volumeScrollControl)
+            self.volumeScrollControl = volumeScrollControl
+            return self
         }
         
         /// A value that indicates whether the playback position is controllable by scrolling left & right.
@@ -249,7 +264,8 @@
         /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
         @discardableResult
         open func playbackPositionScrollControl(_ playbackPositionScrollControl: MediaView.PlaybackPositionScrollControl) -> Self {
-            set(\.playbackPositionScrollControl, to: playbackPositionScrollControl)
+            self.playbackPositionScrollControl = playbackPositionScrollControl
+            return self
         }
         
         /// The control style for videos.
@@ -261,7 +277,8 @@
         /// Sets the control style for videos.
         @discardableResult
         open func videoControlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
-            set(\.videoControlStyle, to: style)
+            videoControlStyle = style
+            return self
         }
 
         /// The playback option when loading new media.
@@ -273,7 +290,8 @@
         /// The playback option when loading new media.
         @discardableResult
         open func videoPlaybackOption(_ option: MediaView.VideoPlaybackOption) -> Self {
-            set(\.videoPlaybackOption, to: option)
+            videoPlaybackOption = option
+            return self
         }
         
         /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
@@ -285,7 +303,8 @@
         /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
         @discardableResult
         open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
-            set(\.togglePlaybackByRightClick, to: togglePlaybackByRightClick)
+            self.togglePlaybackByRightClick = togglePlaybackByRightClick
+            return self
         }
         
         // MARK: - Playback
@@ -319,7 +338,8 @@
         /// Sets the playback state of the displayed media.
         @discardableResult
         open func playbackState(_ playbackState: MediaView.PlaybackState) -> Self {
-            set(\.playbackState, to: playbackState)
+            self.playbackState = playbackState
+            return self
         }
 
         /**
@@ -360,7 +380,8 @@
         /// Sets the playback time of the current video.
         @discardableResult
         open func videoPlaybackTime(_ videoPlaybackTime: TimeDuration) -> Self {
-            set(\.videoPlaybackTime, to: videoPlaybackTime)
+            self.videoPlaybackTime = videoPlaybackTime
+            return self
         }
 
         /// The playback percentage of the current video (between `0` and `1.0`).
@@ -372,7 +393,8 @@
         /// Sets the playback percentage of the current video (between `0` and `1.0`).
         @discardableResult
         open func videoPlaybackPercentage(_ percentage: Double) -> Self {
-            set(\.videoPlaybackPercentage, to: percentage)
+            videoPlaybackPercentage = percentage
+            return self
         }
         
         /// The handler that is called whenever the playback reached to the end time.
@@ -390,7 +412,8 @@
         /// Sets the handler that is called whenever the playback position changes.
         @discardableResult
         open func playbackPositionHandler(_ handler: ((TimeDuration) -> Void)?) -> Self {
-            set(\.playbackPositionHandler, to: handler)
+            playbackPositionHandler = handler
+            return self
         }
         
         /// The time interval at which the system invokes the handler during normal playback, according to progress of the current playback position.
@@ -413,7 +436,8 @@
         /// Sets the Boolean that indicates whether the media view has scrollers.
         @discardableResult
         open func hasScrollers(_ hasScrollers: Bool) -> Self {
-            set(\.hasScrollers, to: hasScrollers)
+            self.hasScrollers = hasScrollers
+            return self
         }
 
         /// The scrolling elasticity mode.
@@ -428,7 +452,8 @@
         /// Sets the scrolling elasticity mode.
         @discardableResult
         open func scrollElasticity(_ scrollElasticity: NSScrollView.Elasticity) -> Self {
-            set(\.scrollElasticity, to: scrollElasticity)
+            self.scrollElasticity = scrollElasticity
+            return self
         }
 
         /// A Boolean value indicating whether the user can magnify the media.
@@ -440,7 +465,8 @@
         /// Sets the Boolean value indicating whether the user can magnify the media.
         @discardableResult
         open func allowsMagnification(_ allows: Bool) -> Self {
-            set(\.allowsMagnification, to: allows)
+            allowsMagnification = allows
+            return self
         }
 
         /// The amount by which the media is currently scaled.
@@ -452,7 +478,8 @@
         /// Sets the amount by which the media is currently scaled.
         @discardableResult
         open func magnification(_ magnification: CGFloat) -> Self {
-            set(\.magnification, to: magnification)
+            self.magnification = magnification
+            return self
         }
         
         /// The minimum value to which the content can be magnified.
@@ -464,7 +491,8 @@
         /// Sets the minimum value to which the content can be magnified.
         @discardableResult
         open func minMagnification(_ minMagnification: CGFloat) -> Self {
-            set(\.minMagnification, to: minMagnification)
+            self.minMagnification = minMagnification
+            return self
         }
 
         /// The maximum value to which the content can be magnified.
@@ -476,7 +504,8 @@
         /// Sets the maximum value to which the content can be magnified.
         @discardableResult
         open func maxMagnification(_ maxMagnification: CGFloat) -> Self {
-            set(\.maxMagnification, to: maxMagnification)
+            self.maxMagnification = maxMagnification
+            return self
         }
         
         /**
@@ -492,7 +521,8 @@
         /// Sets the amount by which to zoom the image when the user presses either the plus or minus key.
         @discardableResult
         open func keyDownZoomFactor(_ zoomFactor: CGFloat) -> Self {
-            set(\.keyDownZoomFactor, to: zoomFactor)
+            keyDownZoomFactor = zoomFactor
+            return self
         }
         
         /**
@@ -508,7 +538,8 @@
         /// Sets the amount by which to momentarily zoom the image when the user holds the space key.
         @discardableResult
         open func spaceKeyZoomFactor(_ zoomFactor: CGFloat) -> Self {
-            set(\.spaceKeyZoomFactor, to: zoomFactor)
+            spaceKeyZoomFactor = zoomFactor
+            return self
         }
         
         /**
@@ -524,7 +555,8 @@
         /// Sets the amount by which to zoom the image when the user double clicks the view.
         @discardableResult
         open func mouseClickZoomFactor(_ zoomFactor: CGFloat) -> Self {
-            set(\.mouseClickZoomFactor, to: zoomFactor)
+            mouseClickZoomFactor = zoomFactor
+            return self
         }
 
         
@@ -611,7 +643,8 @@
         /// Sets the transition animation when changing the displayed media.
         @discardableResult
         open func transitionAnimation(_ transition: MediaView.TransitionAnimation) -> Self {
-            set(\.transitionAnimation, to: transition)
+            transitionAnimation = transition
+            return self
         }
         
         /// The duration of the transition animation.
@@ -623,7 +656,8 @@
         /// Sets the duration of the transition animation.
         @discardableResult
         open func transitionDuration(_ duration: TimeInterval) -> Self {
-            set(\.transitionDuration, to: duration)
+            transitionDuration = duration
+            return self
         }
         
         /*
@@ -646,7 +680,8 @@
          */
         @discardableResult
         open func allowedMediaDroping(_ mediaTypes: [MediaView.MediaType]) -> Self {
-            set(\.allowedMediaDroping, to: mediaTypes)
+         allowedMediaDroping = mediaTypes
+         return self
         }
          */
         

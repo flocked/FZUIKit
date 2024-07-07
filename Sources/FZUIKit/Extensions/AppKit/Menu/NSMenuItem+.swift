@@ -138,37 +138,43 @@
         /// Sets the font of the menu item.
         @discardableResult
         func font(_ font: NSFont) -> Self {
-            set(\.font, to: font)
+            self.font = font
+            return self
         }
         
         /// A Boolean value that indicates whether the menu item is enabled.
         @discardableResult
         func isEnabled(_ isEnabled: Bool) -> Self {
-            set(\.isEnabled, to: isEnabled)
+            self.isEnabled = isEnabled
+            return self
         }
         
         /// A Boolean value that indicates whether the menu item is hidden.
         @discardableResult
         func isHidden(_ isHidden: Bool) -> Self {
-            set(\.isHidden, to: isHidden)
+            self.isHidden = isHidden
+            return self
         }
         
         /// The menu item's tag.
         @discardableResult
         func tag(_ tag: Int) -> Self {
-            set(\.tag, to: tag)
+            self.tag = tag
+            return self
         }
         
         /// The menu item's title.
         @discardableResult
         func title(_ title: String) -> Self {
-            set(\.title, to: title)
+            self.title = title
+            return self
         }
         
         /// A custom string for a menu item.
         @discardableResult
         func attributedTitle(_ attributedTitle: NSAttributedString?) -> Self {
-            set(\.attributedTitle, to: attributedTitle)
+            self.attributedTitle = attributedTitle
+            return self
         }
         
         /// The state of the menu item.
@@ -181,56 +187,65 @@
         /// The menu item’s image.
         @discardableResult
         func image(_ image: NSImage?) -> Self {
-            set(\.image, to: image)
+            self.image = image
+            return self
         }
         
         /// The image of the menu item that indicates an “on” state.
         @discardableResult
         func onStateImage(_ image: NSImage!) -> Self {
-            set(\.onStateImage, to: image)
+            onStateImage = image
+            return self
         }
         
         /// The image of the menu item that indicates an “off” state.
         @discardableResult
         func offStateImage(_ image: NSImage?) -> Self {
-            set(\.offStateImage, to: image)
+            offStateImage = image
+            return self
         }
         
         /// The image of the menu item that indicates a “mixed” state, that is, a state neither “on” nor “off.”
         @discardableResult
         func mixedStateImage(_ image: NSImage!) -> Self {
-            set(\.mixedStateImage, to: image)
+            mixedStateImage = image
+            return self
         }
         
         /// The menu item’s badge.
         @available(macOS 14.0, *)
         @discardableResult
         func badge(_ badge: NSMenuItemBadge?) -> Self {
-            set(\.badge, to: badge)
+            self.badge = badge
+            return self
         }
         
         /// The menu item’s unmodified key equivalent.
         @discardableResult
         func keyEquivalent(_ keyEquivalent: String) -> Self {
-            set(\.keyEquivalent, to: keyEquivalent)
+            self.keyEquivalent = keyEquivalent
+            return self
         }
         
         /// The menu item’s keyboard equivalent modifiers.
         @discardableResult
         func keyEquivalentModifierMask(_ modifierMask: NSEvent.ModifierFlags) -> Self {
-            set(\.keyEquivalentModifierMask, to: modifierMask)
+            keyEquivalentModifierMask = modifierMask
+            return self
         }
         
         /// A Boolean value that marks the menu item as an alternate to the previous menu item.
         @discardableResult
         func isAlternate(_ isAlternate: Bool) -> Self {
-            set(\.isAlternate, to: isAlternate)
+            self.isAlternate = isAlternate
+            return self
         }
         
         /// The menu item indentation level for the menu item.
         @discardableResult
         func indentationLevel(_ level: Int) -> Self {
-            set(\.indentationLevel, to: level)
+            indentationLevel = level
+            return self
         }
         
         /**
@@ -291,46 +306,53 @@
         /// A help tag for the menu item.
         @discardableResult
         func toolTip(_ toolTip: String?) -> Self {
-            set(\.toolTip, to: toolTip)
+            self.toolTip = toolTip
+            return self
         }
         
         /// The object represented by the menu item.
         @discardableResult
         func representedObject(_ object: Any?) -> Self {
-            set(\.representedObject, to: object)
+            representedObject = object
+            return self
         }
         
         /// A Boolean value that determines whether the system automatically remaps the keyboard shortcut to support localized keyboards.
         @available(macOS 12.0, *)
         @discardableResult
         func allowsAutomaticKeyEquivalentLocalization(_ allows: Bool) -> Self {
-            set(\.allowsAutomaticKeyEquivalentLocalization, to: allows)
+            self.allowsAutomaticKeyEquivalentLocalization = allows
+            return self
         }
          
         /// A Boolean value that determines whether the system automatically swaps input strings for some keyboard shortcuts when the interface direction changes.
         @available(macOS 12.0, *)
         @discardableResult
         func allowsAutomaticKeyEquivalentMirroring(_ allows: Bool) -> Self {
-            set(\.allowsAutomaticKeyEquivalentMirroring, to: allows)
+            self.allowsAutomaticKeyEquivalentMirroring = allows
+            return self
         }
         
         /// A Boolean value that determines whether the item allows the key equivalent when hidden.
         @discardableResult
         func allowsKeyEquivalentWhenHidden(_ allows: Bool) -> Self {
-            set(\.allowsKeyEquivalentWhenHidden, to: allows)
+            self.allowsKeyEquivalentWhenHidden = allows
+            return self
         }
         
         /// The menu item’s menu.
         @discardableResult
         func menu(_ menu: NSMenu?) -> Self {
-            set(\.menu, to: menu)
+            self.menu = menu
+            return self
         }
         
         /// The submenu of the menu item.
         @discardableResult
         func submenu(_ menu: NSMenu?) -> Self {
-            set(\.submenu, to: menu)
-        }
+            submenu = menu
+            return self
+        }      
         
         /// The visibilty of an item when it is visible in it's menu.
         enum Visiblity: Int {
@@ -341,6 +363,9 @@
             /// The item is visible if the option key is pressed while the menu opens.
             case optionHoldOnMenuOpen
         }
+        
+        // holdingOption
+        // holdingOptionOn
         
         /// The visibilty of the item.
         var visiblity: Visiblity {
@@ -361,7 +386,8 @@
         /// Sets the visibilty of the item when it is visible in it's menu.
         @discardableResult
         func visiblity(_ visiblity: Visiblity) -> Self {
-            set(\.visiblity, to: visiblity)
+            self.visiblity = visiblity
+            return self
         }
         
         internal var menuObservation: KeyValueObservation? {
