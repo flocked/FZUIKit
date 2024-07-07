@@ -11,7 +11,7 @@ DateTextField
 - https://github.com/tylerhall/DefaultApp
 
 Decomposed
-- Copyright (c) 2020, Adam Bell
+- Copyright (c) 2020 Adam Bell
 - https://github.com/b3ll/Decomposed
 
 DelegateProxy
@@ -19,19 +19,23 @@ DelegateProxy
 - https://github.com/CombineCommunity/CombineCocoa
 
 DisplayLink
-- Copyright (c) 2019, Tim Donnelly
+- Copyright (c) 2019 Tim Donnelly
 - https://github.com/timdonnelly/DisplayLink
 
+IrregularGradient
+- Copyright (c) 2020 Gabriel Pozzobon
+- https://github.com/joogps/IrregularGradient/tree/main
+
 LaunchAtLogin
-- Copyright (c) Sindre Sorhus.
+- Copyright (c) 2023 Sindre Sorhus
 - https://github.com/sindresorhus/LaunchAtLogin-Modern/
 
 NSLayoutConstraint+
-- Copyright ©2018 Peter Baumgartner. All rights reserved.
+- Copyright (c) 2018 Peter Baumgartner
 - https://github.com/boinx/BXUIKit
 
 NSMenuItem+HighlightableView
-- Copyright © 2022 Darren Ford
+- Copyright (c) 2022 Darren Ford
 
 TrackingArea
 - Copyright (c) 2023 Darren Ford
