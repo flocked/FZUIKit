@@ -194,7 +194,7 @@ public class __BorderConfiguration: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        BorderConfiguration()
+        __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, insets: insets, resolvedColor: _resolvedColor)
     }
 }
 

@@ -61,7 +61,7 @@ public struct IrregularGradient<Background: View>: View {
     public var body: some View {
         GeometryReader { geometry in
             ZStack {
-                background
+             //   background
                 ZStack {
                     ForEach(colorBlobs) { blob in
                         ColorBlobView(blob: blob,

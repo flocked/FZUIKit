@@ -12,7 +12,7 @@ import FZSwiftUtils
 extension NSClipView {
     /// Sets the Boolean value that indicates whether the clip view draws its background.
     @discardableResult
-    public func drawsBackground(_ draws: Bool) -> Self {
+    @objc open func drawsBackground(_ draws: Bool) -> Self {
         drawsBackground = draws
         return self
     }
@@ -52,6 +52,12 @@ extension NSClipView {
         }
     }
     
+    /// Sets the Boolean value indicating whether users can scroll the view by dragging the mouse.
+    @objc open func isScrollableByDagging(_ isScrollable: Bool) -> Self {
+        isScrollableByDagging = isScrollable
+        return self
+    }
+    
     var dragScrollGestureRecognizer: DragScrollGestureRecognizer? {
         get { getAssociatedValue("dragScrollGestureRecognizer", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "dragScrollGestureRecognizer")
@@ -80,22 +86,9 @@ extension NSClipView {
             }
             let scale = (clipView.superview as? NSScrollView)?.magnification ?? 1.0
             let newPoint = event.locationInWindow
-            let newOrigin = CGPoint(x: originalOrigin.x + (clickPoint.x - newPoint.x) / scale,
-                                    y: originalOrigin.y + (clickPoint.y - newPoint.y) / scale)
+            let newOrigin = CGPoint(x: originalOrigin.x + (clickPoint.x - newPoint.x) / scale, y: originalOrigin.y + (clickPoint.y - newPoint.y) / scale)
             clipView.scroll(to: newOrigin)
             clipView.superview?.reflectScrolledClipView(clipView)
-        }
-        
-        convenience init() {
-            self.init(target: nil, action: nil)
-        }
-        
-        override init(target: Any?, action: Selector?) {
-            super.init(target: target, action: action)
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
         }
     }
 }
@@ -105,6 +98,12 @@ extension NSScrollView {
     @objc open var isScrollableByDagging: Bool {
         get { contentView.isScrollableByDagging }
         set { contentView.isScrollableByDagging = newValue }
+    }
+    
+    /// Sets the Boolean value indicating whether users can scroll the view by dragging the mouse.
+    @objc open func isScrollableByDagging(_ isScrollable: Bool) -> Self {
+        isScrollableByDagging = isScrollable
+        return self
     }
 }
 

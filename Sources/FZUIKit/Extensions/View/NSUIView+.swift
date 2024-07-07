@@ -12,7 +12,7 @@
         import UIKit
     #endif
 
-    public extension NSUIView {
+    extension NSUIView {
         internal var optionalLayer: CALayer? {
             #if os(macOS)
                 wantsLayer = true
@@ -21,7 +21,7 @@
         }
 
         /// The level of the view from the most outer `superview`. A value of `0` indicates that there isn't a superview.
-        var viewLevel: Int {
+        @objc open var viewLevel: Int {
             var depth = 0
             var aSuperview = superview
             while aSuperview != nil {
@@ -32,7 +32,7 @@
         }
 
         /// Updates the anchor point of the view’s bounds rectangle while retaining the position.
-        func setAnchorPoint(_ anchorPoint: CGPoint) {
+        @objc open func setAnchorPoint(_ anchorPoint: CGPoint) {
             guard let layer = optionalLayer else { return }
             guard layer.anchorPoint != anchorPoint else { return }
             var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
@@ -53,7 +53,7 @@
             layer.anchorPoint = anchorPoint
         }
 
-        func removeAllConstraints() {
+        @objc open func removeAllConstraints() {
             var _superview = superview
             while let superview = _superview {
                 for constraint in superview.constraints {
@@ -72,7 +72,7 @@
         }
 
         /// Sends the view to the front of it's superview.
-        func sendToFront() {
+        @objc open func sendToFront() {
             guard let superview = superview else { return }
             #if os(macOS)
                 superview.addSubview(self)
@@ -82,7 +82,7 @@
         }
 
         /// Sends the view to the back of it's superview.
-        func sendToBack() {
+        @objc open func sendToBack() {
             guard let superview = superview else { return }
             #if os(macOS)
                 superview.addSubview(self, positioned: .below, relativeTo: nil)
@@ -96,7 +96,7 @@
          - Parameter subviews: The subviews for the rect.
          - Returns: The rect enclosing all the specified subviews.
          */
-        func enclosingRect(for subviews: [NSUIView]) -> CGRect {
+        @objc open func enclosingRect(for subviews: [NSUIView]) -> CGRect {
             var enlosingFrame = CGRect.zero
             for subview in subviews {
                 let frame = convert(subview.bounds, from: subview)
@@ -112,7 +112,7 @@
             - view: The view to insert.
             - index: The index of insertation.
          */
-        func insertSubview(_ view: NSUIView, at index: Int) {
+        @objc open func insertSubview(_ view: NSUIView, at index: Int) {
             guard index < self.subviews.count else {
                 addSubview(view)
                 return
@@ -133,7 +133,7 @@
             - view: The view to move.
             - index: The index for moving.
          */
-        func moveSubview(_ subview: NSUIView, to toIndex: Int) {
+        @objc open func moveSubview(_ subview: NSUIView, to toIndex: Int) {
             if let index = subviews.firstIndex(of: subview) {
                 moveSubview(at: index, to: toIndex)
             }
@@ -146,7 +146,7 @@
             - subviews: The subviews to move.
             - toIndex: The index for moving.
          */
-        func moveSubviews(_ subviews: [NSUIView], to toIndex: Int, reorder: Bool = false) {
+        @objc open func moveSubviews(_ subviews: [NSUIView], to toIndex: Int, reorder: Bool = false) {
             var indexSet = IndexSet()
             for view in subviews {
                 if let index = subviews.firstIndex(of: view), indexSet.contains(index) == false {
@@ -165,7 +165,7 @@
             - index: The index of the subview to move.
             - toIndex: The index to where the subview should be moved.
          */
-        func moveSubview(at index: Int, to toIndex: Int) {
+        @objc open func moveSubview(at index: Int, to toIndex: Int) {
             moveSubviews(at: IndexSet(integer: index), to: toIndex)
         }
 
@@ -176,7 +176,7 @@
             - indexes: The indexes of the subviews to move.
             - toIndex: The index where the subviews should be moved to.
          */
-        func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {
+        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {
             let subviewsCount = subviews.count
             if subviews.isEmpty == false {
                 if toIndex >= 0, toIndex < subviewsCount {
@@ -209,7 +209,7 @@
          - Parameter viewType: The type of view to match.
          - Returns: The first parent view that matches the view type or `nil` if none match or there isn't a matching parent.
          */
-        func firstSuperview<V: NSUIView>(for _: V.Type) -> V? {
+        public func firstSuperview<V: NSUIView>(for _: V.Type) -> V? {
             firstSuperview(where: { $0 is V }) as? V
         }
 
@@ -219,7 +219,7 @@
          - Parameter predicate: The closure to match.
          - Returns: The first parent view that is matching the predicate or `nil` if none match or there isn't a matching parent.
          */
-        func firstSuperview(where predicate: (NSUIView) -> (Bool)) -> NSUIView? {
+        @objc open func firstSuperview(where predicate: (NSUIView) -> (Bool)) -> NSUIView? {
             if let superview = superview {
                 if predicate(superview) == true {
                     return superview
@@ -230,7 +230,7 @@
         }
         
         /// An array of all enclosing superviews.
-        func superviewChain() -> [NSUIView] {
+        @objc open func superviewChain() -> [NSUIView] {
             if let superview = superview {
                 return [superview] + superview.superviewChain()
             }
@@ -242,7 +242,7 @@
 
          - Parameter depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
          */
-        func subviews(depth: Int) -> [NSUIView] {
+        @objc open func subviews(depth: Int) -> [NSUIView] {
             if depth > 0 {
                 return subviews + subviews.flatMap { $0.subviews(depth: depth - 1) }
             } else {
@@ -257,7 +257,7 @@
              - type: The type of subviews.
              - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
           */
-        func subviews<V: NSUIView>(type _: V.Type, depth: Int = 0) -> [V] {
+        public func subviews<V: NSUIView>(type _: V.Type, depth: Int = 0) -> [V] {
             subviews(depth: depth).compactMap { $0 as? V }
         }
 
@@ -268,12 +268,12 @@
              - predicate: The predicate to match.
              - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
           */
-        func subviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
+        @objc open func subviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
             subviews(depth: depth).filter { predicate($0) == true }
         }
 
         /// Animates a transition to changes made to the view after calling this.
-        func transition(_ transition: CATransition?) {
+        @objc open func transition(_ transition: CATransition?) {
             #if os(macOS)
                 wantsLayer = true
             if let transition = transition {
@@ -292,7 +292,7 @@
         }
 
         /// Recursive description of the view useful for debugging.
-        var recursiveDescription: String {
+        public var recursiveDescription: String {
             value(forKey: "recursiveDescription") as? String ?? ""
         }
 
@@ -304,7 +304,7 @@
 
              Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
              */
-            var gradient: Gradient? {
+            public var gradient: Gradient? {
                 get { self.optionalLayer?._gradientLayer?.gradient }
                 set {
                     NSView.swizzleAnimationForKey()
@@ -343,7 +343,7 @@
          
              Applying a gradient sets the view's `backgroundColor` to `nil`.
              */
-            var gradient: Gradient? {
+            public var gradient: Gradient? {
                 get { optionalLayer?._gradientLayer?.gradient }
                 set { 
                     configurate(using: newValue ?? .init(stops: []))
@@ -355,7 +355,7 @@
         #endif
         
         /// Sets the background gradient of the view.
-        func gradient( _ gradient: Gradient?) -> Self {
+        public func gradient( _ gradient: Gradient?) -> Self {
             set(\.gradient, to: gradient)
         }
 
@@ -417,35 +417,35 @@
         
         /// Sets the Boolean value indicating whether the view is hidden.
         @discardableResult
-        func isHidden(_ isHidden: Bool) -> Self {
+        @objc open func isHidden(_ isHidden: Bool) -> Self {
             self.isHidden = isHidden
             return self
         }
         
         /// Sets the corner radius of the view.
         @discardableResult
-        func cornerRadius(_ radius: CGFloat) -> Self {
+        @objc open func cornerRadius(_ radius: CGFloat) -> Self {
             cornerRadius = radius
             return self
         }
         
         /// Sets the rounded corners of the view.
         @discardableResult
-        func roundedCorners(_ corners: CACornerMask) -> Self {
+        @objc open func roundedCorners(_ corners: CACornerMask) -> Self {
             roundedCorners = corners
             return self
         }
         
         /// Sets the border of the view.
         @discardableResult
-        func border(_ border: BorderConfiguration) -> Self {
+        @objc open func border(_ border: BorderConfiguration) -> Self {
             self.border = border
             return self
         }
         
         /// Sets the shadow of the view.
         @discardableResult
-        func shadow(_ shadow: ShadowConfiguration) -> Self {
+        @objc open func shadow(_ shadow: ShadowConfiguration) -> Self {
             #if os(macOS)
             self.outerShadow = shadow
             #else
@@ -456,14 +456,14 @@
         
         /// Sets the inner shadow of the view.
         @discardableResult
-        func innerShadow(_ shadow: ShadowConfiguration) -> Self {
+        @objc open func innerShadow(_ shadow: ShadowConfiguration) -> Self {
             self.innerShadow = shadow
             return self
         }
         
         /// Sets the anchor point of the view’s bounds rectangle.
         @discardableResult
-        func anchorPoint(_ anchorPoint: CGPoint) -> Self {
+        @objc open func anchorPoint(_ anchorPoint: CGPoint) -> Self {
             #if os(macOS)
             self.anchorPoint = anchorPoint
             #else
@@ -474,70 +474,70 @@
         
         /// Sets the scale transform of the view.
         @discardableResult
-        func scale(_ scale: CGPoint) -> Self {
+        @objc open func scale(_ scale: CGPoint) -> Self {
             self.scale = scale
             return self
         }
         
         /// Sets the rotation of the view as euler angles in degrees.
         @discardableResult
-        func rotation(_ rotation: CGVector3) -> Self {
+        public func rotation(_ rotation: CGVector3) -> Self {
             self.rotation = rotation
             return self
         }
         
         /// Sets the rotation of the view as euler angles in radians.
         @discardableResult
-        func rotationInRadians(_ rotation: CGVector3) -> Self {
+        public func rotationInRadians(_ rotation: CGVector3) -> Self {
             self.rotationInRadians = rotation
             return self
         }
         
         /// Sets the Boolean value that indicates whether the view, and its subviews, confine their drawing areas to the bounds of the view.
         @discardableResult
-        func clipsToBounds(_ clipsToBounds: Bool) -> Self {
+        @objc open func clipsToBounds(_ clipsToBounds: Bool) -> Self {
             self.clipsToBounds = clipsToBounds
             return self
         }
         
         /// Sets the view whose alpha channel is used to mask a view’s content.
         @discardableResult
-        func mask(_ mask: NSUIView?) -> Self {
+        @objc open func mask(_ mask: NSUIView?) -> Self {
             self.mask = mask
             return self
         }
         
         /// Sets the view’s bounds rectangle, which expresses its location and size in its own coordinate system.
         @discardableResult
-        func bounds(_ bounds: CGRect) -> Self {
+        @objc open func bounds(_ bounds: CGRect) -> Self {
             self.bounds = bounds
             return self
         }
         
         /// Sets the view’s frame rectangle, which defines its position and size in its superview’s coordinate system.
         @discardableResult
-        func frame(_ frame: CGRect) -> Self {
+        @objc open func frame(_ frame: CGRect) -> Self {
             self.frame = frame
             return self
         }
         
         /// Sets the view’s frame size.
         @discardableResult
-        func size(_ size: CGSize) -> Self {
+        @objc open func size(_ size: CGSize) -> Self {
             self.frame.size = size
             return self
         }
         
         /// Sets the view’s frame origin, which defines its position in its superview’s coordinate system.
         @discardableResult
-        func origin(_ origin: CGPoint) -> Self {
+        @objc open func origin(_ origin: CGPoint) -> Self {
             self.frame.origin = origin
             return self
         }
         
         /// Sets the center point of the view’s frame rectangle.
         @discardableResult
-        func center(_ center: CGPoint) -> Self {
+        @objc open func center(_ center: CGPoint) -> Self {
             self.center = center
             return self
         }
@@ -545,28 +545,28 @@
         #if os(macOS)
         /// Sets the opacity of the view.
         @discardableResult
-        func alphaValue(_ alphaValue: CGFloat) -> Self {
+        @objc open func alphaValue(_ alphaValue: CGFloat) -> Self {
             self.alphaValue = alphaValue
             return self
         }
         #else
         /// Sets the opacity of the view.
         @discardableResult
-        func alpha(_ alpha: CGFloat) -> Self {
+        @objc open func alpha(_ alpha: CGFloat) -> Self {
             self.alpha = alpha
             return self
         }
         
         /// Sets the first nondefault tint color value in the view’s hierarchy, ascending from and starting with the view itself.
         @discardableResult
-        func tintColor(_ color: UIColor!) -> Self {
+        @objc open func tintColor(_ color: UIColor!) -> Self {
             tintColor = color
             return self
         }
         
         /// Sets the flag used to determine how a view lays out its content when its bounds change.x
         @discardableResult
-        func contentMode(_ mode: UIView.ContentMode) -> Self {
+        @objc open func contentMode(_ mode: UIView.ContentMode) -> Self {
             contentMode = mode
             return self
         }

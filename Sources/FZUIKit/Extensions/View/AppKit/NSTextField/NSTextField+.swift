@@ -42,7 +42,7 @@
          
          - Parameter string: The string value of the text field.
          */
-        static func wrappingLabel(_ stringValue: String = "") -> NSTextField {
+        static func wrapping(_ stringValue: String = "") -> NSTextField {
             NSTextField(wrappingLabelWithString: stringValue)
                 .isSelectable(false)
                 .isEditable(false)

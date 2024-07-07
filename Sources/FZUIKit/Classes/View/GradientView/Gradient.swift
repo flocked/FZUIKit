@@ -13,14 +13,6 @@
         import UIKit
     #endif
 
-    /*
-     extension NSView {
-         var gradient: Gradient {
-             get { .zero }
-         }
-     }
-     */
-
     public struct Gradient: Hashable {
         /// The array of color stops.
         public var stops: [Stop] = []
@@ -121,8 +113,12 @@
     public extension Gradient {
         /// The gradient type.
         enum GradientType: Int, Hashable {
+            
+            /// Linear gradient.
             case linear
+            /// Conic gradient.
             case conic
+            /// Radial gradient.
             case radial
 
             var stringValue: String {
@@ -250,5 +246,87 @@
             firstSublayer(type: GradientLayer.self)
         }
     }
+
+/// The Objective-C class for ``Gradient``.
+public class __Gradient: NSObject, NSCopying {
+    /// The array of color stops.
+    public var stops: [Stop]
+    /// The start point of the gradient.
+    public var startPoint: Point
+    /// The end point of the gradient.
+    public var endPoint: Point
+    /// The type of gradient.
+    public var type: Int
+    
+    /// One color stop in the gradient.
+    public class Stop {
+        /// The color for the stop.
+        public var color: NSUIColor
+        /// The parametric location of the stop.
+        public var location: CGFloat
+        /// Creates a color stop with a color and location.
+        public init(color: NSUIColor, location: CGFloat) {
+            self.color = color
+            self.location = location
+        }
+    }
+    
+    /// A point in the gradient.
+    public class Point {
+        public var x: CGFloat
+        public var y: CGFloat
+        
+        init(x: CGFloat, y: CGFloat) {
+            self.x = x
+            self.y = y
+        }
+    }
+
+    public init(stops: [Stop], startPoint: Point, endPoint: Point, type: Int) {
+        self.stops = stops
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
+    }
+
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __Gradient(stops: stops, startPoint: startPoint, endPoint: endPoint, type: type)
+    }
+}
+
+extension Gradient: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __Gradient
+
+    public func _bridgeToObjectiveC() -> __Gradient {
+        return __Gradient.init(stops: stops.compactMap({__Gradient.Stop(color: $0.color, location: $0.location)}), startPoint: __Gradient.Point(x: startPoint.x, y: startPoint.y), endPoint: __Gradient.Point(x: endPoint.x, y: endPoint.y), type: type.rawValue)
+    }
+
+    public static func _forceBridgeFromObjectiveC(_ source: __Gradient, result: inout Gradient?) {
+        result = Gradient(stops: source.stops.compactMap({Gradient.Stop(color: $0.color, location: $0.location)}), startPoint: Gradient.Point(source.startPoint.x, source.startPoint.y), endPoint: Gradient.Point(source.endPoint.x, source.endPoint.y), type: GradientType(rawValue: source.type)!)
+    }
+
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __Gradient, result: inout Gradient?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __Gradient?) -> Gradient {
+        if let source = source {
+            var result: Gradient?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return Gradient(colors: [])
+    }
+    
+    public var description: String {
+                    ""
+    }
+
+    public var debugDescription: String {
+        description
+    }
+}
 
 #endif
