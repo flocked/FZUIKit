@@ -9,7 +9,7 @@
 
     import AppKit
 
-    /// A segment of a NSSegmentedControll.
+    /// A segment of a `NSSegmentedControl`.
     public class NSSegment: ExpressibleByStringLiteral {
         weak var segmentedControl: NSSegmentedControl?
 
@@ -75,7 +75,9 @@
          A value of `0` indicates that the segments is sized to fit the available space automatically.
          */
         public var width: CGFloat = 0 {
-            didSet { if let index = index {
+            didSet { 
+                width = width.clamped(min: 0)
+                if let index = index {
                 segmentedControl?.setWidth(width, forSegment: index)
             } }
         }
@@ -200,10 +202,7 @@
         /**
          Creates a new segment with the specified title.
 
-         - Parameters:
-         - title: The title of the segment.
-
-         - Returns: A `NSSegmentedControl.Segment` object.
+         - Parameter title: The title of the segment.
          */
         public init(_ title: String) {
             self.title = title
@@ -213,24 +212,21 @@
         /**
          Creates a new segment with the specified image.
 
-         - Parameters:
-         - image: The image of the segment.
-
-         - Returns: A `NSSegmentedControl.Segment` object.
+         - Parameter image: The image of the segment.
          */
         public init(_ image: NSImage) {
             title = nil
             self.image = image
         }
 
-        @available(macOS 11.0, *)
         /**
          Creates a new segment with the specified system symbol name.
 
          - Parameter symbolName: The name of the system symbol image.
 
-         - Returns: A `NSSegmentedControl.Segment` object with a image based on the name you specify,  otherwise `nil` if the method couldn’t find a suitable image with the system symbol name.
+         - Returns: A `NSSegmentedControl.Segment` object with a symbol image,  or `nil` if no image with the specified symbol name could be found.
          */
+        @available(macOS 11.0, *)
         public init?(symbolName: String) {
             guard let image = NSImage(systemSymbolName: symbolName) else {
                 return nil
@@ -243,10 +239,8 @@
          Creates a new segment with the specified title and image.
 
          - Parameters:
-         - title: The title of the segment.
-         - image: The image of the segment.
-
-         - Returns: A `NSSegmentedControl.Segment` object.
+            - title: The title of the segment.
+            - image: The image of the segment.
          */
         public init(title: String, image: NSImage) {
             self.title = title
@@ -256,10 +250,7 @@
         /**
          Creates a new segment with the specified title.
 
-         - Parameters:
-         - stringLiteral: The title of the segment.
-
-         - Returns: A `NSSegmentedControl.Segment` object.
+         - Parameter value: The title of the segment.
          */
         public required init(stringLiteral value: String) {
             title = value
@@ -288,42 +279,38 @@
          Creates a segmented control with the specified segments.
 
          - Parameters:
-         - switching: The tracking behavior of the segmented control.
-         - style: The visual style of the segmented control.
-         - segments: An array of segments.
-
-         - Returns: An initialized `NSSegmentedControl` object.
+            - switching: The tracking behavior of the segmented control.
+            - style: The visual style of the segmented control.
+            - segments: An array of segments.
          */
         convenience init(
             switching: NSSegmentedControl.SwitchTracking = .selectOne,
             style: NSSegmentedControl.Style = .automatic,
-            segments: [NSSegment]
-        ) {
-            self.init(frame: .zero)
-            segmentStyle = style
-            trackingMode = switching
-            self.segments = segments
+            segments: [NSSegment]) {
+                self.init(frame: .zero)
+                segmentStyle = style
+                trackingMode = switching
+                self.segments = segments
+                sizeToFit()
         }
 
         /**
          Creates a segmented control with the specified segments.
 
          - Parameters:
-         - switching: The tracking behavior of the segmented control.
-         - style: The visual style of the segmented control.
-         - segments: The segments.
-
-         - Returns: An initialized `NSSegmentedControl` object.
+            - switching: The tracking behavior of the segmented control.
+            - style: The visual style of the segmented control.
+            - segments: The segments.
          */
         convenience init(
             switching: NSSegmentedControl.SwitchTracking = .selectOne,
             style: NSSegmentedControl.Style = .automatic,
-            @Builder segments: () -> [NSSegment]
-        ) {
-            self.init(frame: .zero)
-            segmentStyle = style
-            trackingMode = switching
-            self.segments = segments()
+            @Builder segments: () -> [NSSegment]) {
+                self.init(frame: .zero)
+                segmentStyle = style
+                trackingMode = switching
+                self.segments = segments()
+                sizeToFit()
         }
 
         /**
@@ -384,9 +371,7 @@
             setSelected(segment.isSelected, forSegment: index)
             setEnabled(segment.isEnabled, forSegment: index)
             setFont(segment.font, forSegment: index)
-            if segment.width != .zero {
-                setWidth(segment.width, forSegment: index)
-            }
+            setWidth(segment.width, forSegment: index)
             setToolTip(segment.toolTip, forSegment: index)
             setTag(segment.tag, forSegment: index)
         }
@@ -419,20 +404,13 @@
         internal var segmentViews: [NSView] {
             subviews.filter({ NSStringFromClass(type(of: $0)) == "NSSegmentItemView" })
         }
-
+        
         internal func segment(withTag tag: Int) -> NSSegment? {
             segments.first(where: { $0.tag == tag })
         }
 
         internal func index(forTag tag: Int) -> Int? {
-            var count = 0
-            for i in 0 ..< segmentCount {
-                if tag == self.tag(forSegment: i) {
-                    return count
-                }
-                count += 1
-            }
-            return nil
+             (0 ..< segmentCount).first(where: {self.tag(forSegment: $0) == tag})
         }
     }
 #endif
