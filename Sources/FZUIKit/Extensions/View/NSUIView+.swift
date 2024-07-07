@@ -482,14 +482,14 @@
         
         /// Sets the rotation of the view as euler angles in degrees.
         @discardableResult
-        public func rotation(_ rotation: CGVector3) -> Self {
+        @objc open func rotation(_ rotation: CGVector3) -> Self {
             self.rotation = rotation
             return self
         }
         
         /// Sets the rotation of the view as euler angles in radians.
         @discardableResult
-        public func rotationInRadians(_ rotation: CGVector3) -> Self {
+        @objc open func rotationInRadians(_ rotation: CGVector3) -> Self {
             self.rotationInRadians = rotation
             return self
         }

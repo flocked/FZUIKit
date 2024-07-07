@@ -109,17 +109,7 @@
 
                 func updateEffect() {
                     #if os(iOS)
-                        if let newStyle = contentProperties.style {
-                            switch newStyle {
-                            case let .vibrancy(vibrancy, blur: blurStyle):
-                                let blurEffect = UIBlurEffect(style: blurStyle)
-                                effect = UIVibrancyEffect(blurEffect: blurEffect, style: vibrancy)
-                            case let .blur(blurStyle):
-                                effect = UIBlurEffect(style: blurStyle)
-                            }
-                        } else {
-                            effect = nil
-                        }
+                    effect = contentProperties.effect
                     #elseif os(tvOS)
                         if let blur = contentProperties.blur {
                             effect = UIBlurEffect(style: blur)

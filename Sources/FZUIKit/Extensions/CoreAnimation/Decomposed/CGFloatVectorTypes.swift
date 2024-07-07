@@ -68,8 +68,6 @@ extension CGVector3:  Hashable {
     }
 }
 
-
-
     // MARK: - ExpressibleByArrayLiteral
 
     extension CGVector3: ExpressibleByArrayLiteral {
@@ -280,5 +278,134 @@ extension CGVector3:  Hashable {
                 abs(rhs.storage.angle - lhs.storage.angle) < accuracy
         }
     }
+
+/// The Objective-C class for ``CGVector3``.
+public class __CGVector3: NSObject, NSCopying {
+    var storage: simd_double3
+
+    public init(_ storage: simd_double3) {
+        self.storage = storage
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __CGVector3(storage)
+    }
+}
+
+/// The Objective-C class for ``CGVector4``.
+public class __CGVector4: NSObject, NSCopying {
+    var storage: simd_double4
+
+    public init(_ storage: simd_double4) {
+        self.storage = storage
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __CGVector4(storage)
+    }
+}
+
+/// The Objective-C class for ``CGQuaternion``.
+public class __CGQuaternion: NSObject, NSCopying {
+    var storage: simd_quatd
+
+    public init(_ storage: simd_quatd) {
+        self.storage = storage
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __CGQuaternion(storage)
+    }
+}
+
+extension CGVector3: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __CGVector3
+
+    public func _bridgeToObjectiveC() -> __CGVector3 {
+        return __CGVector3(storage)
+    }
+
+    public static func _forceBridgeFromObjectiveC(_ source: __CGVector3, result: inout CGVector3?) {
+        result = CGVector3(source.storage)
+    }
+
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __CGVector3, result: inout CGVector3?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __CGVector3?) -> CGVector3 {
+        if let source = source {
+            var result: CGVector3?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return CGVector3(0, 0, 0)
+    }
+    
+    public var description: String { "" }
+    public var debugDescription: String { description }
+}
+
+extension CGVector4: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __CGVector4
+
+    public func _bridgeToObjectiveC() -> __CGVector4 {
+        return __CGVector4(storage)
+    }
+
+    public static func _forceBridgeFromObjectiveC(_ source: __CGVector4, result: inout CGVector4?) {
+        result = CGVector4(source.storage)
+    }
+
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __CGVector4, result: inout CGVector4?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __CGVector4?) -> CGVector4 {
+        if let source = source {
+            var result: CGVector4?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return CGVector4(0, 0, 0, 0)
+    }
+    
+    public var description: String { "" }
+    public var debugDescription: String { description }
+}
+
+extension CGQuaternion: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __CGQuaternion
+
+    public func _bridgeToObjectiveC() -> __CGQuaternion {
+        return __CGQuaternion(storage)
+    }
+
+    public static func _forceBridgeFromObjectiveC(_ source: __CGQuaternion, result: inout CGQuaternion?) {
+        result = CGQuaternion(source.storage)
+    }
+
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __CGQuaternion, result: inout CGQuaternion?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __CGQuaternion?) -> CGQuaternion {
+        if let source = source {
+            var result: CGQuaternion?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return CGQuaternion(angle: 0, axis: .init(0, 0, 0))
+    }
+    
+    public var description: String { "" }
+    public var debugDescription: String { description }
+}
 
 #endif
