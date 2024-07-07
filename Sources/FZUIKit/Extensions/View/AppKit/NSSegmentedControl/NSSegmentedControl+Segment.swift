@@ -20,7 +20,7 @@
             } }
         }
 
-        /// The title alignemnt of the segment.
+        /// The title alignment of the segment.
         public var titleAlignment: NSTextAlignment = .center {
             didSet { if let index = index {
                 segmentedControl?.setAlignment(titleAlignment, forSegment: index)
@@ -72,7 +72,7 @@
         /**
          The width of the segment.
 
-         A value of `0` indicates that the segments is sized to fit the available space automatically.
+         The default value is `0` and indicates that the segment is sized automatically to fit the available space.
          */
         public var width: CGFloat = 0 {
             didSet { 
@@ -137,6 +137,13 @@
             self.menu = menu
             return self
         }
+        
+        /// Sets the menu of the segment with the specified menu items.
+        @discardableResult
+        public func menu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+            self.menu = NSMenu(items)
+            return self
+        }
 
         /// Sets the Boolean value that indicates whether the menu indicator is shown.
         @discardableResult
@@ -162,7 +169,7 @@
         /**
          Sets the width of the segment.
          
-         A value of `0` indicates that the segments is sized to fit the available space automatically.
+         A value of `0` indicates that the segment is sized automatically to fit the available space.
          */
         @discardableResult
         public func width(_ width: CGFloat) -> Self {
@@ -206,7 +213,6 @@
          */
         public init(_ title: String) {
             self.title = title
-            image = nil
         }
 
         /**
@@ -215,7 +221,6 @@
          - Parameter image: The image of the segment.
          */
         public init(_ image: NSImage) {
-            title = nil
             self.image = image
         }
 
@@ -231,7 +236,6 @@
             guard let image = NSImage(systemSymbolName: symbolName) else {
                 return nil
             }
-            title = nil
             self.image = image
         }
 
@@ -374,35 +378,6 @@
             setWidth(segment.width, forSegment: index)
             setToolTip(segment.toolTip, forSegment: index)
             setTag(segment.tag, forSegment: index)
-        }
-        
-        /**
-         Returns the font of the specified segment.
-
-         - Parameter segment:The index of the segment whose font you want to get.
-         */
-        func font(forSegment segment: Int) -> NSFont? {
-            segmentViews[safe: segment]?.value(forKey: "font") as? NSFont
-        }
-        
-        /**
-         Sets the font for the specified segment.
-         
-         - Parameters:
-            - font: The label for the segment.
-            - index: The index of the segment whose label you want to set.
-         */
-        func setFont(_ font: NSFont, forSegment segment: Int) {
-            segmentViews[safe: segment]?.setValue(font, forKey: "font")
-        }
-        
-        /// The indexes of the selected segments.
-        var indexesOfSelectedSegments: [Int] {
-            (0..<segmentCount).filter { isSelected(forSegment: $0) }
-        }
-        
-        internal var segmentViews: [NSView] {
-            subviews.filter({ NSStringFromClass(type(of: $0)) == "NSSegmentItemView" })
         }
         
         internal func segment(withTag tag: Int) -> NSSegment? {
