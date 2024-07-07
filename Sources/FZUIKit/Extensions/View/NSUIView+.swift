@@ -32,7 +32,7 @@
         }
 
         /// Updates the anchor point of the view’s bounds rectangle while retaining the position.
-        public func setAnchorPoint(_ anchorPoint: CGPoint) {
+        func setAnchorPoint(_ anchorPoint: CGPoint) {
             guard let layer = optionalLayer else { return }
             guard layer.anchorPoint != anchorPoint else { return }
             var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)

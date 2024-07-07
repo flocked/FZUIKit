@@ -44,7 +44,7 @@ public extension BackgroundColorSettable where Self: NSView {
     /**
      Sets the background color of the view.
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Using this property turns the view into a layer-backed view.
      */
     @discardableResult
     func backgroundColor(_ color: NSUIColor?) -> Self {
