@@ -222,7 +222,7 @@ extension VisualEffectConfiguration: ReferenceConvertible {
             _forceBridgeFromObjectiveC(source, result: &result)
             return result!
         }
-        return VisualEffectConfiguration()
+        return VisualEffectConfiguration(material: .contentBackground, blendingMode: .behindWindow)
     }
     
     public var description: String { "" }

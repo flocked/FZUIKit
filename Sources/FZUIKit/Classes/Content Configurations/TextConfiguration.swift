@@ -313,43 +313,81 @@
     #if os(macOS)
         @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
         public extension NSTextField {
+            /// The text configuration of the text field.
+            var configuration: TextConfiguration {
+                get {
+                    var configuration = TextConfiguration()
+                    configuration.numberOfLines = maximumNumberOfLines
+                    configuration.color = textColor ?? .labelColor
+                    configuration.font = font ?? .systemFont
+                    configuration.alignment = alignment
+                    configuration.lineBreakMode = lineBreakMode
+                    configuration.isEditable = isEditable
+                    configuration.isSelectable = isSelectable
+                    configuration.numberFormatter = numberFormatter
+                    configuration.adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth
+                    configuration.minimumScaleFactor = minimumScaleFactor
+                    configuration.allowsDefaultTighteningForTruncation = allowsDefaultTighteningForTruncation
+                    return configuration
+                } 
+                set {
+                    maximumNumberOfLines = newValue.numberOfLines
+                    textColor = newValue._resolvedTextColor
+                    font = newValue.font
+                    alignment = newValue.alignment
+                    lineBreakMode = newValue.lineBreakMode
+                    isEditable = newValue.isEditable
+                    isSelectable = newValue.isSelectable
+                    formatter = newValue.numberFormatter
+                    adjustsFontSizeToFitWidth = newValue.adjustsFontSizeToFitWidth
+                    minimumScaleFactor = newValue.minimumScaleFactor
+                    allowsDefaultTighteningForTruncation = newValue.allowsDefaultTighteningForTruncation
+                }
+            }
+            
             /**
              Configurates the text field.
 
-             - Parameters:
-                - configuration:The configuration for configurating the text field.
+             - Parameter configuration:The configuration for configurating the text field.
              */
             func configurate(using configuration: TextConfiguration) {
-                maximumNumberOfLines = configuration.numberOfLines
-                textColor = configuration._resolvedTextColor
-                font = configuration.font
-                alignment = configuration.alignment
-                lineBreakMode = configuration.lineBreakMode
-                isEditable = configuration.isEditable
-                isSelectable = configuration.isSelectable
-                formatter = configuration.numberFormatter
-                adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
-                minimumScaleFactor = configuration.minimumScaleFactor
-                allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
+                self.configuration = configuration
             }
         }
 
         @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
         public extension NSTextView {
+            /// The text configuration of the text view.
+            var configuration: TextConfiguration {
+                get {
+                    var configuration = TextConfiguration()
+                    configuration.color = textColor ?? .labelColor
+                    configuration.font = font ?? .systemFont
+                    configuration.alignment = alignment
+                    configuration.isEditable = isEditable
+                    configuration.isSelectable = isSelectable
+                    configuration.lineBreakMode = textContainer?.lineBreakMode ?? .byWordWrapping
+                    configuration.numberOfLines = textContainer?.maximumNumberOfLines ?? 0
+                    return configuration
+                }
+                set {
+                    textColor = newValue._resolvedTextColor
+                    font = newValue.font
+                    alignment = newValue.alignment
+                    isEditable = newValue.isEditable
+                    isSelectable = newValue.isSelectable
+                    textContainer?.maximumNumberOfLines = newValue.numberOfLines
+                    textContainer?.lineBreakMode = newValue.lineBreakMode
+                }
+            }
+            
             /**
              Configurates the text view.
 
-             - Parameters:
-                - configuration:The configuration for configurating the text view.
+             - Parameter configuration:The configuration for configurating the text view.
              */
             func configurate(using configuration: TextConfiguration) {
-                textContainer?.maximumNumberOfLines = configuration.numberOfLines
-                textContainer?.lineBreakMode = configuration.lineBreakMode
-                textColor = configuration._resolvedTextColor
-                font = configuration.font
-                alignment = configuration.alignment
-                isEditable = configuration.isEditable
-                isSelectable = configuration.isSelectable
+                self.configuration = configuration
             }
         }
 
