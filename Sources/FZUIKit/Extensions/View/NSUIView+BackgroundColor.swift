@@ -92,12 +92,9 @@ extension NSView {
 
         mutating func update(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) {
             guard let dynamics = self[keyPath: keyPath]?.dynamicColors else { return }
-            self[keyPath: keyPath] = nil
-
-            /*if cgColor != dynamics.light.cgColor, cgColor != dynamics.dark.cgColor {
+            if cgColor != dynamics.light.cgColor, cgColor != dynamics.dark.cgColor {
                 self[keyPath: keyPath] = nil
             }
-             */
         }
     }
 
@@ -125,13 +122,11 @@ extension NSView {
     }
 
     func updateEffectiveColors() {
-        Swift.print("updateEffectiveColors")
-
         dynamicColors.update(\.shadow, cgColor: layer?.shadowColor)
         dynamicColors.update(\.background, cgColor: layer?.backgroundColor)
         dynamicColors.update(\.border, cgColor: layer?.borderColor)
         dynamicColors.update(\.innerShadow, cgColor: innerShadowLayer?.shadowColor)
-      //  setupEffectiveAppearanceObserver()
+        setupEffectiveAppearanceObserver()
 
         if let color = dynamicColors.background?.resolvedColor(for: self).cgColor {
             layer?.backgroundColor = color
