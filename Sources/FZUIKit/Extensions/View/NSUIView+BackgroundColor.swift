@@ -125,6 +125,7 @@ extension NSView {
         dynamicColors.update(\.background, cgColor: layer?.backgroundColor)
         dynamicColors.update(\.border, cgColor: layer?.borderColor)
         dynamicColors.update(\.innerShadow, cgColor: innerShadowLayer?.shadowColor)
+        setupEffectiveAppearanceObserver()
 
         if let color = dynamicColors.background?.resolvedColor(for: self).cgColor {
             layer?.backgroundColor = color
@@ -142,8 +143,6 @@ extension NSView {
                 layer?.borderColor = color
             }
         }
-
-        setupEffectiveAppearanceObserver()
     }
 }
 #endif
