@@ -174,7 +174,8 @@
         /// The state of the menu item.
         @discardableResult
         func state(_ state: NSControl.StateValue) -> Self {
-            set(\.state, to: state)
+            self.state = state
+            return self
         }
         
         /// The menu item’s image.
