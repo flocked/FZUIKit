@@ -314,7 +314,7 @@
         @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
         public extension NSTextField {
             /// The text configuration of the text field.
-            var configuration: TextConfiguration {
+            var textConfiguration: TextConfiguration {
                 get {
                     var configuration = TextConfiguration()
                     configuration.numberOfLines = maximumNumberOfLines
@@ -345,20 +345,27 @@
                 }
             }
             
+            /// Sets the text configuration of the text field.
+            @discardableResult
+            func textConfiguration(_ configuration: TextConfiguration) -> Self {
+                self.textConfiguration = configuration
+                return self
+            }
+            
             /**
              Configurates the text field.
 
              - Parameter configuration:The configuration for configurating the text field.
              */
             func configurate(using configuration: TextConfiguration) {
-                self.configuration = configuration
+                self.textConfiguration = configuration
             }
         }
 
         @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
         public extension NSTextView {
             /// The text configuration of the text view.
-            var configuration: TextConfiguration {
+            var textConfiguration: TextConfiguration {
                 get {
                     var configuration = TextConfiguration()
                     configuration.color = textColor ?? .labelColor
@@ -381,19 +388,64 @@
                 }
             }
             
+            /// Sets the text configuration of the text view.
+            @discardableResult
+            func textConfiguration(_ configuration: TextConfiguration) -> Self {
+                self.textConfiguration = configuration
+                return self
+            }
+            
             /**
              Configurates the text view.
 
              - Parameter configuration:The configuration for configurating the text view.
              */
             func configurate(using configuration: TextConfiguration) {
-                self.configuration = configuration
+                self.textConfiguration = configuration
             }
         }
 
     #elseif canImport(UIKit)
         @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
         public extension UILabel {
+            /// The text configuration of the label.
+            var textConfiguration: TextConfiguration {
+                get {
+                    var configuration = TextConfiguration()
+                    configuration.color = textColor
+                    configuration.font = font
+                    configuration.alignment = textAlignment
+                    configuration.lineBreakMode = lineBreakMode
+                    configuration.numberOfLines = numberOfLines
+                    configuration.adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth
+                    configuration.minimumScaleFactor = minimumScaleFactor
+                    configuration.allowsDefaultTighteningForTruncation = allowsDefaultTighteningForTruncation
+                    configuration.showsExpansionTextWhenTruncated = showsExpansionTextWhenTruncated
+                    configuration.adjustsFontForContentSizeCategory = adjustsFontForContentSizeCategory
+                    return configuration
+                }
+                set {
+                    numberOfLines = newValue.numberOfLines
+                    textColor = newValue._resolvedTextColor
+                    font = newValue.font
+                    lineBreakMode = newValue.lineBreakMode
+                    textAlignment = newValue.alignment
+
+                    adjustsFontSizeToFitWidth = newValue.adjustsFontSizeToFitWidth
+                    minimumScaleFactor = newValue.minimumScaleFactor
+                    allowsDefaultTighteningForTruncation = newValue.allowsDefaultTighteningForTruncation
+                    adjustsFontForContentSizeCategory = newValue.adjustsFontForContentSizeCategory
+                    showsExpansionTextWhenTruncated = newValue.showsExpansionTextWhenTruncated
+                }
+            }
+            
+            /// Sets the text configuration of the text label.
+            @discardableResult
+            func textConfiguration(_ configuration: TextConfiguration) -> Self {
+                self.textConfiguration = configuration
+                return self
+            }
+            
             /**
              Configurates the label.
 
@@ -401,22 +453,44 @@
                 - configuration:The configuration for configurating the label.
              */
             func configurate(using configuration: TextConfiguration) {
-                numberOfLines = configuration.numberOfLines
-                textColor = configuration._resolvedTextColor
-                font = configuration.font
-                lineBreakMode = configuration.lineBreakMode
-                textAlignment = configuration.alignment
-
-                adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
-                minimumScaleFactor = configuration.minimumScaleFactor
-                allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
-                adjustsFontForContentSizeCategory = configuration.adjustsFontForContentSizeCategory
-                showsExpansionTextWhenTruncated = configuration.showsExpansionTextWhenTruncated
+                textConfiguration = configuration
             }
         }
 
         @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
         public extension UITextField {
+            /// The text configuration of the text field.
+            var textConfiguration: TextConfiguration {
+                get {
+                    var configuration = TextConfiguration()
+                    configuration.color = textColor ?? .label
+                    configuration.font = font ?? .systemFont
+                    configuration.alignment = textAlignment
+                    configuration.adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth
+                    configuration.adjustsFontForContentSizeCategory = adjustsFontForContentSizeCategory
+                    return configuration
+                }
+                set {
+                    textColor = newValue._resolvedTextColor
+                    font = newValue.font
+                    textAlignment = newValue.alignment
+                    adjustsFontSizeToFitWidth = newValue.adjustsFontSizeToFitWidth
+                    adjustsFontForContentSizeCategory = newValue.adjustsFontForContentSizeCategory
+                    // self.numberOfLines = configuration.numberOfLines
+                    // self.lineBreakMode = configuration.lineBreakMode
+                    //  self.minimumScaleFactor = configuration.minimumScaleFactor
+                    //  self.allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
+                    //  self.showsExpansionTextWhenTruncated = configuration.showsExpansionTextWhenTruncated
+                }
+            }
+            
+            /// Sets the text configuration of the text field.
+            @discardableResult
+            func textConfiguration(_ configuration: TextConfiguration) -> Self {
+                self.textConfiguration = configuration
+                return self
+            }
+            
             /**
              Configurates the label.
 
@@ -424,18 +498,53 @@
                 - configuration:The configuration for configurating the label.
              */
             func configurate(using configuration: TextConfiguration) {
-                textColor = configuration._resolvedTextColor
-                font = configuration.font
-                textAlignment = configuration.alignment
-
-                adjustsFontSizeToFitWidth = configuration.adjustsFontSizeToFitWidth
-                adjustsFontForContentSizeCategory = configuration.adjustsFontForContentSizeCategory
-                // self.numberOfLines = configuration.numberOfLines
-                // self.lineBreakMode = configuration.lineBreakMode
-                //  self.minimumScaleFactor = configuration.minimumScaleFactor
-                //  self.allowsDefaultTighteningForTruncation = configuration.allowsDefaultTighteningForTruncation
-                //  self.showsExpansionTextWhenTruncated = configuration.showsExpansionTextWhenTruncated
+               textConfiguration = configuration
             }
         }
+
+public extension UITextView {
+    /// The text configuration of the text view.
+    var textConfiguration: TextConfiguration {
+        get {
+            var configuration = TextConfiguration()
+            configuration.font = font ?? .systemFont
+            configuration.color = textColor ?? .label
+            configuration.lineBreakMode = textContainer.lineBreakMode
+            configuration.alignment = textAlignment
+            configuration.adjustsFontForContentSizeCategory = adjustsFontForContentSizeCategory
+            configuration.isEditable = isEditable
+            configuration.isSelectable = isSelectable
+            configuration.numberOfLines = textContainer.maximumNumberOfLines
+            return configuration
+        }
+        set {
+            textAlignment = newValue.alignment
+            font = newValue.font
+            isEditable = newValue.isEditable
+            textContainer.maximumNumberOfLines = newValue.numberOfLines
+            isSelectable = newValue.isSelectable
+            textColor = newValue._resolvedTextColor
+            textContainer.lineBreakMode = newValue.lineBreakMode
+            adjustsFontForContentSizeCategory = newValue.adjustsFontForContentSizeCategory
+        }
+    }
+    
+    /// Sets the text configuration of the text view.
+    @discardableResult
+    func textConfiguration(_ configuration: TextConfiguration) -> Self {
+        self.textConfiguration = configuration
+        return self
+    }
+    
+    /**
+     Configurates the text view.
+
+     - Parameters:
+        - configuration:The configuration for configurating the view.
+     */
+    func configurate(using configuration: TextConfiguration) {
+       textConfiguration = configuration
+    }
+}
     #endif
 #endif
