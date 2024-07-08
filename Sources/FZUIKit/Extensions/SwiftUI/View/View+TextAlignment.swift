@@ -10,7 +10,7 @@ import AppKit
 
 public extension View {
     /**
-     Sets the alignment of a text view.
+     Sets the alignment of a text.
 
      - Parameters:
         - textAlignment: The alignment of the text.
@@ -23,11 +23,12 @@ public extension View {
     /**
      Sets the alignment of a text.
 
-     - Parameter textAlignment: The alignment of the text.
+     - Parameters:
+        - textAlignment: The alignment of the text.
+        - autoWidth: A Boolean value that indicates whether the text should fit its width automatically.
      */
-    func textAlignment(_ textAlignment: NSTextAlignment) -> some View {
-        self.frame(alignment: textAlignment.swiftUI)
-            .multilineTextAlignment(textAlignment.swiftUIMultiline)
+    func textAlignment(_ textAlignment: NSTextAlignment, autoWidth: Bool = true) -> some View {
+        modifier(TextAlignmentModifier(textAlignment: textAlignment.swiftUIMultiline, autoWidth: autoWidth))
     }
 }
 
