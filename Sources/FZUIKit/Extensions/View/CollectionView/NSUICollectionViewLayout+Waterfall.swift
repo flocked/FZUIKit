@@ -797,7 +797,6 @@ extension NSUICollectionView {
         var _isPinchable = true
         override var state: NSUIGestureRecognizer.State {
             didSet {
-                Swift.print("state", state.rawValue)
                 switch state {
                 case .began:
                     _isPinchable = isPinchable
