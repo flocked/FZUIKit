@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
+import AppKit
 
 public extension View {
-    @ViewBuilder
     /**
      Sets the alignment of a text view.
 
@@ -18,6 +18,16 @@ public extension View {
      */
     func textAlignment(_ textAlignment: TextAlignment, autoWidth: Bool = true) -> some View {
         modifier(TextAlignmentModifier(textAlignment: textAlignment, autoWidth: autoWidth))
+    }
+    
+    /**
+     Sets the alignment of a text.
+
+     - Parameter textAlignment: The alignment of the text.
+     */
+    func textAlignment(_ textAlignment: NSTextAlignment) -> some View {
+        self.textAlignment(textAlignment.swiftUI)
+            .multilineTextAlignment(textAlignment.swiftUIMultiline)
     }
 }
 

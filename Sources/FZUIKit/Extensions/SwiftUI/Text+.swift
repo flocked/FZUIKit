@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+import AppKit
+public extension NSTextAlignment {
+
+}
+
 public extension Text {
     /// Force multiline rendering where a text can become truncated even if there's space.
     func forceMultiline() -> some View {
