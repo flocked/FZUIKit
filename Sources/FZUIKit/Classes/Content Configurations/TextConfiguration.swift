@@ -279,7 +279,7 @@ extension TextConfiguration: Hashable {
 }
 
 extension NSTextAlignment {
-    var swiftUI: TextAlignment {
+    var swiftUI: Alignment {
         switch self {
         case .left: return .leading
         case .center: return .center

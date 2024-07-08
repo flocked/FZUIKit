@@ -26,7 +26,7 @@ public extension View {
      - Parameter textAlignment: The alignment of the text.
      */
     func textAlignment(_ textAlignment: NSTextAlignment) -> some View {
-        self.textAlignment(textAlignment.swiftUI)
+        self.frame(alignment: textAlignment.swiftUI)
             .multilineTextAlignment(textAlignment.swiftUIMultiline)
     }
 }
