@@ -138,7 +138,7 @@
         /**
          A Boolean value that determines whether the view is opaque.
 
-         This property provides a hint to the drawing system as to how it should treat the view. If set to `true`, the drawing system treats the view as fully opaque, which allows the drawing system to optimize some drawing operations and improve performance. If set to `false`, the drawing system composites the view normally with other content. The default value of this property is true.
+         This property provides a hint to the drawing system as to how it should treat the view. If set to `true`, the drawing system treats the view as fully opaque, which allows the drawing system to optimize some drawing operations and improve performance. If set to `false`, the drawing system composites the view normally with other content.
 
          An opaque view is expected to fill its bounds with entirely opaque content—that is, the content should have an alpha value of `1.0`. If the view is opaque and either does not fill its bounds or contains wholly or partially transparent content, the results are unpredictable. You should always set the value of this property to false if the view is fully or partially transparent.
 
@@ -293,13 +293,13 @@
         /**
          The anchor point of the view’s bounds rectangle.
 
-         You specify the value for this property using the unit coordinate space, where (0, 0) is the bottom-left corner of the view’s bounds rectangle, and (1, 1) is the top-right corner. The default value of this property is (0.5, 0.5), which represents the center of the view’s bounds rectangle.
+         You specify the value for this property using the unit coordinate space, where (0, 0) is the bottom-left corner of the view’s bounds rectangle, and (1, 1) is the top-right corner.
 
          All geometric manipulations to the view occur about the specified point. For example, applying a rotation transform to a view with the default anchor point causes the view to rotate around its center. Changing the anchor point to a different location causes the view to rotate around that new point.
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().anchorPoint`.
 
-         The default value is `CGPoint(x: 0, y:0)`.
+         The default value is `zero`.
          */
         @objc open var anchorPoint: CGPoint {
             get { layer?.anchorPoint ?? .zero }
@@ -346,9 +346,9 @@
         /**
          The rounded corners of the view.
          
-         The default value is `[]`, which results in a view with all corners rounded when ``cornerRadius`` isn't `0`.
-
          Using this property turns the view into a layer-backed view.
+         
+         The default value is `[]`, which results in a view with all corners rounded when ``cornerRadius`` isn't `0`.
          */
         @objc open var roundedCorners: CACornerMask {
             get { layer?.maskedCorners ?? CACornerMask() }
@@ -360,8 +360,10 @@
 
         /**
          The border of the view.
-
+         
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().border`.
+         
+         The default value is `none()`, which results in a view with no border.
          */
        @objc public var border: BorderConfiguration {
             get {
@@ -412,9 +414,9 @@
 
         /**
          The outer shadow of the view.
-
+         
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().outerShadow`.
-
+         
          The default value is `none()`, which results in a view with no outer shadow.
          */
         @objc public var outerShadow: ShadowConfiguration {
@@ -430,13 +432,6 @@
             }
         }
 
-        /**
-         The shadow color of the view.
-
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowColor`.
-
-         The default value is `nil`, which results in a view with no shadow.
-         */
         var shadowColor: NSColor? {
             get { self.layer?.shadowColor?.nsColor }
             set {
@@ -459,13 +454,6 @@
             set { layer?.shadowColor = newValue?.cgColor }
         }
 
-        /**
-         The shadow offset of the view.
-
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowOffset`.
-
-         The default value is `zero`, which results in a view with no shadow offset.
-         */
         @objc var shadowOffset: CGPoint {
             get { (layer?.shadowOffset ?? .zero).point }
             set {
@@ -475,13 +463,6 @@
             }
         }
 
-        /**
-         The shadow radius of the view.
-
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowRadius`.
-
-         The default value is `0.0`, which results in a view with no shadow radius.
-         */
         @objc var shadowRadius: CGFloat {
             get { layer?.shadowRadius ?? .zero }
             set {
@@ -491,13 +472,6 @@
             }
         }
 
-        /**
-         The shadow opacity of the view.
-
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowOpacity`.
-
-         The default value is `0.0`, which results in a view with no shadow.
-         */
         @objc var shadowOpacity: CGFloat {
             get { CGFloat(layer?.shadowOpacity ?? .zero) }
             set {
@@ -509,9 +483,9 @@
 
         /**
          The shadow path of the view.
-
+         
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowPath`.
-
+         
          The default value is `nil`, which results in a view with no shadow path.
          */
         public var shadowPath: NSBezierPath? {
@@ -530,10 +504,10 @@
 
         /**
          The inner shadow of the view.
+         
+         The default value is `none()`, which results in a view with no inner shadow.
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().innerShadow`.
-
-         The default value is `none()`, which results in a view with no inner shadow.
          */
       @objc public var innerShadow: ShadowConfiguration {
             get { realSelf.layer?.innerShadowLayer?.configuration ?? .none() }
@@ -641,16 +615,17 @@
 
         /// The parent view controller managing the view.
         public var parentController: NSViewController? {
-            if let responder = nextResponder as? NSViewController {
-                return responder
-            }
-            return (nextResponder as? NSView)?.parentController
+            return nextResponder as? NSViewController ?? (nextResponder as? NSView)?.parentController
         }
 
         /**
-         A Boolean value that indicates whether the view is visible
+         A Boolean value that indicates whether the view is visible.
 
-         Returns `true` if the `window` isn't `nil`, the view isn't hidden, `alphaValue` isn't `0.0` and `visibleRect` isn't `zero`.
+         Returns `true` if :
+            - `window` isn't `nil`,
+            - `isHidden` is `false`
+            - `alphaValue` isn't `0.0`
+            - `visibleRect` isn't `zero`.
          */
         public var isVisible: Bool {
             window != nil && alphaValue != 0.0 && visibleRect != .zero && isHidden == false
@@ -756,9 +731,7 @@
             }
         }
         
-        
-
-        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {  
+        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
             if let animation = swizzled_Animation(forKey: key) {
                 return animation
             } else if NSViewAnimationKeys.contains(key) {

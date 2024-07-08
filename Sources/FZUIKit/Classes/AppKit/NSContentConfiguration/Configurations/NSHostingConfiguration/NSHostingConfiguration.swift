@@ -133,7 +133,7 @@
          ```
 
          - Parameters:
-            - edges: The edges to apply the insets. Any edges not specified will use the system default values. The default value is all.
+            - edges: The edges to apply the insets. Any edges not specified will use the system default values. The default value is `all`.
             - insets: The insets to apply.
          */
         public func margins(_ edges: Edge.Set = .all, _ insets: EdgeInsets) -> NSHostingConfiguration<Content, Background> {
@@ -163,7 +163,7 @@
          ```
 
          - Parameters:
-            - edges: The edges to apply the insets. Any edges not specified will use the system default values. The default value is all.
+            - edges: The edges to apply the insets. Any edges not specified will use the system default values. The default value is `all`.
             - length: The amount to apply.
          */
         public func margins(_ edges: Edge.Set = .all, _ length: CGFloat) -> NSHostingConfiguration<Content, Background> {
