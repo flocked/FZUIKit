@@ -10,7 +10,7 @@
     import UIKit
 
     /// An UIKit view that hosts a SwiftUI view hierarchy.
-    public final class UIHostingView<Content: View>: UIView {
+    open class UIHostingView<Content: View>: UIView {
         // MARK: - Creating a hosting view
 
         /**
@@ -24,18 +24,48 @@
             super.init(frame: .zero)
             setup()
         }
+        
+        /**
+         Creates a hosting controller object from an archive and the specified SwiftUI view.
+         - Parameters:
+            - coder: The decoder to use during initialization.
+            - rootView: The root view of the SwiftUI view hierarchy that you want to manage using this view controller.
+         
+         - Returns: A `UIViewController` object that you can present from your interface.
+         */
+        public init?(coder: NSCoder, rootView: Content) {
+            guard let hostingController = UIHostingController(coder: coder, rootView: rootView) else { return nil }
+            self.hostingController = hostingController
+            super.init(frame: .zero)
+            setup()
+        }
 
-        @available(*, unavailable)
-        public required init?(coder _: NSCoder) {
-            fatalError("init?(coder:) unavailable")
+        /**
+         Creates a hosting controller object from the contents of the specified archive.
+         
+         The default implementation of this method throws an exception. To create your view controller from an archive, override this method and initialize the superclass using the ``init(rootView:)`` method instead.
+         
+         - Parameter coder: The decoder to use during initialization.
+         */
+        public required init?(coder: NSCoder) {
+            guard let hostingController = UIHostingController<Content>(coder: coder) else { return nil }
+            self.hostingController = hostingController
+            super.init(frame: .zero)
+            setup()
         }
 
         // MARK: - Getting the root view
 
         /// The root view of the SwiftUI view hierarchy managed by this view controller.
-        public var rootView: Content {
+        open var rootView: Content {
             get { hostingController.rootView }
             set { hostingController.rootView = newValue }
+        }
+        
+        @available(iOS 16.0, tvOS 16.0, *)
+        open var sizingOptions: UIHostingControllerSizingOptions {
+            get { hostingController.sizingOptions }
+            set { hostingController.sizingOptions = newValue }
         }
 
         // MARK: - Private Properties
