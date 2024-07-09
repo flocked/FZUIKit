@@ -123,6 +123,7 @@
             }
             
             /// A Boolean value that indicates whether the view should ignore save area insets.
+            @available(macOS 11.0, *)
             var isSafeAreaInsetsDisabled: Bool {
                 get { isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
                 set { setSafeAreaInsets((newValue == true) ? .zero : nil) }
@@ -130,11 +131,13 @@
             
             /// Sets the Boolean value that indicates whether the view should ignore save area insets.
             @discardableResult
+            @available(macOS 11.0, *)
             func ignoreSafeArea(_ ignores: Bool) -> Self {
                 isSafeAreaInsetsDisabled = ignores
                 return self
             }
             
+            @available(macOS 11.0, *)
             internal func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
                 resetMethod(#selector(getter: NSUIView.safeAreaInsets))
                 if let newSafeAreaInsets = newSafeAreaInsets {
