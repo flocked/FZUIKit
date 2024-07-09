@@ -17,6 +17,13 @@
             set { styleMask[.titled] = newValue }
         }
         
+        /// Sets the Boolean value that indicates whether the window displays a title bar.
+        @discardableResult
+        public func isTitled(_ isTitled: Bool) -> Self {
+            self.isTitled = isTitled
+            return self
+        }
+        
         /// A Boolean value that indicates whether the window’s contentView consumes the full size of the window.
         public var hasFullSizeContentView: Bool {
             get { styleMask.contains(.fullSizeContentView) }
