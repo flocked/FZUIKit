@@ -115,9 +115,5 @@
                 frame.size = fittingSize
             }
         }
-
-extension NSHostingController {
-
-}
     #endif
 #endif
