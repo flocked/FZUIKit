@@ -174,6 +174,7 @@ open class FZScrollView: NSScrollView {
                 boundsSize = bounds.size
                 return
             }
+            guard bounds.width > 0 && bounds.height > 0 else { return }
             contentOffset.x *= (bounds.width / boundsSize.width)
             contentOffset.y *= (bounds.height / boundsSize.height)
         }
