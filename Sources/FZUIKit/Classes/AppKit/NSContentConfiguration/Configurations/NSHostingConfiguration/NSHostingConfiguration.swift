@@ -49,7 +49,7 @@
         /**
          Creates a hosting configuration with the given contents.
 
-         - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the cell.
+         - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the view.
          */
         public init(@ViewBuilder content: () -> Content) where Background == EmptyView {
             self.content = content()
@@ -80,8 +80,7 @@
          .background(Color.blue)
          ```
 
-         - Parameters:
-            - style: The shape style to be used as the background of the cell.
+         - Parameter style: The shape style to be used as the background of the cell.
          */
         public func background<S>(_ style: S) -> NSHostingConfiguration<Content, _NSHostingConfigurationBackgroundView<S>> where S: ShapeStyle {
             NSHostingConfiguration<Content, _NSHostingConfigurationBackgroundView<S>>(
@@ -107,8 +106,7 @@
          }
          ```
 
-         - Parameters:
-            - background: The contents of the SwiftUI hierarchy to be shown inside the background of the cell.
+         - Parameter background: The contents of the SwiftUI hierarchy to be shown inside the background of the cell.
          */
         public func background<B>(@ViewBuilder content: () -> B) -> NSHostingConfiguration<Content, B> where B: View {
             NSHostingConfiguration<Content, B>(

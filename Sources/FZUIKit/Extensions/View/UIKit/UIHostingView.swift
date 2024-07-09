@@ -5,12 +5,17 @@
 //  Created by Florian Zand on 24.07.23.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     import SwiftUI
     import UIKit
 
     /// An UIKit view that hosts a SwiftUI view hierarchy.
     open class UIHostingView<Content: View>: UIView {
+        
+        private let hostingController: UIHostingController<Content>
+        private var hostingView: UIView { hostingController.view }
+        private var isPresented: Bool = false
+
         // MARK: - Creating a hosting view
 
         /**
@@ -19,11 +24,28 @@
          - Parameter rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
          - Returns: The hosting view object.
          */
-        public init(rootView: Content) {
+        public required init(rootView: Content) {
             hostingController = UIHostingController(rootView: rootView)
             super.init(frame: .zero)
             setup()
         }
+        
+        /**
+         Creates a hosting view object that wraps the specified SwiftUI view.
+
+         - Parameters:
+            - ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
+            - rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
+         
+         - Returns: The hosting view object.
+         */
+        public convenience init(ignoreSafeArea: Bool, rootView: Content) {
+            self.init(rootView: rootView)
+            if ignoreSafeArea {
+                isSafeAreaInsetsDisabled = true
+            }
+        }
+        
         
         /**
          Creates a hosting controller object from an archive and the specified SwiftUI view.
@@ -67,38 +89,75 @@
             get { hostingController.sizingOptions }
             set { hostingController.sizingOptions = newValue }
         }
-
-        // MARK: - Private Properties
-
-        private let hostingController: UIHostingController<Content>
-        private var hostingView: UIView { hostingController.view }
-
-        override public func sizeThatFits(_ size: CGSize) -> CGSize {
-            hostingView.sizeThatFits(size)
+        
+        /// A Boolean value that indicates whether the view should ignore save area insets.
+        open var isSafeAreaInsetsDisabled: Bool {
+            get { hostingController.isSafeAreaInsetsDisabled }
+            set { hostingController.isSafeAreaInsetsDisabled = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the view should ignore save area insets.
+        @discardableResult
+        open func ignoreSafeArea(_ ignores: Bool) -> Self {
+            isSafeAreaInsetsDisabled = ignores
+            return self
         }
 
-        override public func didMoveToWindow() {
+        // MARK: - Private Properties
+        
+        open override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
+            hostingView.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: horizontalFittingPriority, verticalFittingPriority: verticalFittingPriority)
+        }
+        
+        open override func systemLayoutSizeFitting(_ targetSize: CGSize) -> CGSize {
+            hostingView.systemLayoutSizeFitting(targetSize)
+        }
+
+        open override func sizeThatFits(_ size: CGSize) -> CGSize {
+            hostingView.sizeThatFits(size)
+        }
+        
+        open override func sizeToFit() {
+            hostingView.sizeToFit()
+            super.sizeToFit()
+        }
+        
+        open override var intrinsicContentSize: CGSize {
+            hostingView.intrinsicContentSize
+        }
+        
+        open override func invalidateIntrinsicContentSize() {
+            hostingView.invalidateIntrinsicContentSize()
+            super.invalidateIntrinsicContentSize()
+        }
+
+        open override func didMoveToWindow() {
             if let parentController = parentController {
                 parentController.addChild(hostingController)
+                hostingView.frame = bounds
+                addSubview(hostingView)
                 hostingController.didMove(toParent: parentController)
+                isPresented = true
             } else {
                 hostingController.willMove(toParent: nil)
                 hostingController.removeFromParent()
+                hostingView.removeFromSuperview()
+                isPresented = false
+            }
+            super.didMoveToWindow()
+        }
+        
+        open override func layoutSubviews() {
+            super.layoutSubviews()
+            if isPresented {
+                hostingView.frame = bounds
             }
         }
 
         private func setup() {
             hostingView.backgroundColor = .clear
             hostingView.translatesAutoresizingMaskIntoConstraints = false
-
             addSubview(hostingView)
-
-            NSLayoutConstraint.activate([
-                hostingView.topAnchor.constraint(equalTo: topAnchor),
-                hostingView.rightAnchor.constraint(equalTo: rightAnchor),
-                hostingView.bottomAnchor.constraint(equalTo: bottomAnchor),
-                hostingView.leftAnchor.constraint(equalTo: leftAnchor),
-            ])
         }
     }
 

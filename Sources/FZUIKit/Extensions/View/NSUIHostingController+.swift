@@ -61,6 +61,13 @@
             get { view.isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
             set { setSafeAreaInsets((newValue == true) ? .zero : nil) }
         }
+        
+        /// Sets the Boolean value that indicates whether the view should ignore save area insets.
+        @discardableResult
+        func ignoreSafeArea(_ ignores: Bool) -> Self {
+            isSafeAreaInsetsDisabled = ignores
+            return self
+        }
 
         internal func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
             view.resetMethod(#selector(getter: NSUIView.safeAreaInsets))
@@ -113,6 +120,37 @@
             /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
             func sizeToFit() {
                 frame.size = fittingSize
+            }
+            
+            /// A Boolean value that indicates whether the view should ignore save area insets.
+            var isSafeAreaInsetsDisabled: Bool {
+                get { isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
+                set { setSafeAreaInsets((newValue == true) ? .zero : nil) }
+            }
+            
+            /// Sets the Boolean value that indicates whether the view should ignore save area insets.
+            @discardableResult
+            func ignoreSafeArea(_ ignores: Bool) -> Self {
+                isSafeAreaInsetsDisabled = ignores
+                return self
+            }
+            
+            internal func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
+                resetMethod(#selector(getter: NSUIView.safeAreaInsets))
+                if let newSafeAreaInsets = newSafeAreaInsets {
+                    do {
+                        try replaceMethod(
+                            #selector(getter: NSUIView.safeAreaInsets),
+                            methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSUIEdgeInsets)).self,
+                            hookSignature: (@convention(block)  (AnyObject) -> (NSUIEdgeInsets)).self) { store in {
+                               object in
+                               return newSafeAreaInsets
+                            }
+                       }
+                    } catch {
+                    // handle error
+                    }
+                }
             }
         }
     #endif
