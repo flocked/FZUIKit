@@ -11,6 +11,71 @@
 
     extension NSWindow {
         
+        /// A Boolean value that indicates whether the window’s contentView consumes the full size of the window.
+        public var hasFullSizeContentView: Bool {
+            get { styleMask.contains(.fullSizeContentView) }
+            set { styleMask[.fullSizeContentView] = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the window’s contentView consumes the full size of the window.
+        @discardableResult
+        public func hasFullSizeContentView(_ hasFullSizeContentView: Bool) -> Self {
+            self.hasFullSizeContentView = hasFullSizeContentView
+            return self
+        }
+        
+        /// A Boolean value that indicates whether the window displays a close button.
+        public var displaysCloseButton: Bool {
+            get { styleMask.contains(.closable) }
+            set { styleMask[.closable] = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the window displays a close button.
+        @discardableResult
+        public func displaysCloseButton(_ displays: Bool) -> Self {
+            self.displaysCloseButton = displays
+            return self
+        }
+        
+        /// A Boolean value that indicates whether the window can be resized by the user.
+        public var isResizable: Bool {
+            get { styleMask.contains(.resizable) }
+            set { styleMask[.resizable] = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the window can be resized by the user.
+        @discardableResult
+        public func isResizable(_ isResizable: Bool) -> Self {
+            self.isResizable = isResizable
+            return self
+        }
+        
+        /// A Boolean value that indicates whether the window displays a minimize button.
+        public var displaysMinimizeButton: Bool {
+            get { styleMask.contains(.miniaturizable) }
+            set { styleMask[.miniaturizable] = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the window displays a minimize button.
+        @discardableResult
+        public func displaysMinimizeButton(_ displays: Bool) -> Self {
+            self.displaysMinimizeButton = displays
+            return self
+        }
+        
+        /// A Boolean value that indicates whether the window displays none of the usual peripheral elements.
+        public var isBorderless: Bool {
+            get { styleMask.contains(.borderless) }
+            set { styleMask[.borderless] = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the window displays none of the usual peripheral elements.
+        @discardableResult
+        public func isBorderless(_ isBorderless: Bool) -> Self {
+            self.isBorderless = isBorderless
+            return self
+        }
+        
         /// Handlers for the window.
         public struct Handlers {
             /// The handler that gets called when the window’s key state changes.
@@ -557,4 +622,3 @@
 
     private let NSWindowAnimationKeys = ["frameAnimatable", "centerPoint"]
 #endif
-
