@@ -11,6 +11,12 @@
 
     extension NSWindow {
         
+        /// A Boolean value that indicates whether the window displays a title bar.
+        public var isTitled: Bool {
+            get { styleMask.contains(.titled) }
+            set { styleMask[.titled] = newValue }
+        }
+        
         /// A Boolean value that indicates whether the window’s contentView consumes the full size of the window.
         public var hasFullSizeContentView: Bool {
             get { styleMask.contains(.fullSizeContentView) }
