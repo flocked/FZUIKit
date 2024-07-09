@@ -143,6 +143,10 @@ open class FZScrollView: NSScrollView {
         maxMagnification = 3.0
         drawsBackground = false
         boundsSize = bounds.size
+        hasVerticalScroller = true
+        hasHorizontalScroller = true
+        verticalScrollElasticity = .automatic
+        horizontalScrollElasticity = .automatic
         hidesScrollersWhenZoomedOut = true
     }
 }
