@@ -574,29 +574,12 @@
         
         /// A Boolean value that indicates whether the scroll view should automatically manage it's document view.
         @objc open var managesDocumentView: Bool {
-            get { scrollViewObserver != nil }
+            get { getAssociatedValue("managesDocumentView", initialValue: false) }
             set {
                 guard newValue != managesDocumentView else { return }
-                if newValue {
-                    scrollViewObserver = KeyValueObserver(self)
-                    if let documentView = documentView {
-                        documentView.frame = bounds
-                    } else {
-                        scrollViewObserver?.add(\.documentView) { [weak self] old, new in
-                            guard let self = self, old != new, let new = new else { return }
-                            new.frame = self.bounds
-                        }
-                    }
-                    scrollViewObserver?.add(\.frame) { [weak self] old, new in
-                        guard let self = self, old != new, let documentView = self.documentView else { return }
-                        documentView.frame = CGRect(.zero, new.size)
-                        guard self.contentOffset != .zero else { return }
-                        self.contentOffset.x *= (new.width / old.width)
-                        self.contentOffset.y *= (new.height / old.height)
-                    }
-                } else {
-                    scrollViewObserver = nil
-                }
+                setAssociatedValue(newValue, key: "managesDocumentView")
+                updateScrollViewObserver()
+                documentView?.frame = bounds
             }
         }
         
@@ -607,9 +590,109 @@
             return self
         }
         
+        ///A Boolean value that indicates whether the scrollers automatically hide if the `magnification` value is `1.0`.
+        @objc open var hidesScrollersWhenZoomedOut: Bool {
+            get { getAssociatedValue("hidesScrollersWhenZoomedOut", initialValue: false) }
+            set {
+                guard newValue != hidesScrollersWhenZoomedOut else { return }
+                setAssociatedValue(newValue, key: "hidesScrollersWhenZoomedOut")
+                updateScrollViewObserver()
+                scrollerConfiguration = ScrollerConfiguration(verticalElasticity: verticalScrollElasticity, horizontalElasticity: horizontalScrollElasticity, hasVertical: hasVerticalRuler, hasHorizontal: hasHorizontalScroller)
+            }
+        }
+                
+        /// Sets the Boolean value that indicates whether the scrollers automatically hide if the `magnification` value is `1.0`.
+        @discardableResult
+        @objc open func hidesScrollersWhenZoomedOut(_ hides: Bool) -> Self {
+            self.hidesScrollersWhenZoomedOut = hides
+            return self
+        }
+        
         var scrollViewObserver: KeyValueObserver<NSScrollView>? {
             get { getAssociatedValue("scrollViewObserver", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "scrollViewObserver") }
+        }
+        
+        func updateScrollViewObserver() {
+            if managesDocumentView || hidesScrollersWhenZoomedOut {
+                scrollViewObserver = KeyValueObserver(self)
+                if managesDocumentView {
+                    scrollViewObserver?.add(\.documentView) { [weak self] old, new in
+                        guard let self = self, old != new, let new = new else { return }
+                        new.frame = self.bounds
+                    }
+                    scrollViewObserver?.add(\.frame) { [weak self] old, new in
+                        guard let self = self, old != new, let documentView = self.documentView else { return }
+                        documentView.frame = CGRect(.zero, new.size)
+                        guard self.contentOffset != .zero else { return }
+                        self.contentOffset.x *= (new.width / old.width)
+                        self.contentOffset.y *= (new.height / old.height)
+                    }
+                }
+                if hidesScrollersWhenZoomedOut {
+                    scrollViewObserver?.add(\.verticalScrollElasticity) { [weak self] old, new in
+                        guard let self = self, old != new, !self.isUpdatingScrollers else { return }
+                        self.scrollerConfiguration.verticalElasticity = new
+                    }
+                    scrollViewObserver?.add(\.horizontalScrollElasticity) { [weak self] old, new in
+                        guard let self = self, old != new, !self.isUpdatingScrollers else { return }
+                        self.scrollerConfiguration.horizontalElasticity = new
+                    }
+                    scrollViewObserver?.add(\.hasVerticalScroller) { [weak self] old, new in
+                        guard let self = self, old != new, !self.isUpdatingScrollers else { return }
+                        self.scrollerConfiguration.hasVertical = new
+                    }
+                    scrollViewObserver?.add(\.hasHorizontalScroller) { [weak self] old, new in
+                        guard let self = self, old != new, !self.isUpdatingScrollers else { return }
+                        self.scrollerConfiguration.hasHorizontal = new
+                    }
+                    scrollViewObserver?.add(\.magnification) { [weak self] old, new in
+                        guard let self = self else { return }
+                        guard (old == 1.0 && new != 1.0) || old != 1.0 && new == 1.0 else { return }
+                        self.updateScrollers()
+                    }
+                }
+            } else {
+                scrollViewObserver = nil
+            }
+        }
+        
+        var scrollerConfiguration: ScrollerConfiguration {
+            get { getAssociatedValue("scrollerConfiguration", initialValue: ScrollerConfiguration(verticalElasticity: verticalScrollElasticity, horizontalElasticity: horizontalScrollElasticity, hasVertical: hasVerticalRuler, hasHorizontal: hasHorizontalScroller)) }
+            set {
+                setAssociatedValue(newValue, key: "scrollerConfiguration")
+                updateScrollers()
+            }
+        }
+        
+        var isUpdatingScrollers: Bool {
+            get { getAssociatedValue("isUpdatingScrollers", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "isUpdatingScrollers") }
+        }
+        
+        func updateScrollers() {
+            guard hidesScrollersWhenZoomedOut else { return }
+            isUpdatingScrollers = true
+            if magnification == 1.0 {
+                verticalScrollElasticity = .none
+                horizontalScrollElasticity = .none
+                hasVerticalScroller = false
+                hasHorizontalScroller = false
+            } else {
+                verticalScrollElasticity = scrollerConfiguration.verticalElasticity
+                horizontalScrollElasticity = scrollerConfiguration.horizontalElasticity
+                hasVerticalScroller = scrollerConfiguration.hasVertical
+                hasHorizontalScroller = scrollerConfiguration.hasHorizontal
+            }
+            isUpdatingScrollers = false
+        }
+        
+        
+        struct ScrollerConfiguration {
+            var verticalElasticity: NSScrollView.Elasticity
+            var horizontalElasticity: NSScrollView.Elasticity
+            var hasVertical: Bool
+            var hasHorizontal: Bool
         }
 
         /// A saved scroll position.

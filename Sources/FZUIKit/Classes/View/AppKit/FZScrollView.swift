@@ -10,13 +10,6 @@ import AppKit
 import FZSwiftUtils
 
 open class FZScrollView: NSScrollView {
-    
-    lazy var _verticalScrollElasticity = verticalScrollElasticity
-    lazy var _horizontalScrollElasticity = horizontalScrollElasticity
-    lazy var _hasVerticalScroller = hasVerticalScroller
-    lazy var _hasHorizontalScroller = hasHorizontalScroller
-    var magnificationObservation: KeyValueObservation?
-    
     /**
      The amount by which to zoom the image when the user presses either the plus or minus key.
      
@@ -81,44 +74,6 @@ open class FZScrollView: NSScrollView {
 
     func setMagnification(_ magnification: CGFloat) {
         setMagnification(magnification, centeredAt: nil, animationDuration: nil)
-    }
-    
-    /// A Boolean that indicates whether the scrollers should be hidden if the scroll view is completly zoomed out.
-    open var hidesScrollersWhenZoomedOut: Bool = true {
-        didSet { setupMagnificationObservation() }
-    }
-    
-    func setupMagnificationObservation() {
-        if hidesScrollersWhenZoomedOut {
-            if magnificationObservation == nil {
-                magnificationObservation = observeChanges(for: \.magnification) { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    self.updateScrollerVisibility()
-                }
-                updateScrollerVisibility()
-            }
-        } else {
-            magnificationObservation = nil
-        }
-    }
-    
-    func updateScrollerVisibility() {
-        guard hidesScrollersWhenZoomedOut else { return }
-        if magnification == 1.0, minMagnification == 1.0 {
-            _verticalScrollElasticity = verticalScrollElasticity
-            _horizontalScrollElasticity = horizontalScrollElasticity
-            _hasVerticalScroller = hasVerticalScroller
-            _hasHorizontalScroller = hasHorizontalScroller
-            verticalScrollElasticity = .none
-            horizontalScrollElasticity = .none
-            hasVerticalScroller = false
-            hasHorizontalScroller = false
-        } else {
-            verticalScrollElasticity = _verticalScrollElasticity
-            horizontalScrollElasticity = _horizontalScrollElasticity
-            hasVerticalScroller = _hasVerticalScroller
-            hasHorizontalScroller = _hasHorizontalScroller
-        }
     }
     
     /**
@@ -188,7 +143,7 @@ open class FZScrollView: NSScrollView {
         maxMagnification = 3.0
         drawsBackground = false
         boundsSize = bounds.size
-        setupMagnificationObservation()
+        hidesScrollersWhenZoomedOut = true
     }
 }
 #endif
