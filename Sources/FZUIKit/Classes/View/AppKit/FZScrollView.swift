@@ -123,7 +123,6 @@ open class FZScrollView: NSScrollView {
     
     override open func layout() {
         super.layout()
-        guard bounds.width > 0 && bounds.height > 0 else { return }
         if let documentView = documentView {
             documentView.frame = bounds
             guard boundsSize.width > 0 && boundsSize.height > 0 else {
