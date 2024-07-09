@@ -99,6 +99,23 @@
                     backgroundColor = .clear
                 }
             }
+            
+            /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
+            func sizeToFit() {
+                frame.size = fittingSize
+            }
         }
+
+extension NSHostingController {
+    /// The minimum size of the view that satisfies the constraints it holds.
+    public var fittingSize: CGSize {
+        view.fittingSize
+    }
+    
+    /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
+    public func sizeToFit() {
+        view.frame.size = view.fittingSize
+    }
+}
     #endif
 #endif
