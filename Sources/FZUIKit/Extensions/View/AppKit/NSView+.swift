@@ -23,7 +23,7 @@
 
          This rectangle defines the size and position of the view in its window’s coordinate system. If the view isn't installed in a window, it will return zero.
          */
-        @objc open var frameInWindow: CGRect {
+        @objc public var frameInWindow: CGRect {
             convert(bounds, to: nil)
         }
 
@@ -146,7 +146,7 @@
 
          Changes to this property turns the view into a layer-backed view. The default value is `false`.
          */
-        @objc open var isOpaque: Bool {
+        public var isOpaque: Bool {
             get { layer?.isOpaque ?? false }
             set { 
                 wantsLayer = true
