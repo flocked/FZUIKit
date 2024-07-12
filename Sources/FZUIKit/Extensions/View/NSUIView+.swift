@@ -292,7 +292,7 @@
         }
 
         /// Recursive description of the view useful for debugging.
-        public var recursiveDescription: String {
+        @objc open var recursiveDescription: String {
             value(forKey: "recursiveDescription") as? String ?? ""
         }
 
@@ -304,7 +304,7 @@
 
              Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
              */
-            public var gradient: Gradient? {
+            @objc open var gradient: Gradient? {
                 get { self.optionalLayer?._gradientLayer?.gradient }
                 set {
                     NSView.swizzleAnimationForKey()
@@ -343,7 +343,7 @@
          
              Applying a gradient sets the view's `backgroundColor` to `nil`.
              */
-            public var gradient: Gradient? {
+            @objc open var gradient: Gradient? {
                 get { optionalLayer?._gradientLayer?.gradient }
                 set { 
                     configurate(using: newValue ?? .init(stops: []))
@@ -355,7 +355,7 @@
         #endif
         
         /// Sets the background gradient of the view.
-        public func gradient( _ gradient: Gradient?) -> Self {
+        @objc open func gradient( _ gradient: Gradient?) -> Self {
             self.gradient = gradient
             return self
         }
