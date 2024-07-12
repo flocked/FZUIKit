@@ -40,6 +40,26 @@
         }
     }
 
+fileprivate extension NSUIView {
+    @available(macOS 11.0, iOS 11.0, tvOS 11.0, *)
+    func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
+        resetMethod(#selector(getter: NSUIView.safeAreaInsets))
+        if let newSafeAreaInsets = newSafeAreaInsets {
+            do {
+                try replaceMethod(
+                    #selector(getter: NSUIView.safeAreaInsets),
+                    methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSUIEdgeInsets)).self,
+                    hookSignature: (@convention(block)  (AnyObject) -> (NSUIEdgeInsets)).self) { store in {
+                       object in
+                       return newSafeAreaInsets
+                    }
+               }
+            } catch {
+                Swift.debugPrint(error)
+            }
+        }
+    }
+}
     #if canImport(AppKit)
         public extension NSHostingView {
             /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
@@ -62,25 +82,5 @@
                 frame.size = fittingSize
             }
         }
-fileprivate extension NSUIView {
-    @available(macOS 11.0, iOS 11.0, tvOS 11.0, *)
-    func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
-        resetMethod(#selector(getter: NSUIView.safeAreaInsets))
-        if let newSafeAreaInsets = newSafeAreaInsets {
-            do {
-                try replaceMethod(
-                    #selector(getter: NSUIView.safeAreaInsets),
-                    methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSUIEdgeInsets)).self,
-                    hookSignature: (@convention(block)  (AnyObject) -> (NSUIEdgeInsets)).self) { store in {
-                       object in
-                       return newSafeAreaInsets
-                    }
-               }
-            } catch {
-                Swift.debugPrint(error)
-            }
-        }
-    }
-}
     #endif
 #endif

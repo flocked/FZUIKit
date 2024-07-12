@@ -37,5 +37,12 @@
                 newValue.forEach { self.addArrangedSubview($0) }
             }
         }
+        
+        /// Sets the views arranged by the stack view.
+        @discardableResult
+        @objc open func arrangedSubviews(_ views: [NSUIView]) -> Self {
+            self.arrangedViews = views
+            return self
+        }
     }
 #endif

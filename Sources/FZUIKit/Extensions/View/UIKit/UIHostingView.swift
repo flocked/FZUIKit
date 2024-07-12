@@ -30,22 +30,6 @@
             setup()
         }
         
-        /**
-         Creates a hosting view object that wraps the specified SwiftUI view.
-
-         - Parameters:
-            - ignoreSafeArea: A Boolean value that indicates whether the hosting controller view should ignore save area insets.
-            - rootView: The root view of the SwiftUI view hierarchy that you want to manage using the hosting view controller.
-         
-         - Returns: The hosting view object.
-         */
-        public convenience init(ignoreSafeArea: Bool, rootView: Content) {
-            self.init(rootView: rootView)
-            if ignoreSafeArea {
-                isSafeAreaInsetsDisabled = true
-            }
-        }
-        
         
         /**
          Creates a hosting controller object from an archive and the specified SwiftUI view.
@@ -90,16 +74,16 @@
             set { hostingController.sizingOptions = newValue }
         }
         
-        /// A Boolean value that indicates whether the view should ignore save area insets.
-        open var isSafeAreaInsetsDisabled: Bool {
-            get { hostingController.isSafeAreaInsetsDisabled }
-            set { hostingController.isSafeAreaInsetsDisabled = newValue }
+        /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+        open var ignoresSafeArea: Bool {
+            get { hostingController.ignoresSafeArea }
+            set { hostingController.ignoresSafeArea = newValue }
         }
         
-        /// Sets the Boolean value that indicates whether the view should ignore save area insets.
+        /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
         @discardableResult
         open func ignoreSafeArea(_ ignores: Bool) -> Self {
-            isSafeAreaInsetsDisabled = ignores
+            ignoresSafeArea = ignores
             return self
         }
 
