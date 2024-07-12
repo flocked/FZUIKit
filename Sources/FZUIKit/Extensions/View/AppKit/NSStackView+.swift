@@ -16,6 +16,13 @@ extension NSStackView {
         return self
     }
     
+    /// Sets the distribution of the stack view.
+    @discardableResult
+    @objc open func distribution(_ distribution: Distribution) -> Self {
+        self.distribution = distribution
+        return self
+    }
+    
     /// Sets the view alignment within the stack view.
     @discardableResult
     @objc open func alignment(_ alignment: NSLayoutConstraint.Attribute) -> Self {
