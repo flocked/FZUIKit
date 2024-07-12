@@ -13,7 +13,7 @@
                 
         /// Sets type of focus ring drawn around the view.
         @discardableResult
-        public func focusRingType(_ type: NSFocusRingType) -> Self {
+        @objc open func focusRingType(_ type: NSFocusRingType) -> Self {
             focusRingType = type
             return self
         }
@@ -23,7 +23,7 @@
 
          This rectangle defines the size and position of the view in its window’s coordinate system. If the view isn't installed in a window, it will return zero.
          */
-        public var frameInWindow: CGRect {
+        @objc open var frameInWindow: CGRect {
             convert(bounds, to: nil)
         }
 
@@ -41,7 +41,7 @@
          
          For views with multiple lines of text, this represents the baseline of the top row of text.
          */
-        public var firstBaselineOffset: CGPoint {
+        @objc open var firstBaselineOffset: CGPoint {
             get {
                 guard firstBaselineOffsetFromTop != 0 else { return frame.origin }
                 return CGPoint(frame.x, frame.y + frame.height - firstBaselineOffsetFromTop - 0.5)
@@ -58,7 +58,7 @@
          
          For views with multiple lines of text, this represents the baseline of the bottom row of text.
          */
-        public var lastBaselineOffset: CGPoint {
+        @objc open var lastBaselineOffset: CGPoint {
             get { CGPoint(frame.x, frame.y + lastBaselineOffsetFromBottom - 0.5) }
             set { frame.origin = CGPoint(newValue.x, newValue.y + lastBaselineOffsetFromBottom - 0.5) }
         }
@@ -77,7 +77,7 @@
          - Returns: The scroll view.
          */
         @discardableResult
-        public func addEnclosingScrollView(managed: Bool = true, bordered: Bool = false, drawsBackground: Bool = false) -> NSScrollView {
+        @objc open func addEnclosingScrollView(managed: Bool = true, bordered: Bool = false, drawsBackground: Bool = false) -> NSScrollView {
             if let scrollView = enclosingScrollView {
                 return scrollView.managesDocumentView(managed)
             }
@@ -146,7 +146,7 @@
 
          Changes to this property turns the view into a layer-backed view. The default value is `false`.
          */
-        public var isOpaque: Bool {
+        @objc open var isOpaque: Bool {
             get { layer?.isOpaque ?? false }
             set { 
                 wantsLayer = true
@@ -217,7 +217,7 @@
 
          The default value is `0.0`, which results in a view with no rotation.
          */
-        public var rotation: CGVector3 {
+        @objc open var rotation: CGVector3 {
             get { transform3D.eulerAnglesDegrees }
             set {
                 wantsLayer = true
@@ -233,7 +233,7 @@
 
          The default value is `0.0`, which results in a view with no rotation.
          */
-        public var rotationInRadians: CGVector3 {
+        @objc open var rotationInRadians: CGVector3 {
             get { transform3D.eulerAngles }
             set {
                 wantsLayer = true
@@ -243,18 +243,34 @@
         }
 
         /**
-         The scale transform of the view..
+         The scale transform of the view.
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().scale`.
 
          The default value is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
          */
-        public var scale: CGPoint {
+        @objc open var scale: CGPoint {
             get { layer?.scale ?? CGPoint(x: 1, y: 1) }
             set {
                 wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
+            }
+        }
+        
+        /**
+         The scale transform of the view.
+
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().scale`.
+
+         The default value is `Scale(1.0, 1.0, 1.0 )`, which results in a view displayed at it's original scale.
+         */
+        @objc open var scaleXYZ: Scale {
+            get { layer?.scaleXYZ ?? .init(1, 1, 1) }
+            set {
+                wantsLayer = true
+                NSView.swizzleAnimationForKey()
+                transform3D.scale = newValue
             }
         }
 
@@ -265,7 +281,7 @@
 
          The default value is `zero`, which results in a view with no transformed perspective.
          */
-        public var perspective: Perspective {
+        @objc open var perspective: Perspective {
             get { transform3D.perspective }
             set {
                 wantsLayer = true
@@ -281,7 +297,7 @@
 
          The default value is `zero`, which results in a view with no transformed shearing.
          */
-        public var skew: Skew {
+        @objc open var skew: Skew {
             get { transform3D.skew }
             set {
                 wantsLayer = true
@@ -365,7 +381,7 @@
          
          The default value is `none()`, which results in a view with no border.
          */
-       @objc public var border: BorderConfiguration {
+       @objc open var border: BorderConfiguration {
             get {
                 let view = realSelf
                 return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
@@ -419,7 +435,7 @@
          
          The default value is `none()`, which results in a view with no outer shadow.
          */
-        @objc public var outerShadow: ShadowConfiguration {
+        @objc open var outerShadow: ShadowConfiguration {
             get {
                 let view = realSelf
                 return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
@@ -488,7 +504,7 @@
          
          The default value is `nil`, which results in a view with no shadow path.
          */
-        public var shadowPath: NSBezierPath? {
+        @objc open var shadowPath: NSBezierPath? {
             get { shadowPathAnimatable?.bezierPath }
             set {
                 wantsLayer = true
@@ -509,7 +525,7 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().innerShadow`.
          */
-      @objc public var innerShadow: ShadowConfiguration {
+      @objc open var innerShadow: ShadowConfiguration {
             get { realSelf.layer?.innerShadowLayer?.configuration ?? .none() }
             set {
                 wantsLayer = true
@@ -565,7 +581,7 @@
         }
 
         /// Removes all tracking areas.
-        public func removeAllTrackingAreas() {
+        @objc open func removeAllTrackingAreas() {
             trackingAreas.forEach({ removeTrackingArea($0) })
         }
 
@@ -575,7 +591,7 @@
          It's a convinient way of setting `needsDisplay` to `true`.
          */
         @discardableResult
-        public func setNeedsDisplay() -> Self {
+        @objc open func setNeedsDisplay() -> Self {
             needsDisplay = true
             return self
         }
@@ -586,7 +602,7 @@
          It's a convinient way of setting `needsLayout` to `true`.
          */
         @discardableResult
-        public func setNeedsLayout() -> Self {
+        @objc open func setNeedsLayout() -> Self {
             needsLayout = true
             return self
         }
@@ -597,7 +613,7 @@
          It's a convinient way of setting `needsUpdateConstraints` to `true`.
          */
         @discardableResult
-        public func setNeedsUpdateConstraints() -> Self {
+        @objc open func setNeedsUpdateConstraints() -> Self {
             needsUpdateConstraints = true
             return self
         }
@@ -608,13 +624,13 @@
          It's a convinient way of setting `wantsLayer` to `true`.
          */
         @discardableResult
-        public func setWantsLayer() -> Self {
+        @objc open func setWantsLayer() -> Self {
             wantsLayer = true
             return self
         }
 
         /// The parent view controller managing the view.
-        public var parentController: NSViewController? {
+        @objc open var parentController: NSViewController? {
             return nextResponder as? NSViewController ?? (nextResponder as? NSView)?.parentController
         }
 
@@ -627,7 +643,7 @@
             - `alphaValue` isn't `0.0`
             - `visibleRect` isn't `zero`.
          */
-        public var isVisible: Bool {
+        @objc open var isVisible: Bool {
             window != nil && alphaValue != 0.0 && visibleRect != .zero && isHidden == false
         }
 
@@ -714,7 +730,7 @@
         
         /// Sets the text for the view’s tooltip.
         @discardableResult
-        public func toolTip(_ toolTip: String?) -> Self {
+        @objc open func toolTip(_ toolTip: String?) -> Self {
             self.toolTip = toolTip
             return self
         }
