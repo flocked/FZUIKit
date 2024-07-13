@@ -19,6 +19,7 @@ public extension View {
         modifier(TextAlignmentModifier(textAlignment: textAlignment, autoWidth: autoWidth))
     }
     
+    #if os(macOS) || os(iOS) || os(tvOS)
     /**
      Sets the alignment of a text.
 
@@ -29,6 +30,7 @@ public extension View {
     func textAlignment(_ textAlignment: NSTextAlignment, autoWidth: Bool = true) -> some View {
         modifier(TextAlignmentModifier(textAlignment: textAlignment.swiftUIMultiline, autoWidth: autoWidth))
     }
+    #endif
 }
 
 struct TextAlignmentModifier: ViewModifier {

@@ -21,4 +21,8 @@
         }
     }
 
+    extension NSVisualEffectView.Material: Codable { }
+    extension NSVisualEffectView.State: Codable { }
+    extension NSVisualEffectView.BlendingMode: Codable { }
+
 #endif

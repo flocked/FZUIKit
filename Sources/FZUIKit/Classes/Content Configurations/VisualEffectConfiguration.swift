@@ -8,6 +8,7 @@
 #if os(macOS) || os(iOS) || os(tvOS)
     #if os(macOS)
         import AppKit
+
         /**
          A configuration that specifies the appearance of a visual effect view.
 
@@ -17,7 +18,7 @@
 
          `NSWindow` can be configurated via it's ``AppKit/NSWindow/visualEffect`` property.  It adds a visual effect view as background to it's `contentView`.
          */
-        public struct VisualEffectConfiguration: Hashable {
+        public struct VisualEffectConfiguration: Hashable, Codable {
             public typealias Material = NSVisualEffectView.Material
             public typealias State = NSVisualEffectView.State
             public typealias BlendingMode = NSVisualEffectView.BlendingMode

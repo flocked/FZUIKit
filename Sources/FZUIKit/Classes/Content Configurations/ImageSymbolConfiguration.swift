@@ -309,7 +309,7 @@ public struct ImageSymbolConfiguration: Hashable {
     }
 
     /// Constants that specify which symbol image scale.
-    public enum ImageScale: Hashable {
+    public enum ImageScale: Hashable, Codable {
         /// A scale that produces small images.
         case small
         /// A scale that produces medium-sized images.
@@ -348,7 +348,7 @@ public struct ImageSymbolConfiguration: Hashable {
     }
 
     /// Constants that specify the color configuration of a symbol image.
-    public enum ColorConfiguration: Hashable {
+    public enum ColorConfiguration: Hashable, Codable {
         #if os(macOS)
         ///  A monochrome color configuration using the specified color.
         case monochrome(NSUIColor?)

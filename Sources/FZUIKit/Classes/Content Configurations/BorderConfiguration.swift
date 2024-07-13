@@ -22,12 +22,12 @@
     public struct BorderConfiguration: Hashable {
         /// The color of the border.
         public var color: NSUIColor? {
-            didSet { updateResolvedColor() }
+            didSet { _resolvedColor = resolvedColor() }
         }
 
         /// The color transformer for resolving the border color.
         public var colorTransformer: ColorTransformer? {
-            didSet { updateResolvedColor() }
+            didSet { _resolvedColor = resolvedColor() }
         }
 
         /// Generates the resolved border color, using the border color and color transformer.
@@ -47,7 +47,7 @@
         /// The insets of the border.
         public var insets: NSDirectionalEdgeInsets = .init(0)
 
-        /// Initalizes a border configuration.
+        /// Creates a border configuration.
         public init(color: NSUIColor? = nil,
                     colorTransformer: ColorTransformer? = nil,
                     width: CGFloat = 0.0,
@@ -59,7 +59,7 @@
             self.dashPattern = dashPattern
             self.colorTransformer = colorTransformer
             self.insets = insets
-            updateResolvedColor()
+            _resolvedColor = resolvedColor()
         }
 
         /// A border configuration without a border.
@@ -81,24 +81,27 @@
         }
 
         #if os(macOS)
-            /// A configuration for a border with controlAccent color.
+            /// A configuration for a border with the control accent color.
             public static func controlAccent(width: CGFloat = 2.0) -> Self {
                 Self(color: .controlAccentColor, width: width)
             }
+        #elseif os(iOS)
+        /// A configuration for a border with the tint color.
+        @available(iOS 15.0, *)
+        public static func tintColor(width: CGFloat = 2.0) -> Self {
+            Self(color: .tintColor, width: width)
+        }
         #endif
 
         /// A configuration for a dashed border with the specified color.
-        public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0) -> Self {
-            Self(color: color, width: width, dashPattern: [2])
+        public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0, dashPattern: [CGFloat] = [2]) -> Self {
+            Self(color: color, width: width, dashPattern: dashPattern)
         }
 
         var _resolvedColor: NSUIColor?
-        mutating func updateResolvedColor() {
-            _resolvedColor = resolvedColor()
-        }
 
         /// A Boolean value that indicates whether the border is invisible (when the color is `nil`, `clear` or the width `0`).
-        public var isInvisible: Bool {
+        var isInvisible: Bool {
             width == 0.0 || _resolvedColor == nil || _resolvedColor == .clear
         }
 
@@ -107,7 +110,35 @@
         }
     }
 
-    public extension NSUIView {
+extension BorderConfiguration: Codable {
+    public enum CodingKeys: String, CodingKey {
+        case color
+        case resolvedColor
+        case width
+        case dashPattern
+        case insets
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(color, forKey: .color)
+        try container.encode(_resolvedColor, forKey: .resolvedColor)
+        try container.encode(width, forKey: .width)
+        try container.encode(dashPattern, forKey: .dashPattern)
+        try container.encode(insets, forKey: .insets)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self = .init(color: try values.decode(Optional<NSUIColor>.self, forKey: .color),
+                     width: try values.decode(CGFloat.self, forKey: .width),
+                     dashPattern: try values.decode([CGFloat].self, forKey: .dashPattern),
+                     insets: try values.decode(NSDirectionalEdgeInsets.self, forKey: .insets))
+        _resolvedColor = try values.decode(Optional<NSUIColor>.self, forKey: .resolvedColor)
+    }
+}
+
+    extension NSUIView {
         /**
          Configurates the border apperance of the view.
 
@@ -118,19 +149,16 @@
             #if os(macOS)
                 dynamicColors.border = configuration._resolvedColor
             #endif
-            if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
-                optionalLayer?.borderLayer?.removeFromSuperlayer()
-            }
-            if configuration.needsDashedBordlerLayer {
+            // optionalLayer?.configurate(using: configuration)
+            if configuration.needsDashedBordlerLayer, !configuration.isInvisible {
                 borderColor = nil
                 borderWidth = 0.0
-                if optionalLayer?.borderLayer == nil {
-                    let borderedLayer = DashedBorderLayer()
-                    optionalLayer?.addSublayer(withConstraint: borderedLayer, insets: configuration.insets)
-                    borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-                }
-                optionalLayer?.borderLayer?.configuration = configuration
+                let borderLayer = dashedBorderLayer ?? DashedBorderLayer()
+                borderLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
+                borderLayer.configuration = configuration
+                optionalLayer?.addSublayer(withConstraint: borderLayer, insets: configuration.insets)
             } else {
+                dashedBorderLayer?.removeFromSuperlayer()
                 let newColor = configuration._resolvedColor?.resolvedColor(for: self)
                 if borderColor?.alphaComponent == 0.0 || borderColor == nil {
                     borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
@@ -140,10 +168,10 @@
             }
         }
 
-        internal var dashedBorderLayer: DashedBorderLayer? { optionalLayer?.firstSublayer(type: DashedBorderLayer.self) }
+        var dashedBorderLayer: DashedBorderLayer? { optionalLayer?.firstSublayer(type: DashedBorderLayer.self) }
     }
 
-    public extension CALayer {
+    extension CALayer {
         /**
          Configurates the border apperance of the view.
 
@@ -151,26 +179,21 @@
             - configuration:The configuration for configurating the apperance.
          */
         func configurate(using configuration: BorderConfiguration) {
-            if configuration.isInvisible || !configuration.needsDashedBordlerLayer {
-                borderLayer?.removeFromSuperlayer()
-            }
-
             if configuration.needsDashedBordlerLayer {
                 borderColor = nil
                 borderWidth = 0.0
-                if borderLayer == nil {
-                    let borderedLayer = DashedBorderLayer()
-                    addSublayer(withConstraint: borderedLayer, insets: configuration.insets)
-                    borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-                }
-                borderLayer?.configuration = configuration
+                let borderLayer = borderLayer ?? DashedBorderLayer()
+                borderLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
+                borderLayer.configuration = configuration
+                addSublayer(withConstraint: borderLayer, insets: configuration.insets)
             } else {
+                borderLayer?.removeFromSuperlayer()
                 borderColor = configuration._resolvedColor?.cgColor
                 borderWidth = configuration.width
             }
         }
 
-        internal var borderLayer: DashedBorderLayer? {
+        var borderLayer: DashedBorderLayer? {
             firstSublayer(type: DashedBorderLayer.self)
         }
     }

@@ -86,19 +86,20 @@ public struct TextConfiguration {
     #if os(macOS)
     /// The color of the text.
     public var color: NSUIColor = .labelColor {
-        didSet { updateResolvedTextColor() }
+        didSet { _resolvedTextColor = resolvedColor() }
     }
-    
+    var _resolvedTextColor: NSUIColor = .labelColor
     #elseif canImport(UIKit)
     /// The color of the text.
     public var color: NSUIColor = .label {
-        didSet { updateResolvedTextColor() }
+        didSet { _resolvedTextColor = resolvedColor() }
     }
+    var _resolvedTextColor: NSUIColor = .label
     #endif
     
     /// The color transformer of the text color.
     public var colorTansform: ColorTransformer? {
-        didSet { updateResolvedTextColor() }
+        didSet { _resolvedTextColor = resolvedColor() }
     }
     
     /// Generates the resolved text color, using the text color and color transformer.
@@ -106,18 +107,8 @@ public struct TextConfiguration {
         colorTansform?(color) ?? color
     }
     
-    #if os(macOS)
-    var _resolvedTextColor: NSUIColor = .labelColor
-    #elseif canImport(UIKit)
-    var _resolvedTextColor: NSUIColor = .label
-    #endif
-    
-    mutating func updateResolvedTextColor() {
-        _resolvedTextColor = resolvedColor()
-    }
-    
     /// Initalizes a text configuration.
-    public init() {}
+    public init() { }
     
     /**
      A text configuration with a system font for the specified point size, weight and design.
@@ -351,15 +342,6 @@ public extension NSTextField {
         self.textConfiguration = configuration
         return self
     }
-    
-    /**
-     Configurates the text field.
-     
-     - Parameter configuration:The configuration for configurating the text field.
-     */
-    func configurate(using configuration: TextConfiguration) {
-        self.textConfiguration = configuration
-    }
 }
 
 @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
@@ -393,15 +375,6 @@ public extension NSTextView {
     func textConfiguration(_ configuration: TextConfiguration) -> Self {
         self.textConfiguration = configuration
         return self
-    }
-    
-    /**
-     Configurates the text view.
-     
-     - Parameter configuration:The configuration for configurating the text view.
-     */
-    func configurate(using configuration: TextConfiguration) {
-        self.textConfiguration = configuration
     }
 }
 
@@ -444,16 +417,6 @@ public extension UILabel {
         self.textConfiguration = configuration
         return self
     }
-    
-    /**
-     Configurates the label.
-     
-     - Parameters:
-     - configuration:The configuration for configurating the label.
-     */
-    func configurate(using configuration: TextConfiguration) {
-        textConfiguration = configuration
-    }
 }
 
 @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
@@ -484,16 +447,6 @@ public extension UITextField {
         self.textConfiguration = configuration
         return self
     }
-    
-    /**
-     Configurates the label.
-     
-     - Parameters:
-     - configuration:The configuration for configurating the label.
-     */
-    func configurate(using configuration: TextConfiguration) {
-        textConfiguration = configuration
-    }
 }
 
 public extension UITextView {
@@ -506,20 +459,24 @@ public extension UITextView {
             configuration.lineBreakMode = textContainer.lineBreakMode
             configuration.alignment = textAlignment
             configuration.adjustsFontForContentSizeCategory = adjustsFontForContentSizeCategory
-            configuration.isEditable = isEditable
             configuration.isSelectable = isSelectable
             configuration.numberOfLines = textContainer.maximumNumberOfLines
+            #if os(iOS)
+            configuration.isEditable = isEditable
+            #endif
             return configuration
         }
         set {
             textAlignment = newValue.alignment
             font = newValue.font
-            isEditable = newValue.isEditable
             textContainer.maximumNumberOfLines = newValue.numberOfLines
             isSelectable = newValue.isSelectable
             textColor = newValue._resolvedTextColor
             textContainer.lineBreakMode = newValue.lineBreakMode
             adjustsFontForContentSizeCategory = newValue.adjustsFontForContentSizeCategory
+            #if os(iOS)
+            isEditable = newValue.isEditable
+            #endif
         }
     }
     
@@ -528,16 +485,6 @@ public extension UITextView {
     func textConfiguration(_ configuration: TextConfiguration) -> Self {
         self.textConfiguration = configuration
         return self
-    }
-    
-    /**
-     Configurates the text view.
-     
-     - Parameters:
-     - configuration:The configuration for configurating the view.
-     */
-    func configurate(using configuration: TextConfiguration) {
-        textConfiguration = configuration
     }
 }
 #endif

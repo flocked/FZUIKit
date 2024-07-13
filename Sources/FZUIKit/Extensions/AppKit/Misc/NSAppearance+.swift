@@ -70,4 +70,21 @@
         }
     }
 
+extension NSAppearance: Codable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(name)
+    }
+}
+
+extension Decodable where Self: NSAppearance {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self = .init(named: try container.decode(NSAppearance.Name.self))!
+    }
+}
+
+extension NSAppearance.Name: Codable { }
+
+
 #endif
