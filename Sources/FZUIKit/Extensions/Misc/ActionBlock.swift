@@ -57,7 +57,7 @@ public extension TargetActionProvider {
                 actionTrampoline = ActionTrampoline(action: newValue)
                 target = actionTrampoline
                 action = #selector(ActionTrampoline<Self>.performAction(sender:))
-            } else if actionTrampoline != nil {
+            } else {
                 actionTrampoline = nil
                 if action == #selector(ActionTrampoline<Self>.performAction(sender:)) {
                     action = nil

@@ -24,19 +24,6 @@ public extension CGRect {
 }
 #endif
 
-extension NSUIEdgeInsets: Hashable {
-    public static func == (lhs: NSUIEdgeInsets, rhs: NSUIEdgeInsets) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(top)
-        hasher.combine(bottom)
-        hasher.combine(left)
-        hasher.combine(right)
-    }
-}
-
 public extension NSUIEdgeInsets {
     #if os(macOS)
         /// An edge insets struct whose top, left, bottom, and right fields are all set to 0.
@@ -123,6 +110,46 @@ public extension NSUIEdgeInsets {
         EdgeInsets(top: top, leading: left, bottom: bottom, trailing: right)
     }
 }
+
+extension NSUIEdgeInsets: Hashable {
+    public static func == (lhs: NSUIEdgeInsets, rhs: NSUIEdgeInsets) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(top)
+        hasher.combine(bottom)
+        hasher.combine(left)
+        hasher.combine(right)
+    }
+}
+
+#if os(macOS)
+extension NSUIEdgeInsets: Codable {
+    public enum CodingKeys: String, CodingKey {
+        case top
+        case bottom
+        case left
+        case right
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(top, forKey: .top)
+        try container.encode(bottom, forKey: .bottom)
+        try container.encode(left, forKey: .left)
+        try container.encode(right, forKey: .right)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self = .init(top: try values.decode(CGFloat.self, forKey: .top),
+                     left: try values.decode(CGFloat.self, forKey: .left),
+                     bottom: try values.decode(CGFloat.self, forKey: .bottom),
+                     right: try values.decode(CGFloat.self, forKey: .right))
+    }
+}
+#endif
 
 public extension NSDirectionalEdgeInsets {
     #if os(macOS)
@@ -227,6 +254,33 @@ extension NSDirectionalEdgeInsets: Hashable {
     }
 }
 
+#if os(macOS)
+extension NSDirectionalEdgeInsets: Codable {
+    public enum CodingKeys: String, CodingKey {
+        case top
+        case bottom
+        case leading
+        case trailing
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(top, forKey: .top)
+        try container.encode(bottom, forKey: .bottom)
+        try container.encode(leading, forKey: .leading)
+        try container.encode(trailing, forKey: .trailing)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self = .init(top: try values.decode(CGFloat.self, forKey: .top),
+                     leading: try values.decode(CGFloat.self, forKey: .leading),
+                     bottom: try values.decode(CGFloat.self, forKey: .bottom),
+                     trailing: try values.decode(CGFloat.self, forKey: .trailing))
+    }
+}
+#endif
+
 extension Edge.Set {
     static var width: Self {
         [.trailing, .trailing]
@@ -327,7 +381,7 @@ extension EdgeInsets: Hashable {
         .init(top: top, left: leading, bottom: bottom, right: trailing)
     }
     #endif
-
+    
     public func hash(into hasher: inout Hasher) {
         hasher.combine(top)
         hasher.combine(bottom)
@@ -335,3 +389,30 @@ extension EdgeInsets: Hashable {
         hasher.combine(trailing)
     }
 }
+
+#if os(macOS)
+extension EdgeInsets: Codable {
+    public enum CodingKeys: String, CodingKey {
+        case top
+        case bottom
+        case leading
+        case trailing
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(top, forKey: .top)
+        try container.encode(bottom, forKey: .bottom)
+        try container.encode(leading, forKey: .leading)
+        try container.encode(trailing, forKey: .trailing)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self = .init(top: try values.decode(CGFloat.self, forKey: .top),
+                     leading: try values.decode(CGFloat.self, forKey: .leading),
+                     bottom: try values.decode(CGFloat.self, forKey: .bottom),
+                     trailing: try values.decode(CGFloat.self, forKey: .trailing))
+    }
+}
+#endif
