@@ -13,10 +13,27 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+/// A layer with a shape.
 public class ShapedLayer: CAShapeLayer {
     /// The shape.
     public var shape: NSView.CornerShape = .rectangle {
         didSet { updateShape() }
+    }
+    
+    public override var border: BorderConfiguration {
+        didSet { updateBorder() }
+    }
+    
+    func updateBorder() {
+        /*
+        if shape.needsLayer {
+            strokeColor = border._resolvedColor?.cgColor
+            lineWidth = border.width
+        } else {
+            strokeColor = nil
+            lineWidth = 0.0
+        }
+         */
     }
     
     /// The color of the shape.
@@ -36,9 +53,17 @@ public class ShapedLayer: CAShapeLayer {
         super.init()
     }
     
-    public init(shape: NSView.CornerShape) {
+    /**
+     Initializes and returns a newly allocated `ShapedLayer` object with the specified shape and color.
+     
+     - Parameters:
+        - shape: The shape.
+        - color: The color of the shape.
+     */
+    public init(shape: NSView.CornerShape, color: CGColor = .black) {
         super.init()
         self.shape = shape
+        self.color = color
         updateShape()
     }
     
@@ -56,6 +81,8 @@ public class ShapedLayer: CAShapeLayer {
     
     func updateShape() {
         switch shape {
+        case .normal:
+            cornerRadius = 0
         case .circular:
             _path = .circle(bounds.size)
         case .capsule:
@@ -79,6 +106,7 @@ public class ShapedLayer: CAShapeLayer {
         cornerRadius = shape.needsLayer ? 0 : cornerRadius
         fillColor = shape.needsLayer ? color : nil
         backgroundColor = shape.needsLayer ? nil : color
+        updateBorder()
     }
 }
 #endif

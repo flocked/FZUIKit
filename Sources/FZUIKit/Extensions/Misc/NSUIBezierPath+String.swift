@@ -14,7 +14,7 @@
 
 public extension String {
     /// Creates a bezier path for the string with the specified font.
-    func bezierPath(withFont font: NSUIFont) -> NSUIBezierPath {
+    func bezierPath(font: NSUIFont) -> NSUIBezierPath {
         let attributedString = NSAttributedString(string: self, attributes: [.font: font])
         return NSUIBezierPath(attributedString: attributedString)
     }

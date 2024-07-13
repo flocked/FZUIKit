@@ -271,24 +271,30 @@
         @objc open func subviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
             subviews(depth: depth).filter { predicate($0) == true }
         }
-
+        
         /// Animates a transition to changes made to the view after calling this.
         @objc open func transition(_ transition: CATransition?) {
-            #if os(macOS)
-                wantsLayer = true
             if let transition = transition {
-               
-                layer?.add(transition, forKey: CATransitionType.fade.rawValue)
+                optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
             } else {
-                layer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
+                optionalLayer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
             }
-            #else
-            if let transition = transition {
-                layer.add(transition, forKey: CATransitionType.fade.rawValue)
-            } else {
-                layer.removeAnimation(forKey: CATransitionType.fade.rawValue)
+        }
+        
+        /// The transition for changes made to the view.
+        @objc var transitionAlt: CATransition? {
+            get { layer?.animation(forKey: CATransitionType.fade.rawValue) as? CATransition }
+            set {
+                if let transition = newValue {
+                    transition.onStop = { [weak self] in
+                        guard let self = self else { return }
+                        self.layer?.add(transition, forKey: CATransitionType.fade.rawValue)
+                    }
+                    optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
+                } else {
+                    optionalLayer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
+                }
             }
-            #endif
         }
 
         /// Recursive description of the view useful for debugging.

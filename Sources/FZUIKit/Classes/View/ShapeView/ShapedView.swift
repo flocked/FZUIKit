@@ -13,28 +13,38 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-public class ShapedView: NSUIView {
+/// A view with a shape.
+open class ShapedView: NSUIView {
     /// The shape.
-    public var shape: CornerShape {
+    open var shape: CornerShape {
         get { shapeLayer?.shape ?? .rectangle }
         set { shapeLayer?.shape = newValue }
     }
     
     /// The color of the shape.
-    public var color: NSColor {
+    open var color: NSColor {
         get { shapeLayer?.color.nsColor ?? .black }
         set { shapeLayer?.color = newValue.cgColor }
     }
     
+    /// Initializes and returns a newly allocated `ShapedView` object.
     public init() {
         super.init(frame: .zero)
         sharedInit()
     }
     
-    public init(shape: CornerShape) {
+    /**
+     Initializes and returns a newly allocated `ShapedView` object with the specified shape and color.
+     
+     - Parameters:
+        - shape: The shape.
+        - color: The color of the shape.
+     */
+    public init(shape: CornerShape, color: NSUIColor = .black) {
         super.init(frame: .zero)
         sharedInit()
         self.shape = shape
+        self.color = color
     }
     
     public override init(frame frameRect: NSRect) {
@@ -42,15 +52,14 @@ public class ShapedView: NSUIView {
         sharedInit()
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
     }
     
     func sharedInit() {
-        #if os(macOS)
-        wantsLayer = true
-        #endif
+        optionalLayer?.masksToBounds = false
+        clipsToBounds = false
     }
     
     var shapeLayer: ShapedLayer? {
@@ -58,11 +67,11 @@ public class ShapedView: NSUIView {
     }
     
     #if os(macOS)
-    public override func makeBackingLayer() -> CALayer {
+    open override func makeBackingLayer() -> CALayer {
         ShapedLayer()
     }
     #else
-    override public class var layerClass: AnyClass {
+    open override class var layerClass: AnyClass {
         ShapedLayer.self
     }
     #endif

@@ -16,9 +16,9 @@ import FZSwiftUtils
 
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    public extension CALayer {
+    extension CALayer {
         /// The shadow of the layer.
-        var shadow: ShadowConfiguration {
+        @objc open var shadow: ShadowConfiguration {
             get { .init(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
             set {
                 if let parentView = parentView {
@@ -36,7 +36,7 @@ import FZSwiftUtils
         }
         
         /// The inner shadow of the layer.
-        var innerShadow: ShadowConfiguration {
+        @objc open var innerShadow: ShadowConfiguration {
             get { innerShadowLayer?.configuration ?? .none() }
             set {
                 if newValue.isInvisible {
@@ -54,38 +54,44 @@ import FZSwiftUtils
         }
         
         /// The border of the layer.
-        var border: BorderConfiguration {
+        @objc open var border: BorderConfiguration {
             get { borderLayer?.configuration ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
             set {
                 guard newValue != border else { return }
                 if newValue.isInvisible || !newValue.needsDashedBordlerLayer {
                     borderLayer?.removeFromSuperlayer()
                 }
-
-                if newValue.needsDashedBordlerLayer {
-                    borderColor = nil
-                    borderWidth = 0.0
-                    if borderLayer == nil {
-                        let borderedLayer = DashedBorderLayer()
-                        addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
-                        borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-                    }
-                    borderLayer?.configuration = newValue
+                
+                if let layer = self as? CAShapeLayer {
+                    layer.strokeColor = newValue._resolvedColor?.cgColor
+                    layer.lineDashPattern = newValue.dashPattern  as [NSNumber]
+                    layer.lineWidth = newValue.width
                 } else {
-                    borderColor = newValue._resolvedColor?.cgColor
-                    borderWidth = newValue.width
+                    if newValue.needsDashedBordlerLayer {
+                        borderColor = nil
+                        borderWidth = 0.0
+                        if borderLayer == nil {
+                            let borderedLayer = DashedBorderLayer()
+                            addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
+                            borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
+                        }
+                        borderLayer?.configuration = newValue
+                    } else {
+                        borderColor = newValue._resolvedColor?.cgColor
+                        borderWidth = newValue.width
+                    }
                 }
             }
         }
         
         /// Sends the layer to the front of it's superlayer.
-        func sendToFront() {
+        @objc open func sendToFront() {
             guard let superlayer = superlayer else { return }
             superlayer.addSublayer(self)
         }
 
         /// Sends the layer to the back of it's superlayer.
-        func sendToBack() {
+        @objc open func sendToBack() {
             guard let superlayer = superlayer else { return }
             superlayer.insertSublayer(self, at: 0)
         }
@@ -99,7 +105,7 @@ import FZSwiftUtils
          - layer: The layer to be added.
          - insets: Insets from the new sublayer border to the layer border.
          */
-        func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
+        @objc open func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
             addSublayer(layer)
             layer.constraintTo(layer: self, insets: insets)
         }
@@ -114,7 +120,7 @@ import FZSwiftUtils
          - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
          - insets: Insets from the new sublayer border to the layer border.
          */
-        func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
+        @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
             insertSublayer(layer, at: index)
             layer.constraintTo(layer: self, insets: insets)
         }
@@ -126,7 +132,7 @@ import FZSwiftUtils
 
          - Parameter layer: The layer to constraint to.
          */
-        func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
+        @objc open func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
             let layerBoundsUpdate: (() -> Void) = { [weak self] in
                 guard let self = self else { return }
                 let frameSize = layer.frame.size
@@ -174,17 +180,17 @@ import FZSwiftUtils
         }
 
         /// Removes the layer constraints.
-        func removeConstraints() {
+        @objc open func removeConstraints() {
             layerObserver = nil
         }
 
-        internal var layerObserver: KeyValueObserver<CALayer>? {
+        var layerObserver: KeyValueObserver<CALayer>? {
             get { getAssociatedValue("layerObserver", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "layerObserver") }
         }
 
         /// The associated view using the layer.
-        var parentView: NSUIView? {
+        @objc open var parentView: NSUIView? {
             if let view = delegate as? NSUIView {
                 return view
             }
@@ -192,7 +198,7 @@ import FZSwiftUtils
         }
 
         /// A rendered image of the layer.
-        var renderedImage: NSUIImage {
+        @objc open var renderedImage: NSUIImage {
             #if os(macOS)
                 let btmpImgRep =
                     NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 32)
@@ -217,7 +223,7 @@ import FZSwiftUtils
          - Parameter layerType: The type of layer to match.
          - Returns: The first parent layer that matches the layer type or `nil` if none match or there isn't a matching parent.
          */
-        func firstSuperlayer<V: CALayer>(for _: V.Type) -> V? {
+        public func firstSuperlayer<V: CALayer>(for _: V.Type) -> V? {
             firstSuperlayer(where: { $0 is V }) as? V
         }
 
@@ -227,7 +233,7 @@ import FZSwiftUtils
          - Parameter predicate: The closure to match.
          - Returns: The first parent layer that is matching the predicate or `nil` if none match or there isn't a matching parent.
          */
-        func firstSuperlayer(where predicate: (CALayer) -> (Bool)) -> CALayer? {
+        @objc open func firstSuperlayer(where predicate: (CALayer) -> (Bool)) -> CALayer? {
             if let superlayer = superlayer {
                 if predicate(superlayer) == true {
                     return superlayer
@@ -238,7 +244,7 @@ import FZSwiftUtils
         }
         
         /// An array of all enclosing superlayers..
-        func supervlayerChain() -> [CALayer] {
+        @objc open func supervlayerChain() -> [CALayer] {
             if let superlayer = superlayer {
                 return [superlayer] + superlayer.supervlayerChain()
             }
@@ -246,7 +252,7 @@ import FZSwiftUtils
         }
 
         /// Returns the first sublayer of a specific type.
-        func firstSublayer<V: CALayer>(type _: V.Type) -> V? {
+        public func firstSublayer<V: CALayer>(type _: V.Type) -> V? {
             sublayers?.first(where: { $0 is V }) as? V
         }
 
@@ -255,7 +261,7 @@ import FZSwiftUtils
 
          - Parameter depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
          */
-        func sublayers(depth: Int) -> [CALayer] {
+        public func sublayers(depth: Int) -> [CALayer] {
             let sublayers = sublayers ?? []
             if depth > 0 {
                 return sublayers + sublayers.flatMap { $0.sublayers(depth: depth - 1) }
@@ -271,7 +277,7 @@ import FZSwiftUtils
              - type: The type of sublayers.
              - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
           */
-        func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
+        public func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
             sublayers(depth: depth).compactMap { $0 as? V }
         }
 
@@ -282,7 +288,7 @@ import FZSwiftUtils
              - predicate: The predicate to match.
              - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
           */
-        func sublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
+        public func sublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
             sublayers(depth: depth).filter { predicate($0) == true }
         }
 
@@ -303,13 +309,13 @@ import FZSwiftUtils
         }
         
         /// Sets the layer properties non-animated.
-        var nonAnimated: NonAnimated {
+        public var nonAnimated: NonAnimated {
             getAssociatedValue("nonAnimated", initialValue: NonAnimated(self))
         }
         
         /// Access layer properties non-animated.
         @dynamicMemberLookup
-        class NonAnimated {
+        public class NonAnimated {
             /// Sets the layer properties non-animated.
             public subscript<T>(dynamicMember keyPath: ReferenceWritableKeyPath<CALayer, T>) -> T {
                 get { layer[keyPath: keyPath] }

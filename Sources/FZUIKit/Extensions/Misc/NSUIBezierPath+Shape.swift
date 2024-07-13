@@ -120,7 +120,7 @@ extension NSUIBezierPath {
         return bezierPath
     }
     
-    static func starRounded(rect: CGRect, cornerRadius: CGFloat = .zero, rotation: CGFloat = 54) -> NSUIBezierPath {
+    static func starRounded(rect: CGRect, cornerRadius: CGFloat = 4, rotation: CGFloat = 54) -> NSUIBezierPath {
         let path = NSUIBezierPath()
         let center = CGPoint(x: rect.width / 2, y: rect.height / 2)
         let r = rect.width / 2

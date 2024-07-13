@@ -16,6 +16,9 @@
     extension NSUIView {
         /// The corner shape of a view.
         public enum CornerShape: CustomStringConvertible {
+            /// The default shape that uses the view's corner radius.
+            case normal
+            /// A rectangle shape with no corner radius.
             case rectangle
             /// A rounded shape with corner radius equal to the specified value.
             case rounded(CGFloat)
@@ -41,8 +44,16 @@
                 }
             }
             
+            var isNormal: Bool {
+                switch self {
+                case .normal: return true
+                default: return false
+                }
+            }
+            
             public var description: String {
                 switch self {
+                case .normal: return "Normal"
                 case .rectangle: return "Rectangle"
                 case .rounded(let radius): return "Rounded[\(radius)]"
                 case .roundedRelative(let radius): return "RoundedRelative[\(radius)]"
@@ -57,10 +68,10 @@
         }
         
         /// The corner shape of the view.
-        public var cornerShape: CornerShape? {
-            get { shapeView?.shape }
+        public var cornerShape: CornerShape {
+            get { shapeView?.shape ?? .normal }
             set {
-                if let shape = newValue {
+                if !newValue.isNormal {
                     if shapeView == nil {
                         let shapeView = ShapedView()
                         shapeView.frame.size = bounds.size
@@ -70,7 +81,14 @@
                             shapeView.frame.size = new.size
                         }
                     }
-                    shapeView?.shape = shape
+                    shapeView?.shape = newValue
+                    shapeView?.outerShadow = outerShadow
+                    shapeView?.border = border
+                 //   layer?.border = .none()
+                    layer?.masksToBounds = false
+                    shapeView?.clipsToBounds = false
+                    shapeView?.layer?.shadow = outerShadow
+                    shapeView?.backgroundColor = .red
                 } else {
                     shapeBoundsObservation = nil
                     if shapeView != nil {
@@ -82,7 +100,7 @@
         
         /// Sets the corner shape of the view.
         @discardableResult
-        public func cornerShape(_ shape: CornerShape?) -> Self {
+        public func cornerShape(_ shape: CornerShape) -> Self {
             cornerShape = shape
             return self
         }

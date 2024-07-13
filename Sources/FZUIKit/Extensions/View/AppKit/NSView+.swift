@@ -332,6 +332,8 @@
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().cornerRadius`.
 
          The default value is `0.0`, which results in a view with no rounded corners.
+         
+         Setting the corner radius to value other than `0.0`, sets the ``cornerShape`` to `normal`.
          */
         @objc open var cornerRadius: CGFloat {
             get { layer?.cornerRadius ?? 0.0 }
@@ -342,6 +344,9 @@
                 layer?.cornerRadius = newValue
                 self.clipsToBounds = clipsToBounds
                 layer?.masksToBounds = clipsToBounds
+                if newValue != 0.0 {
+                    cornerShape = .normal
+                }
             }
         }
 
@@ -393,6 +398,7 @@
                     borderColor = newValue._resolvedColor
                     borderWidth = newValue.width
                 }
+                shapeView?.border = border
             }
         }
 
@@ -445,6 +451,7 @@
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
                 shadowColor = newValue._resolvedColor
+                shapeView?.outerShadow = newValue
             }
         }
 
@@ -593,6 +600,20 @@
         @discardableResult
         @objc open func setNeedsDisplay() -> Self {
             needsDisplay = true
+            return self
+        }
+        
+        /// Sets the Boolean value indicating whether the view’s autoresizing mask is translated into constraints for the constraint-based layout system.
+        @discardableResult
+        @objc open func translatesAutoresizingMaskIntoConstraints(_ translates: Bool) -> Self {
+            translatesAutoresizingMaskIntoConstraints = translates
+            return self
+        }
+        
+        /// Sets the options that determine how the view is resized relative to its superview.
+        @discardableResult
+        @objc open func autoresizingMask(_ mask: AutoresizingMask) -> Self {
+            autoresizingMask = mask
             return self
         }
 
