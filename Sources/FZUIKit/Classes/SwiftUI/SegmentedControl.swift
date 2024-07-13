@@ -60,24 +60,24 @@
         }
 
         /// The segments displayed by the segmented control.
-        public private(set) var segments: [NSSegment]
+        public private(set) var segments: [NSSegment] = []
         /// The type of tracking behavior the control exhibits.
-        public private(set) var trackingMode: NSSegmentedControl.SwitchTracking
+        public private(set) var trackingMode: NSSegmentedControl.SwitchTracking = .selectOne
         /// The selected segments.
         @State public private(set) var selectedSegments: [NSSegment] = []
         /// The visual style used to display the control.
-        public private(set) var style: NSSegmentedControl.Style
+        public private(set) var style: NSSegmentedControl.Style = .automatic
         /// The menu.
-        public private(set) var menu: NSMenu?
+        public private(set) var menu: NSMenu? = nil
         /// A Boolean value that indicates whether the segmented control reacts to mouse events.
         @Environment(\.isEnabled) public var isEnabled
 
-        public init(segments: [NSSegment] = [], trackingMode: NSSegmentedControl.SwitchTracking = .selectOne, style: NSSegmentedControl.Style = .automatic, menu: NSMenu? = nil) {
-            self.segments = segments
-            self.trackingMode = trackingMode
-            self.style = style
-            self.menu = menu
-            //
+        public init() {
+            
+        }
+        
+        public init(@NSSegmentedControl.Builder segments: () -> [NSSegment]) {
+            self.segments = segments()
         }
         
         public func makeNSView(context: Context) -> NSSegmentedControl {
