@@ -11,17 +11,23 @@ import SwiftUI
 import AppKit
 
 extension View {
-    /// Adds a visual effect background for the specified configuration to the view.
-    public func visualEffect(_ configuration: VisualEffectConfiguration) -> some View  {
-        background(
-            VisualEffectView(
-                material: configuration.material,
-                blendingMode: configuration.blendingMode,
-                emphasized: configuration.isEmphasized,
-                state: configuration.state,
-                appearance: configuration.appearance
+    /// Adds a visual effect background to the view.
+    @ViewBuilder
+    public func visualEffect(_ configuration: VisualEffectConfiguration?) -> some View  {
+        if let configuration = configuration {
+            self.background(
+                VisualEffectView(
+                    material: configuration.material,
+                    blendingMode: configuration.blendingMode,
+                    emphasized: configuration.isEmphasized,
+                    state: configuration.state,
+                    appearance: configuration.appearance
+                )
             )
-        )
+        } else {
+            self
+        }
+        
     }
     
     /// Adds a visual effect background with the specified appearance.
