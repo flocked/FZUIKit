@@ -72,6 +72,7 @@
             self.trackingMode = trackingMode
             self.style = style
             self.menu = menu
+            // 
         }
         
         public func makeNSView(context: Context) -> NSSegmentedControl {
