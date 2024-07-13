@@ -122,7 +122,7 @@ public struct VisualEffectView: NSViewRepresentable {
         - appearance: The appearance of the visual effect.
 
      */
-    public init(
+    init(
         material: NSVisualEffectView.Material,
         blendingMode: NSVisualEffectView.BlendingMode,
         emphasized: Bool = false,
