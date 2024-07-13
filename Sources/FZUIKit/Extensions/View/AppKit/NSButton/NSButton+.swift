@@ -45,7 +45,6 @@
             } else if title == nil {
                 self.bezelStyle = .smallSquare
                 self.isBordered = false
-                self.isTransparent = true
             }
             self.actionBlock = action
             sizeToFit()
@@ -69,7 +68,6 @@
             } else if title == nil {
                 self.bezelStyle = .smallSquare
                 self.isBordered = false
-                self.isTransparent = true
             }
             actionBlock = action
             sizeToFit()
@@ -109,7 +107,7 @@
          - Parameter image: The image of the button.
          */
         static func image(_ image: NSUIImage) -> NSButton {
-            NSButton(image: image).isBordered(false).imagePosition(.imageOnly)
+            NSButton(image: image)
         }
         
         /**
@@ -119,7 +117,7 @@
          */
         @available(macOS 11.0, *)
         static func image(symbolName: String) -> NSButton {
-            NSButton().image(NSImage(systemSymbolName: symbolName)).isBordered(false).imagePosition(.imageOnly)
+            NSButton(symbolName: symbolName)
         }
         
         /**
