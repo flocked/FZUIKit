@@ -10,24 +10,19 @@
     import SwiftUI
 
     public struct SegmentedControl: NSViewRepresentable {
-        public class Coordinator: NSObject {
-            var parent: SegmentedControl
-            init(segmentedControl: SegmentedControl) {
-                parent = segmentedControl
-            }
-
-            @objc func selectedIndexChanged(_ sender: NSSegmentedControl) {
-                parent.segments = sender.segments
-                parent.selectedSegments = sender.selectedSegments
-            }
-        }
-
-        public typealias NSViewType = NSSegmentedControl
-
+        /// The selected segments.
+        @State public private(set) var selectedSegments: [NSSegment] = []
+        
+        var segments: [NSSegment] = []
+        var trackingMode: NSSegmentedControl.SwitchTracking = .selectOne
+        var style: NSSegmentedControl.Style = .automatic
+        @Environment(\.isEnabled) var isEnabled
+        
         /// Sets the segments displayed by the segmented control.
         public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
             var view = self
             view.segments = segments()
+            view.selectedSegments = segments().filter({$0.isSelected})
             return view
         }
         
@@ -35,6 +30,7 @@
         public func segments(_ segments: [NSSegment]) -> Self {
             var view = self
             view.segments = segments
+            view.selectedSegments = segments.filter({$0.isSelected})
             return view
         }
 
@@ -51,31 +47,17 @@
             view.style = style
             return view
         }
-        
-        /// Sets the visual style used to display the control.
-        public func menu(_ menu: NSMenu?) -> Self {
-            var view = self
-            view.menu = menu
-            return view
-        }
 
-        /// The segments displayed by the segmented control.
-        public private(set) var segments: [NSSegment] = []
-        /// The type of tracking behavior the control exhibits.
-        public private(set) var trackingMode: NSSegmentedControl.SwitchTracking = .selectOne
-        /// The selected segments.
-        @State public private(set) var selectedSegments: [NSSegment] = []
-        /// The visual style used to display the control.
-        public private(set) var style: NSSegmentedControl.Style = .automatic
-        /// The menu.
-        public private(set) var menu: NSMenu? = nil
-        /// A Boolean value that indicates whether the segmented control reacts to mouse events.
-        @Environment(\.isEnabled) public var isEnabled
-
+        /// Creates a segmented control view.
         public init() {
             
         }
         
+        /**
+         Creates a segmented control view with the specified segments.
+         
+         - Parameter segments: The segments displayed by the segmented control.
+         */
         public init(@NSSegmentedControl.Builder segments: () -> [NSSegment]) {
             self.segments = segments()
         }
@@ -84,7 +66,6 @@
             let segmentedControl = NSSegmentedControl(segments: segments)
             selectedSegments = segmentedControl.selectedSegments
             segmentedControl.trackingMode = trackingMode
-            segmentedControl.menu = menu
             segmentedControl.segmentStyle = style
             segmentedControl.isEnabled = isEnabled
             segmentedControl.target = context.coordinator
@@ -103,6 +84,19 @@
 
         public func makeCoordinator() -> Coordinator {
             Coordinator(segmentedControl: self)
+        }
+        
+        /// The coordinator of the segmented control.
+        public class Coordinator: NSObject {
+            var parent: SegmentedControl
+            init(segmentedControl: SegmentedControl) {
+                parent = segmentedControl
+            }
+
+            @objc func selectedIndexChanged(_ sender: NSSegmentedControl) {
+                parent.segments = sender.segments
+                parent.selectedSegments = sender.selectedSegments
+            }
         }
     }
 

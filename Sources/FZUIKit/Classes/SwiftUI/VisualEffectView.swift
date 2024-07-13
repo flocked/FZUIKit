@@ -30,110 +30,68 @@ extension View {
         state: NSVisualEffectView.State = .followsWindowActiveState,
         appearance: NSAppearance? = nil
     ) -> some View {
-        background(
-            VisualEffectView(
-                material: material,
-                blendingMode: blendingMode,
-                emphasized: emphasized,
-                state: state,
-                appearance: appearance
-            )
-        )
+        background(VisualEffectView(.init(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: emphasized)))
     }
 }
 
 /// A `SwiftUI` view with a visual effect.
 public struct VisualEffectView: NSViewRepresentable {
-    /// The material shown by the visual effect view.
-    @State public private(set) var material: NSVisualEffectView.Material
     
-    /// A value indicating how the view’s contents blend with the surrounding content.
-    @State public private(set) var blendingMode: NSVisualEffectView.BlendingMode
-    
-    /// A Boolean value indicating whether to emphasize the look of the material.
-    @State public private(set) var isEmphasized: Bool
-    
-    /// The appearance of the visual effect.
-    @State public private(set) var appearance: NSAppearance?
-    
-    /// A value that indicates whether a view has a visual effect applied.
-    @State public private(set) var state: NSVisualEffectView.State
+    var material: NSVisualEffectView.Material
+    var blendingMode: NSVisualEffectView.BlendingMode
+    var isEmphasized: Bool
+    var appearance: NSAppearance?
+    var state: NSVisualEffectView.State
     
     /// The visual effect configuration of the view.
     public var configuration: VisualEffectConfiguration {
-        get { VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized) }
-        set {
-            material = newValue.material
-            blendingMode = newValue.blendingMode
-            isEmphasized = newValue.isEmphasized
-            appearance = newValue.appearance
-            state = newValue.state
-        }
+        VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized)
     }
     
     /// Sets the material shown by the visual effect view.
     public func material(_ material: NSVisualEffectView.Material) -> Self {
-        self.material = material
-        return self
+        var view = self
+        view.material = material
+        return view
     }
     
     /// Sets the value indicating how the view’s contents blend with the surrounding content.
     public func blendingMode(_ mode: NSVisualEffectView.BlendingMode) -> Self {
-        self.blendingMode = mode
-        return self
+        var view = self
+        view.blendingMode = mode
+        return view
     }
     
     /// Sets the Boolean value indicating whether to emphasize the look of the material.
     public func isEmphasized(_ isEmphasized: Bool) -> Self {
-        self.isEmphasized = isEmphasized
-        return self
+        var view = self
+        view.isEmphasized = isEmphasized
+        return view
     }
     
     /// Sets the appearance of the visual effect.
     public func appearance(_ appearance: NSAppearance?) -> Self {
-        self.appearance = appearance
-        return self
+        var view = self
+        view.appearance = appearance
+        return view
     }
     
     /// Sets value that indicates whether a view has a visual effect applied.
     public func state(_ state: NSVisualEffectView.State) -> Self {
-        self.state = state
-        return self
+        var view = self
+        view.state = state
+        return view
     }
     
     /// Sets the visual effect configuration of the view.
     public func configuration(_ configuration: VisualEffectConfiguration) -> Self {
-        material = configuration.material
-        blendingMode = configuration.blendingMode
-        isEmphasized = configuration.isEmphasized
-        appearance = configuration.appearance
-        state = configuration.state
-        return self
-    }
-    
-    /**
-     Creates a visual effect view with the specified properties.
-     
-     - Parameters:
-        - material: The material shown by the visual effect view.
-        - blendingMode: A value indicating how the view’s contents blend with the surrounding content.
-        - emphasized: A Boolean value indicating whether to emphasize the look of the material.
-        - state: A value that indicates whether a view has a visual effect applied.
-        - appearance: The appearance of the visual effect.
-
-     */
-    init(
-        material: NSVisualEffectView.Material,
-        blendingMode: NSVisualEffectView.BlendingMode,
-        emphasized: Bool = false,
-        state: NSVisualEffectView.State = .followsWindowActiveState,
-        appearance: NSAppearance? = nil
-    ) {
-        self.material = material
-        self.blendingMode = blendingMode
-        self.isEmphasized = emphasized
-        self.appearance = appearance
-        self.state = state
+        var view = self
+        view.material = configuration.material
+        view.blendingMode = configuration.blendingMode
+        view.isEmphasized = configuration.isEmphasized
+        view.appearance = configuration.appearance
+        view.state = configuration.state
+        return view
     }
     
     /**
