@@ -55,6 +55,20 @@ extension NSGridColumn {
             */
         }
     }
+    
+    /// Sets the content views of the grid column cells.
+    @discardableResult
+    public func views(_ views: [NSView?]) -> Self {
+        self.views = views
+        return self
+    }
+    
+    /// Sets the content views of the grid column cells.
+    @discardableResult
+    public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
+        self.views = views()
+        return self
+    }
 }
 
 #endif

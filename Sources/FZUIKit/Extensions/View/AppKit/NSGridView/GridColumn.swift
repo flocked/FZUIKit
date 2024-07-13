@@ -1,5 +1,5 @@
 //
-//  GridView.swift
+//  GridColumn.swift
 //
 //
 //  Created by Florian Zand on 23.02.24.
@@ -10,7 +10,6 @@ import AppKit
 
 /// A column within a grid view.
 public class GridColumn {
-    weak var gridColumn: NSGridColumn?
     
     /// The grid view of the column.
     public var gridView: NSGridView? {
@@ -38,6 +37,13 @@ public class GridColumn {
     @discardableResult
     public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
         self.views = views()
+        return self
+    }
+    
+    /// Sets the content views of the grid column cells.
+    @discardableResult
+    public func views(_ views: [NSView]) -> Self {
+        self.views = views
         return self
     }
     
@@ -71,6 +77,13 @@ public class GridColumn {
         }
     }
     
+    /// Sets the leading padding of the column.
+    @discardableResult
+    public func leadingPadding(_ padding: CGFloat) -> Self {
+        leadingPadding = padding
+        return self
+    }
+    
     /// The trailing padding of the column.
     public var trailingPadding: CGFloat {
         get { gridColumn?.trailingPadding ?? _trailingPadding }
@@ -78,13 +91,6 @@ public class GridColumn {
             gridColumn?.trailingPadding = newValue
             _trailingPadding = newValue
         }
-    }
-    
-    /// Sets the leading padding of the column.
-    @discardableResult
-    public func leadingPadding(_ padding: CGFloat) -> Self {
-        leadingPadding = padding
-        return self
     }
     
     /// Sets the trailing padding of the column.
@@ -126,13 +132,6 @@ public class GridColumn {
         return self
     }
     
-    var _views: [NSView?] = []
-    var _isHidden: Bool = false
-    var _leadingPadding: CGFloat = 0.0
-    var _trailingPadding: CGFloat = 0.0
-    var _width: CGFloat = 1.1754943508222875e-38
-    var _xPlacement: NSGridCell.Placement = .inherited
-    
     /// Creates a grid column with the specified views.
     public init(@NSGridView.Builder _ views: () -> [NSView?]) {
         _views = views()
@@ -156,6 +155,14 @@ public class GridColumn {
         _width = gridColumn.width
         _xPlacement = gridColumn.xPlacement
     }
+    
+    weak var gridColumn: NSGridColumn?
+    var _views: [NSView?] = []
+    var _isHidden: Bool = false
+    var _leadingPadding: CGFloat = 0.0
+    var _trailingPadding: CGFloat = 0.0
+    var _width: CGFloat = 1.1754943508222875e-38
+    var _xPlacement: NSGridCell.Placement = .inherited
 }
 
 #endif

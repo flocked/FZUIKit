@@ -11,7 +11,6 @@ import FZSwiftUtils
 
 /// A row within a grid view.
 public class GridRow {
-    weak var gridRow: NSGridRow?
     
     /// The grid view of the row.
     public var gridView: NSGridView? {
@@ -39,6 +38,13 @@ public class GridRow {
     @discardableResult
     public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
         self.views = views()
+        return self
+    }
+    
+    /// Sets the content views of the grid row cells.
+    @discardableResult
+    public func views(_ views: [NSView]) -> Self {
+        self.views = views
         return self
     }
     
@@ -72,6 +78,13 @@ public class GridRow {
         }
     }
     
+    /// Sets the top padding of the row.
+    @discardableResult
+    public func topPadding(_ padding: CGFloat) -> Self {
+        topPadding = padding
+        return self
+    }
+    
     /// The bottom padding of the row.
     public var bottomPadding: CGFloat {
         get { gridRow?.bottomPadding ?? _bottomPadding }
@@ -79,13 +92,6 @@ public class GridRow {
             gridRow?.bottomPadding = newValue
             _bottomPadding = newValue
         }
-    }
-    
-    /// Sets the top padding of the row.
-    @discardableResult
-    public func topPadding(_ padding: CGFloat) -> Self {
-        topPadding = padding
-        return self
     }
     
     /// Sets the bottom padding of the row.
@@ -143,14 +149,6 @@ public class GridRow {
         return self
     }
     
-    var _views: [NSView?] = []
-    var _isHidden: Bool = false
-    var _topPadding: CGFloat = 0.0
-    var _bottomPadding: CGFloat = 0.0
-    var _height: CGFloat = 1.1754943508222875e-38
-    var _yPlacement: NSGridCell.Placement = .inherited
-    var _rowAlignment: NSGridRow.Alignment = .inherited
-    
     /// Creates a grid row with the specified views.
     public init(@NSGridView.Builder _ views: () -> [NSView?]) {
         _views = views()
@@ -175,6 +173,15 @@ public class GridRow {
         _yPlacement = gridRow.yPlacement
         _rowAlignment = gridRow.rowAlignment
     }
+    
+    weak var gridRow: NSGridRow?
+    var _views: [NSView?] = []
+    var _isHidden: Bool = false
+    var _topPadding: CGFloat = 0.0
+    var _bottomPadding: CGFloat = 0.0
+    var _height: CGFloat = 1.1754943508222875e-38
+    var _yPlacement: NSGridCell.Placement = .inherited
+    var _rowAlignment: NSGridRow.Alignment = .inherited
 }
 
 #endif

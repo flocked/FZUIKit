@@ -56,4 +56,12 @@ extension TextAlignment {
         case .trailing: return .trailing
         }
     }
+    
+    var nsTextAlignment: NSTextAlignment {
+        switch self {
+        case .leading: return .left
+        case .center: return .center
+        case .trailing: return .right
+        }
+    }
 }

@@ -135,8 +135,28 @@ extension NSGridView {
             block.flatMap { $0 }
         }
 
-        public static func buildExpression(_ expr: NSView?) -> [NSView?] {
-            [expr]
+        public static func buildOptional(_ item: [NSView?]?) -> [NSView?] {
+            item ?? []
+        }
+
+        public static func buildEither(first: [NSView?]?) -> [NSView?] {
+            first ?? []
+        }
+
+        public static func buildEither(second: [NSView?]?) -> [NSView?] {
+            second ?? []
+        }
+
+        public static func buildArray(_ components: [[NSView?]]) -> [NSView?] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildExpression(_ expr: [NSView?]?) -> [NSView?] {
+            expr ?? []
+        }
+
+        public static func buildExpression(_ expr: NSView??) -> [NSView?] {
+            expr.map { [$0] } ?? []
         }
     }
     
@@ -147,17 +167,29 @@ extension NSGridView {
             block.flatMap { $0 }
         }
 
+        public static func buildOptional(_ item: [GridColumn]?) -> [GridColumn] {
+            item ?? []
+        }
+
+        public static func buildEither(first: [GridColumn]?) -> [GridColumn] {
+            first ?? []
+        }
+
+        public static func buildEither(second: [GridColumn]?) -> [GridColumn] {
+            second ?? []
+        }
+
+        public static func buildArray(_ components: [[GridColumn]]) -> [GridColumn] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildExpression(_ expr: [GridColumn]?) -> [GridColumn] {
+            expr ?? []
+        }
+
         public static func buildExpression(_ expr: GridColumn?) -> [GridColumn] {
             expr.map { [$0] } ?? []
         }
-        /*
-        public static func buildExpression(_ expr: GridRow?) -> [GridColumn] {
-            if let contentViews = expr?.contentViews {
-                contentViews.compactMap({GridColumn(views: [$0])})
-            }
-            expr.map { [$0.cont] } ?? []
-        }
-        */
     }
     
     /// A function builder type that produces an array of grid rows.
@@ -165,6 +197,26 @@ extension NSGridView {
     public enum RowBuilder {
         public static func buildBlock(_ block: [GridRow]...) -> [GridRow] {
             block.flatMap { $0 }
+        }
+
+        public static func buildOptional(_ item: [GridRow]?) -> [GridRow] {
+            item ?? []
+        }
+
+        public static func buildEither(first: [GridRow]?) -> [GridRow] {
+            first ?? []
+        }
+
+        public static func buildEither(second: [GridRow]?) -> [GridRow] {
+            second ?? []
+        }
+
+        public static func buildArray(_ components: [[GridRow]]) -> [GridRow] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildExpression(_ expr: [GridRow]?) -> [GridRow] {
+            expr ?? []
         }
 
         public static func buildExpression(_ expr: GridRow?) -> [GridRow] {

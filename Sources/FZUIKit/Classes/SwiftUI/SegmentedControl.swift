@@ -9,29 +9,6 @@
     import AppKit
     import SwiftUI
 
-public struct TextFieldAdvanced: NSViewRepresentable {
-    var textColor: NSColor = .labelColor
-    @Environment(\.colorScheme) var isEnabled
-
-    public func makeNSView(context: Context) -> NSTextField {
-        let textField = NSTextField(wrappingLabelWithString: "")
-        return textField
-    }
-
-    public func updateNSView(_ textField: NSTextField, context: Context) {
-        textField.isEnabled = context.environment.isEnabled
-        textField.textColor = textColor
-    }
-}
-
-extension TextFieldAdvanced {
-    func foregroundColor(_ color: NSColor) -> Self {
-        var view = self
-        view.textColor = color
-        return view
-    }
-}
-
     public struct SegmentedControl: NSViewRepresentable {
         /// The selected segments.
         @State public private(set) var selectedSegments: [NSSegment] = []
@@ -70,11 +47,6 @@ extension TextFieldAdvanced {
             return view
         }
 
-        /// Creates a segmented control view.
-        public init() {
-            
-        }
-        
         /**
          Creates a segmented control view with the specified segments.
          
@@ -86,12 +58,10 @@ extension TextFieldAdvanced {
         
         public func makeNSView(context: Context) -> NSSegmentedControl {
             let segmentedControl = NSSegmentedControl(segments: segments)
+            updateNSView(segmentedControl, context: context)
             selectedSegments = segmentedControl.selectedSegments
-            segmentedControl.trackingMode = trackingMode
-            segmentedControl.segmentStyle = style
             segmentedControl.target = context.coordinator
             segmentedControl.action = #selector(Coordinator.selectedIndexChanged(_:))
-            segmentedControl.sizeToFit()
             return segmentedControl
         }
 
@@ -99,19 +69,19 @@ extension TextFieldAdvanced {
             segmentedControl.segments = segments
             segmentedControl.trackingMode = trackingMode
             segmentedControl.segmentStyle = style
-          //  segmentedControl.isEnabled = context.environment.isEnabled
+            segmentedControl.isEnabled = context.environment.isEnabled
             segmentedControl.sizeToFit()
         }
 
         public func makeCoordinator() -> Coordinator {
-            Coordinator(segmentedControl: self)
+            Coordinator(self)
         }
         
         /// The coordinator of the segmented control.
         public class Coordinator: NSObject {
             var parent: SegmentedControl
-            init(segmentedControl: SegmentedControl) {
-                parent = segmentedControl
+            init(_ parent: SegmentedControl) {
+                self.parent = parent
             }
 
             @objc func selectedIndexChanged(_ sender: NSSegmentedControl) {
@@ -123,17 +93,16 @@ extension TextFieldAdvanced {
 
     struct SegmentedControl_Preview: PreviewProvider {
         static var previews: some View {
-            SegmentedControl()
-                .trackingMode(.selectOne)
-                .style(.texturedRounded)
-                .segments {
-                    NSSegment("Segment 1")
-                        .isSelected(true)
-                    NSSegment("Segment 2")
-                    NSSegment("Segment 3")
-                }
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
+            SegmentedControl() {
+                NSSegment("Segment 1")
+                    .isSelected(true)
+                NSSegment("Segment 2")
+                NSSegment("Segment 3")
+            }
+            .trackingMode(.selectOne)
+            .style(.texturedRounded)
+            .previewLayout(PreviewLayout.sizeThatFits)
+            .padding()
         }
     }
 
