@@ -19,7 +19,6 @@ extension View {
         } else {
             self
         }
-        
     }
     
     /// Adds a visual effect background with the specified appearance to the view.
@@ -130,12 +129,28 @@ public struct VisualEffectView: NSViewRepresentable {
 #elseif os(iOS) || os(tvOS)
     import UIKit
 
-    @available(iOS 13, *)
-    public struct EffectView: UIViewRepresentable {
-        public typealias UIViewType = UIVisualEffectView
+extension View {
+    /// Adds a visual effect background to the view.
+    @ViewBuilder
+    public func visualEffect(_ effect: UIVisualEffect?) -> some View  {
+        if let effect = effect {
+            self.background(VisualEffectView(effect))
+        } else {
+            self
+        }
+    }
+}
+
+    /// A `SwiftUI` view with a visual effect.
+    public struct VisualEffectView: UIViewRepresentable {
         private var effect: UIVisualEffect?
 
-        public init(effect: UIVisualEffect?) {
+        /**
+         Creates a visual effect view with the specified effect.
+         
+         - Parameter effct: The visual effect,
+         */
+        public init(_ effect: UIVisualEffect?) {
             self.effect = effect
         }
 
@@ -144,7 +159,7 @@ public struct VisualEffectView: NSViewRepresentable {
         }
 
         public func updateUIView(_ uiView: UIVisualEffectView, context _: Context) {
-            uiView.effect = effect
+            
         }
     }
 #endif
