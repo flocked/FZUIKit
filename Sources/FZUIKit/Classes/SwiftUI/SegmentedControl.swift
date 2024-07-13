@@ -99,7 +99,7 @@ extension TextFieldAdvanced {
             segmentedControl.segments = segments
             segmentedControl.trackingMode = trackingMode
             segmentedControl.segmentStyle = style
-            segmentedControl.isEnabled = context.environment.isEnabled
+          //  segmentedControl.isEnabled = context.environment.isEnabled
             segmentedControl.sizeToFit()
         }
 
