@@ -30,7 +30,7 @@ extension View {
         
     }
     
-    /// Adds a visual effect background with the specified appearance.
+    /// Adds a visual effect background with the specified appearance to the view.
     public func visualEffect(
         material: NSVisualEffectView.Material,
         blendingMode: NSVisualEffectView.BlendingMode,
