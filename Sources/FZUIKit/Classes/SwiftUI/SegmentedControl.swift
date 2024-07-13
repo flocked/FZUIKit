@@ -82,6 +82,7 @@
             segmentedControl.isEnabled = isEnabled
             segmentedControl.target = context.coordinator
             segmentedControl.action = #selector(Coordinator.selectedIndexChanged(_:))
+            segmentedControl.sizeToFit()
             return segmentedControl
         }
 
@@ -90,6 +91,7 @@
             nsView.trackingMode = trackingMode
             nsView.segmentStyle = style
             nsView.isEnabled = isEnabled
+            nsView.sizeToFit()
         }
 
         public func makeCoordinator() -> Coordinator {
