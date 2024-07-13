@@ -74,7 +74,7 @@
         }
         
         /**
-         Creates a checkbox button with the specified title.
+         Creates a checkbox button.
          
          - Parameters:
             - title: The title of the button.
@@ -88,7 +88,7 @@
         }
         
         /**
-         Creates a radio button with the specified title.
+         Creates a radio button.
          
          - Parameters:
             - title: The title of the button.
@@ -111,7 +111,7 @@
         }
         
         /**
-         Creates a button with a symbol image.
+         Creates a image button with a symbol image.
          
          - Parameter symbolName: The name of the symbol image.
          */
