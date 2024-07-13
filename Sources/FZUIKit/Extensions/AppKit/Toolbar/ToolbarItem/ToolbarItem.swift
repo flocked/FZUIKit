@@ -7,6 +7,7 @@
 
 #if os(macOS)
     import AppKit
+import FZSwiftUtils
 
     /// A toolbar item that can be used with ``Toolbar``.
     public class ToolbarItem: NSObject {
@@ -102,8 +103,7 @@
         /// Mark the item as available on the 'default' toolbar presented to the user
         @discardableResult
         func isDefault(_ isDefault: Bool) -> Self {
-            self.isDefault = isDefault
-            return self
+            self.setValue(isDefault, for: \.isDefault)
         }
 
         /// Sets the Boolean value that indicates whether the item can be removed or rearranged by the user.

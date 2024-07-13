@@ -43,7 +43,7 @@ extension NSColorWell {
         
     /// Handler that gets called when the color changes.
     public var colorHandler: ((_ color: NSColor)->())? {
-        get { getAssociatedValue("colorHandler", initialValue: nil) }
+        get { getAssociatedValue("colorHandler") }
         set {
             setAssociatedValue(newValue, key: "colorHandler")
             if let colorHandler = newValue {
@@ -65,7 +65,7 @@ extension NSColorWell {
     }
     
     var colorObservation: KeyValueObservation? {
-        get { getAssociatedValue("colorObservation", initialValue: nil) }
+        get { getAssociatedValue("colorObservation") }
         set { setAssociatedValue(newValue, key: "colorObservation") }
     }
     
@@ -73,18 +73,20 @@ extension NSColorWell {
     @available(macOS 13.0, *)
     public var pulldownActionBlock: ActionBlock? {
         set {
-            if let newValue = newValue {
-                pullDownActionTrampoline = ActionTrampoline(action: newValue)
-                pulldownTarget = pullDownActionTrampoline
-                pulldownAction = #selector(ActionTrampoline<Self>.performAction(sender:))
-            } else if pullDownActionTrampoline != nil {
-                pullDownActionTrampoline = nil
-                if pulldownAction == #selector(ActionTrampoline<Self>.performAction(sender:)) {
+            setAssociatedValue(newValue, key: "pulldownActionBlock")
+            if newValue != nil {
+                pulldownTarget = self
+                pulldownAction = #selector(performPulldownAction)
+            } else {
+                if pulldownTarget === self {
+                    pulldownTarget = nil
+                }
+                if pulldownAction == #selector(performPulldownAction) {
                     pulldownAction = nil
                 }
             }
         }
-        get { pullDownActionTrampoline?.action }
+        get { getAssociatedValue("pulldownActionBlock") }
     }
     
     /// Sets the pull down action handler.
@@ -95,9 +97,9 @@ extension NSColorWell {
         return self
     }
     
-    var pullDownActionTrampoline: ActionTrampoline<NSColorWell>? {
-        get { getAssociatedValue("pullDownActionTrampoline") }
-        set { setAssociatedValue(newValue, key: "pullDownActionTrampoline") }
+    @available(macOS 13.0, *)
+    @objc func performPulldownAction() {
+        pulldownActionBlock?(self)
     }
 }
 
