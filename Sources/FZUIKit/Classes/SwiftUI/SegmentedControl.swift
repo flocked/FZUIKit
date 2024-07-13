@@ -69,10 +69,6 @@
         /// A Boolean value that indicates whether the segmented control reacts to mouse events.
         @Environment(\.isEnabled) public var isEnabled
 
-        public init() {
-            
-        }
-        
         public func makeNSView(context: Context) -> NSSegmentedControl {
             let segmentedControl = NSSegmentedControl(segments: segments)
             selectedSegments = segmentedControl.selectedSegments
