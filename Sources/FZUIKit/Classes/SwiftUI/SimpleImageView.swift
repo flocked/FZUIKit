@@ -49,36 +49,36 @@ import SwiftUI
         }
 
         public func makeNSView(context _: Context) -> ImageView {
-            let view = ImageView()
+            let imageView = ImageView()
             if let image = image {
-                view.image = image
+                imageView.image = image
             } else {
-                view.images = images
+                imageView.images = images
             }
-            view.imageScaling = imageScaling
-            view.tintColor = tintColor
-            view.symbolConfiguration = symbolConfiguration
+            imageView.imageScaling = imageScaling
+            imageView.tintColor = tintColor
+            imageView.symbolConfiguration = symbolConfiguration
             if animates {
-                view.startAnimating()
+                imageView.startAnimating()
             } else {
-                view.stopAnimating()
+                imageView.stopAnimating()
             }
-            return view
+            return imageView
         }
 
-        public func updateNSView(_ nsView: ImageView, context _: Context) {
+        public func updateNSView(_ imageView: ImageView, context _: Context) {
             if let image = image {
-                nsView.image = image
+                imageView.image = image
             } else {
-                nsView.images = images
+                imageView.images = images
             }
-            nsView.imageScaling = imageScaling
-            nsView.symbolConfiguration = symbolConfiguration
-            nsView.tintColor = tintColor
+            imageView.imageScaling = imageScaling
+            imageView.symbolConfiguration = symbolConfiguration
+            imageView.tintColor = tintColor
             if animates {
-                nsView.startAnimating()
+                imageView.startAnimating()
             } else {
-                nsView.stopAnimating()
+                imageView.stopAnimating()
             }
         }
         

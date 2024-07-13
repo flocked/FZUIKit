@@ -16,6 +16,15 @@
 
     @available(macOS 11.0, iOS 13.0, *)
     public extension NSUIHostingController {
+        /**
+         Creates a hosting controller object with the given contents.
+
+         - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the view.
+         */
+        convenience init(@ViewBuilder content: () -> Content) {
+            self.init(rootView: content())
+        }
+        
         /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
         var ignoresSafeArea: Bool {
             get { view.isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
@@ -67,6 +76,15 @@ fileprivate extension NSUIView {
             var ignoresSafeArea: Bool {
                 get { isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
                 set { setSafeAreaInsets(newValue ? .zero : nil) }
+            }
+            
+            /**
+             Creates a hosting view object with the given contents.
+
+             - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the view.
+             */
+            convenience init(@ViewBuilder content: () -> Content) {
+                self.init(rootView: content())
             }
             
             /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.

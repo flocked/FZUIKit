@@ -9,6 +9,29 @@
     import AppKit
     import SwiftUI
 
+public struct TextFieldAdvanced: NSViewRepresentable {
+    var textColor: NSColor = .labelColor
+    @Environment(\.colorScheme) var isEnabled
+
+    public func makeNSView(context: Context) -> NSTextField {
+        let textField = NSTextField(wrappingLabelWithString: "")
+        return textField
+    }
+
+    public func updateNSView(_ textField: NSTextField, context: Context) {
+        textField.isEnabled = context.environment.isEnabled
+        textField.textColor = textColor
+    }
+}
+
+extension TextFieldAdvanced {
+    func foregroundColor(_ color: NSColor) -> Self {
+        var view = self
+        view.textColor = color
+        return view
+    }
+}
+
     public struct SegmentedControl: NSViewRepresentable {
         /// The selected segments.
         @State public private(set) var selectedSegments: [NSSegment] = []
@@ -16,7 +39,6 @@
         var segments: [NSSegment] = []
         var trackingMode: NSSegmentedControl.SwitchTracking = .selectOne
         var style: NSSegmentedControl.Style = .automatic
-        @Environment(\.isEnabled) var isEnabled
         
         /// Sets the segments displayed by the segmented control.
         public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
@@ -67,19 +89,18 @@
             selectedSegments = segmentedControl.selectedSegments
             segmentedControl.trackingMode = trackingMode
             segmentedControl.segmentStyle = style
-            segmentedControl.isEnabled = isEnabled
             segmentedControl.target = context.coordinator
             segmentedControl.action = #selector(Coordinator.selectedIndexChanged(_:))
             segmentedControl.sizeToFit()
             return segmentedControl
         }
 
-        public func updateNSView(_ nsView: NSSegmentedControl, context _: Context) {
-            nsView.segments = segments
-            nsView.trackingMode = trackingMode
-            nsView.segmentStyle = style
-            nsView.isEnabled = isEnabled
-            nsView.sizeToFit()
+        public func updateNSView(_ segmentedControl: NSSegmentedControl, context: Context) {
+            segmentedControl.segments = segments
+            segmentedControl.trackingMode = trackingMode
+            segmentedControl.segmentStyle = style
+            segmentedControl.isEnabled = context.environment.isEnabled
+            segmentedControl.sizeToFit()
         }
 
         public func makeCoordinator() -> Coordinator {
