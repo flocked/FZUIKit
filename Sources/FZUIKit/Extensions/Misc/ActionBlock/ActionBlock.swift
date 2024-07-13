@@ -23,40 +23,7 @@ extension NSCell: TargetActionProvider { }
 extension NSToolbarItem: TargetActionProvider { }
 extension NSMenuItem: TargetActionProvider { }
 extension NSGestureRecognizer: TargetActionProvider { }
-
-extension NSColorPanel: TargetActionProvider {
-    /// The default action-message selector associated with the color panel.
-    public var action: Selector? {
-        get { nil }
-        set { setAction(newValue) }
-    }
-    
-    /// The target object that receives action messages from the color panel.
-    public var target: AnyObject? {
-        get { value(forKey: "target") as? AnyObject  }
-        set { setTarget(newValue) }
-    }
-    
-    public var colorHandler: ((NSColor)->())? {
-        get { getAssociatedValue("colorHandler", initialValue: nil) }
-        set {
-            setAssociatedValue(newValue, key: "colorHandler")
-            if let colorHandler = newValue {
-                colorObservation = observeChanges(for: \.color) { old, new in
-                    guard old != new else { return }
-                    colorHandler(new)
-                }
-            } else {
-                colorObservation = nil
-            }
-        }
-    }
-    
-    var colorObservation: KeyValueObservation? {
-        get { getAssociatedValue("colorObservation", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "colorObservation") }
-    }
-}
+extension NSColorPanel: TargetActionProvider { }
 
 extension TargetActionProvider {
     /// Performs the `action`.
