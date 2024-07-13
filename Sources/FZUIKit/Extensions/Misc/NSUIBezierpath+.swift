@@ -14,7 +14,6 @@ import FZSwiftUtils
 #endif
 
 #if os(macOS)
-
     public extension NSBezierPath {
         /**
          Creates and returns a new Bézier path object with a rectangular path rounded at the specified corners.
