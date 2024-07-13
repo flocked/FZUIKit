@@ -118,4 +118,10 @@ extension NSControl {
     }
 }
 
+extension NSControl.StateValue: ExpressibleByBooleanLiteral {
+    public init(booleanLiteral value: Bool) {
+        self = value ? .on : .off
+    }    
+}
+
 #endif
