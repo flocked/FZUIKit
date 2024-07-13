@@ -12,6 +12,7 @@
         import UIKit
     #endif
     import FZSwiftUtils
+    import SwiftUI
 
     /**
      A configuration that specifies the appearance of a border.
@@ -238,6 +239,23 @@ extension BorderConfiguration: ReferenceConvertible {
 
     public var debugDescription: String {
         description
+    }
+}
+
+extension Shape {
+    /**
+     Traces the outline of this shape with the specified border configuration.
+     
+     - Parameter border: The border configuration.
+     
+     */
+    @ViewBuilder
+    public func stroke(_ border: BorderConfiguration) -> some View {
+        if border.dashPattern.isEmpty {
+            stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
+        } else {
+            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: .butt, lineJoin: .miter, miterLimit: 0, dash: border.dashPattern, dashPhase: 0))
+        }
     }
 }
 #endif
