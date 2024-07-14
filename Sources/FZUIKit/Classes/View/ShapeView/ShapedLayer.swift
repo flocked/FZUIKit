@@ -109,4 +109,85 @@ public class ShapedLayer: CAShapeLayer {
         updateBorder()
     }
 }
+
+/*
+extension CAShapeLayer {
+    convenience init(shape: NSView.CornerShape) {
+        self.init()
+        self._shape = shape
+    }
+    
+    var _shape: NSView.CornerShape {
+        get { getAssociatedValue("_shape", initialValue: .normal) }
+        set {
+            setAssociatedValue(newValue, key: "_shape")
+            _updateShape()
+        }
+    }
+    
+    @discardableResult
+    func _shape(_ shape: NSView.CornerShape) -> Self {
+        _shape = shape
+        return self
+    }
+    
+    func _updateShape() {
+        isUpdatingShape = true
+        switch _shape {
+        case .normal:
+            cornerRadius = 0
+        case .circular:
+            path = NSUIBezierPath.circle(bounds.size).cgPath
+        case .capsule:
+            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0
+        case .rounded(let radius):
+            cornerRadius = radius
+        case .roundedRelative(let value):
+            cornerRadius = min(bounds.size.height, bounds.size.width) / 2.0 * value
+        case .rectangle:
+            cornerRadius = 0
+        case .ellipse:
+            path = NSUIBezierPath.ellipse(bounds.size).cgPath
+        case .star:
+            path = NSUIBezierPath.star(rect: .init(.zero, bounds.size)).cgPath
+        case .starRounded:
+            path = NSUIBezierPath.starRounded(rect: .init(.zero, bounds.size)).cgPath
+        case .path(let bezierPath):
+            path = bezierPath.cgPath
+        }
+        path = _shape.needsLayer ? path : nil
+        cornerRadius = _shape.needsLayer ? 0 : cornerRadius
+        fillColor = _shape.needsLayer ? .black : nil
+        backgroundColor = _shape.needsLayer ? nil : .black
+        isUpdatingShape = false
+        if _shape.isNormal {
+            shapeLayerObserver = nil
+        } else if shapeLayerObserver == nil {
+            shapeLayerObserver = KeyValueObserver(self)
+            shapeLayerObserver?.add(\.frame) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self._updateShape()
+            }
+            shapeLayerObserver?.add(\.cornerRadius) { [weak self] old, new in
+                guard let self = self, old != new, !self.isUpdatingShape else { return }
+                self._shape = .normal
+            }
+            shapeLayerObserver?.add(\.path) { [weak self] old, new in
+                guard let self = self, old != new, !self.isUpdatingShape else { return }
+                self._shape = .normal
+            }
+        }
+    }
+    
+    var shapeLayerObserver: KeyValueObserver<CAShapeLayer>? {
+        get { getAssociatedValue("shapeLayerObserver", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "shapeLayerObserver") }
+    }
+    
+    var isUpdatingShape: Bool {
+        get { getAssociatedValue("isUpdatingShape", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "isUpdatingShape") }
+    }
+}
+ */
 #endif
