@@ -210,7 +210,7 @@ public extension NSUIColor {
     }
         
         /**
-         A Boolean value that indicates whether the color is light or dark.
+         A Boolean value that indicates whether the color is light.
 
          It is useful when you need to know whether you should display the text in black or white.
          */
