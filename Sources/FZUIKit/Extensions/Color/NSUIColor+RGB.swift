@@ -120,6 +120,36 @@ public struct RGBAComponents: Codable, Hashable {
     public var alpha: CGFloat {
         didSet { alpha = alpha.clamped(to: 0.0...1.0) }
     }
+    
+    /**
+     Blends the color components with the specified components.
+
+     - Parameters:
+        - fraction: The amount of the color to blend between `0.0` and `1.0`.
+        - components: The components to blend.
+     */
+    public mutating func blend(withFraction fraction: CGFloat, of components: RGBAComponents) {
+        let fraction = fraction.clamped(to: 0...1.0)
+        red = red + (fraction * (components.red - red))
+        green = green + (fraction * (components.green - green))
+        blue = blue + (fraction * (components.blue - blue))
+        alpha = alpha + (fraction * (components.alpha - alpha))
+    }
+    
+    /**
+     Blends the color components with the specified components.
+
+     - Parameters:
+        - fraction: The amount of the color to blend between `0.0` and `1.0`.
+        - components: The components to blend.
+     
+     - Returns: The color components blended with the specified components.
+     */
+    public func blended(withFraction fraction: CGFloat, of components: RGBAComponents) -> RGBAComponents {
+        var rgba = self
+        rgba.blend(withFraction: fraction, of: components)
+        return RGBAComponents(rgba.red, rgba.green, rgba.blue, rgba.alpha)
+    }
 
     #if os(macOS)
         /// Returns the `NSColor`.

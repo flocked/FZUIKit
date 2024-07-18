@@ -55,15 +55,7 @@
          - Returns: The resulting color object.
          */
         func blended(withFraction fraction: CGFloat, of color: UIColor) -> UIColor {
-            let progress = fraction.clamped(to: 0.0...1.0)
-            let fromComponents = rgbaComponents()
-            let toComponents = color.rgbaComponents()
-
-            let r = (1 - progress) * fromComponents.red + progress * toComponents.red
-            let g = (1 - progress) * fromComponents.green + progress * toComponents.green
-            let b = (1 - progress) * fromComponents.blue + progress * toComponents.blue
-            let a = (1 - progress) * fromComponents.alpha + progress * toComponents.alpha
-            return NSUIColor(red: r, green: g, blue: b, alpha: a)
+            NSUIColor(rgbaComponents().blended(withFraction: fraction, of: color.rgbaComponents()))
         }
     }
 #endif

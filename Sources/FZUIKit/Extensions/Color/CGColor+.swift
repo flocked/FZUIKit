@@ -49,14 +49,9 @@ public extension CGColor {
      - Returns: The resulting color object or `nil` if the color couldn't be created.
      */
     func blended(withFraction fraction: CGFloat, of color: CGColor) -> CGColor? {
-        guard let c1 = rgbaComponents(), let c2 = color.rgbaComponents() else { return nil }
-
-        let red = c1.red + (fraction * (c2.red - c1.red))
-        let green = c1.green + (fraction * (c2.green - c1.green))
-        let blue = c1.blue + (fraction * (c2.blue - c1.blue))
-        let alpha = c1.alpha + (fraction * (c2.alpha - c1.alpha))
-
-        return CGColor(red: red, green: green, blue: blue, alpha: alpha)
+        guard var c1 = rgbaComponents(), let c2 = color.rgbaComponents() else { return nil }
+        c1.blend(withFraction: fraction, of: c2)
+        return CGColor(red: c1.red, green: c1.green, blue: c1.blue, alpha: c1.alpha)
     }
 
     /// A Boolean value that indicates whether the color is visible (alpha value isn't zero).
@@ -72,6 +67,39 @@ public extension CGColor {
      */
     func withAlpha(_ alpha: CGFloat) -> CGColor {
         copy(alpha: alpha) ?? self
+    }
+    
+    /**
+     Returns a new color object with the specified red component.
+
+     - Parameter red: The red component value of the new color object, specified as a value from `0.0` to `1.0.` Red values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
+     - Returns: The new color object.
+     */
+    func withRed(_ red: CGFloat) -> CGColor {
+        guard let rgba = rgbaComponents() else { return self }
+        return CGColor(red: red.clamped(to: 0...1.0), green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
+    }
+    
+    /**
+     Returns a new color object with the specified green component.
+
+     - Parameter green: The green component value of the new color object, specified as a value from `0.0` to `1.0.` Green values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
+     - Returns: The new color object.
+     */
+    func withGreen(_ green: CGFloat) -> CGColor {
+        guard let rgba = rgbaComponents() else { return self }
+        return CGColor(red: rgba.red, green: green.clamped(to: 0...1.0), blue: rgba.blue, alpha: rgba.alpha)
+    }
+    
+    /**
+     Returns a new color object with the specified blue component.
+
+     - Parameter blue: The blue component value of the new color object, specified as a value from `0.0` to `1.0.` Blue values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
+     - Returns: The new color object.
+     */
+    func withBlue(_ blue: CGFloat) -> CGColor {
+        guard let rgba = rgbaComponents() else { return self }
+        return CGColor(red: rgba.red, green: rgba.green, blue: blue.clamped(to: 0...1.0), alpha: rgba.alpha)
     }
 
     /// Returns a color from a pattern image.
