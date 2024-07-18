@@ -5,8 +5,6 @@
 //  Created by Florian Zand on 16.03.23.
 //
 
-import FZSwiftUtils
-
 #if os(macOS)
     import AppKit
 #elseif canImport(UIKit)
