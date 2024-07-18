@@ -82,7 +82,9 @@
                             dragPoint.y += translation.y
                             #endif
                             self.frame.origin = dragPoint
-                            if let margins = isMovableByViewBackground.margins {
+                            if var margins = isMovableByViewBackground.margins {
+                                margins.leadingTrailing += border.width
+                                margins.bottomTop += border.width
                                 if self.frame.origin.x < 0 + margins.leading {
                                     self.frame.origin.x = 0 + margins.leading
                                 }

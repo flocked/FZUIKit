@@ -71,38 +71,41 @@ public enum CornerShape: CustomStringConvertible {
         public var cornerShape: CornerShape {
             get { shapeView?.shape ?? .normal }
             set {
-                visualEffectBackgroundView?.cornerShape = newValue
-                if !newValue.isNormal {
-                    if shapeView == nil {
-                        let shapeView = ShapedView()
-                        shapeView.frame.size = bounds.size
-                        mask = shapeView
-                        shapeBoundsObservation = observeChanges(for: \.frame) { old, new in
-                            guard old.size != new.size else { return }
-                            shapeView.frame.size = new.size
-                        }
+                setCornerShape(newValue)
+                visualEffectBackgroundView?.setCornerShape(newValue)
+            }
+        }
+        
+        func setCornerShape(_ newValue: CornerShape) {
+            if !newValue.isNormal {
+                if shapeView == nil {
+                    let shapeView = ShapedView()
+                    shapeView.frame.size = bounds.size
+                    mask = shapeView
+                    shapeBoundsObservation = observeChanges(for: \.frame) { old, new in
+                        guard old.size != new.size else { return }
+                        shapeView.frame.size = new.size
                     }
-                    shapeView?.shape = newValue
-                    #if os(macOS)
-                    shapeView?.outerShadow = outerShadow
-                    #else
-                    shapeView?.shadow = shadow
-                    #endif
-                    shapeView?.border = border
-                 //   layer?.border = .none()
-                    optionalLayer?.masksToBounds = false
-                    shapeView?.clipsToBounds = false
-                    #if os(macOS)
-                    shapeView?.optionalLayer?.shadow = outerShadow
-                    #else
-                    shapeView?.optionalLayer?.shadow = shadow
-                    #endif
-                    shapeView?.backgroundColor = .red
-                } else {
-                    shapeBoundsObservation = nil
-                    if shapeView != nil {
-                        mask = nil
-                    }
+                }
+                shapeView?.shape = newValue
+                #if os(macOS)
+                shapeView?.outerShadow = outerShadow
+                #else
+                shapeView?.shadow = shadow
+                #endif
+                shapeView?.border = border
+             //   layer?.border = .none()
+                optionalLayer?.masksToBounds = false
+                shapeView?.clipsToBounds = false
+                #if os(macOS)
+                shapeView?.optionalLayer?.shadow = outerShadow
+                #else
+                shapeView?.optionalLayer?.shadow = shadow
+                #endif
+            } else {
+                shapeBoundsObservation = nil
+                if shapeView != nil {
+                    mask = nil
                 }
             }
         }

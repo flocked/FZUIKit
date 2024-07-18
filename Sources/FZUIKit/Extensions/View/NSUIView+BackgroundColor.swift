@@ -24,7 +24,7 @@ public extension NSViewProtocol where Self: NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     var backgroundColor: NSColor? {
-        get { backgroundColorAnimatable }
+        get { dynamicColors.background }
         set {
             wantsLayer = true
             NSView.swizzleAnimationForKey()

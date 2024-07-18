@@ -23,7 +23,7 @@
                 #if os(macOS)
                 return (self as? NSVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
                 #else
-               return visualEffectBackgroundView?.contentProperties
+                return visualEffectBackgroundView?.contentProperties
                 #endif
             }
             set {
@@ -32,6 +32,7 @@
                     if let view = self as? NSVisualEffectView {
                         view.configuration = newValue
                     } else {
+                        let shadow = outerShadow
                         if visualEffectBackgroundView == nil {
                             visualEffectBackgroundView = TaggedVisualEffectView()
                         }
@@ -41,7 +42,8 @@
                         }
                         visualEffectBackgroundView?.cornerRadius = cornerRadius
                         visualEffectBackgroundView?.roundedCorners = roundedCorners
-                        visualEffectBackgroundView?.cornerShape = cornerShape
+                     //   visualEffectBackgroundView?.cornerShape = cornerShape
+                        outerShadow = shadow
 
                     }
                     #else

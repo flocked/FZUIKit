@@ -327,7 +327,7 @@
                 }
                 self.clipsToBounds = clipsToBounds
                 layer?.masksToBounds = clipsToBounds
-                visualEffectBackgroundView?.cornerRadius = cornerRadius
+                visualEffectBackgroundView?.optionalLayer?.cornerRadius = cornerRadius
             }
         }
 
@@ -355,7 +355,7 @@
             get { layer?.maskedCorners ?? CACornerMask() }
             set { 
                 optionalLayer?.maskedCorners = newValue
-                visualEffectBackgroundView?.roundedCorners = newValue
+                visualEffectBackgroundView?.optionalLayer?.maskedCorners = newValue
             }
         }
 
@@ -395,7 +395,7 @@
         }
 
         var borderColor: NSColor? {
-            get { (self as? NSBox)?.borderColor ?? layer?.borderColor?.nsColor }
+            get { (self as? NSBox)?.borderColor ?? dynamicColors.border ?? layer?.borderColor?.nsColor }
             set {
                 if let box = self as? NSBox {
                     box.borderColor = newValue
@@ -447,7 +447,7 @@
         }
 
         var shadowColor: NSColor? {
-            get { self.layer?.shadowColor?.nsColor }
+            get { dynamicColors.shadow ?? self.layer?.shadowColor?.nsColor }
             set {
                 wantsLayer = true
                 NSView.swizzleAnimationForKey()
@@ -523,7 +523,13 @@
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().innerShadow`.
          */
       @objc open var innerShadow: ShadowConfiguration {
-            get { realSelf.layer?.innerShadowLayer?.configuration ?? .none() }
+            get { 
+                if var configuration = realSelf.layer?.innerShadowLayer?.configuration {
+                    configuration.color = dynamicColors.innerShadow ?? configuration.color
+                    return configuration
+                }
+                return .none()
+            }
             set {
                 NSView.swizzleAnimationForKey()
                 realSelf.dynamicColors.innerShadow = newValue._resolvedColor
@@ -557,7 +563,7 @@
         }
 
         @objc var innerShadowColor: NSColor? {
-            get { layer?.innerShadowLayer?.resolvedColor }
+            get { dynamicColors.innerShadow ?? layer?.innerShadowLayer?.resolvedColor }
             set { layer?.innerShadowLayer?.resolvedColor = newValue }
         }
 

@@ -82,7 +82,7 @@
 
         #if os(macOS)
             /// A configuration for a border with the control accent color.
-            public static func controlAccent(width: CGFloat = 2.0) -> Self {
+            public static func accentColor(width: CGFloat = 2.0) -> Self {
                 Self(color: .controlAccentColor, width: width)
             }
         #elseif os(iOS)
