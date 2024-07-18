@@ -15,12 +15,6 @@ import FZSwiftUtils
 import SwiftUI
 
 public extension CGColor {
-    #if canImport(UIKit)
-    static var black: CGColor {
-        CGColor(red: 0, green: 0, blue: 0, alpha: 1)
-    }
-    #endif
-    
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {
         var color = self
@@ -132,6 +126,16 @@ public extension CGColor {
         /// The clear color in the Generic gray color space.
         static var clear: CGColor {
             CGColor(gray: 0, alpha: 0)
+        }
+    
+        /// The black color in the Generic gray color space.
+        static var black: CGColor {
+            CGColor(gray: 1, alpha: 1)
+        }
+    
+        /// The white color in the Generic gray color space.
+        static var white: CGColor {
+            CGColor(gray: 0, alpha: 1)
         }
     #endif
 
