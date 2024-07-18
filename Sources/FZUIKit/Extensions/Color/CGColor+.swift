@@ -101,6 +101,21 @@ public extension CGColor {
         guard let rgba = rgbaComponents() else { return self }
         return CGColor(red: rgba.red, green: rgba.green, blue: blue.clamped(to: 0...1.0), alpha: rgba.alpha)
     }
+    
+    /// The red component of the color.
+    var red: CGFloat {
+        rgbaComponents()?.red ?? 0.0
+    }
+
+    /// The green component of the color.
+    var green: CGFloat {
+        rgbaComponents()?.green ?? 0.0
+    }
+
+    /// The blue component of the color.
+    var blue: CGFloat {
+        rgbaComponents()?.blue ?? 0.0
+    }
 
     /// Returns a color from a pattern image.
     static func fromImage(_ image: NSUIImage) -> CGColor {

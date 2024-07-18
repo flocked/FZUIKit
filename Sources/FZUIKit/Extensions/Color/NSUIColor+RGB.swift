@@ -173,6 +173,7 @@ public struct RGBAComponents: Codable, Hashable {
         Color(red: red, green: green, blue: blue, opacity: alpha)
     }
 
+    /// Components with zero alpha.
     static let zero = RGBAComponents(0.0, 0.0, 0.0, 0.0)
 
     /// Creates RGBA components with the specified red, green, blue and alpha components.
@@ -197,7 +198,6 @@ public extension NSUIColor {
         self.init(red: rgbaComponents.red, green: rgbaComponents.green, blue: rgbaComponents.blue, alpha: rgbaComponents.alpha)
     }
 }
-
 
 public extension Color {
     /// Creates a color using the RGBA components.
