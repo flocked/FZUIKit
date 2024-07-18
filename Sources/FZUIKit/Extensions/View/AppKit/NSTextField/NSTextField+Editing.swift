@@ -130,46 +130,46 @@
         }
 
         /**
-         The action to perform when the user presses the enter key.
+         The action to perform when the user presses the enter key while editing.
          
          - Note: This property isn't working with `NSSearchField`.
          */
-        public var actionOnEnterKeyDown: EnterKeyAction {
+        public var editingActionOnEnterKeyDown: EnterKeyAction {
             get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .none) }
             set {
                 guard !(self is NSSearchField) else { return }
-                guard actionOnEnterKeyDown != newValue else { return }
+                guard editingActionOnEnterKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
                 observeTextCommands()
             }
         }
         
-        /// Sets the action to perform when the user pressed the enter key.
+        /// Sets the action to perform when the user pressed the enter key while editing.
         @discardableResult
-        public func actionOnEnterKeyDown(_ enterAction: EnterKeyAction) -> Self {
-            actionOnEnterKeyDown = enterAction
+        public func editngActionOnEnterKeyDown(_ enterAction: EnterKeyAction) -> Self {
+            editingActionOnEnterKeyDown = enterAction
             return self
         }
 
         /**
-         The action to perform when the user presses the escape key.
+         The action to perform when the user presses the escape key while editing.
          
          - Note: This property isn't working with `NSSearchField`.
          */
-        public var actionOnEscapeKeyDown: EscapeKeyAction {
+        public var editingActionOnEscapeKeyDown: EscapeKeyAction {
             get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: .none) }
             set {
                 guard !(self is NSSearchField) else { return }
-                guard actionOnEscapeKeyDown != newValue else { return }
+                guard editingActionOnEscapeKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 observeTextCommands()
             }
         }
         
-        /// Sets the action to perform when the user pressed the escape key.
+        /// Sets the action to perform when the user pressed the escape key while editing.
         @discardableResult
-        public func actionOnEscapeKeyDown(_ escapeAction: EscapeKeyAction) -> Self {
-            actionOnEscapeKeyDown = escapeAction
+        public func editingActionOnEscapeKeyDown(_ escapeAction: EscapeKeyAction) -> Self {
+            editingActionOnEscapeKeyDown = escapeAction
             return self
         }
 
@@ -378,7 +378,7 @@
         }
         
         func observeTextCommands() {
-            if actionOnEscapeKeyDown != .none || actionOnEnterKeyDown != .none {
+            if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .none {
                 if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
                     textFieldObserver = nil
                     do {
@@ -391,7 +391,7 @@
                             if let textField = object as? NSTextField {
                                 switch selector {
                                 case #selector(NSControl.cancelOperation(_:)):
-                                    switch textField.actionOnEscapeKeyDown {
+                                    switch textField.editingActionOnEscapeKeyDown {
                                     case .endEditingAndReset:
                                         textField.stringValue = textField.editStartString
                                         textField.adjustFontSize()
@@ -408,7 +408,7 @@
                                         break
                                     }
                                 case #selector(NSControl.insertNewline(_:)):
-                                    switch textField.actionOnEnterKeyDown {
+                                    switch textField.editingActionOnEnterKeyDown {
                                     case .endEditing:
                                         if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                             return false

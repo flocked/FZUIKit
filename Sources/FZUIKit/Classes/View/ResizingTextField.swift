@@ -83,8 +83,8 @@
             textLayout = .wraps
             
             isVerticallyCentered = true
-            actionOnEnterKeyDown = .endEditing
-            actionOnEscapeKeyDown = .endEditing
+            editingActionOnEnterKeyDown = .endEditing
+            editingActionOnEscapeKeyDown = .endEditing
             focusType = .roundedCorners(4.0)
             (cell as? NSTextFieldCell)?.setWantsNotificationForMarkedText(true)
             translatesAutoresizingMaskIntoConstraints = false

@@ -84,19 +84,21 @@
                 return self
             }
 
+            /*
             /// Sets the action to perform when the user pressed the enter key.
             @discardableResult
-            public func actionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
-                searchItem.searchField.actionOnEnterKeyDown = enterAction
+            public func editingActionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
+                searchItem.searchField.editingActionOnEnterKeyDown = enterAction
                 return self
             }
 
             /// Sets the action to perform when the user pressed the escape key.
             @discardableResult
-            public func actionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
-                searchItem.searchField.actionOnEscapeKeyDown = escapeAction
+            public func editingActionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
+                searchItem.searchField.editingActionOnEscapeKeyDown = escapeAction
                 return self
             }
+            */
 
             public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
                 super.init(identifier)

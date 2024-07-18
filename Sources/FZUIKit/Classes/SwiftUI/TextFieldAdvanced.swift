@@ -81,8 +81,8 @@ public struct TextFieldAdvanced: NSViewRepresentable {
         textField.alignment = alignment
         textField.isSelectable = isSelectable
         textField.isEditable = isEditable
-        textField.actionOnEnterKeyDown = actionOnEnterKeyDown
-        textField.actionOnEscapeKeyDown = actionOnEscapeKeyDown
+        textField.editingActionOnEnterKeyDown = actionOnEnterKeyDown
+        textField.editingActionOnEscapeKeyDown = actionOnEscapeKeyDown
         textField.isEnabled = context.environment.isEnabled
     }
     
