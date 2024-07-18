@@ -102,7 +102,6 @@ public extension NSUIColor {
      This is identical to adjustedHue(180).
 
      - returns: The complement DynamicColor.
-     - seealso: ``NSUIC``
      */
     final func complemented() -> NSUIColor {
         adjustedHue(amount: 180.0)

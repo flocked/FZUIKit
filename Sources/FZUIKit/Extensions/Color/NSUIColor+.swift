@@ -5,8 +5,6 @@
 //  Created by Florian Zand on 20.09.22.
 //
 
-import FZSwiftUtils
-
 #if os(macOS)
     import AppKit
 #elseif canImport(UIKit)
@@ -15,12 +13,12 @@ import FZSwiftUtils
 
 public extension NSUIColor {
     /// A random color.
-    static func random() -> NSUIColor {
+    static var random: NSUIColor {
         NSUIColor(hue: CGFloat.random(in: 0.0 ... 1.0), saturation: 0.6, lightness: 0.5)
     }
 
     /// A random pastel color.
-    static func randomPastel() -> NSUIColor {
+    static var randomPastel: NSUIColor {
         NSUIColor(hue: .random(in: 0 ... 1), saturation: 1.0, brightness: .random(in: 0.75 ... 0.9), alpha: 1.0)
     }
 

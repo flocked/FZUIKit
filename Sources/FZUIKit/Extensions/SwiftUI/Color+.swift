@@ -8,9 +8,9 @@
 import SwiftUI
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIColor {
@@ -21,51 +21,45 @@ public extension NSUIColor {
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
-    extension Color {
-        /**
-         Creates a color object that uses the specified block to generate its color data dynamically.
-
-         - Parameters:
-            - light: The light color.
-            - dark: The dark color.
-         */
-        public init(light lightModeColor: @escaping @autoclosure () -> Color,
-             dark darkModeColor: @escaping @autoclosure () -> Color)
-        {
-            self.init(NSUIColor(
-                light: NSUIColor(lightModeColor()),
-                dark: NSUIColor(darkModeColor())
-            ))
-        }
-
+@available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
+extension Color {
+    /**
+     Creates a color object that uses the specified block to generate its color data dynamically.
+     
+     - Parameters:
+     - light: The light color.
+     - dark: The dark color.
+     */
+    public init(light lightModeColor: @escaping @autoclosure () -> Color,
+                dark darkModeColor: @escaping @autoclosure () -> Color)
+    {
+        self.init(NSUIColor(
+            light: NSUIColor(lightModeColor()),
+            dark: NSUIColor(darkModeColor())
+        ))
+    }
+    
     /// A random color.
-    public static func random() -> Color {
-        Color(NSUIColor.random())
+    public static var random: Color {
+        NSUIColor.random.swiftUI
     }
-
+    
     /// A random pastel color.
-    public static func randomPastel() -> Color {
-        Color(NSUIColor.randomPastel())
+    public static var randomPastel: Color {
+        NSUIColor.randomPastel.swiftUI
     }
-
+    
     /**
      Creates a new color from the current mixed with with the specified color and amount.
-
+     
      - Parameters:
-        - color: The color to mix.
-        - amount: The amount of the color to mix with the current color.
-
+     - color: The color to mix.
+     - amount: The amount of the color to mix with the current color.
+     
      - Returns: The new mixed color.
      */
     public func mixed(with color: Color, by amount: CGFloat = 0.5) -> Color {
-        let amount = amount.clamped(to: 0.0...1.0)
-        let nsUIColor = NSUIColor(self)
-        #if os(macOS)
-            return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)) ?? nsUIColor)
-        #elseif canImport(UIKit)
-            return Color(nsUIColor.blended(withFraction: amount, of: NSUIColor(color)))
-        #endif
+        nsUIColor.blended(withFraction: amount, of: color.nsUIColor).swiftUI
     }
     
     /**
@@ -75,7 +69,7 @@ public extension NSUIColor {
      - Returns: The tinted color object.
      */
     public func tinted(by amount: CGFloat = 0.2) -> Color {
-        return mixed(with: .white, by: amount)
+        mixed(with: .white, by: amount)
     }
     
     /**
@@ -84,44 +78,29 @@ public extension NSUIColor {
      - Returns: The shaded color object.
      */
     public func shaded(by amount: CGFloat = 0.2) -> Color {
-        return mixed(with: .black, by: amount)
+        mixed(with: .black, by: amount)
     }
-
+    
     /**
      Brightens the color by the specified amount.
-
+     
      - Parameter amount: The amount of brightness.
      - Returns: The brightened color.
      */
     public func lighter(by amount: CGFloat = 0.2) -> Color {
-        let amount = amount.clamped(to: 0.0...1.0)
-        return brightness(1.0 + amount)
+        nsUIColor.lighter(by: amount).swiftUI
     }
-
+    
     /**
      Darkens the color by the specified amount.
-
+     
      - Parameter amount: The amount of darken.
      - Returns: The darkened color.
      */
     public func darkened(by amount: CGFloat = 0.2) -> Color {
-        let amount = amount.clamped(to: 0.0...1.0)
-        return brightness(1.0 - amount)
+        nsUIColor.darkened(by: amount).swiftUI
     }
-
-    func brightness(_ amount: CGFloat) -> Color {
-        var amount = amount
-        if amount > 1.0 {
-            amount = amount - 1.0
-            return mixed(with: .white, by: amount)
-        } else if amount < 1.0 {
-            amount = amount.clamped(to: 0.0...1.0)
-            amount = 1.0 - amount
-            return mixed(with: .black, by: amount)
-        }
-        return self
-    }
-    
+        
     
     /**
      Saturates the color by the specified amount.
@@ -129,9 +108,7 @@ public extension NSUIColor {
      - Returns: The saturated color object.
      */
     public func saturated(by amount: CGFloat = 0.2) -> Color {
-        var hsla = nsUIColor.hslaComponents()
-        hsla.saturation = (hsla.saturation + amount).clamped(to: 0.0...1.0)
-        return Color(NSUIColor(hue: hsla.hue, saturation: hsla.saturation, lightness: hsla.lightness, alpha: hsla.alpha))
+        nsUIColor.saturated(by: amount).swiftUI
     }
     
     /**
@@ -140,7 +117,18 @@ public extension NSUIColor {
      - Returns: The desaturated color object.
      */
     public func desaturated(by amount: CGFloat = 0.2) -> Color {
-        saturated(by: amount * -1.0)
+        nsUIColor.desaturated(by: amount).swiftUI
+    }
+    
+    /**
+     Creates and returns the complement of the color object.
+     
+     This is identical to adjustedHue(180).
+     
+     - returns: The complement DynamicColor.
+     */
+    public func complemented() -> Color {
+        nsUIColor.complemented().swiftUI
     }
     
     #if os(macOS)
@@ -173,52 +161,30 @@ public extension NSUIColor {
     
     /**
      A grayscaled representation of the color.
+     
      - Parameter mode: The grayscale mode.
      - Returns: The grayscaled color.
      */
     public func grayscaled(mode: GrayscalingMode = .lightness) -> Color {
-        let rgba = nsUIColor.rgbaComponents()
-        let (r, g, b, a) = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
-
-        let l: CGFloat
-        switch mode {
-        case .luminance:
-            l = (0.299 * r) + (0.587 * g) + (0.114 * b)
-        case .lightness:
-            l = 0.5 * (max(r, g, b) + min(r, g, b))
-        case .average:
-            l = (1.0 / 3.0) * (r + g + b)
-        case .value:
-            l = max(r, g, b)
-        }
-        return Color(NSUIColor(hue: 0.0, saturation: 0.0, lightness: l, alpha: a))
+        nsUIColor.grayscaled(mode: .init(rawValue: mode.rawValue)!).swiftUI
     }
     
     /**
      Creates and return a color object where the red, green, and blue values are inverted, while the alpha channel is left alone.
-
+     
      - returns: An inverse (negative) of the original color.
      */
     public func inverted() -> Color {
-        let rgba = nsUIColor.rgbaComponents()
-
-        let invertedRed = 1.0 - rgba.red
-        let invertedGreen = 1.0 - rgba.green
-        let invertedBlue = 1.0 - rgba.blue
-
-        return Color(NSUIColor(red: invertedRed, green: invertedGreen, blue: invertedBlue, alpha: rgba.alpha))
+        nsUIColor.inverted().swiftUI
     }
-        
-        /**
-         A Boolean value that indicates whether the color is light.
-
-         It is useful when you need to know whether you should display the text in black or white.
-         */
-        var isLight: Bool {
-            let components = nsUIColor.rgbaComponents()
-            let brightness = ((components.red * 299.0) + (components.green * 587.0) + (components.blue * 114.0)) / 1000.0
-
-            return brightness >= 0.5
-        }
+    
+    /**
+     A Boolean value that indicates whether the color is light.
+     
+     It is useful when you need to know whether you should display the text in black or white.
+     */
+    public var isLight: Bool {
+        nsUIColor.isLight
+    }
 }
 #endif
