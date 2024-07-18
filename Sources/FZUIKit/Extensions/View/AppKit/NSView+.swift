@@ -103,11 +103,10 @@
         @objc open var mask: NSView? {
             get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 newValue?.wantsLayer = true
                 newValue?.removeFromSuperview()
-                layer?.mask = newValue?.layer
+                optionalLayer?.mask = newValue?.layer
             }
         }
 
@@ -123,14 +122,13 @@
         @objc open var inverseMask: NSView? {
             get { mask }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 newValue?.wantsLayer = true
                 newValue?.removeFromSuperview()
                 if let newMaskLayer = newValue?.layer {
-                    layer?.mask = InverseMaskLayer(maskLayer: newMaskLayer)
+                    optionalLayer?.mask = InverseMaskLayer(maskLayer: newMaskLayer)
                 } else {
-                    layer?.mask = nil
+                    optionalLayer?.mask = nil
                 }
             }
         }
@@ -148,10 +146,7 @@
          */
         public var isOpaque: Bool {
             get { layer?.isOpaque ?? false }
-            set { 
-                wantsLayer = true
-                layer?.isOpaque = newValue
-            }
+            set { optionalLayer?.isOpaque = newValue }
         }
 
         /**
@@ -181,13 +176,10 @@
          The default value is `CGAffineTransformIdentity`, which results in a view with no transformation.
          */
         @objc open var transform: CGAffineTransform {
-            get { wantsLayer = true
-                return layer?.affineTransform() ?? CGAffineTransformIdentity
-            }
+            get { layer?.affineTransform() ?? CGAffineTransformIdentity }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                layer?.setAffineTransform(newValue)
+                optionalLayer?.setAffineTransform(newValue)
             }
         }
 
@@ -199,14 +191,10 @@
          The default value is `CATransform3DIdentity`, which results in a view with no transformation.
          */
         @objc open var transform3D: CATransform3D {
-            get {
-                wantsLayer = true
-                return layer?.transform ?? CATransform3DIdentity
-            }
+            get { layer?.transform ?? CATransform3DIdentity }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                layer?.transform = newValue
+                optionalLayer?.transform = newValue
             }
         }
 
@@ -220,7 +208,6 @@
         @objc open var rotation: CGVector3 {
             get { transform3D.eulerAnglesDegrees }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 transform3D.eulerAnglesDegrees = newValue
             }
@@ -236,7 +223,6 @@
         @objc open var rotationInRadians: CGVector3 {
             get { transform3D.eulerAngles }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 transform3D.eulerAngles = newValue
             }
@@ -252,7 +238,6 @@
         @objc open var scale: CGPoint {
             get { layer?.scale ?? CGPoint(x: 1, y: 1) }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
             }
@@ -268,7 +253,6 @@
         @objc open var scaleXYZ: Scale {
             get { layer?.scaleXYZ ?? .init(1, 1, 1) }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 transform3D.scale = newValue
             }
@@ -284,7 +268,6 @@
         @objc open var perspective: Perspective {
             get { transform3D.perspective }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 transform3D.perspective = newValue
             }
@@ -300,7 +283,6 @@
         @objc open var skew: Skew {
             get { transform3D.skew }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 transform3D.skew = newValue
             }
@@ -320,7 +302,6 @@
         @objc open var anchorPoint: CGPoint {
             get { layer?.anchorPoint ?? .zero }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 setAnchorPoint(newValue)
             }
@@ -339,14 +320,14 @@
             get { layer?.cornerRadius ?? 0.0 }
             set {
                 let clipsToBounds = clipsToBounds
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                layer?.cornerRadius = newValue
-                self.clipsToBounds = clipsToBounds
-                layer?.masksToBounds = clipsToBounds
+                optionalLayer?.cornerRadius = newValue
                 if newValue != 0.0 {
                     cornerShape = .normal
                 }
+                self.clipsToBounds = clipsToBounds
+                layer?.masksToBounds = clipsToBounds
+                visualEffectBackgroundView?.cornerRadius = cornerRadius
             }
         }
 
@@ -358,9 +339,8 @@
         @objc open var cornerCurve: CALayerCornerCurve {
             get { layer?.cornerCurve ?? .circular }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                layer?.cornerCurve = newValue
+                optionalLayer?.cornerCurve = newValue
             }
         }
 
@@ -373,9 +353,9 @@
          */
         @objc open var roundedCorners: CACornerMask {
             get { layer?.maskedCorners ?? CACornerMask() }
-            set {
-                wantsLayer = true
+            set { 
                 optionalLayer?.maskedCorners = newValue
+                visualEffectBackgroundView?.roundedCorners = newValue
             }
         }
 
@@ -389,43 +369,49 @@
        @objc open var border: BorderConfiguration {
             get {
                 let view = realSelf
-                return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view.borderWidth)
+                return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view._borderWidth)
             }
             set {
                 if newValue.needsDashedBordlerLayer {
                     configurate(using: newValue)
                 } else {
                     borderColor = newValue._resolvedColor
-                    borderWidth = newValue.width
+                    _borderWidth = newValue.width
                 }
                 shapeView?.border = border
             }
         }
 
-        @objc var borderWidth: CGFloat {
-            get { layer?.borderWidth ?? 0.0 }
+        @objc var _borderWidth: CGFloat {
+            get { (self as? NSBox)?.borderWidth ?? layer?.borderWidth ?? 0.0 }
             set {
-                wantsLayer = true
-                NSView.swizzleAnimationForKey()
-                layer?.borderWidth = newValue
+                if let box = self as? NSBox {
+                    box.borderWidth = newValue
+                } else {
+                    NSView.swizzleAnimationForKey()
+                    optionalLayer?.borderWidth = newValue
+                }
             }
         }
 
         var borderColor: NSColor? {
-            get { layer?.borderColor?.nsColor }
+            get { (self as? NSBox)?.borderColor ?? layer?.borderColor?.nsColor }
             set {
-                wantsLayer = true
-                NSView.swizzleAnimationForKey()
-                realSelf.dynamicColors.border = newValue
-                var animatableColor = newValue?.resolvedColor(for: self)
-                if animatableColor == nil, isProxy() {
-                    animatableColor = .clear
+                if let box = self as? NSBox {
+                    box.borderColor = newValue
+                } else {
+                    wantsLayer = true
+                    NSView.swizzleAnimationForKey()
+                    realSelf.dynamicColors.border = newValue
+                    var animatableColor = newValue?.resolvedColor(for: self)
+                    if animatableColor == nil, isProxy() {
+                        animatableColor = .clear
+                    }
+                    if layer?.borderColor?.isVisible == false || layer?.borderColor == nil {
+                        layer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                    }
+                    borderColorAnimatable = animatableColor
                 }
-                if layer?.borderColor?.isVisible == false || layer?.borderColor == nil {
-                    layer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
-                }
-
-                borderColorAnimatable = animatableColor
             }
         }
 
@@ -438,6 +424,8 @@
          The outer shadow of the view.
          
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().outerShadow`.
+         
+         If the shadow is visible, `clipsToBounds` is set to `false`.
          
          The default value is `none()`, which results in a view with no outer shadow.
          */
@@ -452,6 +440,9 @@
                 shadowRadius = newValue.radius
                 shadowColor = newValue._resolvedColor
                 shapeView?.outerShadow = newValue
+                if !newValue.isInvisible {
+                    clipsToBounds = false
+                }
             }
         }
 
@@ -514,7 +505,6 @@
         @objc open var shadowPath: NSBezierPath? {
             get { shadowPathAnimatable?.bezierPath }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 shadowPathAnimatable = newValue?.cgPath
             }
@@ -522,7 +512,7 @@
 
         @objc var shadowPathAnimatable: CGPath? {
             get { layer?.shadowPath }
-            set { layer?.shadowPath = newValue }
+            set { optionalLayer?.shadowPath = newValue }
         }
 
         /**
@@ -535,12 +525,11 @@
       @objc open var innerShadow: ShadowConfiguration {
             get { realSelf.layer?.innerShadowLayer?.configuration ?? .none() }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 realSelf.dynamicColors.innerShadow = newValue._resolvedColor
                 if innerShadowLayer == nil {
                     let innerShadowLayer = InnerShadowLayer()
-                    layer?.addSublayer(withConstraint: innerShadowLayer)
+                    optionalLayer?.addSublayer(withConstraint: innerShadowLayer)
                     innerShadowLayer.sendToBack()
                     innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
                     innerShadowLayer.shadowOpacity = 0.0
@@ -550,11 +539,11 @@
                 if newColor == nil, isProxy() {
                     newColor = .clear
                 }
-                if layer?.innerShadowLayer?.shadowColor?.isVisible == false || layer?.innerShadowLayer?.shadowColor == nil {
-                    layer?.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                if optionalLayer?.innerShadowLayer?.shadowColor?.isVisible == false || optionalLayer?.innerShadowLayer?.shadowColor == nil {
+                    optionalLayer?.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
                 innerShadowColor = newColor
-                layer?.innerShadowLayer?.color = newValue.color
+                optionalLayer?.innerShadowLayer?.color = newValue.color
                 innerShadowColorTransformer = newValue.colorTransformer
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
@@ -607,13 +596,6 @@
         @discardableResult
         @objc open func translatesAutoresizingMaskIntoConstraints(_ translates: Bool) -> Self {
             translatesAutoresizingMaskIntoConstraints = translates
-            return self
-        }
-        
-        /// Sets the options that determine how the view is resized relative to its superview.
-        @discardableResult
-        @objc open func autoresizingMask(_ mask: AutoresizingMask) -> Self {
-            autoresizingMask = mask
             return self
         }
 
@@ -756,6 +738,33 @@
             return self
         }
         
+        /**
+         Sets the view’s tag that you use to identify the view within your app.
+         
+         - Parameter tag: The tag for the view, or `nil` to use the view's original tag.
+         
+         - Throws: An error if the tag couldn't be set.
+         
+         */
+        public func setTag(_ tag: Int?) throws {
+            if let tag = tag {
+                do {
+                    try replaceMethod(
+                        #selector(getter: NSView.tag),
+                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (Int)).self,
+                        hookSignature: (@convention(block)  (AnyObject) -> (Int)).self) { store in {
+                            object in
+                            return tag
+                        }
+                        }
+                } catch {
+                    throw error
+                }
+            } else {
+                resetMethod(#selector(getter: NSView.tag))
+            }
+        }
+        
         static func swizzleAnimationForKey() {
             guard didSwizzleAnimationForKey == false else { return }
             didSwizzleAnimationForKey = true
@@ -815,6 +824,6 @@
     }
 
     /// The `NSView` properties keys that can be animated.
-    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
+    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
 
 #endif

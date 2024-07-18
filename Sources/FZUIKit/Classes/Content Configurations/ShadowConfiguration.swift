@@ -177,6 +177,9 @@ extension NSUIView {
             shadowOffset = configuration.offset
             shadowOpacity = configuration.opacity
             shadowRadius = configuration.radius
+            if !configuration.isInvisible {
+                clipsToBounds = false
+            }
         } else {
             optionalLayer?.configurate(using: configuration, type: type)
         }

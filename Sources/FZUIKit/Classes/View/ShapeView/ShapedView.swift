@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 13.07.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -22,8 +22,8 @@ open class ShapedView: NSUIView {
     }
     
     /// The color of the shape.
-    open var color: NSColor {
-        get { shapeLayer?.color.nsColor ?? .black }
+    open var color: NSUIColor {
+        get { shapeLayer?.color.nsUIColor ?? .black }
         set { shapeLayer?.color = newValue.cgColor }
     }
     
@@ -47,7 +47,7 @@ open class ShapedView: NSUIView {
         self.color = color
     }
     
-    public override init(frame frameRect: NSRect) {
+    public override init(frame frameRect: CGRect) {
         super.init(frame: frameRect)
         sharedInit()
     }

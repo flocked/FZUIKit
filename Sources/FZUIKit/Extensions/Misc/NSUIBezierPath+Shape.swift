@@ -33,7 +33,7 @@ extension NSUIBezierPath {
         NSUIBezierPath(roundedRect: CGRect(.zero, size), cornerRadius: cornerRadius)
     }
     
-    static func star(rect: CGRect, points: Int = 5, rounded: Bool = false, cutout: Bool = false) -> NSBezierPath {
+    static func star(rect: CGRect, points: Int = 5, rounded: Bool = false, cutout: Bool = false) -> NSUIBezierPath {
         func Cartesian(length: Double, angle: Double) -> CGPoint {
             CGPoint(x: length * cos(angle),
                     y: length * sin(angle))
@@ -74,13 +74,17 @@ extension NSUIBezierPath {
          }
          */
         for (n, pt) in vertices.enumerated() {
+            #if os(macOS)
             n == 0 ? bezierPath.move(to: pt) : bezierPath.line(to: pt)
+            #else
+            n == 0 ? bezierPath.move(to: pt) : bezierPath.addLine(to: pt)
+            #endif
         }
         bezierPath.close()
         return bezierPath
     }
     
-    static func starAlt(rect: CGRect, points: Int = 5, rounded: Bool = false, cutout: Bool = false) -> NSBezierPath {
+    static func starAlt(rect: CGRect, points: Int = 5, rounded: Bool = false, cutout: Bool = false) -> NSUIBezierPath {
         func Cartesian(length: Double, angle: Double) -> CGPoint {
             CGPoint(x: length * cos(angle),
                     y: length * sin(angle))
@@ -107,13 +111,21 @@ extension NSUIBezierPath {
             if i == 0 {
                 bezierPath.move(to: CGPoint(x: outerPoint.x + center.x, y: outerPoint.y + center.y))
             } else {
+                #if os(macOS)
                 bezierPath.line(to: CGPoint(x: outerPoint.x + center.x, y: outerPoint.y + center.y))
+                #else
+                bezierPath.addLine(to: CGPoint(x: outerPoint.x + center.x, y: outerPoint.y + center.y))
+                #endif
             }
             
             let angle2 = (2.0 * Double.pi / Double(points)) * (Double(i) + 0.5) + offsetAngle
             let innerPoint = Cartesian(length: innerRadius,
                                        angle: angle2)
+            #if os(macOS)
             bezierPath.line(to: CGPoint(x: innerPoint.x + center.x, y: innerPoint.y + center.y))
+            #else
+            bezierPath.addLine(to: CGPoint(x: innerPoint.x + center.x, y: innerPoint.y + center.y))
+            #endif
         }
         
         bezierPath.close()
@@ -138,11 +150,19 @@ extension NSUIBezierPath {
             if i == 1 {
                 path.move(to: p)
             } else {
+                #if os(macOS)
                 path.line(to: p)
+                #else
+                path.addLine(to: p)
+                #endif
             }
-            
+           
             // add 144 degree arc to draw the corner
+            #if os(macOS)
             path.appendArc(withCenter: cc, radius: rc, startAngle: (cangle - 72) * .pi / 180, endAngle: (cangle + 72) * .pi / 180, clockwise: true)
+            #else
+            path.addArc(withCenter: cc, radius: rc, startAngle: (cangle - 72) * .pi / 180, endAngle: (cangle + 72) * .pi / 180, clockwise: true)
+            #endif
             cangle += 144
         }
         

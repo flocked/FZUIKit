@@ -26,6 +26,13 @@
             get { !subviews.compactMap(\.isEnabled).contains(false) }
             set { subviews.forEach { $0.isEnabled = newValue } }
         }
+        
+        /// Sets the Boolean value that indicates whether the view is enabled.
+        @discardableResult
+        func isEnabled(_ isEnabled: Bool) -> Self {
+            self.isEnabled = isEnabled
+            return self
+        }
     }
 
     #if os(macOS)

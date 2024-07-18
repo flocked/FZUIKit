@@ -141,7 +141,9 @@
         }
 
         /**
-         The shadow of the view.
+         The outer shadow of the view.
+         
+         If the shadow is visible, `clipsToBounds` is set to `false`.
 
          Changes to this property can be animated. The default value is `none()`, which results in a view with no shadow.
          */

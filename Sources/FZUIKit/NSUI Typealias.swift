@@ -40,6 +40,7 @@ import SwiftUI
     public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
     public typealias NSUIButton = NSButton
     public typealias NSUICollectionViewLayoutInvalidationContext = NSCollectionViewLayoutInvalidationContext
+    public typealias NSUIControl = NSControl
 
 #elseif canImport(UIKit)
     import UIKit
@@ -79,5 +80,5 @@ import SwiftUI
     public typealias NSUIMagnificationGestureRecognizer = UIPinchGestureRecognizer
     #endif
     public typealias NSUICollectionViewLayoutInvalidationContext = UICollectionViewLayoutInvalidationContext
-
+    public typealias NSUIControl = UIControl
 #endif

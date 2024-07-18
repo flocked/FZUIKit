@@ -15,6 +15,12 @@ import FZSwiftUtils
 import SwiftUI
 
 public extension CGColor {
+    #if canImport(UIKit)
+    static var black: CGColor {
+        CGColor(red: 0, green: 0, blue: 0, alpha: 1)
+    }
+    #endif
+    
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {
         var color = self

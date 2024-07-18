@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 13.07.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -16,7 +16,7 @@ import FZSwiftUtils
 /// A layer with a shape.
 public class ShapedLayer: CAShapeLayer {
     /// The shape.
-    public var shape: NSView.CornerShape = .rectangle {
+    public var shape: CornerShape = .rectangle {
         didSet { updateShape() }
     }
     
@@ -44,7 +44,7 @@ public class ShapedLayer: CAShapeLayer {
         }
     }
     
-    var _path: NSBezierPath? {
+    var _path: NSUIBezierPath? {
         get { nil }
         set { path = newValue?.cgPath }
     }
@@ -60,7 +60,7 @@ public class ShapedLayer: CAShapeLayer {
         - shape: The shape.
         - color: The color of the shape.
      */
-    public init(shape: NSView.CornerShape, color: CGColor = .black) {
+    public init(shape: CornerShape, color: CGColor = .black) {
         super.init()
         self.shape = shape
         self.color = color
@@ -112,12 +112,12 @@ public class ShapedLayer: CAShapeLayer {
 
 /*
 extension CAShapeLayer {
-    convenience init(shape: NSView.CornerShape) {
+    convenience init(shape: CornerShape) {
         self.init()
         self._shape = shape
     }
     
-    var _shape: NSView.CornerShape {
+    var _shape: CornerShape {
         get { getAssociatedValue("_shape", initialValue: .normal) }
         set {
             setAssociatedValue(newValue, key: "_shape")
@@ -126,7 +126,7 @@ extension CAShapeLayer {
     }
     
     @discardableResult
-    func _shape(_ shape: NSView.CornerShape) -> Self {
+    func _shape(_ shape: CornerShape) -> Self {
         _shape = shape
         return self
     }

@@ -9,11 +9,7 @@
 
     import AppKit
     import FZSwiftUtils
-    public extension NSButton {
-        func test() {
-            NSButton.flexiblePush("").state(.on)
-        }
-        
+    public extension NSButton {        
         /**
          Creates a button with the specified title.
          

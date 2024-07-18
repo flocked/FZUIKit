@@ -13,7 +13,7 @@
     #endif
 
     extension NSUIView {
-        internal var optionalLayer: CALayer? {
+        var optionalLayer: CALayer? {
             #if os(macOS)
                 wantsLayer = true
             #endif
@@ -53,6 +53,7 @@
             layer.anchorPoint = anchorPoint
         }
 
+        /// Removes all constrants from the view.
         @objc open func removeAllConstraints() {
             var _superview = superview
             while let superview = _superview {
@@ -221,10 +222,7 @@
          */
         @objc open func firstSuperview(where predicate: (NSUIView) -> (Bool)) -> NSUIView? {
             if let superview = superview {
-                if predicate(superview) == true {
-                    return superview
-                }
-                return superview.firstSuperview(where: predicate)
+                return predicate(superview) ? superview : superview.firstSuperview(where: predicate)
             }
             return nil
         }
@@ -283,12 +281,12 @@
         
         /// The transition for changes made to the view.
         @objc var transitionAlt: CATransition? {
-            get { layer?.animation(forKey: CATransitionType.fade.rawValue) as? CATransition }
+            get { optionalLayer?.animation(forKey: CATransitionType.fade.rawValue) as? CATransition }
             set {
                 if let transition = newValue {
                     transition.onStop = { [weak self] in
                         guard let self = self else { return }
-                        self.layer?.add(transition, forKey: CATransitionType.fade.rawValue)
+                        self.optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
                     }
                     optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
                 } else {
@@ -366,7 +364,7 @@
             return self
         }
 
-        internal var gradientLocations: [CGFloat] {
+        var gradientLocations: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
             set {
                 var newValue = newValue
@@ -383,23 +381,23 @@
             }
         }
 
-        @objc internal var gradientLocationsAnimatable: [CGFloat] {
+        @objc var gradientLocationsAnimatable: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
             set { optionalLayer?._gradientLayer?.locations = newValue.compactMap { NSNumber($0) }
             }
         }
 
-        @objc internal var gradientStartPoint: CGPoint {
+        @objc var gradientStartPoint: CGPoint {
             get { optionalLayer?._gradientLayer?.startPoint ?? .zero }
             set { optionalLayer?._gradientLayer?.startPoint = newValue }
         }
 
-        @objc internal var gradientEndPoint: CGPoint {
+        @objc var gradientEndPoint: CGPoint {
             get { optionalLayer?._gradientLayer?.endPoint ?? .zero }
             set { optionalLayer?._gradientLayer?.endPoint = newValue }
         }
 
-        internal var _gradientColors: [CGColor] {
+        var _gradientColors: [CGColor] {
             get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
             set {
                 var newValue = newValue
@@ -416,7 +414,7 @@
             }
         }
 
-        @objc internal var gradientColors: [CGColor] {
+        @objc var gradientColors: [CGColor] {
             get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
             set { optionalLayer?._gradientLayer?.colors = newValue }
         }
@@ -450,7 +448,19 @@
             return self
         }
         
-        /// Sets the shadow of the view.
+        #if os(macOS)
+        /// Sets the outer shadow of the view.
+        @discardableResult
+        @objc open func outerShadow(_ shadow: ShadowConfiguration) -> Self {
+            #if os(macOS)
+            self.outerShadow = shadow
+            #else
+            self.shadow = shadow
+            #endif
+            return self
+        }
+        #else
+        /// Sets the outer shadow of the view.
         @discardableResult
         @objc open func shadow(_ shadow: ShadowConfiguration) -> Self {
             #if os(macOS)
@@ -460,6 +470,7 @@
             #endif
             return self
         }
+        #endif
         
         /// Sets the inner shadow of the view.
         @discardableResult
@@ -546,6 +557,13 @@
         @discardableResult
         @objc open func center(_ center: CGPoint) -> Self {
             self.center = center
+            return self
+        }
+        
+        /// Sets the options that determine how the view is resized relative to its superview.
+        @discardableResult
+        @objc open func autoresizingMask(_ mask: AutoresizingMask) -> Self {
+            autoresizingMask = mask
             return self
         }
         

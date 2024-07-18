@@ -53,20 +53,6 @@ extension NSControl {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the receiver reacts to mouse events.
-    @discardableResult
-    public func isEnabled(_ isEnabled: Bool) -> Self {
-        self.isEnabled = isEnabled
-        return self
-    }
-    
-    /// Sets the Boolean value that indicates whether the cell is highlighted.
-    @discardableResult
-    public func isHighlighted(_ isHighlighted: Bool) -> Self {
-        self.isHighlighted = isHighlighted
-        return self
-    }
-    
     /// Sets the tag identifying the receiver (not the tag of the receiver’s cell).
     @discardableResult
     public func tag(_ tag: Int) -> Self {

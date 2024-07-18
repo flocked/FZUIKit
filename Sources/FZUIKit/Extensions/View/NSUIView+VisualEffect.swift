@@ -12,39 +12,37 @@
         import UIKit
     #endif
 
-    public extension NSUIView {
+    extension NSUIView {
         /**
          The visual effect of the view.
 
          The property adds a `VisualEffectView` as background to the view. The default value is `nil`.
          */
-        var visualEffect: VisualEffectConfiguration? {
+        @objc public var visualEffect: VisualEffectConfiguration? {
             get {
                 #if os(macOS)
-                if let view = self as? NSVisualEffectView {
-                    return VisualEffectConfiguration(material: view.material, blendingMode: view.blendingMode, appearance: view.appearance, state: view.state, isEmphasized: view.isEmphasized, maskImage: view.maskImage)
-                }
-                #endif
+                return (self as? NSVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
+                #else
                return visualEffectBackgroundView?.contentProperties
+                #endif
             }
             set {
                 if let newValue = newValue {
                     #if os(macOS)
                     if let view = self as? NSVisualEffectView {
-                        view.material = newValue.material
-                        view.blendingMode = newValue.blendingMode
-                        view.state = newValue.state
-                        view.isEmphasized = newValue.isEmphasized
-                        view.maskImage = newValue.maskImage
-                        view.appearance = newValue.appearance
+                        view.configuration = newValue
                     } else {
                         if visualEffectBackgroundView == nil {
                             visualEffectBackgroundView = TaggedVisualEffectView()
                         }
-                        visualEffectBackgroundView?.contentProperties = newValue
+                        visualEffectBackgroundView?.configuration = newValue
                         if let appearance = newValue.appearance {
                             self.appearance = appearance
                         }
+                        visualEffectBackgroundView?.cornerRadius = cornerRadius
+                        visualEffectBackgroundView?.roundedCorners = roundedCorners
+                        visualEffectBackgroundView?.cornerShape = cornerShape
+
                     }
                     #else
                     if visualEffectBackgroundView == nil {
@@ -58,12 +56,11 @@
             }
         }
 
-        internal var visualEffectBackgroundView: TaggedVisualEffectView? {
-            get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView
-            }
+        var visualEffectBackgroundView: TaggedVisualEffectView? {
+            get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView }
             set {
-                if self.visualEffectBackgroundView != newValue {
-                    self.visualEffectBackgroundView?.removeFromSuperview()
+                if visualEffectBackgroundView != newValue {
+                    visualEffectBackgroundView?.removeFromSuperview()
                 }
                 if let newValue = newValue {
                     insertSubview(newValue, at: 0)
@@ -76,27 +73,9 @@
     #if os(macOS)
         extension NSView {
             class TaggedVisualEffectView: NSVisualEffectView {
-                public static var Tag: Int {
-                    3_443_024
-                }
+                public static var Tag: Int { 3_443_024 }
 
-                override var tag: Int {
-                    Self.Tag
-                }
-
-                public var contentProperties: VisualEffectConfiguration {
-                    get {
-                        VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage)
-                    }
-                    set {
-                        material = newValue.material
-                        blendingMode = newValue.blendingMode
-                        state = newValue.state
-                        isEmphasized = newValue.isEmphasized
-                        maskImage = newValue.maskImage
-                        appearance = newValue.appearance
-                    }
-                }
+                override var tag: Int { Self.Tag }
             }
         }
 
@@ -119,13 +98,11 @@
                     #endif
                 }
 
-                public static var Tag: Int {
-                    3_443_024
-                }
+                public static var Tag: Int { 3_443_024 }
 
                 override var tag: Int {
                     get { Self.Tag }
-                    set {}
+                    set { }
                 }
             }
         }
