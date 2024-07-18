@@ -12,6 +12,29 @@
     #elseif canImport(UIKit)
         import UIKit
     #endif
+import FZSwiftUtils
+
+extension NSUIView {
+    var hasEmphasizedBorderLayer: Bool {
+        get { emphasizedBorderLayer != nil }
+        set {
+            guard newValue != hasEmphasizedBorderLayer else { return }
+            if !newValue {
+                emphasizedBorderLayer?.removeFromSuperlayer()
+                emphasizedBorderLayer = nil
+            } else if emphasizedBorderLayer == nil {
+                emphasizedBorderLayer = CALayer()
+               // optionalLayer?.insert
+                emphasizedBorderLayer?.sendToBack()
+            }
+        }
+    }
+    
+    var emphasizedBorderLayer: CALayer? {
+        get { getAssociatedValue("emphasizedBorderLayer", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "emphasizedBorderLayer") }
+    }
+}
 
     /// A layer with an emphasized border.
     public class EmphasizedBorderLayer: CALayer {

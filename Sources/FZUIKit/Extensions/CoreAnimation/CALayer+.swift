@@ -144,44 +144,52 @@ import FZSwiftUtils
                 self.bounds = shapeRect
                 self.position = position
             }
-
             let layerUpdate: (() -> Void) = { [weak self] in
                 guard let self = self else { return }
                 self.cornerRadius = layer.cornerRadius
                 self.maskedCorners = layer.maskedCorners
                 self.cornerCurve = layer.cornerCurve
             }
-
+            
             if layerObserver?.observedObject != layer {
                 layerObserver = KeyValueObserver(layer)
             }
-
             layerObserver?.add(\.cornerRadius) { old, new in
                 guard old != new else { return }
                 layerUpdate()
             }
-
             layerObserver?.add(\.cornerCurve) { old, new in
                 guard old != new else { return }
                 layerUpdate()
             }
-
             layerObserver?.add(\.maskedCorners) { old, new in
                 guard old != new else { return }
                 layerUpdate()
             }
-
             layerObserver?.add(\.bounds) { old, new in
                 guard old != new else { return }
                 layerBoundsUpdate()
             }
             layerBoundsUpdate()
             layerUpdate()
+            if superlayer == layer {
+                superLayerObservation = observeChanges(for: \.superlayer) { [weak self] old, new in
+                    guard let self = self, new != layer else { return }
+                    self.layerObserver = nil
+                }
+            } else {
+                superLayerObservation = nil
+            }
         }
 
         /// Removes the layer constraints.
         @objc open func removeConstraints() {
             layerObserver = nil
+        }
+        
+        var superLayerObservation: KeyValueObservation? {
+            get { getAssociatedValue("superLayerObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "superLayerObservation") }
         }
 
         var layerObserver: KeyValueObserver<CALayer>? {
