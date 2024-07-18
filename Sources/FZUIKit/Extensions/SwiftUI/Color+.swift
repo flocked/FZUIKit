@@ -27,8 +27,8 @@ extension Color {
      Creates a color object that uses the specified block to generate its color data dynamically.
      
      - Parameters:
-     - light: The light color.
-     - dark: The dark color.
+        - light: The light color.
+        - dark: The dark color.
      */
     public init(light lightModeColor: @escaping @autoclosure () -> Color,
                 dark darkModeColor: @escaping @autoclosure () -> Color)
@@ -53,13 +53,17 @@ extension Color {
      Creates a new color from the current mixed with with the specified color and amount.
      
      - Parameters:
-     - color: The color to mix.
-     - amount: The amount of the color to mix with the current color.
+        - color: The color to mix.
+        - amount: The amount of the color to mix with the current color.
      
      - Returns: The new mixed color.
      */
     public func mixed(with color: Color, by amount: CGFloat = 0.5) -> Color {
+        #if os(macOS)
+        nsUIColor.blended(withFraction: amount, of: color.nsUIColor)?.swiftUI ?? self
+        #else
         nsUIColor.blended(withFraction: amount, of: color.nsUIColor).swiftUI
+        #endif
     }
     
     /**
@@ -74,6 +78,7 @@ extension Color {
     
     /**
      Shades the color by the specified amount.
+     
      - Parameter amount: The amount of shade.
      - Returns: The shaded color object.
      */
@@ -104,6 +109,7 @@ extension Color {
     
     /**
      Saturates the color by the specified amount.
+     
      - Parameter amount: The amount of saturation.
      - Returns: The saturated color object.
      */
@@ -113,6 +119,7 @@ extension Color {
     
     /**
      Desaturates the color by the specified amount.
+     
      - Parameter amount: The amount of desaturation.
      - Returns: The desaturated color object.
      */

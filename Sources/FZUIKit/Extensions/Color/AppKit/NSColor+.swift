@@ -20,8 +20,7 @@
          */
         convenience init(name: NSColor.Name? = nil,
                          light lightModeColor: @escaping @autoclosure () -> NSColor,
-                         dark darkModeColor: @escaping @autoclosure () -> NSColor)
-        {
+                         dark darkModeColor: @escaping @autoclosure () -> NSColor) {
             self.init(name: name, dynamicProvider: { appereance in
                 if appereance.isLight {
                     return lightModeColor()
@@ -33,9 +32,7 @@
 
         /// Returns the dynamic light and dark colors.
         var dynamicColors: (light: NSColor, dark: NSColor) {
-            let light = self.resolvedColor(for: .aqua)
-            let dark = self.resolvedColor(for: .darkAqua)
-            return (light, dark)
+            (resolvedColor(for: .aqua), resolvedColor(for: .darkAqua))
         }
 
         /**
@@ -84,7 +81,7 @@
 
         
         /**
-         Generates the resolved color for the specified appearance provider object (e.g.  `NSApplication`, `NSView` or `NSWindow`).
+         Generates the resolved color for the specified appearance provider object (e.g. `NSView`, `NSWindow` or `NSApplication`).
 
          It uses the objects's `effectiveAppearance` for resolving the color.
 
@@ -98,20 +95,10 @@
         /// Creates a new color object with a supported color space.
         func withSupportedColorSpace() -> NSColor? {
             if type == .componentBased || type == .catalog {
-                //   let dynamics = self.dynamicColors
                 for supportedColorSpace in Self.supportedColorSpaces {
                     if let supportedColor = usingColorSpace(supportedColorSpace) {
                         return supportedColor
                     }
-                    /*
-                     if dynamics.light != dynamics.dark,
-                         let light = dynamics.light.usingColorSpace(supportedColorSpace),
-                         let dark = dynamics.dark.usingColorSpace(supportedColorSpace) {
-                             return NSColor(name: self.colorNameComponent, light: light, dark: dark)
-                     } else if let supportedColor = usingColorSpace(supportedColorSpace) {
-                         return supportedColor
-                     }
-                     */
                 }
             }
             return nil
@@ -124,10 +111,7 @@
 
         /// A Boolean value that indicates whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
         var hasColorSpace: Bool {
-            if type == .pattern {
-                return false
-            }
-            return String(describing: self).contains("customDynamic") == false
+            type == .pattern ? false : !String(describing: self).contains("customDynamic")
         }
 
         /// Supported color spaces for displaying a color.
