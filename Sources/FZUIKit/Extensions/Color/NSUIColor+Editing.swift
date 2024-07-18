@@ -20,12 +20,16 @@ public extension NSUIColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light == dynamic.dark {
             return dynamic.light._tinted(by: amount)
         } else {
             return NSUIColor(light: dynamic.light._tinted(by: amount), dark: dynamic.dark._tinted(by: amount))
         }
+        #else
+        return _tinted(by: amount)
+        #endif
     }
     
     private func _tinted(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -42,12 +46,16 @@ public extension NSUIColor {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light == dynamic.dark {
             return dynamic.light._shaded(by: amount)
         } else {
             return NSUIColor(light: dynamic.light._shaded(by: amount), dark: dynamic.dark._shaded(by: amount))
         }
+        #else
+        return _shaded(by: amount)
+        #endif
     }
     
     private func _shaded(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -64,11 +72,15 @@ public extension NSUIColor {
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         guard dynamic.light != dynamic.dark else {
             return dynamic.light._lighter(by: amount)
         }
         return NSUIColor(light: dynamic.light._lighter(by: amount), dark: dynamic.dark._lighter(by: amount))
+        #else
+        return _lighter(by: amount)
+        #endif
     }
     
     private func _lighter(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -91,11 +103,15 @@ public extension NSUIColor {
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         guard dynamic.light != dynamic.dark else {
             return dynamic.light._saturated(by: amount)
         }
         return NSUIColor(light: dynamic.light._saturated(by: amount), dark: dynamic.dark._saturated(by: amount))
+        #else
+        return _saturated(by: amount)
+        #endif
     }
     
     private func _saturated(by amount: CGFloat = 0.2) -> NSUIColor {
@@ -118,12 +134,16 @@ public extension NSUIColor {
      - Parameter amount: A float representing the number of degrees as ratio (usually between -360.0 degree and 360.0 degree).
      - returns: A DynamicColor object with the hue changed.
      */
-    final func adjustedHue(amount: CGFloat) -> NSUIColor {
+    final func adjustedHue(by amount: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         guard dynamic.light != dynamic.dark else {
             return dynamic.light._adjustedHue(amount: amount)
         }
         return NSUIColor(light: dynamic.light._adjustedHue(amount: amount), dark: dynamic.dark._adjustedHue(amount: amount))
+        #else
+        return _adjustedHue(amount: amount)
+        #endif
     }
     
     private func _adjustedHue(amount: CGFloat) -> NSUIColor {
@@ -143,7 +163,7 @@ public extension NSUIColor {
      - returns: The complement DynamicColor.
      */
     final func complemented() -> NSUIColor {
-        adjustedHue(amount: 180.0)
+        adjustedHue(by: 180.0)
     }
 
     /**
@@ -152,12 +172,16 @@ public extension NSUIColor {
      - Returns: The grayscaled color.
      */
     func grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light == dynamic.dark {
             return dynamic.light._grayscaled(mode: mode)
         } else {
             return NSUIColor(light: dynamic.light._grayscaled(mode: mode), dark: dynamic.dark._grayscaled(mode: mode))
         }
+        #else
+        return _grayscaled(mode: mode)
+        #endif
     }
     
     private func _grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
@@ -196,11 +220,15 @@ public extension NSUIColor {
      - returns: An inverse (negative) of the original color.
      */
     final func inverted() -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         guard dynamic.light != dynamic.dark else {
             return dynamic.light._inverted
         }
         return NSUIColor(light: dynamic.light._inverted, dark: dynamic.dark._inverted)
+        #else
+        return _inverted
+        #endif
     }
     
     private var _inverted: NSUIColor {

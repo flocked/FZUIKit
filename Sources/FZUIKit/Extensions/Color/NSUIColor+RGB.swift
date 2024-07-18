@@ -61,12 +61,16 @@ extension NSUIColor {
      - Returns: The new color object.
      */
     @objc open func withRed(_ red: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light == dynamic.dark {
             return NSUIColor(rgbaComponents().red(red))
         } else {
            return NSUIColor(light: NSUIColor(dynamic.light.rgbaComponents().red(red)), dark: NSUIColor(dynamic.dark.rgbaComponents().red(red)))
         }
+        #else
+        return NSUIColor(rgbaComponents().red(red))
+        #endif
     }
 
     /**
@@ -76,12 +80,16 @@ extension NSUIColor {
      - Returns: The new color object.
      */
     @objc open func withGreen(_ green: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light == dynamic.dark {
             return NSUIColor(rgbaComponents().green(green))
         } else {
            return NSUIColor(light: NSUIColor(dynamic.light.rgbaComponents().green(green)), dark: NSUIColor(dynamic.dark.rgbaComponents().green(green)))
         }
+        #else
+        return NSUIColor(rgbaComponents().green(green))
+        #endif
     }
 
     /**
@@ -91,12 +99,16 @@ extension NSUIColor {
      - Returns: The new color object.
      */
     @objc open func withBlue(_ blue: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light == dynamic.dark {
             return NSUIColor(rgbaComponents().blue(blue))
         } else {
            return NSUIColor(light: NSUIColor(dynamic.light.rgbaComponents().blue(blue)), dark: NSUIColor(dynamic.dark.rgbaComponents().blue(blue)))
         }
+        #else
+        return NSUIColor(rgbaComponents().blue(blue))
+        #endif
     }
 
     /**
@@ -106,6 +118,7 @@ extension NSUIColor {
      - Returns: The new color object.
      */
     @objc open func withAlpha(_ alpha: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light == dynamic.dark {
             #if os(macOS)
@@ -116,6 +129,9 @@ extension NSUIColor {
         } else {
            return NSUIColor(light: NSUIColor(dynamic.light.rgbaComponents().alpha(alpha)), dark: NSUIColor(dynamic.dark.rgbaComponents().alpha(alpha)))
         }
+        #else
+        return NSUIColor(rgbaComponents().alpha(alpha))
+        #endif
     }
 }
 

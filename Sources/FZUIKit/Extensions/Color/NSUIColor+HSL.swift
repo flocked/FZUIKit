@@ -86,12 +86,16 @@ public extension NSUIColor {
      - Returns: The new color object.
      */
     func withLightness(_ lightness: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         let light = dynamic.light._withLightness(lightness)
         guard dynamic.light != dynamic.dark else {
             return light
         }
         return NSUIColor(light: light, dark: dynamic.dark._withLightness(lightness))
+        #else
+        return _withLightness(lightness)
+        #endif
     }
     
     internal func _withLightness(_ lightness: CGFloat) -> NSUIColor {

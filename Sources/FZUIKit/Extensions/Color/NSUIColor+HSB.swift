@@ -69,12 +69,16 @@ extension NSUIColor {
      - Returns: The new color object.
      */
     @objc open func withHue(_ hue: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         let light = dynamic.light._withHue(hue)
         guard dynamic.light != dynamic.dark else {
             return light
         }
         return NSUIColor(light: light, dark: dynamic.dark._withHue(hue))
+        #else
+        return _withHue(hue)
+        #endif
     }
     
     func _withHue(_ hue: CGFloat) -> NSUIColor {
@@ -89,12 +93,16 @@ extension NSUIColor {
      - Returns: The new color object.
      */
     @objc open func withSaturation(_ saturation: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         let light = dynamic.light._withSaturation(saturation)
         guard dynamic.light != dynamic.dark else {
             return light
         }
         return NSUIColor(light: light, dark: dynamic.dark._withSaturation(saturation))
+        #else
+        return _withSaturation(saturation)
+        #endif
     }
     
     func _withSaturation(_ saturation: CGFloat) -> NSUIColor {
@@ -109,12 +117,16 @@ extension NSUIColor {
      - Returns: The new color object.
      */
     @objc open func withBrightness(_ brightness: CGFloat) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         let light = dynamic.light._withBrightness(brightness)
         guard dynamic.light != dynamic.dark else {
             return light
         }
         return NSUIColor(light: light, dark: dynamic.dark._withBrightness(brightness))
+        #else
+        return _withBrightness(brightness)
+        #endif
     }
     
     func _withBrightness(_ brightness: CGFloat) -> NSUIColor {
