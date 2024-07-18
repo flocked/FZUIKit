@@ -15,17 +15,16 @@
 import FZSwiftUtils
 
 extension NSUIView {
-    var hasEmphasizedBorderLayer: Bool {
+    var hasEmphasizedBorder: Bool {
         get { emphasizedBorderLayer != nil }
         set {
-            guard newValue != hasEmphasizedBorderLayer else { return }
+            guard newValue != hasEmphasizedBorder else { return }
             if !newValue {
                 emphasizedBorderLayer?.removeFromSuperlayer()
                 emphasizedBorderLayer = nil
             } else if emphasizedBorderLayer == nil {
                 emphasizedBorderLayer = CALayer()
-               // optionalLayer?.insert
-                emphasizedBorderLayer?.sendToBack()
+                optionalLayer?.insertSublayer(withConstraint: emphasizedBorderLayer!, at: 0)
             }
         }
     }

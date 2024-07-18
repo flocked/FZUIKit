@@ -114,6 +114,7 @@
             - index: The index of insertation.
          */
         @objc open func insertSubview(_ view: NSUIView, at index: Int) {
+            guard index >= 0 else { return }
             guard index < self.subviews.count else {
                 addSubview(view)
                 return

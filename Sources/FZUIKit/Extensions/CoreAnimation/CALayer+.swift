@@ -121,6 +121,7 @@ import FZSwiftUtils
          - insets: Insets from the new sublayer border to the layer border.
          */
         @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
+            guard index >= 0, index < sublayers?.count ?? Int.max else { return }
             insertSublayer(layer, at: index)
             layer.constraintTo(layer: self, insets: insets)
         }
