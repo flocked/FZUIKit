@@ -36,41 +36,47 @@ public struct ColorTransformer: ContentTransform {
 
     /// Creates a color transformer that generates a version of the color.with modified opacity.
     public static func opacity(_ opacity: CGFloat) -> Self {
-        Self("opacity: \(opacity)") { $0.withAlphaComponent(opacity.clamped(to: 0.0...1.0)) }
+        Self("opacity: \(opacity)") { $0.withAlpha(opacity) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is tinted by the amount.
+    /// Creates a color transformer that generates a version of the color.that is tinted by the specfied amount.
     public static func tinted(by amount: CGFloat = 0.2) -> Self {
         Self("tinted: \(amount)") { $0.tinted(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is shaded by the amount.
+    /// Creates a color transformer that generates a version of the color.that is shaded by the specfied amount.
     public static func shaded(by amount: CGFloat = 0.2) -> Self {
         Self("shaded: \(amount)") { $0.shaded(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is lightened by the amount.
+    /// Creates a color transformer that generates a version of the color.that is lightened by the specfied amount.
     public static func lighter(by amount: CGFloat = 0.2) -> Self {
         Self("lighter: \(amount)") { $0.lighter(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is darkened by the amount.
+    /// Creates a color transformer that generates a version of the color.that is darkened by the specfied amount.
     public static func darkened(by amount: CGFloat = 0.2) -> Self {
         Self("darkened: \(amount)") { $0.darkened(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is saturated by the amount.
+    /// Creates a color transformer that generates a version of the color.that is saturated by the specfied amount.
     public static func saturated(by amount: CGFloat = 0.2) -> Self {
-        Self("lighter: \(amount)") { $0.saturated(by: amount) }
+        Self("saturated: \(amount)") { $0.saturated(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is desaturated by the amount.
+    /// Creates a color transformer that generates a version of the color.that is desaturated by the specfied amount.
     public static func desaturated(by amount: CGFloat = 0.2) -> Self {
-        Self("darkened: \(amount)") { $0.desaturated(by: amount) }
+        Self("desaturated: \(amount)") { $0.desaturated(by: amount) }
     }
 
+    /// Creates a color transformer that returns the specified color.
     public static func color(_ color: NSUIColor) -> Self {
         Self("color: \(String(describing: color))") { _ in color }
+    }
+    
+    /// Creates a color transformer that generates a complemented version of the color.
+    public static func complemented() -> Self {
+        Self("complemented") { $0.complemented() }
     }
 
     #if os(macOS)
@@ -78,7 +84,7 @@ public struct ColorTransformer: ContentTransform {
         public static let monochrome: Self = .init("monochrome") { _ in .secondaryLabelColor }
 
         /// A color transformer that returns the preferred system accent color.
-        public static let preferredTint: Self = .init("preferredTint") { _ in
+        public static let accentColor: Self = .init("accentColor") { _ in
             .controlAccentColor
         }
 
@@ -89,7 +95,7 @@ public struct ColorTransformer: ContentTransform {
 
         /// A color transformer that returns a color by system effect.
         public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
-            Self("systemEffect: \(systemEffect.rawValue)") { $0.withSystemEffect(systemEffect) }
+            Self("systemEffect: \(systemEffect.description)") { $0.withSystemEffect(systemEffect) }
         }
 
     #elseif os(iOS) || os(tvOS)

@@ -41,7 +41,7 @@ extension NSUIColor {
     }
 
     /// Creates a color using the HSBA components.
-    convenience init(_ hsbaComponents: HSBAComponents) {
+    public convenience init(_ hsbaComponents: HSBAComponents) {
         self.init(hue: hsbaComponents.hue, saturation: hsbaComponents.saturation, brightness: hsbaComponents.brightness, alpha: hsbaComponents.alpha)
     }
 
@@ -61,36 +61,63 @@ extension NSUIColor {
             hsbaComponents().brightness
         }
     #endif
-
+    
     /**
      Returns a new color object with the specified hue value.
 
      - Parameter hue: The hue value of the new color object, specified as a value from 0.0 to 1.0. Hue values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
-    func withHue(_ hue: CGFloat) -> NSUIColor {
+    public func withHue(_ hue: CGFloat) -> NSUIColor {
+        let dynamic = dynamicColors
+        let light = dynamic.light._withHue(hue)
+        guard dynamic.light != dynamic.dark else {
+            return light
+        }
+        return NSUIColor(light: light, dark: dynamic.dark._withHue(hue))
+    }
+    
+    func _withHue(_ hue: CGFloat) -> NSUIColor {
         let hsba = hsbaComponents()
         return NSUIColor(hue: hue, saturation: hsba.saturation, brightness: hsba.brightness, alpha: hsba.alpha)
     }
-
+    
     /**
      Returns a new color object with the specified saturation value.
 
      - Parameter saturation: The saturation value of the new color object, specified as a value from 0.0 to 1.0. Saturation values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
-    func withSaturation(_ saturation: CGFloat) -> NSUIColor {
+    public func withSaturation(_ saturation: CGFloat) -> NSUIColor {
+        let dynamic = dynamicColors
+        let light = dynamic.light._withSaturation(saturation)
+        guard dynamic.light != dynamic.dark else {
+            return light
+        }
+        return NSUIColor(light: light, dark: dynamic.dark._withSaturation(saturation))
+    }
+    
+    func _withSaturation(_ saturation: CGFloat) -> NSUIColor {
         let hsba = hsbaComponents()
         return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: saturation, alpha: hsba.alpha)
     }
-
+    
     /**
      Returns a new color object with the specified brightness value.
 
      - Parameter brightness: The brightness value of the new color object, specified as a value from 0.0 to 1.0. Brightness values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
-    func withBrightness(_ brightness: CGFloat) -> NSUIColor {
+    public func withBrightness(_ brightness: CGFloat) -> NSUIColor {
+        let dynamic = dynamicColors
+        let light = dynamic.light._withBrightness(brightness)
+        guard dynamic.light != dynamic.dark else {
+            return light
+        }
+        return NSUIColor(light: light, dark: dynamic.dark._withBrightness(brightness))
+    }
+    
+    func _withBrightness(_ brightness: CGFloat) -> NSUIColor {
         let hsba = hsbaComponents()
         return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: brightness, alpha: hsba.alpha)
     }
@@ -102,20 +129,52 @@ public struct HSBAComponents {
     public var hue: CGFloat {
         didSet { hue = hue.clamped(to: 0.0...1.0) }
     }
+    
+    /// Sets the hue component of the color.
+    @discardableResult
+    public func hue(_ hue: CGFloat) -> Self {
+        var components = self
+        components.hue = hue
+        return components
+    }
 
     /// The saturation component of the color.
     public var saturation: CGFloat {
         didSet { saturation = saturation.clamped(to: 0.0...1.0) }
+    }
+    
+    /// Sets the saturation component of the color.
+    @discardableResult
+    public func saturation(_ saturation: CGFloat) -> Self {
+        var components = self
+        components.saturation = saturation
+        return components
     }
 
     /// The brightness component of the color.
     public var brightness: CGFloat {
         didSet { brightness = brightness.clamped(to: 0.0...1.0) }
     }
+    
+    /// Sets the brightness component of the color.
+    @discardableResult
+    public func brightness(_ brightness: CGFloat) -> Self {
+        var components = self
+        components.brightness = brightness
+        return components
+    }
 
     /// The alpha value of the color.
     public var alpha: CGFloat {
         didSet { alpha = alpha.clamped(to: 0.0...1.0) }
+    }
+    
+    /// Sets the alpha value of the color.
+    @discardableResult
+    public func alpha(_ alpha: CGFloat) -> Self {
+        var components = self
+        components.alpha = alpha
+        return components
     }
 
     /// Creates HSBA components with the specified hue, saturation, brightness and alpha components.

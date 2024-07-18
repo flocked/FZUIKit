@@ -48,7 +48,7 @@
          - Returns: The resulting color object.
          */
         func blended(withFraction fraction: CGFloat, of color: UIColor) -> UIColor {
-            NSUIColor(rgbaComponents().blended(withFraction: fraction, of: color.rgbaComponents()))
+            NSUIColor(_rgbaComponents().blended(withFraction: fraction, of: color._rgbaComponents()))
         }
     }
 #endif

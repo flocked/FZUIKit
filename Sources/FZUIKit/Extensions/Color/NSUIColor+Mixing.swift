@@ -76,8 +76,8 @@ public extension NSUIColor {
     }
 
     internal func mixedRGB(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
-        let c1 = rgbaComponents()
-        let c2 = color.rgbaComponents()
+        let c1 = _rgbaComponents()
+        let c2 = color._rgbaComponents()
 
         let red = c1.red + (weight * (c2.red - c1.red))
         let green = c1.green + (weight * (c2.green - c1.green))

@@ -14,7 +14,7 @@ import SwiftUI
 
 public extension NSUIColor {
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
-    func rgbaComponents() -> RGBAComponents {
+    internal func _rgbaComponents() -> RGBAComponents {
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
 
         #if os(iOS) || os(tvOS) || os(watchOS)
@@ -61,8 +61,7 @@ public extension NSUIColor {
      - Returns: The new color object.
      */
     func withRed(_ red: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
+        NSUIColor(_rgbaComponents().red(red))
     }
 
     /**
@@ -72,8 +71,7 @@ public extension NSUIColor {
      - Returns: The new color object.
      */
     func withGreen(_ green: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: rgba.red, green: green, blue: rgba.blue, alpha: rgba.alpha)
+        NSUIColor(_rgbaComponents().green(green))
     }
 
     /**
@@ -83,8 +81,7 @@ public extension NSUIColor {
      - Returns: The new color object.
      */
     func withBlue(_ blue: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: rgba.red, green: rgba.green, blue: blue, alpha: rgba.alpha)
+        NSUIColor(_rgbaComponents().blue(blue))
     }
 
     /**
@@ -94,8 +91,11 @@ public extension NSUIColor {
      - Returns: The new color object.
      */
     func withAlpha(_ alpha: CGFloat) -> NSUIColor {
-        let rgba = rgbaComponents()
-        return NSUIColor(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: alpha)
+        #if os(macOS)
+        return withAlphaComponent(alpha.clamped(to: 0...1.0))
+        #else
+        return NSUIColor(_rgbaComponents().alpha(alpha))
+        #endif
     }
 }
 
@@ -105,20 +105,52 @@ public struct RGBAComponents: Codable, Hashable {
     public var red: CGFloat {
         didSet { red = red.clamped(to: 0.0...1.0) }
     }
+    
+    /// Sets the red component of the color.
+    @discardableResult
+    public func red(_ red: CGFloat) -> Self {
+        var components = self
+        components.red = red
+        return components
+    }
 
     /// The green component of the color.
     public var green: CGFloat {
         didSet { green = green.clamped(to: 0.0...1.0) }
+    }
+    
+    /// Sets the green component of the color.
+    @discardableResult
+    public func green(_ green: CGFloat) -> Self {
+        var components = self
+        components.green = green
+        return components
     }
 
     /// The blue component of the color.
     public var blue: CGFloat {
         didSet { blue = blue.clamped(to: 0.0...1.0) }
     }
+    
+    /// Sets the blue component of the color.
+    @discardableResult
+    public func blue(_ blue: CGFloat) -> Self {
+        var components = self
+        components.blue = blue
+        return components
+    }
 
     /// The alpha value of the color.
     public var alpha: CGFloat {
         didSet { alpha = alpha.clamped(to: 0.0...1.0) }
+    }
+    
+    /// Sets the alpha value of the color.
+    @discardableResult
+    public func alpha(_ alpha: CGFloat) -> Self {
+        var components = self
+        components.alpha = alpha
+        return components
     }
     
     /**

@@ -34,7 +34,7 @@
 
         /// The luminance of the color.
         var luminance: CGFloat {
-            let components = rgbaComponents()
+            let components = _rgbaComponents()
             let componentsArray = [components.red, components.green, components.blue].map { val -> CGFloat in
                 guard val <= 0.03928 else { return pow((val + 0.055) / 1.055, 2.4) }
 
