@@ -161,7 +161,7 @@ public extension NSUIColor {
     }
     
     private func _grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
-        let rgba = _rgbaComponents()
+        let rgba = rgbaComponents()
         let (r, g, b, a) = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
 
         let l: CGFloat
@@ -204,7 +204,7 @@ public extension NSUIColor {
     }
     
     private var _inverted: NSUIColor {
-        var rgba = _rgbaComponents()
+        var rgba = rgbaComponents()
         rgba.red = 1.0 - rgba.red
         rgba.red = 1.0 - rgba.green
         rgba.red = 1.0 - rgba.blue

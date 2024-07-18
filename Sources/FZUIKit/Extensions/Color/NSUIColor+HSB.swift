@@ -31,7 +31,7 @@ extension NSUIColor {
             }
 
             guard let color = withSupportedColorSpace() else {
-                fatalError("Could not convert color to RGBA.")
+                fatalError("Could not convert color to HSBA.")
             }
 
             color.getHue(&h, saturation: &s, brightness: &b, alpha: nil)
@@ -68,7 +68,7 @@ extension NSUIColor {
      - Parameter hue: The hue value of the new color object, specified as a value from 0.0 to 1.0. Hue values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
-    public func withHue(_ hue: CGFloat) -> NSUIColor {
+    @objc open func withHue(_ hue: CGFloat) -> NSUIColor {
         let dynamic = dynamicColors
         let light = dynamic.light._withHue(hue)
         guard dynamic.light != dynamic.dark else {
@@ -88,7 +88,7 @@ extension NSUIColor {
      - Parameter saturation: The saturation value of the new color object, specified as a value from 0.0 to 1.0. Saturation values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
-    public func withSaturation(_ saturation: CGFloat) -> NSUIColor {
+    @objc open func withSaturation(_ saturation: CGFloat) -> NSUIColor {
         let dynamic = dynamicColors
         let light = dynamic.light._withSaturation(saturation)
         guard dynamic.light != dynamic.dark else {
@@ -108,7 +108,7 @@ extension NSUIColor {
      - Parameter brightness: The brightness value of the new color object, specified as a value from 0.0 to 1.0. Brightness values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
      - Returns: The new color object.
      */
-    public func withBrightness(_ brightness: CGFloat) -> NSUIColor {
+    @objc open func withBrightness(_ brightness: CGFloat) -> NSUIColor {
         let dynamic = dynamicColors
         let light = dynamic.light._withBrightness(brightness)
         guard dynamic.light != dynamic.dark else {

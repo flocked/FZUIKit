@@ -57,10 +57,12 @@ public extension NSUIColor {
     final func hslaComponents() -> HSLAComponents {
         var (h, s, b, a) = (CGFloat(), CGFloat(), CGFloat(), CGFloat())
         #if os(macOS)
-            let color = withSupportedColorSpace() ?? self
-            color.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        guard let color = withSupportedColorSpace() else {
+            fatalError("Could not convert color to HSBA.")
+        }
+        color.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         #else
-            getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        getHue(&h, saturation: &s, brightness: &b, alpha: &a)
         #endif
 
         let l = ((2.0 - s) * b) / 2.0
@@ -76,12 +78,6 @@ public extension NSUIColor {
 
         return HSLAComponents(h * 360.0, s, l, a)
     }
-
-    internal func _withLightness(_ lightness: CGFloat) -> NSUIColor {
-        var hslaComponents = hslaComponents()
-        hslaComponents.lightness = lightness.clamped(to: 0.0...1.0)
-        return NSUIColor(hslaComponents)
-    }
     
     /**
      Returns a new color object with the specified lightness value.
@@ -96,6 +92,12 @@ public extension NSUIColor {
             return light
         }
         return NSUIColor(light: light, dark: dynamic.dark._withLightness(lightness))
+    }
+    
+    internal func _withLightness(_ lightness: CGFloat) -> NSUIColor {
+        var hslaComponents = hslaComponents()
+        hslaComponents.lightness = lightness.clamped(to: 0.0...1.0)
+        return NSUIColor(hslaComponents)
     }
 }
 
