@@ -336,7 +336,7 @@ import SwiftUI
                 show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
                 noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
             }
-            willCloseObservion = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { [weak self] notification in
+            willCloseObservation = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { [weak self] notification in
                 guard let self = self, !self.isClosing else { return }
                 self.dismiss()
             })
@@ -415,7 +415,7 @@ import SwiftUI
             noArrowView = nil
             positionObservations = []
             viewTrackingOptions = nil
-            willCloseObservion = nil
+            willCloseObservation = nil
         }
 
         private var closeButton: NSButton? {
@@ -445,9 +445,9 @@ import SwiftUI
             set { setAssociatedValue(newValue, key: "viewTrackingOptions") }
         }
 
-        private var willCloseObservion: NotificationToken? {
-            get { getAssociatedValue("willCloseObservion", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "willCloseObservion") }
+        private var willCloseObservation: NotificationToken? {
+            get { getAssociatedValue("willCloseObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "willCloseObservation") }
         }
         
         private var didShowObservation: NotificationToken? {
@@ -579,3 +579,18 @@ extension NSPopover.ViewTracking: ExpressibleByBooleanLiteral {
     }
 }
 #endif
+
+extension NSTableView {
+    func tes() {
+        NotificationCenter.default.observe
+        NSPopover.didShowNotification.observe {
+            
+        }
+    }
+}
+
+extension Notification.Name {
+    func observe(_ object: Any? = nil, queue: OperationQueue? = nil, handler: @escaping ()->()) -> NotificationToken {
+        NotificationCenter.default.observe(self, object: object, queue: queue, using: { _ in handler() })
+    }
+}
