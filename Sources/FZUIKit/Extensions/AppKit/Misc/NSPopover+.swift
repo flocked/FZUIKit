@@ -264,32 +264,24 @@ import SwiftUI
         
         func edge(for view: NSView, preferredEdge: NSRectEdge) -> NSRectEdge {
             guard let contentView = contentView, let screen = view.window?.screen, let frameOnScreen = view.frameOnScreen else { return preferredEdge }
-            var edgeFrames: [(edge: NSRectEdge, rect: CGRect)] = [
-                (.minX, CGRect(CGPoint(x: frameOnScreen.x - contentView.frame.width,
-                                                    y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)), contentView.frame.size)),
-                (.minY, CGRect(CGPoint(x: frameOnScreen.x,
-                                                    y: frameOnScreen.y - contentView.frame.height),
-                                                   contentView.frame.size)),
-                (.maxX, CGRect(CGPoint(x: frameOnScreen.x + view.frame.width,
-                                                    y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)),
-                                                   contentView.frame.size)),
-                (.maxY, CGRect(CGPoint(x: frameOnScreen.x,
-                                                    y: frameOnScreen.y + view.frame.height),
-                                                   contentView.frame.size))]
+            var edgeFrames: [NSRectEdge: CGRect] = [:]
+            edgeFrames[.minX] = CGRect(CGPoint(x: frameOnScreen.x - contentView.frame.width,
+                                               y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)), contentView.frame.size)
+            edgeFrames[.minY] = CGRect(CGPoint(x: frameOnScreen.x,
+                                               y: frameOnScreen.y - contentView.frame.height), contentView.frame.size)
+            edgeFrames[.maxX] = CGRect(CGPoint(x: frameOnScreen.x + view.frame.width,
+                                               y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)), contentView.frame.size)
+            edgeFrames[.maxY] = CGRect(CGPoint(x: frameOnScreen.x,
+                                               y: frameOnScreen.y + view.frame.height), contentView.frame.size)
             var edges: [NSRectEdge] = []
             switch preferredEdge {
-            case .minX:
-                edges = [.minX, .maxX, .minY, .maxY]
-            case .maxX:
-                edges = [.maxX, .minX, .minY, .maxY]
-            case .minY:
-                edges = [.minY, .maxY, .minX, .maxX]
-            case .maxY:
-                edges = [.maxY, .minY, .minX, .maxX]
-            default: break
+            case .minX: edges = [.minX, .maxX, .minY, .maxY]
+            case .maxX: edges = [.maxX, .minX, .minY, .maxY]
+            case .minY: edges = [.minY, .maxY, .minX, .maxX]
+            case .maxY: edges = [.maxY, .minY, .minX, .maxX]
+            default: edges = [.minY, .maxY, .minX, .maxX]
             }
-           return edges.first(where: { edge in screen.visibleFrame.contains(edgeFrames.first(where: {$0.edge == edge})!.rect)
-            }) ?? preferredEdge
+            return edges.first(where: { screen.visibleFrame.contains(edgeFrames[$0]!) }) ?? preferredEdge
         }
         
         struct ViewTracking {
