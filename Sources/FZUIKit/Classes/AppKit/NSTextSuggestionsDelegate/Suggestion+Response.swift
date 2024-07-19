@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import Foundation
+import AppKit
 
 public struct SuggestionItemResponse: Hashable {
     var rows: [(item: SuggestionItem?, section: SuggestionItemSection?)] = []
@@ -24,6 +25,10 @@ public struct SuggestionItemResponse: Hashable {
         case automatic
         /// Highlights the first selectable item.
         case firstSelectableItem
+    }
+    
+    static var empty: Self {
+        Self()
     }
     
     /// Creates a response.
@@ -52,7 +57,7 @@ public struct SuggestionItemResponse: Hashable {
             section.items.forEach({ rows.append(($0, nil)) })
         }
     }
-        
+    
     func highlightedItem(for string: String) -> SuggestionItem? {
         if preferredHighlight == .firstSelectableItem {
             return rows.first(where: {$0.item != nil })?.item
@@ -74,10 +79,19 @@ public struct SuggestionItemResponse: Hashable {
         rows[safe: index]?.section != nil
     }
     
+    func cellView(for index: Int, in tableView: NSTableView) -> NSTableCellView? {
+        guard let row = rows[safe: index] else { return nil }
+        if let item = row.item {
+            return (tableView.view(atColumn: 0, row: index, makeIfNecessary: false) as? SuggestionItemCellView)?.item(item) ?? SuggestionItemCellView(item: item)
+        } else if let section = row.section {
+            return (tableView.view(atColumn: 0, row: index, makeIfNecessary: false) as? SuggestionItemSectionCellView)?.section(section) ?? SuggestionItemSectionCellView(section: section)
+        }
+        return nil
+    }
+    
     public static func == (lhs: SuggestionItemResponse, rhs: SuggestionItemResponse) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
-    
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(itemSections)

@@ -8,6 +8,7 @@
 #if os(macOS)
 
     import AppKit
+    import FZSwiftUtils
 
     public extension NSSegmentedControl {
         /// Selects all segments.
@@ -63,6 +64,15 @@
          */
         func setFont(_ font: NSFont, forSegment segment: Int) {
             segmentViews[safe: segment]?.setValue(font, forKey: "font")
+        }
+                
+        /**
+         Returns the frame of the specified segment.
+
+         - Parameter segment:The index of the segment whose frame you want to get.
+         */
+        func frame(forSegment segment: Int) -> CGRect? {
+            segmentViews[safe: segment]?.frame
         }
         
         internal var segmentViews: [NSView] {

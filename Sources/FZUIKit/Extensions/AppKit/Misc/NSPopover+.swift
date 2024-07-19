@@ -171,7 +171,7 @@ import SwiftUI
             return self
         }
         
-        /// A Boolean value that indicates whether the popover's close button is hidden when deteched.
+        /// A Boolean value that indicates whether the popover's close button is hidden when detached.
         @objc open var hidesDetachedCloseButton: Bool {
             get { getAssociatedValue("hidesDetachedCloseButton", initialValue: false) }
             set {
@@ -183,7 +183,7 @@ import SwiftUI
             }
         }
         
-        /// Sets the Boolean value that indicates whether the popover's close button is hidden when deteched.
+        /// Sets the Boolean value that indicates whether the popover's close button is hidden when detached.
         @discardableResult
         @objc open func hidesDetachedCloseButton(_ hides: Bool) -> Self {
             self.hidesDetachedCloseButton = hides
@@ -206,9 +206,9 @@ import SwiftUI
 
          - Parameters:
             - positioningView: The view relative to which the popover should be positioned.
-            - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
+            - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
             - hideArrow: A Boolean value that indicates whether to hide the arrow of the popover.
-            - tracksView: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
+            - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
          */
         public func show(_ positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool = false, tracksView: Bool = false) {
             show(relativeTo: positioningRect ?? positioningView.bounds, of: positioningView, preferredEdge: preferredEdge, hideArrow: hideArrow, tracksView: tracksView)
@@ -220,8 +220,8 @@ import SwiftUI
          - Parameters:
             - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
             - positioningView: The view relative to which the popover should be positioned.
-            - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
-            - tracksView: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
+            - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
+            - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
          */
         public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool) {
             self.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: hideArrow, tracksView: false)
@@ -233,8 +233,8 @@ import SwiftUI
          - Parameters:
             - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
             - positioningView: The view relative to which the popover should be positioned.
-            - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
-            - tracksView: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
+            - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
+            - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
          */
         public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, tracksView: Bool) {
             self.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: false, tracksView: tracksView)
@@ -246,26 +246,27 @@ import SwiftUI
          - Parameters:
             - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
             - positioningView: The view relative to which the popover should be positioned.
-            - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
+            - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
             - hideArrow: A Boolean value that indicates whether to hide the arrow of the popover.
-            - tracksView: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
+            - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
          */
         public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool, tracksView: Bool) {
+            let spacing: CGFloat = 0.0
             dismiss()
             if hideArrow == false {
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
             } else {
                 let noArrowView = NSView(frame: positioningView.frame)
-                let edge = edge(for: positioningView, preferredEdge: preferredEdge)
+                let edge = edge(for: positioningView, preferredEdge: preferredEdge, spacing: spacing)
                 switch edge {
                 case .minX:
-                    noArrowView.frame.origin.x += 10
+                    noArrowView.frame.origin.x += 10 - spacing
                 case .maxX:
-                    noArrowView.frame.origin.x -= 10
+                    noArrowView.frame.origin.x -= 10 - spacing
                 case .minY:
-                    noArrowView.frame.origin.y += 10
+                    noArrowView.frame.origin.y += 10 - spacing
                 case .maxY:
-                    noArrowView.frame.origin.y -= 10
+                    noArrowView.frame.origin.y -= 10 - spacing
                 default: break
                 }
                 self.noArrowView = noArrowView
@@ -274,11 +275,15 @@ import SwiftUI
                 noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
             }
             willCloseObservion = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { [weak self] notification in
-                guard let self = self else { return }
+                guard let self = self, !self.isClosing else { return }
                 self.dismiss()
             })
             if tracksView {
                 viewTracking = ViewTracking(rect: positioningRect, view: positioningView, preferredEdge: preferredEdge, hidesArrow: hideArrow)
+                positionObservations.append(positioningView.observeChanges(for: \.isHidden) { [weak self] old, new in
+                    guard let self = self, old != new else { return }
+                    self.updateVisibility()
+                    }!)
                 positionObservations.append(positioningView.observeChanges(for: \.frame) { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.updatePopover()
@@ -300,17 +305,17 @@ import SwiftUI
             contentSize = contentView?.frame.size ?? contentSize
         }
         
-        private func edge(for view: NSView, preferredEdge: NSRectEdge) -> NSRectEdge {
+        private func edge(for view: NSView, preferredEdge: NSRectEdge, spacing: CGFloat = 0.0, centered: Bool = false) -> NSRectEdge {
             guard let contentView = contentView, let screen = view.window?.screen, let frameOnScreen = view.frameOnScreen else { return preferredEdge }
             var edgeFrames: [NSRectEdge: CGRect] = [:]
-            edgeFrames[.minX] = CGRect(CGPoint(x: frameOnScreen.x - contentView.frame.width,
+            edgeFrames[.minX] = CGRect(CGPoint(x: frameOnScreen.x - contentView.frame.width - spacing,
                                                y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)), contentView.frame.size)
-            edgeFrames[.minY] = CGRect(CGPoint(x: frameOnScreen.x,
-                                               y: frameOnScreen.y - contentView.frame.height), contentView.frame.size)
-            edgeFrames[.maxX] = CGRect(CGPoint(x: frameOnScreen.x + view.frame.width,
+            edgeFrames[.maxX] = CGRect(CGPoint(x: frameOnScreen.x + view.frame.width + spacing,
                                                y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)), contentView.frame.size)
-            edgeFrames[.maxY] = CGRect(CGPoint(x: frameOnScreen.x,
-                                               y: frameOnScreen.y + view.frame.height), contentView.frame.size)
+            edgeFrames[.minY] = CGRect(CGPoint(x: centered ? frameOnScreen.x - (view.frame.width/2.0) - (contentView.frame.width / 2.0) : frameOnScreen.x,
+                                               y: frameOnScreen.y - contentView.frame.height), contentView.frame.size - spacing)
+            edgeFrames[.maxY] = CGRect(CGPoint(x: centered ? frameOnScreen.x - (view.frame.width/2.0) - (contentView.frame.width / 2.0) : frameOnScreen.x,
+                                               y: frameOnScreen.y + view.frame.height), contentView.frame.size + spacing)
             var edges: [NSRectEdge] = []
             switch preferredEdge {
             case .minX: edges = [.minX, .maxX, .minY, .maxY]
@@ -327,6 +332,17 @@ import SwiftUI
                 default: return  visibleFrame.contains(edgeFrames[$0]!)
                 }
             }) ?? preferredEdge
+        }
+        
+        private func updateVisibility() {
+            guard let track = viewTracking else { return }
+            if track.view.isHidden, isShown, !isDetached {
+                isClosing = true
+                close()
+                isClosing = false
+            } else if !track.view.isHidden, !isShown {
+                show(relativeTo: track.rect, of: track.view, preferredEdge: track.preferredEdge, hideArrow: track.hidesArrow, tracksView: true)
+            }
         }
         
         private func updatePopover() {
@@ -374,6 +390,11 @@ import SwiftUI
         private var noArrowView: NSView? {
             get { getAssociatedValue("noArrowView", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "noArrowView") }
+        }
+        
+        private var isClosing: Bool {
+            get { getAssociatedValue("isClosing", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "isClosing") }
         }
         
         private var effectiveAppearanceObservation: KeyValueObservation? {

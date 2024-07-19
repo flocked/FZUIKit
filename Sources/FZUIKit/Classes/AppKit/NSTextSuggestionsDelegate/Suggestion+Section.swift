@@ -62,6 +62,12 @@ class SuggestionItemSectionCellView: NSTableCellView {
         }
     }
     
+    @discardableResult
+    func section(_ section: SuggestionItemSection) -> Self {
+        self.section = section
+        return self
+    }
+    
     init(section: SuggestionItemSection) {
         self.hostingView = NSHostingView(rootView: ContentView(section: section))
         self.hostingView.sizeToFit()

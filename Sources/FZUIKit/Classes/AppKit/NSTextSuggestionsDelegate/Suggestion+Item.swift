@@ -109,6 +109,12 @@ class SuggestionItemCellView: NSTableCellView {
             hostingView.rootView = ContentView(item: newValue)
         }
     }
+    
+    @discardableResult
+    func item(_ item: SuggestionItem) -> Self {
+        self.item = item
+        return self
+    }
 
     init(item: SuggestionItem) {
         self.hostingView = NSHostingView(rootView: ContentView(item: item))

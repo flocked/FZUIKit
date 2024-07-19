@@ -33,23 +33,32 @@ extension NSTextField {
         set { setAssociatedValue(newValue, key: "suggestionsTableView") }
     }
     
+    var suggestionsTokens: [NotificationToken] {
+        get { getAssociatedValue("suggestionsTokens", initialValue: []) }
+        set { setAssociatedValue(newValue, key: "suggestionsTokens") }
+    }
+    
     /// The delegate that provides text suggestions.
     public weak var suggestionsDelegate: NSTextSuggestionsDelegate? {
         get { getAssociatedValue("suggestionsDelegate") }
         set {
             setAssociatedValue(newValue, key: "suggestionsDelegate")
+            Swift.print("suggestionsDelegate set", newValue != nil, textSuggestionController == nil)
             if newValue != nil, textSuggestionController == nil {
                 let textSuggestionController = TextSuggestionController(textField: self)
                 suggestionsTableView = textSuggestionController.tableView
                 editingHandlers.didEdit = {
                     textSuggestionController.reload()
                 }
-                editingHandlers.didBegin = {
-                    textSuggestionController.popover.show(self, preferredEdge: .minY, hideArrow: true)
-                }
-                editingHandlers.didEnd = {
-                    textSuggestionController.popover.close()
-                }
+                suggestionsTokens = [
+                    NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] _ in
+                        guard let self = self else { return }
+                        Swift.print("didBegin")
+                        textSuggestionController.popover.show(self, preferredEdge: .bottom, hideArrow: true, tracksView: true)
+                    },
+                    NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { _ in
+                        textSuggestionController.popover.close()
+                    }]
                 self.textSuggestionController = textSuggestionController
                 suggestionsObserver = KeyValueObserver(self)
                 suggestionsObserver?.add(\.stringValue) { old, new in
@@ -62,6 +71,7 @@ extension NSTextField {
                 }
                 textSuggestionController.reload()
             } else if newValue == nil {
+                suggestionsTokens = []
                 textSuggestionController = nil
                 suggestionsObserver = nil
                 suggestionsTableView = nil
@@ -83,30 +93,31 @@ extension NSTextField {
 
 @available(macOS 11.0, *)
 class TextSuggestionController: NSObject, NSTableViewDelegate, NSTableViewDataSource {
+    
     let tableView = NSTableView() { NSTableColumn("suggestion") }
     weak var textField: NSTextField?
-    var _suggestions: SuggestionItemResponse?
+    var suggestions: SuggestionItemResponse = .empty
     let popover = NSPopover()
     let window = NSWindow()
+    
     func reload() {
         guard let textField = textField else { return }
-        _suggestions = textField.suggestionsDelegate?.suggestions(for: textField)
+        suggestions = textField.suggestionsDelegate?.suggestions(for: textField) ?? .empty
         tableView.reloadData()
         guard let scrollView = tableView.enclosingScrollView else { return }
         scrollView.frame.size.height = tableView.fittingSize.height.clamped(to: 22...600)
-        popover.contentSize = scrollView.frame.size
         window.setContentSize(scrollView.frame.size)
         scrollView.frame.origin.x = textField.frame.x
         scrollView.frame.origin.y = textField.frame.y - scrollView.frame.size.height
-        Swift.print("reload", tableView.frame.size, tableView.fittingSize)
     }
     
     init(textField: NSTextField) {
         super.init()
         self.textField = textField
-    
         let scrollView = tableView.addEnclosingScrollView()
         scrollView.frame.size = CGSize(300, 22)
+        popover.contentView = scrollView
+        popover.isResizingAutomatically = true
         tableView.style = .fullWidth
         tableView.allowsMultipleSelection = false
         tableView.allowsColumnReordering = false
@@ -117,47 +128,29 @@ class TextSuggestionController: NSObject, NSTableViewDelegate, NSTableViewDataSo
         tableView.delegate = self
         tableView.floatsGroupRows = false
         tableView.backgroundColor = .clear
-        window.contentView = scrollView
-        window.setContentSize(scrollView.frame.size)
+      //  window.contentView = scrollView
+      //  window.setContentSize(scrollView.frame.size)
     }
     
     func tableViewSelectionDidChange(_ notification: Notification) {
-        guard let textField = textField, tableView.selectedRow != -1, let item = self._suggestions?.item(at: tableView.selectedRow) else  { return }
+        guard let textField = textField, tableView.selectedRow != -1, let item = suggestions.item(at: tableView.selectedRow) else  { return }
         textField.suggestionsDelegate?.textField(textField, didSelect: item)
     }
     
     func tableView(_ tableView: NSTableView, isGroupRow row: Int) -> Bool {
-        guard let suggestions = self._suggestions else { return false }
         return suggestions.isGroupRow(row)
     }
     
     func numberOfRows(in tableView: NSTableView) -> Int {
-        guard let suggestions = self._suggestions else { return 0 }
         return suggestions.rows.count
     }
     
     func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
-        guard let suggestions = self._suggestions else { return false }
         return !suggestions.isGroupRow(row)
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        guard let suggestions = self._suggestions else { return nil }
-        if let item = suggestions.item(at: row) {
-            if let cellView = tableView.view(atColumn: 0, row: row, makeIfNecessary: false) as? SuggestionItemCellView {
-                cellView.item = item
-                return cellView
-            } else {
-                return SuggestionItemCellView(item: item)
-            }
-        } else if let section = suggestions.section(at: row) {
-            if let cellView = tableView.view(atColumn: 0, row: row, makeIfNecessary: false) as? SuggestionItemSectionCellView {
-                cellView.section = section
-                return cellView
-            }
-            return SuggestionItemSectionCellView(section: section)
-        }
-        return nil
+        return suggestions.cellView(for: row, in: tableView)
     }
 }
 
