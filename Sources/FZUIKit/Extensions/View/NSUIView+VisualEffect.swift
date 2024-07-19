@@ -51,7 +51,7 @@ extension NSUIView {
                     view.configuration = newValue
                 } else {
                     if visualEffectBackgroundView == nil {
-                        visualEffectBackgroundView = TaggedVisualEffectView()
+                        visualEffectBackgroundView = UIVisualEffectView()
                     }
                     visualEffectBackgroundView?.configuration = newValue
                 }
@@ -69,13 +69,16 @@ extension NSUIView {
         return self
     }
     
-    var visualEffectBackgroundView: TaggedVisualEffectView? {
-        get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView }
+    var visualEffectBackgroundView: NSUIVisualEffectView? {
+        get { viewWithTag(3_443_024) as? NSUIVisualEffectView }
         set {
             if visualEffectBackgroundView != newValue {
                 visualEffectBackgroundView?.removeFromSuperview()
             }
             if let newValue = newValue {
+                #if os(iOS) || os(tvOS)
+                newValue.tag = 3_443_024
+                #endif
                 insertSubview(newValue, at: 0)
                 newValue.constraint(to: self)
             }
@@ -86,19 +89,9 @@ extension NSUIView {
 #if os(macOS)
 class TaggedVisualEffectView: NSVisualEffectView {
     static var Tag: Int { 3_443_024 }
-    
     override var tag: Int { Self.Tag }
 }
 #else
-class TaggedVisualEffectView: UIVisualEffectView {
-    static var Tag: Int { 3_443_024 }
-    
-    override var tag: Int {
-        get { Self.Tag }
-        set { }
-    }
-}
-
 extension UIVisualEffectView {
     var configuration: VisualEffectConfiguration {
         get { VisualEffectConfiguration(effect: effect) }

@@ -201,6 +201,67 @@ import SwiftUI
             }
         }
         
+        /// The view to which the popover should be positioned.
+        @objc open var positioningView: NSView? {
+            get { value(forKey: "positioningView") as? NSView }
+            set { 
+                guard newValue != positioningView else { return }
+                setValue(newValue, forKey: "positioningView")
+                updateVisible()
+            }
+        }
+                
+        /// Sets the view to which the popover should be positioned.
+        @discardableResult
+        @objc open func positioningView(_ view: NSView?) -> Self {
+            self.positioningView = view
+            return self
+        }
+        
+        /// The edge of `positioningView` the popover should prefer to be anchored to.
+        @objc open var preferredEdge: NSRectEdge {
+            get { NSRectEdge(rawValue: value(forKey: "_preferredEdge") as? UInt ?? 0)! }
+            set { 
+                guard newValue != preferredEdge else { return }
+                setValue(newValue.rawValue, forKey: "_preferredEdge")
+                updateVisible()
+            }
+        }
+        
+        /// Sets the edge of `positioningView` the popover should prefer to be anchored to.
+        @discardableResult
+        @objc open func preferredEdge(_ preferredEdge: NSRectEdge) -> Self {
+            self.preferredEdge = preferredEdge
+            return self
+        }
+        
+        /// A Boolean value that indicates whether the arrow is visible
+        @objc open var isArrowVisible: Bool {
+            get { !(value(forKey: "shouldHideAnchor") as? Bool ?? false) }
+            set {
+                guard newValue != isArrowVisible else { return }
+                setValue(!newValue, forKey: "shouldHideAnchor")
+                updateVisible()
+            }
+        }
+        
+        /// Sets the Boolean value that indicates whether the arrow is visible
+        @discardableResult
+        @objc open func isArrowVisible(_ isVisible: Bool) -> Self {
+            self.isArrowVisible = isVisible
+            return self
+        }
+        
+        /// The window of the popover.
+        @objc open var window: NSWindow? {
+            value(forKey: "_popoverWindow") as? NSWindow
+        }
+        
+        func updateVisible() {
+            guard isShown, !isDetached, let positioningView = positioningView else { return }
+            show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: viewTrackingOptions?.hidesArrow ?? false, tracksView: viewTrackingOptions != nil)
+        }
+        
         /**
          Shows the popover anchored to the specified view.
 
@@ -211,7 +272,7 @@ import SwiftUI
             - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
          */
         public func show(_ positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool = false, tracksView: Bool = false) {
-            show(relativeTo: positioningRect ?? positioningView.bounds, of: positioningView, preferredEdge: preferredEdge, hideArrow: hideArrow, tracksView: tracksView)
+            show(relativeTo: .zero, of: positioningView, preferredEdge: preferredEdge, hideArrow: hideArrow, tracksView: tracksView)
         }
         
         /**
