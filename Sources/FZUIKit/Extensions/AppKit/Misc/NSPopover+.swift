@@ -94,18 +94,18 @@ import SwiftUI
         
         /// A Boolean value that indicates whether the size of the popview is automatically resized to the content view`s size. `
         @objc open var isResizingAutomatically: Bool {
-            get { contentViewControllerObservation != nil  }
+            get { contentViewFrameObservation != nil  }
             set {
                 guard newValue != isResizingAutomatically else { return }
                 if newValue {
-                    contentViewControllerObservation = observeChanges(for: \.contentViewController) { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.setupFrameObservation()
+                    contentViewFrameObservation = observeChanges(for: \.contentViewController?.view.frame) { [weak self] old, new in
+                        guard let self = self, old?.size != new?.size, let new = new else { return }
+                        self.contentSize = new.size
+                        self.updatePopover()
                     }
-                    setupFrameObservation()
+                    contentSize = contentView?.frame.size ?? contentSize
                 } else {
                     contentViewFrameObservation = nil
-                    contentViewControllerObservation = nil
                 }
             }
         }
@@ -252,6 +252,7 @@ import SwiftUI
          */
         public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool, tracksView: Bool) {
             let spacing: CGFloat = 0.0
+            let tracking: ViewTracking = .disabled
             dismiss()
             if hideArrow == false {
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
@@ -279,7 +280,13 @@ import SwiftUI
                 self.dismiss()
             })
             if tracksView {
-                viewTracking = ViewTracking(rect: positioningRect, view: positioningView, preferredEdge: preferredEdge, hidesArrow: hideArrow)
+                viewTrackingOptions = ViewTrackingOptions(rect: positioningRect, view: positioningView, preferredEdge: preferredEdge, hidesArrow: hideArrow, tracking: tracking)
+                if tracking == .ifFirstResponder {
+                    positionObservations.append(positioningView.observeChanges(for: \.window?.firstResponder) { old, new in
+                        guard old != new, positioningView.isFirstResponder else { return }
+                        self.updateVisibility()
+                    }!)
+                }
                 positionObservations.append(positioningView.observeChanges(for: \.isHidden) { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.updateVisibility()
@@ -294,17 +301,7 @@ import SwiftUI
                     }!)
             }
         }
-        
-        private func setupFrameObservation() {
-            contentViewFrameObservation = contentView?.observeChanges(for: \.frame) { [weak self] old, new in
-                guard let self = self, old.size != new.size else { return }
-                let old = self.contentSize
-                self.contentSize = new.size
-                self.updatePopover()
-            }
-            contentSize = contentView?.frame.size ?? contentSize
-        }
-        
+                
         private func edge(for view: NSView, preferredEdge: NSRectEdge, spacing: CGFloat = 0.0, centered: Bool = false) -> NSRectEdge {
             guard let contentView = contentView, let screen = view.window?.screen, let frameOnScreen = view.frameOnScreen else { return preferredEdge }
             var edgeFrames: [NSRectEdge: CGRect] = [:]
@@ -335,19 +332,18 @@ import SwiftUI
         }
         
         private func updateVisibility() {
-            guard let track = viewTracking else { return }
-            if track.view.isHidden, isShown, !isDetached {
+            guard let track = viewTrackingOptions else { return }
+            if track.view.isHidden || track.tracking == .ifFirstResponder && !track.view.isFirstResponder, isShown, !isDetached {
                 isClosing = true
                 close()
                 isClosing = false
-            } else if !track.view.isHidden, !isShown {
+            } else if !track.view.isHidden, !isShown, track.tracking != .ifFirstResponder  || track.tracking == .ifFirstResponder && track.view.isFirstResponder {
                 show(relativeTo: track.rect, of: track.view, preferredEdge: track.preferredEdge, hideArrow: track.hidesArrow, tracksView: true)
             }
         }
         
         private func updatePopover() {
-            guard isShown, !isDetached, let track = viewTracking else { return }
-            let animates = animates
+            guard isShown, !isDetached, let track = viewTrackingOptions else { return }
             self.animates = false
             show(relativeTo: track.rect, of: track.view, preferredEdge: track.preferredEdge, hideArrow: track.hidesArrow, tracksView: true)
             // self.animates = animates
@@ -357,7 +353,7 @@ import SwiftUI
             noArrowView?.removeFromSuperview()
             noArrowView = nil
             positionObservations = []
-            viewTracking = nil
+            viewTrackingOptions = nil
             willCloseObservion = nil
         }
 
@@ -365,16 +361,27 @@ import SwiftUI
             contentViewController?.view.superview?.subviews.last as? NSButton
         }
         
-        private struct ViewTracking {
+        /// Options for tracking a positioning view.
+        enum ViewTracking: Int, Hashable {
+            /// Doesn't track the positioning view.
+            case disabled
+            /// Tracks the positioning view.
+            case enabled
+            /// Tracks the positioning view, if it's the first responder.
+            case ifFirstResponder
+        }
+        
+        private struct ViewTrackingOptions {
             let rect: CGRect
             let view: NSView
             let preferredEdge: NSRectEdge
             let hidesArrow: Bool
+            var tracking: ViewTracking
         }
         
-        private var viewTracking: ViewTracking? {
-            get { getAssociatedValue("viewTracking", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "viewTracking") }
+        private var viewTrackingOptions: ViewTrackingOptions? {
+            get { getAssociatedValue("viewTrackingOptions", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "viewTrackingOptions") }
         }
 
         private var willCloseObservion: NotificationToken? {
@@ -407,19 +414,14 @@ import SwiftUI
             set { setAssociatedValue(newValue, key: "contentViewFrameObservation") }
         }
         
-        private var contentViewControllerObservation: KeyValueObservation? {
-            get { getAssociatedValue("contentViewControllerObservation", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "contentViewControllerObservation") }
-        }
-        
         private var positionObservations: [KeyValueObservation] {
             get { getAssociatedValue("positionObservations", initialValue: []) }
             set { setAssociatedValue(newValue, key: "positionObservations") }
         }
 
         private var popoverDelegate: Delegate? {
-            get { getAssociatedValue("popoverProxy", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "popoverProxy") }
+            get { getAssociatedValue("popoverDelegate", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "popoverDelegate") }
         }
 
         private func swizzlePopover() {
@@ -509,4 +511,10 @@ import SwiftUI
             }
         }
     }
+
+extension NSPopover.ViewTracking: ExpressibleByBooleanLiteral {
+    init(booleanLiteral value: Bool) {
+        self = value ? .enabled : .disabled
+    }
+}
 #endif
