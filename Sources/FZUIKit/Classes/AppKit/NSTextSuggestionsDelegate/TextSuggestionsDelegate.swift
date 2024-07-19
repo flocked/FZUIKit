@@ -10,7 +10,6 @@ import AppKit
 import FZSwiftUtils
 import SwiftUI
 
-
 public protocol NSTextSuggestionsDelegate: AnyObject {
     func textField(_ textField: NSTextField, didSelect item: SuggestionItem)
     func textField(_ textField: NSTextField, textCompletionFor item: SuggestionItem) -> String?
@@ -46,7 +45,7 @@ extension NSTextField {
                     textSuggestionController.reload()
                 }
                 editingHandlers.didBegin = {
-                    textSuggestionController.popover.show(of: self, preferredEdge: .minY, hideArrow: true)
+                    textSuggestionController.popover.show(self, preferredEdge: .minY, hideArrow: true)
                 }
                 editingHandlers.didEnd = {
                     textSuggestionController.popover.close()

@@ -65,6 +65,11 @@
             localizedName.lowercased().contains("sidecar")
         }
         
+        /// A Boolean value that indicates whether the screen is the main screen with the keyboard focus.
+        var isMain: Bool {
+            self == NSScreen.main
+        }
+        
         /// The bounds of the screen in the global display coordinate space.
         var displayBounds: CGRect {
             guard let displayID else {
