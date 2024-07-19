@@ -10,7 +10,7 @@
     import FZSwiftUtils
 
     extension NSTextField {
-        
+                
         /// Handlers for editing the text of a text field.
         public struct EditingHandler {
             /// Handler that gets called whenever editing the text did begin.

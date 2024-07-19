@@ -32,12 +32,12 @@ import SwiftUI
             
             var needsSwizzle: Bool {
                 willShow != nil ||
-                    didShow != nil ||
-                    willClose != nil ||
-                    didClose != nil ||
-                    shouldClose != nil ||
-                    didDetach != nil ||
-                    shouldDetach != nil ||
+                didShow != nil ||
+                willClose != nil ||
+                didClose != nil ||
+                shouldClose != nil ||
+                didDetach != nil ||
+                shouldDetach != nil ||
                 effectiveAppearance != nil
             }
         }
@@ -47,9 +47,7 @@ import SwiftUI
             get { getAssociatedValue("handlers", initialValue: Handlers()) }
             set { 
                 setAssociatedValue(newValue, key: "handlers")
-                if newValue.needsSwizzle {
-                    swizzlePopover()
-                }
+                swizzlePopover()
                 if newValue.effectiveAppearance != nil {
                     effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
                         guard let self = self, old != new else { return }
@@ -60,52 +58,147 @@ import SwiftUI
                 }
             }
         }
-        
-        var effectiveAppearanceObservation: KeyValueObservation? {
-            get { getAssociatedValue("effectiveAppearanceObservation", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
-        }
 
-        /// Creates and returns a popover with the specified view.
+        /// Creates and returns a popover with the specified content view.
         public convenience init(view: NSView) {
             self.init()
-            let viewController = NSViewController()
-            viewController.view = view
-            contentViewController = viewController
-            contentSize = view.bounds.size
+            self.contentView = view
+        }
+        
+        /// Sets the behavior of the popover.
+        @discardableResult
+        @objc open func behavior(_ behavior: Behavior) -> Self {
+            self.behavior = behavior
+            return self
+        }
+        
+        /// Sets the rectangle within the positioning view relative to which the popover should be positioned.
+        @discardableResult
+        @objc open func positioningRect(_ positioningRect: CGRect) -> Self {
+            self.positioningRect = positioningRect
+            return self
+        }
+        
+        /// Sets the view controller that manages the content of the popover.
+        @discardableResult
+        @objc open func contentViewController(_ viewController: NSViewController?) -> Self {
+            self.contentViewController = viewController
+            return self
+        }
+        
+        /// A Boolean value that indicates whether the content view is automatically sized to the content view`s size. `
+        @objc open var autosizesContentView: Bool {
+            get { contentViewControllerObservation != nil  }
+            set {
+                guard newValue != autosizesContentView else { return }
+                if newValue {
+                    func setupFrameObservation() {
+                        contentViewFrameObservation = contentView?.observeChanges(for: \.frame) { [weak self] old, new in
+                            guard let self = self, old.size != new.size else { return }
+                             self.contentSize = new.size
+                        }
+                        contentSize = contentView?.frame.size ?? contentSize
+                    }
+                    contentViewControllerObservation = observeChanges(for: \.contentViewController) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        setupFrameObservation()
+                    }
+                    setupFrameObservation()
+                } else {
+                    contentViewFrameObservation = nil
+                    contentViewControllerObservation = nil
+                }
+            }
+        }
+        
+        /// Sets the Boolean value that indicates whether the content view is automatically sized to the content view`s size. `
+        @discardableResult
+        @objc open func autosizesContentView(_ autosizes: Bool) -> Self {
+            self.autosizesContentView = autosizes
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the content view of the popover extends into the arrow region.
+        @available(macOS 14.0, *)
+        @discardableResult
+        @objc open func hasFullSizeContent(_ hasFullSizeContent: Bool) -> Self {
+            self.hasFullSizeContent = hasFullSizeContent
+            return self
+        }
+                
+        /// The content view.
+        @objc open var contentView: NSView? {
+            get { contentViewController?.view }
+            set {
+                guard newValue != contentView else { return }
+                if let view = newValue {
+                    let viewController = NSViewController()
+                    viewController.view = view
+                    contentViewController = viewController
+                    contentSize = view.bounds.size
+                } else {
+                    contentViewController = nil
+                    contentSize = .zero
+                }
+            }
+        }
+        
+        /// Sets the content view.
+        @discardableResult
+        @objc open func contentView(_ view: NSView?) -> Self {
+            self.contentView = view
+            return self
         }
 
         /// A Boolean value that indicates whether the popover is detachable by the user.
-        public var isDetachable: Bool {
+        @objc open var isDetachable: Bool {
             get { getAssociatedValue("isDetachable", initialValue: false) }
             set { setAssociatedValue(newValue, key: "isDetachable")
-                if newValue == true {
-                    swizzlePopover()
-                }
+                swizzlePopover()
             }
         }
         
+        /// Sets the Boolean value that indicates whether the popover is detachable by the user.
+        @discardableResult
+        @objc open func isDetachable(_ isDetachable: Bool) -> Self {
+            self.isDetachable = isDetachable
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the popover animates.
+        @discardableResult
+        @objc open func animates(_ animates: Bool) -> Self {
+            self.animates = animates
+            return self
+        }
+        
         /// A Boolean value that indicates whether the popover's close button is hidden when deteched.
-        public var hideDetachedCloseButton: Bool {
-            get { getAssociatedValue("hideDetachedCloseButton", initialValue: false) }
-            set { setAssociatedValue(newValue, key: "hideDetachedCloseButton")
+        @objc open var hidesDetachedCloseButton: Bool {
+            get { getAssociatedValue("hidesDetachedCloseButton", initialValue: false) }
+            set {
+                setAssociatedValue(newValue, key: "hidesDetachedCloseButton")
                 if isDetached {
                     closeButton?.isHidden = newValue
                 }
-                if newValue == true {
-                    swizzlePopover()
-                }
+                swizzlePopover()
             }
+        }
+        
+        /// Sets the Boolean value that indicates whether the popover's close button is hidden when deteched.
+        @discardableResult
+        @objc open func hidesDetachedCloseButton(_ hides: Bool) -> Self {
+            self.hidesDetachedCloseButton = hides
+            return self
         }
 
         /// Detaches the popover.
-        public func detach() {
+        @objc open func detach() {
             if isDetached == false {
                 let detach = NSSelectorFromString("detach")
                 if responds(to: detach) {
                     perform(detach)
                 }
-                closeButton?.isHidden = hideDetachedCloseButton
+                closeButton?.isHidden = hidesDetachedCloseButton
             }
         }
 
@@ -113,26 +206,27 @@ import SwiftUI
          Shows the popover anchored to the specified view.
 
          - Parameters:
-            - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned. Normally set to the bounds of `positioningView`. May be an empty rectangle, which will default to the bounds of positioningView.
+            - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
             - positioningView: The view relative to which the popover should be positioned. Causes the method to raise `invalidArgumentException if `nil`.
             - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
-            - trackViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
+            - tracksViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
          */
-        public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, trackViewFrame: Bool) {
-            show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: false, trackViewFrame: trackViewFrame)
+        public func show(relativeTo positioningRect: CGRect? = nil, of positioningView: NSView, preferredEdge: NSRectEdge, tracksViewFrame: Bool) {
+            show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: false, tracksViewFrame: tracksViewFrame)
         }
 
         /**
          Shows the popover anchored to the specified view.
 
          - Parameters:
-            - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned. Normally set to the bounds of `positioningView`. May be an empty rectangle, which will default to the bounds of `positioningView`.
+            - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
             - positioningView: The view relative to which the popover should be positioned. Causes the method to raise `invalidArgumentException` if `nil`.
             - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
             - hideArrow: A Boolean value that indicates whether to hide the arrow of the popover.
-            - trackViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
+            - tracksViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
          */
-        public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool, trackViewFrame: Bool = true) {
+        public func show(relativeTo positioningRect: CGRect? = nil, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool, tracksViewFrame: Bool = true) {
+            let positioningRect = positioningRect ?? positioningView.bounds
             isOpeningPopover = true
             dismissNoArrow()
             if hideArrow == false {
@@ -158,7 +252,7 @@ import SwiftUI
                     (notification.object as? NSPopover)?.dismissNoArrow()
                 })
             }
-            if trackViewFrame {
+            if tracksViewFrame {
                 positioningViewFrameObserver = positioningView.observeChanges(for: \.frame, handler: { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     if self.isOpeningPopover == false, self.isDetached == false, self.isShown == true {
@@ -170,6 +264,21 @@ import SwiftUI
                 })
             }
             isOpeningPopover = false
+        }
+        
+        private var effectiveAppearanceObservation: KeyValueObservation? {
+            get { getAssociatedValue("effectiveAppearanceObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
+        }
+        
+        private var contentViewFrameObservation: KeyValueObservation? {
+            get { getAssociatedValue("contentViewFrameObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "contentViewFrameObservation") }
+        }
+        
+        private var contentViewControllerObservation: KeyValueObservation? {
+            get { getAssociatedValue("contentViewControllerObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "contentViewControllerObservation") }
         }
 
         private func dismissNoArrow() {
@@ -202,23 +311,22 @@ import SwiftUI
             set { setAssociatedValue(newValue, key: "isOpeningPopover") }
         }
 
-        private var popoverProxy: DelegateProxy? {
+        private var popoverDelegate: Delegate? {
             get { getAssociatedValue("popoverProxy", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "popoverProxy") }
         }
 
-        func swizzlePopover() {
-            if handlers.needsSwizzle || hideDetachedCloseButton {
-                guard popoverProxy == nil else { return }
-                popoverProxy = DelegateProxy(delegate: delegate, popover: self)
-                delegate = popoverProxy
+        private func swizzlePopover() {
+            if handlers.needsSwizzle || hidesDetachedCloseButton || isDetachable {
+                guard popoverDelegate == nil else { return }
+                popoverDelegate = Delegate(popover: self)
                 do {
                     try replaceMethod(
                         #selector(getter: delegate),
                         methodSignature: (@convention(c) (AnyObject, Selector) -> (NSPopoverDelegate?)).self,
                         hookSignature: (@convention(block) (AnyObject) -> (NSPopoverDelegate?)).self
                     ) { _ in { object in
-                        (object as? NSPopover)?.popoverProxy?.delegate
+                        (object as? NSPopover)?.popoverDelegate?.delegate
                     }
                     }
                     
@@ -227,27 +335,29 @@ import SwiftUI
                         methodSignature: (@convention(c) (AnyObject, Selector, NSPopoverDelegate?) -> Void).self,
                         hookSignature: (@convention(block) (AnyObject, NSPopoverDelegate?) -> Void).self
                     ) { _ in { object, delegate in
-                        (object as? NSPopover)?.popoverProxy?.delegate = delegate
+                        (object as? NSPopover)?.popoverDelegate?.delegate = delegate
                     }
                     }
                 } catch {
                     Swift.debugPrint()
                 }
-            } else {
+            } else if popoverDelegate != nil {
                 resetMethod(#selector(getter: delegate))
                 resetMethod(#selector(setter: delegate))
-                popoverProxy = nil
+                delegate = popoverDelegate?.delegate
+                popoverDelegate = nil
             }
         }
 
-        private class DelegateProxy: NSObject, NSPopoverDelegate {
+        private class Delegate: NSObject, NSPopoverDelegate {
             weak var popover: NSPopover!
             weak var delegate: NSPopoverDelegate?
             var delegateObservation: KeyValueObservation?
-            init(delegate: NSPopoverDelegate? = nil, popover: NSPopover!) {
-                self.delegate = delegate
+            init(popover: NSPopover!) {
+                self.delegate = popover.delegate
                 self.popover = popover
                 super.init()
+                popover.delegate = self
                 delegateObservation = popover.observeChanges(for: \.delegate) { [weak self] old, new in
                     guard let self = self, (new as? NSObject) != self else { return }
                     self.delegate = new
@@ -287,7 +397,7 @@ import SwiftUI
                 delegate?.popoverDidDetach?(popover)
                 popover.handlers.didDetach?()
                 if popover == self.popover {
-                    self.popover.closeButton?.isHidden = self.popover.hideDetachedCloseButton
+                    self.popover.closeButton?.isHidden = self.popover.hidesDetachedCloseButton
                 }
             }
         }
