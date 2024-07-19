@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-class ObserverGestureRecognizer: ReattachingGestureRecognizer {
+class ObserverGestureRecognizer: NSGestureRecognizer {
     override func keyDown(with event: NSEvent) {
         view?.keyHandlers.keyDown?(event)
         super.keyDown(with: event)

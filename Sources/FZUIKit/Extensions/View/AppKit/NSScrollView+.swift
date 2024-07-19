@@ -21,8 +21,9 @@
         
         /// Sets the color of the content view’s background.
         @discardableResult
-        public func backgroundColor(_ color: NSColor) -> Self {
-            backgroundColor = color
+        public func backgroundColor(_ color: NSColor?) -> Self {
+            backgroundColor = color ?? .clear
+            drawsBackground = color != nil
             return self
         }
         

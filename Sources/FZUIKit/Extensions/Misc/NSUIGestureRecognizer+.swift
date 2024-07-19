@@ -20,7 +20,8 @@ extension NSUIGestureRecognizer {
     }
     
     /// Removes the gesture recognizer from the view it's attached to.
-    public func removeFromView() {
+    @objc open func removeFromView() {
+        reattachViewObservation = nil
         #if os(macOS)
         guard let view = view, view.gestureRecognizers.contains(self) else { return }
         #else
@@ -30,51 +31,50 @@ extension NSUIGestureRecognizer {
     }
 }
 
-/// A gesture recognizer that automatically re-attachs itself to the view it's removed from.
-class ReattachingGestureRecognizer: NSUIGestureRecognizer {
-    var viewObservation: KeyValueObservation?
-    
-    /// A Boolean value that indicates whether the gesture recognizer re-attachs itself to the view it's removed from.
-    var reattachsWhenRemoved: Bool = true {
-        didSet { setupViewObservation() }
-    }
-    
-    func setupViewObservation() {
-        if reattachsWhenRemoved {
-            viewObservation = observeChanges(for: \.view) { [weak self] old, new in
-                guard let self = self else { return }
-                if new == nil, let old = old {
-                    let task = DispatchWorkItem { [weak self] in
-                        guard let self = self else { return }
-                        old.addGestureRecognizer(self)
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: task)
-                }
-            }
-        } else {
-            viewObservation = nil
-        }
-    }
-    
-    /// Removes the gesture recognizer from the view it’s attached to.
-    func removeFromView(disablingReadding: Bool) {
-        if disablingReadding {
-            viewObservation = nil
-        }
-        self.removeFromView()
-    }
-
-    convenience init() {
+extension NSUIGestureRecognizer {
+    /**
+     Initializes the gesture recognizer with the specified specfied reattching configuration.
+     
+     - Parameter reattachesAutomatically: A Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+     - Returns: The initialized gesture recognizer object.
+     */
+    public convenience init(reattachesAutomatically: Bool) {
         self.init(target: nil, action: nil)
-    }
-
-    override init(target: Any?, action: Selector?) {
-        super.init(target: target, action: action)
-        setupViewObservation()
+        self.reattachesAutomatically = reattachesAutomatically
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    /// A Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+   @objc open var reattachesAutomatically: Bool {
+        get { reattachViewObservation != nil }
+        set {
+            guard newValue != reattachesAutomatically else { return }
+            if newValue {
+                reattachViewObservation = observeChanges(for: \.view) { [weak self] old, new in
+                    guard let self = self else { return }
+                    if new == nil, let old = old {
+                        let task = DispatchWorkItem { [weak self] in
+                            guard let self = self else { return }
+                            old.addGestureRecognizer(self)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: task)
+                    }
+                }
+            } else {
+                reattachViewObservation = nil
+            }
+        }
+    }
+    
+    /// Sets the Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+    @discardableResult
+    @objc open func reattachesAutomatically(_ reattaches: Bool) -> Self {
+        self.reattachesAutomatically = reattaches
+        return self
+    }
+    
+    var reattachViewObservation: KeyValueObservation? {
+        get { getAssociatedValue("reattachViewObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "reattachViewObservation") }
     }
 }
 

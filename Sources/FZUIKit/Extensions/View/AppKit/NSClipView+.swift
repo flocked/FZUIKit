@@ -17,6 +17,14 @@ extension NSClipView {
         return self
     }
     
+    /// Sets the Boolean value that indicates whether the clip view draws its background.
+    @discardableResult
+    @objc open func backgroundColor(_ color: NSColor?) -> Self {
+        backgroundColor = color ?? .clear
+        drawsBackground = color != nil
+        return self
+    }
+    
     /**
      Changes the origin of the clip view’s bounds rectangle animted to newOrigin.
      

@@ -30,8 +30,9 @@ import FZSwiftUtils
         
         /// Sets the text view’s background color.
         @discardableResult
-        public func backgroundColor(_ color: NSColor) -> Self {
-            backgroundColor = color
+        public func backgroundColor(_ color: NSColor?) -> Self {
+            backgroundColor = color ?? .clear
+            drawsBackground = color != nil
             return self
         }
         
@@ -42,6 +43,169 @@ import FZSwiftUtils
             return self
         }
         
+        /// Sets the delegate for all text views sharing the receiver’s layout manager.
+        @discardableResult
+        public func delegate(_ delegate: NSTextViewDelegate?) -> Self {
+            self.delegate = delegate
+            return self
+        }
+        
+        /// Sets the empty space the receiver leaves around its associated text container.
+        @discardableResult
+        public func textContainerInset(_ inset: CGSize) -> Self {
+            self.textContainerInset = inset
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the receiver allows its background color to change.
+        @discardableResult
+        public func allowsDocumentBackgroundColorChange(_ allows: Bool) -> Self {
+            self.allowsDocumentBackgroundColorChange = allows
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text views sharing the receiver’s layout manager allow the user to edit text.
+        @discardableResult
+        public func isEditable(_ isEditable: Bool) -> Self {
+            self.isEditable = isEditable
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text views sharing the receiver’s layout manager allow the user to select text.
+        @discardableResult
+        public func isSelectable(_ isSelectable: Bool) -> Self {
+            self.isSelectable = isSelectable
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the receiver allows undo.
+        @discardableResult
+        public func allowsUndo(_ allows: Bool) -> Self {
+            self.allowsUndo = allows
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text views sharing the receiver’s layout manager allow the user to apply attributes to specific ranges of text.
+        @discardableResult
+        public func isRichText(_ isRichText: Bool) -> Self {
+            self.isRichText = isRichText
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text views sharing the receiver’s layout manager allow the user to import files by dragging.
+        @discardableResult
+        public func importsGraphics(_ importsGraphics: Bool) -> Self {
+            self.importsGraphics = importsGraphics
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether image attachments should permit editing of their images.
+        @discardableResult
+        public func allowsImageEditing(_ allows: Bool) -> Self {
+            self.allowsImageEditing = allows
+            return self
+        }
+        
+        /// Sets the Boolean value that enables and disables automatic quotation mark substitution.
+        @discardableResult
+        public func isAutomaticQuoteSubstitutionEnabled(_ enabled: Bool) -> Self {
+            self.isAutomaticQuoteSubstitutionEnabled = enabled
+            return self
+        }
+        
+        /// Sets the Boolean value that enables or disables automatic link detection.
+        @discardableResult
+        public func isAutomaticLinkDetectionEnabled(_ enabled: Bool) -> Self {
+            self.isAutomaticLinkDetectionEnabled = enabled
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the text view supplies autocompletion suggestions as the user types.
+        @discardableResult
+        public func isAutomaticTextCompletionEnabled(_ enabled: Bool) -> Self {
+            self.isAutomaticTextCompletionEnabled = enabled
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether automatic text replacement is enabled.
+        @discardableResult
+        public func isAutomaticTextReplacementEnabled(_ enabled: Bool) -> Self {
+            self.isAutomaticTextReplacementEnabled = enabled
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether automatic spelling correction is enabled.
+        @discardableResult
+        public func isAutomaticSpellingCorrectionEnabled(_ enabled: Bool) -> Self {
+            self.isAutomaticSpellingCorrectionEnabled = enabled
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether automatic data detection is enabled.
+        @discardableResult
+        public func isAutomaticDashSubstitutionEnabled(_ enabled: Bool) -> Self {
+            self.isAutomaticDashSubstitutionEnabled = enabled
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether automatic text replacement is enabled.
+        @discardableResult
+        public func isAutomaticDataDetectionEnabled(_ enabled: Bool) -> Self {
+            self.isAutomaticDataDetectionEnabled = enabled
+            return self
+        }
+                
+        /// Sets the Boolean value that indicates whether the text view automatically supplies the destination of a link as a tooltip for text that has a link attribute.
+        @discardableResult
+        public func displaysLinkToolTips(_ displays: Bool) -> Self {
+            self.displaysLinkToolTips = displays
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text views sharing the receiver’s layout manager use a ruler.
+        @discardableResult
+        public func usesRuler(_ usesRuler: Bool) -> Self {
+            self.usesRuler = usesRuler
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the scroll view enclosing text views sharing the receiver’s layout manager displays the ruler.
+        @discardableResult
+        public func isRulerVisible(_ isRulerVisible: Bool) -> Self {
+            self.isRulerVisible = isRulerVisible
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether this text view uses the inspector bar.
+        @discardableResult
+        public func usesInspectorBar(_ usesInspectorBar: Bool) -> Self {
+            self.usesInspectorBar = usesInspectorBar
+            return self
+        }
+        
+        /// Sets the Boolean value that controls whether the text views sharing the receiver’s layout manager use the Font panel and Font menu.
+        @discardableResult
+        public func usesFontPanel(_ usesFontPanel: Bool) -> Self {
+            self.usesFontPanel = usesFontPanel
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether to use a rollover button for selecton.
+        @discardableResult
+        public func usesRolloverButtonForSelection(_ uses: Bool) -> Self {
+            self.usesRolloverButtonForSelection = uses
+            return self
+        }
+        
+        
+        /// Sets the Boolean value that indicates whether the receiver allows for a find panel.
+        @discardableResult
+        public func usesFindPanel(_ usesFindPanel: Bool) -> Self {
+            self.usesFindPanel = usesFindPanel
+            return self
+        }
+                
+                
         /// The attributed string.
         public var attributedString: NSAttributedString! {
             set {
@@ -277,6 +441,18 @@ import FZSwiftUtils
         class TextViewDelegate: NSObject, NSTextViewDelegate {
             var string: String
             
+            func textView(_ textView: NSTextView, clickedOn cell: NSTextAttachmentCellProtocol, in cellFrame: NSRect, at charIndex: Int) {
+                delegate?.textView?(textView, clickedOn: cell, in: cellFrame, at: charIndex)
+            }
+            
+            func textView(_ textView: NSTextView, doubleClickedOn cell: NSTextAttachmentCellProtocol, in cellFrame: NSRect, at charIndex: Int) {
+                delegate?.textView?(textView, doubleClickedOn: cell, in: cellFrame, at: charIndex)
+            }
+            
+            func textView(_ view: NSTextView, draggedCell cell: NSTextAttachmentCellProtocol, in rect: NSRect, event: NSEvent, at charIndex: Int) {
+                delegate?.textView?(view, draggedCell: cell, in: rect, event: event, at: charIndex)
+            }
+            
             func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
                 switch commandSelector {
                 case #selector(NSControl.cancelOperation(_:)):
@@ -298,25 +474,34 @@ import FZSwiftUtils
                     }
                 default: break
                 }
-                return true
+                return delegate?.textView?(textView, doCommandBy: commandSelector) ?? true
             }
             
             func textDidBeginEditing(_ notification: Notification) {
                 string = (notification.object as? NSText)?.string ?? ""
+                delegate?.textDidBeginEditing?(notification)
             }
             
             func textDidChange(_ notification: Notification) {
-                
+                delegate?.textDidChange?(notification)
             }
             
             func textDidEndEditing(_ notification: Notification) {
-                
+                delegate?.textDidEndEditing?(notification)
             }
             
+            weak var delegate: NSTextViewDelegate?
+            var delegateObservation: KeyValueObservation?
             init(_ textView: NSTextView) {
+                delegate = textView.delegate
                 self.string = textView.string
                 super.init()
                 textView.delegate = self
+                delegateObservation = textView.observeChanges(for: \.delegate) { [weak self] _, new in
+                    guard let self = self, new !== self else { return }
+                    self.delegate = new
+                    textView.delegate = self
+                }
             }
         }
     }

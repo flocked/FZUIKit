@@ -13,7 +13,8 @@ extension NSTextField {
     /**
      A Boolean value that indicates whether the text field is automatically adjust it's size to fit it's string value.
      
-     - Note: If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     
      - Note: This property isn't working with `NSSearchField`.
      */
     @objc open var automaticallyResizesToFit: Bool {
@@ -35,7 +36,8 @@ extension NSTextField {
     /**
      Sets Boolean value that indicates whether the text field is automatically adjust it's size to fit it's string value.
      
-     - Note: If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     
      - Note: This property isn't working with `NSSearchField`.
      */
     @discardableResult
@@ -68,7 +70,7 @@ extension NSTextField {
     /**
      The preferred minimum width of the text field.
      
-     Apply ``AppKit/NSTextField/placeholderWidth`` to this property, to use the placeholder width as minimum value
+     Apply ``placeholderWidth`` to this property, to use the placeholder width as minimum value.
      */
     @objc open var preferredMinLayoutWidth: CGFloat {
         get { getAssociatedValue("preferredMinLayoutWidth", initialValue: 0) }
@@ -81,7 +83,7 @@ extension NSTextField {
     /**
      Sets the preferred minimum width of the text field.
      
-     Apply ``AppKit/NSTextField/placeholderWidth`` to this property, to use the placeholder width as minimum value
+     Use ``placeholderWidth`` to use the placeholder width as minimum value.
      */
     @discardableResult
     @objc open func preferredMinLayoutWidth(_ minWidth: CGFloat) -> Self {

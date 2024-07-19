@@ -110,30 +110,6 @@
                 lastContentSize = CGSize(width: ceil(lastContentSize.width), height: ceil(lastContentSize.height))
             }
         }
-        
-        open override var backgroundColor: NSUIColor? {
-            get { backgroundColorAnimatable }
-            set {
-                wantsLayer = true
-                NSView.swizzleAnimationForKey()
-                realSelf.dynamicColors.background = newValue
-                var animatableColor = newValue?.resolvedColor(for: self)
-                if animatableColor == nil, isProxy() {
-                    animatableColor = .clear
-                }
-
-                if layer?.backgroundColor?.isVisible == false || layer?.backgroundColor == nil {
-                    layer?.backgroundColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
-                }
-                backgroundColorAnimatable = animatableColor
-            }
-        }
-        
-        open override var drawsBackground: Bool {
-            get { true }
-            set { }
-        }
-
 
         override public var stringValue: String {
             didSet {

@@ -30,7 +30,7 @@
             }
         }
 
-        /// The action to perform when the user presses the escape key.
+        /// The action to perform when the user presses the escape key while editing.
         public enum EscapeKeyAction: Int, Hashable {
             /// No action.
             case none
@@ -40,7 +40,7 @@
             case endEditingAndReset
         }
 
-        /// The action to perform when the user presses the enter key.
+        /// The action to perform when the user presses the enter key while editing.
         public enum EnterKeyAction: Int, Hashable {
             /// No action.
             case none
@@ -146,7 +146,7 @@
         
         /// Sets the action to perform when the user pressed the enter key while editing.
         @discardableResult
-        public func editngActionOnEnterKeyDown(_ enterAction: EnterKeyAction) -> Self {
+        public func editingActionOnEnterKeyDown(_ enterAction: EnterKeyAction) -> Self {
             editingActionOnEnterKeyDown = enterAction
             return self
         }
@@ -247,10 +247,10 @@
             set {
                 guard newValue != isEditableByDoubleClick else { return }
                 if newValue {
-                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer()
+                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer(reattachesAutomaticallyToTheView: true)
                     doubleClickEditGestureRecognizer?.addToView(self)
                 } else  {
-                    doubleClickEditGestureRecognizer?.removeFromView(disablingReadding: true)
+                    doubleClickEditGestureRecognizer?.removeFromView()
                     doubleClickEditGestureRecognizer = nil
                 }
                 setupTextFieldObserver()
@@ -561,7 +561,7 @@
             set { setAssociatedValue(newValue, key: "editingRange") }
         }
         
-        class DoubleClickEditGestureRecognizer: ReattachingGestureRecognizer {
+        class DoubleClickEditGestureRecognizer: NSGestureRecognizer {
             override func mouseDown(with event: NSEvent) {
                 if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
                     textField.isSelectableEditableState = (textField.isSelectable, textField.isEditable)

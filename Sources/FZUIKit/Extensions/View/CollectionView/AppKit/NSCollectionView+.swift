@@ -12,6 +12,13 @@
     import FZSwiftUtils
 
     public extension NSCollectionView {
+        /// Creates a collection view with an enclosing scroll view.
+        static func scrolling() -> NSCollectionView {
+            let collectionView = NSCollectionView()
+            collectionView.addEnclosingScrollView()
+            return collectionView
+        }
+        
         /**
          The frame of the item at the specified index path.
          - Parameter indexPath: The index path of the item.

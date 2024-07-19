@@ -114,8 +114,9 @@
         
         /// Sets the color of the background the text field’s cell draws behind the text.
         @discardableResult
-        func backgroundColor(_ color: NSColor) -> Self {
-            backgroundColor = color
+        func backgroundColor(_ color: NSColor?) -> Self {
+            backgroundColor = color ?? .clear
+            drawsBackground = color != nil
             return self
         }
         
