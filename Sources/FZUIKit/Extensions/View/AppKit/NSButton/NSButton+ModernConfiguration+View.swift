@@ -48,11 +48,11 @@
                     titleItem
                         .font(titleFont)
                         .multilineTextAlignment(configuration._resolvedTextAlignment)
-                        .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
+                        .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
                     subtitleItem
                         .font(subtitleFont)
                         .multilineTextAlignment(configuration._resolvedTextAlignment)
-                        .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
+                        .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
                 }
             }
 
@@ -78,7 +78,7 @@
             var imageItem: some View {
                 if let image = configuration.image {
                     Image(image)
-                        .foregroundColor(configuration._resolvedForegroundColor?.swiftUI)
+                        .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
                         .symbolConfiguration(configuration.imageSymbolConfiguration)
                 }
             }
@@ -113,9 +113,9 @@
                 stackItem
                     .padding(configuration.contentInsets.edgeInsets)
                     .scaleEffect(configuration.scaleTransform)
-                    .background(configuration._resolvedBackgroundColor?.swiftUI)
+                    .background(configuration.resolvedBackgroundColor()?.swiftUI)
                     .clipShape(configuration.cornerStyle.shape)
-                    .overlay(configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration._resolvedForegroundColor?.swiftUI))
+                    .overlay(configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration.resolvedForegroundColor()?.swiftUI))
                     .opacity(configuration.opacity)
             }
         }

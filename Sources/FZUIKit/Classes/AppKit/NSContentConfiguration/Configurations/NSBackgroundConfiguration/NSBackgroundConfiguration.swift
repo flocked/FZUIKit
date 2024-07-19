@@ -26,22 +26,10 @@
      */
     public struct NSBackgroundConfiguration: NSContentConfiguration, Hashable {
         /// The background color
-        public var color: NSColor? {
-            didSet {
-                if color != oldValue {
-                    updateResolvedColors()
-                }
-            }
-        }
+        public var color: NSColor?
 
         /// The color transformer of the background color.
-        public var colorTransformer: ColorTransformer? {
-            didSet {
-                if colorTransformer != oldValue {
-                    updateResolvedColors()
-                }
-            }
-        }
+        public var colorTransformer: ColorTransformer?
 
         ///  Generates the resolved background color for the specified background color, using the color and color transformer.
         public func resolvedColor() -> NSColor? {
@@ -60,31 +48,13 @@
         public var view: NSView?
 
         /// Properties for configuring the border.
-        public var border: BorderConfiguration = .none() {
-            didSet {
-                if border != oldValue {
-                    updateResolvedColors()
-                }
-            }
-        }
+        public var border: BorderConfiguration = .none()
 
         /// Properties for configuring the shadow.
-        public var shadow: ShadowConfiguration = .none() {
-            didSet {
-                if shadow != oldValue {
-                    updateResolvedColors()
-                }
-            }
-        }
+        public var shadow: ShadowConfiguration = .none()
 
         /// Properties for configuring the inner shadow.
-        public var innerShadow: ShadowConfiguration = .none() {
-            didSet {
-                if innerShadow != oldValue {
-                    updateResolvedColors()
-                }
-            }
-        }
+        public var innerShadow: ShadowConfiguration = .none()
 
         /// Properties for configuring the background visual effect.
         public var visualEffect: VisualEffectConfiguration?
@@ -153,18 +123,6 @@
 
         /// The saved state when `updated(for:)` is applied.
         var state: State = .init()
-
-        var _resolvedColor: NSColor?
-        var _resolvedBorderColor: NSColor?
-        var _resolvedShadowColor: NSColor?
-        var _resolvedInnerShadowColor: NSColor?
-
-        mutating func updateResolvedColors() {
-            _resolvedColor = resolvedColor()
-            _resolvedBorderColor = border.resolvedColor()
-            _resolvedShadowColor = shadow.resolvedColor(withOpacity: false)
-            _resolvedInnerShadowColor = innerShadow.resolvedColor(withOpacity: false)
-        }
     }
 
 #endif

@@ -73,11 +73,7 @@
                 }
             }
 
-            public var style: Style = .push { didSet {
-                if oldValue != style {
-                    updateResolvedValues()
-                }
-            } }
+            public var style: Style = .push
 
             /// The text of the title label the button displays.
             public var title: String?
@@ -98,18 +94,10 @@
             public var sound: NSSound?
 
             /// The border color of the button.
-            public var borderColor: NSColor? { didSet {
-                if oldValue != borderColor {
-                    updateResolvedValues()
-                }
-            } }
+            public var borderColor: NSColor?
 
             /// The color transformer for resolving the border color.
-            var borderColorTransformer: ColorTransformer? { didSet {
-                if oldValue != borderColorTransformer {
-                    updateResolvedValues()
-                }
-            } }
+            var borderColorTransformer: ColorTransformer?
 
             /// Generates the resolved border color, using the border color and color transformer.
             func resolvedBorderColor() -> NSColor? {
@@ -120,18 +108,10 @@
             }
 
             /// A tint color to use for the template image and text content.
-            var contentTintColor: NSColor? { didSet {
-                if oldValue != contentTintColor {
-                    updateResolvedValues()
-                }
-            } }
+            var contentTintColor: NSColor?
 
             /// The color transformer for resolving the tint color.
-            var contentTintColorTransformer: ColorTransformer? { didSet {
-                if oldValue != contentTintColorTransformer {
-                    updateResolvedValues()
-                }
-            } }
+            var contentTintColorTransformer: ColorTransformer?
 
             /// Generates the resolved tint color, using the tint color and color transformer.
             func resolvedContentTintColorColor() -> NSColor? {
@@ -143,15 +123,6 @@
 
             /// The size of the button.
             public var size: NSControl.ControlSize = .regular
-
-            var _resolvedContentTintColor: NSColor?
-            var _resolvedBorderColor: NSColor?
-
-            mutating func updateResolvedValues() {
-                //    imageSymbolConfiguration?.updateResolvedColors()
-                _resolvedContentTintColor = imageSymbolConfiguration?.resolvedPrimaryColor() ?? resolvedContentTintColorColor()
-                _resolvedBorderColor = resolvedBorderColor()
-            }
 
             /// A standard push style button.
             public static func push() -> NSButton.Configuration {

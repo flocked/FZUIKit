@@ -375,7 +375,7 @@
                 if newValue.needsDashedBordlerLayer {
                     configurate(using: newValue)
                 } else {
-                    borderColor = newValue._resolvedColor
+                    borderColor = newValue.resolvedColor()
                     _borderWidth = newValue.width
                 }
                 shapeView?.border = border
@@ -438,7 +438,7 @@
                 shadowOffset = newValue.offset
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
-                shadowColor = newValue._resolvedColor
+                shadowColor = newValue.resolvedColor()
                 shapeView?.outerShadow = newValue
                 if !newValue.isInvisible {
                     clipsToBounds = false
@@ -532,7 +532,7 @@
             }
             set {
                 NSView.swizzleAnimationForKey()
-                realSelf.dynamicColors.innerShadow = newValue._resolvedColor
+                realSelf.dynamicColors.innerShadow = newValue.resolvedColor()
                 if innerShadowLayer == nil {
                     let innerShadowLayer = InnerShadowLayer()
                     optionalLayer?.addSublayer(withConstraint: innerShadowLayer)
@@ -541,7 +541,7 @@
                     innerShadowLayer.shadowOpacity = 0.0
                     innerShadowLayer.shadowRadius = 0.0
                 }
-                var newColor = newValue._resolvedColor?.resolvedColor(for: self)
+                var newColor = newValue.resolvedColor()?.resolvedColor(for: self)
                 if newColor == nil, isProxy() {
                     newColor = .clear
                 }

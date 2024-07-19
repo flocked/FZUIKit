@@ -166,8 +166,8 @@
                 alternateImage = configuration.image
                 imagePosition = configuration.imagePosition
                 symbolConfiguration = configuration.imageSymbolConfiguration?.nsSymbolConfiguration()
-                bezelColor = configuration._resolvedBorderColor
-                contentTintColor = configuration._resolvedContentTintColor
+                bezelColor = configuration.resolvedBorderColor()
+                contentTintColor = configuration.resolvedContentTintColorColor()
                 sound = configuration.sound
                 sizeToFit()
             } else if var configuration = configuration as? NSButton.AdvanceButtonConfiguration {

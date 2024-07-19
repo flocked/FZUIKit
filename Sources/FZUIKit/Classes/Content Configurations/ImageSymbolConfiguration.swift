@@ -26,14 +26,10 @@ public struct ImageSymbolConfiguration: Hashable {
     public var font: FontConfiguration?
 
     /// The color configuration of the symbol configuration.
-    public var color: ColorConfiguration? {
-        didSet { updateResolvedColors() }
-    }
+    public var color: ColorConfiguration?
 
     /// The color transformer for resolving the colors of the color configuration.
-    public var colorTransformer: ColorTransformer? {
-        didSet { updateResolvedColors() }
-    }
+    public var colorTransformer: ColorTransformer?
 
     /// The image scaling of the symbol configuration.
     public var imageScale: ImageScale?
@@ -129,7 +125,6 @@ public struct ImageSymbolConfiguration: Hashable {
         self.color = color
         self.colorTransformer = colorTransformer
         self.imageScale = imageScale
-        updateResolvedColors()
     }
 
     /// Creates a configuration with a monochrome color configuration using the tint color.
@@ -219,15 +214,6 @@ public struct ImageSymbolConfiguration: Hashable {
             return colorTransformer?(tertiary) ?? tertiary
         }
         return nil
-    }
-
-    var _resolvedPrimaryColor: NSUIColor?
-    var _resolvedSecondaryColor: NSUIColor?
-    var _resolvedTertiaryColor: NSUIColor?
-    mutating func updateResolvedColors() {
-        _resolvedPrimaryColor = resolvedPrimaryColor()
-        _resolvedSecondaryColor = resolvedSecondaryColor()
-        _resolvedTertiaryColor = resolvedTertiaryColor()
     }
 
     /// The font of a symbol image.
@@ -641,10 +627,10 @@ public extension View {
         func configurate(using configuration: ImageSymbolConfiguration) {
             #if os(macOS)
                 symbolConfiguration = configuration.nsUI()
-                contentTintColor = configuration._resolvedPrimaryColor ?? contentTintColor
+                contentTintColor = configuration.resolvedPrimaryColor() ?? contentTintColor
             #elseif canImport(UIKit)
                 preferredSymbolConfiguration = configuration.nsUI()
-                tintColor = configuration._resolvedPrimaryColor ?? tintColor
+                tintColor = configuration.resolvedPrimaryColor() ?? tintColor
             #endif
         }
     }

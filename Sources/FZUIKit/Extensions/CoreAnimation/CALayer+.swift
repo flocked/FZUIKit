@@ -63,7 +63,7 @@ import FZSwiftUtils
                 }
                 
                 if let layer = self as? CAShapeLayer {
-                    layer.strokeColor = newValue._resolvedColor?.cgColor
+                    layer.strokeColor = newValue.resolvedColor()?.cgColor
                     layer.lineDashPattern = newValue.dashPattern  as [NSNumber]
                     layer.lineWidth = newValue.width
                 } else {
@@ -77,7 +77,7 @@ import FZSwiftUtils
                         }
                         borderLayer?.configuration = newValue
                     } else {
-                        borderColor = newValue._resolvedColor?.cgColor
+                        borderColor = newValue.resolvedColor()?.cgColor
                         borderWidth = newValue.width
                     }
                 }

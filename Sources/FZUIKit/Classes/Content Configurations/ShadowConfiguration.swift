@@ -29,14 +29,10 @@ public struct ShadowConfiguration: Hashable {
     }
     
     /// The color of the shadow.
-    public var color: NSUIColor? = .black {
-        didSet { _resolvedColor = resolvedColor() }
-    }
+    public var color: NSUIColor? = .black
     
     /// The color transformer for resolving the shadow color.
-    public var colorTransformer: ColorTransformer? {
-        didSet { _resolvedColor = resolvedColor() }
-    }
+    public var colorTransformer: ColorTransformer?
     
     /// Generates the resolved shadow color, using the shadow color, color transformer and optionally the opacity.
     public func resolvedColor(withOpacity: Bool = false) -> NSUIColor? {
@@ -47,7 +43,7 @@ public struct ShadowConfiguration: Hashable {
     }
     
     /// The opacity of the shadow.
-    public var opacity: CGFloat = 0.3
+    public var opacity: CGFloat = 0.4
     
     /// The blur radius of the shadow.
     public var radius: CGFloat = 2.0
@@ -62,15 +58,13 @@ public struct ShadowConfiguration: Hashable {
     
     /// A Boolean value that indicates whether the shadow is invisible (when the color is `nil`, `clear` or the opacity `0`).
     var isInvisible: Bool {
-        (_resolvedColor == nil || _resolvedColor?.alphaComponent == 0.0 || opacity == 0.0)
+        (resolvedColor() == nil || resolvedColor()?.alphaComponent == 0.0 || opacity == 0.0)
     }
-    
-    var _resolvedColor: NSUIColor?
-    
+        
     #if os(macOS)
     /// Creates a shadow configuration.
     public init(color: NSUIColor? = .black,
-                opacity: CGFloat = 0.3,
+                opacity: CGFloat = 0.4,
                 radius: CGFloat = 2.0,
                 offset: CGPoint = CGPoint(x: 1.0, y: -1.5))
     {
@@ -78,12 +72,11 @@ public struct ShadowConfiguration: Hashable {
         self.opacity = opacity
         self.radius = radius
         self.offset = offset
-        _resolvedColor = resolvedColor()
     }
     #else
     /// Creates a shadow configuration.
     public init(color: NSUIColor? = .black,
-                opacity: CGFloat = 0.3,
+                opacity: CGFloat = 0.4,
                 radius: CGFloat = 2.0,
                 offset: CGPoint = CGPoint(x: -1.0, y: 1.5))
     {
@@ -91,7 +84,6 @@ public struct ShadowConfiguration: Hashable {
         self.opacity = opacity
         self.radius = radius
         self.offset = offset
-        _resolvedColor = resolvedColor()
     }
     #endif
     
@@ -99,7 +91,6 @@ public struct ShadowConfiguration: Hashable {
     public static func none() -> Self { Self(color: nil, opacity: 0.0) }
     
     #if os(macOS)
-    
     /// A configuration for a black shadow.
     public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
     
@@ -107,15 +98,14 @@ public struct ShadowConfiguration: Hashable {
     public static func white(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self { Self(color: .white, opacity: opacity, radius: radius, offset: offset) }
     
     /// A configuration for a shadow with the specified color.
-    public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
+    public static func color(_ color: NSUIColor, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
         Self(color: color, opacity: opacity, radius: radius, offset: offset)
     }
     
     /// A configuration for a accent color shadow.
-    public static func accentColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .controlAccentColor, opacity: opacity, radius: radius, offset: offset) }
+    public static func accentColor(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .controlAccentColor, opacity: opacity, radius: radius, offset: offset) }
     
     #else
-    
     /// A configuration for a black shadow.
     public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
     
@@ -123,15 +113,13 @@ public struct ShadowConfiguration: Hashable {
     public static func white(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .white, opacity: opacity, radius: radius, offset: offset) }
     
     /// A configuration for a shadow with the specified color.
-    public static func color(_ color: NSUIColor, opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self {
+    public static func color(_ color: NSUIColor, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self {
         Self(color: color, opacity: opacity, radius: radius, offset: offset)
     }
-    #endif
     
-    #if os(iOS)
     /// A configuration for a tint color shadow.
-    @available(iOS 15.0, *)
-    public static func tintColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .tintColor, opacity: opacity, radius: radius, offset: offset) }
+    @available(iOS 15.0, tvOS 15.0, *)
+    public static func tintColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .tintColor, opacity: opacity, radius: radius, offset: offset) }
     #endif
 }
 
@@ -147,7 +135,6 @@ extension ShadowConfiguration: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(color, forKey: .color)
-        try container.encode(_resolvedColor, forKey: .resolvedColor)
         try container.encode(opacity, forKey: .opacity)
         try container.encode(radius, forKey: .radius)
         try container.encode(offset, forKey: .offset)
@@ -159,7 +146,6 @@ extension ShadowConfiguration: Codable {
                      opacity: try values.decode(CGFloat.self, forKey: .opacity),
                      radius: try values.decode(CGFloat.self, forKey: .radius),
                      offset: try values.decode(CGPoint.self, forKey: .offset))
-        _resolvedColor = try values.decode(Optional<NSUIColor>.self, forKey: .resolvedColor)
     }
 }
 
@@ -173,7 +159,7 @@ extension NSUIView {
      */
     func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) {
         if type == .outer {
-            shadowColor = configuration._resolvedColor
+            shadowColor = configuration.resolvedColor()
             shadowOffset = configuration.offset
             shadowOpacity = configuration.opacity
             shadowRadius = configuration.radius
@@ -319,19 +305,17 @@ public class __ShadowConfiguration: NSObject, NSCopying {
     var opacity: CGFloat = 0.3
     var radius: CGFloat = 2.0
     var offset: CGPoint = .init(x: 1.0, y: -1.5)
-    var _resolvedColor: NSUIColor?
     
-    public init(color: NSUIColor?, opacity: CGFloat, radius: CGFloat, offset: CGPoint, resolvedColor: NSUIColor?) {
+    public init(color: NSUIColor?, opacity: CGFloat, radius: CGFloat, offset: CGPoint) {
         self.color = color
         self.opacity = opacity
         self.radius = radius
         self.offset = offset
-        self._resolvedColor = resolvedColor
         super.init()
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset, resolvedColor: _resolvedColor)
+        __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset)
     }
 }
 
@@ -340,7 +324,7 @@ extension ShadowConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __ShadowConfiguration
     
     public func _bridgeToObjectiveC() -> __ShadowConfiguration {
-        return __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset, resolvedColor: _resolvedColor)
+        return __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset)
     }
     
     public static func _forceBridgeFromObjectiveC(_ source: __ShadowConfiguration, result: inout ShadowConfiguration?) {

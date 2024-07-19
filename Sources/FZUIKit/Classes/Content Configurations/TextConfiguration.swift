@@ -85,22 +85,14 @@ public struct TextConfiguration {
     
     #if os(macOS)
     /// The color of the text.
-    public var color: NSUIColor = .labelColor {
-        didSet { _resolvedTextColor = resolvedColor() }
-    }
-    var _resolvedTextColor: NSUIColor = .labelColor
+    public var color: NSUIColor = .labelColor
     #elseif canImport(UIKit)
     /// The color of the text.
-    public var color: NSUIColor = .label {
-        didSet { _resolvedTextColor = resolvedColor() }
-    }
-    var _resolvedTextColor: NSUIColor = .label
+    public var color: NSUIColor = .label
     #endif
     
     /// The color transformer of the text color.
-    public var colorTansform: ColorTransformer? {
-        didSet { _resolvedTextColor = resolvedColor() }
-    }
+    public var colorTansform: ColorTransformer?
     
     /// Generates the resolved text color, using the text color and color transformer.
     public func resolvedColor() -> NSUIColor {
@@ -294,7 +286,7 @@ public extension Text {
     @ViewBuilder
     func configurate(using properties: TextConfiguration) -> some View {
         font(Font(properties.font))
-            .foregroundColor(Color(properties._resolvedTextColor))
+            .foregroundColor(Color(properties.resolvedColor()))
             .lineLimit(properties.numberOfLines == 0 ? nil : properties.numberOfLines)
             .multilineTextAlignment(properties.alignment.swiftUIMultiline)
             .frame(alignment: properties.alignment.swiftUI)
@@ -323,7 +315,7 @@ public extension NSTextField {
         }
         set {
             maximumNumberOfLines = newValue.numberOfLines
-            textColor = newValue._resolvedTextColor
+            textColor = newValue.resolvedColor()
             font = newValue.font
             alignment = newValue.alignment
             lineBreakMode = newValue.lineBreakMode
@@ -360,7 +352,7 @@ public extension NSTextView {
             return configuration
         }
         set {
-            textColor = newValue._resolvedTextColor
+            textColor = newValue.resolvedColor()
             font = newValue.font
             alignment = newValue.alignment
             isEditable = newValue.isEditable
@@ -399,7 +391,7 @@ public extension UILabel {
         }
         set {
             numberOfLines = newValue.numberOfLines
-            textColor = newValue._resolvedTextColor
+            textColor = newValue.resolvedColor()
             font = newValue.font
             lineBreakMode = newValue.lineBreakMode
             textAlignment = newValue.alignment
@@ -433,7 +425,7 @@ public extension UITextField {
             return configuration
         }
         set {
-            textColor = newValue._resolvedTextColor
+            textColor = newValue.resolvedColor()
             font = newValue.font
             textAlignment = newValue.alignment
             adjustsFontSizeToFitWidth = newValue.adjustsFontSizeToFitWidth
@@ -471,7 +463,7 @@ public extension UITextView {
             font = newValue.font
             textContainer.maximumNumberOfLines = newValue.numberOfLines
             isSelectable = newValue.isSelectable
-            textColor = newValue._resolvedTextColor
+            textColor = newValue.resolvedColor()
             textContainer.lineBreakMode = newValue.lineBreakMode
             adjustsFontForContentSizeCategory = newValue.adjustsFontForContentSizeCategory
             #if os(iOS)

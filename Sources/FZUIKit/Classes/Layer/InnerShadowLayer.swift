@@ -27,9 +27,9 @@
                 colorTransformer = newValue.colorTransformer
                 color = newValue.color
                 if let view = superlayer?.parentView {
-                    resolvedColor = newValue._resolvedColor?.resolvedColor(for: view)
+                    resolvedColor = newValue.resolvedColor()?.resolvedColor(for: view)
                 } else {
-                    resolvedColor = newValue._resolvedColor
+                    resolvedColor = newValue.resolvedColor()
                 }
                 shadowOpacity = Float(newValue.opacity)
                 let needsUpdate = shadowOffset != newValue.offset.size || shadowRadius != newValue.radius

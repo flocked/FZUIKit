@@ -27,7 +27,7 @@ public class ShapedLayer: CAShapeLayer {
     func updateBorder() {
         /*
         if shape.needsLayer {
-            strokeColor = border._resolvedColor?.cgColor
+            strokeColor = border.resolvedColor()?.cgColor
             lineWidth = border.width
         } else {
             strokeColor = nil

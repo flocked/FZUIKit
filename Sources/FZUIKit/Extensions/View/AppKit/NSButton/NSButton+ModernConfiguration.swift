@@ -299,10 +299,6 @@
 
             var _resolvedTitleAlignment: TitleAlignment = .automatic
             var _resolvedTextAlignment: SwiftUI.TextAlignment = .center
-
-        //    var _resolvedBorderColor: NSColor?
-            var _resolvedForegroundColor: NSColor?
-            var _resolvedBackgroundColor: NSColor?
             
             var hasTitle: Bool {
                 title != nil || attributedTitle != nil
@@ -322,9 +318,7 @@
                 default:
                     _resolvedTextAlignment = .center
                 }
-             //   _resolvedBorderColor = resolvedBorderColor()
-                _resolvedForegroundColor = resolvedForegroundColor()
-                _resolvedBackgroundColor = resolvedBackgroundColor()
+    
 
                 if let colorConfiguration = imageSymbolConfiguration?.color, var configuration = imageSymbolConfiguration {
                     switch colorConfiguration {

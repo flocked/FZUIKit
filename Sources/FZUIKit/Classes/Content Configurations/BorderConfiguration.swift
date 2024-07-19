@@ -21,14 +21,10 @@
      */
     public struct BorderConfiguration: Hashable {
         /// The color of the border.
-        public var color: NSUIColor? {
-            didSet { _resolvedColor = resolvedColor() }
-        }
+        public var color: NSUIColor?
 
         /// The color transformer for resolving the border color.
-        public var colorTransformer: ColorTransformer? {
-            didSet { _resolvedColor = resolvedColor() }
-        }
+        public var colorTransformer: ColorTransformer?
 
         /// Generates the resolved border color, using the border color and color transformer.
         public func resolvedColor() -> NSUIColor? {
@@ -59,10 +55,9 @@
             self.dashPattern = dashPattern
             self.colorTransformer = colorTransformer
             self.insets = insets
-            _resolvedColor = resolvedColor()
         }
 
-        /// A border configuration without a border.
+        /// A configuration without a border.
         public static func none() -> Self { Self() }
 
         /// A configuration for a black border.
@@ -70,7 +65,7 @@
             Self(color: .black, width: width)
         }
         
-        /// A configuration for a black border.
+        /// A configuration for a white border.
         public static func white(width: CGFloat = 2.0) -> Self {
             Self(color: .white, width: width)
         }
@@ -81,13 +76,13 @@
         }
 
         #if os(macOS)
-            /// A configuration for a border with the control accent color.
-            public static func accentColor(width: CGFloat = 2.0) -> Self {
-                Self(color: .controlAccentColor, width: width)
-            }
-        #elseif os(iOS)
-        /// A configuration for a border with the tint color.
-        @available(iOS 15.0, *)
+        /// A configuration for a accent color border.
+        public static func accentColor(width: CGFloat = 2.0) -> Self {
+            Self(color: .controlAccentColor, width: width)
+        }
+        #else
+        /// A configuration for a tint color border.
+        @available(iOS 15.0, tvOS 15.0, *)
         public static func tintColor(width: CGFloat = 2.0) -> Self {
             Self(color: .tintColor, width: width)
         }
@@ -98,11 +93,9 @@
             Self(color: color, width: width, dashPattern: dashPattern)
         }
 
-        var _resolvedColor: NSUIColor?
-
         /// A Boolean value that indicates whether the border is invisible (when the color is `nil`, `clear` or the width `0`).
         var isInvisible: Bool {
-            width == 0.0 || _resolvedColor == nil || _resolvedColor == .clear
+            width == 0.0 || resolvedColor() == nil || resolvedColor() == .clear
         }
 
         var needsDashedBordlerLayer: Bool {
@@ -122,7 +115,6 @@ extension BorderConfiguration: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(color, forKey: .color)
-        try container.encode(_resolvedColor, forKey: .resolvedColor)
         try container.encode(width, forKey: .width)
         try container.encode(dashPattern, forKey: .dashPattern)
         try container.encode(insets, forKey: .insets)
@@ -134,7 +126,6 @@ extension BorderConfiguration: Codable {
                      width: try values.decode(CGFloat.self, forKey: .width),
                      dashPattern: try values.decode([CGFloat].self, forKey: .dashPattern),
                      insets: try values.decode(NSDirectionalEdgeInsets.self, forKey: .insets))
-        _resolvedColor = try values.decode(Optional<NSUIColor>.self, forKey: .resolvedColor)
     }
 }
 
@@ -147,7 +138,7 @@ extension BorderConfiguration: Codable {
          */
         func configurate(using configuration: BorderConfiguration) {
             #if os(macOS)
-                dynamicColors.border = configuration._resolvedColor
+                dynamicColors.border = configuration.resolvedColor()
             #endif
             // optionalLayer?.configurate(using: configuration)
             if configuration.needsDashedBordlerLayer, !configuration.isInvisible {
@@ -163,7 +154,7 @@ extension BorderConfiguration: Codable {
                 optionalLayer?.addSublayer(withConstraint: borderLayer, insets: configuration.insets)
             } else {
                 dashedBorderLayer?.removeFromSuperlayer()
-                let newColor = configuration._resolvedColor?.resolvedColor(for: self)
+                let newColor = configuration.resolvedColor()?.resolvedColor(for: self)
                 if borderColor?.alphaComponent == 0.0 || borderColor == nil {
                     borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
                 }
@@ -196,7 +187,7 @@ extension BorderConfiguration: Codable {
                 addSublayer(withConstraint: borderLayer, insets: configuration.insets)
             } else {
                 borderLayer?.removeFromSuperlayer()
-                borderColor = configuration._resolvedColor?.cgColor
+                borderColor = configuration.resolvedColor()?.cgColor
                 borderWidth = configuration.width
             }
         }
@@ -213,20 +204,18 @@ public class __BorderConfiguration: NSObject, NSCopying {
     var width: CGFloat
     var dashPattern: [CGFloat]
     var insets: NSDirectionalEdgeInsets
-    var _resolvedColor: NSUIColor?
 
-    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dashPattern: [CGFloat], insets: NSDirectionalEdgeInsets, resolvedColor: NSUIColor? = nil) {
+    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dashPattern: [CGFloat], insets: NSDirectionalEdgeInsets) {
         self.color = color
         self.width = width
         self.dashPattern = dashPattern
         self.colorTransformer = colorTransformer
         self.insets = insets
-        self._resolvedColor = resolvedColor
         super.init()
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, insets: insets, resolvedColor: _resolvedColor)
+        __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, insets: insets)
     }
 }
 
@@ -235,7 +224,7 @@ extension BorderConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __BorderConfiguration
 
     public func _bridgeToObjectiveC() -> __BorderConfiguration {
-        return __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, insets: insets, resolvedColor: _resolvedColor)
+        return __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, insets: insets)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) {

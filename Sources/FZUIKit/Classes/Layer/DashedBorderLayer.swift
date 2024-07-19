@@ -22,7 +22,7 @@
             set {
                 guard newValue != configuration else { return }
                 borderedLayer.lineWidth = newValue.width
-                borderedLayer.strokeColor = newValue._resolvedColor?.cgColor
+                borderedLayer.strokeColor = newValue.resolvedColor()?.cgColor
                 borderDashPattern = newValue.dashPattern
                 borderInsets = newValue.insets
             }
