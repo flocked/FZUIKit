@@ -247,7 +247,7 @@
             set {
                 guard newValue != isEditableByDoubleClick else { return }
                 if newValue {
-                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer(reattachesAutomaticallyToTheView: true)
+                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer(reattachesAutomatically: true)
                     doubleClickEditGestureRecognizer?.addToView(self)
                 } else  {
                     doubleClickEditGestureRecognizer?.removeFromView()

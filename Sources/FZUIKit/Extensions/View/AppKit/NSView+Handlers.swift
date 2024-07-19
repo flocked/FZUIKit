@@ -106,7 +106,7 @@ extension NSView {
             if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
                 addGestureRecognizer(observerGestureRecognizer)
             } else if observerGestureRecognizer == nil {
-                observerGestureRecognizer = ObserverGestureRecognizer(reattachesAutomaticallyToTheView: true)
+                observerGestureRecognizer = ObserverGestureRecognizer(reattachesAutomatically: true)
                 addGestureRecognizer(observerGestureRecognizer!)
             }
         } else {
