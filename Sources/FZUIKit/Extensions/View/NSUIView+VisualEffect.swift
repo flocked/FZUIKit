@@ -5,115 +5,105 @@
 //  Created by Florian Zand on 03.02.23.
 //
 
-#if os(macOS) || os(iOS)
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
-    extension NSUIView {
-        /**
-         The visual effect of the view.
-
-         The property adds a `VisualEffectView` as background to the view. The default value is `nil`.
-         */
-        @objc open var visualEffect: VisualEffectConfiguration? {
-            get {
-                #if os(macOS)
-                return (self as? NSVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
-                #else
-                return visualEffectBackgroundView?.contentProperties
-                #endif
-            }
-            set {
-                if let newValue = newValue {
-                    #if os(macOS)
-                    if let view = self as? NSVisualEffectView {
-                        view.configuration = newValue
-                    } else {
-                        let shadow = outerShadow
-                        if visualEffectBackgroundView == nil {
-                            visualEffectBackgroundView = TaggedVisualEffectView()
-                        }
-                        visualEffectBackgroundView?.configuration = newValue
-                        if let appearance = newValue.appearance {
-                            self.appearance = appearance
-                        }
-                        visualEffectBackgroundView?.cornerRadius = cornerRadius
-                        visualEffectBackgroundView?.roundedCorners = roundedCorners
-                     //   visualEffectBackgroundView?.cornerShape = cornerShape
-                        outerShadow = shadow
-
-                    }
-                    #else
+extension NSUIView {
+    /**
+     The visual effect of the view.
+     
+     The property adds a `VisualEffectView` as background to the view. The default value is `nil`.
+     */
+    @objc open var visualEffect: VisualEffectConfiguration? {
+        get {
+            #if os(macOS)
+            (self as? NSVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
+            #else
+            (self as? UIVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
+            #endif
+        }
+        set {
+            if let newValue = newValue {
+            #if os(macOS)
+                if let view = self as? NSVisualEffectView {
+                    view.configuration = newValue
+                } else {
+                    let shadow = outerShadow
                     if visualEffectBackgroundView == nil {
                         visualEffectBackgroundView = TaggedVisualEffectView()
                     }
-                    visualEffectBackgroundView?.contentProperties = newValue
-                    #endif
+                    visualEffectBackgroundView?.configuration = newValue
+                    if let appearance = newValue.appearance {
+                        self.appearance = appearance
+                    }
+                    visualEffectBackgroundView?.cornerRadius = cornerRadius
+                    visualEffectBackgroundView?.roundedCorners = roundedCorners
+                    //   visualEffectBackgroundView?.cornerShape = cornerShape
+                    outerShadow = shadow
+                    
+                }
+            #else
+                if let view = self as? UIVisualEffectView {
+                    view.configuration = newValue
                 } else {
-                    visualEffectBackgroundView = nil
+                    if visualEffectBackgroundView == nil {
+                        visualEffectBackgroundView = TaggedVisualEffectView()
+                    }
+                    visualEffectBackgroundView?.configuration = newValue
                 }
-            }
-        }
-        
-        /// Sets the visual effect of the view.
-        @discardableResult
-        @objc open func visualEffect(_ visualEffect: VisualEffectConfiguration?) -> Self {
-            self.visualEffect = visualEffect
-            return self
-        }
-
-        var visualEffectBackgroundView: TaggedVisualEffectView? {
-            get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView }
-            set {
-                if visualEffectBackgroundView != newValue {
-                    visualEffectBackgroundView?.removeFromSuperview()
-                }
-                if let newValue = newValue {
-                    insertSubview(newValue, at: 0)
-                    newValue.constraint(to: self)
-                }
+            #endif
+            } else {
+                visualEffectBackgroundView = nil
             }
         }
     }
-
-    #if os(macOS)
-        extension NSView {
-            class TaggedVisualEffectView: NSVisualEffectView {
-                public static var Tag: Int { 3_443_024 }
-
-                override var tag: Int { Self.Tag }
+    
+    /// Sets the visual effect of the view.
+    @discardableResult
+    @objc open func visualEffect(_ visualEffect: VisualEffectConfiguration?) -> Self {
+        self.visualEffect = visualEffect
+        return self
+    }
+    
+    var visualEffectBackgroundView: TaggedVisualEffectView? {
+        get { viewWithTag(TaggedVisualEffectView.Tag) as? TaggedVisualEffectView }
+        set {
+            if visualEffectBackgroundView != newValue {
+                visualEffectBackgroundView?.removeFromSuperview()
+            }
+            if let newValue = newValue {
+                insertSubview(newValue, at: 0)
+                newValue.constraint(to: self)
             }
         }
+    }
+}
 
-    #elseif canImport(UIKit)
-        extension UIView {
-            class TaggedVisualEffectView: UIVisualEffectView {
-                public var contentProperties: VisualEffectConfiguration = .init() {
-                    didSet { updateEffect() }
-                }
+#if os(macOS)
+class TaggedVisualEffectView: NSVisualEffectView {
+    static var Tag: Int { 3_443_024 }
+    
+    override var tag: Int { Self.Tag }
+}
+#else
+class TaggedVisualEffectView: UIVisualEffectView {
+    static var Tag: Int { 3_443_024 }
+    
+    override var tag: Int {
+        get { Self.Tag }
+        set { }
+    }
+}
 
-                func updateEffect() {
-                    #if os(iOS)
-                    effect = contentProperties.effect
-                    #elseif os(tvOS)
-                        if let blur = contentProperties.blur {
-                            effect = UIBlurEffect(style: blur)
-                        } else {
-                            effect = nil
-                        }
-                    #endif
-                }
-
-                public static var Tag: Int { 3_443_024 }
-
-                override var tag: Int {
-                    get { Self.Tag }
-                    set { }
-                }
-            }
-        }
-    #endif
+extension UIVisualEffectView {
+    var configuration: VisualEffectConfiguration {
+        get { VisualEffectConfiguration(effect: effect) }
+        set { effect = newValue.effect }
+    }
+}
+#endif
 #endif

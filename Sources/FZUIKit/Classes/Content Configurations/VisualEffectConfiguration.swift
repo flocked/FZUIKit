@@ -233,7 +233,7 @@ extension VisualEffectConfiguration: ReferenceConvertible {
     }
 }
 
-    #elseif os(iOS)
+    #elseif os(iOS) || os(tvOS)
         import UIKit
         /**
          A configuration that specifies the appearance of a visual effect view.
@@ -251,12 +251,17 @@ extension VisualEffectConfiguration: ReferenceConvertible {
             public init(effect: UIVisualEffect? = nil) {
                 self.effect = effect
             }
-
-            /// A visual blurring vibrancy effect.
-            public static func vibrancy(_ vibrancy: UIVibrancyEffectStyle, blur: UIBlurEffect.Style) -> Self { Self(effect: UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)) }
-
+            
             /// A visual blurring effect.
             public static func blur(_ style: UIBlurEffect.Style) -> Self { Self(effect: UIBlurEffect(style: style)) }
+            
+            /// A visual vibrancy effect.
+            public static func vibrancy(blur: UIBlurEffect.Style) -> Self { Self(effect: UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur))) }
+
+            #if os(iOS)
+            /// A visual blurring vibrancy effect.
+            public static func vibrancy(_ vibrancy: UIVibrancyEffectStyle, blur: UIBlurEffect.Style) -> Self { Self(effect: UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)) }
+            #endif
         }
 
         public extension UIView {
