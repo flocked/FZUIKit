@@ -213,7 +213,7 @@ extension NSMenu {
         set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
     }
     
-    var delegateProxy: DelegateProxy? {
+    var delegateProxy: Delegate? {
         get { getAssociatedValue("delegateProxy", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
@@ -221,7 +221,7 @@ extension NSMenu {
     func setupDelegateProxy(itemProviderView: NSView? = nil) {
         if itemProviderView != nil ||  items.contains(where: { $0.visiblity != .normal || $0.view is MenuItemView }) || handlers.needsDelegate {
             if delegateProxy == nil {
-                delegateProxy = DelegateProxy(self)
+                delegateProxy = Delegate(self)
             }
             delegateProxy?.itemProviderView = itemProviderView
         } else if delegateProxy != nil {
@@ -231,7 +231,7 @@ extension NSMenu {
         }
     }
     
-    class DelegateProxy: NSObject, NSMenuDelegate {
+    class Delegate: NSObject, NSMenuDelegate {
         weak var delegate: NSMenuDelegate?
         weak var itemProviderView: NSView?
         var eventObserver: CFRunLoopObserver?

@@ -12,79 +12,79 @@
     extension NSWindow {
         
         /// A Boolean value that indicates whether the window displays a title bar.
-        public var isTitled: Bool {
+        @objc open var isTitled: Bool {
             get { styleMask.contains(.titled) }
             set { styleMask[.titled] = newValue }
         }
         
         /// Sets the Boolean value that indicates whether the window displays a title bar.
         @discardableResult
-        public func isTitled(_ isTitled: Bool) -> Self {
+        @objc open func isTitled(_ isTitled: Bool) -> Self {
             self.isTitled = isTitled
             return self
         }
         
         /// A Boolean value that indicates whether the window’s contentView consumes the full size of the window.
-        public var hasFullSizeContentView: Bool {
+        @objc open var hasFullSizeContentView: Bool {
             get { styleMask.contains(.fullSizeContentView) }
             set { styleMask[.fullSizeContentView] = newValue }
         }
         
         /// Sets the Boolean value that indicates whether the window’s contentView consumes the full size of the window.
         @discardableResult
-        public func hasFullSizeContentView(_ hasFullSizeContentView: Bool) -> Self {
+        @objc open func hasFullSizeContentView(_ hasFullSizeContentView: Bool) -> Self {
             self.hasFullSizeContentView = hasFullSizeContentView
             return self
         }
         
         /// A Boolean value that indicates whether the window displays a close button.
-        public var displaysCloseButton: Bool {
+        @objc open var displaysCloseButton: Bool {
             get { styleMask.contains(.closable) }
             set { styleMask[.closable] = newValue }
         }
         
         /// Sets the Boolean value that indicates whether the window displays a close button.
         @discardableResult
-        public func displaysCloseButton(_ displays: Bool) -> Self {
+        @objc open func displaysCloseButton(_ displays: Bool) -> Self {
             self.displaysCloseButton = displays
             return self
         }
         
         /// A Boolean value that indicates whether the window can be resized by the user.
-        public var isResizable: Bool {
+        @objc open var isResizable: Bool {
             get { styleMask.contains(.resizable) }
             set { styleMask[.resizable] = newValue }
         }
         
         /// Sets the Boolean value that indicates whether the window can be resized by the user.
         @discardableResult
-        public func isResizable(_ isResizable: Bool) -> Self {
+        @objc open func isResizable(_ isResizable: Bool) -> Self {
             self.isResizable = isResizable
             return self
         }
         
         /// A Boolean value that indicates whether the window displays a minimize button.
-        public var displaysMinimizeButton: Bool {
+        @objc open var displaysMinimizeButton: Bool {
             get { styleMask.contains(.miniaturizable) }
             set { styleMask[.miniaturizable] = newValue }
         }
         
         /// Sets the Boolean value that indicates whether the window displays a minimize button.
         @discardableResult
-        public func displaysMinimizeButton(_ displays: Bool) -> Self {
+        @objc open func displaysMinimizeButton(_ displays: Bool) -> Self {
             self.displaysMinimizeButton = displays
             return self
         }
         
         /// A Boolean value that indicates whether the window displays none of the usual peripheral elements.
-        public var isBorderless: Bool {
+        @objc open var isBorderless: Bool {
             get { styleMask.contains(.borderless) }
             set { styleMask[.borderless] = newValue }
         }
         
         /// Sets the Boolean value that indicates whether the window displays none of the usual peripheral elements.
         @discardableResult
-        public func isBorderless(_ isBorderless: Bool) -> Self {
+        @objc open func isBorderless(_ isBorderless: Bool) -> Self {
             self.isBorderless = isBorderless
             return self
         }
@@ -113,71 +113,71 @@
                 effectiveAppearance != nil
             }
         }
-        
+                
         /// The handlers for the window.
         public var handlers: Handlers {
             get { getAssociatedValue("windowHandlers", initialValue: Handlers()) }
             set {
                 setAssociatedValue(newValue, key: "windowHandlers")
                 setupLiveResizeObservation()
-                if handlers.needsObserver, windowObserver == nil {
+                if newValue.needsObserver, windowObserver == nil {
                     windowObserver = KeyValueObserver(self)
-                } else if !handlers.needsObserver {
+                } else if !newValue.needsObserver {
                     windowObserver = nil
                 }
-                
-                if handlers.firstResponder != nil {
-                    windowObserver?.add(\.firstResponder) { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.handlers.firstResponder?(new)
+
+                if let firstResponder = newValue.firstResponder {
+                    windowObserver?.add(\.firstResponder) { old, new in
+                        guard old != new else { return }
+                        firstResponder(new)
                     }
                 } else {
                     windowObserver?.remove(\.firstResponder)
                 }
                 
-                if handlers.effectiveAppearance != nil {
-                    windowObserver?.add(\.effectiveAppearance) { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.handlers.effectiveAppearance?(new)
+                if let effectiveAppearance = newValue.effectiveAppearance {
+                    windowObserver?.add(\.effectiveAppearance) { old, new in
+                        guard old != new else { return }
+                        effectiveAppearance(new)
                     }
                 } else {
                     windowObserver?.remove(\.effectiveAppearance)
                 }
                 
-                if handlers.frame != nil {
-                    windowObserver?.add(\.frame) { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.handlers.frame?(new)
+                if let frame = newValue.frame {
+                    windowObserver?.add(\.frame) { old, new in
+                        guard old != new else { return }
+                        frame(new)
                     }
                 } else {
                     windowObserver?.remove(\.frame)
                 }
                 
-                if handlers.isKey != nil {
+                if let isKey = newValue.isKey {
                     NSWindow.isKeyWindowObservable = true
-                    windowObserver?.add(\.isKeyWindow) { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.handlers.isKey?(new)
+                    windowObserver?.add(\.isKeyWindow) { old, new in
+                        guard old != new else { return }
+                        isKey(new)
                     }
                 } else {
                     windowObserver?.remove(\.isKeyWindow)
                 }
                 
-                if handlers.isMain != nil {
+                if let isMain = newValue.isMain {
                     NSWindow.isMainWindowObservable = true
-                    windowObserver?.add(\.isMainWindow) { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.handlers.isMain?(new)
+                    windowObserver?.add(\.isMainWindow) { old, new in
+                        guard old != new else { return }
+                        isMain(new)
                     }
                 } else {
                     windowObserver?.remove(\.isMainWindow)
                 }
                 
-                if handlers.isLiveResizing != nil {
+                if let isLiveResizing = newValue.isLiveResizing {
                     NSWindow.isLiveResizeObservable = true
-                    windowObserver?.add(\.inLiveResize) { [weak self] old, new in
-                        guard let self = self, old != new else { return }
-                        self.handlers.isLiveResizing?(new)
+                    windowObserver?.add(\.inLiveResize) { old, new in
+                        guard old != new else { return }
+                        isLiveResizing(new)
                     }
                 } else {
                     windowObserver?.remove(\.inLiveResize)
@@ -185,6 +185,171 @@
             }
         }
         
+        /// Tab Handlers for the window.
+        public struct TabHandlers {
+            /// The handler that gets called when the index of the window tab changes.
+            public var index: ((Int?)->())?
+            /// The handler that gets called when the tab windows changes.
+            public var windows: (([NSWindow]?)->())?
+            /// The handler that gets called when the tab selection state changes.
+            public var isSelected: ((Bool)->())?
+            /// The handler that gets called when the tab bar visibilty changes.
+            public var isTabBarVisible: ((Bool)->())?
+            /// The handler that gets called when the tab overview visibilty changes.
+            public var isOverviewVisible: ((Bool)->())?
+            
+            var needsObserver: Bool {
+                index != nil ||
+                windows != nil ||
+                isSelected != nil ||
+                isTabBarVisible != nil ||
+                isOverviewVisible != nil
+            }
+        }
+        
+        /// The tab handlers for the window.
+        public var tabHandlers: TabHandlers {
+            get { getAssociatedValue("tabHandlers", initialValue: TabHandlers()) }
+            set {
+                setAssociatedValue(newValue, key: "tabHandlers")
+                if newValue.needsObserver, tabObserver == nil {
+                    tabObserver = KeyValueObserver(self)
+                } else if !newValue.needsObserver {
+                    tabObserver = nil
+                }
+                if let tabWindows = newValue.windows {
+                    tabObserver?.add(\.tabGroup?.windows) { old, new in
+                        guard old != new else { return }
+                        tabWindows(new ?? [])
+                    }
+                } else {
+                    tabObserver?.remove(\.tabGroup?.windows)
+                }
+                
+                if let tabIsSelected = newValue.isSelected {
+                    tabObserver?.add(\.tabGroup?.selectedWindow) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        if old == self, new != self {
+                            tabIsSelected(false)
+                        } else if old != self, new == self {
+                            tabIsSelected(true)
+                        }
+                    }
+                } else {
+                    tabObserver?.remove(\.tabGroup?.selectedWindow)
+                }
+                
+                if let isTabBarVisible = newValue.isTabBarVisible {
+                    tabObserver?.add(\.tabGroup?.isTabBarVisible) { old, new in
+                        guard old != new, let new = new else { return }
+                        isTabBarVisible(new)
+                    }
+                } else {
+                    tabObserver?.remove(\.tabGroup?.isTabBarVisible)
+                }
+                
+                if let isOverviewVisible = newValue.isOverviewVisible {
+                    tabObserver?.add(\.tabGroup?.isOverviewVisible) { old, new in
+                        guard old != new, let new = new else { return }
+                        isOverviewVisible(new)
+                    }
+                } else {
+                    tabObserver?.remove(\.tabGroup?.isOverviewVisible)
+                }
+            }
+        }
+        
+        /// Sets the minimum size to which the window’s frame (including its title bar) can be sized.
+        @discardableResult
+        @objc open func minSize(_ size: CGSize) -> Self {
+            self.minSize = size
+            return self
+        }
+        
+        /// Sets the maximum size to which the window’s frame (including its title bar) can be sized.
+        @discardableResult
+        @objc open func maxSize(_ size: CGSize) -> Self {
+            self.maxSize = size
+            return self
+        }
+        
+        /// Sets the flags that describe the window’s current style, such as if it’s resizable or in full-screen mode.
+        @discardableResult
+        @objc open func styleMask(_ styleMask: StyleMask) -> Self {
+            self.styleMask = styleMask
+            return self
+        }
+        
+        /// Sets the window’s alpha value.
+        @discardableResult
+        @objc open func alphaValue(_ alphaValue: CGFloat) -> Self {
+            self.alphaValue = alphaValue
+            return self
+        }
+        
+        /// Sets the color of the window’s background.
+        @discardableResult
+        @objc open func backgroundColor(_ color: NSColor) -> Self {
+            self.backgroundColor = color
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the window can hide when its application becomes hidden.
+        @discardableResult
+        @objc open func canHide(_ canHide: Bool) -> Self {
+            self.canHide = canHide
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the window is removed from the screen when its application becomes inactive.
+        @discardableResult
+        @objc open func hidesOnDeactivate(_ hides: Bool) -> Self {
+            self.hidesOnDeactivate = hides
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the window is opaque.
+        @discardableResult
+        @objc open func isOpaque(_ isOpaque: Bool) -> Self {
+            self.isOpaque = isOpaque
+            return self
+        }
+        
+        /// Sets the Boolean value that indicates whether the window has a shadow.
+        @discardableResult
+        @objc open func hasShadow(_ hasShadow: Bool) -> Self {
+            self.hasShadow = hasShadow
+            return self
+        }
+        
+        /// Sets the value that identifies the window’s behavior in window collections.
+        @discardableResult
+        @objc open func collectionBehavior(_ behavior: CollectionBehavior) -> Self {
+            self.collectionBehavior = behavior
+            return self
+        }
+        
+        /// Sets the window’s content view, the highest accessible view object in the window’s view hierarchy.
+        @discardableResult
+        @objc open func contentView(_ view: NSView?) -> Self {
+            self.contentView = view
+            return self
+        }
+        
+        /// Sets the main content view controller for the window.
+        @discardableResult
+        @objc open func contentViewController(_ viewController: NSViewController?) -> Self {
+            self.contentViewController = viewController
+            return self
+        }
+        
+        /// Sets the window’s color space.
+        @discardableResult
+        @objc open func colorSpace(_ colorSpace: NSColorSpace?) -> Self {
+            self.colorSpace = colorSpace
+            return self
+        }
+                        
         /**
          Sets the size of the window’s frame rectangle according to a given size.
 
@@ -193,7 +358,7 @@
             - expandToBottom:A Boolean value that indicates whether the window should expand it's size to the bottom.
             - display: Specifies whether the window redraws the views that need to be displayed. When `true` the window sends a `displayIfNeeded()` message down its view hierarchy, thus redrawing all views.
          */
-        public func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool) {
+        @objc open func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool) {
             setSize(size, expandToBottom: expandToBottom, display: display, animate: false)
         }
         
@@ -206,7 +371,7 @@
             - display: Specifies whether the window redraws the views that need to be displayed. When `true` the window sends a `displayIfNeeded()` message down its view hierarchy, thus redrawing all views.
             - animate: Specifies whether the window performs a smooth resize. `true` to perform the animation, whose duration is specified by `animationResizeTime(_:)`.
          */
-        public func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool, animate: Bool) {
+        @objc open func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool, animate: Bool) {
             var frame = frame
             frame.size = size
             if expandToBottom {
@@ -221,14 +386,26 @@
             get { getAssociatedValue("windowObserver", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "windowObserver") }
         }
+        
+        var tabObserver: KeyValueObserver<NSWindow>? {
+            get { getAssociatedValue("tabObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "tabObserver") }
+        }
                 
         /// A Boolean value that indicates whether the window is fullscreen.
-        public var isFullscreen: Bool {
+        @objc open var isFullscreen: Bool {
             get { styleMask.contains(.fullScreen) }
             set {
                 guard newValue != isFullscreen else { return }
                 toggleFullScreen(nil)
             }
+        }
+        
+        /// Sets the Boolean value that indicates whether the window is fullscreen.
+        @discardableResult
+        @objc open func isFullscreen(_ isFullscreen: Bool) -> Self {
+            self.isFullscreen = isFullscreen
+            return self
         }
 
         /// The index of the window tab, or `nil` if the window isn't a tab.
@@ -243,7 +420,7 @@
             - point: The new position of the window’s frame in screen coordinates.
             - screen: The screen on which the window’s frame gets moved.
          */
-        public func setFrameOrigin(_ point: CGPoint, on screen: NSScreen) {
+        @objc open func setFrameOrigin(_ point: CGPoint, on screen: NSScreen) {
             let screenFrame = screen.frame
             var origin = point
             origin.x = screenFrame.origin.x + point.x
@@ -256,7 +433,7 @@
 
          - Parameter screen: The screen for centering the window.
          */
-        public func center(on screen: NSScreen) {
+        @objc open func center(on screen: NSScreen) {
             var frame = frame
             frame.center = screen.frame.center
             setFrame(frame, display: true)
@@ -275,6 +452,13 @@
             set { frameAnimatable.center = newValue }
         }
         
+        /// Sets the center point of the window's frame rectangle.
+        @discardableResult
+        @objc open func centerPoint(_ centerPoint: CGPoint) -> Self {
+            self.centerPoint = centerPoint
+            return self
+        }
+        
         /**
          The animatable window’s frame rectangle in screen coordinates.
          
@@ -289,7 +473,7 @@
         }
 
         /// Resizes the window to match it's screen aspect ratio and dimensions.
-        public func resizeToScreenAspectRatio() {
+        @objc open func resizeToScreenAspectRatio() {
             guard let screen = self.screen else {
                 return
             }
@@ -307,14 +491,14 @@
 
          The value takes into account the tab bar, as well as transparent title bars and full size content.
          */
-        public var titleBarHeight: CGFloat {
+        @objc open var titleBarHeight: CGFloat {
             let frameHeight = contentView?.frame.height ?? frame.height
             let contentLayoutRectHeight = contentLayoutRect.height
             return frameHeight - contentLayoutRectHeight
         }
 
         /// A Boolean value that indicates whether window currently displays a tab bar.
-        public var isTabBarVisible: Bool {
+        @objc open var isTabBarVisible: Bool {
             get { tabGroup?.isTabBarVisible ?? false }
             set {
                 guard let tabGroup = tabGroup, tabGroup.isTabBarVisible != newValue else { return }
@@ -322,10 +506,24 @@
             }
         }
         
+        /// Sets the Boolean value that indicates whether window currently displays a tab bar.
+        @discardableResult
+        @objc open func isTabBarVisible(_ isVisible: Bool) -> Self {
+            self.isTabBarVisible = isVisible
+            return self
+        }
+        
         /// A Boolean value indicating if the tab overview is currently displayed.
-        public var isTabBarOverviewVisible: Bool {
+        @objc open var isTabBarOverviewVisible: Bool {
             get { tabGroup?.isOverviewVisible ?? false }
             set { tabGroup?.isOverviewVisible = newValue }
+        }
+        
+        /// Sets the Boolean value indicating if the tab overview is currently displayed.
+        @discardableResult
+        @objc open func isTabBarOverviewVisible(_ isVisible: Bool) -> Self {
+            self.isTabBarOverviewVisible = isVisible
+            return self
         }
         
         /**
@@ -341,7 +539,7 @@
         }
 
         /// Returns the tab bar height, or `0`, if the tab bar isn't visible.
-        public var tabBarHeight: CGFloat {
+        @objc open var tabBarHeight: CGFloat {
             isTabBarVisible ? 28.0 : 0.0
         }
 
@@ -350,7 +548,7 @@
          
          - Parameter block: The handler to be used.
          */
-        public func runNonAnimated(block: () -> Void) {
+        @objc open func runNonAnimated(block: () -> Void) {
             let currentBehavior = animationBehavior
             animationBehavior = .none
             block()
@@ -364,7 +562,7 @@
 
          The property adds a `NSVisualEffectView` as background to the window’s `contentView`. The default value is `nil.
           */
-        public var visualEffect: VisualEffectConfiguration? {
+        @objc open var visualEffect: VisualEffectConfiguration? {
             get { contentView?.visualEffect }
             set {
                 var newValue = newValue
@@ -374,33 +572,40 @@
             }
         }
         
+        /// Sets the window’s visual effect background.
+        @discardableResult
+        @objc open func visualEffect(_ visualEffect: VisualEffectConfiguration?) -> Self {
+            self.visualEffect = visualEffect
+            return self
+        }
+        
         /// The close button.
-        public var closeButton: NSButton? {
+        @objc open var closeButton: NSButton? {
             standardWindowButton(.closeButton)
         }
         
         /// The minimize button.
-        public var miniaturizeButton: NSButton? {
+        @objc open var miniaturizeButton: NSButton? {
             standardWindowButton(.miniaturizeButton)
         }
         
         /// The zoom button.
-        public var zoomButton: NSButton? {
+        @objc open var zoomButton: NSButton? {
             standardWindowButton(.zoomButton)
         }
         
         /// The toolbar button.
-        public var toolbarButton: NSButton? {
+        @objc open var toolbarButton: NSButton? {
             standardWindowButton(.toolbarButton)
         }
         
         /// The document icon button.
-        public var documentIconButton: NSButton? {
+        @objc open var documentIconButton: NSButton? {
             standardWindowButton(.documentIconButton)
         }
         
         /// The document versions button.
-        public var documentVersionsButton: NSButton? {
+        @objc open var documentVersionsButton: NSButton? {
             standardWindowButton(.documentVersionsButton)
         }
         
@@ -409,9 +614,16 @@
               
          If the window's content view controller isn't a split view controller or the split view doesn't contain a sidebar, it returns `false`.
          */
-        public var isSidebarVisible: Bool {
+        @objc open var isSidebarVisible: Bool {
             get { (contentViewController as? NSSplitViewController)?.isSidebarVisible ?? false }
             set { (contentViewController as? NSSplitViewController)?.isSidebarVisible = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the sidebar is visible.
+        @discardableResult
+        @objc open func isSidebarVisible(_ isVisible: Bool) -> Self {
+            self.isSidebarVisible = isVisible
+            return self
         }
 
         @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {

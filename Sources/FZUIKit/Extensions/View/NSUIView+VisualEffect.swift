@@ -18,7 +18,7 @@
 
          The property adds a `VisualEffectView` as background to the view. The default value is `nil`.
          */
-        @objc public var visualEffect: VisualEffectConfiguration? {
+        @objc open var visualEffect: VisualEffectConfiguration? {
             get {
                 #if os(macOS)
                 return (self as? NSVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
@@ -56,6 +56,13 @@
                     visualEffectBackgroundView = nil
                 }
             }
+        }
+        
+        /// Sets the visual effect of the view.
+        @discardableResult
+        @objc open func visualEffect(_ visualEffect: VisualEffectConfiguration?) -> Self {
+            self.visualEffect = visualEffect
+            return self
         }
 
         var visualEffectBackgroundView: TaggedVisualEffectView? {

@@ -270,7 +270,7 @@ open class MenuItemView: NSView {
         super.draw(dirtyRect)
         
         if let menu = enclosingMenuItem?.menu, menu.delegateProxy == nil {
-            menu.delegateProxy = NSMenu.DelegateProxy(menu)
+            menu.delegateProxy = NSMenu.Delegate(menu)
         }
            
         guard autoHighlightSubviews else { return }

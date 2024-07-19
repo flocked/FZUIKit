@@ -65,6 +65,12 @@ import SwiftUI
             self.contentView = view
         }
         
+        /// Creates and returns a popover with the specified content view controller.
+        public convenience init(viewController: NSViewController) {
+            self.init()
+            self.contentViewController = viewController
+        }
+        
         /// Sets the behavior of the popover.
         @discardableResult
         @objc open func behavior(_ behavior: Behavior) -> Self {
@@ -86,22 +92,23 @@ import SwiftUI
             return self
         }
         
+        func setupFrameObservation() {
+            contentViewFrameObservation = contentView?.observeChanges(for: \.frame) { [weak self] old, new in
+                guard let self = self, old.size != new.size else { return }
+                 self.contentSize = new.size
+            }
+            contentSize = contentView?.frame.size ?? contentSize
+        }
+        
         /// A Boolean value that indicates whether the content view is automatically sized to the content view`s size. `
         @objc open var autosizesContentView: Bool {
             get { contentViewControllerObservation != nil  }
             set {
                 guard newValue != autosizesContentView else { return }
                 if newValue {
-                    func setupFrameObservation() {
-                        contentViewFrameObservation = contentView?.observeChanges(for: \.frame) { [weak self] old, new in
-                            guard let self = self, old.size != new.size else { return }
-                             self.contentSize = new.size
-                        }
-                        contentSize = contentView?.frame.size ?? contentSize
-                    }
                     contentViewControllerObservation = observeChanges(for: \.contentViewController) { [weak self] old, new in
                         guard let self = self, old != new else { return }
-                        setupFrameObservation()
+                        self.setupFrameObservation()
                     }
                     setupFrameObservation()
                 } else {
