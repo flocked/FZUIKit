@@ -10,7 +10,6 @@
     import FZSwiftUtils
 
     extension NSWindow {
-        
         /// A Boolean value that indicates whether the window displays a title bar.
         @objc open var isTitled: Bool {
             get { styleMask.contains(.titled) }
@@ -270,6 +269,20 @@
         @discardableResult
         @objc open func maxSize(_ size: CGSize) -> Self {
             self.maxSize = size
+            return self
+        }
+        
+        /// Sets the size of the window.
+        @discardableResult
+        @objc open func size(_ size: CGSize) -> Self {
+            self.setContentSize(size)
+            return self
+        }
+        
+        /// Sets the origin of the window.
+        @discardableResult
+        @objc open func origin(_ origin: CGPoint) -> Self {
+            self.setFrameOrigin(origin)
             return self
         }
         

@@ -95,16 +95,18 @@ import SwiftUI
         func setupFrameObservation() {
             contentViewFrameObservation = contentView?.observeChanges(for: \.frame) { [weak self] old, new in
                 guard let self = self, old.size != new.size else { return }
-                 self.contentSize = new.size
+                let old = self.contentSize
+                self.contentSize = new.size
+                self.updatePopover()
             }
             contentSize = contentView?.frame.size ?? contentSize
         }
         
-        /// A Boolean value that indicates whether the content view is automatically sized to the content view`s size. `
-        @objc open var autosizesContentView: Bool {
+        /// A Boolean value that indicates whether the size of the popview is automatically resized to the content view`s size. `
+        @objc open var isResizingAutomatically: Bool {
             get { contentViewControllerObservation != nil  }
             set {
-                guard newValue != autosizesContentView else { return }
+                guard newValue != isResizingAutomatically else { return }
                 if newValue {
                     contentViewControllerObservation = observeChanges(for: \.contentViewController) { [weak self] old, new in
                         guard let self = self, old != new else { return }
@@ -120,8 +122,8 @@ import SwiftUI
         
         /// Sets the Boolean value that indicates whether the content view is automatically sized to the content view`s size. `
         @discardableResult
-        @objc open func autosizesContentView(_ autosizes: Bool) -> Self {
-            self.autosizesContentView = autosizes
+        @objc open func isResizingAutomatically(_ autosizes: Bool) -> Self {
+            self.isResizingAutomatically = autosizes
             return self
         }
         
@@ -214,33 +216,20 @@ import SwiftUI
 
          - Parameters:
             - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
-            - positioningView: The view relative to which the popover should be positioned. Causes the method to raise `invalidArgumentException if `nil`.
-            - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
-            - tracksViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
-         */
-        public func show(relativeTo positioningRect: CGRect? = nil, of positioningView: NSView, preferredEdge: NSRectEdge, tracksViewFrame: Bool) {
-            show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: false, tracksViewFrame: tracksViewFrame)
-        }
-
-        /**
-         Shows the popover anchored to the specified view.
-
-         - Parameters:
-            - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
             - positioningView: The view relative to which the popover should be positioned. Causes the method to raise `invalidArgumentException` if `nil`.
             - preferredEdge: The edge of positioningView the popover should prefer to be anchored to.
             - hideArrow: A Boolean value that indicates whether to hide the arrow of the popover.
-            - tracksViewFrame: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
+            - tracksView: A Boolean value that indicates whether to automatically reposition the popover when the positioning view's frame changes.
          */
-        public func show(relativeTo positioningRect: CGRect? = nil, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool, tracksViewFrame: Bool = true) {
+        public func show(relativeTo positioningRect: CGRect? = nil, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool, tracksView: Bool = true) {
             let positioningRect = positioningRect ?? positioningView.bounds
-            isOpeningPopover = true
-            dismissNoArrow()
+            dismiss()
             if hideArrow == false {
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
             } else {
                 let noArrowView = NSView(frame: positioningView.frame)
-                switch preferredEdge {
+                let edge = edge(for: positioningView, preferredEdge: preferredEdge)
+                switch edge {
                 case .minX:
                     noArrowView.frame.origin.x += 10
                 case .maxX:
@@ -255,22 +244,72 @@ import SwiftUI
                 positioningView.superview?.addSubview(noArrowView, positioned: .below, relativeTo: positioningView)
                 show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
                 noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
-                willCloseObserver = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { notification in
-                    (notification.object as? NSPopover)?.dismissNoArrow()
-                })
             }
-            if tracksViewFrame {
-                positioningViewFrameObserver = positioningView.observeChanges(for: \.frame, handler: { [weak self] old, new in
+            willCloseObservion = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { [weak self] notification in
+                guard let self = self else { return }
+                self.dismiss()
+            })
+            if tracksView {
+                viewTracking = ViewTracking(rect: positioningRect, view: positioningView, preferredEdge: preferredEdge, hidesArrow: hideArrow)
+                positionObservations.append(positioningView.observeChanges(for: \.frame) { [weak self] old, new in
                     guard let self = self, old != new else { return }
-                    if self.isOpeningPopover == false, self.isDetached == false, self.isShown == true {
-                        let animates = self.animates
-                        self.animates = false
-                        self.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: hideArrow)
-                        self.animates = animates
-                    }
-                })
+                    self.updatePopover()
+                    }!)
+                positionObservations.append(positioningView.observeChanges(for: \.window?.frame) { [weak self] old, new in
+                    guard let self = self, old != new, new != nil else { return }
+                    self.updatePopover()
+                    }!)
             }
-            isOpeningPopover = false
+        }
+        
+        func edge(for view: NSView, preferredEdge: NSRectEdge) -> NSRectEdge {
+            guard let contentView = contentView, let screen = view.window?.screen, let frameOnScreen = view.frameOnScreen else { return preferredEdge }
+            var edgeFrames: [(edge: NSRectEdge, rect: CGRect)] = [
+                (.minX, CGRect(CGPoint(x: frameOnScreen.x - contentView.frame.width,
+                                                    y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)), contentView.frame.size)),
+                (.minY, CGRect(CGPoint(x: frameOnScreen.x,
+                                                    y: frameOnScreen.y - contentView.frame.height),
+                                                   contentView.frame.size)),
+                (.maxX, CGRect(CGPoint(x: frameOnScreen.x + view.frame.width,
+                                                    y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)),
+                                                   contentView.frame.size)),
+                (.maxY, CGRect(CGPoint(x: frameOnScreen.x,
+                                                    y: frameOnScreen.y + view.frame.height),
+                                                   contentView.frame.size))]
+            var edges: [NSRectEdge] = []
+            switch preferredEdge {
+            case .minX:
+                edges = [.minX, .maxX, .minY, .maxY]
+            case .maxX:
+                edges = [.maxX, .minX, .minY, .maxY]
+            case .minY:
+                edges = [.minY, .maxY, .minX, .maxX]
+            case .maxY:
+                edges = [.maxY, .minY, .minX, .maxX]
+            default: break
+            }
+           return edges.first(where: { edge in screen.visibleFrame.contains(edgeFrames.first(where: {$0.edge == edge})!.rect)
+            }) ?? preferredEdge
+        }
+        
+        struct ViewTracking {
+            let rect: CGRect?
+            let view: NSView
+            let preferredEdge: NSRectEdge
+            let hidesArrow: Bool
+        }
+        
+        var viewTracking: ViewTracking? {
+            get { getAssociatedValue("viewTracking", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "viewTracking") }
+        }
+        
+        func updatePopover() {
+            guard isShown, !isDetached, let track = viewTracking else { return }
+            let animates = animates
+            self.animates = false
+            show(relativeTo: track.rect, of: track.view, preferredEdge: track.preferredEdge, hideArrow: track.hidesArrow, tracksView: true)
+            // self.animates = animates
         }
         
         private var effectiveAppearanceObservation: KeyValueObservation? {
@@ -287,35 +326,37 @@ import SwiftUI
             get { getAssociatedValue("contentViewControllerObservation", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "contentViewControllerObservation") }
         }
-
-        private func dismissNoArrow() {
+        
+        func dismiss() {
             noArrowView?.removeFromSuperview()
             noArrowView = nil
-            willCloseObserver = nil
+            positionObservations = []
+            viewTracking = nil
+            willCloseObservion = nil
         }
 
         private var closeButton: NSButton? {
             contentViewController?.view.superview?.subviews.last as? NSButton
         }
 
-        private var willCloseObserver: NotificationToken? {
-            get { getAssociatedValue("willClosePopoverObserver", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "willClosePopoverObserver") }
+        private var willCloseObservion: NotificationToken? {
+            get { getAssociatedValue("willCloseObservion", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "willCloseObservion") }
+        }
+        
+        private var didShowObservation: NotificationToken? {
+            get { getAssociatedValue("didShowObservation", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "didShowObservation") }
         }
 
         private var noArrowView: NSView? {
             get { getAssociatedValue("noArrowView", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "noArrowView") }
         }
-
-        private var positioningViewFrameObserver: KeyValueObservation? {
-            get { getAssociatedValue("positioningFrameObserver", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "positioningFrameObserver") }
-        }
-
-        private var isOpeningPopover: Bool {
-            get { getAssociatedValue("isOpeningPopover", initialValue: true) }
-            set { setAssociatedValue(newValue, key: "isOpeningPopover") }
+        
+        private var positionObservations: [KeyValueObservation] {
+            get { getAssociatedValue("positionObservations", initialValue: []) }
+            set { setAssociatedValue(newValue, key: "positionObservations") }
         }
 
         private var popoverDelegate: Delegate? {
@@ -360,6 +401,7 @@ import SwiftUI
             weak var popover: NSPopover!
             weak var delegate: NSPopoverDelegate?
             var delegateObservation: KeyValueObservation?
+            
             init(popover: NSPopover!) {
                 self.delegate = popover.delegate
                 self.popover = popover

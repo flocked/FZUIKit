@@ -46,7 +46,7 @@ extension NSTextField {
                     textSuggestionController.reload()
                 }
                 editingHandlers.didBegin = {
-                    textSuggestionController.popover.show(of: self, preferredEdge: .bottom, hideArrow: true)
+                    textSuggestionController.popover.show(of: self, preferredEdge: .minY, hideArrow: true)
                 }
                 editingHandlers.didEnd = {
                     textSuggestionController.popover.close()

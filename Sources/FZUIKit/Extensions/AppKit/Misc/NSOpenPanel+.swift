@@ -7,12 +7,67 @@
 
 #if os(macOS)
 import AppKit
-
 #if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
 #endif
 
 extension NSOpenPanel {
+    /// Sets the Boolean that indicates whether the user can choose directories in the panel.
+    @discardableResult
+    @objc open func canChooseDirectories(_ canChoose: Bool) -> Self {
+        self.canChooseDirectories = canChoose
+        return self
+    }
+    
+    /// Sets the Boolean that indicates whether the user can choose files in the panel.
+    @discardableResult
+    @objc open func canChooseFiles(_ canChoose: Bool) -> Self {
+        self.canChooseFiles = canChoose
+        return self
+    }
+    
+    /// Sets the Boolean that indicates whether the panel resolves aliases.
+    @discardableResult
+    @objc open func resolvesAliases(_ resolves: Bool) -> Self {
+        self.resolvesAliases = resolves
+        return self
+    }
+    
+    /// Sets the Boolean value that indicates how the panel responds to iCloud documents that aren't fully downloaded locally.
+    @discardableResult
+    @objc open func isAccessoryViewDisclosed(_ isDisclosed: Bool) -> Self {
+        self.isAccessoryViewDisclosed = isDisclosed
+        return self
+    }
+            
+    /// Sets the Boolean that indicates whether the user may select multiple files and directories.
+    @discardableResult
+    @objc open func allowsMultipleSelection(_ allows: Bool) -> Self {
+        self.allowsMultipleSelection = allows
+        return self
+    }
+    
+    /// Sets the Boolean that indicates whether the user may select multiple files and directories.
+    @discardableResult
+    @objc open func canDownloadUbiquitousContents(_ canDownload: Bool) -> Self {
+        self.canDownloadUbiquitousContents = canDownload
+        return self
+    }
+    
+    /// Sets the Boolean value that indicates how the panel responds to iCloud documents that have conflicting versions.
+    @discardableResult
+    @objc open func canResolveUbiquitousConflicts(_ canResolve: Bool) -> Self {
+        self.canResolveUbiquitousConflicts = canResolve
+        return self
+    }
+        
+    /// Sets the current directory shown in the panel.
+    @discardableResult
+    @objc open func directoryURL(_ directoryURL: URL?) -> Self {
+        self.directoryURL = directoryURL
+        return self
+    }
+    
     /**
      Creates a panel for selecting files of the specified content types.
      

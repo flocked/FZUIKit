@@ -90,6 +90,62 @@ extension NSAlert {
         }
     }
     
+    /// Sets the handler that gets called when the user clicks the help button.
+    @discardableResult
+    public func helpHandler(_ handler: (()->())?) -> Self {
+        self.helpHandler = handler
+        return self
+    }
+    
+    /// Sets the alert’s informative text.
+    @discardableResult
+    public func informativeText(_ text: String) -> Self {
+        self.informativeText = text
+        return self
+    }
+    
+    /// Sets the alert’s message text or title.
+    @discardableResult
+    public func messageText(_ text: String) -> Self {
+        self.messageText = text
+        return self
+    }
+    
+    /// Sets the custom icon displayed in the alert.
+    @discardableResult
+    public func icon(_ icon: NSImage?) -> Self {
+        self.icon = icon
+        return self
+    }
+    
+    /// Sets the Boolean value that indicates whether the alert has a help button.
+    @discardableResult
+    public func showsHelp(_ showsHelp: Bool) -> Self {
+        self.showsHelp = showsHelp
+        return self
+    }
+    
+    /// Sets the alert’s accessory view.
+    @discardableResult
+    public func accessoryView(_ view: NSView?) -> Self {
+        self.accessoryView = view
+        return self
+    }
+    
+    /// Sets the alert’s severity level.
+    @discardableResult
+    public func style(_ style: Style) -> Self {
+        self.alertStyle = style
+        return self
+    }
+    
+    /// Sets the Boolean value that indicates whether the alert includes a suppression checkbox, which you can employ to allow a user to opt out of seeing the alert again.
+    @discardableResult
+    public func showsSuppressionButton(_ shows: Bool) -> Self {
+        self.showsSuppressionButton = shows
+        return self
+    }
+        
     var helpDelegate: HelpDelegate? {
         get { getAssociatedValue("helpDelegate", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "helpDelegate") }
@@ -136,6 +192,13 @@ extension NSAlert {
             setAssociatedValue(newValue, key: "suppressionKey")
             swizzleRunModal()
         }
+    }
+    
+    /// Sets the key for supression of the alert.
+    @discardableResult
+    public func suppressionKey(_ suppressionKey: String?) -> Self {
+        self.suppressionKey = suppressionKey
+        return self
     }
     
     /**

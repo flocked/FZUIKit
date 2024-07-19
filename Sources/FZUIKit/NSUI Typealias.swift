@@ -42,6 +42,7 @@ import SwiftUI
     public typealias NSUICollectionViewLayoutInvalidationContext = NSCollectionViewLayoutInvalidationContext
     public typealias NSUIControl = NSControl
 
+
 #elseif canImport(UIKit)
     import UIKit
     public typealias NSUIBezierPath = UIBezierPath

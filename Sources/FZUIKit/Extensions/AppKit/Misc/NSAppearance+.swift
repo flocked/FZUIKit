@@ -86,5 +86,14 @@ extension Decodable where Self: NSAppearance {
 
 extension NSAppearance.Name: Codable { }
 
+public extension NSAppearanceCustomization {
+    /// Sets the appearance.
+    @discardableResult
+    func appearance(_ appearance: NSAppearance?) -> Self {
+        self.appearance = appearance
+        return self
+    }
+}
+
 
 #endif
