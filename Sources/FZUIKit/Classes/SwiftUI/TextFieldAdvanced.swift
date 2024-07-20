@@ -9,6 +9,7 @@
 import AppKit
 import SwiftUI
 
+/// A `SwiftUI` text field with additional properties.
 public struct TextFieldAdvanced: NSViewRepresentable {
     @Binding var text: String
     var placeholder: String?
