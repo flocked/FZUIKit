@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  TextFieldAdvanced.swift
+//
 //
 //  Created by Florian Zand on 13.07.24.
 //
@@ -8,17 +8,6 @@
 #if os(macOS)
 import AppKit
 import SwiftUI
-
-public struct SomeTestView: View {
-    @State var text: String
-    public var body: some View {
-        TextField.init("Value", text: $text)
-        TextFieldAdvanced.init($text)
-        TextFieldAdvanced.init("")
-
-    }
-}
-
 
 public struct TextFieldAdvanced: NSViewRepresentable {
     @Binding var text: String

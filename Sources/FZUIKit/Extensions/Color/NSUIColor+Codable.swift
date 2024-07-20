@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NSUIColor+Codable.swift
 //  
 //
 //  Created by Florian Zand on 13.07.24.
