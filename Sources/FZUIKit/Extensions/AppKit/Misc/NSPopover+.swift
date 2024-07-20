@@ -579,18 +579,3 @@ extension NSPopover.ViewTracking: ExpressibleByBooleanLiteral {
     }
 }
 #endif
-
-extension NSTableView {
-    func tes() {
-        NotificationCenter.default.observe
-        NSPopover.didShowNotification.observe {
-            
-        }
-    }
-}
-
-extension Notification.Name {
-    func observe(_ object: Any? = nil, queue: OperationQueue? = nil, handler: @escaping ()->()) -> NotificationToken {
-        NotificationCenter.default.observe(self, object: object, queue: queue, using: { _ in handler() })
-    }
-}

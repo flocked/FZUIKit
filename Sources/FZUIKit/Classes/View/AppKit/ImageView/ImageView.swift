@@ -104,6 +104,14 @@ open class ImageView: NSControl {
         self.symbolConfiguration = symbolConfiguration
         return self
     }
+    
+    /// Sets the symbol configuration of the image.
+    @discardableResult
+    @available(macOS 12.0, *)
+    open func symbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
+        self.symbolConfiguration = symbolConfiguration?.nsSymbolConfiguration()
+        return self
+    }
         
     /**
      A view for hosting layered content on top of the image view.

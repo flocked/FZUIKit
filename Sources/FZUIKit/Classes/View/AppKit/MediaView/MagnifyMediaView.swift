@@ -140,17 +140,25 @@
         }
         
         /// The symbol configuration of the image.
-        @available(macOS 12.0, iOS 13.0, *)
+        @available(macOS 11.0, *)
         open var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
             get { mediaView.imageSymbolConfiguration }
             set { mediaView.imageSymbolConfiguration = newValue }
         }
         
         /// Sets the image symbol configuration.
-        @available(macOS 12.0, iOS 13.0, *)
+        @available(macOS 11.0, *)
         @discardableResult
         open func imageSymbolConfiguration(_ symbolConfiguration: NSUIImage.SymbolConfiguration?) -> Self {
             imageSymbolConfiguration = symbolConfiguration
+            return self
+        }
+        
+        /// Sets the image symbol configuration.
+        @available(macOS 12.0, *)
+        @discardableResult
+        open func imageSymbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
+            imageSymbolConfiguration = symbolConfiguration?.nsSymbolConfiguration()
             return self
         }
         

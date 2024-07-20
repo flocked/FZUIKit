@@ -178,6 +178,14 @@ open class MagnifyImageView: NSControl {
         return self
     }
     
+    /// Sets the symbol configuration of the image.
+    @available(macOS 12.0, *)
+    @discardableResult
+    open func imageSymbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
+        self.symbolConfiguration = symbolConfiguration?.nsSymbolConfiguration()
+        return self
+    }
+    
     /// The playback behavior for animated images.
     open var animationPlayback: ImageView.AnimationPlaybackOption {
         get { imageView.animationPlayback }
