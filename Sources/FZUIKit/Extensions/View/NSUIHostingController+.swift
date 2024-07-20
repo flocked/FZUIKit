@@ -49,6 +49,60 @@
         }
     }
 
+extension NSUIHostingController {
+    var _previousWidth: CGFloat {
+        get { getAssociatedValue("previousWidth", initialValue: 0.0) }
+        set { setAssociatedValue(newValue, key: "previousWidth") }
+    }
+    
+    var _heightAnchor: NSLayoutConstraint {
+        get { getAssociatedValue("heightAnchor", initialValue: view.heightAnchor.constraint(equalToConstant: 1000)) }
+        set { setAssociatedValue(newValue, key: "heightAnchor") }
+    }
+    
+    var autoAdjustsHeight: Bool {
+        get { getAssociatedValue("autoAdjustsHeight", initialValue: false) }
+        set {
+            guard newValue != autoAdjustsHeight else { return }
+            _heightAnchor.isActive = newValue
+            setAssociatedValue(newValue, key: "autoAdjustsHeight")
+            #if os(macOS)
+            let selector = #selector(Self.viewDidLayout)
+            #else
+            let selector = #selector(Self.viewDidLayoutSubviews)
+            #endif
+            if newValue {
+                guard !isMethodReplaced(selector) else { return }
+                do {
+                   try replaceMethod(
+                    selector,
+                   methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+                   hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+                       object in
+                       if let controller = object as? Self {
+                           if controller.view.frame.size.width != controller._previousWidth {
+                               controller._previousWidth = controller.view.frame.size.width
+                               let fittingSize = controller.sizeThatFits(in: CGSize(width: controller._previousWidth, height: 40000))
+                               controller._heightAnchor.constant = fittingSize.height
+                           }
+                       }
+                       // handle replaced `mouseDown`
+                
+                       // calls `super.mouseDown`
+                       store.original(object, selector)
+                       }
+                   }
+                } catch {
+                   // handle error
+                   debugPrint(error)
+                }
+            } else {
+                resetMethod(selector)
+            }
+        }
+    }
+}
+
 fileprivate extension NSUIView {
     @available(macOS 11.0, iOS 11.0, tvOS 11.0, *)
     func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {

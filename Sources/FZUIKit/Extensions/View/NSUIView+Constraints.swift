@@ -96,7 +96,7 @@
          */
         @discardableResult
         func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintMode, at index: Int) -> [NSLayoutConstraint] {
-            guard index < subviews.count else { return [] }
+            guard index >= 0 else { return [] }
             insertSubview(view, at: index)
             return view.constraint(to: self, mode)
         }
@@ -205,7 +205,7 @@
                 - mode: The mode for autoresizing the subview..
              */
             func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintMode, to index: Int) {
-                guard index < subviews.count else { return }
+                guard index >= 0 else { return }
                 addSubview(withAutoresizing: view, mode: mode)
                 moveSubview(view, to: index)
             }

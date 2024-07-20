@@ -107,28 +107,6 @@
         }
 
         /**
-         Inserts the subview at the specified index.
-
-         - Parameters:
-            - view: The view to insert.
-            - index: The index of insertation.
-         */
-        @objc open func insertSubview(_ view: NSUIView, at index: Int) {
-            guard index >= 0 else { return }
-            guard index < self.subviews.count else {
-                addSubview(view)
-                return
-            }
-            #if os(macOS)
-                var subviews = subviews
-                subviews.insert(view, at: index)
-                self.subviews = subviews
-            #elseif canImport(UIKit)
-                insertSubview(view, belowSubview: self.subviews[index])
-            #endif
-        }
-
-        /**
          Moves the specified subview to the index.
 
          - Parameters:
@@ -178,7 +156,7 @@
             - indexes: The indexes of the subviews to move.
             - toIndex: The index where the subviews should be moved to.
          */
-        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {
+        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {            
             let subviewsCount = subviews.count
             if subviews.isEmpty == false {
                 if toIndex >= 0, toIndex < subviewsCount {

@@ -771,6 +771,22 @@
             }
         }
         
+        /**
+         Inserts the subview at the specified index.
+
+         - Parameters:
+            - view: The view to insert.
+            - index: The index of insertation.
+         */
+        @objc open func insertSubview(_ view: NSUIView, at index: Int) {
+            guard index >= 0 else { return }
+            guard index <= subviews.count else {
+                addSubview(view)
+                return
+            }
+            subviews.insert(view, at: index)
+        }
+        
         static func swizzleAnimationForKey() {
             guard didSwizzleAnimationForKey == false else { return }
             didSwizzleAnimationForKey = true

@@ -12,6 +12,7 @@
         import UIKit
     #endif
     import SwiftUI
+import FZSwiftUtils
 
     /// Creates a hosting controller object that automatically adjusts it height to fit the it's SwiftUI view.
     public class AutoHeightHostingController<Content>: NSUIHostingController<Content> where Content: View {
