@@ -14,8 +14,6 @@ public extension NSViewProtocol where Self: NSView {
      A Boolean value that indicates whether the view is the first responder.
      
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-     
-     - Returns: `true` if the view is the first responder; otherwise, `false`.
      */
     var isFirstResponder: Bool {
         if let view = self as? NSTextField {
@@ -23,10 +21,7 @@ public extension NSViewProtocol where Self: NSView {
         }
         return window?.firstResponder == self
      }
-}
-
-
-public extension NSView {
+    
     /**
      Attempts to make the view the first responder in its window.
      
@@ -59,6 +54,11 @@ public extension NSView {
         }
         return !isFirstResponder
     }
+}
+
+
+public extension NSView {
+
 }
 
 extension NSView {

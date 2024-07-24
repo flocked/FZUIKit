@@ -12,9 +12,7 @@ public extension NSViewController {
     /**
      A Boolean value that indicates whether the window of the view controller is the first responder.
      
-     The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
-     
-     - Returns: `true` if the window of the view controller is the first responder; otherwise, `false`.
+     The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.     
      */
     var isFirstResponder: Bool {
         view.window?.firstResponder == self

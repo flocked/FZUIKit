@@ -10,6 +10,15 @@
     import FZSwiftUtils
 
     extension NSWindow {
+        /**
+         A Boolean value that indicates whether the window is the first responder.
+         
+         The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
+         */
+        @objc open var isFirstResponder: Bool {
+            firstResponder == self
+        }
+        
         /// A Boolean value that indicates whether the window displays a title bar.
         @objc open var isTitled: Bool {
             get { styleMask.contains(.titled) }

@@ -11,12 +11,23 @@ import FZSwiftUtils
 
 /// The group of methods that are fundamental to all `NSView` objects.
 public protocol NSViewProtocol {
-    /// The background color of the object.
+    /*
+    /**
+     The background color of the view.
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
     var backgroundColor: NSUIColor? { get set }
+    /**
+     A Boolean value that indicates whether the view is the first responder.
+     
+     The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
+     */
     var isFirstResponder: Bool { get }
+     */
 }
 
-extension NSUIView: NSViewProtocol {}
+extension NSUIView: NSViewProtocol { }
 
 public extension NSViewProtocol where Self: NSView {
     /**
