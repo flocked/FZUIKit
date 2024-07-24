@@ -9,8 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
-
-public extension NSView {
+public extension NSViewProtocol where Self: NSView {
     /**
      A Boolean value that indicates whether the view is the first responder.
      
@@ -24,7 +23,10 @@ public extension NSView {
         }
         return window?.firstResponder == self
      }
-    
+}
+
+
+public extension NSView {
     /**
      Attempts to make the view the first responder in its window.
      
@@ -64,9 +66,9 @@ extension NSView {
     public var resignFirstResponderClickCount: Int? {
         get { getAssociatedValue("resignFirstResponderClickCount", initialValue: nil) }
         set {
-            guard newValue != resignFirstResponderClickCount, newValue == nil || newValue ?? -1 > 0 else { return }
+            guard newValue != resignFirstResponderClickCount, newValue ?? -1 > 0 else { return }
             setAssociatedValue(newValue, key: "resignFirstResponderClickCount")
-            if let newValue = newValue {
+            if newValue != nil {
                 resignFirstResponderObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     self.setupResignMouseDownMonitor()
@@ -74,6 +76,7 @@ extension NSView {
                 setupResignMouseDownMonitor()
             } else {
                 resignFirstResponderObservation = nil
+                resignMouseDownMonitor = nil
             }
         }
     }
