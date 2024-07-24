@@ -13,6 +13,7 @@ import FZSwiftUtils
 public protocol NSViewProtocol {
     /// The background color of the object.
     var backgroundColor: NSUIColor? { get set }
+    var isFirstResponder: Bool { get }
 }
 
 extension NSUIView: NSViewProtocol {}

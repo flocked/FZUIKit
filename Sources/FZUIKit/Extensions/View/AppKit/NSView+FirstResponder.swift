@@ -9,6 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
+
 public extension NSView {
     /**
      A Boolean value that indicates whether the view is the first responder.
