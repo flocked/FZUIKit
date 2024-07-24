@@ -42,8 +42,8 @@
          
          - Parameter string: The string value of the text field.
          */
-        static func wrapping(_ stringValue: String = "") -> NSTextField {
-            NSTextField(wrappingLabelWithString: stringValue)
+        static func wrapping(_ stringValue: String = "") -> Self {
+            Self(wrappingLabelWithString: stringValue)
                 .isSelectable(false)
                 .isEditable(false)
         }
@@ -56,8 +56,8 @@
             - placeholder: The place holder of the text field.
             - rounded: A Boolean value that indicates whether the text field's bezel is rounded.
          */
-        static func editing(_ string: String = "", placeholder: String? = nil, rounded: Bool = false) -> NSTextField {
-            NSTextField(string: string)
+        static func editing(_ string: String = "", placeholder: String? = nil, rounded: Bool = false) -> Self {
+            Self(string: string)
                 .isBordered(true)
                 .placeholder(placeholder)
                 .bezelStyle(rounded ? .roundedBezel : .squareBezel)
@@ -68,8 +68,15 @@
          
          - Parameter string: The string value of the text field.
          */
-        static func resizing(_ stringValue: String = "") -> NSTextField {
-            NSTextField(resizingLabel: stringValue)
+        static func resizing(_ stringValue: String = "") -> Self {
+            let textField = Self(labelWithString: stringValue)
+            textField.automaticallyResizesToFit = true
+            textField.backgroundColor = nil
+            textField.focusType = .roundedCorners(4.0)
+            textField.isVerticallyCentered = true
+            textField.stringValue = stringValue
+            textField.resizeToFit()
+            return textField
         }
         
         /// The text field’s number formatter.

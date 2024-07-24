@@ -10,7 +10,6 @@
     import FZSwiftUtils
 
     extension NSView {
-                
         /// Sets type of focus ring drawn around the view.
         @discardableResult
         @objc open func focusRingType(_ type: NSFocusRingType) -> Self {
