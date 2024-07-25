@@ -216,6 +216,18 @@ public extension NSUIFont {
             includingSymbolicTraits(.traitItalic)
         #endif
     }
+    
+    func italic(_ italic: Bool) -> NSUIFont {
+        if italic {
+            return self.italic
+        } else {
+            #if os(macOS)
+            return self.withoutSymbolicTraits(.italic)
+            #else
+            return self.withoutSymbolicTraits(.traitItalic)
+            #endif
+        }
+    }
 
     /// The font characters with same width.
     var monospaced: NSUIFont {
@@ -224,6 +236,18 @@ public extension NSUIFont {
         #else
             includingSymbolicTraits(.traitMonoSpace)
         #endif
+    }
+    
+    func monospaced(_ monospaced: Bool) -> NSUIFont {
+        if monospaced {
+            return self.monospaced
+        } else {
+            #if os(macOS)
+            return self.withoutSymbolicTraits(.monoSpace)
+            #else
+            return self.withoutSymbolicTraits(.traitMonoSpace)
+            #endif
+        }
     }
 
     /// The font with a bold style.
@@ -234,9 +258,20 @@ public extension NSUIFont {
             includingSymbolicTraits(.traitBold)
         #endif
     }
+    
+    func bold(_ bold: Bool) -> NSUIFont {
+        if bold {
+            return self.bold
+        } else {
+            #if os(macOS)
+            return self.withoutSymbolicTraits(.bold)
+            #else
+            return self.withoutSymbolicTraits(.traitBold)
+            #endif
+        }
+    }
 
     /// The font with a serif design.
-    @available(macOS 15.0, iOS 13.0, tvOS 13.0, watchOS 7.0, *)
     var serif: NSUIFont {
         if let descriptor = fontDescriptor.withDesign(.serif) {
             #if os(macOS)
@@ -247,6 +282,22 @@ public extension NSUIFont {
         }
         return self
     }
+    
+    /*
+    @available(macOS 15.0, iOS 13.0, tvOS 13.0, watchOS 7.0, *)
+    func serif(_ serif: Bool) -> NSUIFont {
+        if serif {
+            return self.serif
+        } else {
+            fontDescriptor.withDesign(.serif)
+            #if os(macOS)
+            return self.withoutSymbolicTraits(.bold)
+            #else
+            return self.withoutSymbolicTraits(.traitBold)
+            #endif
+        }
+    }
+    */
 
     /// The font with a rounded appearance.
     var rounded: NSUIFont {
