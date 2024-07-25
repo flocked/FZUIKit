@@ -34,8 +34,7 @@
             - size: The size of the slider.
          */
         static func linear(orientation: NSUserInterfaceLayoutOrientation = .horizontal, size: ControlSize = .regular) -> NSSlider {
-            let slider = NSSlider()
-            slider.sliderType = .linear
+            let slider = NSSlider(target: nil, action: nil)
             slider.isVertical = orientation == .vertical
             slider.controlSize = size
             return slider
