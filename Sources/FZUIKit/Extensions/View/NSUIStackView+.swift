@@ -62,6 +62,7 @@
         @objc open var arrangedViews: [NSUIView] {
             get { arrangedSubviews }
             set {
+                guard newValue != arrangedSubviews else { return }
                 newValue.difference(from: arrangedSubviews).forEach {
                     switch $0 {
                     case .insert(offset: let index, element: let view, associatedWith: _):
