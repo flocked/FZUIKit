@@ -58,7 +58,7 @@ public extension NSUIFontDescriptor {
     
     /// The relative slant angle value.
     var slant: CGFloat? {
-        traits?[.slant] as? CGFloat
+    traits?[.slant] as? CGFloat
     }
     
     /// The relative inter-glyph spacing.
@@ -91,6 +91,13 @@ public extension NSUIFontDescriptor {
             }
         }
         return nil
+    }
+    
+    /// Returns a new font descriptor based on the current object, but with the specified weight.
+    func withWeight(_ weight: NSUIFont.Weight) -> NSUIFontDescriptor {
+        var traits = self.traits ?? [:]
+        traits[.weight] = weight.rawValue
+        return addingAttributes([.traits : traits])
     }
     
     /// A dictionary of the traits.
@@ -131,7 +138,29 @@ public extension NSUIFontDescriptor.TraitKey {
 }
 
 extension NSUIFontDescriptor.SymbolicTraits: Hashable {
+    static var nsUIBold: Self {
+        #if os(macOS)
+        .bold
+        #else
+        .traitBold
+        #endif
+    }
     
+    static var nsUIMonoSpace: Self {
+        #if os(macOS)
+        .monoSpace
+        #else
+        .traitMonoSpace
+        #endif
+    }
+    
+    static var nsUIItalic: Self {
+        #if os(macOS)
+        .italic
+        #else
+        .traitItalic
+        #endif
+    }
 }
 
 public extension NSUIFontDescriptor.AttributeName {
