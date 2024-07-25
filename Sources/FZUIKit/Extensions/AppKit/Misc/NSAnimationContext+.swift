@@ -26,15 +26,14 @@
             - timingFunction: An optional timing function for the animations. The default value is `nil`.
             - allowsImplicitAnimation: A Boolean value that indicates whether animations are enabled for animations that occur as a result of another property change.. The default value is `false`.
             - animations: A block containing the changes to animate.
-            - completionHandler: An optional completion block that is called when the animations have completed. The default value is `nil`.
-
+            - completion: An optional completion block that is called when the animations have completed.
          */
-        class func runAnimations(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: () -> Void, completionHandler: (() -> Void)? = nil) {
+        class func runAnimations(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: () -> Void, completion: (() -> Void)? = nil) {
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = duration
                 context.timingFunction = timingFunction
                 context.allowsImplicitAnimation = allowsImplicitAnimation
-                context.completionHandler = completionHandler
+                context.completionHandler = completion
                 changes()
             }
         }

@@ -214,11 +214,11 @@ import FZSwiftUtils
             })
         }
 
-        fileprivate func imageOptionsForDisplaying() -> ImageSource.ImageOptions {
+        fileprivate func imageOptionsForDisplaying(subsampleFactor: ImageSource.ImageOptions.SubsampleFactor = .factor4) -> ImageSource.ImageOptions {
             var options = ImageSource.ImageOptions()
             options.shouldCache = true
             options.shouldDecodeImmediately = true
-            options.subsampleFactor = .factor4
+            options.subsampleFactor = subsampleFactor
             return options
         }
 

@@ -14,27 +14,24 @@
     #endif
 
     public extension NSUICollectionViewLayout {
-        /// Invalidates all layout information animated and triggers a layout update.
-        func invalidateLayout(animated duration: TimeInterval = 0.15) {
-            #if os(macOS)
-                guard duration != 0.0 else { invalidateLayout()
-                    return
+        /// Invalidates all layout information animated  and triggers a layout update.
+        func invalidateLayoutAnimated(duration: TimeInterval = 0.15) {
+            if duration <= 0.0 {
+                invalidateLayout()
+            } else {
+                #if os(macOS)
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = duration
+                    collectionView?.animator().performBatchUpdates(nil, completionHandler: nil)
                 }
-                NSAnimationContext.beginGrouping()
-                NSAnimationContext.current.duration = duration
-                NSAnimationContext.current.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-                collectionView?.animator().performBatchUpdates(nil, completionHandler: nil)
-                NSAnimationContext.endGrouping()
-            #elseif canImport(UIKit)
-                guard let collectionView = collectionView, duration != 0.0 else { invalidateLayout()
-                    return
-                }
-                collectionView.performBatchUpdates({
+                #elseif canImport(UIKit)
+                collectionView?.performBatchUpdates({
                     CATransaction.perform(duration: CGFloat(duration)) {
-                        collectionView.performBatchUpdates({})
+                        collectionView?.performBatchUpdates({})
                     }
                 })
-            #endif
+                #endif
+            }
         }
     }
 #endif
