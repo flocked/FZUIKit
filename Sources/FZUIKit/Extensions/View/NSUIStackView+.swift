@@ -66,7 +66,7 @@
                     switch $0 {
                     case .insert(offset: let index, element: let view, associatedWith: _):
                         insertArrangedSubview(view, at: index)
-                    case .remove(offset: let offset, element: let view, associatedWith: _):
+                    case .remove(offset: _, element: let view, associatedWith: _):
                         removeArrangedSubview(view)
                     }
                 }
