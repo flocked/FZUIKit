@@ -64,9 +64,7 @@
             set {
                 guard arrangedSubviews != newValue else { return }
                 removeAllArrangedSubviews()
-                let diff = newValue.difference(to: arrangedSubviews)
-                diff.added.forEach({ addArrangedSubview($0) })
-                diff.removed.forEach({ removeArrangedSubview($0) })
+                addArrangedSubviews(newValue)
             }
         }
         
