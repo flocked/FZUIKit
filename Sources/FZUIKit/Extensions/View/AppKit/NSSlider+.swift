@@ -27,25 +27,18 @@
         }
         
         /**
-         Creates a linear vertical slider with the specified size.
+         Creates a linear slider with the specified orientation and size.
          
-         - Parameter size: The size of the slider.
+         - Parameters:
+            - orientation: The orientation of the slider.
+            - size: The size of the slider.
          */
-        static func vertical(size: ControlSize = .regular) -> NSSlider {
+        static func linear(orientation: NSUserInterfaceLayoutOrientation = .horizontal, size: ControlSize = .regular) -> NSSlider {
             let slider = NSSlider()
             slider.sliderType = .linear
-            slider.isVertical = true
+            slider.isVertical = orientation == .vertical
             slider.controlSize = size
             return slider
-        }
-        
-        /**
-         Creates a linear horizontal slider with the specified size.
-
-         - Parameter size: The size of the slider.
-         */
-        static func horizontal(size: ControlSize = .regular) -> NSSlider {
-            vertical(size: size).orientation(.horizontal)
         }
         
         /**
