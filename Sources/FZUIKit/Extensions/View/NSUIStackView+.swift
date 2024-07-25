@@ -62,9 +62,14 @@
         @objc open var arrangedViews: [NSUIView] {
             get { arrangedSubviews }
             set {
-                guard arrangedSubviews != newValue else { return }
-                removeAllArrangedSubviews()
-                addArrangedSubviews(newValue)
+                newValue.difference(from: arrangedSubviews).forEach {
+                    switch $0 {
+                    case .insert(offset: let index, element: let view, associatedWith: _):
+                        insertArrangedSubview(view, at: index)
+                    case .remove(offset: let offset, element: let view, associatedWith: _):
+                        removeArrangedSubview(view)
+                    }
+                }
             }
         }
         
