@@ -14,6 +14,72 @@
 import FZSwiftUtils
 
     extension NSTextView {
+        /// Handlers for editing the text of a text view.
+        public struct EditingHandler {
+            /// Handler that gets called whenever editing the text did begin.
+            public var didBegin: (() -> Void)?
+            
+            /// Handler that determines whether the text should change. If you provide ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` or ``AppKit/NSTextField/allowedCharacters-swift.property`` the handler is called after checking the string against the specified property conditions.
+            public var shouldEdit: ((String) -> (Bool))?
+            
+            /// Handler that gets called whenever the text did change.
+            public var didEdit: (() -> Void)?
+            
+            /// Handler that gets called whenever editing the text did end.
+            public var didEnd: (() -> Void)?
+            
+            var needsObservation: Bool {
+                didBegin != nil || shouldEdit != nil || didEdit != nil || didEnd != nil
+            }
+        }
+        
+        /// The handlers for editing the text.
+        public var editingHandlers: EditingHandler {
+            get { getAssociatedValue("editingHandlers", initialValue: EditingHandler()) }
+            set {
+                setAssociatedValue(newValue, key: "editingHandlers")
+                observeEditing()
+            }
+        }
+        
+        var editingNotificationTokens: [NotificationToken] {
+            get { getAssociatedValue("editingNotificationTokens", initialValue: []) }
+            set { setAssociatedValue(newValue, key: "editingNotificationTokens") }
+        }
+        
+        var previousString: String {
+            get { getAssociatedValue("previousString", initialValue: string) }
+            set { setAssociatedValue(newValue, key: "previousString") }
+        }
+        
+        func observeEditing() {
+            if editingHandlers.needsObservation {
+                previousString = string
+                editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.previousString = self.string
+                    self.editingHandlers.didBegin?()
+                })
+                editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    if let shouldEdit = editingHandlers.shouldEdit {
+                        if shouldEdit(self.string) {
+                            self.previousString = string
+                        } else {
+                            self.string = self.previousString
+                        }
+                    }
+                    self.editingHandlers.didEdit?()
+                })
+                editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
+                    guard let self = self else { return }
+                    self.editingHandlers.didEnd?()
+                })
+            } else {
+                editingNotificationTokens = []
+            }
+        }
+        
         /// Creates a text view with an enclosing scroll view.
         public static func scrolling() -> NSTextView {
             let textView = NSTextView()

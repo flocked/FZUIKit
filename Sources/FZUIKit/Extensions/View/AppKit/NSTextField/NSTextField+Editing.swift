@@ -339,8 +339,7 @@
                 guard editingNotificationTokens.isEmpty else { return }
                 setupTextFieldObserver()
                 
-                editingNotificationTokens.append(
-                NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
+                editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
                     self.isEditingText = true
                     self.editStartString = self.stringValue
@@ -351,8 +350,7 @@
                     }
                 })
                 
-                editingNotificationTokens.append(
-                NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
+                editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
                     self.updateString()
                     self.resizeToFit()
@@ -363,8 +361,7 @@
                     }
                 })
                 
-                editingNotificationTokens.append(
-                    NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
+                editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
                     guard let self = self else { return }
                     self.isEditingText = false
                     self.editStartString = self.stringValue
@@ -536,9 +533,7 @@
         
         var editingNotificationTokens: [NotificationToken] {
             get { getAssociatedValue("editingNotificationTokens", initialValue: []) }
-            set {
-                setAssociatedValue(newValue, key: "editingNotificationTokens")
-            }
+            set { setAssociatedValue(newValue, key: "editingNotificationTokens") }
         }
         
         var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
