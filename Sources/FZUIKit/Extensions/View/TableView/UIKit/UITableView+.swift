@@ -136,5 +136,45 @@ public extension UITableView {
         guard let indexPath = indexPathForRow(at: point) else { return nil }
         return cellForRow(at: indexPath)
     }
+    
+    /**
+     The dictionary of all registered cell nib files.
+     
+     Each key in the dictionary is the reuse identifier used to register the nib file in the `register(_:forCellReuseIdentifier:)` method. The value of each key is the corresponding UINib object.
+     */
+    internal var registeredCellNibs: [String: UINib] {
+        let dict = value(forKey: "_nibMap") as? [String: UINib]
+        return dict ?? [:]
+    }
+
+    /**
+     The dictionary of all registered cell classes.
+     
+     Each key in the dictionary is the reuse identifier used to register the class in the `register(_:forCellReuseIdentifier:)` method. The value of each key is the corresponding class.
+     */
+    internal var registeredCellClasses: [String: Any] {
+        let dict = value(forKey: "_cellClassDict") as? [String: Any]
+        return dict ?? [:]
+    }
+    
+    /**
+     The dictionary of all registered header/footer view nib files.
+     
+     Each key in the dictionary is the reuse identifier used to register the nib file in the `register(_:forHeaderFooterViewReuseIdentifier:)` method. The value of each key is the corresponding UINib object.
+     */
+    internal var registeredHeaderFooterNibs: [String: UINib] {
+        let dict = value(forKey: "_headerFooterNibMap") as? [String: UINib]
+        return dict ?? [:]
+    }
+
+    /**
+     The dictionary of all registered header/footer view classes.
+     
+     Each key in the dictionary is the reuse identifier used to register the class in the `register(_:forHeaderFooterViewReuseIdentifier:)` method. The value of each key is the corresponding class.
+     */
+    internal var registeredHeaderFooterClasses: [String: Any] {
+        let dict = value(forKey: "_headerFooterClassDict") as? [String: Any]
+        return dict ?? [:]
+    }
 }
 #endif
