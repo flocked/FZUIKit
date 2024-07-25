@@ -217,6 +217,7 @@ public extension NSUIFont {
         #endif
     }
     
+    /// The font with a italic style.
     func italic(_ italic: Bool) -> NSUIFont {
         if italic {
             return self.italic
@@ -238,6 +239,7 @@ public extension NSUIFont {
         #endif
     }
     
+    /// The font characters with same width.
     func monospaced(_ monospaced: Bool) -> NSUIFont {
         if monospaced {
             return self.monospaced
@@ -259,6 +261,7 @@ public extension NSUIFont {
         #endif
     }
     
+    /// The font with a bold style.
     func bold(_ bold: Bool) -> NSUIFont {
         if bold {
             return self.bold
@@ -283,21 +286,21 @@ public extension NSUIFont {
         return self
     }
     
-    /*
-    @available(macOS 15.0, iOS 13.0, tvOS 13.0, watchOS 7.0, *)
+    /// The font with a serif design.
     func serif(_ serif: Bool) -> NSUIFont {
         if serif {
             return self.serif
-        } else {
-            fontDescriptor.withDesign(.serif)
-            #if os(macOS)
-            return self.withoutSymbolicTraits(.bold)
-            #else
-            return self.withoutSymbolicTraits(.traitBold)
-            #endif
+        } else if fontDescriptor.design == .serif {
+            if let descriptor = fontDescriptor.withDesign(.default) {
+                #if os(macOS)
+                return NSUIFont(descriptor: descriptor, size: 0) ?? self
+                #elseif canImport(UIKit)
+                return NSUIFont(descriptor: descriptor, size: 0)
+                #endif
+            }
         }
+        return self
     }
-    */
 
     /// The font with a rounded appearance.
     var rounded: NSUIFont {
@@ -307,6 +310,21 @@ public extension NSUIFont {
             #elseif canImport(UIKit)
                 return NSUIFont(descriptor: descriptor, size: 0)
             #endif
+        }
+        return self
+    }
+    
+    func rounded(_ rounded: Bool) -> NSUIFont {
+        if rounded {
+            return self.rounded
+        } else if fontDescriptor.design == .rounded {
+            if let descriptor = fontDescriptor.withDesign(.default) {
+                #if os(macOS)
+                return NSUIFont(descriptor: descriptor, size: 0) ?? self
+                #elseif canImport(UIKit)
+                return NSUIFont(descriptor: descriptor, size: 0)
+                #endif
+            }
         }
         return self
     }
