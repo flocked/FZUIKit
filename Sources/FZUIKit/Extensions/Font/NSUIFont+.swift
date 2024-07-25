@@ -106,18 +106,18 @@ public extension NSUIFont {
     #endif
     
     #if os(macOS)
-    /// Returns a new font based on the current font, but with the specified font matrix.
-    func withMatrix(_ matrix: AffineTransform) -> NSUIFont {
+    /// The current font with the specified font matrix.
+    func matrix(_ matrix: AffineTransform) -> NSUIFont {
         NSUIFont(descriptor: fontDescriptor.withMatrix(matrix), size: 0) ?? self
     }
     #else
-    /// Returns a new font based on the current font, but with the specified font matrix.
-    func withMatrix(_ matrix: CGAffineTransform) -> NSUIFont {
-        NSUIFont(descriptor: fontDescriptor.withMatrix(matrix), size: 0) ?? self
+    /// The current font with the specified font matrix.
+    func matrix(_ matrix: CGAffineTransform) -> NSUIFont {
+        NSUIFont(descriptor: fontDescriptor.withMatrix(matrix), size: 0)
     }
     #endif
     
-    /// Returns a new font based on the current font, but with the specified design style.
+    /// The current font with the specified design style.
     func design(_ design: NSUIFontDescriptor.SystemDesign) -> NSUIFont {
         guard let descriptor = fontDescriptor.withDesign(design) else { return self }
         #if os(macOS)
@@ -127,7 +127,7 @@ public extension NSUIFont {
         #endif
     }
     
-    /// Returns a new font based on the current font, but with the specified symbolic traits taking precedence over the existing ones.
+    /// The current font with the specified symbolic traits taking precedence over the existing ones.
     func withSymbolicTraits(_ symbolTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
         #if os(macOS)
         NSUIFont(descriptor: fontDescriptor.withSymbolicTraits(symbolTraits), size: 0) ?? self
@@ -137,6 +137,7 @@ public extension NSUIFont {
         #endif
     }
     
+    /// The current font with the specified symbolic traits.
     func symbolicTraits(_ symbolTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
         var attributes = fontDescriptor.fontAttributes
         attributes[.traits] = symbolTraits
@@ -147,7 +148,7 @@ public extension NSUIFont {
         #endif
     }
     
-    /// Returns a new font based on the current font, but with the specified face.
+    /// The current font with the specified face.
     func face(_ newFace: String) -> NSUIFont {
         #if os(macOS)
         NSUIFont(descriptor: fontDescriptor.withFace(newFace), size: 0) ?? self
@@ -156,7 +157,7 @@ public extension NSUIFont {
         #endif
     }
     
-    /// Applies the specified weight to the font.
+    /// The current font with the specified font weight.
     func weight(_ weight: NSUIFont.Weight) -> NSUIFont {
         #if os(macOS)
         NSUIFont(descriptor: fontDescriptor.withWeight(weight), size: 0) ?? self

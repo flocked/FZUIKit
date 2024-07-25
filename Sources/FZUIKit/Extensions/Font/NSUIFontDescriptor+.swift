@@ -171,12 +171,12 @@ public extension NSUIFontDescriptor.AttributeName {
         }
     #endif
 
-    /// An optional string object that specifies the font size category.
+    /// A string that specifies the font size category.
     static var sizeCategory: Self {
         .init(rawValue: "NSCTFontSizeCategoryAttribute")
     }
 
-    /// An optional string object that specifies the font UI usage.
+    /// A string that specifies the font UI usage.
     static var uiUsage: Self {
         .init(rawValue: "NSCTFontUIUsageAttribute")
     }

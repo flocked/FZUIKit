@@ -11,6 +11,71 @@
     import Foundation
 
     public extension NSSlider {
+        /**
+         Creates a continuous horizontal slider that represents values over the specified range.
+         
+         - Parameters:
+            - value: The initial value.
+            - range: The range.
+            - action: The action handler.
+         
+         - Returns: An initialized slider control.
+         */
+        convenience init(value: Double, range: ClosedRange<Double>, action: ActionBlock? = nil) {
+            self.init(value: value, minValue: range.lowerBound, maxValue: range.upperBound, target: nil, action: nil)
+            actionBlock = action
+        }
+        
+        /**
+         Creates a linear vertical slider with the specified size.
+         
+         - Parameter size: The size of the slider.
+         */
+        static func vertical(size: ControlSize = .regular) -> NSSlider {
+            let slider = NSSlider()
+            slider.sliderType = .linear
+            slider.isVertical = true
+            slider.controlSize = size
+            return slider
+        }
+        
+        /**
+         Creates a linear horizontal slider with the specified size.
+
+         - Parameter size: The size of the slider.
+         */
+        static func horizontal(size: ControlSize = .regular) -> NSSlider {
+            vertical(size: size).orientation(.horizontal)
+        }
+        
+        /**
+         Creates a circular slider with the specified size.
+         
+         - Parameter size: The size of the slider.
+         */
+        static func circular(size: ControlSize = .regular) -> NSSlider {
+            let slider = NSSlider()
+            slider.sliderType = .circular
+            slider.controlSize = size
+            return slider
+        }
+        
+        /// The range of the slider.
+        var range: ClosedRange<Double> {
+            get { minValue...maxValue }
+            set {
+                minValue = newValue.lowerBound
+                maxValue = newValue.upperBound
+            }
+        }
+        
+        /// Sets the range of the slider.
+        @discardableResult
+        func range(_ range: ClosedRange<Double>) -> Self {
+            self.range = range
+            return self
+        }
+        
         /// The rectangle in which the bar is drawn.
         var barRect: CGRect {
             (cell as? NSSliderCell)?.barRect(flipped: isFlipped) ?? .zero
@@ -84,33 +149,6 @@
         func numberOfTickMarks(_ numberOfTickMarks: Int) -> Self {
             self.numberOfTickMarks = numberOfTickMarks
             return self
-        }
-        
-        /**
-         Creates a linear slider with the specified orientation and size.
-         
-         - Parameters:
-            - orientation: The orientation of the slider.
-            - size: The size of the slider.
-         */
-        static func linear(orientation: NSUserInterfaceLayoutOrientation = .horizontal, size: ControlSize = .regular) -> NSSlider {
-            let slider = NSSlider()
-            slider.sliderType = .linear
-            slider.isVertical = orientation == .vertical
-            slider.controlSize = size
-            return slider
-        }
-        
-        /**
-         Creates a circular slider with the specified size.
-         
-         - Parameter size: The size of the slider.
-         */
-        static func circular(size: ControlSize = .regular) -> NSSlider {
-            let slider = NSSlider()
-            slider.sliderType = .circular
-            slider.controlSize = size
-            return slider
         }
     }
 
