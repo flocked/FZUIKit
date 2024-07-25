@@ -9,6 +9,13 @@
 import AppKit
 
 extension NSControl {
+        
+    /// Sets the Boolean value indicating whether the receiver’s cell sends its action message continuously to its target during mouse tracking.
+    @discardableResult
+    public func isContinuous(_ isContinuous: Bool) -> Self {
+        self.isContinuous = isContinuous
+        return self
+    }
     
     /// Sets the font.
     @discardableResult
