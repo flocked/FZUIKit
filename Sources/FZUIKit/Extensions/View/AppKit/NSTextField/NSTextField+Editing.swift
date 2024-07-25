@@ -163,6 +163,7 @@
                 guard editingActionOnEscapeKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 observeTextCommands()
+                observeEditing()
             }
         }
         
@@ -334,7 +335,7 @@
         }
 
         func observeEditing() {
-            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments || isVerticallyCentered {
+            if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments || isVerticallyCentered || editingActionOnEscapeKeyDown == .endEditingAndReset {
                 guard editingNotificationTokens.isEmpty else { return }
                 setupTextFieldObserver()
                 
