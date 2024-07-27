@@ -28,7 +28,7 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
         if let view = view {
             mouseDownLocation = event.location(in: view)
         }
-        didStartDragging = false
+        didCheckDragging = false
         view?.mouseHandlers.leftDown?(event)
         super.mouseDown(with: event)
     }
@@ -96,21 +96,19 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
         }
     }
     
-    var didStartDragging = false
+    var didCheckDragging = false
     var mouseDownLocation: CGPoint = .zero
     static let minimumDragDistance: CGFloat = 4.0
 
     func setupDraggingSession(for event: NSEvent) {
-        guard let view = view, let canDrag = view.dragHandlers.canDrag, !didStartDragging else { return }
+        guard !didCheckDragging, let view = view, let canDrag = view.dragHandlers.canDrag else { return }
         let location = event.location(in: view)
         guard mouseDownLocation.distance(to: location) >= Self.minimumDragDistance else { return }
-        didStartDragging = true
+        didCheckDragging = true
         guard let items = canDrag(location), !items.isEmpty, let observerView = view.observerView else { return }
-        view.fileDragOperation = .copy
-        if view.dragHandlers.fileDragOperation == .move {
-            if items.count == (items as? [URL] ?? []).filter({$0.absoluteString.contains("file:/")}).count {
-                view.fileDragOperation = .move
-            }
+        observerView.fileDragOperation = .copy
+        if view.dragHandlers.fileDragOperation == .move, items.count == items.fileURLs.count {
+            observerView.fileDragOperation = .move
         }
         let draggingItems = items.compactMap({NSDraggingItem($0)})
         let component: NSDraggingImageComponent
@@ -121,10 +119,10 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
         }
         draggingItems.first?.imageComponentsProvider = { [component] }
         draggingItems.forEach({
-           $0.draggingFrame = CGRect(.zero, view.bounds.size)
+            $0.draggingFrame = CGRect(.zero, view.bounds.size)
             // $0.imageComponentsProvider = { [component] }
         })
-        NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
+       // NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
         view.beginDraggingSession(with: draggingItems, event: event, source: observerView)
     }
 }

@@ -610,11 +610,6 @@ extension NSView {
         }
     }
     
-    var fileDragOperation: NSDragOperation {
-        get { getAssociatedValue("fileDragOperation", initialValue: .copy) }
-        set { setAssociatedValue(newValue, key: "fileDragOperation") }
-    }
-    
     /// The handlers for dragging content outside the view.
     public struct DragHandlers {
         /**
@@ -654,10 +649,12 @@ extension NSView {
     }
     
     class ObserverView: NSView, NSDraggingSource {
+        var fileDragOperation: NSDragOperation = .copy
+        
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
             switch context {
             case .outsideApplication:
-                return superview?.fileDragOperation ?? .copy
+                return fileDragOperation
             default:
                 return .generic
             }
