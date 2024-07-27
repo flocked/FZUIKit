@@ -153,10 +153,9 @@ extension NSDraggingItem {
             if let attributedStrings = attributedStrings {
                 items.append(contentsOf: attributedStrings)
             }
-            
-            if let pasteboardItems = pasteboardItems?.filter({$0.content != nil}) {
-                items.append(contentsOf: pasteboardItems)
-            }
+                        
+            let pasteboardItems = (pasteboardItems ?? []).filter({ !$0.types.contains(any: [.color, .string, .rtf, .sound, .fileURL, .URL, .tiff, .png]) || $0.content != nil })
+            items.append(contentsOf: pasteboardItems)
 
             return items
         }

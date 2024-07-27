@@ -26,21 +26,6 @@ extension NSPasteboardItem {
         get { getAssociatedValue("itemContent", initialValue: nil) }
         set { setAssociatedValue(newValue, key: "itemContent") }
     }
-        
-    /// The color of the pasteboard item.
-    public var color: NSColor? {
-        get {
-            if let data = data(forType: .color), let color: NSColor = try? NSKeyedUnarchiver.unarchive(data) {
-                return color
-            }
-            return nil
-        }
-        set {
-            if let newValue = newValue, let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: false) {
-                setData(data, forType: .color)
-            }
-        }
-    }
     
     /// The string of the pasteboard item.
     public var string: String? {
@@ -50,6 +35,12 @@ extension NSPasteboardItem {
                 setString(newValue, forType: .string)
             }
         }
+    }
+    
+    /// The attributed string of the pasteboard item.
+    public var attributedString: NSAttributedString? {
+        guard let data = data(forType: .rtf) else { return nil }
+        return NSAttributedString(rtf: data, documentAttributes: nil)
     }
     
     /// The png image of the pasteboard item.
@@ -82,6 +73,34 @@ extension NSPasteboardItem {
         }
     }
     
+    /// The color of the pasteboard item.
+    public var color: NSColor? {
+        get {
+            if let data = data(forType: .color), let color: NSColor = try? NSKeyedUnarchiver.unarchive(data) {
+                return color
+            }
+            return nil
+        }
+        set {
+            if let newValue = newValue, let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: false) {
+                setData(data, forType: .color)
+            }
+        }
+    }
+    
+    /// The sound of the pasteboard item.
+    public var sound: NSSound? {
+        get {
+            guard let data = data(forType: .sound) else { return nil }
+            return NSSound(data: data)
+        }
+        set {
+            if let newValue = newValue, let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: false) {
+                setData(data, forType: .sound)
+            }
+        }
+    }
+    
     /// The url of the pasteboard item.
     public var url: URL? {
         get {
@@ -106,8 +125,8 @@ extension NSPasteboardItem {
             return nil
         }
         set {
-            if let data = newValue?.dataRepresentation {
-                setData(data, forType: .fileURL)
+            if let newValue = newValue, newValue.isFileURL {
+                setData(newValue.dataRepresentation, forType: .fileURL)
             }
         }
     }
