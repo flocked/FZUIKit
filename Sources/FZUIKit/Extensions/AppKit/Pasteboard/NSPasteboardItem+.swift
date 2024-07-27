@@ -39,8 +39,16 @@ extension NSPasteboardItem {
     
     /// The attributed string of the pasteboard item.
     public var attributedString: NSAttributedString? {
-        guard let data = data(forType: .rtf) else { return nil }
-        return NSAttributedString(rtf: data, documentAttributes: nil)
+        get {
+            guard let data = data(forType: .rtf) else { return nil }
+            return NSAttributedString(rtf: data, documentAttributes: nil)
+        }
+        set {
+            if let newValue = newValue, let data = newValue.rtf(from: newValue.string.nsRange) {
+                setString(newValue.string, forType: .string)
+                setData(data, forType: .rtf)
+            }
+        }
     }
     
     /// The png image of the pasteboard item.
