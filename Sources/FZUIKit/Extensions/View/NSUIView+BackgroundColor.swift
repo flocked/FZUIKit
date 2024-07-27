@@ -81,7 +81,7 @@ extension NSView {
         set { layer?.backgroundColor = newValue?.cgColor }
     }
 
-    struct DynamicColors {
+    public struct DynamicColors {
         var background: NSColor? {
             didSet { if background?.isDynamic == false { background = nil } }
         }
@@ -110,7 +110,7 @@ extension NSView {
         }
     }
 
-    var dynamicColors: DynamicColors {
+    public var dynamicColors: DynamicColors {
         get { getAssociatedValue("dynamicColors", initialValue: DynamicColors()) }
         set { setAssociatedValue(newValue, key: "dynamicColors")
             setupEffectiveAppearanceObserver()
