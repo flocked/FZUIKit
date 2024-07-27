@@ -416,7 +416,11 @@
 
         @objc var borderColorAnimatable: NSColor? {
             get { layer?.borderColor?.nsColor }
-            set { layer?.borderColor = newValue?.cgColor }
+            set { 
+                var cgColor = newValue?.cgColor
+                cgColor?._nsUIColor = newValue
+                layer?.borderColor = cgColor
+            }
         }
 
         /**
