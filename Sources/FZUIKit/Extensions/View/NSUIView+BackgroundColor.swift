@@ -94,7 +94,7 @@ extension NSView {
             didSet { if innerShadow?.isDynamic == false { innerShadow = nil } }
         }
 
-        var border: NSColor? {
+        public var border: NSColor? {
             didSet { if border?.isDynamic == false { border = nil } }
         }
 
