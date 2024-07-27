@@ -11,7 +11,6 @@
     import UIKit
 #endif
 import SwiftUI
-import FZSwiftUtils
 
 public extension CGColor {
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
@@ -155,7 +154,7 @@ public extension CGColor {
     #if os(macOS)
         /// Returns a `NSColor` representation of the color.
         var nsColor: NSColor? {
-            nsUIColor ?? NSColor(cgColor: self)
+            NSColor(cgColor: self)
         }
 
         /// Returns a `Color` representation of the color.
@@ -195,11 +194,6 @@ public extension CGColor {
 
     internal var nsUIColor: NSUIColor? {
         NSUIColor(cgColor: self)
-    }
-    
-    var _nsUIColor: NSUIColor? {
-        get { getAssociatedValue("nsUIColor", object: self) }
-        set { setAssociatedValue(newValue, key: "nsUIColor", object: self) }
     }
 }
 
