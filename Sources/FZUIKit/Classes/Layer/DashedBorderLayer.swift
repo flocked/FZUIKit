@@ -17,9 +17,10 @@
 
     /// A layer with a dashed border.
     public class DashedBorderLayer: CALayer {
-        /// THe configuration of the border.
+        
+        /// The configuration of the border.
         public var configuration: BorderConfiguration {
-            get { BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth, dashPattern: borderDashPattern, insets: borderInsets) }
+            get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dashPattern: borderDashPattern, insets: borderInsets) }
             set {
                 guard newValue != configuration else { return }
                 borderedLayer.lineWidth = newValue.width
@@ -29,30 +30,16 @@
             }
         }
 
-        /// The insets of the border.
-        public var borderInsets: NSDirectionalEdgeInsets = .init(0) {
+       var borderInsets: NSDirectionalEdgeInsets = .init(0) {
             didSet {
                 guard oldValue != borderInsets else { return }
                 layoutBorderedLayer()
             }
         }
 
-        /// The dash pattern of the border.
-        public var borderDashPattern: [CGFloat] {
+        var borderDashPattern: [CGFloat] {
             get { borderedLayer.lineDashPattern?.compactMap({$0.doubleValue}) ?? [] }
             set { borderedLayer.lineDashPattern = newValue as [NSNumber] }
-        }
-
-        /// The border color.
-        override public var borderColor: CGColor? {
-            get { borderedLayer.strokeColor }
-            set { borderedLayer.strokeColor = newValue }
-        }
-
-        /// The border width.
-        override public var borderWidth: CGFloat {
-            get { borderedLayer.lineWidth }
-            set { borderedLayer.lineWidth = newValue }
         }
 
         override public var cornerRadius: CGFloat {
@@ -121,7 +108,7 @@
 
         func sharedInit() {
             borderedLayer.fillColor = .clear
-            borderedLayer.lineJoin = CAShapeLayerLineJoin.round
+            borderedLayer.lineJoin = .round
             addSublayer(borderedLayer)
         }
     }
