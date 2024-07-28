@@ -68,11 +68,11 @@ extension AVPlayerView {
             setAssociatedValue(newValue, key: "dropMediaContent")
             guard newValue != droppableMedia else { return }
             if !newValue.isEmpty {
-                dropHandlers.canDrop = { [weak self] items,_,_ in
+                dropHandlers.canDrop = { [weak self] items,_ in
                     guard let self = self else { return false }
                     return self.firstMediaURL(for: items.fileURLs) != nil
                 }
-                dropHandlers.didDrop = { [weak self] items,_,_ in
+                dropHandlers.didDrop = { [weak self] items,_ in
                     guard let self = self else { return }
                     let mediaURL = self.firstMediaURL(for: items.fileURLs)
                     if let mediaURL = mediaURL {
