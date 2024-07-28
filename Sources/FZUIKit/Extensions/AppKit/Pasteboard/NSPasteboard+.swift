@@ -18,7 +18,7 @@
         /**
          The strings of the pasteboard or `nil` if no strings are available.
          
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         Setting this property replaces all current items in the pasteboard with the new items.
          */
         public var strings: [String]? {
             get { read(for: NSString.self) as? [String] }
@@ -28,7 +28,7 @@
         /**
          The attributed strings of the pasteboard or `nil` if no attributed strings are available.
          
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         Setting this property replaces all current items in the pasteboard with the new items.
          */
         public var attributedStrings: [NSAttributedString]? {
             get { read(for: NSAttributedString.self) }
@@ -38,7 +38,7 @@
         /**
          The images of the pasteboard or `nil` if no images are available.
          
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         Setting this property replaces all current items in the pasteboard with the new items.
          */
         public var images: [NSImage]? {
             get { read(for: NSImage.self) }
@@ -48,7 +48,7 @@
         /**
          The file urls of the pasteboard or `nil` if no file urls are available.
          
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         Setting this property replaces all current items in the pasteboard with the new items.
          */
         public var fileURLs: [URL]? {
             get { read(for: NSURL.self, options: [.urlReadingFileURLsOnly: true]) as? [URL] }
@@ -58,7 +58,7 @@
         /**
          The urls of the pasteboard or `nil` if no urls are available.
          
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         Setting this property replaces all current items in the pasteboard with the new items.
          */
         public var urls: [URL]? {
             get { read(for: NSURL.self) as? [URL] }
@@ -68,7 +68,7 @@
         /**
          The colors of the pasteboard or `nil` if no colors are available.
          
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         Setting this property replaces all current items in the pasteboard with the new items.
          */
         public var colors: [NSColor]? {
             get { read(for: NSColor.self) }
@@ -78,20 +78,16 @@
         /**
          The sounds of the pasteboard or `nil` if no sounds are available.
          
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
+         Setting this property replaces all current items in the pasteboard with the new items.
          */
         public var sounds: [NSSound]? {
             get { read(for: NSSound.self) }
             set { write(newValue ?? []) }
         }
         
-        /**
-         The specified codable objects of the pasteboard or `nil` if no objects are available.
-         
-         Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public func content<Content: Codable>(_ content: Content.Type) -> [Content]? {
-            pasteboardItems?.compactMap({$0.content(content)})
+        /// The contents of the specified content type  or `nil` if no content is available.
+        public func content<Content>(_ : Content.Type) -> [Content]? {
+            pasteboardItems?.compactMap({$0.content(Content.self)})
         }
         
         func write<Value: NSPasteboardWriting>(_ values: [Value]) {

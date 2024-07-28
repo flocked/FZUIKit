@@ -18,7 +18,7 @@ extension NSPasteboardItem {
     }
     
     /// Returns the custom content of the pasteboard item.
-    public func content<Content>(_ content: Content.Type) -> Content? {
+    public func content<Content>(_ : Content.Type) -> Content? {
         self.content as? Content
     }
     
@@ -54,10 +54,8 @@ extension NSPasteboardItem {
     /// The png image of the pasteboard item.
     public var pngImage: NSImage? {
         get {
-            if let data = data(forType: .png), let image = NSImage(data: data) {
-                return image
-            }
-            return nil
+            guard let data = data(forType: .png) else { return nil }
+            return NSImage(data: data)
         }
         set {
             if let data = newValue?.pngData() {
@@ -69,10 +67,8 @@ extension NSPasteboardItem {
     /// The tiff image of the pasteboard item.
     public var tiffImage: NSImage? {
         get {
-            if let data = data(forType: .tiff), let image = NSImage(data: data) {
-                return image
-            }
-            return nil
+            guard let data = data(forType: .tiff) else { return nil }
+            return NSImage(data: data)
         }
         set {
             if let data = newValue?.tiffRepresentation {
@@ -112,10 +108,8 @@ extension NSPasteboardItem {
     /// The url of the pasteboard item.
     public var url: URL? {
         get {
-            if let data = data(forType: .URL), let url = URL(dataRepresentation: data, relativeTo: nil) {
-                return url
-            }
-            return nil
+            guard let data = data(forType: .URL) else { return nil }
+            return URL(dataRepresentation: data, relativeTo: nil)
         }
         set {
             if let data = newValue?.dataRepresentation {
@@ -127,16 +121,51 @@ extension NSPasteboardItem {
     /// The file url of the pasteboard item.
     public var fileURL: URL? {
         get {
-            if let data = data(forType: .fileURL), let url = URL(dataRepresentation: data, relativeTo: nil) {
-                return url
-            }
-            return nil
+            guard let data = data(forType: .fileURL) else { return nil }
+            return URL(dataRepresentation: data, relativeTo: nil)
         }
         set {
             if let newValue = newValue, newValue.isFileURL {
                 setData(newValue.dataRepresentation, forType: .fileURL)
             }
         }
+    }
+}
+
+public extension Collection where Element: NSPasteboardItem {
+    /// The strings of the pasteboard items.
+    var strings: [String] {
+        compactMap({$0.string})
+    }
+    
+    /// The attributed strings of the pasteboard items.
+    var attributedStrings: [NSAttributedString] {
+        compactMap({$0.attributedString})
+    }
+    
+    /// The images of the pasteboard items.
+    var images: [NSImage] {
+        compactMap({$0.tiffImage ?? $0.pngImage})
+    }
+    
+    /// The urls of the pasteboard items.
+    var urls: [URL] {
+        compactMap({$0.url})
+    }
+    
+    /// The file urls of the pasteboard items.
+    var fileURLs: [URL] {
+        compactMap({$0.fileURL})
+    }
+       
+    /// The sounds of the pasteboard items.
+    var sounds: [NSSound] {
+        compactMap({$0.sound})
+    }
+    
+    /// The colors of the pasteboard items.
+    var colors: [NSColor] {
+        compactMap({$0.color})
     }
 }
 

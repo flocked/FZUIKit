@@ -50,8 +50,8 @@ extension URL: PasteboardContent {
 
 public extension PasteboardContent {
     /// Writes the object to the the general pasteboard.
-    func writeToPasteboard() {
-        NSPasteboard.general.write([self])
+    func writeToPasteboard(_ pasteboard: NSPasteboard = .general) {
+        pasteboard.write([self])
     }
 }
 
@@ -68,34 +68,42 @@ extension NSDraggingItem {
             pasteboard.write(self)
         }
         
+        /// The strings of the pasteboard content.
         var strings: [String] {
             compactMap({$0 as? String})
         }
         
-        var images: [NSImage] {
-            compactMap({$0 as? NSImage})
-        }
-        
-        var urls: [URL] {
-            compactMap({$0 as? URL})
-        }
-        
-        var fileURLs: [URL] {
-            urls.filter({$0.isFileURL})
-        }
-                
-        var sounds: [NSSound] {
-            compactMap({$0 as? NSSound})
-        }
-        
-        var colors: [NSColor] {
-            compactMap({$0 as? NSColor})
-        }
-        
+        /// The attributed strings of the pasteboard content.
         var attributedStrings: [NSAttributedString] {
             compactMap({$0 as? NSAttributedString})
         }
         
+        /// The images of the pasteboard content.
+        var images: [NSImage] {
+            compactMap({$0 as? NSImage})
+        }
+        
+        /// The urls of the pasteboard content.
+        var urls: [URL] {
+            compactMap({$0 as? URL})
+        }
+        
+        /// The file urls of the pasteboard content.
+        var fileURLs: [URL] {
+            urls.filter({$0.isFileURL})
+        }
+            
+        /// The sounds of the pasteboard content.
+        var sounds: [NSSound] {
+            compactMap({$0 as? NSSound})
+        }
+        
+        /// The colors of the pasteboard content.
+        var colors: [NSColor] {
+            compactMap({$0 as? NSColor})
+        }
+        
+        /// The pasteboard items of the pasteboard content.
         var pasteboardItems: [NSPasteboardItem] {
             compactMap({$0 as? NSPasteboardItem})
         }
@@ -111,7 +119,6 @@ extension NSDraggingItem {
             pasteboard.write(Array(self))
         }
     }
- 
 
     public extension NSPasteboard {
         /**
@@ -158,13 +165,6 @@ extension NSDraggingItem {
             items.append(contentsOf: pasteboardItems)
 
             return items
-        }
-    }
-
-    public extension NSDraggingInfo {
-        /// The current `PasteboardContent` objects of the dragging info.
-        func content() -> [PasteboardContent] {
-            draggingPasteboard.content()
         }
     }
 
