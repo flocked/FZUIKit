@@ -324,7 +324,7 @@ extension NSView {
     func setupObserverView() {
         if mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil {
             if observerView == nil {
-                observerView = ObserverView()
+                observerView = ObserverView(frame: .zero)
                 addSubview(withConstraint: observerView!)
             }
             observerView?._mouseHandlers = mouseHandlers
@@ -531,7 +531,7 @@ extension NSView {
      ```
      */
     public struct DropHandlers {
-        /// The allowed file content types that can be dropped to the view, or `nil` if no file is allowed to drop to the file.
+        /// The allowed file content types that can be dropped to the view.
         @available(macOS 11.0, *)
         public var allowedContentTypes: [UTType] {
             get { _allowedContentTypes as? [UTType] ?? [] }
@@ -540,48 +540,12 @@ extension NSView {
         var _allowedContentTypes: Any?
     
         /// A Boolean value that determines whether the user can drop multiple files with the specified content types  to the view.
-        public var allowsMultipleFiles: Bool = true
-        
-        
-        /**
-         The file content types that can be dropped to the view.
-         */
         @available(macOS 11.0, *)
-        public struct FileDropping {
-            /// The allowed file content types that can be dropped to the view, or `nil` if no file is allowed to drop to the file.
-            public var contentTypes: [UTType]? = nil
-            /// A Boolean value that determines whether the user can drop multiple files with the specified content types  to the view.
-            public var allowsMultiple: Bool = true
+        public var allowsMultipleFiles: Bool {
+            get { _allowsMultipleFiles }
+            set { _allowsMultipleFiles = newValue }
         }
-        
-        /**
-         The file content types that can be dropped to the view.
-         
-         Provides the allowed content types of the files that can be dropped to the view.
-         ```swift
-         view.dropHandlers.fileDropping.contentTypes = [.image, .video]
-         ```
-         
-         Alternatively you can determine the allowed files for dropping to the view more precisely by using `canDrop`:
-         
-         ```swift
-         view.dropHandlers.canDrop = { items, _ in
-             let fileURLs = items.fileURLs
-         
-             /// Checks if the files have the prefix `vid_` and allows dropping.
-             let hasPrefix = fileURLs.contains(where: { $0.lastPathComponent.hasPrefix("vid_") })
-         
-             return hasPrefix
-         }
-         ```
-         */
-        @available(macOS 11.0, *)
-        public var fileDropping: FileDropping {
-            get { (_fileDropping as? FileDropping) ?? FileDropping() }
-            set { _fileDropping = newValue }
-        }
-        
-        var _fileDropping: Any?
+        var _allowsMultipleFiles: Bool = true
         
         /// The handler that gets called when a pasteboard dragging enters the view’s bounds rectangle.
         public var draggingEntered: ((_ items: [PasteboardContent], _ location: CGPoint) -> Void)?
@@ -603,7 +567,7 @@ extension NSView {
 
         var isActive: Bool {
             if #available(macOS 11.0, *) {
-                (canDrop != nil || fileDropping.contentTypes != nil) && didDrop != nil
+                (canDrop != nil || !allowedContentTypes.isEmpty) && didDrop != nil
             } else {
                 canDrop != nil && didDrop != nil
             }
@@ -625,9 +589,6 @@ extension NSView {
         public var dragImage: ((_ location: CGPoint) -> ((image: NSImage, imageFrame: CGRect)?))?
         /// The handler that gets called when the user did drag the content to a supported destination.
         public var didDrag: ((_ screenLocation: CGPoint, _ items: [PasteboardContent]) -> ())?
-        /// The handler that gets called when the dragging ended without dragging the content to a supported destination.
-        public var dragEnded: ((_ screenLocation: CGPoint)->())?
-        
         
         /// The operation for dragging files.
         public var fileDragOperation: FileDragOperation = .copy
@@ -650,6 +611,14 @@ extension NSView {
     
     class ObserverView: NSView, NSDraggingSource {
         var fileDragOperation: NSDragOperation = .copy
+        lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
+        var _mouseHandlers = MouseHandlers() {
+            didSet { trackingArea.options = _mouseHandlers.trackingAreaOptions }
+        }
+                        
+        var _dropHandlers = DropHandlers() {
+            didSet { self.setupDragAndDrop() }
+        }
         
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
             switch context {
@@ -670,25 +639,9 @@ extension NSView {
         
         func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
             guard superview?.dragHandlers.canDrag != nil else { return }
-            if operation != .none {
-                superview?.dragHandlers.didDrag?(screenPoint, session.draggingPasteboard.content())
-            } else {
-                superview?.dragHandlers.dragEnded?(screenPoint)
-            }
-        }
-        
-        lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
-        var windowDidBecomeKeyObserver: NotificationToken?
-        var windowDidResignKeyObserver: NotificationToken?
-        var windowDidBecomeMainObserver: NotificationToken?
-        var windowDidResignMainObserver: NotificationToken?
-        
-        var _mouseHandlers = MouseHandlers() {
-            didSet {  trackingArea.options = _mouseHandlers.trackingAreaOptions }
-        }
-                        
-        var _dropHandlers = DropHandlers() {
-            didSet { self.setupDragAndDrop(needsSetup: _dropHandlers.isActive) }
+            let contents = session.draggingPasteboard.content()
+            guard !contents.isEmpty else { return }
+            superview?.dragHandlers.didDrag?(screenPoint, contents)
         }
         
         override public func hitTest(_: NSPoint) -> NSView? {
@@ -699,27 +652,12 @@ extension NSView {
             false
         }
         
-        func setupDragAndDrop(needsSetup: Bool) {
-            if needsSetup {
-                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .textFinderOptions])
+        func setupDragAndDrop() {
+            if _dropHandlers.isActive {
+                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .textFinderOptions, .rtf])
             } else {
                 unregisterDraggedTypes()
             }
-        }
-        
-        override public init(frame frameRect: NSRect) {
-            super.init(frame: frameRect)
-            initalSetup()
-        }
-        
-        public required init?(coder: NSCoder) {
-            super.init(coder: coder)
-            initalSetup()
-        }
-        
-        func initalSetup() {
-            trackingArea.options = _mouseHandlers.trackingAreaOptions
-            trackingArea.update()
         }
         
         override public func updateTrackingAreas() {
@@ -744,14 +682,15 @@ extension NSView {
                  
         func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
             let items = pasteboard.content()
-            guard items.isEmpty == false, _dropHandlers.isActive else { return false }
+            guard !items.isEmpty, _dropHandlers.isActive else { return false }
             let pasteboardItems = pasteboard.pasteboardItems ?? []
             if #available(macOS 11.0, *) {
-                if let contentTypes = _dropHandlers.fileDropping.contentTypes, !contentTypes.isEmpty {
-                    let conformingURLs =  items.urls.compactMap({$0.contentType}).filter({ $0.conforms(toAny: contentTypes) })
-                    if conformingURLs.isEmpty == false {
-                        let allowsMultiple = _dropHandlers.fileDropping.allowsMultiple
-                        if allowsMultiple || (allowsMultiple == false && conformingURLs.count == 1) {
+                let contentTypes = _dropHandlers.allowedContentTypes
+                if !contentTypes.isEmpty {
+                    let conformingURLs = items.fileURLs.compactMap({$0.contentType}).filter({ $0.conforms(toAny: contentTypes) })
+                    if !conformingURLs.isEmpty {
+                        let allowsMultiple = _dropHandlers.allowsMultipleFiles
+                        if allowsMultiple || (!allowsMultiple && conformingURLs.count == 1) {
                             return true
                         }
                     }
@@ -784,9 +723,9 @@ extension NSView {
             didDrop(items, sender.draggingPasteboard.pasteboardItems ?? [],  sender.draggingLocation)
             return true
         }
-        
+                
         override func draggingExited(_ sender: NSDraggingInfo?) {
-            dropHandlers.draggingExited?()
+            _dropHandlers.draggingExited?()
             super.draggingExited(sender)
         }
         
