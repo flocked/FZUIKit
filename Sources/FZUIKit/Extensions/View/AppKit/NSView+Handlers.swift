@@ -683,7 +683,6 @@ extension NSView {
         func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
             let items = pasteboard.content()
             guard !items.isEmpty, _dropHandlers.isActive else { return false }
-            let pasteboardItems = pasteboard.pasteboardItems ?? []
             if #available(macOS 11.0, *) {
                 let contentTypes = _dropHandlers.allowedContentTypes
                 if !contentTypes.isEmpty {
