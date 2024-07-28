@@ -86,7 +86,11 @@
 
             borderedLayer.bounds = CGRect(.zero, shapeRect.size)
             borderedLayer.position = CGPoint(x: frameSize.width / 2, y: frameSize.height / 2)
+            #if os(macOS)
+            borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgpath
+            #else
             borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
+            #endif
         }
 
         /**

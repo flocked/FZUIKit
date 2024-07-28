@@ -136,7 +136,11 @@
                 #endif
             }
             path.append(innerPart)
+            #if os(macOS)
+            shadowPath = path.cgpath
+            #else
             shadowPath = path.cgPath
+            #endif
         }
     }
 

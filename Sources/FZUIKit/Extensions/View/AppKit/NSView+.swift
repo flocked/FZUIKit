@@ -505,7 +505,7 @@
             get { shadowPathAnimatable?.bezierPath }
             set {
                 NSView.swizzleAnimationForKey()
-                shadowPathAnimatable = newValue?.cgPath
+                shadowPathAnimatable = newValue?.cgpath
             }
         }
 

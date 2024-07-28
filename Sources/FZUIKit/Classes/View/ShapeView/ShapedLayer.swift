@@ -46,7 +46,13 @@ public class ShapedLayer: CAShapeLayer {
     
     var _path: NSUIBezierPath? {
         get { nil }
-        set { path = newValue?.cgPath }
+        set { 
+            #if os(macOS)
+            path = newValue?.cgpath
+            #else
+            path = newValue?.cgPath
+            #endif
+        }
     }
     
     public override init() {
