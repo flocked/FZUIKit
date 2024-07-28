@@ -51,7 +51,7 @@
          Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
          */
         public var fileURLs: [URL]? {
-            get { read(for: NSURL.self, options: [.urlReadingFileURLsOnly: true])?.compactMap { $0 as URL } }
+            get { read(for: NSURL.self, options: [.urlReadingFileURLsOnly: true]) as? [URL] }
             set { write(newValue ?? []) }
         }
         
@@ -61,7 +61,7 @@
          Setting this property replaces all current items in the pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
          */
         public var urls: [URL]? {
-            get { read(for: NSURL.self)?.compactMap { $0 as URL } }
+            get { read(for: NSURL.self) as? [URL] }
             set { write(newValue ?? []) }
         }
 
@@ -108,85 +108,4 @@
             return nil
         }
     }
-
-/*
-    extension NSDraggingInfo {
-        /// The string of the dragging info or `nil` if no string is available.
-        public var string: String? {
-            get { draggingPasteboard.string }
-            set { draggingPasteboard.string = newValue }
-        }
-        
-        /**
-         The strings of the dragging info or `nil` if no strings are available.
-         
-         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public var strings: [String]? {
-            get { draggingPasteboard.strings }
-            set { draggingPasteboard.strings = newValue }
-        }
-        
-        /**
-         The attributed strings of the dragging info or `nil` if no attributed strings are available.
-         
-         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public var attributedStrings: [NSAttributedString]? {
-            get { draggingPasteboard.attributedStrings }
-            set { draggingPasteboard.attributedStrings = newValue }
-        }
-
-        /**
-         The file urls of the dragging info or `nil` if no file urls are available.
-         
-         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public var fileURLs: [URL]? {
-            get { draggingPasteboard.fileURLs }
-            set { draggingPasteboard.fileURLs = newValue }
-        }
-        
-        /**
-         The urls of the dragging info or `nil` if no urls are available.
-         
-         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public var urls: [URL]? {
-            get { draggingPasteboard.urls }
-            set { draggingPasteboard.urls = newValue }
-        }
-        
-        /**
-         The images of the dragging info or `nil` if no images are available.
-         
-         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public var images: [NSImage]? {
-            get { draggingPasteboard.images }
-            set { draggingPasteboard.images = newValue }
-        }
-        
-        /**
-         The colors of the dragging info or `nil` if no colors are available.
-         
-         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public var colors: [NSColor]? {
-            get { draggingPasteboard.colors }
-            set { draggingPasteboard.colors = newValue }
-        }
-
-        /**
-         The sounds of the dragging info or `nil` if no sounds are available.
-         
-         Setting this property replaces all current items in the dragging pasteboard with the new items. The returned array may have fewer objects than the number of pasteboard items; this happens if a pasteboard item does not have a value of the indicated type.
-         */
-        public var sounds: [NSSound]? {
-            get { draggingPasteboard.sounds }
-            set { draggingPasteboard.sounds = newValue }
-        }
-    }
- */
-
 #endif

@@ -19,12 +19,11 @@ open class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDele
     /// The file name for writing the file.
     open var fileName: String
     
-    /// The handler for writing the file.
-    public let handler: Handler
-    
     /// The operation queue from which to issue the write request.
-    public var operationQueue: OperationQueue = .main
+    public var operationQueue: OperationQueue = .init()
     
+    /// The handler for writing the file.
+    let handler: Handler
     
     /**
      Initializes a file promise provider that calls the specified handler for writing the file.
@@ -103,8 +102,12 @@ open class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDele
         self.init(fileName: fileName, fileType: fileType) { url, completionHandler in
             do {
                 let url = try Self.checkExistingFile(url: url, fileName: fileName, strategy: existingFileStrategy)
-                let data = try JSONEncoder().encode(content)
-                try data.write(to: url, options: [.atomic])
+                if let content = content as? FileConvertible {
+                    try content.write(to: url, options: [.atomic])
+                } else {
+                    let data = try JSONEncoder().encode(content)
+                    try data.write(to: url, options: [.atomic])
+                }
                 completionHandler(nil)
             } catch {
                 completionHandler(error)

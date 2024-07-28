@@ -701,7 +701,7 @@ extension NSView {
         
         func setupDragAndDrop(needsSetup: Bool) {
             if needsSetup {
-                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .codable, .textFinderOptions])
+                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .textFinderOptions])
             } else {
                 unregisterDraggedTypes()
             }

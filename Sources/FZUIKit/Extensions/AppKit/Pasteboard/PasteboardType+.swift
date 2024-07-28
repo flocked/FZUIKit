@@ -10,10 +10,10 @@ import AppKit
 
 extension NSPasteboard.PasteboardType {
     /// Type for codable values.
-    public static let codable = NSPasteboard.PasteboardType("PasteboardType.Codable")
+  //  public static let codable = NSPasteboard.PasteboardType("PasteboardType.Codable")
     
     /// Type for objects.
-    public static let object = NSPasteboard.PasteboardType("PasteboardType.Object")
+ //   public static let object = NSPasteboard.PasteboardType("PasteboardType.Object")
 
 }
 
