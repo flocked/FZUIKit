@@ -53,8 +53,8 @@ extension NSTextField {
                 suggestionsTokens = [
                     NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] _ in
                         guard let self = self else { return }
-                        Swift.print("didBegin")
-                        textSuggestionController.popover.show(self, preferredEdge: .bottom, hideArrow: true, tracksView: true)
+                        // Swift.print("didBegin")
+                        textSuggestionController.popover.show(self, preferredEdge: .minY, hideArrow: true, tracksView: true)
                     },
                     NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { _ in
                         textSuggestionController.popover.close()
