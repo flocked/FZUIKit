@@ -340,10 +340,17 @@
             return self
         }
         
-        /// The menu item’s menu.
+        /// Sets the menu item’s menu.
         @discardableResult
         func menu(_ menu: NSMenu?) -> Self {
             self.menu = menu
+            return self
+        }
+        
+        /// Sets the menu item’s menu.
+        @discardableResult
+        func menu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+            menu = NSMenu().items(items)
             return self
         }
         
@@ -352,7 +359,14 @@
         func submenu(_ menu: NSMenu?) -> Self {
             submenu = menu
             return self
-        }      
+        }
+        
+        /// The submenu of the menu item.
+        @discardableResult
+        func submenu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+            submenu = NSMenu().items(items)
+            return self
+        }
         
         /// The visibilty of an item when it is visible in it's menu.
         enum Visiblity: Int {
