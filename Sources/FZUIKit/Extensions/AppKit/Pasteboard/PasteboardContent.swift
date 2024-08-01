@@ -62,12 +62,6 @@ extension NSDraggingItem {
     }
 }
 
-class TestClass: NSPasteboardItem {
-    func tes() {
-        TestClass.init(content: [])
-    }
-}
-
 extension NSPasteboardItem {
     /// Creates a pasteboard item with the specified content.
     public convenience init(content: PasteboardContent) {

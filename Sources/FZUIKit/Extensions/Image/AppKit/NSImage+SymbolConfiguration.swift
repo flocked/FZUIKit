@@ -219,36 +219,6 @@ extension NSUIImage.SymbolConfiguration {
         convenience init?(systemSymbolName: String) {
             self.init(systemSymbolName: systemSymbolName, accessibilityDescription: nil)
         }
-
-        /**
-         Creates a symbol image with the system symbol name and symbol configuration.
-
-         - Parameters:
-            -  systemSymbolName: The name of the system symbol image.
-            - configuration: The symbol configuration.
-
-         - Returns: A symbol image based on the name you specify; otherwise `nil` if the method couldn’t find a suitable image.
-         */
-        convenience init?(systemSymbolName: String, configuration: NSImage.SymbolConfiguration) {
-            self.init(systemSymbolName: systemSymbolName, accessibilityDescription: nil, configuration: configuration)
-        }
-
-        /**
-         Creates a symbol image with the system symbol name and symbol configuration.
-
-         - Parameters:
-            - systemSymbolName: The name of the system symbol image.
-            - description: The accessibility description for the symbol image, if any.
-            - configuration: The symbol configuration.
-
-         - Returns: A symbol image based on the name you specify; otherwise `nil` if the method couldn’t find a suitable image.
-         */
-        convenience init?(systemSymbolName: String, accessibilityDescription description: String?, configuration: NSImage.SymbolConfiguration) {
-            self.init(systemSymbolName: systemSymbolName, accessibilityDescription: description)
-            if let size = withSymbolConfiguration(configuration)?.representations.first?.size {
-                representations.first?.size = size
-            }
-        }
     }
 
     @available(macOS 12.0, *)

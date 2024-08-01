@@ -135,9 +135,9 @@
 extension CGLineCap {
     var shapeLayerLineCap: CAShapeLayerLineCap {
         switch self {
-        case .butt: return .butt
         case .round: return .round
         case .square: return .square
+        default: return .butt
         }
     }
 }
