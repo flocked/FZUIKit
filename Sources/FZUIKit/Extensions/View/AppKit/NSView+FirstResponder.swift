@@ -56,11 +56,6 @@ public extension NSViewProtocol where Self: NSView {
     }
 }
 
-
-public extension NSView {
-
-}
-
 extension NSView {
     /// A value that indicates the amout of mouse clicks outside the view to resign the view as first responder in its window.
     public var resignFirstResponderClickCount: Int? {

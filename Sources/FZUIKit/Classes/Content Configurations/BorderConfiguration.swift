@@ -99,7 +99,7 @@
         #endif
 
         /// A configuration for a dashed border with the specified color.
-        public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0, dashPattern: [CGFloat] = [2]) -> Self {
+        public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0, dashPattern: [CGFloat] = [4, 4]) -> Self {
             Self(color: color, width: width, dashPattern: dashPattern)
         }
 
@@ -109,7 +109,7 @@
         }
 
         var needsDashedBordlerLayer: Bool {
-            insets != .zero || dashPattern != []
+            insets != .zero || dashPattern != [] || !isInvisible
         }
     }
 
@@ -150,7 +150,7 @@ extension BorderConfiguration: Codable {
             #if os(macOS)
                 dynamicColors.border = configuration.resolvedColor()
             #endif
-            if configuration.needsDashedBordlerLayer, !configuration.isInvisible {
+            if configuration.needsDashedBordlerLayer {
                 borderColor = nil
                 #if os(macOS)
                 _borderWidth = 0.0
@@ -303,4 +303,5 @@ extension Shape {
         }
     }
 }
+
 #endif

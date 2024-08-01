@@ -354,6 +354,7 @@
             get { layer?.maskedCorners ?? CACornerMask() }
             set { 
                 optionalLayer?.maskedCorners = newValue
+                dashedBorderView?.update()
                 visualEffectBackgroundView?.optionalLayer?.maskedCorners = newValue
             }
         }
@@ -368,12 +369,21 @@
        @objc open var border: BorderConfiguration {
             get {
                 let view = realSelf
-                return view.dashedBorderLayer?.configuration ?? .init(color: view.borderColor, width: view._borderWidth)
+                return view.dashedBorderView?.configuration ?? .init(color: view.borderColor, width: view._borderWidth)
             }
             set {
                 if newValue.needsDashedBordlerLayer {
-                    configurate(using: newValue)
+                    borderColor = nil
+                    _borderWidth = 0.0
+                    if dashedBorderView == nil {
+                        dashedBorderView = DashedBorderView()
+                        addSubview(withConstraint: dashedBorderView!)
+                        dashedBorderView?.sendToBack()
+                    }
+                    dashedBorderView?.configuration = newValue
                 } else {
+                    dashedBorderView?.removeFromSuperview()
+                    dashedBorderView = nil
                     borderColor = newValue.resolvedColor()
                     _borderWidth = newValue.width
                 }
@@ -639,7 +649,7 @@
 
         /// The parent view controller managing the view.
         @objc open var parentController: NSViewController? {
-            return nextResponder as? NSViewController ?? (nextResponder as? NSView)?.parentController
+            nextResponder as? NSViewController ?? (nextResponder as? NSView)?.parentController
         }
 
         /**

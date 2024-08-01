@@ -20,12 +20,14 @@
         
         /// The configuration of the border.
         public var configuration: BorderConfiguration {
-            get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dashPattern: borderDashPattern, insets: borderInsets) }
+            get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dashPattern: borderDashPattern, dashPhase: borderedLayer.lineDashPhase, dashLineCap: borderedLayer.lineCap.cgLineCap, insets: borderInsets) }
             set {
                 guard newValue != configuration else { return }
                 borderedLayer.lineWidth = newValue.width
                 borderedLayer.strokeColor = newValue.resolvedColor()?.cgColor
                 borderDashPattern = newValue.dashPattern
+                borderedLayer.lineDashPhase = newValue.dashPhase
+                borderedLayer.lineCap = newValue.dashLineCap.shapeLayerLineCap
                 borderInsets = newValue.insets
             }
         }
@@ -65,16 +67,24 @@
         let borderedLayer = CAShapeLayer()
 
         func layoutBorderedLayer() {
+            
             let frameSize = CGSize(width: bounds.size.width - borderInsets.width, height: bounds.size.height - borderInsets.height)
             let shapeRect = CGRect(origin: CGPoint(x: borderInsets.leading, y: borderInsets.bottom), size: frameSize)
-
+            
+            Swift.print("inset",  bounds.inset(by: configuration.insets),shapeRect, bounds)
+            
+            
+            /*
             let scale = (shapeRect.size.width - borderWidth) / frame.size.width
             let cornerRadius = cornerRadius * scale
-
+*/
             borderedLayer.bounds = CGRect(.zero, shapeRect.size)
             borderedLayer.position = CGPoint(x: frameSize.width / 2, y: frameSize.height / 2)
+           
+            borderedLayer.frame =   bounds.inset(by: configuration.insets)
+
             #if os(macOS)
-            borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgpath
+            borderedLayer.path = NSUIBezierPath(roundedRect:  borderedLayer.frame, cornerRadius: cornerRadius).cgpath
             #else
             borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
             #endif
@@ -107,9 +117,38 @@
         }
 
         func sharedInit() {
-            borderedLayer.fillColor = .clear
-            borderedLayer.lineJoin = .round
+            borderedLayer.fillColor = nil
             addSublayer(borderedLayer)
+            
+            /*
+             lineWidth: CGFloat = 1,
+             lineCap: CGLineCap = .butt,
+             lineJoin: CGLineJoin = .miter,
+             miterLimit: CGFloat = 10,
+             dash: [CGFloat] = [CGFloat](),
+             dashPhase: CGFloat = 0
+             */
+            
         }
     }
+
+extension CGLineCap {
+    var shapeLayerLineCap: CAShapeLayerLineCap {
+        switch self {
+        case .butt: return .butt
+        case .round: return .round
+        case .square: return .square
+        }
+    }
+}
+
+extension CAShapeLayerLineCap {
+    var cgLineCap: CGLineCap {
+        switch self {
+        case .round: return .round
+        case .square: return .square
+        default: return .butt
+        }
+    }
+}
 #endif

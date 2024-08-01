@@ -11,13 +11,7 @@
     extension UIView {
         /// The parent view controller managing the view.
         public var parentController: UIViewController? {
-            if let responder = next as? UIViewController {
-                return responder
-            } else if let responder = next as? UIView {
-                return responder.parentController
-            } else {
-                return nil
-            }
+            next as? UIViewController ?? (next as? UIView)?.parentController
         }
 
         /**
@@ -81,7 +75,27 @@
          */
         public var border: BorderConfiguration {
             get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
-            set { configurate(using: newValue) }
+            set { 
+                if newValue.needsDashedBordlerLayer {
+                    borderColor = nil
+                    borderWidth = 0.0
+                    if dashedBorderView == nil {
+                        dashedBorderView = DashedBorderView()
+                        addSubview(withConstraint: dashedBorderView!)
+                        dashedBorderView?.sendToBack()
+                    }
+                    dashedBorderView?.configuration = configuration
+                } else {
+                    dashedBorderView?.removeFromSuperview()
+                    dashedBorderView = nil
+                    let newColor = configuration.resolvedColor()?.resolvedColor(for: self)
+                    if borderColor?.alphaComponent == 0.0 || borderColor == nil {
+                        borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
+                    }
+                    borderColor = newColor
+                    borderWidth = configuration.width
+                }
+            }
         }
 
         /// The border color of the view.
@@ -103,7 +117,10 @@
          */
         @objc public var roundedCorners: CACornerMask {
             get { layer.maskedCorners }
-            set { layer.maskedCorners = newValue }
+            set { 
+                layer.maskedCorners = newValue
+                dashedBorderView?.update()
+            }
         }
 
         /**

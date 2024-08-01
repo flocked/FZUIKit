@@ -79,8 +79,9 @@ extension NSUIView {
                 #if os(iOS) || os(tvOS)
                 newValue.tag = 3_443_024
                 #endif
-                insertSubview(newValue, at: 0)
-                newValue.constraint(to: self)
+                optionalLayer?.zPosition = -1000
+                addSubview(withConstraint: newValue)
+                newValue.sendToBack()
             }
         }
     }
