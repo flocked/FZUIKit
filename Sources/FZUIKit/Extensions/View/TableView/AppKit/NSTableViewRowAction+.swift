@@ -20,7 +20,7 @@
                 - rowIndex: The table row that the user acted on.
          */
         public static func regular(_ title: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
-            let action = NSTableViewRowAction(style: .destructive, title: title, handler: handler)
+            let action = NSTableViewRowAction(style: .regular, title: title, handler: handler)
             action.backgroundColor = color ?? action.backgroundColor
             return action
         }
@@ -54,7 +54,7 @@
          */
         @available(macOS 11.0, *)
         public static func regular(_ title: String? = nil, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
-            let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
+            let action = NSTableViewRowAction(style: .regular, title: title ?? "", handler: handler)
             action.backgroundColor = color ?? action.backgroundColor
             action.image = NSImage(systemSymbolName: symbolName)
             return action
@@ -91,7 +91,7 @@
                 - rowIndex: The table row that the user acted on.
          */
         public static func regular(_ title: String? = nil, image: NSImage, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
-            let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
+            let action = NSTableViewRowAction(style: .regular, title: title ?? "", handler: handler)
             action.backgroundColor = color ?? action.backgroundColor
             action.image = image
             return action
