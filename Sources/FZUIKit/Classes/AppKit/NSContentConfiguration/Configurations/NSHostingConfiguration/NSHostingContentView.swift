@@ -30,10 +30,6 @@
             hostingController.sizeThatFits(in: size)
         }
 
-        override var fittingSize: NSSize {
-            hostingController.view.fittingSize
-        }
-
         /// Creates a hosting content view with the specified content configuration.
         public init(configuration: NSHostingConfiguration<Content, Background>) {
             appliedConfiguration = configuration
@@ -64,6 +60,11 @@
 
         var hostingViewConstraints: [NSLayoutConstraint] = []
 
+        /*
+        override var fittingSize: NSSize {
+            hostingController.view.fittingSize
+        }
+        
         override var intrinsicContentSize: CGSize {
             var intrinsicContentSize = hostingController.view.intrinsicContentSize
             if let width = appliedConfiguration.minWidth {
@@ -74,6 +75,7 @@
             }
             return intrinsicContentSize
         }
+         */
 
         @available(*, unavailable)
         required init?(coder _: NSCoder) {
