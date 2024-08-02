@@ -139,36 +139,36 @@ extension NSWindow {
             } else if !newValue.needsObserver {
                 windowObserver = nil
             }
-            
+            guard let windowObserver = windowObserver else { return }
             if let firstResponder = newValue.firstResponder {
-                windowObserver?.add(\.firstResponder) { old, new in
+                windowObserver.add(\.firstResponder) { old, new in
                     guard old != new else { return }
                     firstResponder(new)
                 }
             } else {
-                windowObserver?.remove(\.firstResponder)
+                windowObserver.remove(\.firstResponder)
             }
             
             if let effectiveAppearance = newValue.effectiveAppearance {
-                windowObserver?.add(\.effectiveAppearance) { old, new in
+                windowObserver.add(\.effectiveAppearance) { old, new in
                     guard old != new else { return }
                     effectiveAppearance(new)
                 }
             } else {
-                windowObserver?.remove(\.effectiveAppearance)
+                windowObserver.remove(\.effectiveAppearance)
             }
             
             if let frame = newValue.frame {
-                windowObserver?.add(\.frame) { old, new in
+                windowObserver.add(\.frame) { old, new in
                     guard old != new else { return }
                     frame(new)
                 }
             } else {
-                windowObserver?.remove(\.frame)
+                windowObserver.remove(\.frame)
             }
             
             if newValue.styleMask != nil || newValue.isFullScreen != nil {
-                windowObserver?.add(\.styleMask) { old, new in
+                windowObserver.add(\.styleMask) { old, new in
                     guard old != new else { return }
                     newValue.styleMask?(new)
                     let fullscreen = new.contains(.fullScreen)
@@ -176,47 +176,37 @@ extension NSWindow {
                     newValue.isFullScreen?(fullscreen)
                 }
             } else {
-                windowObserver?.remove(\.styleMask)
+                windowObserver.remove(\.styleMask)
             }
             
             if let isKey = newValue.isKey {
                 NSWindow.isKeyWindowObservable = true
-                windowObserver?.add(\.isKeyWindow) { old, new in
+                windowObserver.add(\.isKeyWindow) { old, new in
                     guard old != new else { return }
                     isKey(new)
                 }
             } else {
-                windowObserver?.remove(\.isKeyWindow)
+                windowObserver.remove(\.isKeyWindow)
             }
             
             if let isMain = newValue.isMain {
                 NSWindow.isMainWindowObservable = true
-                windowObserver?.add(\.isMainWindow) { old, new in
+                windowObserver.add(\.isMainWindow) { old, new in
                     guard old != new else { return }
                     isMain(new)
                 }
             } else {
-                windowObserver?.remove(\.isMainWindow)
-            }
-            
-            if let isLiveResizing = newValue.isLiveResizing {
-                NSWindow.isLiveResizeObservable = true
-                windowObserver?.add(\.inLiveResize) { old, new in
-                    guard old != new else { return }
-                    isLiveResizing(new)
-                }
-            } else {
-                windowObserver?.remove(\.inLiveResize)
+                windowObserver.remove(\.isMainWindow)
             }
         }
     }
     
     /// Tab Handlers for the window.
     public struct TabHandlers {
-        /// The handler that gets called when the index of the window tab changes.
-        public var index: ((Int?)->())?
         /// The handler that gets called when the tab windows changes.
         public var windows: (([NSWindow]?)->())?
+        /// The handler that gets called when the selected tab changes.
+        public var selected: ((NSWindow?)->())?
         /// The handler that gets called when the tab selection state changes.
         public var isSelected: ((Bool)->())?
         /// The handler that gets called when the tab bar visibilty changes.
@@ -225,7 +215,7 @@ extension NSWindow {
         public var isOverviewVisible: ((Bool)->())?
         
         var needsObserver: Bool {
-            index != nil ||
+            selected != nil ||
             windows != nil ||
             isSelected != nil ||
             isTabBarVisible != nil ||
@@ -243,44 +233,46 @@ extension NSWindow {
             } else if !newValue.needsObserver {
                 tabObserver = nil
             }
+            guard let tabObserver = tabObserver else { return }
             if let tabWindows = newValue.windows {
-                tabObserver?.add(\.tabGroup?.windows) { old, new in
+                tabObserver.add(\.tabGroup?.windows) { old, new in
                     guard old != new else { return }
                     tabWindows(new ?? [])
                 }
             } else {
-                tabObserver?.remove(\.tabGroup?.windows)
+                tabObserver.remove(\.tabGroup?.windows)
             }
             
-            if let tabIsSelected = newValue.isSelected {
-                tabObserver?.add(\.tabGroup?.selectedWindow) { [weak self] old, new in
+            if newValue.isSelected != nil || newValue.selected != nil {
+                tabObserver.add(\.tabGroup?.selectedWindow) { [weak self] old, new in
                     guard let self = self, old != new else { return }
+                    newValue.selected?(new)
                     if old == self, new != self {
-                        tabIsSelected(false)
+                        newValue.isSelected?(false)
                     } else if old != self, new == self {
-                        tabIsSelected(true)
+                        newValue.isSelected?(true)
                     }
                 }
             } else {
-                tabObserver?.remove(\.tabGroup?.selectedWindow)
+                tabObserver.remove(\.tabGroup?.selectedWindow)
             }
             
             if let isTabBarVisible = newValue.isTabBarVisible {
-                tabObserver?.add(\.tabGroup?.isTabBarVisible) { old, new in
+                tabObserver.add(\.tabGroup?.isTabBarVisible) { old, new in
                     guard old != new, let new = new else { return }
                     isTabBarVisible(new)
                 }
             } else {
-                tabObserver?.remove(\.tabGroup?.isTabBarVisible)
+                tabObserver.remove(\.tabGroup?.isTabBarVisible)
             }
             
             if let isOverviewVisible = newValue.isOverviewVisible {
-                tabObserver?.add(\.tabGroup?.isOverviewVisible) { old, new in
+                tabObserver.add(\.tabGroup?.isOverviewVisible) { old, new in
                     guard old != new, let new = new else { return }
                     isOverviewVisible(new)
                 }
             } else {
-                tabObserver?.remove(\.tabGroup?.isOverviewVisible)
+                tabObserver.remove(\.tabGroup?.isOverviewVisible)
             }
         }
     }
@@ -694,7 +686,7 @@ extension NSWindow {
     
     /// A Boolean value that indicates whether the property `isKeyWindow` is KVO observable.
     public static var isKeyWindowObservable: Bool {
-        get { isMethodReplaced(#selector(NSWindow.becomeKey)) }
+        get { isMethodReplaced(#selector(getter: NSWindow.isKeyWindow)) }
         set {
             guard newValue != isKeyWindowObservable else { return }
             if newValue {
@@ -704,7 +696,6 @@ extension NSWindow {
                         methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
                         hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
                             object in
-                            (object as? NSWindow)?.setupLiveResizeObservation()
                             return (object as? NSWindow)?._isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
                         }
                         }
@@ -728,9 +719,6 @@ extension NSWindow {
                         store.original(object, #selector(NSWindow.resignKey))
                         guard let window = object as? NSWindow else { return }
                         window._isKeyWindow = true
-                        window.willChangeValue(for: \.isKeyWindow)
-                        window._isKeyWindow = nil
-                        window.didChangeValue(for: \.isKeyWindow)
                     }
                     }
                 } catch {
@@ -744,9 +732,85 @@ extension NSWindow {
         }
     }
     
+    var mainWindowObservation: KeyValueObservation? {
+        get { getAssociatedValue("mainWindowObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "mainWindowObservation") }
+    }
+    
+    var keyWindowObservation: KeyValueObservation? {
+        get { getAssociatedValue("keyWindowObservation", initialValue: nil) }
+        set { setAssociatedValue(newValue, key: "keyWindowObservation") }
+    }
+    
+    /// A Boolean value that indicates whether the property `isMainWindow` is KVO observable.
+    public var isMainWindowObservable: Bool {
+        get { mainWindowObservation != nil }
+        set {
+            guard newValue != isMainWindowObservable else { return }
+            if newValue {
+                do {
+                    try replaceMethod(
+                        #selector(getter: NSWindow.isMainWindow),
+                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
+                        hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
+                            object in
+                            return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
+                        }
+                        }
+                    mainWindowObservation = NSApp.observeChanges(for: \.mainWindow) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        if old == self {
+                            self._isMainWindow = true
+                        } else if new == self {
+                            self._isMainWindow = false
+                        }
+                    }
+                } catch {
+                    Swift.debugPrint(error)
+                }
+            } else {
+                resetMethod(#selector(getter: NSWindow.isMainWindow))
+                mainWindowObservation = nil
+            }
+        }
+    }
+    
+    /// A Boolean value that indicates whether the property `isMainWindow` is KVO observable.
+    public var isKeyWindowObservable: Bool {
+        get { keyWindowObservation != nil }
+        set {
+            guard newValue != isKeyWindowObservable else { return }
+            if newValue {
+                do {
+                    try replaceMethod(
+                        #selector(getter: NSWindow.isKeyWindow),
+                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
+                        hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
+                            object in
+                            return (object as? NSWindow)?._isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
+                        }
+                        }
+                    keyWindowObservation = NSApp.observeChanges(for: \.keyWindow) { [weak self] old, new in
+                        guard let self = self, old != new else { return }
+                        if old == self {
+                            self._isKeyWindow = true
+                        } else if new == self {
+                            self._isKeyWindow = false
+                        }
+                    }
+                } catch {
+                    Swift.debugPrint(error)
+                }
+            } else {
+                keyWindowObservation = nil
+                resetMethod(#selector(getter: NSWindow.isKeyWindow))
+            }
+        }
+    }
+    
     /// A Boolean value that indicates whether the property `isMainWindow` is KVO observable.
     public static var isMainWindowObservable: Bool {
-        get { isMethodReplaced(#selector(NSWindow.becomeMain)) }
+        get { isMethodReplaced(#selector(getter: NSWindow.isMainWindow)) }
         set {
             guard newValue != isMainWindowObservable else { return }
             if newValue {
@@ -779,9 +843,6 @@ extension NSWindow {
                         store.original(object, #selector(NSWindow.resignMain))
                         guard let window = object as? NSWindow else { return }
                         window._isMainWindow = true
-                        window.willChangeValue(for: \.isMainWindow)
-                        window._isMainWindow = nil
-                        window.didChangeValue(for: \.isMainWindow)
                     }
                     }
                 } catch {
@@ -823,17 +884,33 @@ extension NSWindow {
     
     var _inLiveResize: Bool? {
         get { getAssociatedValue("_inLiveResize", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "_inLiveResize") }
+        set { 
+            setAssociatedValue(newValue, key: "_inLiveResize")
+            set(\.inLiveResize, \._inLiveResize, to: newValue)
+        }
     }
     
     var _isMainWindow: Bool? {
         get { getAssociatedValue("_isMainWindow", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "_isMainWindow") }
+        set {
+            setAssociatedValue(newValue, key: "_isMainWindow")
+            set(\.isMainWindow, \._isMainWindow, to: newValue)
+        }
     }
     
     var _isKeyWindow: Bool? {
         get { getAssociatedValue("_isKeyWindow", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "_isKeyWindow") }
+        set {
+            setAssociatedValue(newValue, key: "_isKeyWindow")
+            set(\.isKeyWindow, \._isKeyWindow, to: newValue)
+        }
+    }
+    
+    func set(_ keyPath: KeyPath<NSWindow, Bool>, _ writable: ReferenceWritableKeyPath<NSWindow, Bool?>, to value: Bool?) {
+        guard value != nil else { return }
+        willChangeValue(for: keyPath)
+        self[keyPath: writable] = nil
+        didChangeValue(for: keyPath)
     }
     
     var liveResizeTokens: [NotificationToken] {
@@ -856,9 +933,6 @@ extension NSWindow {
                 }
                 self.handlers.isLiveResizing?(true)
                 self._inLiveResize = false
-                willChangeValue(for: \.inLiveResize)
-                self._inLiveResize = nil
-                didChangeValue(for: \.inLiveResize)
             })
             liveResizeTokens.append(NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { [weak self] _ in
                 guard let self = self else { return }
@@ -868,9 +942,6 @@ extension NSWindow {
                 }
                 self.handlers.isLiveResizing?(false)
                 self._inLiveResize = true
-                willChangeValue(for: \.inLiveResize)
-                self._inLiveResize = nil
-                didChangeValue(for: \.inLiveResize)
             })
         } else {
             liveResizeTokens.removeAll()
