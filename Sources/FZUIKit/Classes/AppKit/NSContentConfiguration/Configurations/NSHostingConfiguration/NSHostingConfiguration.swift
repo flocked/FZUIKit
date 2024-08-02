@@ -42,9 +42,9 @@
     public struct NSHostingConfiguration<Content, Background>: NSContentConfiguration where Content: View, Background: View {
         let content: Content
         let background: Background
-        var margins: NSDirectionalEdgeInsets
-        var minWidth: CGFloat?
-        var minHeight: CGFloat?
+        var margins: NSDirectionalEdgeInsets = .zero
+        var minWidth: CGFloat? = nil
+        var minHeight: CGFloat? = nil
 
         /**
          Creates a hosting configuration with the given contents.
@@ -53,10 +53,7 @@
          */
         public init(@ViewBuilder content: () -> Content) where Background == EmptyView {
             self.content = content()
-            background = .init()
-            margins = .zero
-            minWidth = nil
-            minHeight = nil
+            self.background = EmptyView()
         }
 
         init(content: Content, background: Background, margins: NSDirectionalEdgeInsets, minWidth: CGFloat?, minHeight: CGFloat?) {
