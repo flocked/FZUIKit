@@ -38,9 +38,6 @@
         public init(configuration: NSHostingConfiguration<Content, Background>) {
             appliedConfiguration = configuration
             super.init(frame: .zero)
-            if #available(macOS 13.0, *) {
-                hostingController.sizingOptions = .intrinsicContentSize
-            }
             hostingViewConstraints = addSubview(withConstraint: hostingController.view)
             updateConfiguration()
         }
