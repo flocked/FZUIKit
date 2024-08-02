@@ -48,23 +48,10 @@
 
         func updateConfiguration() {
             hostingController.rootView = HostingView(configuration: appliedConfiguration)
-
-            margins = appliedConfiguration.margins
-        }
-
-        var margins: NSDirectionalEdgeInsets {
-            get {
-                var edgeInsets = NSDirectionalEdgeInsets(top: hostingViewConstraints[0].constant, leading: hostingViewConstraints[1].constant, bottom: 0, trailing: 0)
-                edgeInsets.width = -hostingViewConstraints[2].constant
-                edgeInsets.height = -hostingViewConstraints[3].constant
-                return edgeInsets
+            if #available(macOS 13.0, *) {
+                hostingController.sizingOptions = appliedConfiguration.sizingOptions
             }
-            set {
-                hostingViewConstraints[0].constant = newValue.bottom
-                hostingViewConstraints[1].constant = newValue.leading
-                hostingViewConstraints[2].constant = -newValue.width
-                hostingViewConstraints[3].constant = -newValue.height
-            }
+            hostingViewConstraints.constant(appliedConfiguration.margins)
         }
 
         lazy var hostingController: NSUIHostingController<HostingView<Content, Background>> = {
@@ -106,7 +93,7 @@
                 ZStack {
                     configuration.background
                     configuration.content
-                }
+                }.frame(minWidth: configuration.minWidth, minHeight: configuration.minHeight)
             }
         }
     }

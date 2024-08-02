@@ -42,9 +42,9 @@
     public struct NSHostingConfiguration<Content, Background>: NSContentConfiguration where Content: View, Background: View {
         let content: Content
         let background: Background
-        let margins: NSDirectionalEdgeInsets
-        let minWidth: CGFloat?
-        let minHeight: CGFloat?
+        var margins: NSDirectionalEdgeInsets
+        var minWidth: CGFloat?
+        var minHeight: CGFloat?
 
         /**
          Creates a hosting configuration with the given contents.
@@ -121,37 +121,32 @@
         /**
          Sets the margins around the content of the configuration.
 
-         Use this modifier to replace the default margins applied to the root of the configuration. The following example creates 10 points of space between the content and the background on the leading edge and 20 points of space on the trailing edge:
+         Use this modifier to set the default margins applied to the root of the configuration. The following example creates 10 points of space between the content and the background on the leading edge and 20 points of space on the trailing edge:
 
          ```swift
          NSHostingConfiguration {
              Text("My Contents")
          }
-         .margins(.horizontal, 20.0)
+         .margins(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 20))
          ```
 
          - Parameters:
-            - edges: The edges to apply the insets. Any edges not specified will use the system default values. The default value is `all`.
+            - edges: The edges to apply the insets. Any edges not specified will use the system default values.
             - insets: The insets to apply.
          */
         public func margins(_ edges: Edge.Set = .all, _ insets: EdgeInsets) -> NSHostingConfiguration<Content, Background> {
-            NSHostingConfiguration<Content, Background>(
-                content: content,
-                background: background,
-                margins: .init(
-                    top: edges.contains(.top) ? insets.top : margins.top,
-                    leading: edges.contains(.leading) ? insets.leading : margins.leading,
-                    bottom: edges.contains(.bottom) ? insets.bottom : margins.bottom,
-                    trailing: edges.contains(.trailing) ? insets.trailing : margins.trailing
-                ), minWidth: minWidth,
-                minHeight: minHeight
-            )
+            var configuration = self
+            configuration.margins.top = edges.contains(.top) ? insets.top : 0
+            configuration.margins.leading = edges.contains(.leading) ? insets.leading : 0
+            configuration.margins.bottom = edges.contains(.bottom) ? insets.bottom : 0
+            configuration.margins.trailing = edges.contains(.trailing) ? insets.trailing : 0
+            return configuration
         }
 
         /**
          Sets the margins around the content of the configuration.
 
-         Use this modifier to replace the default margins applied to the root of the configuration. The following example creates 10 points of space between the content and the background on the leading edge and 20 points of space on the trailing edge:
+         Use this modifier to set the default margins applied to the content of the configuration. The following example creates 20 points of space between the content and the background on the horizontal edges.
 
          ```swift
          NSHostingConfiguration {
@@ -161,22 +156,11 @@
          ```
 
          - Parameters:
-            - edges: The edges to apply the insets. Any edges not specified will use the system default values. The default value is `all`.
+            - edges: The edges to apply the insets. Any edges not specified will use the system default values.
             - length: The amount to apply.
          */
         public func margins(_ edges: Edge.Set = .all, _ length: CGFloat) -> NSHostingConfiguration<Content, Background> {
-            NSHostingConfiguration<Content, Background>(
-                content: content,
-                background: background,
-                margins: .init(
-                    top: edges.contains(.top) ? length : margins.top,
-                    leading: edges.contains(.leading) ? length : margins.leading,
-                    bottom: edges.contains(.bottom) ? length : margins.bottom,
-                    trailing: edges.contains(.trailing) ? length : margins.trailing
-                ),
-                minWidth: minWidth,
-                minHeight: minHeight
-            )
+            margins(edges, EdgeInsets(length))
         }
 
         /**
@@ -196,14 +180,20 @@
             - height: The value to use for the height dimension. A value of nil indicates that the system default should be used.
          */
         public func minSize(width: CGFloat? = nil, height: CGFloat? = nil) -> NSHostingConfiguration<Content, Background> {
-            NSHostingConfiguration<Content, Background>(
-                content: content,
-                background: background,
-                margins: margins,
-                minWidth: width,
-                minHeight: height
-            )
+            var configuration = self
+            configuration.minWidth = width
+            configuration.minHeight = height
+            return configuration
         }
+        
+        @available(macOS 13.0, *)
+        /// The options for how the content view creates and updates constraints based on the size of its `SwiftUI content.
+        public var sizingOptions: NSHostingSizingOptions {
+            get { _sizingOptions as? NSHostingSizingOptions ?? .standardBounds }
+            set { _sizingOptions = newValue }
+        }
+        
+        var _sizingOptions: Any? = nil
 
         public func updated(for _: NSConfigurationState) -> NSHostingConfiguration {
             self
