@@ -78,14 +78,12 @@
         var hostingViewConstraints: [NSLayoutConstraint] = []
 
         override var intrinsicContentSize: CGSize {
-            var intrinsicContentSize = super.intrinsicContentSize
-            if let configuration = configuration as? NSHostingConfiguration<Content, Background> {
-                if let width = configuration.minWidth {
-                    intrinsicContentSize.width = max(intrinsicContentSize.width, width)
-                }
-                if let height = configuration.minHeight {
-                    intrinsicContentSize.height = max(intrinsicContentSize.height, height)
-                }
+            var intrinsicContentSize = hostingController.view.intrinsicContentSize
+            if let width = appliedConfiguration.minWidth {
+                intrinsicContentSize.width = max(intrinsicContentSize.width, width)
+            }
+            if let height = appliedConfiguration.minHeight {
+                intrinsicContentSize.height = max(intrinsicContentSize.height, height)
             }
             return intrinsicContentSize
         }
