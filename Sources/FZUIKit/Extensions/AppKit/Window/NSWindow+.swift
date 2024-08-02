@@ -496,16 +496,9 @@
 
         /// Resizes the window to match it's screen aspect ratio and dimensions.
         @objc open func resizeToScreenAspectRatio() {
-            guard let screen = self.screen else {
-                return
-            }
-            let aspectRatio = screen.visibleFrame.size.aspectRatio
-            var newSize = frame.size
-            newSize.width = frame.height * aspectRatio
-            if newSize.width < minSize.width {
-                newSize.width = minSize.width
-            }
-            setFrame(CGRect(frame.origin, newSize), display: false)
+            guard let aspectRatio = self.screen?.visibleFrame.size.aspectRatio else { return }
+            let frame = frame.scaled(byFactor: aspectRatio).size(frame.size.clamped(minSize: minSize, maxSize: maxSize))
+            setFrame(frame, display: false)
         }
 
         /**
@@ -536,15 +529,15 @@
         }
         
         /// A Boolean value indicating if the tab overview is currently displayed.
-        @objc open var isTabBarOverviewVisible: Bool {
+        @objc open var isTabOverviewVisible: Bool {
             get { tabGroup?.isOverviewVisible ?? false }
             set { tabGroup?.isOverviewVisible = newValue }
         }
         
         /// Sets the Boolean value indicating if the tab overview is currently displayed.
         @discardableResult
-        @objc open func isTabBarOverviewVisible(_ isVisible: Bool) -> Self {
-            self.isTabBarOverviewVisible = isVisible
+        @objc open func isTabOverviewVisible(_ isVisible: Bool) -> Self {
+            self.isTabOverviewVisible = isVisible
             return self
         }
         

@@ -10,55 +10,57 @@
     import AppKit
 
     public extension NSWindowTabGroup {
-        /// A collection of the windows that are currently grouped together by this window tab group excluding the selected.
-        var nonSelectedWindows: [NSWindow] {
-            var windows = windows
-            if let index = indexOfSelectedTab {
-                windows.remove(at: index)
-            }
-            return windows
-        }
-        
-        /// The position of an inserted tab.
+        /// The position to insert a window to the tab group.
         enum TabPosition {
-            /// Inserts the tab before the specified window.
+            /// Before the selected tab.
+            case beforeSelected
+            /// After the selected tab.
+            case afterSelected
+            /// Before the specified window.
             case before(NSWindow)
-            /// Inserts the tab after the specified window.
+            /// After the specified window.
             case after(NSWindow)
-            /// Inserts the tab at the beginning of the tab group.
+            /// At the beginning of the tab group.
             case atStart
-            /// Inserts the tab at the end of the tab group.
+            /// At the end of the tab group.
             case atEnd
-            /// Inserts the tab after the current tab.
-            case afterCurrent
-            /// Inserts the tab before the current tab.
-            case beforeCurrent
-            /// Inserts the tab at the specified index.
+            /// At the specified index.
             case atIndex(Int)
-        }
-
-        func moveTabToNewWindow(_ tabWindow: NSWindow, makeKeyAndOrderFront: Bool) {
-            if windows.contains(tabWindow), windows.count > 1 {
-                removeWindow(tabWindow)
-                var newFrame = windows.first?.frame ?? tabWindow.frame
-                newFrame.origin = CGPoint(x: newFrame.origin.x + 10.0, y: newFrame.origin.y + 10.0)
-                tabWindow.setFrame(newFrame, display: makeKeyAndOrderFront)
-                if makeKeyAndOrderFront {
-                    tabWindow.makeKeyAndOrderFront(nil)
-                }
-            }
         }
 
         /**
          Inserts the specified window as tab.
          
          - Parameters:
-            - window: The window to insert.
-            - position: A value that indicates the position of the added tab.
+            - window: The window to insert into the tab group.
+            - position: The position in the tab group at which to insert window.
             - select: A Boolean value that indicates whether to select the inserted tab.
          */
-        func insertWindow(_ window: NSWindow, position: TabPosition = .afterCurrent, select: Bool = true) {
+        func insertWindow(_ window: NSWindow, position: TabPosition = .afterSelected, select: Bool = true) {
             switch position {
+            case .beforeSelected:
+                if let index = indexOfSelectedTab {
+                    insertWindow(window, position: .atIndex(index), select: select)
+                }
+            case .afterSelected:
+                if let index = indexOfSelectedTab {
+                    insertWindow(window, position: .atIndex(index+1), select: select)
+                }
+            case let .before(thisWindow):
+                if let index = windows.firstIndex(of: thisWindow) {
+                    insertWindow(window, position: .atIndex(index), select: select)
+                }
+            case let .after(thisWindow):
+                if let index = windows.firstIndex(of: thisWindow) {
+                    insertWindow(window, position: .atIndex(index+1), select: select)
+                }
+            case let .atIndex(index):
+                if index >= 0, index <= windows.count {
+                    insertWindow(window, at: index)
+                    if select {
+                        window.makeKeyAndOrderFront(nil)
+                    }
+                }
             case .atStart:
                 insertWindow(window, at: 0)
                 if select {
@@ -69,59 +71,41 @@
                 if select {
                     window.makeKeyAndOrderFront(nil)
                 }
-            case let .before(thisWindow):
-                if let foundIndex = indexOfWindow(thisWindow) {
-                    insertWindow(window, at: foundIndex)
-                } else {
-                    addWindow(window)
-                }
-                if select {
-                    window.makeKeyAndOrderFront(nil)
-                }
-            case let .after(thisWindow):
-                if let foundIndex = indexOfWindow(thisWindow) {
-                    insertWindow(window, at: foundIndex + 1)
-                } else {
-                    addWindow(window)
-                }
-                if select {
-                    window.makeKeyAndOrderFront(nil)
-                }
-            case let .atIndex(index):
-                if index >= 0, index <= windows.count {
-                    insertWindow(window, at: index)
-                    if select {
-                        window.makeKeyAndOrderFront(nil)
-                    }
-                }
-            case .afterCurrent:
-                if let index = indexOfSelectedTab {
-                    insertWindow(window, at: index + 1)
-                    if select {
-                        window.makeKeyAndOrderFront(nil)
-                    }
-                }
-            case .beforeCurrent:
-                if let index = indexOfSelectedTab {
-                    insertWindow(window, at: index)
-                    if select {
-                        window.makeKeyAndOrderFront(nil)
-                    }
-                }
             }
-        }
-
-        /// The tab index of the specified window, or `nil` if the window isn't a tab.
-        func indexOfWindow(_ window: NSWindow) -> Int? {
-            windows.firstIndex(of: window)
         }
 
         /// The index of the selected tab, or `nil` if no tab is selected.
         var indexOfSelectedTab: Int? {
             if let selectedWindow = selectedWindow {
-                return indexOfWindow(selectedWindow)
+                return windows.firstIndex(of: selectedWindow)
             }
             return nil
+        }
+        
+        /**
+         Moves the specified tab to a new window.
+         
+         - Parameters:
+            - tabWindow: The tab window.
+            - orderFront: A Boolean value that indicates whether the tab should be ordered to the front.
+         */
+        func moveTabToNewWindow(_ tabWindow: NSWindow, orderFront: Bool) {
+            guard windows.count > 1, windows.contains(tabWindow) else { return }
+            removeWindow(tabWindow)
+            let newFrame = (windows.first?.frame ?? tabWindow.frame).offsetBy(dx: 10, dy: 10.0)
+            tabWindow.setFrame(newFrame, display: orderFront)
+            if orderFront {
+                tabWindow.makeKeyAndOrderFront(nil)
+            }
+        }
+        
+        /// A collection of the windows that are currently grouped together by this window tab group excluding the selected.
+        var nonSelectedWindows: [NSWindow] {
+            var windows = windows
+            if let selected = selectedWindow {
+                windows.remove(selected)
+            }
+            return windows
         }
     }
 
