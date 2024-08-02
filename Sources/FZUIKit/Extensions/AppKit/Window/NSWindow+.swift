@@ -549,7 +549,7 @@
             - position: A value that indicates the position of the added tab.
             - select: A Boolean value that indicates whether to select the inserted tab.
          */
-        public func insertTabbedWindow(_ window: NSWindow, position: NSWindowTabGroup.TabPosition = .afterCurrent, select: Bool = true) {
+        public func insertTabbedWindow(_ window: NSWindow, position: NSWindowTabGroup.TabPosition = .afterSelected, select: Bool = true) {
             tabGroup?.insertWindow(window, position: position, select: select)
         }
 
