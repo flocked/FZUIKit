@@ -70,7 +70,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
     
     override func layout() {
         super.layout()
-       // guard bounds.width != boundsWidth else { return }
+        guard bounds.width != boundsWidth else { return }
         boundsWidth = bounds.width
         updateRowView()
     }
