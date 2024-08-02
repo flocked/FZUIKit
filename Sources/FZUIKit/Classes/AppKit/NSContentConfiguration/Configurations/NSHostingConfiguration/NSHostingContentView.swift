@@ -59,6 +59,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
     func updateRowView() {
         if let rowView = firstSuperview(for: NSTableRowView.self) {
             let fittingSize = self.fittingSize
+            Swift.print("updateRowView", fittingSize, rowView.frame.size, rowView.bounds.size)
             if rowView.frame.height < fittingSize.height {
                 rowView.frame.size.height = fittingSize.height
             } else if rowView.frame.height > fittingSize.height {
@@ -69,7 +70,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
     
     override func layout() {
         super.layout()
-        guard bounds.width != boundsWidth else { return }
+       // guard bounds.width != boundsWidth else { return }
         boundsWidth = bounds.width
         updateRowView()
     }
