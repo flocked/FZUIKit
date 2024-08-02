@@ -88,7 +88,7 @@ extension NSHostingContentView {
             ZStack {
                 configuration.background
                 configuration.content
-            }.frame(minWidth: configuration.minWidth, minHeight: configuration.minHeight)
+            }
         }
     }
 }
