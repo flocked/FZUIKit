@@ -205,10 +205,12 @@ extension NSView {
                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                        object in
-                       (object as? NSView)?.willChangeValue(for: \.inLiveResize)
-                       (object as? NSView)?._inLiveResize = true
-                       (object as? NSView)?.didChangeValue(for: \.inLiveResize)
-                       (object as? NSView)?._inLiveResize = nil
+                       if let view = object as? NSView {
+                           view.willChangeValue(for: \.inLiveResize)
+                           view._inLiveResize = true
+                           view.didChangeValue(for: \.inLiveResize)
+                           view._inLiveResize = nil
+                       }
                        store.original(object, #selector(NSView.viewWillStartLiveResize))
                        }
                    }
@@ -217,10 +219,12 @@ extension NSView {
                     methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
-                        (object as? NSView)?._inLiveResize = true
-                        (object as? NSView)?.willChangeValue(for: \.inLiveResize)
-                        (object as? NSView)?._inLiveResize = nil
-                        (object as? NSView)?.didChangeValue(for: \.inLiveResize)
+                        if let view = object as? NSView {
+                            view._inLiveResize = true
+                            view.willChangeValue(for: \.inLiveResize)
+                            view._inLiveResize = nil
+                            view.didChangeValue(for: \.inLiveResize)
+                        }
                         store.original(object, #selector(NSView.viewDidEndLiveResize))
                         }
                     }
