@@ -102,7 +102,7 @@ open class MenuItemView: NSTableCellView {
     /// change the appearance of supported views (`NSTextField` and `NSImageView`)
     /// to match the highlight state of the enclosing menu item.
     public var autoHighlightSubviews = true {
-        didSet { updateHighlight() }
+        didSet { updateBackgroundStyle() }
     }
     
     /// Get or set the animation to perform when the menu item is clicked.
@@ -263,7 +263,19 @@ open class MenuItemView: NSTableCellView {
         } else {
             highlightView.isHidden = true
         }
-        backgroundStyle = showsHighlight && isHighlighted && autoHighlightSubviews ? .emphasized : .normal
+        updateBackgroundStyle()
+    }
+    
+    func updateBackgroundStyle() {
+        if autoHighlightSubviews {
+            if isEnabled {
+                backgroundStyle = isHighlighted ? .emphasized : .normal
+            } else {
+                backgroundStyle = .lowered
+            }
+        } else {
+            backgroundStyle = .normal
+        }
     }
         
     public override func draw(_ dirtyRect: NSRect) {

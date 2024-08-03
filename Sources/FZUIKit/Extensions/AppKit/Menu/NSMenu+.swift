@@ -303,7 +303,8 @@ extension NSMenu {
         }
         
         func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
-            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
+            (item.view as? MenuItemView)?.updateBackgroundStyle()
+            return delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
