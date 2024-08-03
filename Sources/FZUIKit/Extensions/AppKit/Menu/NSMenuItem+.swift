@@ -300,7 +300,7 @@
          */
         @discardableResult
         func view<V: View>(_ view: V, showsHighlight: Bool = true) -> Self {
-            self.view(MenuItemHostingView(contentView: view, showsHighlight: showsHighlight))
+            self.view(MenuItemHostingView(rootView: view, showsHighlight: showsHighlight))
         }
         
         /// A help tag for the menu item.

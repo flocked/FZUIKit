@@ -12,21 +12,26 @@ import SwiftUI
 /// A custom menu item view that manages highlight state and renders
 /// an appropriate backdrop behind the view when highlighted
 public class MenuItemHostingView<Content: View>: MenuItemView {
-    public var contentView: Content
     private let hostView: NSHostingView<AnyView>
     
-    public init(contentView: Content, showsHighlight: Bool = true) {
-        self.contentView = contentView
-        hostView = NSHostingView(rootView: AnyView(contentView))
+    /// The root view of the SwiftUI view hierarchy displayed by the menu item view.
+    public var rootView: Content {
+        didSet {
+            hostView.rootView = isHighlighted ? AnyView(rootView.environment(\.menuItemIsHighlighted, isHighlighted)) : AnyView(rootView)
+        }
+    }
+    
+    public init(rootView: Content, showsHighlight: Bool = true) {
+        self.rootView = rootView
+        hostView = NSHostingView(rootView: AnyView(rootView))
         super.init(frame: CGRect(origin: .zero, size: hostView.fittingSize))
         self.showsHighlight = showsHighlight
-        translatesAutoresizingMaskIntoConstraints = false
         addSubview(hostView, layoutAutomatically: true)
     }
     
     override var isHighlighted: Bool {
         didSet {
-            hostView.rootView = AnyView(contentView.environment(\.menuItemIsHighlighted, isHighlighted))
+            hostView.rootView = AnyView(rootView.environment(\.menuItemIsHighlighted, isHighlighted))
         }
     }
     
