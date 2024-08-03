@@ -36,10 +36,11 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     public init(configuration: NSHostingConfiguration<Content, Background>) {
         appliedConfiguration = configuration
         super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
         hostingController = SelfSizingHostingController(rootView: ContentView(configuration: appliedConfiguration))
         hostingController.view.backgroundColor = .clear
-        // updateAutoHeight()
-        // updateConfiguration()
+        updateAutoHeight()
+        updateConfiguration()
     }
     
     var appliedConfiguration: NSHostingConfiguration<Content, Background> {
@@ -58,11 +59,8 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         guard newSuperview != nil, !didSetup else { return }
         didSetup = true
         if newSuperview is NSTableCellView {
+            hostingController.view.removeFromSuperview()
             autoHeight = true
-        } else {
-            hostingControllerConstraints = addSubview(withConstraint: hostingController.view)
-            hostingControllerConstraints.constant(appliedConfiguration.margins)
-            heightConstraint.activate(false)
         }
     }
     
