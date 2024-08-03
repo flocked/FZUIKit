@@ -24,11 +24,12 @@ public class MenuItemHostingView<Content: View>: MenuItemView {
         translatesAutoresizingMaskIntoConstraints = false
         tableCellView.addSubview(withConstraint: hostView)
         addSubview(withConstraint: tableCellView)
+        tableCellView.backgroundStyle = .emphasized
     }
     
     override var isHighlighted: Bool {
         didSet {
-            tableCellView.backgroundStyle = isHighlighted ? .emphasized : .normal
+        //    tableCellView.backgroundStyle = isHighlighted ? .emphasized : .normal
             hostView.rootView = AnyView(contentView.environment(\.menuItemIsHighlighted, isHighlighted))
         }
     }
