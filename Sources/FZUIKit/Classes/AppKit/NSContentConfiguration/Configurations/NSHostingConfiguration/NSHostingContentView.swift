@@ -75,8 +75,8 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
             hostingController.view.removeFromSuperview()
             hostingControllerConstraints = []
             addSubview(hostingController.view)
-           // updateHeight()
-           // heightConstraint.activate(true)
+            updateHeight()
+            heightConstraint.activate(true)
         }
     }
     
