@@ -66,8 +66,8 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
             hostingControllerConstraints.activate(false)
             hostingControllerConstraints = []
             addSubview(hostingController.view)
-            updateHeight()
-            heightConstraint.activate(true)
+           // updateHeight()
+           // heightConstraint.activate(true)
         }
     }
     
