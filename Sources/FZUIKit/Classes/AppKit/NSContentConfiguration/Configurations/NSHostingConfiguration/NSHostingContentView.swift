@@ -38,8 +38,8 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         super.init(frame: .zero)
         hostingController = SelfSizingHostingController(rootView: ContentView(configuration: appliedConfiguration))
         hostingController.view.backgroundColor = .clear
-        updateAutoHeight()
-        updateConfiguration()
+        // updateAutoHeight()
+        // updateConfiguration()
     }
     
     var appliedConfiguration: NSHostingConfiguration<Content, Background> {
@@ -53,9 +53,16 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         }
     }
     
+    var didSetup = false
     override func viewWillMove(toSuperview newSuperview: NSView?) {
+        guard newSuperview != nil, !didSetup else { return }
+        didSetup = true
         if newSuperview is NSTableCellView {
-          //  autoHeight = true
+            autoHeight = true
+        } else {
+            hostingControllerConstraints = addSubview(withConstraint: hostingController.view)
+            hostingControllerConstraints.constant(appliedConfiguration.margins)
+            heightConstraint.activate(false)
         }
     }
     
