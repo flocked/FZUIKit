@@ -101,11 +101,9 @@ open class MenuItemView: NSTableCellView {
     /// If this property is set to `true` (default), the view will automatically
     /// change the appearance of supported views (`NSTextField` and `NSImageView`)
     /// to match the highlight state of the enclosing menu item.
-    ///
-    /// - warning: If you wish to opt out of this behavior, make sure to turn off
-    /// this property **before** the menu item is displayed. If the item is highlighted
-    /// even once before the property is turned off, your custom colors will be overridden.
-    public var autoHighlightSubviews = true
+    public var autoHighlightSubviews = true {
+        didSet { updateHighlight() }
+    }
     
     /// Get or set the animation to perform when the menu item is clicked.
     ///
@@ -181,6 +179,7 @@ open class MenuItemView: NSTableCellView {
         view.isEmphasized = true
         return view
     }()
+    
     
     private lazy var innerContentGuide = NSLayoutGuide()
     
@@ -261,11 +260,10 @@ open class MenuItemView: NSTableCellView {
     func updateHighlight() {
         if showsHighlight, isHighlighted {
             highlightView.isHidden = false
-            backgroundStyle = .emphasized
         } else {
             highlightView.isHidden = true
-            backgroundStyle = .normal
         }
+        backgroundStyle = showsHighlight && isHighlighted && autoHighlightSubviews ? .emphasized : .normal
     }
         
     public override func draw(_ dirtyRect: NSRect) {
@@ -274,11 +272,6 @@ open class MenuItemView: NSTableCellView {
         if let menu = enclosingMenuItem?.menu, menu.delegateProxy == nil {
             menu.delegateProxy = NSMenu.Delegate(menu)
         }
-           
-        guard autoHighlightSubviews else { return }
-        let isHighlighted = enclosingMenuItem?.isHighlighted ?? false
-        let isEnabled = self.isEnabled
-        subviews.forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
     }
     
     /// Add a subview to the menu item and automatically add constraints to
@@ -328,34 +321,7 @@ open class MenuItemView: NSTableCellView {
             in: menu
         )
     }
-    
-    // MARK: - Highlighting
-    
-    /// Apply changes to the appearance of the specified view depending
-    /// on the specified parameters.
-    ///
-    /// - note: This function is invoked automatically as part of the drawing cycle if ``autoHighlightSubviews`` is `true`.
-    /// You shouldn't need to invoke this function manually.
-    ///
-    /// You can override this function in your subclass to add support for your subviews. If you're overriding,
-    /// make sure to invoke this function on all the subviews of `view`.
-    open func highlightIfNeeded(_ view: NSView, isHighlighted: Bool, isEnabled: Bool) {
-        if
-            let textField = view as? NSTextField
-        {
-            textField.textColor = colorConsidering(isHighlighted: isHighlighted, isEnabled: isEnabled)
-        } else if
-            let imageView = view as? NSImageView,
-            imageView.image?.isTemplate == true,
-            #available(macOS 10.14, *)
-        {
-            imageView.contentTintColor = colorConsidering(isHighlighted: isHighlighted, isEnabled: isEnabled)
-        }
         
-        view.subviews
-            .forEach { highlightIfNeeded($0, isHighlighted: isHighlighted, isEnabled: isEnabled) }
-    }
-    
     private var highlightViewConstraits: [NSLayoutConstraint] = []
     private var innerContentConstraits: [NSLayoutConstraint] = []
 }
@@ -393,25 +359,6 @@ private extension MenuItemView {
         ]
         innerContentConstraits.constant(contentMargins)
         innerContentConstraits.activate()
-    }
-}
-
-// MARK: - Highlight
-public extension MenuItemView {
-    /// Get the color to use depending on the specified conditions.
-    ///
-    /// - parameters:
-    ///     - isHighlighted: Whether the view is highlighted.
-    ///     - isEnabled: Whether the view is enabled.
-    /// - returns: The resulting color.
-    func colorConsidering(isHighlighted: Bool, isEnabled: Bool) -> NSColor {
-        if isHighlighted {
-            return .selectedMenuItemTextColor
-        } else if !isEnabled {
-            return .disabledControlTextColor
-        } else {
-            return .controlTextColor
-        }
     }
 }
 

@@ -20,9 +20,8 @@ public class MenuItemHostingView<Content: View>: MenuItemView {
         hostView = NSHostingView(rootView: AnyView(contentView))
         super.init(frame: CGRect(origin: .zero, size: hostView.fittingSize))
         self.showsHighlight = showsHighlight
-       // setBackgroundStyle(.)
         translatesAutoresizingMaskIntoConstraints = false
-        addSubview(withConstraint: hostView)
+        addSubview(hostView, layoutAutomatically: true)
     }
     
     override var isHighlighted: Bool {
