@@ -140,7 +140,7 @@ open class MenuItemView: NSTableCellView {
     // MARK: - Constants
     
     /// Get the margins that are used to layout the ``highlightView``.
-    open var highlightMargins = NSEdgeInsets(top: 0, left: 6, bottom: 0, right: 6) {
+    open var highlightMargins = NSEdgeInsets(top: 0, left: 4, bottom: 0, right: 4) {
         didSet {
             guard oldValue != highlightMargins else { return }
             highlightViewConstraits.constant(highlightMargins)

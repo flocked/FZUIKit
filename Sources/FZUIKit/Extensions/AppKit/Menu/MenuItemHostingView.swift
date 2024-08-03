@@ -26,7 +26,8 @@ public class MenuItemHostingView<Content: View>: MenuItemView {
         hostView = NSHostingView(rootView: AnyView(rootView))
         super.init(frame: CGRect(origin: .zero, size: hostView.fittingSize))
         self.showsHighlight = showsHighlight
-        addSubview(hostView, layoutAutomatically: true)
+        addSubview(withConstraint: hostView)
+        // addSubview(hostView, layoutAutomatically: true)
     }
     
     override var isHighlighted: Bool {
