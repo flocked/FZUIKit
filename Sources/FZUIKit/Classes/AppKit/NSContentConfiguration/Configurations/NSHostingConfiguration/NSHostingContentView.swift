@@ -59,19 +59,19 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         guard newSuperview != nil, !didSetup else { return }
         didSetup = true
         if newSuperview is NSTableCellView {
-            hostingController.view.removeFromSuperview()
             autoHeight = true
         }
     }
     
     func updateAutoHeight() {
         if !autoHeight {
+            heightConstraint.activate(false)
             hostingControllerConstraints = addSubview(withConstraint: hostingController.view)
             hostingControllerConstraints.constant(appliedConfiguration.margins)
-            heightConstraint.activate(false)
         } else {
             hostingController.view.removeFromSuperview()
             hostingControllerConstraints = []
+            hostingController = .init(rootView: .init(configuration: appliedConfiguration))
             addSubview(hostingController.view)
             updateHeight()
             heightConstraint.activate(true)
