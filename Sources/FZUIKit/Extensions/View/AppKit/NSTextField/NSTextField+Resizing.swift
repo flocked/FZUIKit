@@ -197,6 +197,20 @@ extension NSTextField {
         cell.attributedStringValue = stringValue
         return size
     }
+    
+    /// Asks the text field to calculate and return the size that best fits the specified width and height.
+    func sizeThatFits(width: CGFloat? = nil, height: CGFloat? = nil) -> CGSize {
+        guard let cell = cell else { return frame.size }
+        var rect = cell.drawingRect(forBounds: bounds)
+        if let width = width {
+            rect.size.width = width != NSView.noIntrinsicMetric ? width : .greatestFiniteMagnitude
+        }
+        if let height = height {
+            rect.size.height = height != NSView.noIntrinsicMetric ? height : .greatestFiniteMagnitude
+        }
+        return cell.cellSize(forBounds: rect)
+        
+    }
 }
 
 #endif

@@ -10,13 +10,6 @@
 import AppKit
 import FZSwiftUtils
 
-public extension NSControl {
-    /// Asks the view to calculate and return the size that best fits the specified width and height.
-    func sizeThatFits(width: CGFloat? = nil, height: CGFloat? = nil) -> CGSize {
-        sizeThatFits(CGSize(width ?? NSView.noIntrinsicMetric, height ?? NSView.noIntrinsicMetric))
-    }
-}
-
 /*
 
 public extension NSViewProtocol {
