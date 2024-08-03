@@ -6,63 +6,58 @@
 //
 
 #if os(macOS)
+/*
 import AppKit
-import SwiftUI
-import AVKit
+import FZSwiftUtils
 
-public protocol Sizable: NSUIView {
-        /**
-         Asks the view to calculate and return the size that best fits the specified size.
+public extension NSViewProtocol {
+    /**
+     Asks the view to calculate and return the size that best fits the specified size.
 
-         The default implementation of this method returns the existing size of the view. Subclasses can override this method to return a custom value based on the desired layout of any subviews.
+     The default implementation of this method returns the existing size of the view. Subclasses can override this method to return a custom value based on the desired layout of any subviews.
 
-         This method does not resize the receiver.
+     This method does not resize the receiver.
 
-         - Parameter size:  The size for which the view should calculate its best-fitting size.
-         - Returns: A new size that fits the receiver’s subviews.
-         */
-        func sizeThatFits(_ size: CGSize) -> CGSize
-        /**
-         Resizes and moves the receiver view so it just encloses its subviews.
-
-         Call this method when you want to resize the current view so that it uses the most appropriate amount of space.
-
-         You should not override this method. If you want to change the default sizing information for your view, override the `sizeThatFits(_:)` instead. That method performs any needed calculations and returns them to this method, which then makes the change.
-         */
-        func sizeToFit()
-    }
-
-// extension NSView: Sizable { }
-extension NSControl: Sizable { }
-
-extension Sizable {
-    /// Asks the view to calculate and return the size that best fits the specified width and height.
-    public func sizeThatFits(width: CGFloat? = nil, height: CGFloat? = nil) -> CGSize {
-        sizeThatFits(CGSize(width ?? NSView.noIntrinsicMetric, height ?? NSView.noIntrinsicMetric))
-    }
-    
-    public func sizeThatFits(_ size: CGSize) -> CGSize {
+     - Parameter size:  The size for which the view should calculate its best-fitting size.
+     - Returns: A new size that fits the receiver’s subviews.
+     */
+    func sizeThatFits(_ size: CGSize) -> CGSize {
         bounds.size
     }
-    
-    public func sizeToFit() {
+        
+    /**
+     Resizes and moves the receiver view so it just encloses its subviews.
+
+     Call this method when you want to resize the current view so that it uses the most appropriate amount of space.
+
+     You should not override this method. If you want to change the default sizing information for your view, override the `sizeThatFits(_:)` instead. That method performs any needed calculations and returns them to this method, which then makes the change.
+     */
+    func sizeToFit() {
         frame.size = sizeThatFits()
     }
+    
+    /// Asks the view to calculate and return the size that best fits the specified width and height.
+    func sizeThatFits(width: CGFloat? = nil, height: CGFloat? = nil) -> CGSize {
+        sizeThatFits(CGSize(width ?? NSView.noIntrinsicMetric, height ?? NSView.noIntrinsicMetric))
+    }
 }
+ */
 
-protocol ExpandingSizable: NSUIView {
+/*
+protocol ExpandingSizable {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize
 }
 
 extension NSButton: ExpandingSizable { }
-extension NSSlider: ExpandingSizable { }
 extension NSSegmentedControl: ExpandingSizable { }
 extension NSProgressIndicator: ExpandingSizable { }
 extension NSLevelIndicator: ExpandingSizable { }
 extension NSPathControl: ExpandingSizable { }
 extension NSDatePicker: ExpandingSizable { }
+extension NSSlider: ExpandingSizable { }
+extension NSComboBox: ExpandingSizable { }
 
-extension ExpandingSizable where Self: NSButton {
+extension NSButton {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = sizeThatFits(size)
         let styles: [NSButton.BezelStyle] = [.helpButton, .disclosure, .roundedDisclosure, .circular, .smallSquare]
@@ -79,7 +74,7 @@ extension ExpandingSizable where Self: NSButton {
     }
 }
 
-extension ExpandingSizable where Self: NSSegmentedControl {
+extension NSSegmentedControl {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = sizeThatFits(size)
         if size.width > fittingSize.width {
@@ -89,7 +84,7 @@ extension ExpandingSizable where Self: NSSegmentedControl {
     }
 }
 
-extension ExpandingSizable where Self: NSProgressIndicator {
+extension NSProgressIndicator {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = fittingSize
         if style == .spinning { return fittingSize }
@@ -100,7 +95,7 @@ extension ExpandingSizable where Self: NSProgressIndicator {
     }
 }
 
-extension ExpandingSizable where Self: NSLevelIndicator {
+extension NSLevelIndicator {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = sizeThatFits(size)
         if size.width > fittingSize.width {
@@ -110,7 +105,7 @@ extension ExpandingSizable where Self: NSLevelIndicator {
     }
 }
 
-extension ExpandingSizable where Self: NSPathControl {
+extension NSPathControl {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = sizeThatFits(size)
         if size.width > 0, size.width.isFinite {
@@ -120,7 +115,7 @@ extension ExpandingSizable where Self: NSPathControl {
     }
 }
 
-extension ExpandingSizable where Self: NSDatePicker {
+extension NSDatePicker {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = sizeThatFits(size)
         if datePickerStyle != .clockAndCalendar, size.width > 0, size.width.isFinite {
@@ -130,7 +125,7 @@ extension ExpandingSizable where Self: NSDatePicker {
     }
 }
 
-extension ExpandingSizable where Self: NSSlider {
+extension NSSlider {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = sizeThatFits(size)
         if sliderType == .circular { return fittingSize }
@@ -143,7 +138,7 @@ extension ExpandingSizable where Self: NSSlider {
     }
 }
 
-extension ExpandingSizable where Self: NSComboBox {
+extension NSComboBox {
     func expandingSizeThatFits(_ size: CGSize) -> CGSize {
         var fittingSize = sizeThatFits(size)
         if size.width > fittingSize.width {
@@ -152,6 +147,7 @@ extension ExpandingSizable where Self: NSComboBox {
         return fittingSize
     }
 }
+*/
 
 /*
  public extension Sizable where Self: NSStackView {

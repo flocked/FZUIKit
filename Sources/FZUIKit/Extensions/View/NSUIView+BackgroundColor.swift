@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// The group of methods that are fundamental to all `NSView` objects.
-public protocol NSViewProtocol {
+public protocol NSViewProtocol: NSView {
     /*
     /**
      The background color of the view.

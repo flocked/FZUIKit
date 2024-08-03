@@ -11,6 +11,7 @@ import SwiftUI
 import FZSwiftUtils
 
 class NSHostingContentView<Content, Background>: NSView, NSContentView where Content: View, Background: View {
+
     
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
@@ -48,32 +49,10 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
             hostingView.sizingOptions = appliedConfiguration.sizingOptions
         }
         hostingViewConstraints.constant(appliedConfiguration.margins)
-        updateRowView()
     }
     
     var hostingView: NSHostingView<ContentView>!
     var hostingViewConstraints: [NSLayoutConstraint] = []
-    
-    var boundsWidth: CGFloat = 0.0
-    
-    func updateRowView() {
-        if let rowView = firstSuperview(for: NSTableRowView.self) {
-            let fittingSize = self.fittingSize
-            Swift.print("updateRowView", fittingSize, rowView.frame.size, rowView.bounds.size)
-            if rowView.frame.height < fittingSize.height {
-                rowView.frame.size.height = fittingSize.height
-            } else if rowView.frame.height > fittingSize.height {
-                rowView.frame.size.height = fittingSize.height
-            }
-        }
-    }
-    
-    override func layout() {
-        super.layout()
-        guard bounds.width != boundsWidth else { return }
-        boundsWidth = bounds.width
-        updateRowView()
-    }
     
     /*
      override var fittingSize: NSSize {
