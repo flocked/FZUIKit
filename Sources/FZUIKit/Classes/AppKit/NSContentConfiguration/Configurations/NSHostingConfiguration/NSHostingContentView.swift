@@ -10,9 +10,13 @@ import AppKit
 import SwiftUI
 import FZSwiftUtils
 
-class NSHostingContentView<Content, Background>: NSView, NSContentView where Content: View, Background: View {
-
+class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingContentView where Content: View, Background: View {
     
+    var hostingController: SelfSizingHostingController<ContentView>!
+    var hostingControllerConstraints: [NSLayoutConstraint] = []
+    var boundsWidth: CGFloat = 0.0
+    lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 50)
+
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
         get { appliedConfiguration }
@@ -32,10 +36,9 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
     public init(configuration: NSHostingConfiguration<Content, Background>) {
         appliedConfiguration = configuration
         super.init(frame: .zero)
-        hostingView = NSHostingView(rootView: ContentView(configuration: appliedConfiguration))
-        hostingView.backgroundColor = .clear
-        hostingView.translatesAutoresizingMaskIntoConstraints = false
-        hostingViewConstraints = addSubview(withConstraint: hostingView)
+        hostingController = SelfSizingHostingController(rootView: ContentView(configuration: appliedConfiguration))
+        hostingController.view.backgroundColor = .clear
+        updateAutoHeight()
         updateConfiguration()
     }
     
@@ -43,33 +46,48 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView where Con
         didSet { updateConfiguration() }
     }
     
-    func updateConfiguration() {
-        hostingView.rootView = ContentView(configuration: appliedConfiguration)
-        if #available(macOS 13.0, *) {
-            hostingView.sizingOptions = appliedConfiguration.sizingOptions
+   @objc var autoHeight = false {
+        didSet {
+            guard oldValue != autoHeight else { return }
+            updateAutoHeight()
         }
-        hostingViewConstraints.constant(appliedConfiguration.margins)
     }
     
-    var hostingView: NSHostingView<ContentView>!
-    var hostingViewConstraints: [NSLayoutConstraint] = []
+    func updateAutoHeight() {
+        if !autoHeight {
+            hostingControllerConstraints = addSubview(withConstraint: hostingController.view)
+            hostingControllerConstraints.constant(appliedConfiguration.margins)
+            heightConstraint.activate(false)
+        } else {
+            hostingControllerConstraints.activate(false)
+            hostingControllerConstraints = []
+            addSubview(hostingController.view)
+            updateHeight()
+            heightConstraint.activate(true)
+        }
+    }
     
-    /*
-     override var fittingSize: NSSize {
-     hostingController.view.fittingSize
-     }
-     
-     override var intrinsicContentSize: CGSize {
-     var intrinsicContentSize = super.intrinsicContentSize
-     if let width = appliedConfiguration.minWidth {
-     intrinsicContentSize.width = max(intrinsicContentSize.width, width)
-     }
-     if let height = appliedConfiguration.minHeight {
-     intrinsicContentSize.height = max(intrinsicContentSize.height, height)
-     }
-     return intrinsicContentSize
-     }
-     */
+    func updateConfiguration() {
+        hostingController.rootView = ContentView(configuration: appliedConfiguration)
+       // hostingController.sizingOptions = appliedConfiguration.sizingOptions
+        hostingControllerConstraints.constant(appliedConfiguration.margins)
+        hostingController.view.invalidateIntrinsicContentSize()
+    }
+
+    override func layout() {
+        super.layout()
+        guard bounds.width != boundsWidth else { return }
+        boundsWidth = bounds.width
+        updateHeight()
+    }
+    
+    func updateHeight() {
+        guard autoHeight else { return }
+        let height = hostingController.sizeThatFits(in: CGSize(bounds.width, .greatestFiniteMagnitude)).height
+        hostingController.viewHeight = height
+        hostingController.view.frame.size = CGSize(bounds.width, height)
+        heightConstraint.constant = height
+    }
     
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
@@ -90,6 +108,23 @@ extension NSHostingContentView {
                 configuration.background
                 configuration.content
             }
+        }
+    }
+}
+
+protocol HostingContentView {
+    func updateHeight()
+}
+
+class SelfSizingHostingController<Content: View>: NSHostingController<Content> {
+    var viewHeight: CGFloat = 0.0
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        view.invalidateIntrinsicContentSize()
+        let height = sizeThatFits(in: CGSize(view.bounds.width, .greatestFiniteMagnitude)).height
+        if viewHeight != height {
+            viewHeight = height
+            (view.superview as? HostingContentView)?.updateHeight()
         }
     }
 }
