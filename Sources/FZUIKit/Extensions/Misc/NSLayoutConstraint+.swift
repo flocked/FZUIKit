@@ -82,22 +82,21 @@
             self.priority = priority
             return self
         }
+        
+        /// Updates the constant of the constraint and returns itself.
+        @discardableResult func constant(_ constant: CGFloat) -> NSLayoutConstraint {
+            self.constant = constant
+            return self
+        }
 
         #if os(macOS)
             /// Updates the constant of the constraint and returns itself.
-            @discardableResult func constant(_ constant: CGFloat, animated: Bool = false) -> NSLayoutConstraint {
+            @discardableResult func constant(_ constant: CGFloat, animated: Bool) -> NSLayoutConstraint {
                 if animated {
                     animator().constant = constant
                 } else {
                     self.constant = constant
                 }
-                return self
-            }
-
-        #elseif canImport(UIKit)
-            /// Updates the constant of the constraint and returns itself.
-            @discardableResult func constant(_ constant: CGFloat) -> NSLayoutConstraint {
-                self.constant = constant
                 return self
             }
         #endif

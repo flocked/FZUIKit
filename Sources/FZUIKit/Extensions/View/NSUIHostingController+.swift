@@ -125,6 +125,17 @@ fileprivate extension NSUIView {
 }
     #if canImport(AppKit)
         public extension NSHostingView {
+            /**
+             Calculates and returns the most appropriate size for the current view.
+             
+             - Parameter size: The proposed new size for the view.
+             - Returns: The size that offers the best fit for the root view and its contents.
+             */
+            func sizeThatFits(in size: CGSize) -> CGSize {
+                hostingController.view = self
+                return hostingController.sizeThatFits(in: size)
+            }
+            
             /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
             @available(macOS 11.0, *)
             var ignoresSafeArea: Bool {
@@ -152,6 +163,10 @@ fileprivate extension NSUIView {
             /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
             func sizeToFit() {
                 frame.size = fittingSize
+            }
+            
+            internal var hostingController: NSHostingController<Content> {
+                getAssociatedValue("hostingController", initialValue: NSHostingController(rootView: rootView))
             }
         }
     #endif

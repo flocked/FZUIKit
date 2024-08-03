@@ -16,6 +16,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     var hostingControllerConstraints: [NSLayoutConstraint] = []
     var boundsWidth: CGFloat = 0.0
     lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 50)
+    var cachedHeight: CGFloat = 0.0
 
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
@@ -85,6 +86,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
        // hostingController.sizingOptions = appliedConfiguration.sizingOptions
         hostingControllerConstraints.constant(appliedConfiguration.margins)
         hostingController.view.invalidateIntrinsicContentSize()
+        updateHeight()
     }
 
     override func layout() {
@@ -95,11 +97,14 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     }
     
     func updateHeight() {
-        guard autoHeight else { return }
-        let height = hostingController.sizeThatFits(in: CGSize(bounds.width, .greatestFiniteMagnitude)).height
-        hostingController.viewHeight = height
-        hostingController.view.frame.size = CGSize(bounds.width, height)
-        heightConstraint.constant = height
+        invalidateIntrinsicContentSize()
+        if let rowView = tableRowView, rowView.frame.height > cachedHeight {
+            rowView.frame.size.height = cachedHeight
+        }
+    }
+    
+    var tableRowView: NSTableRowView? {
+        firstSuperview(for: NSTableRowView.self)
     }
     
     @available(*, unavailable)

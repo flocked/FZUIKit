@@ -28,6 +28,15 @@ public class HostingPopover<Content: View>: NSPopover {
         contentSize = hostingController.preferredContentSize
     }
     
+    /**
+     Creates and returns a popover with the given contents.
+
+     - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the popover.
+     */
+    public convenience init(@ViewBuilder content: () -> Content) {
+        self.init(rootView: content())
+    }
+    
     /// The `SwiftUI` view of the popover.
     public var rootView: Content {
         get { hostingController.rootView }

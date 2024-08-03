@@ -14,7 +14,7 @@ import SwiftUI
 public class MenuItemHostingView<Content: View>: MenuItemView {
     public var contentView: Content
     private let hostView: NSHostingView<AnyView>
-    
+    let tableCellView =  NSTableCellView()
     public init(contentView: Content, showsHighlight: Bool = true) {
         self.contentView = contentView
         hostView = NSHostingView(rootView: AnyView(contentView))
@@ -22,11 +22,13 @@ public class MenuItemHostingView<Content: View>: MenuItemView {
         self.showsHighlight = showsHighlight
        // setBackgroundStyle(.)
         translatesAutoresizingMaskIntoConstraints = false
-        addSubview(withConstraint: hostView)
+        tableCellView.addSubview(withConstraint: hostView)
+        addSubview(withConstraint: tableCellView)
     }
     
     override var isHighlighted: Bool {
         didSet {
+            tableCellView.backgroundStyle = isHighlighted ? .emphasized : .normal
             hostView.rootView = AnyView(contentView.environment(\.menuItemIsHighlighted, isHighlighted))
         }
     }
