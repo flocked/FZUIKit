@@ -54,6 +54,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         }
     }
     
+    /*
     var didSetup = false
     override func viewWillMove(toSuperview newSuperview: NSView?) {
         guard newSuperview != nil, !didSetup else { return }
@@ -62,6 +63,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
             autoHeight = true
         }
     }
+     */
     
     func updateAutoHeight() {
         if !autoHeight {
