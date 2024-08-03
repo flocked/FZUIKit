@@ -55,7 +55,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     
     override func viewWillMove(toSuperview newSuperview: NSView?) {
         if newSuperview is NSTableCellView {
-            autoHeight = true
+          //  autoHeight = true
         }
     }
     
