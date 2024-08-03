@@ -92,7 +92,7 @@ import AppKit
 /// not exactly the same. If you would like to change it, you can assign a different
 /// animation (or group of animations) to the ``highlightAnimation`` property.
 /// You can also turn off the animation by setting this property to `nil`.
-open class MenuItemView: NSView {
+open class MenuItemView: NSTableCellView {
     // MARK: - Properties
     
     /// Get or set whether this menu item view should automatically
@@ -261,8 +261,10 @@ open class MenuItemView: NSView {
     func updateHighlight() {
         if showsHighlight, isHighlighted {
             highlightView.isHidden = false
+            backgroundStyle = .emphasized
         } else {
             highlightView.isHidden = true
+            backgroundStyle = .normal
         }
     }
         
