@@ -83,11 +83,11 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     
     func updateConfiguration() {
         cachedHeights.removeAll()
-        hostingController.viewHeight = 0.0
+        hostingController.fittingHeight = 0.0
         hostingController.rootView = ContentView(configuration: appliedConfiguration)
-       // hostingController.sizingOptions = appliedConfiguration.sizingOptions
         hostingControllerConstraints.constant(appliedConfiguration.margins)
         hostingController.view.invalidateIntrinsicContentSize()
+        // hostingController.sizingOptions = appliedConfiguration.sizingOptions
         updateHeight()
     }
 
@@ -104,14 +104,12 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         invalidateIntrinsicContentSize()
         guard let rowView = tableRowView else { return }
         if reset {
-            cachedHeights[bounds.width] = hostingController.viewHeight
+            cachedHeights[bounds.width] = hostingController.fittingHeight
         } else if cachedHeights[bounds.width] == nil {
             cachedHeights[bounds.width] = hostingController.sizeThatFits(in: CGSize(bounds.width, .greatestFiniteMagnitude)).height
         }
-        if let cachedHeight = cachedHeights[bounds.width] {
-            if rowView.frame.height > cachedHeight {
-                rowView.frame.size.height = cachedHeight
-            }
+        if let cachedHeight = cachedHeights[bounds.width], rowView.frame.height > cachedHeight {
+            rowView.frame.size.height = cachedHeight
         }
     }
     
@@ -147,19 +145,18 @@ protocol HostingContentView {
 }
 
 class SelfSizingHostingController<Content: View>: NSHostingController<Content> {
-    var viewHeight: CGFloat = 0.0
+    var fittingHeight: CGFloat = 0.0
     var boundsWidth: CGFloat = 0.0
-    var cachedSize: CGSize = .zero
     
     override func viewDidLayout() {
         super.viewDidLayout()
-        if view.bounds.width != cachedSize.width {
+        if view.bounds.width != boundsWidth {
             boundsWidth = view.bounds.width
         } else {
             view.invalidateIntrinsicContentSize()
             let height = sizeThatFits(in: CGSize(view.bounds.width, .greatestFiniteMagnitude)).height
-            if viewHeight != height {
-                viewHeight = height
+            if height > fittingHeight {
+                fittingHeight = height
                 (view.superview as? HostingContentView)?.updateHeight(reset: true)
             }
         }

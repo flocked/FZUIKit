@@ -185,7 +185,7 @@
         
         @available(macOS 13.0, *)
         /// The options for how the content view creates and updates constraints based on the size of its `SwiftUI content.
-        public var sizingOptions: NSHostingSizingOptions {
+        var sizingOptions: NSHostingSizingOptions {
             get { _sizingOptions as? NSHostingSizingOptions ?? .standardBounds }
             set { _sizingOptions = newValue }
         }
