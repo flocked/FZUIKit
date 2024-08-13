@@ -12,7 +12,7 @@ import FZSwiftUtils
 
 class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingContentView where Content: View, Background: View {
     
-    var hostingController: SelfSizingHostingController<ContentView>!
+    var hostingController: NSHostingController<ContentView>!
     var hostingControllerConstraints: [NSLayoutConstraint] = []
     var boundsWidth: CGFloat = 0.0
     lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 50)
@@ -98,9 +98,11 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     
     func updateHeight() {
         invalidateIntrinsicContentSize()
+        /*
         if let rowView = tableRowView, rowView.frame.height > cachedHeight {
             rowView.frame.size.height = cachedHeight
         }
+         */
     }
     
     var tableRowView: NSTableRowView? {
