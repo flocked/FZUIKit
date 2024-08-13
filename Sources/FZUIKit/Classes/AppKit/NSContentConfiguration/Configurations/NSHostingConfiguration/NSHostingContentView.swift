@@ -99,6 +99,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     func updateHeight() {
         invalidateIntrinsicContentSize()
         if let rowView = tableRowView, rowView.frame.height > cachedHeight {
+            cachedHeight = hostingController.sizeThatFits(in: CGSize(bounds.width, .greatestFiniteMagnitude)).height
             rowView.frame.size.height = cachedHeight
         }
     }
