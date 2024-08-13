@@ -75,6 +75,10 @@
             var needsSwizzling: Bool {
                 self != AllowedCharacters.all
             }
+            
+            func isValid(_ string: String) -> Bool {
+                trimString(string) == string
+            }
 
             func trimString(_ string: String) -> String {
                 guard self != .all else { return string }

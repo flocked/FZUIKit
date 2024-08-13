@@ -84,16 +84,16 @@
                         addSubview(withConstraint: dashedBorderView!)
                         dashedBorderView?.sendToBack()
                     }
-                    dashedBorderView?.configuration = configuration
+                    dashedBorderView?.configuration = newValue
                 } else {
                     dashedBorderView?.removeFromSuperview()
                     dashedBorderView = nil
-                    let newColor = configuration.resolvedColor()?.resolvedColor(for: self)
+                    let newColor = newValue.resolvedColor()?.resolvedColor(for: self)
                     if borderColor?.alphaComponent == 0.0 || borderColor == nil {
                         borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
                     }
                     borderColor = newColor
-                    borderWidth = configuration.width
+                    borderWidth = newValue.width
                 }
             }
         }
