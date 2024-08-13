@@ -30,7 +30,9 @@ public extension NSUIImage {
     /// The symbol name of the image.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
-        getAssociatedValue("symbolName", initialValue: _symbolName)
+#if os(macOS)
+        #endif
+        return getAssociatedValue("symbolName", initialValue: _symbolName)
     }
 
     internal var _symbolName: String? {
