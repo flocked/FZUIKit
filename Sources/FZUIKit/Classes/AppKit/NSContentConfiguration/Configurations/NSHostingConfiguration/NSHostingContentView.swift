@@ -108,8 +108,9 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         } else if cachedHeights[bounds.width] == nil {
             cachedHeights[bounds.width] = hostingController.sizeThatFits(in: CGSize(bounds.width, .greatestFiniteMagnitude)).height
         }
+        
         if let cachedHeight = cachedHeights[bounds.width], rowView.frame.height > cachedHeight {
-            rowView.frame.size.height = cachedHeight
+         //   rowView.frame.size.height = cachedHeight
         }
     }
     
