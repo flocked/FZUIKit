@@ -173,15 +173,10 @@ public struct _NSHostingConfigurationBackgroundView<S>: View where S: ShapeStyle
     }
 }
 
-/*
+
 class NSHostingContentViewAlt<Content, Background>: NSView, NSContentView where Content: View, Background: View {
     
-    lazy var hostingController = NSHostingController(rootView: ContentView(configuration: appliedConfiguration))
-    var hostingControllerConstraints: [NSLayoutConstraint] = []
-    var boundsWidth: CGFloat = 0.0
-    lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 50)
-    var cachedHeights:[CGFloat:CGFloat] = [:]
-    
+    var hostingViewConstraints: [NSLayoutConstraint] = []
     lazy var hostingView = NSHostingView(rootView: ContentView(configuration: appliedConfiguration))
 
     /// The current configuration of the view.
@@ -203,9 +198,12 @@ class NSHostingContentViewAlt<Content, Background>: NSView, NSContentView where 
     public init(configuration: NSHostingConfiguration<Content, Background>) {
         appliedConfiguration = configuration
         super.init(frame: .zero)
-        hostingController.view.backgroundColor = .clear
-        hostingControllerConstraints = addSubview(withConstraint: hostingController.view)
-        hostingControllerConstraints.constant(appliedConfiguration.margins)
+        if #available(macOS 13.0, *) {
+            hostingView.sizingOptions = .intrinsicContentSize
+        }
+        hostingView.backgroundColor = .clear
+        hostingViewConstraints = addSubview(withConstraint: hostingView)
+        hostingViewConstraints.constant(appliedConfiguration.margins)
     }
     
     required init?(coder: NSCoder) {
@@ -217,11 +215,9 @@ class NSHostingContentViewAlt<Content, Background>: NSView, NSContentView where 
     }
     
     func updateConfiguration() {
-        cachedHeights.removeAll()
-        hostingController.rootView = ContentView(configuration: appliedConfiguration)
-        hostingControllerConstraints.constant(appliedConfiguration.margins)
-        hostingController.view.invalidateIntrinsicContentSize()
-        // hostingController.sizingOptions = appliedConfiguration.sizingOptions
+        hostingView.rootView = ContentView(configuration: appliedConfiguration)
+        hostingView.invalidateIntrinsicContentSize()
+        hostingViewConstraints.constant(appliedConfiguration.margins)
     }
     
     struct ContentView: View {
@@ -239,6 +235,6 @@ class NSHostingContentViewAlt<Content, Background>: NSView, NSContentView where 
         }
     }
 }
- */
+
 
 #endif

@@ -50,8 +50,8 @@ open class ContentConfigurationView: NSView {
      To add your own custom state, see `NSConfigurationStateCustomKey`.
      */
     open var configurationState: NSViewConfigurationState {
-        NSViewConfigurationState.init(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isEmphasized: isEmphasized, customStates: [:])
-        // NSViewConfigurationState.init(isSelected: false, isEnabled: true, isHovered: isHovered, isEditing: false, isEmphasized: isEmphasized, customStates: [:])
+        NSViewConfigurationState.init(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isActive: isActive, customStates: [:])
+        // NSViewConfigurationState.init(isSelected: false, isEnabled: true, isHovered: isHovered, isEditing: false, isActive: isActive, customStates: [:])
     }
     
     /**
@@ -118,7 +118,7 @@ open class ContentConfigurationView: NSView {
 
      The value of this property is `true`, if it's window is key.
      */
-    open var isEmphasized: Bool {
+    open var isActive: Bool {
         window?.isKeyWindow ?? false
     }
     

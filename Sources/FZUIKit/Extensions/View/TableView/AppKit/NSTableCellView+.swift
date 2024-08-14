@@ -26,6 +26,12 @@
 
         /// The index of the column that displays the cell, or `nil` if the cell isn't displayed in a table view.
         var columnIndex: Int? { tableView?.column(for: self) }
+        
+        /// The table column that displays this cell.
+        var column: NSTableColumn? {
+            guard let columnIndex = columnIndex else { return nil }
+            return tableView?.tableColumns[safe: columnIndex]
+        }
 
         /// A Boolean value that indicates whether the column displaying the cell is selected.
         var isColumnSelected: Bool {

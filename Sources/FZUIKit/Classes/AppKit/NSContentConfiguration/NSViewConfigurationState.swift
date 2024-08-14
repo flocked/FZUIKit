@@ -19,6 +19,7 @@ import FZSwiftUtils
  You can create your own custom states to add to a view configuration state by defining a custom state key using `NSConfigurationStateCustomKey`.
  */
 public struct NSViewConfigurationState: NSConfigurationState, Hashable {
+   
     /// A Boolean value that indicates whether the view is selected.
     public var isSelected: Bool = false
 
@@ -44,7 +45,7 @@ public struct NSViewConfigurationState: NSConfigurationState, Hashable {
 
      The value of this property is `true`, if it's window is key.
      */
-    public var isEmphasized: Bool = false
+    public var isActive: Bool = false
 
     /// A Boolean value that indicates whether the view is in a focused state.
     var isFocused: Bool = false
@@ -64,27 +65,27 @@ public struct NSViewConfigurationState: NSConfigurationState, Hashable {
                 isEnabled: Bool = true,
                 isHovered: Bool = false,
                 isEditing: Bool = false,
-                isEmphasized: Bool = false)
+                isActive: Bool = false)
     {
         self.isSelected = isSelected
         self.isEnabled = isEnabled
         self.isHovered = isHovered
         self.isEditing = isEditing
-        self.isEmphasized = isEmphasized
+        self.isActive = isActive
     }
 
     init(isSelected: Bool,
          isEnabled: Bool,
          isHovered: Bool,
          isEditing: Bool,
-         isEmphasized: Bool,
+         isActive: Bool,
          customStates: [NSConfigurationStateCustomKey: AnyHashable])
     {
         self.isSelected = isSelected
         self.isEnabled = isEnabled
         self.isHovered = isHovered
         self.isEditing = isEditing
-        self.isEmphasized = isEmphasized
+        self.isActive = isActive
         self.customStates = customStates
     }
 }
@@ -100,7 +101,7 @@ extension NSViewConfigurationState: ReferenceConvertible {
             isEnabled: \(isEnabled)
             isHovered: \(isHovered)
             isEditing: \(isEditing)
-            isEmphasized: \(isEmphasized)
+            isActive: \(isActive)
             customStates: \(customStates)
         )
         """
@@ -111,11 +112,11 @@ extension NSViewConfigurationState: ReferenceConvertible {
     }
 
     public func _bridgeToObjectiveC() -> __NSViewConfigurationStateObjcNew {
-        return __NSViewConfigurationStateObjcNew(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isEmphasized: isEmphasized, isFocused: isFocused, isExpanded: isExpanded, customStates: customStates)
+        return __NSViewConfigurationStateObjcNew(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isActive: isActive, isFocused: isFocused, isExpanded: isExpanded, customStates: customStates)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __NSViewConfigurationStateObjcNew, result: inout NSViewConfigurationState?) {
-        result = NSViewConfigurationState(isSelected: source.isSelected, isEnabled: source.isEnabled, isHovered: source.isHovered, isEditing: source.isEditing, isEmphasized: source.isEmphasized, customStates: source.customStates)
+        result = NSViewConfigurationState(isSelected: source.isSelected, isEnabled: source.isEnabled, isHovered: source.isHovered, isEditing: source.isEditing, isActive: source.isActive, customStates: source.customStates)
     }
 
     public static func _conditionallyBridgeFromObjectiveC(_ source: __NSViewConfigurationStateObjcNew, result: inout NSViewConfigurationState?) -> Bool {
@@ -139,17 +140,17 @@ public class __NSViewConfigurationStateObjcNew: NSObject, NSCopying {
     var isEnabled: Bool
     var isHovered: Bool
     var isEditing: Bool
-    var isEmphasized: Bool
+    var isActive: Bool
     var isFocused: Bool
     var isExpanded: Bool
     var customStates:[NSConfigurationStateCustomKey: AnyHashable]
 
-    init(isSelected: Bool, isEnabled: Bool, isHovered: Bool, isEditing: Bool, isEmphasized: Bool, isFocused: Bool, isExpanded: Bool, customStates: [NSConfigurationStateCustomKey: AnyHashable]) {
+    init(isSelected: Bool, isEnabled: Bool, isHovered: Bool, isEditing: Bool, isActive: Bool, isFocused: Bool, isExpanded: Bool, customStates: [NSConfigurationStateCustomKey: AnyHashable]) {
         self.isSelected = isSelected
         self.isEnabled = isEnabled
         self.isHovered = isHovered
         self.isEditing = isEditing
-        self.isEmphasized = isEmphasized
+        self.isActive = isActive
         self.isFocused = isFocused
         self.isExpanded = isExpanded
         self.customStates = customStates
@@ -157,7 +158,7 @@ public class __NSViewConfigurationStateObjcNew: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __NSViewConfigurationStateObjcNew(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isEmphasized: isEmphasized, isFocused: isFocused, isExpanded: isExpanded, customStates: customStates)
+        __NSViewConfigurationStateObjcNew(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isActive: isActive, isFocused: isFocused, isExpanded: isExpanded, customStates: customStates)
     }
 }
 #endif

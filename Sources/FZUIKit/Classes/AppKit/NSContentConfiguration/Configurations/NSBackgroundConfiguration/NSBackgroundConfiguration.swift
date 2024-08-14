@@ -88,7 +88,7 @@
         var shadowTransformer: ShadowTransformer?
         var _colorTransformer: ColorTransformer?
         var isSelected: Bool? = nil
-        var isEmphasized: Bool? = nil
+        var isActive: Bool? = nil
 
         var resolvedShadow: ShadowConfiguration {
             shadowTransformer?(shadow) ?? shadow
@@ -104,30 +104,30 @@
         }
 
         public func updated(for state: NSConfigurationState) -> NSBackgroundConfiguration {
-            guard let isSelected = state["isSelected"] as? Bool, let isEmphasized = state["isEmphasized"] as? Bool, self.isSelected != isSelected, self.isEmphasized != isEmphasized else { return self }
+            guard let isSelected = state["isSelected"] as? Bool, let isActive = state["isActive"] as? Bool, self.isSelected != isSelected, self.isActive != isActive else { return self }
             
             var configuration = self
             configuration.isSelected = isSelected
-            configuration.isEmphasized = isEmphasized
+            configuration.isActive = isActive
             configuration._colorTransformer = .init("resolved") { color in
-                isSelected ? .controlAccentColor.withAlphaComponent(isEmphasized ? 0.5 : 0.2) : color.withAlphaComponent(color.alphaComponent / (isEmphasized ? 1.0 : 2.0))
+                isSelected ? .controlAccentColor.withAlphaComponent(isActive ? 0.5 : 0.2) : color.withAlphaComponent(color.alphaComponent / (isActive ? 1.0 : 2.0))
             }
             configuration.borderTransformer = .init("resolved") { border in
                 var border = border
                 border.width = border.width != 0 ? border.width : 3.0
                 if isSelected {
-                    border.color = isEmphasized ? .controlAccentColor : .controlAccentColor.withAlphaComponent(0.5)
+                    border.color = isActive ? .controlAccentColor : .controlAccentColor.withAlphaComponent(0.5)
                 } else if let color = border.color {
-                    border.color = color.withAlphaComponent(color.alphaComponent / (isEmphasized ? 1.0 : 2.0))
+                    border.color = color.withAlphaComponent(color.alphaComponent / (isActive ? 1.0 : 2.0))
                 }
                 return border
             }
             configuration.shadowTransformer = .init("resolved") { shadow in
                 var shadow = shadow
                 if isSelected {
-                    shadow.color = isEmphasized ? .controlAccentColor : .controlAccentColor.withAlphaComponent(0.5)
+                    shadow.color = isActive ? .controlAccentColor : .controlAccentColor.withAlphaComponent(0.5)
                 } else if let color = shadow.color {
-                    shadow.color = color.withAlphaComponent(color.alphaComponent / (isEmphasized ? 1.0 : 2.0))
+                    shadow.color = color.withAlphaComponent(color.alphaComponent / (isActive ? 1.0 : 2.0))
                 }
                 return shadow
             }
