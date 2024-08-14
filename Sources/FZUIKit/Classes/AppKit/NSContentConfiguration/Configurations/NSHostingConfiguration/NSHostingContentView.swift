@@ -173,6 +173,7 @@ public struct _NSHostingConfigurationBackgroundView<S>: View where S: ShapeStyle
     }
 }
 
+/*
 class NSHostingContentViewAlt<Content, Background>: NSView, NSContentView where Content: View, Background: View {
     
     lazy var hostingController = NSHostingController(rootView: ContentView(configuration: appliedConfiguration))
@@ -238,5 +239,6 @@ class NSHostingContentViewAlt<Content, Background>: NSView, NSContentView where 
         }
     }
 }
+ */
 
 #endif

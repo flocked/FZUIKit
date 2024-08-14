@@ -197,7 +197,7 @@
         }
 
         public func makeContentView() -> NSView & NSContentView {
-            NSHostingContentViewAlt<Content, Background>(configuration: self)
+            NSHostingContentView<Content, Background>(configuration: self)
         }
     }
 
