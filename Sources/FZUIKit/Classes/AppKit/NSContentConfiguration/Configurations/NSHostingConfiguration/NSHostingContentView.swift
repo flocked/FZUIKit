@@ -17,6 +17,8 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     var boundsWidth: CGFloat = 0.0
     lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 50)
     var cachedHeights:[CGFloat:CGFloat] = [:]
+    
+    var hostingView: NSHostingView<ContentView>!
 
     /// The current configuration of the view.
     public var configuration: NSContentConfiguration {
@@ -37,7 +39,6 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     public init(configuration: NSHostingConfiguration<Content, Background>) {
         appliedConfiguration = configuration
         super.init(frame: .zero)
-        translatesAutoresizingMaskIntoConstraints = false
         hostingController = SelfSizingHostingController(rootView: ContentView(configuration: appliedConfiguration))
         hostingController.view.backgroundColor = .clear
         updateAutoHeight()
@@ -169,6 +170,72 @@ public struct _NSHostingConfigurationBackgroundView<S>: View where S: ShapeStyle
     
     public var body: some View {
         Rectangle().fill(style)
+    }
+}
+
+class NSHostingContentViewAlt<Content, Background>: NSView, NSContentView where Content: View, Background: View {
+    
+    lazy var hostingController = NSHostingController(rootView: ContentView(configuration: appliedConfiguration))
+    var hostingControllerConstraints: [NSLayoutConstraint] = []
+    var boundsWidth: CGFloat = 0.0
+    lazy var heightConstraint = heightAnchor.constraint(equalToConstant: 50)
+    var cachedHeights:[CGFloat:CGFloat] = [:]
+    
+    lazy var hostingView = NSHostingView(rootView: ContentView(configuration: appliedConfiguration))
+
+    /// The current configuration of the view.
+    public var configuration: NSContentConfiguration {
+        get { appliedConfiguration }
+        set {
+            if let newValue = newValue as? NSHostingConfiguration<Content, Background> {
+                appliedConfiguration = newValue
+            }
+        }
+    }
+    
+    /// Determines whether the view is compatible with the provided configuration.
+    public func supports(_ configuration: NSContentConfiguration) -> Bool {
+        configuration is NSHostingConfiguration<Content, Background>
+    }
+    
+    /// Creates a hosting content view with the specified content configuration.
+    public init(configuration: NSHostingConfiguration<Content, Background>) {
+        appliedConfiguration = configuration
+        super.init(frame: .zero)
+        hostingController.view.backgroundColor = .clear
+        hostingControllerConstraints = addSubview(withConstraint: hostingController.view)
+        hostingControllerConstraints.constant(appliedConfiguration.margins)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    var appliedConfiguration: NSHostingConfiguration<Content, Background> {
+        didSet { updateConfiguration() }
+    }
+    
+    func updateConfiguration() {
+        cachedHeights.removeAll()
+        hostingController.rootView = ContentView(configuration: appliedConfiguration)
+        hostingControllerConstraints.constant(appliedConfiguration.margins)
+        hostingController.view.invalidateIntrinsicContentSize()
+        // hostingController.sizingOptions = appliedConfiguration.sizingOptions
+    }
+    
+    struct ContentView: View {
+        let configuration: NSHostingConfiguration<Content, Background>
+        
+        init(configuration: NSHostingConfiguration<Content, Background>) {
+            self.configuration = configuration
+        }
+        
+        public var body: some View {
+            ZStack {
+                configuration.background
+                configuration.content
+            }
+        }
     }
 }
 
