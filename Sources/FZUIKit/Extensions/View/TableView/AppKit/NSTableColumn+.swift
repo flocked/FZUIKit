@@ -7,6 +7,7 @@
 
 #if os(macOS)
     import AppKit
+    import FZSwiftUtils
 
     public extension NSTableColumn {
         /**
@@ -99,6 +100,33 @@
         /// A Boolean value that indicates whether the column is visible.
         var isVisible: Bool {
             tableView?.visibleColumns.contains(self) ?? false
+        }
+        
+        /// A Boolean that indicates whether the table column is sorting the table view.
+        var isSorting: Bool {
+            get {
+                guard let tableView = tableView, let sortDescriptor = sortDescriptorPrototype else { return false }
+                return tableView.sortDescriptors.first == sortDescriptor
+            }
+            set {
+                guard let tableView = tableView, let sortDescriptor = sortDescriptorPrototype else { return }
+                if newValue {
+                    if let index = tableView.sortDescriptors.firstIndex(of: sortDescriptor) {
+                        tableView.sortDescriptors = tableView.sortDescriptors.remove(at: index) + tableView.sortDescriptors
+                    } else {
+                        tableView.sortDescriptors = sortDescriptor + tableView.sortDescriptors
+                    }
+                } else {
+                    tableView.sortDescriptors.remove(sortDescriptor)
+                }
+            }
+        }
+        
+        /// Sets the Boolean that indicates whether the table column is sorting the table view.
+        @discardableResult
+        func isSorting(_ isSorting: Bool) -> Self {
+            self.isSorting = isSorting
+            return self
         }
     }
 
