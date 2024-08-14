@@ -79,12 +79,21 @@
             public var isEnabled: Bool = true
 
             /// The tint color.
-            public var contentTintColor: NSColor?
+            public var tintColor: NSColor?
+            
+            /// The color transformer of the tint color.
+            public var tintColorTransformer: ColorTransformer?
+
+            ///  Generates the resolved tint color, using the tint color and color transformer.
+            public func resolvedTintColor() -> NSColor? {
+                guard let color = tintColor else { return nil }
+                return tintColorTransformer?(color) ?? color
+            }
             
             /// The style.
             public var style: Style = .bordered
             
-            /// The size.
+            /// The size of the button.
             public var size: Size = .regular
             
             /// The symbol configuration of the image.
@@ -94,14 +103,19 @@
                 title != nil || atributedTitle != nil || image != nil
             }
             
+            var resolvedSize: CGSize? {
+                guard image == nil, style == .borderless else { return nil }
+                return size.size
+            }
+            
             /// Creates a button configuration.
-            public init(title: String? = nil, atributedTitle: AttributedString? = nil, image: NSImage? = nil,  isEnabled: Bool = true, contentTintColor: NSColor? = nil, style: Style = .bordered, size: Size = .regular, symbolConfiguration: ImageSymbolConfiguration? = nil, action: (() -> Void)? = nil) {
+            public init(title: String? = nil, atributedTitle: AttributedString? = nil, image: NSImage? = nil,  isEnabled: Bool = true, tintColor: NSColor? = nil, style: Style = .bordered, size: Size = .regular, symbolConfiguration: ImageSymbolConfiguration? = nil, action: (() -> Void)? = nil) {
                 self.title = title
                 self.atributedTitle = atributedTitle
                 self.image = image
                 self.action = action
                 self.isEnabled = isEnabled
-                self.contentTintColor = contentTintColor
+                self.tintColor = tintColor
                 self.style = style
                 self.size = size
                 self.symbolConfiguration = symbolConfiguration
@@ -157,7 +171,9 @@
             hasher.combine(atributedTitle)
             hasher.combine(image)
             hasher.combine(style)
-            hasher.combine(contentTintColor)
+            hasher.combine(size)
+            hasher.combine(tintColor)
+            hasher.combine(tintColorTransformer)
             hasher.combine(symbolConfiguration)
             hasher.combine(isEnabled)
         }
@@ -174,11 +190,6 @@
             case .link: buttonStyle(.link)
             }
         }
-    }
-
-    @available(macOS 12.0, *)
-    public extension NSContentUnavailableConfiguration.ButtonConfiguration {
-        struct ButtonStyle: Hashable {}
     }
 
 #endif

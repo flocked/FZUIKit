@@ -33,39 +33,34 @@
             super.init(frame: .zero)
             clipsToBounds = false
             contentView.clipsToBounds = false
-            addSubview(contentView)
-            contentView.addSubview(imageView)
+            contentViewConstraits = addSubview(withConstraint: contentView)
+            contentView.addSubview(withConstraint: imageView)
+            imageView.clipsToBounds = true
             updateConfiguration()
         }
         
-        public override func layout() {
-            super.layout()
-            contentView.frame.origin.x = appliedConfiguration.insets.leading
-            contentView.frame.origin.y = appliedConfiguration.insets.bottom
-            contentView.frame.size.width = frame.size.width - appliedConfiguration.insets.width
-            contentView.frame.size.height = frame.size.height - appliedConfiguration.insets.height
-            contentView.clipsToBounds = false
-            view?.frame.size = contentView.bounds.size
-            imageView.frame.size = contentView.bounds.size
-            imageView.clipsToBounds = true
+        var appliedConfiguration: NSBackgroundConfiguration {
+            didSet {
+                guard oldValue != appliedConfiguration else { return }
+                updateConfiguration()
+            }
         }
-
+        
         let contentView = NSView()
+        let imageView = ImageView()
+        var contentViewConstraits: [NSLayoutConstraint] = []
 
         var view: NSView? {
             didSet {
-                if oldValue != view {
-                    oldValue?.removeFromSuperview()
-                    if let view = view {
-                        view.frame.size = contentView.bounds.size
-                        view.clipsToBounds = true
-                        contentView.addSubview(view)
-                    }
+                guard oldValue != view else { return }
+                oldValue?.removeFromSuperview()
+                if let view = view {
+                    view.clipsToBounds = true
+                    contentView.addSubview(withConstraint: view)
                 }
             }
         }
 
-        let imageView = ImageView()
         var image: NSImage? {
             get { imageView.image }
             set {
@@ -74,31 +69,21 @@
             }
         }
 
-        var appliedConfiguration: NSBackgroundConfiguration {
-            didSet { if oldValue != appliedConfiguration {
-                updateConfiguration()
-            } }
-        }
-
         func updateConfiguration() {
             view = appliedConfiguration.view
             image = appliedConfiguration.image
 
             imageView.imageScaling = appliedConfiguration.imageScaling
 
-            contentView.backgroundColor = appliedConfiguration.resolvedColor()
+            contentView.backgroundColor = appliedConfiguration._resolvedColor
             contentView.visualEffect = appliedConfiguration.visualEffect
             contentView.cornerRadius = appliedConfiguration.cornerRadius
 
-            contentView.outerShadow = appliedConfiguration.shadow
+            contentView.outerShadow = appliedConfiguration.resolvedShadow
             contentView.innerShadow = appliedConfiguration.innerShadow
-            contentView.border = appliedConfiguration.border
+            contentView.border = appliedConfiguration.resolvedBorder
             
-            contentView.frame.origin.x = appliedConfiguration.insets.leading
-            contentView.frame.origin.y = appliedConfiguration.insets.bottom
-            contentView.frame.size.width = frame.size.width - appliedConfiguration.insets.width
-            contentView.frame.size.height = frame.size.height - appliedConfiguration.insets.height
-            view?.frame.size = contentView.bounds.size
+            contentViewConstraits.constant(appliedConfiguration.insets)
         }
 
         @available(*, unavailable)

@@ -13,6 +13,7 @@
     #endif
     import FZSwiftUtils
 
+
     public extension NSLayoutAnchor where AnchorType == NSLayoutXAxisAnchor {
         /**
          Returns a constraint that defines one item’s attribute as equal to another item’s attribute plus a constant offset.
@@ -25,17 +26,8 @@
 
          - Returns: An `NSLayoutConstraint` object that defines an equal relationship between the attributes represented by the two layout anchors plus a constant offset.
          */
-        func constraint(equalTo anchor: NSLayoutAnchor<AnchorType>, multiplier: CGFloat = 1.0, constant: CGFloat = 0.0, priority: NSUILayoutPriority = .required) -> NSLayoutConstraint {
-            let constraint = constraint(equalTo: anchor)
-            return NSLayoutConstraint(
-                item: constraint.firstItem!,
-                attribute: constraint.firstAttribute,
-                relatedBy: constraint.relation,
-                toItem: constraint.secondItem,
-                attribute: constraint.secondAttribute,
-                multiplier: multiplier,
-                constant: constant
-            ).priority(priority)
+        func constraint(equalTo anchor: NSLayoutAnchor<AnchorType>, constant: CGFloat = 0.0, multiplier: CGFloat = 1.0, priority: NSUILayoutPriority = .required) -> NSLayoutConstraint {
+            constraint(equalTo: anchor, constant: constant).priority(priority).multiplier(multiplier)
         }
     }
 
@@ -51,19 +43,27 @@
 
          - Returns: An `NSLayoutConstraint` object that defines an equal relationship between the attributes represented by the two layout anchors plus a constant offset.
          */
-        func constraint(equalTo anchor: NSLayoutAnchor<AnchorType>, multiplier: CGFloat = 1.0, constant: CGFloat = 0.0, priority: NSUILayoutPriority = .required) -> NSLayoutConstraint {
-            let constraint = constraint(equalTo: anchor)
-            return NSLayoutConstraint(
-                item: constraint.firstItem!,
-                attribute: constraint.firstAttribute,
-                relatedBy: constraint.relation,
-                toItem: constraint.secondItem,
-                attribute: constraint.secondAttribute,
-                multiplier: multiplier,
-                constant: constant
-            ).priority(priority)
+        func constraint(equalTo anchor: NSLayoutAnchor<AnchorType>, constant: CGFloat = 0.0, multiplier: CGFloat = 1.0, priority: NSUILayoutPriority = .required) -> NSLayoutConstraint {
+            constraint(equalTo: anchor, constant: constant).priority(priority).multiplier(multiplier)
         }
     }
+
+extension NSLayoutAnchor where AnchorType == NSLayoutDimension {
+    /**
+     Returns a constraint that defines one item’s attribute as equal to another item’s attribute plus a constant offset.
+
+     - Parameters:
+        - anchor: A layout anchor from a `UIView`, `NSView`, or `UILayoutGuide` object. You must use a subclass of NSLayoutAnchor that matches the current anchor. For example, if you call this method on an NSLayoutXAxisAnchor object, this parameter must be another NSLayoutXAxisAnchor.
+        - multiplier: The multiplier of the constraint. The default value is `1.0`.
+        - constant: The constant offset for the constraint.
+        - priority: The priority of the constraint. The default value is `required`.
+
+     - Returns: An `NSLayoutConstraint` object that defines an equal relationship between the attributes represented by the two layout anchors plus a constant offset.
+     */
+    func constraint(equalTo anchor: NSLayoutAnchor<AnchorType>, constant: CGFloat = 0.0, multiplier: CGFloat = 1.0, priority: NSUILayoutPriority = .required) -> NSLayoutConstraint {
+        constraint(equalTo: anchor, constant: constant).priority(priority).multiplier(multiplier)
+    }
+}
 
     public extension NSLayoutConstraint {
         /// Activates the constraint and returns itself.
@@ -100,7 +100,33 @@
                 return self
             }
         #endif
+        
+        /// Sets the constant multiplied with the attribute on the right side of the constraint as part of getting the modified attribute.
+        @discardableResult
+        func multiplier(_ multiplier: CGFloat) -> NSLayoutConstraint {
+            guard self.multiplier != multiplier, firstAttribute.canMultiply, let firstItem = firstItem else { return self }
+            let constraint = NSLayoutConstraint(
+                item: firstItem,
+                attribute: firstAttribute,
+                relatedBy: relation,
+                toItem: secondItem,
+                attribute: secondAttribute,
+                multiplier: multiplier,
+                constant: constant
+            ).priority(priority).activate(isActive)
+            activate(false)
+            return constraint
+        }
     }
+
+extension NSLayoutConstraint.Attribute {
+    var canMultiply: Bool {
+        switch self {
+        case .left, .leading, .right, .trailing, .bottom, .top, .width, .height: return true
+        default: return false
+        }
+    }
+}
 
     public extension Collection where Element: NSLayoutConstraint {
         /// Activates the constraints and returns itself.
@@ -126,6 +152,12 @@
             forEach { $0.constant(constant) }
             return self
         }
+        
+        /// Updates the constant multiplied with the attribute on the right side of the constraint as part of getting the modified attribute.
+        @discardableResult func multiplier(_ multiplier: CGFloat) -> Self {
+            forEach { $0.multiplier(multiplier) }
+            return self
+        }
 
         /// Updates the constant of the constraints and returns itself.
         @discardableResult func constant(_ insets: NSUIEdgeInsets) -> Self {
@@ -134,19 +166,29 @@
 
         /// Updates the constant of the constraints and returns itself.
         @discardableResult func constant(_ insets: NSDirectionalEdgeInsets) -> Self {
-            leading?.constant(insets.leading)
-            trailing?.constant(-insets.trailing)
-            bottom?.constant(-insets.bottom)
-            top?.constant(insets.top)
-            width?.constant(-insets.width)
-            height?.constant(-insets.height)
+            for constraint in self {
+                switch constraint.firstAttribute {
+                case .leading, .left: constraint.constant(insets.leading)
+                case .trailing, .right: constraint.constant(-insets.trailing)
+                case .top: constraint.constant(insets.top)
+                case .bottom: constraint.constant(-insets.bottom)
+                case .width: constraint.constant(-insets.width)
+                case .height: constraint.constant(-insets.height)
+                default: break
+                }
+            }
             return self
         }
 
         /// Updates the width and height constraint's constant to the size and returns itself.
         @discardableResult func constant(_ size: CGSize) -> Self {
-            width?.constant(size.width)
-            height?.constant(size.height)
+            for constraint in self {
+                switch constraint.firstAttribute {
+                case .width: constraint.constant(size.width)
+                case .height: constraint.constant(size.height)
+                default: break
+                }
+            }
             return self
         }
 
@@ -164,19 +206,29 @@
 
             /// Updates the constant of the constraints and returns itself.
             @discardableResult func constant(_ insets: NSDirectionalEdgeInsets, animated: Bool) -> Self {
-                leading?.constant(insets.leading, animated: animated)
-                trailing?.constant(-insets.trailing, animated: animated)
-                bottom?.constant(-insets.bottom, animated: animated)
-                top?.constant(insets.top, animated: animated)
-                width?.constant(-insets.width, animated: animated)
-                height?.constant(-insets.height, animated: animated)
+                for constraint in self {
+                    switch constraint.firstAttribute {
+                    case .leading, .left: constraint.constant(insets.leading, animated: animated)
+                    case .trailing, .right: constraint.constant(-insets.trailing, animated: animated)
+                    case .top: constraint.constant(insets.top, animated: animated)
+                    case .bottom: constraint.constant(-insets.bottom, animated: animated)
+                    case .width: constraint.constant(-insets.width, animated: animated)
+                    case .height: constraint.constant(-insets.height, animated: animated)
+                    default: break
+                    }
+                }
                 return self
             }
 
             /// Updates the width and height constraint's constant to the size and returns itself.
             @discardableResult func constant(_ size: CGSize, animated: Bool) -> Self {
-                width?.constant(size.width, animated: animated)
-                height?.constant(size.height, animated: animated)
+                for constraint in self {
+                    switch constraint.firstAttribute {
+                    case .width: constraint.constant(size.width, animated: animated)
+                    case .height: constraint.constant(size.height, animated: animated)
+                    default: break
+                    }
+                }
                 return self
             }
         #endif
@@ -218,7 +270,7 @@
 
         /// The width constraint.
         var width: NSLayoutConstraint? { first(where: { $0.firstAttribute == .width }) }
-
+        
         /// The height constraint.
         var height: NSLayoutConstraint? { first(where: { $0.firstAttribute == .height }) }
 
@@ -227,11 +279,61 @@
 
         /// The centerY constraint.
         var centerY: NSLayoutConstraint? { first(where: { $0.firstAttribute == .centerY }) }
+        
+        /// The firstBaseline constraint.
+        var firstBaseline: NSLayoutConstraint? { first(where: { $0.firstAttribute == .firstBaseline }) }
 
         /// The lastBaseline constraint.
         var lastBaseline: NSLayoutConstraint? { first(where: { $0.firstAttribute == .lastBaseline }) }
-
-        /// The firstBaseline constraint.
-        var firstBaseline: NSLayoutConstraint? { first(where: { $0.firstAttribute == .firstBaseline }) }
+        
+        /// The leading or left constraints.
+        internal var leadings: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .leading || $0.firstAttribute == .left })
+        }
+        
+        /// The trailing or right constraints.
+        internal var trailings: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .trailing || $0.firstAttribute == .right })
+        }
+        
+        /// The top constraints.
+        internal var tops: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .top })
+        }
+        
+        /// The bottom constraints.
+        internal var bottoms: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .bottom })
+        }
+        
+        /// The width constraints.
+        internal var widths: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .width })
+        }
+        
+        /// The height constraints.
+        internal var heights: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .height })
+        }
+        
+        /// The centerX constraints.
+        internal var centerXs: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .centerX })
+        }
+        
+        /// The centerY constraints.
+        internal var centerYs: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .centerY })
+        }
+        
+        /// The firstBaseline constraints.
+        internal var firstBaselines: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .firstBaseline })
+        }
+        
+        /// The lastBaseline constraints.
+        internal var lastBaselines: [NSLayoutConstraint] {
+            filter({ $0.firstAttribute == .lastBaseline })
+        }
     }
 #endif

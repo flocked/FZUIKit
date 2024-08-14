@@ -33,14 +33,13 @@
 
         ///  Generates the resolved background color for the specified background color, using the color and color transformer.
         public func resolvedColor() -> NSColor? {
-            if let color = color {
-                return colorTransformer?(color) ?? color
-            }
-            return nil
+            guard let color = color else { return nil }
+            return colorTransformer?(color) ?? color
         }
 
         /// The background image.
         public var image: NSImage?
+        
         /// The scaling of the background image.
         public var imageScaling: ImageView.ImageScaling = .none
 
@@ -64,65 +63,76 @@
 
         /// The rounded corners.
         public var roundedCorners: CACornerMask = .all
+        
         /// The insets (or outsets, if negative) for the background and border, relative to the edges of the containing view.
         public var insets: NSDirectionalEdgeInsets = .zero
 
         /// Creates an empty background configuration with a transparent background and no default styling.
         public static func clear() -> NSBackgroundConfiguration { NSBackgroundConfiguration() }
+        
+        /// Creates a background configuration with the specified color.
+        public static func color(_ color: NSUIColor) -> NSBackgroundConfiguration {
+            var configuration = NSBackgroundConfiguration()
+            configuration.color = color
+            return configuration
+        }
 
         /// Creates a background configuration.
-        public init() {}
+        public init() { }
         
         public func makeContentView() -> NSView & NSContentView {
             NSBackgroundView(configuration: self)
         }
+        
+        var borderTransformer: BorderTransformer?
+        var shadowTransformer: ShadowTransformer?
+        var _colorTransformer: ColorTransformer?
+        var isSelected: Bool? = nil
+        var isEmphasized: Bool? = nil
+
+        var resolvedShadow: ShadowConfiguration {
+            shadowTransformer?(shadow) ?? shadow
+        }
+        
+        var resolvedBorder: BorderConfiguration {
+            borderTransformer?(border) ?? border
+        }
+        
+        var _resolvedColor: NSColor? {
+            guard let color = resolvedColor() else { return nil }
+            return _colorTransformer?(color) ?? color
+        }
 
         public func updated(for state: NSConfigurationState) -> NSBackgroundConfiguration {
+            guard let isSelected = state["isSelected"] as? Bool, let isEmphasized = state["isEmphasized"] as? Bool, self.isSelected != isSelected, self.isEmphasized != isEmphasized else { return self }
+            
             var configuration = self
-            if let isItemState = state["isItemState"] as? Bool, isItemState, let isSelected = state["isSelected"] as? Bool, let isEmphasized = state["isEmphasized"] as? Bool {
-                if configuration.state.didConfigurate == false {
-                    configuration.state.borderWidth = configuration.border.width
-                    configuration.state.borderColor = configuration.border.color
-                    configuration.state.color = configuration.color
-                    configuration.state.shadowColor = configuration.shadow.color
-                    configuration.state.didConfigurate = true
-                }
-
+            configuration.isSelected = isSelected
+            configuration.isEmphasized = isEmphasized
+            configuration._colorTransformer = .init("resolved") { color in
+                isSelected ? .controlAccentColor.withAlphaComponent(isEmphasized ? 0.5 : 0.2) : color.withAlphaComponent(color.alphaComponent / (isEmphasized ? 1.0 : 2.0))
+            }
+            configuration.borderTransformer = .init("resolved") { border in
+                var border = border
+                border.width = border.width != 0 ? border.width : 3.0
                 if isSelected {
-                    configuration.border.width = configuration.state.borderWidth != 0.0 ? configuration.state.borderWidth : 2.0
-                    if isEmphasized {
-                        configuration.color = .controlAccentColor.withAlphaComponent(0.5)
-                        configuration.border.color = .controlAccentColor
-                        configuration.shadow.color = configuration.shadow.isInvisible ? nil : .controlAccentColor
-                    } else {
-                        configuration.border.color = .controlAccentColor.withAlphaComponent(0.5)
-                        configuration.color = .controlAccentColor.withAlphaComponent(0.2)
-                        configuration.shadow.color = configuration.shadow.isInvisible ? nil : .controlAccentColor.withAlphaComponent(0.5)
-                    }
-                } else {
-                    if configuration.state.didConfigurate {
-                        configuration.border.width = configuration.state.borderWidth
-                        configuration.border.color = configuration.state.borderColor
-                        configuration.shadow.color = configuration.state.shadowColor
-                        configuration.color = configuration.state.color
-                        configuration.state.didConfigurate = false
-                    }
+                    border.color = isEmphasized ? .controlAccentColor : .controlAccentColor.withAlphaComponent(0.5)
+                } else if let color = border.color {
+                    border.color = color.withAlphaComponent(color.alphaComponent / (isEmphasized ? 1.0 : 2.0))
                 }
+                return border
+            }
+            configuration.shadowTransformer = .init("resolved") { shadow in
+                var shadow = shadow
+                if isSelected {
+                    shadow.color = isEmphasized ? .controlAccentColor : .controlAccentColor.withAlphaComponent(0.5)
+                } else if let color = shadow.color {
+                    shadow.color = color.withAlphaComponent(color.alphaComponent / (isEmphasized ? 1.0 : 2.0))
+                }
+                return shadow
             }
             return configuration
         }
-        
-        /// The saved state when `updated(for:)` is applied.
-        struct State: Hashable {
-            var didConfigurate: Bool = false
-            var color: NSColor?
-            var shadowColor: NSColor?
-            var borderColor: NSColor?
-            var borderWidth: CGFloat = 0.0
-        }
-
-        /// The saved state when `updated(for:)` is applied.
-        var state: State = .init()
     }
 
 #endif

@@ -15,6 +15,18 @@
     public extension NSUIView {
         /// Constants how a view is constraint.
         enum ConstraintMode {
+            
+            /// The view's frame is constraint to the edges of the other view.
+            case full
+            /// The view's frame is constraint relative to the edges of the other view.
+            case relative
+            /// The view's frame is constraint absolute to the edges of the other view.
+            case absolute
+            /// The view's frame is constraint to the edges of the other view with the specified insets.
+            case insets(NSUIEdgeInsets)
+            /// The view's frame is constraint to the specified position of the other view.
+            case positioned(Position, padding: CGFloat = 0)
+            
             public enum Position: Int {
                 case top
                 case topLeft
@@ -25,21 +37,6 @@
                 case bottom
                 case bottomLeft
                 case bottomRight
-            }
-
-            case relative
-            /// The view's frame is constraint to the edges of the other view.
-            case absolute
-            /// The view's frame is constraint to the edges of the other view.
-            case full
-            /// The view's frame is constraint to the edges of the other view with the specified insets.
-            case insets(NSUIEdgeInsets)
-            case positioned(Position, padding: CGFloat = 0)
-            var padding: CGFloat? {
-                switch self {
-                case let .positioned(_, padding): return padding
-                default: return nil
-                }
             }
         }
 
@@ -120,23 +117,32 @@
             - view: The view to be constraint to.
             - mode: The mode for constraining the subview's frame.
 
-         - Returns: The layout constraints in the following order: bottom, left, width and height.
+         - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
          */
         @discardableResult
         func constraint(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
             let constants: [CGFloat]
-
             switch mode {
             case .absolute:
-                constants = calculateConstants(view)
+                let x = view.frame.minX
+                let y = -view.frame.minY
+                let width = view.frame.width - bounds.width
+                let height = view.frame.height - bounds.height
+                constants = [x, y, width, height]
             case let .insets(insets):
-                constants = [insets.left, insets.bottom, 0.0 - insets.right, 0.0 - insets.top]
+                constants = [insets.left, insets.bottom, -insets.right, -insets.top]
             default:
                 constants = [0, 0, 0, 0]
             }
+            
             let multipliers: [CGFloat]
             switch mode {
-            case .relative: multipliers = calculateMultipliers(self)
+            case .relative: 
+                let x = view.frame.x / bounds.width
+                let y = view.frame.y / bounds.height
+                let width = view.frame.width / bounds.width
+                let height = view.frame.height / bounds.height
+                multipliers = [x, y, width, height]
             default: multipliers = [1.0, 1.0, 1.0, 1.0]
             }
 
@@ -161,15 +167,15 @@
                 constraints.append(widthAnchor.constraint(equalTo: view.widthAnchor, constant: -(padding * 2.0)))
                 constraints.append(heightAnchor.constraint(equalToConstant: view.frame.size.height))
             default:
-                constraints.append(contentsOf: [
+              //  self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: constants[0]).
+                constraints = [
                     .init(item: self, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: multipliers[0], constant: constants[0]),
                     .init(item: self, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: multipliers[1], constant: constants[1]),
                     .init(item: self, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: multipliers[2], constant: constants[2]),
                     .init(item: self, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: multipliers[3], constant: constants[3]),
-                ])
+                ]
             }
-
-            NSLayoutConstraint.activate(constraints)
+            constraints.activate()
             return constraints
         }
 
@@ -230,22 +236,6 @@
                 }
             }
         #endif
-
-        internal func calculateMultipliers(_ view: NSUIView) -> [CGFloat] {
-            let x = view.frame.x / bounds.width
-            let y = view.frame.y / bounds.height
-            let width = view.frame.width / bounds.width
-            let height = view.frame.height / bounds.height
-            return [x, y, width, height]
-        }
-
-        internal func calculateConstants(_ view: NSUIView) -> [CGFloat] {
-            let x = view.frame.minX
-            let y = -view.frame.minY
-            let width = view.frame.width - bounds.width
-            let height = view.frame.height - bounds.height
-            return [x, y, width, height]
-        }
     }
 
 #endif
