@@ -120,11 +120,7 @@ public extension NSUIFont {
     /// The current font with the specified design style.
     func design(_ design: NSUIFontDescriptor.SystemDesign) -> NSUIFont {
         guard let descriptor = fontDescriptor.withDesign(design) else { return self }
-        #if os(macOS)
-        return NSUIFont(descriptor: descriptor, size: 0) ?? self
-        #else
-        return NSUIFont(descriptor: descriptor, size: 0)
-        #endif
+        return NSUIFont(descriptor) ?? self
     }
     
     /// The current font with the specified symbolic traits taking precedence over the existing ones.
@@ -141,29 +137,21 @@ public extension NSUIFont {
     func symbolicTraits(_ symbolTraits: NSUIFontDescriptor.SymbolicTraits) -> NSUIFont {
         var attributes = fontDescriptor.fontAttributes
         attributes[.traits] = symbolTraits
-        #if os(macOS)
-        return NSUIFont(descriptor: NSUIFontDescriptor(fontAttributes: attributes), size: 0) ?? self
-        #else
-        return NSUIFont(descriptor: NSUIFontDescriptor(fontAttributes: attributes), size: 0)
-        #endif
+        return NSUIFont(NSUIFontDescriptor(fontAttributes: attributes)) ?? self
     }
     
     /// The current font with the specified face.
-    func face(_ newFace: String) -> NSUIFont {
-        #if os(macOS)
-        NSUIFont(descriptor: fontDescriptor.withFace(newFace), size: 0) ?? self
-        #else
-        NSUIFont(descriptor: fontDescriptor.withFace(newFace), size: 0)
-        #endif
+    func face(_ face: String) -> NSUIFont {
+        NSUIFont(fontDescriptor.withFace(face)) ?? self
     }
     
     /// The current font with the specified font weight.
     func weight(_ weight: NSUIFont.Weight) -> NSUIFont {
-        #if os(macOS)
-        NSUIFont(descriptor: fontDescriptor.withWeight(weight), size: 0) ?? self
-        #else
-        NSUIFont(descriptor: fontDescriptor.withWeight(weight), size: 0)
-        #endif
+        NSUIFont(fontDescriptor.withWeight(weight)) ?? self
+    }
+    
+    internal convenience init?(_ descriptor: NSUIFontDescriptor, size: CGFloat = 0) {
+        self.init(descriptor: descriptor, size: size)
     }
 }
 
@@ -176,13 +164,8 @@ public extension NSUIFont {
         - weight: The font weight.
         - design: The font design.
      */
-    static func systemFont(ofSize size: CGFloat, weight: NSUIFont.Weight, design: NSUIFontDescriptor.SystemDesign = .default) -> NSUIFont {
-        let descriptor = NSUIFont.systemFont(ofSize: size, weight: weight).fontDescriptor.withDesign(design)!
-        #if os(macOS)
-            return NSUIFont(descriptor: descriptor, size: size)!
-        #else
-            return NSUIFont(descriptor: descriptor, size: size)
-        #endif
+    static func systemFont(ofSize size: CGFloat, weight: NSUIFont.Weight, design: NSUIFontDescriptor.SystemDesign) -> NSUIFont {
+        NSUIFont.systemFont(ofSize: size, weight: weight).design(design)
     }
 
     @available(macOS 11.0, iOS 12.2, tvOS 12.2, watchOS 5.2, *)
@@ -194,13 +177,7 @@ public extension NSUIFont {
         - design: The font design.
      */
     static func systemFont(_ textStyle: NSUIFont.TextStyle, design: NSUIFontDescriptor.SystemDesign = .default) -> NSUIFont {
-        #if os(macOS)
-            let descriptor = NSUIFontDescriptor.preferredFontDescriptor(forTextStyle: textStyle).withDesign(design)!
-            return NSUIFont(descriptor: descriptor, size: 0)!
-        #else
-            let descriptor = NSUIFontDescriptor.preferredFontDescriptor(withTextStyle: textStyle).withDesign(design)!
-            return NSUIFont(descriptor: descriptor, size: 0)
-        #endif
+        NSUIFont.preferredFont(forTextStyle: textStyle).design(design)
     }
 
     /// The font with a italic style.
@@ -208,7 +185,7 @@ public extension NSUIFont {
         includingSymbolicTraits(.nsUIItalic)
     }
     
-    /// The font with a italic style.
+    /// The font with a italic style.doc://com.apple.documentation/documentation/appkit/nsimage/symbolconfiguration/3656511-init
     func italic(_ italic: Bool) -> NSUIFont {
         italic ? self.italic : withoutSymbolicTraits(.nsUIItalic)
     }
@@ -232,58 +209,34 @@ public extension NSUIFont {
     func bold(_ bold: Bool) -> NSUIFont {
         bold ? self.bold : withoutSymbolicTraits(.nsUIBold)
     }
-
+    
     /// The font with a serif design.
+    @available(macOS 10.15, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     var serif: NSUIFont {
-        if let descriptor = fontDescriptor.withDesign(.serif) {
-            #if os(macOS)
-                return NSUIFont(descriptor: descriptor, size: 0) ?? self
-            #elseif canImport(UIKit)
-                return NSUIFont(descriptor: descriptor, size: 0)
-            #endif
-        }
-        return self
+        design(.serif)
     }
     
     /// The font with a serif design.
+    @available(macOS 10.15, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     func serif(_ serif: Bool) -> NSUIFont {
         if serif {
             return self.serif
         } else if fontDescriptor.design == .serif {
-            if let descriptor = fontDescriptor.withDesign(.default) {
-                #if os(macOS)
-                return NSUIFont(descriptor: descriptor, size: 0) ?? self
-                #elseif canImport(UIKit)
-                return NSUIFont(descriptor: descriptor, size: 0)
-                #endif
-            }
+            return design(.default)
         }
         return self
     }
 
     /// The font with a rounded appearance.
     var rounded: NSUIFont {
-        if let descriptor = fontDescriptor.withDesign(.rounded) {
-            #if os(macOS)
-                return NSUIFont(descriptor: descriptor, size: 0) ?? self
-            #elseif canImport(UIKit)
-                return NSUIFont(descriptor: descriptor, size: 0)
-            #endif
-        }
-        return self
+        design(.rounded)
     }
     
     func rounded(_ rounded: Bool) -> NSUIFont {
         if rounded {
             return self.rounded
         } else if fontDescriptor.design == .rounded {
-            if let descriptor = fontDescriptor.withDesign(.default) {
-                #if os(macOS)
-                return NSUIFont(descriptor: descriptor, size: 0) ?? self
-                #elseif canImport(UIKit)
-                return NSUIFont(descriptor: descriptor, size: 0)
-                #endif
-            }
+            return design(.default)
         }
         return self
     }

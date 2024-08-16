@@ -42,7 +42,7 @@ import SwiftUI
     public typealias NSUICollectionViewLayoutInvalidationContext = NSCollectionViewLayoutInvalidationContext
     public typealias NSUIControl = NSControl
     public typealias NSUIVisualEffectView = NSVisualEffectView
-
+    public typealias NSUISymbolWeight = NSFont.Weight
 
 #elseif canImport(UIKit)
     import UIKit
@@ -52,6 +52,7 @@ import SwiftUI
     public typealias NSUIFont = UIFont
     public typealias NSUIFontDescriptor = UIFontDescriptor
     public typealias NSUIImage = UIImage
+    public typealias NSUISymbolWeight = UIImage.SymbolWeight
 #endif
 
 #if os(iOS) || os(tvOS)

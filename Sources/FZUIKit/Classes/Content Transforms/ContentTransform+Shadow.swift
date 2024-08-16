@@ -26,5 +26,14 @@ public struct ShadowTransformer: ContentTransform {
         self.transform = transform
         id = identifier
     }
+    
+    /// Creates a shadow transformer that generates a version of the shadow with the specified color transformer.
+    public static func color(_ colorTransformer: ColorTransformer) -> Self {
+        Self("colorTransform: \(colorTransformer.id)") { shadow in
+            var shadow = shadow
+            shadow.colorTransformer = colorTransformer
+            return shadow
+        }
+    }
 }
 #endif

@@ -33,7 +33,7 @@ public struct ImageTransformer: ContentTransform {
 
     #if os(macOS) || os(iOS) || os(tvOS)
         public static func color(_ color: NSUIColor) -> Self {
-            Self("tintColor: \(color)") { _ in NSUIImage(color: color, size: CGSize(1, 1)) }
+            Self("color: \(color)") { _ in NSUIImage(color: color, size: CGSize(1, 1)) }
         }
 
         public static func opacity(_ value: CGFloat) -> Self {

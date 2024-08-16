@@ -24,7 +24,6 @@ import SwiftUI
 public struct TextConfiguration {
     /// The font of the text.
     public var font: NSUIFont = .body
-    var swiftUIFont: Font? = .body
     
     /// The line limit of the text, or 0 if no line limit applies.
     public var numberOfLines: Int = 0
@@ -113,7 +112,6 @@ public struct TextConfiguration {
     public static func system(size: CGFloat, weight: NSUIFont.Weight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Self {
         var properties = Self()
         properties.font = .systemFont(ofSize: size, weight: weight, design: design)
-        properties.swiftUIFont = .system(size: size, design: design.swiftUI).weight(weight.swiftUI)
         return properties
     }
     
@@ -128,7 +126,6 @@ public struct TextConfiguration {
     public static func system(_ style: NSUIFont.TextStyle = .body, weight: NSUIFont.Weight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Self {
         var properties = Self()
         properties.font = .systemFont(style, design: design).weight(weight)
-        properties.swiftUIFont = .system(style.swiftUI, design: design.swiftUI).weight(weight.swiftUI)
         return properties
     }
     
@@ -148,7 +145,6 @@ public struct TextConfiguration {
     #elseif canImport(UIKit)
         text.color = .secondaryLabel
     #endif
-        text.swiftUIFont = .callout
         return text
     }
     
@@ -161,86 +157,63 @@ public struct TextConfiguration {
     #elseif canImport(UIKit)
         text.color = .tertiaryLabel
     #endif
-        text.swiftUIFont = .callout
         return text
     }
     
     /// A text configurationn with a font for bodies.
     public static var body: Self {
-        var text = Self.system(.body)
-        text.swiftUIFont = .body
-        return text
+        return .system(.body)
     }
     
     /// A text configurationn with a font for callouts.
     public static var callout: Self {
-        var text = Self.system(.callout)
-        text.swiftUIFont = .callout
-        return text
+        return .system(.callout)
     }
     
     /// A text configurationn with a font for captions.
     public static var caption1: Self {
-        var text = Self.system(.caption1)
-        text.swiftUIFont = .caption
-        return text
+        return .system(.caption1)
     }
     
     /// A text configurationn with a font for alternate captions.
     public static var caption2: Self {
-        var text = Self.system(.caption2)
-        text.swiftUIFont = .caption2
-        return text
+        return .system(.caption2)
     }
     
     /// A text configurationn with a font for footnotes.
     public static var footnote: Self {
-        var text = Self.system(.footnote)
-        text.swiftUIFont = .footnote
-        return text
+        return .system(.footnote)
     }
     
     /// A text configurationn with a font for headlines.
     public static var headline: Self {
-        var text = Self.system(.headline)
-        text.swiftUIFont = .headline
-        return text
+        return .system(.headline)
     }
     
     /// A text configurationn with a font for subheadlines.
     public static var subheadline: Self {
-        var text = Self.system(.subheadline)
-        text.swiftUIFont = .subheadline
-        return text
+        return .system(.subheadline)
     }
     
     #if os(macOS) || os(iOS)
     /// A text configurationn with a font for large titles.
     public static var largeTitle: Self {
-        var text = Self.system(.largeTitle)
-        text.swiftUIFont = .largeTitle
-        return text
+        return .system(.largeTitle)
     }
     #endif
     /// A text configurationn with a font for titles.
     public static var title1: Self {
-        var text = Self.system(.title1)
-        text.swiftUIFont = .title
-        return text
+        return .system(.title1)
     }
     
     /// A text configurationn with a font for alternate titles.
     public static var title2: Self {
-        var text = Self.system(.title2)
-        text.swiftUIFont = .title2
-        return text
+        return .system(.title2)
     }
     
     /// A text configurationn with a font for alternate titles.
     public static var title3: Self {
-        var text = Self.system(.title3)
-        text.swiftUIFont = .title3
-        return text
+        return .system(.title3)
     }
 }
 

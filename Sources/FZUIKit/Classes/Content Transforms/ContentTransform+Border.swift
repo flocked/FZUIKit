@@ -26,5 +26,14 @@ public struct BorderTransformer: ContentTransform {
         self.transform = transform
         id = identifier
     }
+    
+    /// Creates a border transformer that generates a version of the border with the specified color transformer.
+    public static func color(_ colorTransformer: ColorTransformer) -> Self {
+        Self("colorTransform: \(colorTransformer.id)") { border in
+            var border = border
+            border.colorTransformer = colorTransformer
+            return border
+        }
+    }
 }
 #endif

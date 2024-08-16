@@ -44,13 +44,12 @@ public struct ImageSymbolConfiguration: Hashable {
     
     /// Sets the font weight of the symbol configuration.
     @discardableResult
-    public func weight(_ weight: NSUIImage.SymbolWeight) -> Self {
+    public func weight(_ weight: NSUISymbolWeight) -> Self {
         var configuration = self
         configuration.font = configuration.font?.weight(weight)
         return configuration
     }
     
-    /*
     /// Sets the font design of the symbol configuration.
     @discardableResult
     public func design(_ design: NSUIFontDescriptor.SystemDesign) -> Self {
@@ -58,7 +57,6 @@ public struct ImageSymbolConfiguration: Hashable {
         configuration.font = configuration.font?.design(design)
         return configuration
     }
-    */
 
     /// Sets the color configuration of the symbol configuration.
     @discardableResult
@@ -134,7 +132,7 @@ public struct ImageSymbolConfiguration: Hashable {
 
     /// Creates a configuration with a monochrome color configuration using the specified color.
     public static func monochrome(_ color: NSUIColor) -> Self {
-        palette(color, color)
+        Self(color: .monochrome(color))
     }
 
     /// Creates a configuration with a hierarchical color configuration with the specified color.
@@ -153,13 +151,13 @@ public struct ImageSymbolConfiguration: Hashable {
     }
 
     /// Creates a configuration with the specified font style and weight.
-    public static func font(_ style: NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Self {
+    public static func font(_ style: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Self {
         Self(font: .textStyle(style, weight: weight, design: design))
     }
 
     /// Creates a configuration with the specified font size and weight.
-    public static func font(size: CGFloat, weight: NSUIImage.SymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Self {
-        Self(font: .systemFont(size: size, weight: weight, design: design))
+    public static func font(size: CGFloat, weight: NSUISymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default) -> Self {
+        Self(font: .size(size, weight: weight, design: design))
     }
 
     /// Creates a configuration with the specified image scale.
@@ -194,42 +192,38 @@ public struct ImageSymbolConfiguration: Hashable {
 
     /// Generates the resolved primary color for the specified color style, using the color style's primary color and color transformer.
     public func resolvedPrimaryColor() -> NSUIColor? {
-        if let primary = color?.primary {
-            return colorTransformer?(primary) ?? primary
-        }
-        return nil
+        resolvedColor(for: color?.primary)
     }
 
     /// Generates the resolved secondary color for the specified color style, using the color style's secondary color and color transformer.
     public func resolvedSecondaryColor() -> NSUIColor? {
-        if let secondary = color?.secondary {
-            return colorTransformer?(secondary) ?? secondary
-        }
-        return nil
+        resolvedColor(for: color?.secondary)
     }
 
     /// Generates the resolved tertiary color for the specified color style, using the color style's tertiary color and color transformer.
     public func resolvedTertiaryColor() -> NSUIColor? {
-        if let tertiary = color?.tertiary {
-            return colorTransformer?(tertiary) ?? tertiary
-        }
-        return nil
+        resolvedColor(for: color?.tertiary)
+    }
+    
+    func resolvedColor(for color: NSUIColor?) -> NSUIColor? {
+        guard let color = color else { return nil }
+        return colorTransformer?(color) ?? color
     }
 
     /// The font of a symbol image.
     public enum FontConfiguration: Hashable {
         /// A font with the specified point size and font weight.
-        case systemFont(size: CGFloat, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
+        case size(_ size: CGFloat, weight: NSUISymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default)
 
         /// A font with the specified text style and font weight.
-        case textStyle(_ style: NSUIFont.TextStyle, weight: NSUIImage.SymbolWeight? = nil, design: NSUIFontDescriptor.SystemDesign = .default)
+        case textStyle(_ style: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular, design: NSUIFontDescriptor.SystemDesign = .default)
 
         /// Sets the weight of the font.
         @discardableResult
-        public func weight(_ weight: NSUIImage.SymbolWeight?) -> Self {
+        public func weight(_ weight: NSUISymbolWeight) -> Self {
             switch self {
-            case let .systemFont(size, _, design):
-                return .systemFont(size: size, weight: weight, design: design)
+            case let .size(size, _, design):
+                return .size(size, weight: weight, design: design)
             case let .textStyle(style, _, design):
                 return .textStyle(style, weight: weight, design: design)
             }
@@ -239,8 +233,8 @@ public struct ImageSymbolConfiguration: Hashable {
         @discardableResult
         public func design(_ design: NSUIFontDescriptor.SystemDesign) -> Self {
             switch self {
-            case let .systemFont(size, weight, _):
-                return .systemFont(size: size, weight: weight, design: design)
+            case let .size(size, weight, _):
+                return .size(size, weight: weight, design: design)
             case let .textStyle(style, weight, _):
                 return .textStyle(style, weight: weight, design: design)
             }
@@ -271,6 +265,7 @@ public struct ImageSymbolConfiguration: Hashable {
         /// The font you use for third-level hierarchical headings.
         public static let title3 = Self.textStyle(.title3)
 
+        /*
         /// The font configuration as SwiftUI `Font`.
         public var swiftui: Font {
             switch self {
@@ -280,17 +275,29 @@ public struct ImageSymbolConfiguration: Hashable {
                 return Font.system(size: size, design: design.swiftUI).weight(weight?.swiftUI ?? .regular)
             }
         }
-
+        */
+        
         #if os(macOS)
             /// The font configuration as `NSFont`.
             public var nsFont: NSFont {
                 switch self {
-                case let .systemFont(size, weight, design):
-                    return .systemFont(ofSize: size, weight: weight?.fontWeight() ?? .regular, design: design)
+                case let .size(size, weight, design):
+                    return .systemFont(ofSize: size, weight: weight, design: design)
                 case let .textStyle(textStyle, weight, design):
-                    return .systemFont(textStyle, design: design).weight(weight?.fontWeight() ?? .regular)
+                    return .systemFont(textStyle, design: design).weight(weight)
                 }
             }
+        var nsUIFont: NSUIFont { nsFont }
+        #else
+        public var uiFont: UIFont {
+            switch self {
+            case let .size(size, weight, design):
+                return .systemFont(ofSize: size, weight: weight.fontWeight(), design: design)
+            case let .textStyle(textStyle, weight, design):
+                return .systemFont(textStyle, design: design).weight(weight.fontWeight())
+            }
+        }
+        var nsUIFont: NSUIFont { uiFont }
         #endif
     }
 
@@ -527,7 +534,7 @@ public extension ImageSymbolConfiguration {
         }
 
         switch font {
-        case .systemFont(size: let size, weight: let weight, design: _):
+        case .size(let size, weight: let weight, design: _):
             configuration = configuration.font(size: size)
             configuration = configuration.weight(weight)
         case .textStyle(let style, weight: let weight, design: _):
@@ -596,7 +603,7 @@ public extension View {
             imageScale(configuration.imageScale?.swiftui)
                 .symbolRenderingMode(configuration.color?.renderingMode)
                 .foregroundStyle(tintColor ?? configuration.color?.primary?.swiftUI, configuration.color?.secondary?.swiftUI, configuration.color?.tertiary?.swiftUI)
-                .font(configuration.font?.swiftui)
+                .font(configuration.font?.nsUIFont.swiftUI)
         } else {
             self
         }
@@ -613,7 +620,7 @@ public extension View {
             imageScale(configuration.imageScale?.swiftui)
                 .symbolRenderingMode(configuration.color?.renderingMode)
                 .foregroundStyle(configuration.color?.primary?.swiftUI, configuration.color?.secondary?.swiftUI, configuration.color?.tertiary?.swiftUI)
-                .font(configuration.font?.swiftui)
+                .font(configuration.font?.nsUIFont.swiftUI)
         } else {
             self
         }

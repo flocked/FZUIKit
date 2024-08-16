@@ -39,32 +39,32 @@ public struct ColorTransformer: ContentTransform {
         Self("opacity: \(opacity)") { $0.withAlpha(opacity) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is tinted by the specfied amount.
+    /// Creates a color transformer that generates a version of the color that is tinted by the specfied amount.
     public static func tinted(by amount: CGFloat = 0.2) -> Self {
         Self("tinted: \(amount)") { $0.tinted(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is shaded by the specfied amount.
+    /// Creates a color transformer that generates a version of the color that is shaded by the specfied amount.
     public static func shaded(by amount: CGFloat = 0.2) -> Self {
         Self("shaded: \(amount)") { $0.shaded(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is lightened by the specfied amount.
+    /// Creates a color transformer that generates a version of the color that is lightened by the specfied amount.
     public static func lighter(by amount: CGFloat = 0.2) -> Self {
         Self("lighter: \(amount)") { $0.lighter(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is darkened by the specfied amount.
+    /// Creates a color transformer that generates a version of the color that is darkened by the specfied amount.
     public static func darkened(by amount: CGFloat = 0.2) -> Self {
         Self("darkened: \(amount)") { $0.darkened(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is saturated by the specfied amount.
+    /// Creates a color transformer that generates a version of the color that is saturated by the specfied amount.
     public static func saturated(by amount: CGFloat = 0.2) -> Self {
         Self("saturated: \(amount)") { $0.saturated(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color.that is desaturated by the specfied amount.
+    /// Creates a color transformer that generates a version of the color that is desaturated by the specfied amount.
     public static func desaturated(by amount: CGFloat = 0.2) -> Self {
         Self("desaturated: \(amount)") { $0.desaturated(by: amount) }
     }
