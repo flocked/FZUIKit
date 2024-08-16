@@ -13,15 +13,15 @@
     /**
      A window controller that can create window tabs.
 
-     The default implementation of ``createNew()-swift.type.method`` tries to create a new window controller from either the main storyboard or a nib named as the window controller and fails if it couldn't be created.
+     The default implementation of ``create()-13q4p`` tries to create a new window controller from either the main storyboard or a nib named as the window controller and fails if it couldn't be created.
      */
     public protocol TabbableWindow: NSWindowController {
         /// Creates a new window controller.
-        static func createNew() -> Self
+        static func create() -> Self
     }
 
     public extension TabbableWindow {
-        static func createNew() -> Self {
+        static func create() -> Self {
             let windowController = Self.loadFromNib() ?? Self.loadFromStoryboard()
             if let windowController = windowController {
                 return windowController
@@ -32,12 +32,19 @@
         }
 
         /**
-         Creates a new tab if the `window` is the main window.
+         Creates a new tab.
 
-         - Parameter presentTab:  A Boolean value the tab should be presented.
+         - Parameter select:  A Boolean value the tab should be presented.
          */
-        func createTab(presentTab: Bool) {
-            TabService.shared.createTab(for: self, presentTab: presentTab)
+        func createTab(select: Bool) {
+            guard let window = window else { return }
+            let windowController = Self.create()
+            guard let newWindow = windowController.window else { return }
+            TabService.shared.addManagedWindow(windowController: windowController)
+            window.addTabbedWindow(newWindow, ordered: .above)
+            if select {
+                newWindow.makeKeyAndOrderFront(nil)
+            }
         }
     }
 
@@ -59,59 +66,20 @@
         fileprivate(set) var managedWindows: [ManagedWindow] = []
 
         /// Returns the main window of the managed window stack.
-        /// Falls back the first element if no window is main. Note that this would
-        /// likely be an internal inconsistency we gracefully handle here.
         var mainWindow: NSWindow? {
-            let mainManagedWindow = managedWindows
-                .first { $0.window.isMainWindow }
-
-            // In case we run into the inconsistency, let it crash in debug mode so we
-            // can fix our window management setup to prevent this from happening.
-            // assert(mainManagedWindow != nil || managedWindows.isEmpty)
-
-            return (mainManagedWindow ?? managedWindows.first)
-                .map(\.window)
+            (managedWindows.first { $0.window.isMainWindow } ?? managedWindows.first)?.window
         }
 
-        /// Creates an tab service object.
-        init() {}
+        func addManagedWindow(windowController: NSWindowController) {
+            guard let window = windowController.window else { return }
 
-        /**
-         Creates a new tab.
-
-         - Parameter presentTab:  A Boolean value the tab should be presented.
-         */
-        func createTab<WC: TabbableWindow>(for _: WC, presentTab: Bool = true) {
-            let mainWindow = mainWindow
-            let newWindowController = WC.createNew()
-            guard let newWindow = addManagedWindow(windowController: newWindowController)?.window else { preconditionFailure() }
-            if let mainWindow = mainWindow {
-                mainWindow.addTabbedWindow(newWindow, ordered: .above)
+            let subscription = NotificationCenter.default.observe(NSWindow.willCloseNotification, object: window) { [weak self] notification in
+                guard let self = self else { return }
+                self.managedWindows.removeAll(where: { $0.window === window })
             }
-            if presentTab {
-                newWindow.makeKeyAndOrderFront(nil)
-            }
-        }
-
-        private func addManagedWindow(windowController: NSWindowController) -> ManagedWindow? {
-            guard let window = windowController.window else { return nil }
-
-            let subscription = NotificationCenter.default.observe(NSWindow.willCloseNotification, object: window) { [unowned self] notification in
-                guard let window = notification.object as? NSWindow else { return }
-                removeManagedWindow(forWindow: window)
-            }
-            let management = ManagedWindow(
-                windowController: windowController,
-                window: window,
-                closingSubscription: subscription
+            
+            managedWindows += ManagedWindow(windowController: windowController, window: window, closingSubscription: subscription
             )
-            managedWindows.append(management)
-
-            return management
-        }
-
-        private func removeManagedWindow(forWindow window: NSWindow) {
-            managedWindows.removeAll(where: { $0.window === window })
         }
     }
 

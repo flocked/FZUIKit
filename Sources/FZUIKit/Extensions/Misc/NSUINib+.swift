@@ -31,6 +31,18 @@
         convenience init?(_ nibName: NSNib.Name) {
             self.init(nibNamed: nibName, bundle: nil)
         }
+        
+        /**
+         Instantiates objects in the nib file with the specified owner.
+         
+         - Parameter owner: The object to set as the Nib’s owner (File’s Owner).
+         */
+        @discardableResult
+        func instantiate(withOwner owner: Any?) -> [Any] {
+            var topLevelObjects: NSArray?
+            instantiate(withOwner: owner, topLevelObjects: &topLevelObjects)
+            return topLevelObjects as? [Any] ?? []
+        }
     }
 
 #elseif os(iOS) || os(tvOS)
