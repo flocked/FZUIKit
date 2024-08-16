@@ -64,6 +64,10 @@ public extension Nibloadable where Self: NSUIViewController {
     static func loadFromNib(named nibName: String, bundle: Bundle? = nil) -> Self? {
         return Self(nibName: nibName, bundle: bundle)
     }
+    
+    static func loadFromNib() -> Self? {
+        loadFromNib(named: String(describing: self))
+    }
 }
 
 #if os(macOS)
@@ -82,6 +86,10 @@ public extension Nibloadable where Self: NSWindowController {
         } else {
             return Self(windowNibName: nibName)
         }
+    }
+    
+    static func loadFromNib() -> Self? {
+        loadFromNib(named: String(describing: self))
     }
 }
 #endif
