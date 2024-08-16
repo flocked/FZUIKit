@@ -41,7 +41,29 @@ public protocol Nibloadable: NSObject {
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
     static func loadFromNib(named nibName: String, bundle: Bundle?) -> Self?
+    
+    /**
+     Initalizes the object from the specified storyboard.
+     
+     - Parameters:
+        - storyboard: The storyboard which holds the object.
+        - identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
+     
+     - Returns: The initalized object, or `nil` if it couldn't be initalized.
+     */
     static func loadFromStoryboard(_ storyboard: NSUIStoryboard, identifier: String?) -> Self?
+    
+    /**
+     Initalizes the object from the storyboard.
+     
+     - Parameters:
+        - name: The name of the storyboard which holds the object.
+        - identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
+     
+     - Returns: The initalized object, or `nil` if it couldn't be initalized.
+     */
+    static func loadFromStoryboard(name: String, identifier: String?) -> Self?
+    
 }
 
 
@@ -112,28 +134,11 @@ public extension Nibloadable {
         return loadFromNib(nib)
     }
 
-    /**
-     Initalizes the object from the storyboard.
-     
-     - Parameters:
-        - name: The name of the storyboard which holds the object.
-        - identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
-     
-     - Returns: The initalized object, or `nil` if it couldn't be initalized.
-     */
+
     static func loadFromStoryboard(name: String = "Main", identifier: String? = nil) -> Self? {
         loadFromStoryboard(NSUIStoryboard(name: name, bundle: nil), identifier: identifier)
     }
     
-    /**
-     Initalizes the object from the specified storyboard.
-     
-     - Parameters:
-        - storyboard: The storyboard which holds the object.
-        - identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
-     
-     - Returns: The initalized object, or `nil` if it couldn't be initalized.
-     */
     static func loadFromStoryboard(_ storyboard: NSUIStoryboard, identifier: String? = nil) -> Self? {
         let identifier = identifier ?? String(describing: self)
         #if os(macOS)
