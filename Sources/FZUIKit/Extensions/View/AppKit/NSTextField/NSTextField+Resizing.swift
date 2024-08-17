@@ -76,6 +76,7 @@ extension NSTextField {
         get { getAssociatedValue("preferredMinLayoutWidth", initialValue: 0) }
         set {
             setAssociatedValue(newValue, key: "preferredMinLayoutWidth")
+            swizzleIntrinsicContentSize()
             resizeToFit()
         }
     }

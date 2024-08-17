@@ -20,7 +20,9 @@ public extension NSViewProtocol {
     }
     
     func sizeThatFits(in size: CGSize) -> CGSize {
-        var fitting = CGSize.zero
+        guard size != .noIntrinsicMetric else { return fittingSize }
+        let translatesAutoresizing = translatesAutoresizingMaskIntoConstraints
+        translatesAutoresizingMaskIntoConstraints = false
         var widthConstraint: NSLayoutConstraint?
         var heightConstraint: NSLayoutConstraint?
         if size.width != NSView.noIntrinsicMetric && size.width > 0 {
@@ -31,10 +33,40 @@ public extension NSViewProtocol {
         }
         widthConstraint?.activate()
         heightConstraint?.activate()
-        fitting = fittingSize
+        let fittingSize = fittingSize
         widthConstraint?.activate(false)
         heightConstraint?.activate(false)
-        return fitting
+        translatesAutoresizingMaskIntoConstraints = translatesAutoresizing
+        return fittingSize
+    }
+}
+
+public extension NSTextField {
+    func sizeThatFits(width: CGFloat) -> CGSize {
+        guard let cell = cell else { return bounds.size }
+        var rect = cell.drawingRect(forBounds: bounds)
+        rect.size.width = width
+        return cell.cellSize(forBounds: rect)
+    }
+    
+    func sizeThatFits(height: CGFloat) -> CGSize {
+        guard let cell = cell else { return bounds.size }
+        var rect = cell.drawingRect(forBounds: bounds)
+        rect.size.height = height
+        return cell.cellSize(forBounds: rect)
+    }
+    
+    func sizeThatFits(in size: CGSize) -> CGSize {
+        guard let cell = cell else { return bounds.size }
+        var rect = cell.drawingRect(forBounds: bounds)
+        rect.size = size
+        return cell.cellSize(forBounds: rect)
+    }
+}
+
+extension CGSize {
+    static var noIntrinsicMetric: CGSize {
+        CGSize(-1, -1)
     }
 }
 
