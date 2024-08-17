@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FZSwiftUtils
 
 /// A transformer that takes an input and produces a modified output.
 public protocol ContentTransform: Hashable, Identifiable {
@@ -46,7 +47,7 @@ public extension ContentTransform {
      - Returns: The content transformer..
      */
     init(_ transformers: [Self]) {
-        let id = transformers.compactMap(\.id).joined(separator: ", ")
+        let id = "[\(transformers.compactMap(\.id).joined(separator: ", "))]"
         self.init(id) { content in
             var content = content
             for transformer in transformers {
@@ -74,7 +75,7 @@ public extension ContentTransform {
 
     /// Performs the transformation on a sequence of inputs.
     func callAsFunction<S>(_ inputs: S) -> [Content] where S: Sequence<Content> {
-        inputs.compactMap { self($0) }
+        inputs.compactMap { transform($0) }
     }
 
     /// Performs the transformation asynchronous on a single input and returns it output to the completion handler.
@@ -90,7 +91,7 @@ public extension ContentTransform {
     /// Performs the transformation asynchronous on a sequence of inputs and returns it output to the completion handler.
     func callAsFunction<S>(_ inputs: S, completionHandler: @escaping (([Content]) -> Void)) where S: Sequence<Content> {
         DispatchQueue.global(qos: .userInitiated).async {
-            let results = inputs.compactMap { self($0) }
+            let results = inputs.compactMap { transform($0) }
             DispatchQueue.main.async {
                 completionHandler(results)
             }
@@ -130,5 +131,5 @@ public extension ContentTransform {
 }
 
 public extension ContentTransform where Self: AnyObject {
-    var id: String { ObjectIdentifier(self).debugDescription }
+    var id: String { String(ObjectIdentifier(self).hashValue) }
 }
