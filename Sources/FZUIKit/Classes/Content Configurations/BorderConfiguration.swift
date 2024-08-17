@@ -147,9 +147,6 @@ extension BorderConfiguration: Codable {
             - configuration:The configuration for configurating the apperance.
          */
         func configurate(using configuration: BorderConfiguration) {
-            #if os(macOS)
-                dynamicColors.border = configuration.resolvedColor()
-            #endif
             if configuration.needsDashedBordlerLayer {
                 borderColor = nil
                 #if os(macOS)
@@ -178,8 +175,6 @@ extension BorderConfiguration: Codable {
                 #endif
             }
         }
-
-        var dashedBorderLayer: DashedBorderLayer? { optionalLayer?.firstSublayer(type: DashedBorderLayer.self) }
         
         var  dashedBorderView: DashedBorderView? {
             get { getAssociatedValue("dashedBorderView") }

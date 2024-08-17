@@ -149,11 +149,7 @@ extension NSView {
             innerShadowLayer?.shadowColor = color
         }
         if let color = dynamicColors.border?.resolvedColor(for: self).cgColor {
-            if let dashedBorderLayer = dashedBorderLayer {
-                dashedBorderLayer.borderColor = color
-            } else {
-                layer?.borderColor = color
-            }
+            layer?.borderColor = color
         }
     }
 }
