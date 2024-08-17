@@ -102,8 +102,8 @@ import FZSwiftUtils
          The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
 
          - Parameters:
-         - layer: The layer to be added.
-         - insets: Insets from the new sublayer border to the layer border.
+            - layer: The layer to be added.
+            - insets: Insets from the new sublayer border to the layer border.
          */
         @objc open func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
             addSublayer(layer)
@@ -116,9 +116,9 @@ import FZSwiftUtils
          The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
 
          - Parameters:
-         - layer: The layer to be added.
-         - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
-         - insets: Insets from the new sublayer border to the layer border.
+            - layer: The layer to be added.
+            - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
+            - insets: Insets from the new sublayer border to the layer border.
          */
         @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
             guard index >= 0, index < sublayers?.count ?? Int.max else { return }
@@ -134,49 +134,42 @@ import FZSwiftUtils
          - Parameter layer: The layer to constraint to.
          */
         @objc open func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
-            let layerBoundsUpdate: (() -> Void) = { [weak self] in
+            let frameUpdate: (() -> Void) = { [weak self] in
                 guard let self = self else { return }
-                let frameSize = layer.frame.size
-                var shapeRect = CGRect(origin: .zero, size: frameSize)
-                if frameSize.width > insets.width, frameSize.height > insets.height {
-                    shapeRect = shapeRect.inset(by: insets)
-                }
-                let position = CGPoint(x: frameSize.width / 2, y: frameSize.height / 2)
-                self.bounds = shapeRect
-                self.position = position
+                var frame = layer.bounds
+                frame.size.width -= insets.width
+                frame.size.height -= insets.height
+                frame.center = layer.bounds.center
+                self.frame = frame
             }
-            let layerUpdate: (() -> Void) = { [weak self] in
-                guard let self = self else { return }
-                self.cornerRadius = layer.cornerRadius
-                self.maskedCorners = layer.maskedCorners
-                self.cornerCurve = layer.cornerCurve
-            }
+            cornerRadius = layer.cornerRadius
+            maskedCorners = layer.maskedCorners
+            cornerCurve = layer.cornerCurve
             
             if layerObserver?.observedObject != layer {
                 layerObserver = KeyValueObserver(layer)
             }
-            layerObserver?.add(\.cornerRadius) { old, new in
-                guard old != new else { return }
-                layerUpdate()
+            layerObserver?.add(\.cornerRadius) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self.cornerRadius = new
             }
-            layerObserver?.add(\.cornerCurve) { old, new in
-                guard old != new else { return }
-                layerUpdate()
+            layerObserver?.add(\.cornerCurve) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self.cornerCurve = new
             }
-            layerObserver?.add(\.maskedCorners) { old, new in
-                guard old != new else { return }
-                layerUpdate()
+            layerObserver?.add(\.maskedCorners) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self.maskedCorners = new
             }
             layerObserver?.add(\.bounds) { old, new in
                 guard old != new else { return }
-                layerBoundsUpdate()
+                frameUpdate()
             }
-            layerBoundsUpdate()
-            layerUpdate()
+            frameUpdate()
             if superlayer == layer {
                 superLayerObservation = observeChanges(for: \.superlayer) { [weak self] old, new in
                     guard let self = self, new != layer else { return }
-                    self.layerObserver = nil
+                    self.removeConstraints()
                 }
             } else {
                 superLayerObservation = nil
@@ -186,15 +179,16 @@ import FZSwiftUtils
         /// Removes the layer constraints.
         @objc open func removeConstraints() {
             layerObserver = nil
+            superLayerObservation = nil
         }
         
         var superLayerObservation: KeyValueObservation? {
-            get { getAssociatedValue("superLayerObservation", initialValue: nil) }
+            get { getAssociatedValue("superLayerObservation") }
             set { setAssociatedValue(newValue, key: "superLayerObservation") }
         }
 
         var layerObserver: KeyValueObserver<CALayer>? {
-            get { getAssociatedValue("layerObserver", initialValue: nil) }
+            get { getAssociatedValue("layerObserver") }
             set { setAssociatedValue(newValue, key: "layerObserver") }
         }
 

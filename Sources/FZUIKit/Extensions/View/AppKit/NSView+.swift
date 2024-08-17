@@ -326,7 +326,6 @@
                 }
                 self.clipsToBounds = clipsToBounds
                 layer?.masksToBounds = clipsToBounds
-                visualEffectBackgroundView?.optionalLayer?.cornerRadius = cornerRadius
             }
         }
 
@@ -351,11 +350,11 @@
          The default value is `[]`, which results in a view with all corners rounded when ``cornerRadius`` isn't `0`.
          */
         @objc open var roundedCorners: CACornerMask {
-            get { layer?.maskedCorners ?? CACornerMask() }
+            get { layer?.maskedCorners ?? .none }
             set { 
                 optionalLayer?.maskedCorners = newValue
                 dashedBorderView?.update()
-                visualEffectBackgroundView?.optionalLayer?.maskedCorners = newValue
+                visualEffectBackgroundView?.roundedCorners = newValue
             }
         }
 

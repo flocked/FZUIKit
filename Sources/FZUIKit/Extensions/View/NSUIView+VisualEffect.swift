@@ -11,6 +11,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 extension NSUIView {
     /**
@@ -32,26 +33,18 @@ extension NSUIView {
                 if let view = self as? NSVisualEffectView {
                     view.configuration = newValue
                 } else {
-                    let shadow = outerShadow
                     if visualEffectBackgroundView == nil {
-                        visualEffectBackgroundView = TaggedVisualEffectView()
+                        visualEffectBackgroundView = BackgroundVisualEffectView()
                     }
                     visualEffectBackgroundView?.configuration = newValue
-                    if let appearance = newValue.appearance {
-                        self.appearance = appearance
-                    }
-                    visualEffectBackgroundView?.cornerRadius = cornerRadius
-                    visualEffectBackgroundView?.roundedCorners = roundedCorners
-                    //   visualEffectBackgroundView?.cornerShape = cornerShape
-                    outerShadow = shadow
-                    
+                    appearance = newValue.appearance ?? appearance
                 }
             #else
                 if let view = self as? UIVisualEffectView {
                     view.configuration = newValue
                 } else {
                     if visualEffectBackgroundView == nil {
-                        visualEffectBackgroundView = UIVisualEffectView()
+                        visualEffectBackgroundView = BackgroundVisualEffectView()
                     }
                     visualEffectBackgroundView?.configuration = newValue
                 }
@@ -69,30 +62,70 @@ extension NSUIView {
         return self
     }
     
-    var visualEffectBackgroundView: NSUIVisualEffectView? {
-        get { viewWithTag(3_443_024) as? NSUIVisualEffectView }
+    var visualEffectBackgroundView: BackgroundVisualEffectView? {
+        get { viewWithTag(3_443_024) as? BackgroundVisualEffectView }
         set {
-            if visualEffectBackgroundView != newValue {
-                visualEffectBackgroundView?.removeFromSuperview()
-            }
+            visualEffectBackgroundView?.removeFromSuperview()
             if let newValue = newValue {
-                #if os(iOS) || os(tvOS)
-                newValue.tag = 3_443_024
-                #endif
-                optionalLayer?.zPosition = -1000
-                addSubview(withConstraint: newValue)
-                newValue.sendToBack()
+                insertSubview(withConstraint: newValue, at: 0)
             }
         }
     }
 }
 
-#if os(macOS)
-class TaggedVisualEffectView: NSVisualEffectView {
+import FZSwiftUtils
+class BackgroundVisualEffectView: NSUIVisualEffectView {
+    var observer: KeyValueObserver<NSUIVisualEffectView>!
+
+    init() {
+        #if os(macOS)
+        super.init(frame: .zero)
+        #else
+        super.init(effect: nil)
+        tag = 3_443_024
+        #endif
+        optionalLayer?.zPosition = -.greatestFiniteMagnitude
+        clipsToBounds = true
+        observer = KeyValueObserver(self)
+        #if os(macOS)
+        observer.add(\.superview?.layer?.cornerCurve) { [weak self] old, new in
+            guard let self = self, let new = new else { return }
+            self.cornerCurve = new
+        }
+        observer.add(\.superview?.layer?.cornerRadius) { [weak self] old, new in
+            guard let self = self, let new = new else { return }
+            self.cornerRadius = new
+        }
+        observer.add(\.superview?.layer?.maskedCorners) { [weak self] old, new in
+            guard let self = self, let new = new else { return }
+            self.roundedCorners = new
+        }
+        #else
+        observer.add(\.superview?.layer.cornerCurve) { [weak self] old, new in
+            guard let self = self, let new = new else { return }
+            self.cornerCurve = new
+        }
+        observer.add(\.superview?.layer.cornerRadius) { [weak self] old, new in
+            guard let self = self, let new = new else { return }
+            self.cornerRadius = new
+        }
+        observer.add(\.superview?.layer.maskedCorners) { [weak self] old, new in
+            guard let self = self, let new = new else { return }
+            self.roundedCorners = new
+        }
+        #endif
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    #if os(macOS)
     static var Tag: Int { 3_443_024 }
     override var tag: Int { Self.Tag }
+    #endif
 }
-#else
+#if os(iOS) || os(tvOS)
 extension UIVisualEffectView {
     var configuration: VisualEffectConfiguration {
         get { VisualEffectConfiguration(effect: effect) }
