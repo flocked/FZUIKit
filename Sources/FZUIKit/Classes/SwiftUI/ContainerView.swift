@@ -13,7 +13,7 @@
     #endif
     import SwiftUI
 
-    /// A SwiftUI view that displays a NSView / UIView.
+    /// A SwiftUI view that displays a `NSView` / `UIView`.
     public struct ContainerView<Content: NSUIView>: NSUIViewRepresentable {
         public let view: Content
 
