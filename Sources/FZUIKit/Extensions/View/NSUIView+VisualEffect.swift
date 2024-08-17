@@ -96,10 +96,6 @@ class BackgroundVisualEffectView: NSUIVisualEffectView {
             guard let self = self, let new = new else { return }
             self.cornerRadius = new
         }
-        observer.add(\.superview?.layer?.maskedCorners) { [weak self] old, new in
-            guard let self = self, let new = new else { return }
-            self.roundedCorners = new
-        }
         #else
         observer.add(\.superview?.layer.cornerCurve) { [weak self] old, new in
             guard let self = self, let new = new else { return }
@@ -108,10 +104,6 @@ class BackgroundVisualEffectView: NSUIVisualEffectView {
         observer.add(\.superview?.layer.cornerRadius) { [weak self] old, new in
             guard let self = self, let new = new else { return }
             self.cornerRadius = new
-        }
-        observer.add(\.superview?.layer.maskedCorners) { [weak self] old, new in
-            guard let self = self, let new = new else { return }
-            self.roundedCorners = new
         }
         #endif
     }
