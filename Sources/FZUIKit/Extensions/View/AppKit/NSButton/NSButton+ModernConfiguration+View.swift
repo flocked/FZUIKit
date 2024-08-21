@@ -127,10 +127,6 @@
             
             lazy var trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect])
             
-            var showsBorderOnlyWhileMouseInside: Bool {
-                appliedConfiguration.borderWidth > 0.0 && appliedConfiguration.showsBorderOnlyWhileMouseInside
-            }
-            
             var showBorder: Bool {
                 appliedConfiguration.showsBorderOnlyWhileMouseInside ? mouseIsInside : true
             }
@@ -171,7 +167,7 @@
             
             public override func mouseEntered(with event: NSEvent) {
                 mouseIsInside = true
-                if showsBorderOnlyWhileMouseInside {
+                if appliedConfiguration.showsBorderOnlyWhileMouseInside {
                     updateConfiguration()
                 }
                 super.mouseEntered(with: event)
@@ -179,7 +175,7 @@
             
             public override func mouseExited(with event: NSEvent) {
                 mouseIsInside = false
-                if showsBorderOnlyWhileMouseInside {
+                if appliedConfiguration.showsBorderOnlyWhileMouseInside {
                     updateConfiguration()
                 }
                 super.mouseExited(with: event)
@@ -213,9 +209,6 @@
             /// Creates a item content view with the specified content configuration.
             public init(configuration: NSButton.AdvanceButtonConfiguration) {
                 self.appliedConfiguration = configuration
-                if configuration.showsBorderOnlyWhileMouseInside {
-                    
-                }
                 super.init(frame: .zero)
                 hostingViewConstraints = addSubview(withConstraint: hostingController.view)
                 updateTrackingAreas()
