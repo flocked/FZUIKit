@@ -108,14 +108,14 @@
                     }
                 }
             }
-
+            
             var body: some View {
                 stackItem
                     .padding(configuration.contentInsets.edgeInsets)
                     .scaleEffect(configuration.scaleTransform)
                     .background(configuration.resolvedBackgroundColor()?.swiftUI)
                     .clipShape(configuration.cornerStyle.shape)
-                    .overlay(configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration.resolvedForegroundColor()?.swiftUI))
+                    .overlay( configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration.resolvedForegroundColor()?.swiftUI))
                     .opacity(configuration.opacity)
             }
         }
@@ -131,7 +131,9 @@
                 appliedConfiguration.borderWidth > 0.0 && appliedConfiguration.showsBorderOnlyWhileMouseInside
             }
             
-            var showBorder: Bool = false
+            var showBorder: Bool {
+                appliedConfiguration.showsBorderOnlyWhileMouseInside ? mouseIsInside : true
+            }
             
             public override func updateTrackingAreas() {
                 super.updateTrackingAreas()
@@ -158,8 +160,17 @@
                 }
             }
             
+            var mouseIsInside = false
+            
+            var resolvedBorderWidth: CGFloat {
+                if appliedConfiguration.showsBorderOnlyWhileMouseInside {
+                    return mouseIsInside ? appliedConfiguration.borderWidth : 0.0
+                }
+                return appliedConfiguration.borderWidth
+            }
+            
             public override func mouseEntered(with event: NSEvent) {
-                showBorder = true
+                mouseIsInside = true
                 if showsBorderOnlyWhileMouseInside {
                     updateConfiguration()
                 }
@@ -167,7 +178,7 @@
             }
             
             public override func mouseExited(with event: NSEvent) {
-                showBorder = false
+                mouseIsInside = false
                 if showsBorderOnlyWhileMouseInside {
                     updateConfiguration()
                 }
@@ -202,6 +213,9 @@
             /// Creates a item content view with the specified content configuration.
             public init(configuration: NSButton.AdvanceButtonConfiguration) {
                 self.appliedConfiguration = configuration
+                if configuration.showsBorderOnlyWhileMouseInside {
+                    
+                }
                 super.init(frame: .zero)
                 hostingViewConstraints = addSubview(withConstraint: hostingController.view)
                 updateTrackingAreas()

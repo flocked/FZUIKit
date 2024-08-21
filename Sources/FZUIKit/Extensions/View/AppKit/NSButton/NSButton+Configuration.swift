@@ -134,8 +134,6 @@
                 contentTintColor = configuration.resolvedContentTintColorColor()
                 sound = configuration.sound
                 sizeToFit()
-                contentView?.removeFromSuperview()
-                contentView = nil
                 contentView = nil
             } else if var configuration = configuration as? AdvanceButtonConfiguration {
                 if automaticallyUpdatesConfiguration {
@@ -151,7 +149,7 @@
                 if let contentView = contentView, contentView.supports(configuration) {
                     contentView.configuration = configuration
                 } else {
-                    contentView = AdvanceButtonView(configuration: configuration)
+                    contentView = configuration.makeContentView()
                     addSubview(withConstraint: contentView!)
                 }
                 frame.size = contentView?.fittingSize ?? .zero
