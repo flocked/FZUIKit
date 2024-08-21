@@ -65,14 +65,14 @@
                         if self.automaticallyUpdatesConfiguration {
                             self.updateConfiguration()
                         }
-                        self.configurationUpdateHandler?(self.configurationState)
+                        self.configurationUpdateHandler?(self, self.configurationState)
                     }
                     buttonObserver?.add(\.isEnabled) { [weak self] old, new in
                         guard let self = self, old != new else { return }
                         if self.automaticallyUpdatesConfiguration {
                             self.updateConfiguration()
                         }
-                        self.configurationUpdateHandler?(self.configurationState)
+                        self.configurationUpdateHandler?(self, self.configurationState)
                     }
                 }
             } else {
@@ -90,7 +90,7 @@
                 if automaticallyUpdatesConfiguration {
                     updateConfiguration()
                 }
-                configurationUpdateHandler?(configurationState)
+                configurationUpdateHandler?(self, configurationState)
             }
         }
         
@@ -177,7 +177,7 @@
 
          - Parameter state: The current state of the button.
          */
-        public typealias ConfigurationUpdateHandler = (_ state: ConfigurationState) -> Void
+        public typealias ConfigurationUpdateHandler = (_ button: NSButton, _ state: ConfigurationState) -> Void
         
         var isPressed: Bool {
             (contentView as? NSButton.AdvanceButtonView)?.isPressed ?? false

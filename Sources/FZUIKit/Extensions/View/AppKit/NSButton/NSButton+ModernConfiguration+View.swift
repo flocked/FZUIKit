@@ -126,6 +126,9 @@
         public class AdvanceButtonView: NSView, NSContentView {
             
             lazy var trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect])
+            var hostingView: NSHostingView<ContentView>!
+            var mouseIsInside = false
+            var isPressed: Bool = false
             
             var showBorder: Bool {
                 appliedConfiguration.showsBorderOnlyWhileMouseInside ? mouseIsInside : true
@@ -150,19 +153,9 @@
             /// The current configuration of the view.
             var appliedConfiguration: NSButton.AdvanceButtonConfiguration {
                 didSet {
-                    if oldValue != appliedConfiguration {
-                        updateConfiguration()
-                    }
+                    guard oldValue != appliedConfiguration else { return }
+                    updateConfiguration()
                 }
-            }
-            
-            var mouseIsInside = false
-            
-            var resolvedBorderWidth: CGFloat {
-                if appliedConfiguration.showsBorderOnlyWhileMouseInside {
-                    return mouseIsInside ? appliedConfiguration.borderWidth : 0.0
-                }
-                return appliedConfiguration.borderWidth
             }
             
             public override func mouseEntered(with event: NSEvent) {
@@ -185,18 +178,23 @@
                 superview as? NSButton
             }
 
-            var isPressed: Bool = false
             public override func mouseDown(with _: NSEvent) {
                 isPressed = true
-                if button?.automaticallyUpdatesConfiguration == true {
-                    button?.updateConfiguration()
+                if let button = button {
+                    if button.automaticallyUpdatesConfiguration {
+                        button.updateConfiguration()
+                    }
+                    button.configurationUpdateHandler?(button, button.configurationState)
                 }
             }
 
             public override func mouseUp(with event: NSEvent) {
                 isPressed = false
-                if button?.automaticallyUpdatesConfiguration == true {
-                    button?.updateConfiguration()
+                if let button = button {
+                    if button.automaticallyUpdatesConfiguration {
+                        button.updateConfiguration()
+                    }
+                    button.configurationUpdateHandler?(button, button.configurationState)
                 }
                 
                 if frame.contains(event.location(in: self)) {
@@ -210,43 +208,21 @@
             public init(configuration: NSButton.AdvanceButtonConfiguration) {
                 self.appliedConfiguration = configuration
                 super.init(frame: .zero)
-                hostingViewConstraints = addSubview(withConstraint: hostingController.view)
+                
+                hostingView = NSHostingView(rootView: ContentView(configuration: self.appliedConfiguration, showBorder: showBorder))
+                hostingView.backgroundColor = .clear
+                hostingView.translatesAutoresizingMaskIntoConstraints = false
+                hostingView.clipsToBounds = false
+                addSubview(withConstraint: hostingView)
                 updateTrackingAreas()
-                updateConfiguration()
+                frame.size = fittingSize
             }
-
-            var hostingViewConstraints: [NSLayoutConstraint] = []
 
             func updateConfiguration() {
-                hostingController.rootView = ContentView(configuration: appliedConfiguration, showBorder: showBorder)
+                hostingView.rootView = ContentView(configuration: appliedConfiguration, showBorder: showBorder)
                 frame.size = fittingSize
-               // sizeToFit()
             }
-
-            var margins: NSDirectionalEdgeInsets {
-                get {
-                    var edgeInsets = NSDirectionalEdgeInsets(top: hostingViewConstraints[0].constant, leading: hostingViewConstraints[1].constant, bottom: 0, trailing: 0)
-                    edgeInsets.width = -hostingViewConstraints[2].constant
-                    edgeInsets.height = -hostingViewConstraints[3].constant
-                    return edgeInsets
-                }
-                set {
-                    hostingViewConstraints[0].constant = newValue.bottom
-                    hostingViewConstraints[1].constant = newValue.leading
-                    hostingViewConstraints[2].constant = -newValue.width
-                    hostingViewConstraints[3].constant = -newValue.height
-                }
-            }
-
-            lazy var hostingController: NSHostingController<ContentView> = {
-                let contentView = ContentView(configuration: self.appliedConfiguration, showBorder: showBorder)
-                let hostingController = NSHostingController(rootView: contentView)
-                hostingController.view.backgroundColor = .clear
-                hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-                hostingController.view.clipsToBounds = false
-                return hostingController
-            }()
-
+            
             @available(*, unavailable)
             required init?(coder _: NSCoder) {
                 fatalError("init(coder:) has not been implemented")
