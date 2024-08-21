@@ -115,7 +115,7 @@
                     .scaleEffect(configuration.scaleTransform)
                     .background(configuration.resolvedBackgroundColor()?.swiftUI)
                     .clipShape(configuration.cornerStyle.shape)
-                    .overlay( configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration.resolvedForegroundColor()?.swiftUI))
+                    .overlay( configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration.resolvedForegroundColor()?.swiftUI).scaleEffect(configuration.scaleTransform))
                     .opacity(configuration.opacity)
             }
         }
