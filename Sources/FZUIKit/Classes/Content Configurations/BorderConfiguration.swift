@@ -14,6 +14,8 @@
     import FZSwiftUtils
     import SwiftUI
 
+extension CGLineCap: Codable { }
+
     /**
      A configuration that specifies the appearance of a border.
 
@@ -36,15 +38,21 @@
 
         /// The width of the border.
         public var width: CGFloat = 0.0
-
-        /// The dash pattern of the border.
-        public var dashPattern: [CGFloat] = []
         
-        /// How far into the dash pattern the line starts.
-        public var dashPhase: CGFloat = 0
+        /// Properties for the border dash.
+        public struct Dash: Hashable, Codable {
+            /// The dash pattern of the border.
+            public var pattern: [CGFloat] = []
+            /// How far into the dash pattern the line starts.
+            public var phase: CGFloat = 0
+            /// The endpoint style of a segment.
+            public var lineCap: CGLineCap = .butt
+            /// A Boolean value that indicates whether a dashed border animates.
+            public var animates: Bool = false
+        }
         
-        /// The endpoint style of a segment.
-        public var dashLineCap: CGLineCap = .butt
+        /// The properties of the border dash.
+        public var dash: Dash = Dash()
 
         /// The insets of the border.
         public var insets: NSDirectionalEdgeInsets = .init(0)
@@ -53,16 +61,21 @@
         public init(color: NSUIColor? = nil,
                     colorTransformer: ColorTransformer? = nil,
                     width: CGFloat = 0.0,
-                    dashPattern: [CGFloat] = [],
-                    dashPhase: CGFloat = 0.0,
-                    dashLineCap: CGLineCap = .butt,
-                    insets: NSDirectionalEdgeInsets = .init(0))
-        {
+                    insets: NSDirectionalEdgeInsets = .init(0)) {
             self.color = color
             self.width = width
-            self.dashPattern = dashPattern
-            self.dashPhase = dashPhase
-            self.dashLineCap = dashLineCap
+            self.colorTransformer = colorTransformer
+            self.insets = insets
+        }
+        
+        init(color: NSUIColor? = nil,
+                    colorTransformer: ColorTransformer? = nil,
+                    width: CGFloat = 0.0,
+                    dash: Dash,
+                    insets: NSDirectionalEdgeInsets = .init(0)) {
+            self.color = color
+            self.width = width
+            self.dash = dash
             self.colorTransformer = colorTransformer
             self.insets = insets
         }
@@ -99,8 +112,11 @@
         #endif
 
         /// A configuration for a dashed border with the specified color.
-        public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0, dashPattern: [CGFloat] = [4, 4]) -> Self {
-            Self(color: color, width: width, dashPattern: dashPattern)
+        public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0, patterh: [CGFloat] = [4, 4], animates: Bool = false) -> Self {
+            var border = Self(color: color, width: width)
+            border.dash.pattern = patterh
+            border.dash.animates = animates
+            return border
         }
 
         /// A Boolean value that indicates whether the border is invisible (when the color is `nil`, `clear` or the width `0`).
@@ -109,16 +125,15 @@
         }
 
         var needsDashedBorderView: Bool {
-            insets != .zero || dashPattern != [] || !isInvisible
+            insets != .zero || !dash.pattern.isEmpty || !isInvisible
         }
     }
 
 extension BorderConfiguration: Codable {
     public enum CodingKeys: String, CodingKey {
         case color
-        case resolvedColor
         case width
-        case dashPattern
+        case dash
         case insets
     }
     
@@ -126,7 +141,7 @@ extension BorderConfiguration: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(color, forKey: .color)
         try container.encode(width, forKey: .width)
-        try container.encode(dashPattern, forKey: .dashPattern)
+        try container.encode(dash, forKey: .dash)
         try container.encode(insets, forKey: .insets)
     }
     
@@ -134,7 +149,7 @@ extension BorderConfiguration: Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         self = .init(color: try values.decode(Optional<NSUIColor>.self, forKey: .color),
                      width: try values.decode(CGFloat.self, forKey: .width),
-                     dashPattern: try values.decode([CGFloat].self, forKey: .dashPattern),
+                     dash: try values.decode(Dash.self, forKey: .width),
                      insets: try values.decode(NSDirectionalEdgeInsets.self, forKey: .insets))
     }
 }
@@ -214,24 +229,20 @@ public class __BorderConfiguration: NSObject, NSCopying {
     var color: NSUIColor?
     var colorTransformer: ColorTransformer?
     var width: CGFloat
-    var dashPattern: [CGFloat]
-    var dashPhase: CGFloat
-    var dashLineCap: CGLineCap
+    var dash: BorderConfiguration.Dash
     var insets: NSDirectionalEdgeInsets
 
-    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dashPattern: [CGFloat], dashPhase: CGFloat, dashLineCap: CGLineCap, insets: NSDirectionalEdgeInsets) {
+    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dash: BorderConfiguration.Dash, insets: NSDirectionalEdgeInsets) {
         self.color = color
         self.width = width
-        self.dashPattern = dashPattern
-        self.dashPhase = dashPhase
-        self.dashLineCap = dashLineCap
         self.colorTransformer = colorTransformer
+        self.dash = dash
         self.insets = insets
         super.init()
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, dashPhase: dashPhase, dashLineCap: dashLineCap, insets: insets)
+        __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dash: dash, insets: insets)
     }
 }
 
@@ -240,11 +251,11 @@ extension BorderConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __BorderConfiguration
 
     public func _bridgeToObjectiveC() -> __BorderConfiguration {
-        return __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dashPattern: dashPattern, dashPhase: dashPhase, dashLineCap: dashLineCap, insets: insets)
+        return __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dash: dash, insets: insets)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) {
-        result = BorderConfiguration(color: source.color, colorTransformer: source.colorTransformer, width: source.width, dashPattern: source.dashPattern, dashPhase: source.dashPhase, dashLineCap: source.dashLineCap, insets: source.insets)
+        result = BorderConfiguration(color: source.color, colorTransformer: source.colorTransformer, width: source.width, dash: source.dash, insets: source.insets)
     }
 
     public static func _conditionallyBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) -> Bool {
@@ -264,12 +275,10 @@ extension BorderConfiguration: ReferenceConvertible {
     public var description: String {
                     """
                     BorderConfiguration(
-                        color: \(String(describing: color))
-                        colorTransformer: \(String(describing: colorTransformer))
+                        color: \(color?.description ?? "-")
+                        colorTransformer: \(colorTransformer?.id ?? "-")
                         width: \(width)
-                        dashPattern: \(dashPattern)
-                        dashPhase: \(dashPhase)
-                        dashLineCap: \(dashLineCap.rawValue)
+                        dash: \(dash)
                         insets: \(insets)
                     )
                     """
@@ -277,6 +286,19 @@ extension BorderConfiguration: ReferenceConvertible {
 
     public var debugDescription: String {
         description
+    }
+}
+
+extension BorderConfiguration.Dash: CustomStringConvertible {
+    public var description: String {
+                            """
+                            Dash(
+                                patterh: \(pattern)
+                                phase: \(phase)
+                                lineCap: \(lineCap.rawValue)
+                                animates: \(animates)
+                            )
+                            """
     }
 }
 
@@ -289,11 +311,11 @@ extension Shape {
      */
     @ViewBuilder
     public func stroke(_ border: BorderConfiguration) -> some View {
-        if border.dashPattern.isEmpty {
+        if border.dash.pattern.isEmpty {
             stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
                 .padding(border.insets.edgeInsets)
         } else {
-            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dashLineCap, dash: border.dashPattern, dashPhase: border.dashPhase))
+            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dash.lineCap, dash: border.dash.pattern, dashPhase: border.dash.phase))
                 .padding(border.insets.edgeInsets)
         }
     }

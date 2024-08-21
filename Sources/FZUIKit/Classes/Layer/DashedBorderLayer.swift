@@ -20,14 +20,14 @@
         
         /// The configuration of the border.
         public var configuration: BorderConfiguration {
-            get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dashPattern: borderDashPattern, dashPhase: borderedLayer.lineDashPhase, dashLineCap: borderedLayer.lineCap.cgLineCap, insets: borderInsets) }
+            get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dash: .init(pattern: borderDashPattern, phase: borderedLayer.lineDashPhase, lineCap: borderedLayer.lineCap.cgLineCap), insets: borderInsets) }
             set {
                 guard newValue != configuration else { return }
                 borderedLayer.lineWidth = newValue.width
                 borderedLayer.strokeColor = newValue.resolvedColor()?.cgColor
-                borderDashPattern = newValue.dashPattern
-                borderedLayer.lineDashPhase = newValue.dashPhase
-                borderedLayer.lineCap = newValue.dashLineCap.shapeLayerLineCap
+                borderDashPattern = newValue.dash.pattern
+                borderedLayer.lineDashPhase = newValue.dash.phase
+                borderedLayer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
                 borderInsets = newValue.insets
             }
         }

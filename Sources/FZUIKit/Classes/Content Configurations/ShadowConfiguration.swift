@@ -348,8 +348,8 @@ extension ShadowConfiguration: ReferenceConvertible {
     public var description: String {
               """
               ShadowConfiguration(
-                color: \(String(describing: color))
-                colorTransformer: \(String(describing: colorTransformer))
+                color: \(color?.description ?? "-")
+                colorTransformer: \(colorTransformer?.id ?? "-")
                 opacity: \(opacity)
                 radius: \(radius)
                 offset: \(offset)

@@ -79,7 +79,6 @@ class DashedBorderView: NSUIView {
         let cornerRadius: CGFloat
         let cornerCurve: CALayerCornerCurve
         let roundedCorners: CACornerMask
-        let animates: Bool = false
         @State var phase: CGFloat = 0
         
         @ViewBuilder
@@ -95,7 +94,7 @@ class DashedBorderView: NSUIView {
         
         var body: some View {
             if let color = border.resolvedColor(), color.alphaComponent != 0.0 {
-                if animates {
+                if border.dash.animates && border.needsDashedBorderView {
                     borderItem
                         .animation(
                             Animation.linear(duration: 1)
@@ -107,7 +106,7 @@ class DashedBorderView: NSUIView {
                 } else {
                     borderItem
                         .onAppear {
-                            phase = border.dashPhase
+                            phase = border.dash.phase
                         }
                 }
             }
@@ -124,11 +123,11 @@ extension Shape {
      */
     @ViewBuilder
     public func stroke(_ border: BorderConfiguration, phase: CGFloat) -> some View {
-        if border.dashPattern.isEmpty {
+        if border.dash.pattern.isEmpty {
             stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
                 .padding(border.insets.edgeInsets)
         } else {
-            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dashLineCap, dash: border.dashPattern, dashPhase: phase))
+            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dash.lineCap, dash: border.dash.pattern, dashPhase: phase))
                 .padding(border.insets.edgeInsets)
         }
     }
