@@ -39,39 +39,39 @@ extension CGLineCap: Codable { }
         /// The width of the border.
         public var width: CGFloat = 0.0
         
-        /// Properties for the border dash.
-        public struct Dash: Hashable, Codable {
-            /// The dash pattern of the border.
-            public var pattern: [CGFloat] = []
-            /// How far into the dash pattern the line starts.
-            public var phase: CGFloat = 0
-            /// The endpoint style of a segment.
-            public var lineCap: CGLineCap = .butt
-            /// A Boolean value that indicates whether a dashed border animates.
-            public var animates: Bool = false
-        }
-        
-        /// The properties of the border dash.
-        public var dash: Dash = Dash()
-
         /// The insets of the border.
         public var insets: NSDirectionalEdgeInsets = .init(0)
+        
+        /// The dash properties of the border.
+        public var dash: Dash = Dash()
+        
+        /// Properties for the border dash.
+        public struct Dash: Hashable, Codable {
+            /// The pattern of the border dash.
+            public var pattern: [CGFloat] = []
+            
+            /// How far into the dash pattern the line starts.
+            public var phase: CGFloat = 0
+            
+            /// The endpoint style of a dash segment.
+            public var lineCap: CGLineCap = .butt
+            
+            /// A Boolean value that indicates whether the border dash animates.
+            public var animates: Bool = false
+            
+            public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false) {
+                self.pattern = pattern
+                self.phase = phase
+                self.lineCap = lineCap
+                self.animates = animates
+            }
+        }
 
         /// Creates a border configuration.
         public init(color: NSUIColor? = nil,
                     colorTransformer: ColorTransformer? = nil,
                     width: CGFloat = 0.0,
-                    insets: NSDirectionalEdgeInsets = .init(0)) {
-            self.color = color
-            self.width = width
-            self.colorTransformer = colorTransformer
-            self.insets = insets
-        }
-        
-        init(color: NSUIColor? = nil,
-                    colorTransformer: ColorTransformer? = nil,
-                    width: CGFloat = 0.0,
-                    dash: Dash,
+                    dash: Dash = Dash(),
                     insets: NSDirectionalEdgeInsets = .init(0)) {
             self.color = color
             self.width = width
@@ -113,10 +113,7 @@ extension CGLineCap: Codable { }
 
         /// A configuration for a dashed border with the specified color.
         public static func dashed(color: NSUIColor = .black, width: CGFloat = 2.0, patterh: [CGFloat] = [4, 4], animates: Bool = false) -> Self {
-            var border = Self(color: color, width: width)
-            border.dash.pattern = patterh
-            border.dash.animates = animates
-            return border
+            Self(color: color, width: width, dash: .init(pattern: patterh, animates: animates))
         }
 
         /// A Boolean value that indicates whether the border is invisible (when the color is `nil`, `clear` or the width `0`).
