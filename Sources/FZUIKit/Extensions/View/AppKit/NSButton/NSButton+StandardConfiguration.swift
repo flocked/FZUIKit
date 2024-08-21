@@ -125,38 +125,49 @@
             public var size: NSControl.ControlSize = .regular
 
             /// A standard push style button.
-            public static func push() -> NSButton.Configuration {
-                NSButton.Configuration(style: .push)
+            public static func push(_ title: String? = nil) -> NSButton.Configuration {
+                var configuration = Self(style: .push)
+                configuration.title = title
+                return configuration
             }
 
             /// A push button with a flexible height to accommodate longer text labels or an image.
-            public static func flexiblePush() -> NSButton.Configuration {
-                NSButton.Configuration(style: .flexiblePush)
+            public static func flexiblePush(_ title: String? = nil) -> NSButton.Configuration {
+                var configuration = Self(style: .flexiblePush)
+                configuration.title = title
+                return configuration
             }
 
             /// A button style that’s appropriate for a toolbar item.
-            public static func toolbar() -> NSButton.Configuration {
-                NSButton.Configuration(style: .toolbar)
+            public static func toolbar(_ title: String? = nil) -> NSButton.Configuration {
+                var configuration = Self(style: .toolbar)
+                configuration.title = title
+                return configuration
             }
 
             /// A button style that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
-            public static func accessoryBar() -> NSButton.Configuration {
-                NSButton.Configuration(style: .accessoryBar)
+            public static func accessoryBar(_ title: String? = nil) -> NSButton.Configuration {
+                var configuration = Self(style: .accessoryBar)
+                configuration.title = title
+                return configuration
             }
 
             /// A button style that you use for extra actions in an accessory toolbar.
-            public static func accessoryBarAction() -> NSButton.Configuration {
-                NSButton.Configuration(style: .accessoryBarAction)
+            public static func accessoryBarAction(_ title: String? = nil) -> NSButton.Configuration {
+                var configuration = Self(style: .accessoryBarAction)
+                configuration.title = title
+                return configuration
             }
 
             /// A button style suitable for displaying additional information.
-            public static func badge() -> NSButton.Configuration {
+            public static func badge(_ title: String? = nil) -> NSButton.Configuration {
                 NSButton.Configuration(style: .badge)
             }
 
             /// A round button that can contain either a single character or an icon.
             public static func circular() -> NSButton.Configuration {
-                NSButton.Configuration(style: .circular)
+                var configuration = Self(style: .circular)
+                return configuration
             }
 
             /// A simple square bezel style that can scale to any size.

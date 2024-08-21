@@ -453,6 +453,39 @@
                 }
             }
         }
+        
+        var shadowColorAlt: NSColor? {
+            get { getAssociatedValue("shadowColorAlt") }
+            set { setAssociatedValue(newValue, key: "shadowColorAlt") }
+        }
+        
+        var shadowColorObservation: KeyValueObservation? {
+            get { getAssociatedValue("shadowColorObservation") }
+            set { setAssociatedValue(newValue, key: "shadowColorObservation") }
+        }
+        
+        @objc var shadowColorAltnew: NSColor? {
+            get { shadowColorAlt ?? layer?.shadowColor?.nsColor }
+            set {
+                wantsLayer = true
+                NSView.swizzleAnimationForKey()
+                shadowColorAlt = newValue
+                shadowColorObservation = nil
+                layer?.shadowColor = newValue?.resolvedColor(for: self).cgColor
+                if newValue != nil {
+                    let observer = KeyValueObserver(self)
+                    observer.add(\.layer?.shadowColor) { old, new in 
+                        
+                    }
+                    observeChanges(for: \.layer?.shadowColor, uniqueValues: true) { old, new in
+                        
+                    }
+                    shadowColorObservation = observeChanges(for: \.layer?.shadowColor, handler: { oldValue, newValue in
+                        
+                    })
+                }
+            }
+        }
 
         var shadowColor: NSColor? {
             get { dynamicColors.shadow ?? self.layer?.shadowColor?.nsColor }

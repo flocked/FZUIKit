@@ -36,18 +36,9 @@
             set {
                 let oldValue = self.configuration
                 setAssociatedValue(newValue, key: "NSButton_Configuration")
-                if newValue is NSButton.AdvanceButtonConfiguration == false {
-                    contentView?.removeFromSuperview()
+                if !(newValue is NSButton.AdvanceButtonConfiguration) {
                     contentView = nil
                 }
-                guard newValue != nil else { return }
-
-                if let oldValue = oldValue as? NSButton.AdvanceButtonConfiguration, let newValue = newValue as? NSButton.AdvanceButtonConfiguration, newValue == oldValue {
-                    return
-                } else if let oldValue = oldValue as? NSButton.Configuration, let newValue = newValue as? NSButton.Configuration, newValue == oldValue {
-                    return
-                }
-
                 updateConfiguration()
                 if automaticallyUpdatesConfiguration == true, newValue != nil {
                     setupConfigurationStateObserver()
@@ -76,6 +67,9 @@
         func setupConfigurationStateObserver() {
             if automaticallyUpdatesConfiguration == true || configurationUpdateHandler != nil {
                 if buttonObserver == nil {
+                    hoverView = HoverView(frame: .zero)
+                    addSubview(withConstraint: hoverView!)
+                    hoverView?.sendToBack()
                     buttonObserver = KeyValueObserver(self)
                     buttonObserver?.add(\.state) { [weak self] old, new in
                         guard let self = self, old != new else { return }
@@ -91,31 +85,11 @@
                         }
                         self.configurationUpdateHandler?(self.configurationState)
                     }
-                    /*
-                     buttonObserver?.add([\.title, \.alternateTitle, \.attributedTitle, \.attributedAlternateTitle, \.image, \.alternateImage], handler: <#T##((PartialKeyPath<NSButton>) -> ())##((PartialKeyPath<NSButton>) -> ())##(_ keyPath: PartialKeyPath<NSButton>) -> ()#>)
-                     */
-                }
-                if mouseHandlers.exited == nil {
-                    mouseHandlers.exited = { [weak self] _ in
-                        guard let self = self else { return }
-                        self.isHovered = false
-                    }
-                    mouseHandlers.moved = { [weak self] _ in
-                        guard let self = self else { return }
-                        self.isHovered = true
-                    }
-                    mouseHandlers.leftDragged = { [weak self] _ in
-                        guard let self = self else { return }
-                        self.isHovered = true
-                    }
-                    mouseHandlers.entered = { [weak self] _ in
-                        guard let self = self else { return }
-                        self.isHovered = true
-                    }
                 }
             } else {
+                hoverView?.removeFromSuperview()
+                hoverView = nil
                 buttonObserver = nil
-                mouseHandlers = .init()
             }
         }
 
@@ -127,6 +101,7 @@
                 if automaticallyUpdatesConfiguration {
                     updateConfiguration()
                 }
+                configurationUpdateHandler?(configurationState)
             }
         }
 
@@ -151,26 +126,31 @@
          Don’t call this method directly. Call ``setNeedsUpdateConfiguration()`` to request an update to your button.
          */
         @objc open func updateConfiguration() {
-            if let configuration = configuration as? NSButton.Configuration {
+            if let configuration = configuration as? Configuration {
                 isBordered = true
                 bezelStyle = configuration.style.bezelStyle
                 setButtonType(configuration.style.buttonStyle)
                 if let attributedTitle = configuration.attributedTitle {
-                    self.attributedTitle = attributedTitle
                     attributedAlternateTitle = attributedTitle
+                    self.attributedTitle = attributedTitle
                 } else {
-                    title = configuration.title ?? ""
                     alternateTitle = configuration.title ?? ""
+                    title = configuration.title ?? ""
                 }
                 image = configuration.image
-                alternateImage = configuration.image
+                alternateImage = nil
                 imagePosition = configuration.imagePosition
                 symbolConfiguration = configuration.imageSymbolConfiguration?.nsSymbolConfiguration()
                 bezelColor = configuration.resolvedBorderColor()
                 contentTintColor = configuration.resolvedContentTintColorColor()
                 sound = configuration.sound
                 sizeToFit()
-            } else if var configuration = configuration as? NSButton.AdvanceButtonConfiguration {
+                contentView?.removeFromSuperview()
+                contentView = nil
+            } else if var configuration = configuration as? AdvanceButtonConfiguration {
+                if automaticallyUpdatesConfiguration {
+                    configuration = configuration.updated(for: configurationState)
+                }
                 bezelStyle = .rounded
                 isBordered = false
                 title = ""
@@ -178,21 +158,14 @@
                 image = nil
                 alternateImage = nil
                 sound = configuration.sound
-
-                if automaticallyUpdatesConfiguration {
-                    configuration = configuration.updated(for: configurationState)
-                }
-
-                if let contentView = contentView {
+                if let contentView = contentView, contentView.supports(configuration) {
                     contentView.configuration = configuration
                 } else {
-                    let buttonView = NSButton.AdvanceButtonView(configuration: configuration)
-                    contentView = buttonView
-                    addSubview(withConstraint: buttonView)
+                    contentView = AdvanceButtonView(configuration: configuration)
+                    addSubview(withConstraint: contentView!)
                 }
                 frame.size = contentView?.fittingSize ?? .zero
             }
-            configurationUpdateHandler?(configurationState)
         }
 
         /**
@@ -216,19 +189,55 @@
          */
         public typealias ConfigurationUpdateHandler = (_ state: ConfigurationState) -> Void
 
-        var contentView: NSButton.AdvanceButtonView? {
+        var contentView: (NSView & NSContentView)? {
             get { getAssociatedValue("NSButton_contentView", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "NSButton_contentView") }
+            set { 
+                contentView?.removeFromSuperview()
+                setAssociatedValue(newValue, key: "NSButton_contentView")
+            }
+        }
+        
+        var hoverView: HoverView? {
+            get { getAssociatedValue("HoverView", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "HoverView") }
         }
 
         var isPressed: Bool {
-            contentView?.isPressed ?? false
+            (contentView as? NSButton.AdvanceButtonView)?.isPressed ?? false
         }
 
         func sendAction() {
             guard let action = action, let target = target else { return }
             sendAction(action, to: target)
             sound?.play()
+        }
+        
+        class HoverView: NSView {
+            lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .mouseEnteredAndExited])
+            
+            override init(frame frameRect: NSRect) {
+                super.init(frame: frameRect)
+                updateTrackingAreas()
+            }
+            
+            override func updateTrackingAreas() {
+                super.updateTrackingAreas()
+                trackingArea.update()
+            }
+            
+            override func mouseEntered(with event: NSEvent) {
+                super.mouseEntered(with: event)
+                (superview as? NSButton)?.isHovered = true
+            }
+            
+            override func mouseExited(with event: NSEvent) {
+                super.mouseExited(with: event)
+                (superview as? NSButton)?.isHovered = false
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
         }
     }
 
