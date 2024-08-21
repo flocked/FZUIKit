@@ -28,18 +28,15 @@ class DashedBorderView: NSUIView {
     }
     
     func update() {
-        if let superview = superview {
-            hostingController.rootView = ContentView(border: border, cornerRadius: superview.cornerRadius, cornerCurve: superview.cornerCurve, roundedCorners: superview.roundedCorners)
-        } else {
-            hostingController.rootView = ContentView(border: border, cornerRadius: cornerRadius, cornerCurve: cornerCurve, roundedCorners: roundedCorners)
-        }
+        let view = superview ?? self
+        hostingController.rootView = ContentView(border: configuration, cornerRadius: view.cornerRadius, cornerCurve: view.cornerCurve, roundedCorners: view.roundedCorners)
     }
     
     init(configuration: BorderConfiguration = .none()) {
         self.configuration = configuration
         super.init(frame: .zero)
         
-        hostingController = NSUIHostingController(rootView: ContentView(border: border, cornerRadius: cornerRadius, cornerCurve: cornerCurve, roundedCorners: roundedCorners))
+        hostingController = NSUIHostingController(rootView: ContentView(border: configuration, cornerRadius: cornerRadius, cornerCurve: cornerCurve, roundedCorners: roundedCorners))
         addSubview(withConstraint: hostingController.view)
         optionalLayer?.zPosition = .greatestFiniteMagnitude
         observation = KeyValueObserver(self)
@@ -80,7 +77,7 @@ class DashedBorderView: NSUIView {
         
         @ViewBuilder
         var borderItem: some View {
-            if roundedCorners != .all, #available(macOS 13.0, iOS 16.0, tvOS 16.0, *) {
+            if roundedCorners != [] || roundedCorners != .all, #available(macOS 13.0, iOS 16.0, tvOS 16.0, *) {
                 UnevenRoundedRectangle(cornerRadius: cornerRadius, roundedCorners: roundedCorners, style: cornerCurve == .continuous ? .continuous : .circular)
                     .stroke(border, phase: phase)
             } else {
@@ -114,7 +111,7 @@ class DashedBorderView: NSUIView {
 extension Shape {
     @ViewBuilder
     fileprivate func stroke(_ border: BorderConfiguration, phase: CGFloat) -> some View {
-        if border.dash.pattern.isEmpty {
+        if border.dash.pattern.count <= 1 {
             stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
                 .padding(border.insets.edgeInsets)
         } else {

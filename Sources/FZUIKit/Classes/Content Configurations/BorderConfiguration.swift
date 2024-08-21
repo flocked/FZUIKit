@@ -277,7 +277,12 @@ extension BorderConfiguration: ReferenceConvertible {
                         color: \(color?.description ?? "-")
                         colorTransformer: \(colorTransformer?.id ?? "-")
                         width: \(width)
-                        dash: \(dash)
+                        dash: Dash(
+                        \tpattern: \(dash.pattern)
+                        \tphase: \(dash.phase)
+                        \tlineCap: \(dash.lineCap.rawValue)
+                        \tanimates: \(dash.animates)
+                        )
                         insets: \(insets)
                     )
                     """
@@ -290,14 +295,7 @@ extension BorderConfiguration: ReferenceConvertible {
 
 extension BorderConfiguration.Dash: CustomStringConvertible {
     public var description: String {
-                            """
-                            Dash(
-                                patterh: \(pattern)
-                                phase: \(phase)
-                                lineCap: \(lineCap.rawValue)
-                                animates: \(animates)
-                            )
-                            """
+        "Dash(patterh: \(pattern), phase: \(phase), lineCap: \(lineCap.rawValue), animates: \(animates))"
     }
 }
 
@@ -309,7 +307,7 @@ extension Shape {
      */
     @ViewBuilder
     public func stroke(_ border: BorderConfiguration) -> some View {
-        if border.dash.pattern.isEmpty {
+        if border.dash.pattern.count <= 1 {
             stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
                 .padding(border.insets.edgeInsets)
         } else {
