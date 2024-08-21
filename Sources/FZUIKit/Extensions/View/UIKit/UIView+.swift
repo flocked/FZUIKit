@@ -74,9 +74,9 @@
          Changes to this property can be animated. The default value is `none()`, which results in a view with no border.
          */
         public var border: BorderConfiguration {
-            get { dashedBorderLayer?.configuration ?? .init(color: borderColor, width: borderWidth) }
-            set { 
-                if newValue.needsDashedBordlerLayer {
+            get { dashedBorderView?.configuration ?? .init(color: borderColor, width: borderWidth) }
+            set {
+                if newValue.needsDashedBorderView {
                     borderColor = nil
                     borderWidth = 0.0
                     if dashedBorderView == nil {

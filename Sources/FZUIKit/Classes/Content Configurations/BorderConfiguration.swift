@@ -108,7 +108,7 @@
             width == 0.0 || resolvedColor() == nil || resolvedColor() == .clear
         }
 
-        var needsDashedBordlerLayer: Bool {
+        var needsDashedBorderView: Bool {
             insets != .zero || dashPattern != [] || !isInvisible
         }
     }
@@ -147,7 +147,7 @@ extension BorderConfiguration: Codable {
             - configuration:The configuration for configurating the apperance.
          */
         func configurate(using configuration: BorderConfiguration) {
-            if configuration.needsDashedBordlerLayer {
+            if configuration.needsDashedBorderView {
                 borderColor = nil
                 #if os(macOS)
                 _borderWidth = 0.0
@@ -157,7 +157,7 @@ extension BorderConfiguration: Codable {
                 if dashedBorderView == nil {
                     dashedBorderView = DashedBorderView()
                     addSubview(withConstraint: dashedBorderView!)
-                    dashedBorderView?.sendToBack()
+                    dashedBorderView?.sendToFront()
                 }
                 dashedBorderView?.configuration = configuration
             } else {
@@ -176,7 +176,7 @@ extension BorderConfiguration: Codable {
             }
         }
         
-        var  dashedBorderView: DashedBorderView? {
+        var dashedBorderView: DashedBorderView? {
             get { getAssociatedValue("dashedBorderView") }
             set { setAssociatedValue(newValue, key: "dashedBorderView") }
         }
@@ -190,7 +190,7 @@ extension BorderConfiguration: Codable {
             - configuration:The configuration for configurating the apperance.
          */
         func configurate(using configuration: BorderConfiguration) {
-            if configuration.needsDashedBordlerLayer {
+            if configuration.needsDashedBorderView {
                 borderColor = nil
                 borderWidth = 0.0
                 let borderLayer = borderLayer ?? DashedBorderLayer()

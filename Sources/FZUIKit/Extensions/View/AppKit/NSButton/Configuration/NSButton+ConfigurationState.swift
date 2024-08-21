@@ -13,7 +13,7 @@
         /// The state of a `NSButton`.
         struct ConfigurationState {
             /// The state of the button.
-            public var state: NSControl.StateValue = .off
+            public var state: StateValue = .off
 
             /// A Boolean value that indicates whether the button is enabked and reacts to mouse events.
             public var isEnabled: Bool = false
@@ -24,7 +24,7 @@
             /// A Boolean value that indicates whether the button is pressed down.
             public var isPressed: Bool = false
 
-            init(state: NSControl.StateValue, isEnabled: Bool, isHovered: Bool, isPressed: Bool) {
+            init(state: StateValue, isEnabled: Bool, isHovered: Bool, isPressed: Bool) {
                 self.state = state
                 self.isHovered = isHovered
                 self.isEnabled = isEnabled

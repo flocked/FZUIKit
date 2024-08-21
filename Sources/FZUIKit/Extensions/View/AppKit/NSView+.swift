@@ -371,7 +371,7 @@
                 return view.dashedBorderView?.configuration ?? .init(color: view.borderColor, width: view._borderWidth)
             }
             set {
-                if newValue.needsDashedBordlerLayer {
+                if newValue.needsDashedBorderView {
                     borderColor = nil
                     _borderWidth = 0.0
                     if dashedBorderView == nil {

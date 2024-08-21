@@ -41,14 +41,27 @@
                 /// A simple square bezel style that can scale to any size.
                 case smallSquare
 
-                // case checkBox
-                // case radio
+                /// A checkbox button.
+                case checkBox
+                
+                /// A radio button.
+                case radio
+                
+                /// A button with a question mark, providing the standard help button look.
+                case help
+                
+                /// A button with a disclosure triangle.
+                case disclosure
+                
+                /// A button with a bezeled disclosure triangle.
+                case pushDisclosure
 
                 var buttonType: NSButton.ButtonType {
                     switch self {
                     case .accessoryBar: return .pushOnPushOff
-                        // case .checkBox: return .switch
-                        // case .radio: return .radio
+                    case .checkBox: return .switch
+                    case .radio: return .radio
+                    case .disclosure, .pushDisclosure: return .onOff
                     default: return .momentaryPushIn
                     }
                 }
@@ -63,6 +76,10 @@
                     case .badge: return .inline
                     case .circular: return .circular
                     case .smallSquare: return .smallSquare
+                    case .help: return .helpButton
+                    case .disclosure: return .disclosure
+                    case .pushDisclosure: return .pushDisclosure
+                    default: return .rounded
                     }
                 }
             }
@@ -171,10 +188,27 @@
                 configuration.title = title
                 return configuration
             }
-
+            
             /// A round button that can contain either a single character or an icon.
-            public static func circular() -> NSButton.Configuration {
-                let configuration = Self(type: .circular)
+            public static func circular(_ character: Character? = nil) -> Configuration {
+                var configuration = Self(type: .circular)
+                if let character = character {
+                    configuration.title = String(character)
+                }
+                return configuration
+            }
+            
+            /// A round button that can contain either a single character or an icon.
+            public static func circular(_ image: NSUIImage) -> Configuration {
+                var configuration = Self(type: .circular)
+                configuration.image = image
+                return configuration
+            }
+            
+            /// A round button that can contain either a single character or an icon.
+            public static func circular(symbolName: String) ->  Configuration {
+                var configuration = Self(type: .circular)
+                configuration.image = NSImage(systemSymbolName: symbolName)
                 return configuration
             }
 
@@ -183,15 +217,34 @@
                 Self(type: .smallSquare)
             }
 
-            /*
-             public static func checkBox() -> NSButton.Configuration {
-             return NSButton.Configuration(style: .checkBox)
+            /// Creates a configuration with a check box button.
+             public static func checkBox(_ title: String? = nil) -> NSButton.Configuration {
+                 var configuration = Self(type: .checkBox)
+                 configuration.title = title
+                 return configuration
              }
 
-             public static func radio() -> NSButton.Configuration {
-             return NSButton.Configuration(style: .radio)
+            /// Creates a configuration with a radio button.
+             public static func radio(_ title: String? = nil) -> NSButton.Configuration {
+                 var configuration = Self(type: .radio)
+                 configuration.title = title
+                 return configuration
              }
-             */
+            
+            /// Creates a button configuration with a question mark, providing the standard help button look.
+            public static var help: Configuration {
+                Self(type: .help)
+            }
+            
+            /// Creates a button configuration with a disclosure triangle.
+            public static var disclosure: Configuration {
+                Self(type: .disclosure)
+            }
+            
+            /// Creates a button configuration with a bezeled disclosure triangle.
+            public static var pushDisclosure: Configuration {
+                Self(type: .pushDisclosure)
+            }
         }
     }
 

@@ -88,14 +88,6 @@ public extension TargetActionProvider where Self: NSGestureRecognizer {
     }
 }
 
-public extension TargetActionProvider where Self: NSControl {
-    /// Initializes the control with the specified action handler.
-    init(action: @escaping ActionBlock) {
-        self.init()
-        actionBlock = action
-    }
-}
-
 public extension TargetActionProvider where Self: NSCell {
     /// Initializes the cell with the specified action handler.
     init(action: @escaping ActionBlock) {

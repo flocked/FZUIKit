@@ -11,7 +11,7 @@ import AppKit
 public extension NSSwitch {
     /// Sets the switch’s state.
     @discardableResult
-    func state(_ state: NSControl.StateValue) -> Self {
+    func state(_ state: StateValue) -> Self {
         self.state = state
         return self
     }

@@ -58,7 +58,7 @@ import FZSwiftUtils
             get { borderLayer?.configuration ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
             set {
                 guard newValue != border else { return }
-                if newValue.isInvisible || !newValue.needsDashedBordlerLayer {
+                if newValue.isInvisible || !newValue.needsDashedBorderView {
                     borderLayer?.removeFromSuperlayer()
                 }
                 
@@ -67,7 +67,7 @@ import FZSwiftUtils
                     layer.lineDashPattern = newValue.dashPattern  as [NSNumber]
                     layer.lineWidth = newValue.width
                 } else {
-                    if newValue.needsDashedBordlerLayer {
+                    if newValue.needsDashedBorderView {
                         borderColor = nil
                         borderWidth = 0.0
                         if borderLayer == nil {
