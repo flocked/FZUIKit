@@ -32,17 +32,11 @@
          ```
          */
         public var configuration: NSButtonConfiguration? {
-            get { getAssociatedValue("NSButton_Configuration", initialValue: nil) }
+            get { getAssociatedValue("configuration", initialValue: nil) }
             set {
-                let oldValue = self.configuration
-                setAssociatedValue(newValue, key: "NSButton_Configuration")
-                if !(newValue is NSButton.AdvanceButtonConfiguration) {
-                    contentView = nil
-                }
+                setAssociatedValue(newValue, key: "configuration")
                 updateConfiguration()
-                if automaticallyUpdatesConfiguration == true, newValue != nil {
-                    setupConfigurationStateObserver()
-                }
+                setupConfigurationStateObserver()
             }
         }
 
@@ -52,20 +46,15 @@
          Set this property to true to have the button call `updated(for:)` when the button state changes and apply the changes to the button. The default value is true.
          */
         public var automaticallyUpdatesConfiguration: Bool {
-            get { getAssociatedValue("NSButton_automaticallyUpdatesConfiguration", initialValue: true) }
+            get { getAssociatedValue("automaticallyUpdatesConfiguration", initialValue: true) }
             set {
-                setAssociatedValue(newValue, key: "NSButton_automaticallyUpdatesConfiguration")
+                setAssociatedValue(newValue, key: "automaticallyUpdatesConfiguration")
                 setupConfigurationStateObserver()
             }
         }
 
-        var buttonObserver: KeyValueObserver<NSButton>? {
-            get { getAssociatedValue("buttonObserver", initialValue: nil) }
-            set { setAssociatedValue(newValue, key: "buttonObserver") }
-        }
-
         func setupConfigurationStateObserver() {
-            if automaticallyUpdatesConfiguration == true || configurationUpdateHandler != nil {
+            if (automaticallyUpdatesConfiguration && configuration is AdvanceButtonConfiguration) || configurationUpdateHandler != nil {
                 if buttonObserver == nil {
                     hoverView = HoverView(frame: .zero)
                     addSubview(withConstraint: hoverView!)
@@ -104,7 +93,7 @@
                 configurationUpdateHandler?(configurationState)
             }
         }
-
+        
         var configurationState: ConfigurationState {
             ConfigurationState(state: state, isEnabled: isEnabled, isHovered: isHovered, isPressed: isPressed)
         }
@@ -147,6 +136,7 @@
                 sizeToFit()
                 contentView?.removeFromSuperview()
                 contentView = nil
+                contentView = nil
             } else if var configuration = configuration as? AdvanceButtonConfiguration {
                 if automaticallyUpdatesConfiguration {
                     configuration = configuration.updated(for: configurationState)
@@ -165,6 +155,8 @@
                     addSubview(withConstraint: contentView!)
                 }
                 frame.size = contentView?.fittingSize ?? .zero
+            } else {
+                contentView = nil
             }
         }
 
@@ -188,6 +180,15 @@
          - Parameter state: The current state of the button.
          */
         public typealias ConfigurationUpdateHandler = (_ state: ConfigurationState) -> Void
+        
+        var isPressed: Bool {
+            (contentView as? NSButton.AdvanceButtonView)?.isPressed ?? false
+        }
+        
+        var buttonObserver: KeyValueObserver<NSButton>? {
+            get { getAssociatedValue("buttonObserver", initialValue: nil) }
+            set { setAssociatedValue(newValue, key: "buttonObserver") }
+        }
 
         var contentView: (NSView & NSContentView)? {
             get { getAssociatedValue("NSButton_contentView", initialValue: nil) }
@@ -200,16 +201,6 @@
         var hoverView: HoverView? {
             get { getAssociatedValue("HoverView", initialValue: nil) }
             set { setAssociatedValue(newValue, key: "HoverView") }
-        }
-
-        var isPressed: Bool {
-            (contentView as? NSButton.AdvanceButtonView)?.isPressed ?? false
-        }
-
-        func sendAction() {
-            guard let action = action, let target = target else { return }
-            sendAction(action, to: target)
-            sound?.play()
         }
         
         class HoverView: NSView {

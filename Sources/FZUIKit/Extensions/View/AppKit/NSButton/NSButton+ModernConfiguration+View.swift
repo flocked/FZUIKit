@@ -193,7 +193,8 @@
                 }
                 
                 if frame.contains(event.location(in: self)) {
-                    button?.sendAction()
+                    button?.performAction()
+                    button?.sound?.play()
                     action?()
                 }
             }
