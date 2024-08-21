@@ -80,7 +80,7 @@
                 if let image = configuration.image {
                     Image(image)
                         .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
-                        .symbolConfiguration(configuration.resolvedImageSymbolConfiguration)
+                        .symbolConfiguration(configuration.resolvedSymbolConfiguration())
                 }
             }
 

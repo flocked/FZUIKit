@@ -115,12 +115,7 @@
             public var imagePosition: NSDirectionalRectEdge = .leading
 
             /// The symbol configuration for the image.
-            public var imageSymbolConfiguration: ImageSymbolConfiguration? {
-                didSet {
-                    guard imageSymbolConfiguration != oldValue else { return }
-                    updateResolvedColors()
-                }
-            }
+            public var imageSymbolConfiguration: ImageSymbolConfiguration?
 
             ////  The sound that plays when the user clicks the button.
             public var sound: NSSound?
@@ -135,20 +130,10 @@
             public var size: NSControl.ControlSize = .regular
 
             /// The untransformed color for foreground views.
-            public var foregroundColor: NSColor? { 
-                didSet {
-                    guard oldValue != foregroundColor else { return }
-                    updateResolvedColors()
-                }
-            }
+            public var foregroundColor: NSColor?
 
             /// The color transformer for resolving the foreground color.
-            public var foregroundColorTransformer: ColorTransformer? { 
-                didSet {
-                    guard oldValue != foregroundColorTransformer else { return }
-                    updateResolvedColors()
-                }
-            }
+            public var foregroundColorTransformer: ColorTransformer?
 
             /// Generates the resolved foreground color, using the foreground color and color transformer.
             public func resolvedForegroundColor() -> NSColor? {
@@ -159,20 +144,10 @@
             }
 
             /// The untransformed color for background views.
-            public var backgroundColor: NSColor? { 
-                didSet {
-                    guard oldValue != backgroundColor else { return }
-                    updateResolvedColors()
-                }
-            }
+            public var backgroundColor: NSColor?
 
             /// The color transformer for resolving the background color.
-            public var backgroundColorTransformer: ColorTransformer? { 
-                didSet {
-                    guard oldValue != backgroundColorTransformer else { return }
-                    updateResolvedColors()
-                }
-            }
+            public var backgroundColorTransformer: ColorTransformer?
 
             /// Generates the resolved background color, using the background color and color transformer.
             public func resolvedBackgroundColor() -> NSColor? {
@@ -264,26 +239,21 @@
                 }
                 return titleAlignment
             }
-            
-            var resolvedImageSymbolConfiguration: ImageSymbolConfiguration?
-            
-            mutating func updateResolvedColors() {
-                resolvedImageSymbolConfiguration = imageSymbolConfiguration
-                if let colorConfiguration = imageSymbolConfiguration?.color, var configuration = imageSymbolConfiguration {
-                    switch colorConfiguration {
-                    case let .palette(primary, secondary, ter):
-                        configuration.color = .palette(foregroundColor ?? primary, secondary, ter)
-                        resolvedImageSymbolConfiguration = configuration
-                    case .monochrome: return
-                    case let .multicolor(color):
-                        configuration.color = .multicolor(foregroundColor ?? color)
-                        resolvedImageSymbolConfiguration = configuration
-                    case let .hierarchical(color):
-                        configuration.color = .hierarchical(foregroundColor ?? color)
-                        resolvedImageSymbolConfiguration = configuration
-                    }
+                        
+            func resolvedSymbolConfiguration() -> ImageSymbolConfiguration? {
+                guard var configuration = imageSymbolConfiguration, let colorConfiguration = configuration.color else { return nil }
+                switch colorConfiguration {
+                case let .palette(primary, secondary, ter):
+                    configuration.color = .palette(foregroundColor ?? primary, secondary, ter)
+                case .monochrome: break
+                case let .multicolor(color):
+                    configuration.color = .multicolor(foregroundColor ?? color)
+                case let .hierarchical(color):
+                    configuration.color = .hierarchical(foregroundColor ?? color)
                 }
+                return configuration
             }
+
             
             public func makeContentView() -> NSView & NSContentView {
                 AdvanceButtonView(configuration: self)
