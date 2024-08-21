@@ -59,6 +59,8 @@ extension CGLineCap: Codable { }
             /// A Boolean value that indicates whether the border dash animates.
             public var animates: Bool = false
             
+            public var animationDuration: CGFloat = 1.0
+            
             public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false) {
                 self.pattern = pattern
                 self.phase = phase
@@ -304,7 +306,6 @@ extension Shape {
      Traces the outline of this shape with the specified border configuration.
      
      - Parameter border: The border configuration.
-     
      */
     @ViewBuilder
     public func stroke(_ border: BorderConfiguration) -> some View {

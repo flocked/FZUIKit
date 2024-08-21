@@ -21,15 +21,13 @@ class DashedBorderView: NSUIView {
     var configuration: BorderConfiguration {
         didSet {
             guard oldValue != configuration else { return }
+            configuration.insets.bottomTop += configuration.width / 2.0
+            configuration.insets.leadingTrailing += configuration.width / 2.0
             update()
         }
     }
     
     func update() {
-        var border = configuration
-        border.insets.bottomTop += border.width / 2.0
-        border.insets.leadingTrailing += border.width / 2.0
-        
         if let superview = superview {
             hostingController.rootView = ContentView(border: border, cornerRadius: superview.cornerRadius, cornerCurve: superview.cornerCurve, roundedCorners: superview.roundedCorners)
         } else {
@@ -44,7 +42,6 @@ class DashedBorderView: NSUIView {
         hostingController = NSUIHostingController(rootView: ContentView(border: border, cornerRadius: cornerRadius, cornerCurve: cornerCurve, roundedCorners: roundedCorners))
         addSubview(withConstraint: hostingController.view)
         optionalLayer?.zPosition = .greatestFiniteMagnitude
-        
         observation = KeyValueObserver(self)
         #if os(macOS)
         observation.add(\.superview?.layer?.cornerRadius) { [weak self] old, new in
@@ -97,7 +94,7 @@ class DashedBorderView: NSUIView {
                 if border.dash.animates && border.needsDashedBorderView {
                     borderItem
                         .animation(
-                            Animation.linear(duration: 1)
+                            Animation.linear(duration: border.dash.animationDuration)
                                 .repeatForever(autoreverses: false),
                             value: phase)
                         .onAppear {
@@ -115,14 +112,8 @@ class DashedBorderView: NSUIView {
 }
 
 extension Shape {
-    /**
-     Traces the outline of this shape with the specified border configuration.
-     
-     - Parameter border: The border configuration.
-     
-     */
     @ViewBuilder
-    public func stroke(_ border: BorderConfiguration, phase: CGFloat) -> some View {
+    fileprivate func stroke(_ border: BorderConfiguration, phase: CGFloat) -> some View {
         if border.dash.pattern.isEmpty {
             stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
                 .padding(border.insets.edgeInsets)
