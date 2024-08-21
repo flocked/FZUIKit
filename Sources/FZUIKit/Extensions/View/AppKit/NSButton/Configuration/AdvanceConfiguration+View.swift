@@ -14,10 +14,10 @@
     @available(macOS 13.0, *)
     extension NSButton.AdvanceButtonView {
         struct ContentView: View {
-            let configuration: NSButton.AdvanceButtonConfiguration
+            let configuration: NSButton.AdvanceConfiguration
             let showBorder: Bool
 
-            public init(configuration: NSButton.AdvanceButtonConfiguration, showBorder: Bool) {
+            public init(configuration: NSButton.AdvanceConfiguration, showBorder: Bool) {
                 self.configuration = configuration
                 self.showBorder = showBorder
             }
@@ -62,7 +62,7 @@
 
             @ViewBuilder
             var textItems: some View {
-                VStack(alignment: configuration._TitleAlignment.alignment, spacing: configuration.titlePadding) {
+                VStack(alignment: configuration.resolvedTitleAlignment().alignment, spacing: configuration.titlePadding) {
                     if configuration.hasTitle {
                         titleItem
                             .font(titleFont)
@@ -71,7 +71,7 @@
                         subtitleItem
                             .font(subtitleFont)
                     }
-                }                     .multilineTextAlignment(configuration._TitleAlignment.textAlignment)
+                }                     .multilineTextAlignment(configuration.resolvedTitleAlignment().textAlignment)
                     .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
             }
 
@@ -86,10 +86,10 @@
 
             @ViewBuilder
             var stackItem: some View {
-                switch configuration.imagePlacement {
+                switch configuration.imagePosition {
                 case .leading, .trailing:
                     HStack(alignment: .center, spacing: configuration.imagePadding) {
-                        if configuration.imagePlacement == .leading {
+                        if configuration.imagePosition == .leading {
                             imageItem
                             textItems
                         } else {
@@ -99,7 +99,7 @@
                     }
                 default:
                     VStack(alignment: .center, spacing: configuration.imagePadding) {
-                        if configuration.imagePlacement == .top {
+                        if configuration.imagePosition == .top {
                             imageItem
                             textItems
                         } else {
@@ -134,7 +134,16 @@
             lazy var trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect])
             var hostingView: NSHostingView<ContentView>!
             var mouseIsInside = false
-            var isPressed: Bool = false
+            var isPressed: Bool = false {
+                didSet {
+                    if let button = button {
+                        if button.automaticallyUpdatesConfiguration {
+                            button.updateConfiguration()
+                        }
+                        button.configurationUpdateHandler?(button, button.configurationState)
+                    }
+                }
+            }
             
             var showBorder: Bool {
                 appliedConfiguration.showsBorderOnlyWhileMouseInside ? mouseIsInside : true
@@ -148,16 +157,13 @@
             public var configuration: NSContentConfiguration {
                 get { appliedConfiguration }
                 set { 
-                    guard let configuration = newValue as? NSButton.AdvanceButtonConfiguration else { return }
+                    guard let configuration = newValue as? NSButton.AdvanceConfiguration else { return }
                     appliedConfiguration = configuration
                 }
             }
             
-            /// The handler that is called when the button is pressed.
-            public var action: (()->())? = nil
-            
             /// The current configuration of the view.
-            var appliedConfiguration: NSButton.AdvanceButtonConfiguration {
+            var appliedConfiguration: NSButton.AdvanceConfiguration {
                 didSet {
                     guard oldValue != appliedConfiguration else { return }
                     updateConfiguration()
@@ -186,32 +192,19 @@
 
             public override func mouseDown(with _: NSEvent) {
                 isPressed = true
-                if let button = button {
-                    if button.automaticallyUpdatesConfiguration {
-                        button.updateConfiguration()
-                    }
-                    button.configurationUpdateHandler?(button, button.configurationState)
-                }
             }
 
             public override func mouseUp(with event: NSEvent) {
                 isPressed = false
-                if let button = button {
-                    if button.automaticallyUpdatesConfiguration {
-                        button.updateConfiguration()
-                    }
-                    button.configurationUpdateHandler?(button, button.configurationState)
-                }
                 
                 if frame.contains(event.location(in: self)) {
                     button?.performAction()
                     button?.sound?.play()
-                    action?()
                 }
             }
 
             /// Creates a item content view with the specified content configuration.
-            public init(configuration: NSButton.AdvanceButtonConfiguration) {
+            public init(configuration: NSButton.AdvanceConfiguration) {
                 self.appliedConfiguration = configuration
                 super.init(frame: .zero)
                 

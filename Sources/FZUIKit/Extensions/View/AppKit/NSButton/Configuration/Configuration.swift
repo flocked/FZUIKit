@@ -16,7 +16,7 @@
         /// A configuration that specifies the appearance and behavior of a button and its contents.
         struct Configuration: NSButtonConfiguration, Hashable {
             /// The style of the button.
-            public enum Style: Hashable {
+            public enum ButtonType: Hashable {
                 /// A standard push style button.
                 case push
 
@@ -41,25 +41,19 @@
                 /// A simple square bezel style that can scale to any size.
                 case smallSquare
 
-                //     case checkBox
-                //      case radio
+                // case checkBox
+                // case radio
 
-                var buttonStyle: NSButton.ButtonType {
+                var buttonType: NSButton.ButtonType {
                     switch self {
-                    /*
-                     case .checkBox:
-                     return .switch
-                     case .radio:
-                     return .radio
-                     */
-                    case .accessoryBar:
-                        return .pushOnPushOff
-                    default:
-                        return .momentaryPushIn
+                    case .accessoryBar: return .pushOnPushOff
+                        // case .checkBox: return .switch
+                        // case .radio: return .radio
+                    default: return .momentaryPushIn
                     }
                 }
 
-                var bezelStyle: NSButton.BezelStyle {
+                var bezel: NSButton.BezelStyle {
                     switch self {
                     case .push: return .rounded
                     case .flexiblePush: return .regularSquare
@@ -73,20 +67,32 @@
                 }
             }
 
-            public var style: Style = .push
+            public var type: ButtonType = .push
 
             /// The text of the title label the button displays.
-            public var title: String?
+            public var title: String? {
+                didSet {
+                    if title != nil {
+                        attributedTitle = nil
+                    }
+                }
+            }
 
             /// The text and style attributes for the button’s title label.
-            public var attributedTitle: NSAttributedString?
+            public var attributedTitle: NSAttributedString? {
+                didSet {
+                    if attributedTitle != nil {
+                        title = nil
+                    }
+                }
+            }
 
             /// The image the button displays.
             public var image: NSImage?
 
             /// The position of the image.
             public var imagePosition: NSControl.ImagePosition = .imageLeft
-
+            
             /// The symbol configuration for the image.
             public var imageSymbolConfiguration: ImageSymbolConfiguration?
 
@@ -126,53 +132,55 @@
 
             /// A standard push style button.
             public static func push(_ title: String? = nil) -> NSButton.Configuration {
-                var configuration = Self(style: .push)
+                var configuration = Self(type: .push)
                 configuration.title = title
                 return configuration
             }
 
             /// A push button with a flexible height to accommodate longer text labels or an image.
             public static func flexiblePush(_ title: String? = nil) -> NSButton.Configuration {
-                var configuration = Self(style: .flexiblePush)
+                var configuration = Self(type: .flexiblePush)
                 configuration.title = title
                 return configuration
             }
 
             /// A button style that’s appropriate for a toolbar item.
             public static func toolbar(_ title: String? = nil) -> NSButton.Configuration {
-                var configuration = Self(style: .toolbar)
+                var configuration = Self(type: .toolbar)
                 configuration.title = title
                 return configuration
             }
 
             /// A button style that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
             public static func accessoryBar(_ title: String? = nil) -> NSButton.Configuration {
-                var configuration = Self(style: .accessoryBar)
+                var configuration = Self(type: .accessoryBar)
                 configuration.title = title
                 return configuration
             }
 
             /// A button style that you use for extra actions in an accessory toolbar.
             public static func accessoryBarAction(_ title: String? = nil) -> NSButton.Configuration {
-                var configuration = Self(style: .accessoryBarAction)
+                var configuration = Self(type: .accessoryBarAction)
                 configuration.title = title
                 return configuration
             }
 
             /// A button style suitable for displaying additional information.
             public static func badge(_ title: String? = nil) -> NSButton.Configuration {
-                NSButton.Configuration(style: .badge)
+                var configuration = Self(type: .badge)
+                configuration.title = title
+                return configuration
             }
 
             /// A round button that can contain either a single character or an icon.
             public static func circular() -> NSButton.Configuration {
-                var configuration = Self(style: .circular)
+                let configuration = Self(type: .circular)
                 return configuration
             }
 
             /// A simple square bezel style that can scale to any size.
             public static func smallSquare() -> NSButton.Configuration {
-                NSButton.Configuration(style: .smallSquare)
+                Self(type: .smallSquare)
             }
 
             /*
@@ -188,77 +196,3 @@
     }
 
 #endif
-
-/*
- public enum ButtonStyle: Hashable {
- case push
- case texturedRounded
- case gradient
- case checkbox
- case radio
- case recessed
- case inline
- case square
- case bevel
- case help
- case disclosure
- case disclosureTriangle
-
- var buttonStyle: NSButton.ButtonType {
- switch self {
- case .push:
- return .momentaryPushIn
- case .texturedRounded:
- return .momentaryPushIn
- case .gradient:
- return .momentaryPushIn
- case .checkbox:
- return .switch
- case .radio:
- return .radio
- case .recessed:
- return .pushOnPushOff
- case .inline:
- return .momentaryPushIn
- case .square:
- return .momentaryPushIn
- case .bevel:
- return .momentaryPushIn
- case .help:
- return .momentaryPushIn
- case .disclosure:
- return .onOff
- case .disclosureTriangle:
- return .onOff
- }
- }
- var bezelStyle: NSButton.BezelStyle {
- switch self {
- case .push:
- return .rounded
- case .texturedRounded:
- return .texturedRounded
- case .gradient:
- return .smallSquare
- case .checkbox:
- return .push
- case .radio:
- return .push
- case .recessed:
- return .recessed
- case .inline:
- return .inline
- case .square:
- return .shadowlessSquare
- case .bevel:
- return .regularSquare
- case .help:
- return .helpButton
- case .disclosure:
- return .roundedDisclosure
- case .disclosureTriangle:
- return .disclosure
- }
- }
- }
- */

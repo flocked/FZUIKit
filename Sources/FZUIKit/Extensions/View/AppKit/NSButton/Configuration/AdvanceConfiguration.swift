@@ -14,13 +14,13 @@
     public extension NSButton {
         
         /// A configuration that specifies the appearance and behavior of a button and its contents.
-        struct AdvanceButtonConfiguration: NSButtonConfiguration, Hashable, NSContentConfiguration {
+        struct AdvanceConfiguration: NSButtonConfiguration, Hashable, NSContentConfiguration {
             /**
              Specifies how to align a button’s title and subtitle.
 
              If your button displays both ``title`` and ``subtitle``, use this enumeration to configure how the text aligns.
              */
-            public enum TitleAlignment: Hashable {
+            public enum TitleAlignment: Int, Hashable {
                 /// Aligns the title and subtitle based on other elements in the button configuration, like an image or activity indicator.
                 case automatic
                 /// Aligns the title and subtitle on their horizontal centers.
@@ -30,7 +30,7 @@
                 /// Aligns the title and subtitle on their trailing edges.
                 case trailing
                 
-                var textAlignment: SwiftUI.TextAlignment {
+                var textAlignment: TextAlignment {
                     switch self {
                     case .leading: return .leading
                     case .trailing: return .trailing
@@ -80,57 +80,39 @@
             /// The text of the title label the button displays.
             public var title: String? {
                 didSet { 
-                    if title != nil {
-                        attributedTitle = nil
-                    }
-                    updateResolvedTitleAlignment()
+                    if title != nil { attributedTitle = nil }
                 }
             }
 
             /// The text and style attributes for the button’s title label.
             public var attributedTitle: NSAttributedString? {
                 didSet { 
-                    if attributedTitle != nil {
-                        title = nil
-                    }
-                    updateResolvedTitleAlignment()
+                    if attributedTitle != nil { title = nil }
                 }
             }
 
             /// The text the subtitle label of the button displays.
             public var subtitle: String? {
                 didSet { 
-                    if subtitle != nil {
-                        attributedSubtitle = nil
-                    }
-                    updateResolvedTitleAlignment()
+                    if subtitle != nil { attributedSubtitle = nil }
                 }
             }
 
             /// The text and style attributes for the button’s subtitle label.
             public var attributedSubtitle: NSAttributedString? {
                 didSet { 
-                    if attributedSubtitle != nil {
-                        subtitle = nil
-                    }
-                    updateResolvedTitleAlignment()
+                    if attributedSubtitle != nil { subtitle = nil }
                 }
             }
 
             /// The image the button displays.
-            public var image: NSImage? {
-                didSet { updateResolvedTitleAlignment() }
-            }
+            public var image: NSImage?
 
             /// The distance between the button’s image and text.
             public var imagePadding: CGFloat = 4.0
 
             /// The edge against which the button places the image.
-            public var imagePlacement: NSDirectionalRectEdge = .leading
-            
-            var imageAlignment:  VerticalAlignment {
-                imagePlacement == .leading || imagePlacement == .trailing ? .center : .bottom
-            }
+            public var imagePosition: NSDirectionalRectEdge = .leading
 
             /// The symbol configuration for the image.
             public var imageSymbolConfiguration: ImageSymbolConfiguration? {
@@ -204,12 +186,7 @@
             public var titlePadding: CGFloat = 2.0
 
             /// The text alignment the button uses to lay out the title and subtitle.
-            public var titleAlignment: TitleAlignment = .automatic {
-                didSet { 
-                    guard oldValue != titleAlignment else { return }
-                    updateResolvedTitleAlignment()
-                }
-            }
+            public var titleAlignment: TitleAlignment = .automatic
 
             /// The distance from the button’s content area to its bounds.
             public var contentInsets: NSDirectionalEdgeInsets = .init(top: 6.0, leading: 10.0, bottom: 6.0, trailing: 10.0)
@@ -227,39 +204,39 @@
             public init() { }
 
             ///  Creates a configuration for a button with a transparent background.
-            public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
-                var configuration = NSButton.AdvanceButtonConfiguration()
+            public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+                var configuration = NSButton.AdvanceConfiguration()
                 configuration.foregroundColor = color
                 return configuration
             }
 
             /// Creates a configuration for a button with a gray background.
-            public static func gray() -> NSButton.AdvanceButtonConfiguration {
-                var configuration = NSButton.AdvanceButtonConfiguration()
+            public static func gray() -> NSButton.AdvanceConfiguration {
+                var configuration = NSButton.AdvanceConfiguration()
                 configuration.backgroundColor = .gray.withAlphaComponent(0.5)
                 configuration.foregroundColor = .controlAccentColor
                 return configuration
             }
 
             /// Creates a configuration for a button with a tinted background color.
-            public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
-                var configuration = NSButton.AdvanceButtonConfiguration()
+            public static func tinted(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+                var configuration = NSButton.AdvanceConfiguration()
                 configuration.backgroundColor = color.tinted().withAlphaComponent(0.5)
                 configuration.foregroundColor = color
                 return configuration
             }
 
             /// Creates a configuration for a button with a background filled with the button’s tint color.
-            public static func filled(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
-                var configuration = NSButton.AdvanceButtonConfiguration()
+            public static func filled(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+                var configuration = NSButton.AdvanceConfiguration()
                 configuration.foregroundColor = .white
                 configuration.backgroundColor = color
                 return configuration
             }
 
             /// Creates a configuration for a button that has a bordered style.
-            public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
-                var configuration = NSButton.AdvanceButtonConfiguration()
+            public static func bordered(color: NSColor = .controlAccentColor) -> NSButton.AdvanceConfiguration {
+                var configuration = NSButton.AdvanceConfiguration()
                 configuration.foregroundColor = color
                 configuration.borderWidth = 1.0
                 return configuration
@@ -273,21 +250,21 @@
                 subtitle != nil || attributedSubtitle != nil
             }
             
-            mutating func updateResolvedTitleAlignment() {
+            func resolvedTitleAlignment() -> TitleAlignment {
                 if titleAlignment == .automatic {
                     if image != nil {
-                        switch imagePlacement {
-                        case .leading: _TitleAlignment = .leading
-                        case .trailing: _TitleAlignment = .trailing
-                        default: _TitleAlignment = .center
+                        switch imagePosition {
+                        case .leading:  return .leading
+                        case .trailing: return .trailing
+                        default: return .center
                         }
+                    } else {
+                        return hasTitle || hasSubtitle ? .leading : .center
                     }
-                    _TitleAlignment = hasTitle && hasSubtitle ? .leading : .center
                 }
-                _TitleAlignment = titleAlignment
+                return titleAlignment
             }
             
-            var _TitleAlignment: TitleAlignment = .automatic
             var resolvedImageSymbolConfiguration: ImageSymbolConfiguration?
             
             mutating func updateResolvedColors() {
