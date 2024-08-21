@@ -15,7 +15,6 @@
         var attributedTitle: NSAttributedString? { get }
         var image: NSImage? { get }
         var imageSymbolConfiguration: ImageSymbolConfiguration? { get }
-        var size: NSControl.ControlSize { get }
     }
 
     @available(macOS 13.0, *)

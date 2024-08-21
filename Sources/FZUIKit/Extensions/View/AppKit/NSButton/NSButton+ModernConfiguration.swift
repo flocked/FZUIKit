@@ -30,22 +30,25 @@
                 /// Aligns the title and subtitle on their trailing edges.
                 case trailing
                 
-                var alignment: HorizontalAlignment {
+                var textAlignment: SwiftUI.TextAlignment {
                     switch self {
-                    case .automatic: return .center
-                    case .center: return .center
                     case .leading: return .leading
                     case .trailing: return .trailing
+                    default: return .center
+                    }
+                }
+                
+                var alignment: HorizontalAlignment {
+                    switch self {
+                    case .leading: return .leading
+                    case .trailing: return .trailing
+                    default: return .center
                     }
                 }
             }
 
-            /**
-             Settings that determine the appearance of the button.
-
-             Use this property to control how the button uses the `cornerRadius`.
-             */
-            public enum CornerStyle: Hashable {
+            /// The shape of the button.
+            public enum Shape: Hashable {
                 /// A shape that uses a large system-defined corner radius.
                 case large
                 /// A shape that uses a medium system-defined corner radius.
@@ -61,7 +64,7 @@
                 /// A circular button shape.
                 case circular
 
-                var shape: some Shape {
+                var swiftUI: some SwiftUI.Shape {
                     switch self {
                     case .capsule: return Capsule().asAnyShape()
                     case .large: return RoundedRectangle(cornerRadius: 10.0).asAnyShape()
@@ -75,28 +78,67 @@
             }
 
             /// The text of the title label the button displays.
-            public var title: String?
+            public var title: String? {
+                didSet { 
+                    if title != nil {
+                        attributedTitle = nil
+                    }
+                    updateResolvedTitleAlignment()
+                }
+            }
 
             /// The text and style attributes for the button’s title label.
-            public var attributedTitle: NSAttributedString?
+            public var attributedTitle: NSAttributedString? {
+                didSet { 
+                    if attributedTitle != nil {
+                        title = nil
+                    }
+                    updateResolvedTitleAlignment()
+                }
+            }
 
             /// The text the subtitle label of the button displays.
-            public var subtitle: String?
+            public var subtitle: String? {
+                didSet { 
+                    if subtitle != nil {
+                        attributedSubtitle = nil
+                    }
+                    updateResolvedTitleAlignment()
+                }
+            }
 
             /// The text and style attributes for the button’s subtitle label.
-            public var attributedSubtitle: NSAttributedString?
+            public var attributedSubtitle: NSAttributedString? {
+                didSet { 
+                    if attributedSubtitle != nil {
+                        subtitle = nil
+                    }
+                    updateResolvedTitleAlignment()
+                }
+            }
 
             /// The image the button displays.
-            public var image: NSImage?
+            public var image: NSImage? {
+                didSet { updateResolvedTitleAlignment() }
+            }
 
             /// The distance between the button’s image and text.
             public var imagePadding: CGFloat = 4.0
 
             /// The edge against which the button places the image.
             public var imagePlacement: NSDirectionalRectEdge = .leading
+            
+            var imageAlignment:  VerticalAlignment {
+                imagePlacement == .leading || imagePlacement == .trailing ? .center : .bottom
+            }
 
             /// The symbol configuration for the image.
-            public var imageSymbolConfiguration: ImageSymbolConfiguration?
+            public var imageSymbolConfiguration: ImageSymbolConfiguration? {
+                didSet {
+                    guard imageSymbolConfiguration != oldValue else { return }
+                    updateResolvedColors()
+                }
+            }
 
             ////  The sound that plays when the user clicks the button.
             public var sound: NSSound?
@@ -106,47 +148,25 @@
             
             /// A Boolean value that determines whether the button displays its border only when the pointer is over it.
             public var showsBorderOnlyWhileMouseInside: Bool = false
-
-            /*
-            /// The outset (or inset, if negative) for the stroke.
-            public var borderOutset: CGFloat = 0.0
-
-            /// The color of the border.
-            public var borderColor: NSColor? { didSet {
-                if oldValue != borderColor {
-                    updateResolvedValues()
-                }
-            } }
-
-            /// The color transformer for resolving the border color.
-            var borderColorTransformer: ColorTransformer? { didSet {
-                if oldValue != borderColorTransformer {
-                    updateResolvedValues()
-                }
-            } }
-
-            /// Generates the resolved border color, using the border color and color transformer.
-            func resolvedBorderColor() -> NSColor? {
-                if let borderColor = borderColor {
-                    return borderColorTransformer?(borderColor) ?? borderColor
-                }
-                return nil
-            }
-             */
+            
+            /// The size of the button.
+            public var size: NSControl.ControlSize = .regular
 
             /// The untransformed color for foreground views.
-            public var foregroundColor: NSColor? { didSet {
-                if oldValue != foregroundColor {
-                    updateResolvedValues()
+            public var foregroundColor: NSColor? { 
+                didSet {
+                    guard oldValue != foregroundColor else { return }
+                    updateResolvedColors()
                 }
-            } }
+            }
 
             /// The color transformer for resolving the foreground color.
-            public var foregroundColorTransformer: ColorTransformer? { didSet {
-                if oldValue != foregroundColorTransformer {
-                    updateResolvedValues()
+            public var foregroundColorTransformer: ColorTransformer? { 
+                didSet {
+                    guard oldValue != foregroundColorTransformer else { return }
+                    updateResolvedColors()
                 }
-            } }
+            }
 
             /// Generates the resolved foreground color, using the foreground color and color transformer.
             public func resolvedForegroundColor() -> NSColor? {
@@ -157,18 +177,20 @@
             }
 
             /// The untransformed color for background views.
-            public var backgroundColor: NSColor? { didSet {
-                if oldValue != backgroundColor {
-                    updateResolvedValues()
+            public var backgroundColor: NSColor? { 
+                didSet {
+                    guard oldValue != backgroundColor else { return }
+                    updateResolvedColors()
                 }
-            } }
+            }
 
             /// The color transformer for resolving the background color.
-            public var backgroundColorTransformer: ColorTransformer? { didSet {
-                if oldValue != backgroundColorTransformer {
-                    updateResolvedValues()
+            public var backgroundColorTransformer: ColorTransformer? { 
+                didSet {
+                    guard oldValue != backgroundColorTransformer else { return }
+                    updateResolvedColors()
                 }
-            } }
+            }
 
             /// Generates the resolved background color, using the background color and color transformer.
             public func resolvedBackgroundColor() -> NSColor? {
@@ -183,16 +205,17 @@
 
             /// The text alignment the button uses to lay out the title and subtitle.
             public var titleAlignment: TitleAlignment = .automatic {
-                didSet { if oldValue != titleAlignment {
-                    updateResolvedValues()
-                } }
+                didSet { 
+                    guard oldValue != titleAlignment else { return }
+                    updateResolvedTitleAlignment()
+                }
             }
 
             /// The distance from the button’s content area to its bounds.
             public var contentInsets: NSDirectionalEdgeInsets = .init(top: 6.0, leading: 10.0, bottom: 6.0, trailing: 10.0)
 
-            /// The button style that controls the display behavior of the background corner radius.
-            public var cornerStyle: CornerStyle = .medium
+            /// The shape of the button.
+            public var shape: Shape = .medium
 
             /// The opacity of the button.
             public var opacity: CGFloat = 1.0
@@ -200,63 +223,8 @@
             /// The scale transform of the button.
             public var scaleTransform: CGFloat = 1.0
 
-            /// The size of the button.
-            public var size: NSControl.ControlSize = .regular
-
-            ///  Creates a button configuration.
-            public init(title: String? = nil,
-                        attributedTitle: NSAttributedString? = nil,
-                        subtitle: String? = nil,
-                        attributedSubtitle: NSAttributedString? = nil,
-                        image: NSImage? = nil,
-                        imagePadding: CGFloat = 4.0,
-                        imagePlacement: NSDirectionalRectEdge = .leading,
-                        imageSymbolConfiguration: ImageSymbolConfiguration? = nil,
-                        sound: NSSound? = nil,
-                        borderWidth: CGFloat = 0.0,
-                        /*
-                        borderOutset: CGFloat = 0.0,
-                        borderColor: NSColor? = nil,
-                        borderColorTransformer: ColorTransformer? = nil,
-                         */
-                        foregroundColor: NSColor? = nil,
-                        backgroundColor: NSColor? = nil,
-                        titlePadding: CGFloat = 2.0,
-                        titleAlignment: TitleAlignment = .automatic,
-                        contentInsets: NSDirectionalEdgeInsets = .init(top: 6.0, leading: 10.0, bottom: 6.0, trailing: 10.0),
-                        cornerStyle: CornerStyle = .medium,
-                        //     indicator: Indicator = .automatic,
-                        //     showsActivityIndicator: Bool = false,
-                        opacity: CGFloat = 1.0,
-                        scaleTransform: CGFloat = 1.0,
-                        size: NSControl.ControlSize = .regular)
-            {
-                self.title = title
-                self.attributedTitle = attributedTitle
-                self.subtitle = subtitle
-                self.attributedSubtitle = attributedSubtitle
-                self.image = image
-                self.imagePadding = imagePadding
-                self.imagePlacement = imagePlacement
-                self.imageSymbolConfiguration = imageSymbolConfiguration
-                self.sound = sound
-                self.borderWidth = borderWidth
-                /*
-                self.borderOutset = borderOutset
-                self.borderColor = borderColor
-                self.borderColorTransformer = borderColorTransformer
-                 */
-                self.foregroundColor = foregroundColor
-                self.backgroundColor = backgroundColor
-                self.titlePadding = titlePadding
-                self.titleAlignment = titleAlignment
-                self.contentInsets = contentInsets
-                self.cornerStyle = cornerStyle
-                self.opacity = opacity
-                self.scaleTransform = scaleTransform
-                self.size = size
-                updateResolvedValues()
-            }
+            /// Creates a button configuration.
+            public init() { }
 
             ///  Creates a configuration for a button with a transparent background.
             public static func plain(color: NSColor = .controlAccentColor) -> NSButton.AdvanceButtonConfiguration {
@@ -296,9 +264,6 @@
                 configuration.borderWidth = 1.0
                 return configuration
             }
-
-            var _resolvedTitleAlignment: TitleAlignment = .automatic
-            var _resolvedTextAlignment: SwiftUI.TextAlignment = .center
             
             var hasTitle: Bool {
                 title != nil || attributedTitle != nil
@@ -307,31 +272,38 @@
             var hasSubtitle: Bool {
                 subtitle != nil || attributedSubtitle != nil
             }
-
-            mutating func updateResolvedValues() {
-                _resolvedTitleAlignment = resolvedTitleAlignment()
-                switch _resolvedTitleAlignment.alignment {
-                case .leading:
-                    _resolvedTextAlignment = .leading
-                case .trailing:
-                    _resolvedTextAlignment = .trailing
-                default:
-                    _resolvedTextAlignment = .center
+            
+            mutating func updateResolvedTitleAlignment() {
+                if titleAlignment == .automatic {
+                    if image != nil {
+                        switch imagePlacement {
+                        case .leading: _TitleAlignment = .leading
+                        case .trailing: _TitleAlignment = .trailing
+                        default: _TitleAlignment = .center
+                        }
+                    }
+                    _TitleAlignment = hasTitle && hasSubtitle ? .leading : .center
                 }
-    
-
+                _TitleAlignment = titleAlignment
+            }
+            
+            var _TitleAlignment: TitleAlignment = .automatic
+            var resolvedImageSymbolConfiguration: ImageSymbolConfiguration?
+            
+            mutating func updateResolvedColors() {
+                resolvedImageSymbolConfiguration = imageSymbolConfiguration
                 if let colorConfiguration = imageSymbolConfiguration?.color, var configuration = imageSymbolConfiguration {
                     switch colorConfiguration {
                     case let .palette(primary, secondary, ter):
                         configuration.color = .palette(foregroundColor ?? primary, secondary, ter)
-                        imageSymbolConfiguration = configuration
+                        resolvedImageSymbolConfiguration = configuration
                     case .monochrome: return
                     case let .multicolor(color):
                         configuration.color = .multicolor(foregroundColor ?? color)
-                        imageSymbolConfiguration = configuration
+                        resolvedImageSymbolConfiguration = configuration
                     case let .hierarchical(color):
                         configuration.color = .hierarchical(foregroundColor ?? color)
-                        imageSymbolConfiguration = configuration
+                        resolvedImageSymbolConfiguration = configuration
                     }
                 }
             }
@@ -347,62 +319,24 @@
              */
             public func updated(for state: ConfigurationState) -> Self {
                 var configuration = self
-                if state.isEnabled == false {
+                if !state.isEnabled || state.isPressed {
+                    let systemEffect = ColorTransformer.systemEffect(state.isPressed ? .pressed : .disabled)
                     if let transformer = configuration.foregroundColorTransformer {
-                        configuration.foregroundColorTransformer = transformer + .systemEffect(.disabled)
+                        configuration.foregroundColorTransformer = transformer + systemEffect
                     } else {
-                        configuration.foregroundColorTransformer = .systemEffect(.disabled)
+                        configuration.foregroundColorTransformer = systemEffect
+                    }
+                    if state.isPressed, configuration.backgroundColor == nil {
+                        configuration.backgroundColor = configuration.foregroundColor?.withAlphaComponent(0.175)
                     }
                     if let transformer = configuration.backgroundColorTransformer {
-                        configuration.backgroundColorTransformer = transformer + .systemEffect(.disabled)
+                        configuration.backgroundColorTransformer = transformer + systemEffect
                     } else {
-                        configuration.backgroundColorTransformer = .systemEffect(.disabled)
-                    }
-                } else if state.isPressed {
-                    if let transformer = configuration.foregroundColorTransformer {
-                        configuration.foregroundColorTransformer = transformer + .systemEffect(.pressed)
-                    } else {
-                        configuration.foregroundColorTransformer = .systemEffect(.pressed)
-                    }
-                    if let transformer = configuration.backgroundColorTransformer {
-                        configuration.backgroundColorTransformer = transformer + .systemEffect(.pressed)
-                    } else {
-                        if configuration.backgroundColor == nil {
-                            configuration.backgroundColor = configuration.foregroundColor?.withAlphaComponent(0.175)
-                        } else {
-                            configuration.backgroundColorTransformer = .systemEffect(.pressed)
-                        }
+                        configuration.backgroundColorTransformer = systemEffect
                     }
                 }
                 return configuration
             }
-            
-            
-
-            func resolvedTitleAlignment() -> TitleAlignment {
-                if titleAlignment == .automatic {
-                    if image != nil {
-                        switch imagePlacement {
-                        case .leading: return .leading
-                        case .trailing: return .trailing
-                        default: return .center
-                        }
-                    }
-                    return hasTitle && hasSubtitle ? .leading : .center
-                }
-                return titleAlignment
-            }
         }
     }
 #endif
-
-/*
- public enum Indicator: Hashable {
-     case automatic
-     case none
-     case popup
- }
-
- //     public var indicator: Indicator = .automatic
-  //    public var showsActivityIndicator: Bool = false
-  */

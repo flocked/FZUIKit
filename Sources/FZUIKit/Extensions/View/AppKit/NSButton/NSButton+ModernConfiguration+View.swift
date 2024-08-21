@@ -41,21 +41,7 @@
                 @unknown default: return .system(.subheadline)
                 }
             }
-
-            @ViewBuilder
-            var textItems: some View {
-                VStack(alignment: configuration._resolvedTitleAlignment.alignment, spacing: configuration.titlePadding) {
-                    titleItem
-                        .font(titleFont)
-                        .multilineTextAlignment(configuration._resolvedTextAlignment)
-                        .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
-                    subtitleItem
-                        .font(subtitleFont)
-                        .multilineTextAlignment(configuration._resolvedTextAlignment)
-                        .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
-                }
-            }
-
+            
             @ViewBuilder
             var titleItem: some View {
                 if let title = configuration.title {
@@ -75,11 +61,26 @@
             }
 
             @ViewBuilder
+            var textItems: some View {
+                VStack(alignment: configuration._TitleAlignment.alignment, spacing: configuration.titlePadding) {
+                    if configuration.hasTitle {
+                        titleItem
+                            .font(titleFont)
+                    }
+                    if configuration.hasSubtitle {
+                        subtitleItem
+                            .font(subtitleFont)
+                    }
+                }                     .multilineTextAlignment(configuration._TitleAlignment.textAlignment)
+                    .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
+            }
+
+            @ViewBuilder
             var imageItem: some View {
                 if let image = configuration.image {
                     Image(image)
                         .foregroundColor(configuration.resolvedForegroundColor()?.swiftUI)
-                        .symbolConfiguration(configuration.imageSymbolConfiguration)
+                        .symbolConfiguration(configuration.resolvedImageSymbolConfiguration)
                 }
             }
 
@@ -109,13 +110,18 @@
                 }
             }
             
+            @ViewBuilder
+            var overlayItem: some View {
+                configuration.shape.swiftUI
+            }
+
             var body: some View {
                 stackItem
                     .padding(configuration.contentInsets.edgeInsets)
-                    .scaleEffect(configuration.scaleTransform)
                     .background(configuration.resolvedBackgroundColor()?.swiftUI)
-                    .clipShape(configuration.cornerStyle.shape)
-                    .overlay( configuration.cornerStyle.shape.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration.resolvedForegroundColor()?.swiftUI).scaleEffect(configuration.scaleTransform))
+                    .clipShape(configuration.shape.swiftUI)
+                    .overlay(configuration.shape.swiftUI.stroke(lineWidth: showBorder ? configuration.borderWidth : 0.0).foregroundColor(configuration.resolvedForegroundColor()?.swiftUI))
+                    .scaleEffect(configuration.scaleTransform)
                     .opacity(configuration.opacity)
             }
         }
@@ -229,5 +235,4 @@
             }
         }
     }
-
 #endif
