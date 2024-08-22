@@ -34,13 +34,27 @@
             (self as? NSTableCellView)?.backgroundStyle = backgroundStyle
 
             if #available(macOS 12.0, *), let view = self as? NSImageView {
-                if backgroundStyle == .emphasized, let configuration = view.symbolConfiguration, configuration.colors != nil {
+                if backgroundStyle == .emphasized, let configuration = view.symbolConfiguration {
                     view.previousConfiguration = configuration
-                    view.symbolConfiguration = configuration.noColorCopy()
+                    let copy = configuration.copied()
+                    view.symbolConfiguration = copy
+                    Swift.print(view.symbolConfiguration?.colors ?? "nil")
+                    Swift.print(view.symbolConfiguration ?? "nil")
                 } else if let configuration = view.previousConfiguration {
                     view.symbolConfiguration = configuration
                     view.previousConfiguration = nil
                 }
+                
+                // Swift.print(view.symbolConfiguration ?? "nil")
+                /*
+                if backgroundStyle == .emphasized, let configuration = view.imageSymbolConfiguration {
+                    view.previousConfiguration = view.symbolConfiguration
+                    view.symbolConfiguration = configuration.color(nil).nsUI()
+                } else if let configuration = view.previousConfiguration {
+                    view.symbolConfiguration = configuration
+                    view.previousConfiguration = nil
+                }
+                 */
             }
             
             for subview in subviews {
@@ -51,7 +65,7 @@
 
 @available(macOS 12.0, *)
 extension NSImage.SymbolConfiguration {
-    func noColorCopy() -> NSImage.SymbolConfiguration {
+    func copied() -> NSImage.SymbolConfiguration {
         let copy = NSImage.SymbolConfiguration()
         copy.setValue(value(forKey: "pointSize"), forKey: "pointSize")
         copy.setValue(value(forKey: "weight"), forKey: "weight")
