@@ -65,10 +65,10 @@
     }
 
 @available(macOS 12.0, *)
-extension NSImage.SymbolConfiguration {    
+extension NSImage.SymbolConfiguration {
     func copied() -> NSImage.SymbolConfiguration {
-        var configuration = NSImage.SymbolConfiguration()
-        configuration.setValue(value(forKey: "renderingStyle"), forKey: "renderingStyle")
+        let configuration = NSImage.SymbolConfiguration()
+        // configuration.setValue(value(forKey: "renderingStyle"), forKey: "renderingStyle")
         // configuration.colors = colors
         configuration.pointSize = pointSize
         configuration.setValue(value(forKey: "weight"), forKey: "weight")
