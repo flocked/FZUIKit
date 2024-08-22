@@ -576,11 +576,6 @@ public extension NSUIImageView {
             symbolConfiguration = newValue?.nsUI()
         }
     }
-    
-    internal var previousConfiguration: NSImage.SymbolConfiguration? {
-        get { getAssociatedValue("previousConfiguration") }
-        set { setAssociatedValue(newValue, key: "previousConfiguration") }
-    }
 
     #else
     /// The configuration values to use when rendering the image.
