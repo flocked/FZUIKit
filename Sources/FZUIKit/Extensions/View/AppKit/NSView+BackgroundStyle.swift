@@ -39,7 +39,10 @@
                     view.previousConfiguration = copy
                     configuration.colors = nil
                     view.symbolConfiguration = nil
-                    Swift.print(view.symbolConfiguration ?? "nil")
+                    Swift.print(configuration.colors ?? "nil")
+                } else if let configuration = view.previousConfiguration {
+                    view.symbolConfiguration = configuration
+                    view.previousConfiguration = nil
                 }
                 
                 // Swift.print(view.symbolConfiguration ?? "nil")
