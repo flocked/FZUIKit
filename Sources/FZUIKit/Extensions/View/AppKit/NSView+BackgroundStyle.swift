@@ -34,28 +34,13 @@
             (self as? NSTableCellView)?.backgroundStyle = backgroundStyle
 
             if #available(macOS 12.0, *), let view = self as? NSImageView {
-                if backgroundStyle == .emphasized, let configuration = view.symbolConfiguration {
+                if backgroundStyle == .emphasized, let configuration = view.symbolConfiguration, configuration.colors != nil {
                     view.previousConfiguration = configuration
-                    let copy = configuration.copied()
-                    copy.colors = nil
-                    view.symbolConfiguration = copy
-                    Swift.print(view.symbolConfiguration?.colors ?? "nil")
-                    Swift.print(view.symbolConfiguration ?? "nil")
+                    view.symbolConfiguration = configuration.noColorCopy()
                 } else if let configuration = view.previousConfiguration {
                     view.symbolConfiguration = configuration
                     view.previousConfiguration = nil
                 }
-                
-                // Swift.print(view.symbolConfiguration ?? "nil")
-                /*
-                if backgroundStyle == .emphasized, let configuration = view.imageSymbolConfiguration {
-                    view.previousConfiguration = view.symbolConfiguration
-                    view.symbolConfiguration = configuration.color(nil).nsUI()
-                } else if let configuration = view.previousConfiguration {
-                    view.symbolConfiguration = configuration
-                    view.previousConfiguration = nil
-                }
-                 */
             }
             
             for subview in subviews {
@@ -66,15 +51,13 @@
 
 @available(macOS 12.0, *)
 extension NSImage.SymbolConfiguration {
-    func copied() -> NSImage.SymbolConfiguration {
-        let configuration = NSImage.SymbolConfiguration()
-        // configuration.setValue(value(forKey: "renderingStyle"), forKey: "renderingStyle")
-        // configuration.colors = colors
-        configuration.pointSize = pointSize
-        configuration.setValue(value(forKey: "weight"), forKey: "weight")
-        configuration.setValue(value(forKey: "scale"), forKey: "scale")
-        configuration.prefersMulticolor = prefersMulticolor
-        return configuration
+    func noColorCopy() -> NSImage.SymbolConfiguration {
+        let copy = NSImage.SymbolConfiguration()
+        copy.setValue(value(forKey: "pointSize"), forKey: "pointSize")
+        copy.setValue(value(forKey: "weight"), forKey: "weight")
+        copy.setValue(value(forKey: "scale"), forKey: "scale")
+        copy.setValue(value(forKey: "prefersMulticolor"), forKey: "prefersMulticolor")
+        return copy
     }
 }
 

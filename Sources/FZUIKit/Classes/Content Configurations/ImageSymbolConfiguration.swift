@@ -573,45 +573,15 @@ public extension NSUIImageView {
         get { getAssociatedValue("_imageSymbolConfiguration") }
         set {
             setAssociatedValue(newValue, key: "_imageSymbolConfiguration")
-            if backgroundStyle == .emphasized, var newValue = newValue {
-                previousConfiguration = newValue.nsUI()
-                newValue.color = nil
-                symbolConfiguration = newValue.nsUI()
-            } else {
-                previousConfiguration = nil
-                symbolConfiguration = newValue?.nsUI()
-            }
+            symbolConfiguration = newValue?.nsUI()
         }
     }
     
-    var previousConfiguration: NSImage.SymbolConfiguration? {
+    internal var previousConfiguration: NSImage.SymbolConfiguration? {
         get { getAssociatedValue("previousConfiguration") }
         set { setAssociatedValue(newValue, key: "previousConfiguration") }
     }
-    
-    var isUpdatingConfiguration: Bool {
-        get { getAssociatedValue("isUpdatingConfiguration") ?? false }
-        set { setAssociatedValue(newValue, key: "isUpdatingConfiguration") }
-    }
-    
-    var symbolConfigurationObservation: KeyValueObservation? {
-        get { getAssociatedValue("previousConfiguration") }
-        set { setAssociatedValue(newValue, key: "previousConfiguration") }
-    }
-    
-    func setupSymbolObserver() {
-        symbolConfigurationObservation = observeChanges(for: \.symbolConfiguration) { [weak self] old, new in
-            guard let self = self, !self.isUpdatingConfiguration else { return }
-            if self.backgroundStyle == .emphasized, var new = new {
-                self.previousConfiguration = new
-                self.isUpdatingConfiguration = true
-                new.colors = nil
-                self.symbolConfiguration = new
-                self.isUpdatingConfiguration = false
-            }
-        }
-    }
-    
+
     #else
     /// The configuration values to use when rendering the image.
     var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {
