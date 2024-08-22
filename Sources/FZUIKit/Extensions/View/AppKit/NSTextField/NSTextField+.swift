@@ -510,31 +510,6 @@
         }
     }
 
-extension NSTextField {
-    public func drawRoundedBezels() {
-        self.wantsLayer = true
-        cornerRadius = 4.0
-        isBezeled = false
-        isBordered = false
-        isEditable = true
-        let color = NSColor(light: .black.withAlphaComponent(0.07), dark: .white.withAlphaComponent(0.07))
-        
-        Swift.print("ssss")
-        (self as NSView).backgroundColor = color
-        
-     //   backgroundColorAnimatable = color
-        dynamicColors.background = color
-        innerShadow = .color(NSColor(light: .black, dark: .white), opacity: 0.2, radius: 0.5, offset: CGPoint(0, -0.5))
-        clipsToBounds = true
-        textPadding.top = 2.5
-        textPadding.bottom = 2
-        textPadding.leftRight = 8
-        sizeToFit()
-        focusType = .roundedCorners(cornerRadius)
-        appearance = .vibrantDark
-    }
-}
-
 #endif
 
 /*

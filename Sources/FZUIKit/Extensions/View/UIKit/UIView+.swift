@@ -89,7 +89,7 @@
                 } else {
                     dashedBorderView?.removeFromSuperview()
                     dashedBorderView = nil
-                    var newColor = newValue.resolvedColor()
+                    let newColor = newValue.resolvedColor()
                     if borderColor?.alphaComponent == 0.0 || borderColor == nil {
                         borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
                     }
@@ -163,7 +163,11 @@
         public var shadow: ShadowConfiguration {
             get { ShadowConfiguration(color: shadowColor, colorTransformer: shadowColorTransformer, opacity: CGFloat(layer.shadowOpacity), radius: layer.shadowRadius, offset: layer.shadowOffset.point) }
             set {
-                shadowColor = newValue.resolvedColor()
+                let color = newValue.resolvedColor()
+                if shadowColor?.alphaComponent == 0.0 || shadowColor == nil {
+                    shadowColor = color?.withAlphaComponent(0.0) ?? .clear
+                }
+                shadowColor = color
                 shadowColorTransformer = newValue.colorTransformer
                 layer.shadowOffset = newValue.offset.size
                 layer.shadowOpacity = Float(newValue.opacity)

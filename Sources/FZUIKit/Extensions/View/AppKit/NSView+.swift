@@ -364,8 +364,9 @@ extension NSViewProtocol {
          The default value is `none()`, which results in a view with no border.
          */
        @objc open var border: BorderConfiguration {
-            get { realSelf.dashedBorderView?.configuration ?? .init(color: realSelf._borderColor, width: realSelf._borderWidth) }
+            get { realSelf.dashedBorderView?.configuration ?? _border }
             set {
+                _border = newValue
                 if newValue.needsDashedBorder {
                     _borderColor = nil
                     _borderWidth = 0.0
@@ -382,6 +383,11 @@ extension NSViewProtocol {
                     _borderWidth = newValue.width
                 }
             }
+        }
+        
+        var _border: BorderConfiguration {
+            get { getAssociatedValue("_border", initialValue: .init(color: realSelf._borderColor, width: realSelf._borderWidth)) }
+            set { setAssociatedValue(newValue, key: "_border") }
         }
 
         @objc var _borderWidth: CGFloat {
@@ -432,24 +438,29 @@ extension NSViewProtocol {
         @objc open var outerShadow: ShadowConfiguration {
             get {
                 let view = realSelf
-                return ShadowConfiguration(color: view.shadowColor, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
+                return ShadowConfiguration(color: view.shadowColor, colorTransformer: view.shadowColorTransformer, opacity: view.shadowOpacity, radius: view.shadowRadius, offset: view.shadowOffset)
             }
             set {
+                NSView.swizzleAnimationForKey()
+                shadowColorTransformer = newValue.colorTransformer
                 shadowOffset = newValue.offset
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
                 shadowColor = newValue.resolvedColor()
-                // shapeView?.outerShadow = newValue
                 if !newValue.isInvisible {
                     clipsToBounds = false
                 }
             }
         }
+        
+        var shadowColorTransformer: ColorTransformer? {
+            get { getAssociatedValue("shadowColorTransformer") }
+            set { setAssociatedValue(newValue, key: "shadowColorTransformer") }
+        }
 
         var shadowColor: NSColor? {
             get { dynamicColors.shadow ?? layer?.shadowColor?.nsUIColor }
             set {
-                NSView.swizzleAnimationForKey()
                 realSelf.dynamicColors.shadow = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
                 if animatableColor == nil, isProxy() {
@@ -469,26 +480,17 @@ extension NSViewProtocol {
 
         @objc var shadowOffset: CGPoint {
             get { (layer?.shadowOffset ?? .zero).point }
-            set {
-                NSView.swizzleAnimationForKey()
-                optionalLayer?.shadowOffset = newValue.size
-            }
+            set { optionalLayer?.shadowOffset = newValue.size }
         }
 
         @objc var shadowRadius: CGFloat {
             get { layer?.shadowRadius ?? .zero }
-            set {
-                NSView.swizzleAnimationForKey()
-                optionalLayer?.shadowRadius = newValue
-            }
+            set {  optionalLayer?.shadowRadius = newValue }
         }
 
         @objc var shadowOpacity: CGFloat {
             get { CGFloat(layer?.shadowOpacity ?? .zero) }
-            set {
-                NSView.swizzleAnimationForKey()
-                optionalLayer?.shadowOpacity = Float(newValue)
-            }
+            set { optionalLayer?.shadowOpacity = Float(newValue) }
         }
 
         /**
@@ -529,10 +531,8 @@ extension NSViewProtocol {
                 }
                 guard let innerShadowLayer = innerShadowLayer else { return }
 
-                var newColor: NSUIColor? = nil
-                if let color = newValue.color?.resolvedColor(for: self) {
-                    newColor = newValue.colorTransformer?(color) ?? color
-                } else if isProxy() {
+                var newColor: NSUIColor? = newValue.resolvedColor()?.resolvedColor(for: self)
+                if newColor == nil, isProxy() {
                     newColor = .clear
                 }
                 if innerShadowLayer.shadowColor?.isVisible == false || innerShadowLayer.shadowColor == nil {
