@@ -61,12 +61,11 @@ extension CGLineCap: Codable { }
             
             /// The speed of the animated border dash as a value between `0.0`  (slow) and `1.0` (fast).
             public var animationSpeed: CGFloat = 0.5 {
-                didSet { animationSpeed = animationSpeed.clamped(to: 0...1) }
+                didSet { animationSpeed = animationSpeed.clamped(to: 0.0...1.0) }
             }
             
-            var maxDuration: CGFloat = 3.0
             var _animationSpeed: CGFloat {
-                maxDuration - animationSpeed.interpolated(from: 0...1, to: 0.0...maxDuration-0.1)
+                animationSpeed.interpolated(from: 0.0, 1.0, to: 3.0, 0.1)
             }
             
             public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: CGFloat = 0.5) {
