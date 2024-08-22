@@ -125,27 +125,32 @@ public struct ImageSymbolConfiguration: Hashable {
         self.imageScale = imageScale
     }
 
-    /// Creates a configuration with a monochrome color configuration using the tint color.
+    /// Creates a configuration with a monochrome color using the tint color.
     public static var monochrome: Self {
         Self(color: .monochrome)
     }
 
-    /// Creates a configuration with a monochrome color configuration using the specified color.
+    /// Creates a configuration with a monochrome color using the specified color.
     public static func monochrome(_ color: NSUIColor) -> Self {
         Self(color: .monochrome(color))
     }
 
-    /// Creates a configuration with a hierarchical color configuration with the specified color.
+    /// Creates a configuration with a hierarchical color with the specified color.
     public static func hierarchical(_ color: NSUIColor) -> Self {
         Self(color: .hierarchical(color))
     }
+    
+    /// Creates a configuration with a hierarchical color using the tint color.
+    public static var hierarchical: Self {
+        Self(color: .hierarchical)
+    }
 
-    /// Creates a configuration with a multicolor configuration with the specified color.
+    /// Creates a configuration with a multicolor color with the specified color.
     public static func multicolor(_ color: NSUIColor) -> Self {
         Self(color: .multicolor(color))
     }
 
-    /// Creates a configuration with a palette color configuration with the specified primary, secondary and tertiary color.
+    /// Creates a configuration with a palette color configuration with the specified colors.
     public static func palette(_ primary: NSUIColor, _ secondary: NSUIColor, _ tertiary: NSUIColor? = nil) -> Self {
         Self(color: .palette(primary, secondary, tertiary))
     }
