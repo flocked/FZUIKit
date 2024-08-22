@@ -39,11 +39,12 @@
                     let copy = configuration.copy() as! NSImage.SymbolConfiguration
                     copy.colors = nil
                     view.symbolConfiguration = copy
-                } else if let configuration = view.previousConfiguration {
+                    Swift.print(view.symbolConfiguration ?? "nil")
+                } else if backgroundStyle == .normal, let configuration = view.previousConfiguration {
                     view.symbolConfiguration = configuration
                     view.previousConfiguration = nil
                 }
-                Swift.print(view.symbolConfiguration ?? "nil")
+                // Swift.print(view.symbolConfiguration ?? "nil")
                 /*
                 if backgroundStyle == .emphasized, let configuration = view.imageSymbolConfiguration {
                     view.previousConfiguration = view.symbolConfiguration
