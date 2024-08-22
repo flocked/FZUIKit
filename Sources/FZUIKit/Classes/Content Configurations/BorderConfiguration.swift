@@ -64,11 +64,12 @@ extension CGLineCap: Codable { }
                 didSet { animationSpeed = animationSpeed.clamped(to: 0...1) }
             }
             
+            var maxDuration: CGFloat = 3.0
             var _animationSpeed: CGFloat {
-                3.0 - animationSpeed.interpolated(from: 0...1, to: 0.05...3.0)
+                maxDuration - animationSpeed.interpolated(from: 0...1, to: 0.0...maxDuration-0.1)
             }
             
-            public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: CGFloat = 0.1) {
+            public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: CGFloat = 0.5) {
                 self.pattern = pattern
                 self.phase = phase
                 self.lineCap = lineCap
