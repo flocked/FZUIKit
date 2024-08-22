@@ -531,63 +531,55 @@
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().innerShadow`.
          */
       @objc open var innerShadow: ShadowConfiguration {
-            get { 
-                if var configuration = realSelf.layer?.innerShadowLayer?.configuration {
-                    configuration.color = dynamicColors.innerShadow ?? configuration.color
-                    return configuration
-                }
-                return .none()
-            }
+            get { realSelf.innerShadowLayer?.configuration ?? .none() }
             set {
                 NSView.swizzleAnimationForKey()
-                realSelf.dynamicColors.innerShadow = newValue.resolvedColor()
                 if innerShadowLayer == nil {
                     let innerShadowLayer = InnerShadowLayer()
                     optionalLayer?.addSublayer(withConstraint: innerShadowLayer)
                     innerShadowLayer.sendToBack()
-                    innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
-                    innerShadowLayer.shadowOpacity = 0.0
-                    innerShadowLayer.shadowRadius = 0.0
                 }
-                var newColor = newValue.resolvedColor()?.resolvedColor(for: self)
-                if newColor == nil, isProxy() {
+                innerShadowLayer?.configuration = newValue
+                /*
+                guard let innerShadowLayer = innerShadowLayer else { return }
+                
+                var newColor: NSUIColor? = nil
+                if var color = newValue.color?.resolvedColor(for: self) {
+                    newColor = newValue.colorTransformer?(color) ?? color
+                } else if isProxy() {
                     newColor = .clear
                 }
-                if optionalLayer?.innerShadowLayer?.shadowColor?.isVisible == false || optionalLayer?.innerShadowLayer?.shadowColor == nil {
-                    optionalLayer?.innerShadowLayer?.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                if innerShadowLayer.shadowColor?.isVisible == false || innerShadowLayer.shadowColor == nil {
+                    innerShadowLayer.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
+                innerShadowLayer.color = newValue.color
+                innerShadowLayer.colorTransformer = newValue.colorTransformer
                 innerShadowColor = newColor
-                optionalLayer?.innerShadowLayer?.color = newValue.color
-                innerShadowColorTransformer = newValue.colorTransformer
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
+                 */
             }
-        }
-        
-        var innerShadowColorTransformer: ColorTransformer? {
-            get { layer?.innerShadowLayer?.colorTransformer }
-            set { layer?.innerShadowLayer?.colorTransformer = newValue }
         }
 
         @objc var innerShadowColor: NSColor? {
-            get { dynamicColors.innerShadow ?? layer?.innerShadowLayer?.resolvedColor }
-            set { layer?.innerShadowLayer?.resolvedColor = newValue }
+            get { innerShadowLayer?.color }
+            set { innerShadowLayer?.color = newValue }
         }
 
         @objc var innerShadowOpacity: CGFloat {
-            get { CGFloat(layer?.innerShadowLayer?.shadowOpacity ?? 0) }
-            set { layer?.innerShadowLayer?.shadowOpacity = Float(newValue) }
+            get { CGFloat(innerShadowLayer?.shadowOpacity ?? 0) }
+            set { innerShadowLayer?.shadowOpacity = Float(newValue) }
         }
 
         @objc var innerShadowRadius: CGFloat {
-            get { layer?.innerShadowLayer?.configuration.radius ?? 0 }
-            set { layer?.innerShadowLayer?.configuration.radius = newValue }
+            get { innerShadowLayer?.configuration.radius ?? 0 }
+            set { innerShadowLayer?.configuration.radius = newValue }
         }
 
         @objc var innerShadowOffset: CGPoint {
-            get { layer?.innerShadowLayer?.configuration.offset ?? .zero }
-            set { layer?.innerShadowLayer?.configuration.offset = newValue }
+            get { innerShadowLayer?.configuration.offset ?? .zero }
+            set { innerShadowLayer?.configuration.offset = newValue }
         }
 
         /// Removes all tracking areas.
@@ -854,6 +846,6 @@
     }
 
     /// The `NSView` properties keys that can be animated.
-    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
+    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "borderColorAnimatable", "mask", "inverseMask", "backgroundColorAnimatable", "left", "right", "top", "bottom", "topLeft", "topCenter", "topRight", "centerLeft", "center", "centerRight", "bottomLeft", "bottomCenter", "bottomRight", "shadowColorAnimatable", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "innerShadow", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize"]
 
 #endif

@@ -101,7 +101,7 @@ open class InnerShadowLayer: CALayer {
     }
     
     func updateShadowColor(for view: NSUIView) {
-        if var color = color?.resolvedColor(for: view) {
+        if let color = color?.resolvedColor(for: view) {
             shadowColor = (colorTransformer?(color) ?? color).cgColor
         }
     }

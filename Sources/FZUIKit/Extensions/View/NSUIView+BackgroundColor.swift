@@ -72,16 +72,12 @@ extension NSView {
             didSet { if shadow?.isDynamic == false { shadow = nil } }
         }
 
-        var innerShadow: NSColor? {
-            didSet { if innerShadow?.isDynamic == false { innerShadow = nil } }
-        }
-
         var border: NSColor? {
             didSet { if border?.isDynamic == false { border = nil } }
         }
 
         var needsAppearanceObserver: Bool {
-            background != nil || border != nil || shadow != nil || innerShadow != nil
+            background != nil || border != nil || shadow != nil
         }
 
         mutating func update(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) {
@@ -118,7 +114,6 @@ extension NSView {
         dynamicColors.update(\.shadow, cgColor: layer?.shadowColor)
         dynamicColors.update(\.background, cgColor: layer?.backgroundColor)
         dynamicColors.update(\.border, cgColor: layer?.borderColor)
-        dynamicColors.update(\.innerShadow, cgColor: innerShadowLayer?.shadowColor)
         setupEffectiveAppearanceObserver()
 
         if let color = dynamicColors.background?.resolvedColor(for: self).cgColor {
@@ -126,9 +121,6 @@ extension NSView {
         }
         if let color = dynamicColors.shadow?.resolvedColor(for: self).cgColor {
             layer?.shadowColor = color
-        }
-        if let color = dynamicColors.innerShadow?.resolvedColor(for: self).cgColor {
-            innerShadowLayer?.shadowColor = color
         }
         if let color = dynamicColors.border?.resolvedColor(for: self).cgColor {
             layer?.borderColor = color
