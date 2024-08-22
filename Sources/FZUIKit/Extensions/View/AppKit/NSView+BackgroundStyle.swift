@@ -38,7 +38,7 @@
                     let copy = configuration.copy() as! NSImage.SymbolConfiguration
                     view.previousConfiguration = copy
                     configuration.colors = nil
-                    view.symbolConfiguration = configuration
+                    view.symbolConfiguration = nil
                     Swift.print(view.symbolConfiguration ?? "nil")
                 }
                 
