@@ -12,7 +12,7 @@
         /**
          A configuration that specifies the appearance of a visual effect view.
 
-         `NSVisualEffectView` can be configurated by passing the configuration to `configurate(using configuration: VisualEffect)`.
+         `NSVisualEffectView` can be configurated via it's ``AppKit/NSVisualEffectView/configuration`` property.
 
          `NSView` can be configurated via it's ``AppKit/NSView/visualEffect`` property.  It adds a visual effect view as background to the view.
 
@@ -101,36 +101,6 @@
 
             /// A visual effect configuration with a dark vibrant appearance.
             public static func vibrantDark(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { .appearance(.vibrantDark, blendingMode: blendingMode, material: material) }
-
-            /*
-             /// A visual effect configuration with a high-contrast version of the standard light system appearance.
-             public static func accessibilityHighContrastAqua(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastAqua, blendingMode: blendingMode, material: material) }
-
-             /// A visual effect configuration with a high-contrast version of the standard dark system appearance.
-             public static func accessibilityHighContrastDarkAqua(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastDarkAqua, blendingMode: blendingMode, material: material) }
-
-             /// A visual effect configuration with a high-contrast version of the light vibrant appearance.
-             public static func accessibilityHighContrastVibrantLight(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastVibrantLight, blendingMode: blendingMode, material: material) }
-
-             /// A visual effect configuration with a high-contrast version of the dark vibrant appearance.
-             public static func accessibilityHighContrastVibrantDark(blendingMode: BlendingMode = .withinWindow, material: Material = .contentBackground) -> Self { return .appearance(.accessibilityHighContrastVibrantDark, blendingMode: blendingMode, material: material) }
-             */
-        }
-
-        public extension NSView {
-            /**
-             Configurates the visual effect of the view.
-
-             - Parameters:
-                - configuration:The visual effect configuration.
-             */
-            func configurate(using configuration: VisualEffectConfiguration) {
-                if let visualView = self as? NSVisualEffectView {
-                    visualView.configuration = configuration
-                } else {
-                    visualEffect = configuration
-                }
-            }
         }
 
         public extension NSVisualEffectView {
@@ -262,22 +232,6 @@ extension VisualEffectConfiguration: ReferenceConvertible {
             /// A visual blurring vibrancy effect.
             public static func vibrancy(_ vibrancy: UIVibrancyEffectStyle, blur: UIBlurEffect.Style) -> Self { Self(effect: UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)) }
             #endif
-        }
-
-        public extension UIView {
-            /**
-             Configurates the visual effect of the view.
-
-             - Parameters:
-                - configuration:The visual effect configuration.
-             */
-            func configurate(using configuration: VisualEffectConfiguration) {
-                if let visualView = self as? UIVisualEffectView {
-                    visualView.effect = configuration.effect
-                } else {
-                    visualEffect = configuration
-                }
-            }
         }
 
 /// The Objective-C class for ``VisualEffectConfiguration``.

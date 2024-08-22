@@ -17,7 +17,7 @@ import SwiftUI
 /**
  A configuration that specifies the appearance of a shadow.
  
- The shadows of `NSView`, `UIView` and `CALayer` can be configurated by using the properties `innerShadow` and `outerShadow`.
+ The shadows of `NSView/UIView` and `CALayer` can be configurated by using their `innerShadow` and `outerShadow` properties.
  */
 public struct ShadowConfiguration: Hashable {
     /// The type of a shadow.
@@ -64,11 +64,13 @@ public struct ShadowConfiguration: Hashable {
     #if os(macOS)
     /// Creates a shadow configuration.
     public init(color: NSUIColor? = .black,
+                colorTransformer: ColorTransformer? = nil,
                 opacity: CGFloat = 0.4,
                 radius: CGFloat = 2.0,
                 offset: CGPoint = CGPoint(x: 1.0, y: -1.5))
     {
         self.color = color
+        self.colorTransformer = colorTransformer
         self.opacity = opacity
         self.radius = radius
         self.offset = offset
@@ -76,11 +78,13 @@ public struct ShadowConfiguration: Hashable {
     #else
     /// Creates a shadow configuration.
     public init(color: NSUIColor? = .black,
+                colorTransformer: ColorTransformer? = nil,
                 opacity: CGFloat = 0.4,
                 radius: CGFloat = 2.0,
                 offset: CGPoint = CGPoint(x: -1.0, y: 1.5))
     {
         self.color = color
+        self.colorTransformer = colorTransformer
         self.opacity = opacity
         self.radius = radius
         self.offset = offset
@@ -171,7 +175,7 @@ extension NSUIView {
         }
     }
     
-    internal var innerShadowLayer: InnerShadowLayer? {
+    var innerShadowLayer: InnerShadowLayer? {
         optionalLayer?.firstSublayer(type: InnerShadowLayer.self)
     }
 }
@@ -191,18 +195,18 @@ extension CALayer {
             if configuration.isInvisible {
                 innerShadowLayer?.removeFromSuperlayer()
             } else {
-                if innerShadowLayer == nil {
-                    let innerShadowLayer = InnerShadowLayer()
+                if let innerShadowLayer = innerShadowLayer {
+                    innerShadowLayer.configuration = configuration
+                } else {
+                    let innerShadowLayer = InnerShadowLayer(configuration: configuration)
                     addSublayer(withConstraint: innerShadowLayer)
                     innerShadowLayer.sendToBack()
-                    innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
                 }
-                innerShadowLayer?.configuration = configuration
             }
         }
     }
     
-    internal var innerShadowLayer: InnerShadowLayer? {
+    var innerShadowLayer: InnerShadowLayer? {
         firstSublayer(type: InnerShadowLayer.self)
     }
 }
