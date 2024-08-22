@@ -554,25 +554,6 @@ extension NSViewProtocol {
                 innerShadowOpacity = newValue.opacity
                 innerShadowLayer.color = newValue.color
                 innerShadowLayer.colorTransformer = newValue.colorTransformer
-                /*
-                guard let innerShadowLayer = innerShadowLayer else { return }
-                
-                var newColor: NSUIColor? = nil
-                if var color = newValue.color?.resolvedColor(for: self) {
-                    newColor = newValue.colorTransformer?(color) ?? color
-                } else if isProxy() {
-                    newColor = .clear
-                }
-                if innerShadowLayer.shadowColor?.isVisible == false || innerShadowLayer.shadowColor == nil {
-                    innerShadowLayer.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
-                }
-                innerShadowLayer.color = newValue.color
-                innerShadowLayer.colorTransformer = newValue.colorTransformer
-                innerShadowColor = newColor
-                innerShadowOffset = newValue.offset
-                innerShadowRadius = newValue.radius
-                innerShadowOpacity = newValue.opacity
-                 */
             }
         }
 

@@ -125,16 +125,22 @@ extension NSWindow {
         public var isFullScreen: ((Bool)->())?
         /// The handler that gets called when the style mask changes.
         public var styleMask: ((StyleMask)->())?
-
-        var needsObserver: Bool {
-            isKey != nil ||
-            isMain != nil ||
-            firstResponder != nil ||
-            frame != nil  ||
-            isLiveResizing != nil ||
-            isFullScreen != nil ||
-            styleMask != nil ||
-            effectiveAppearance != nil
+        
+        /// The tab handlers for the window.
+        public var tab: TabHandlers = TabHandlers()
+        
+        /// Tab handlers for the window.
+        public struct TabHandlers {
+            /// The handler that gets called when the tab windows changes.
+            public var windows: (([NSWindow]?)->())?
+            /// The handler that gets called when the selected tab changes.
+            public var selected: ((NSWindow?)->())?
+            /// The handler that gets called when the tab selection state changes.
+            public var isSelected: ((Bool)->())?
+            /// The handler that gets called when the tab bar visibilty changes.
+            public var isTabBarVisible: ((Bool)->())?
+            /// The handler that gets called when the tab overview visibilty changes.
+            public var isOverviewVisible: ((Bool)->())?
         }
     }
     
@@ -144,145 +150,73 @@ extension NSWindow {
         set {
             setAssociatedValue(newValue, key: "windowHandlers")
             setupLiveResizeObservation()
-            if newValue.needsObserver, windowObserver == nil {
-                windowObserver = KeyValueObserver(self)
-            } else if !newValue.needsObserver {
-                windowObserver = nil
-            }
-            guard let windowObserver = windowObserver else { return }
-            if let firstResponder = newValue.firstResponder {
-                windowObserver.add(\.firstResponder) { old, new in
-                    guard old != new else { return }
-                    firstResponder(new)
+            
+            func observe<Value: Equatable>(_ keyPath: KeyPath<NSWindow, Value>, handler: KeyPath<NSWindow, ((Value)->())?>) {
+                if self[keyPath: handler] == nil {
+                    windowObserver.remove(keyPath)
+                } else if !windowObserver.isObserving(keyPath) {
+                    windowObserver.add(keyPath) { [weak self] old, new in
+                       guard let self = self else { return }
+                       self[keyPath: handler]?(new)
+                   }
                 }
-            } else {
-                windowObserver.remove(\.firstResponder)
             }
             
-            if let effectiveAppearance = newValue.effectiveAppearance {
-                windowObserver.add(\.effectiveAppearance) { old, new in
-                    guard old != new else { return }
-                    effectiveAppearance(new)
+            func observe<Value: Equatable>(_ keyPath: KeyPath<NSWindow, Value?>, handler: KeyPath<NSWindow, ((Value)->())?>) {
+                if self[keyPath: handler] == nil {
+                    windowObserver.remove(keyPath)
+                } else if !windowObserver.isObserving(keyPath) {
+                    windowObserver.add(keyPath) { [weak self] old, new in
+                       guard let self = self, let new = new else { return }
+                       self[keyPath: handler]?(new)
+                   }
                 }
-            } else {
-                windowObserver.remove(\.effectiveAppearance)
             }
+                        
+            observe(\.firstResponder, handler: \.handlers.firstResponder)
+            observe(\.effectiveAppearance, handler: \.handlers.effectiveAppearance)
+            observe(\.frame, handler: \.handlers.frame)
             
-            if let frame = newValue.frame {
-                windowObserver.add(\.frame) { old, new in
-                    guard old != new else { return }
-                    frame(new)
-                }
-            } else {
-                windowObserver.remove(\.frame)
-            }
+            observe(\.tabGroup?.isTabBarVisible, handler: \.handlers.tab.isTabBarVisible)
+            observe(\.tabGroup?.isOverviewVisible, handler: \.handlers.tab.isOverviewVisible)
+            observe(\.tabGroup?.windows, handler: \.handlers.tab.windows)
             
-            if newValue.styleMask != nil || newValue.isFullScreen != nil {
-                windowObserver.add(\.styleMask) { old, new in
-                    guard old != new else { return }
-                    newValue.styleMask?(new)
+            if newValue.styleMask == nil && newValue.isFullScreen == nil {
+                windowObserver.remove(\.styleMask)
+            } else if !windowObserver.isObserving(\.styleMask) {
+                windowObserver.add(\.styleMask) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.handlers.styleMask?(new)
                     let fullscreen = new.contains(.fullScreen)
                     guard old.contains(.fullScreen) != fullscreen else { return }
-                    newValue.isFullScreen?(fullscreen)
+                    self.handlers.isFullScreen?(fullscreen)
                 }
-            } else {
-                windowObserver.remove(\.styleMask)
             }
             
-            if let isKey = newValue.isKey {
-                NSWindow.isKeyWindowObservable = true
-                windowObserver.add(\.isKeyWindow) { old, new in
-                    guard old != new else { return }
-                    isKey(new)
-                }
-            } else {
-                windowObserver.remove(\.isKeyWindow)
-            }
-            
-            if let isMain = newValue.isMain {
-                NSWindow.isMainWindowObservable = true
-                windowObserver.add(\.isMainWindow) { old, new in
-                    guard old != new else { return }
-                    isMain(new)
-                }
-            } else {
-                windowObserver.remove(\.isMainWindow)
-            }
-        }
-    }
-    
-    /// Tab Handlers for the window.
-    public struct TabHandlers {
-        /// The handler that gets called when the tab windows changes.
-        public var windows: (([NSWindow]?)->())?
-        /// The handler that gets called when the selected tab changes.
-        public var selected: ((NSWindow?)->())?
-        /// The handler that gets called when the tab selection state changes.
-        public var isSelected: ((Bool)->())?
-        /// The handler that gets called when the tab bar visibilty changes.
-        public var isTabBarVisible: ((Bool)->())?
-        /// The handler that gets called when the tab overview visibilty changes.
-        public var isOverviewVisible: ((Bool)->())?
-        
-        var needsObserver: Bool {
-            selected != nil ||
-            windows != nil ||
-            isSelected != nil ||
-            isTabBarVisible != nil ||
-            isOverviewVisible != nil
-        }
-    }
-    
-    /// The tab handlers for the window.
-    public var tabHandlers: TabHandlers {
-        get { getAssociatedValue("tabHandlers", initialValue: TabHandlers()) }
-        set {
-            setAssociatedValue(newValue, key: "tabHandlers")
-            if newValue.needsObserver, tabObserver == nil {
-                tabObserver = KeyValueObserver(self)
-            } else if !newValue.needsObserver {
-                tabObserver = nil
-            }
-            guard let tabObserver = tabObserver else { return }
-            if let tabWindows = newValue.windows {
-                tabObserver.add(\.tabGroup?.windows) { old, new in
-                    guard old != new else { return }
-                    tabWindows(new ?? [])
-                }
-            } else {
-                tabObserver.remove(\.tabGroup?.windows)
-            }
-            
-            if newValue.isSelected != nil || newValue.selected != nil {
-                tabObserver.add(\.tabGroup?.selectedWindow) { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    newValue.selected?(new)
+            if newValue.tab.isSelected == nil && newValue.tab.selected == nil {
+                windowObserver.remove(\.tabGroup?.selectedWindow)
+            } else if !windowObserver.isObserving(\.tabGroup?.selectedWindow) {
+                windowObserver.add(\.tabGroup?.selectedWindow) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.handlers.tab.selected?(new)
                     if old == self, new != self {
-                        newValue.isSelected?(false)
+                        self.handlers.tab.isSelected?(false)
                     } else if old != self, new == self {
-                        newValue.isSelected?(true)
+                        self.handlers.tab.isSelected?(false)
                     }
                 }
-            } else {
-                tabObserver.remove(\.tabGroup?.selectedWindow)
             }
             
-            if let isTabBarVisible = newValue.isTabBarVisible {
-                tabObserver.add(\.tabGroup?.isTabBarVisible) { old, new in
-                    guard old != new, let new = new else { return }
-                    isTabBarVisible(new)
-                }
+            if let handler = newValue.isKey {
+                isKeyObservation = observeIsKey(handler: handler)
             } else {
-                tabObserver.remove(\.tabGroup?.isTabBarVisible)
+                isKeyObservation = nil
             }
             
-            if let isOverviewVisible = newValue.isOverviewVisible {
-                tabObserver.add(\.tabGroup?.isOverviewVisible) { old, new in
-                    guard old != new, let new = new else { return }
-                    isOverviewVisible(new)
-                }
+            if let handler = newValue.isMain {
+                isMainObservation = observeIsMain(handler: handler)
             } else {
-                tabObserver.remove(\.tabGroup?.isOverviewVisible)
+                isMainObservation = nil
             }
         }
     }
@@ -424,14 +358,18 @@ extension NSWindow {
         setFrame(frame, display: display, animate: animate)
     }
     
-    var windowObserver: KeyValueObserver<NSWindow>? {
-        get { getAssociatedValue("windowObserver", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "windowObserver") }
+    var windowObserver: KeyValueObserver<NSWindow> {
+        get { getAssociatedValue("windowObserver", initialValue: KeyValueObserver(self)) }
     }
     
-    var tabObserver: KeyValueObserver<NSWindow>? {
-        get { getAssociatedValue("tabObserver", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "tabObserver") }
+    var isKeyObservation: NotificationToken? {
+        get { getAssociatedValue("isKeyObservation") }
+        set { setAssociatedValue(newValue, key: "isKeyObservation") }
+    }
+    
+    var isMainObservation: NotificationToken? {
+        get { getAssociatedValue("isMainObservation") }
+        set { setAssociatedValue(newValue, key: "isMainObservation") }
     }
     
     /// A Boolean value that indicates whether the window is fullscreen.
