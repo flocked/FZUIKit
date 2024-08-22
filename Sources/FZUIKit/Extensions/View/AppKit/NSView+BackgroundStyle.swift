@@ -49,7 +49,7 @@ extension NSImageView {
         if backgroundStyle == .emphasized, let configuration = symbolConfiguration {
             previousConfiguration = configuration
             symbolConfiguration = configuration.noColorsCopy()
-        } else if let configuration = previousConfiguration {
+        } else if backgroundStyle != .emphasized, let configuration = previousConfiguration {
             symbolConfiguration = configuration
             previousConfiguration = nil
         }
@@ -72,6 +72,5 @@ extension NSImage.SymbolConfiguration {
         return copy
     }
 }
-
 
 #endif
