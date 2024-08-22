@@ -59,30 +59,27 @@ extension NSButton {
     
     func setupConfigurationStateObserver() {
         if (automaticallyUpdatesConfiguration && configuration is AdvanceConfiguration) || configurationUpdateHandler != nil {
-            if buttonObserver == nil {
                 hoverView = HoverView(frame: .zero)
                 addSubview(withConstraint: hoverView!)
                 hoverView?.sendToBack()
-                buttonObserver = KeyValueObserver(self)
-                buttonObserver?.add(\.state) { [weak self] old, new in
+                buttonObserver.add(\.state) { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     if self.automaticallyUpdatesConfiguration {
                         self.updateConfiguration()
                     }
                     self.configurationUpdateHandler?(self, self.configurationState)
                 }
-                buttonObserver?.add(\.isEnabled) { [weak self] old, new in
+                buttonObserver.add(\.isEnabled) { [weak self] old, new in
                     guard let self = self, old != new else { return }
                     if self.automaticallyUpdatesConfiguration {
                         self.updateConfiguration()
                     }
                     self.configurationUpdateHandler?(self, self.configurationState)
                 }
-            }
         } else {
             hoverView?.removeFromSuperview()
             hoverView = nil
-            buttonObserver = nil
+            buttonObserver.removeAll()
         }
     }
     
@@ -190,9 +187,8 @@ extension NSButton {
         (contentView as? NSButton.AdvanceButtonView)?.isPressed ?? false
     }
     
-    var buttonObserver: KeyValueObserver<NSButton>? {
-        get { getAssociatedValue("buttonObserver", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "buttonObserver") }
+    var buttonObserver: KeyValueObserver<NSButton> {
+        get { getAssociatedValue("buttonObserver", initialValue: KeyValueObserver(self)) }
     }
     
     var contentView: (NSView & NSContentView)? {

@@ -9,8 +9,6 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSUIView: NSViewProtocol { }
-
 public extension NSViewProtocol where Self: NSView {
     /**
      The background color of the view.
@@ -18,7 +16,7 @@ public extension NSViewProtocol where Self: NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     var backgroundColor: NSColor? {
-        get { dynamicColors.color(\.background, cgColor: layer?.backgroundColor) }
+        get { dynamicColors.background ?? layer?.backgroundColor?.nsUIColor }
         set {
             wantsLayer = true
             NSView.swizzleAnimationForKey()
@@ -65,36 +63,53 @@ extension NSView {
 
     struct DynamicColors {
         var background: NSColor? {
-            didSet { if background?.isDynamic == false { background = nil } }
+            mutating get { get(\._background, view?.layer?.backgroundColor) }
+            set { _background = newValue?.isDynamic == true ? newValue : nil }
         }
 
         var shadow: NSColor? {
-            didSet { if shadow?.isDynamic == false { shadow = nil } }
-        }
-
-        var border: NSColor? {
-            didSet { if border?.isDynamic == false { border = nil } }
-        }
-
-        var needsObserver: Bool {
-            background != nil || border != nil || shadow != nil
+            mutating get { get(\._shadow, view?.layer?.shadowColor) }
+            set { _shadow = newValue?.isDynamic == true ? newValue : nil }
         }
         
-        mutating func color(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) -> NSUIColor? {
-            update(\.border, cgColor: cgColor)
-            return self[keyPath: keyPath] ?? cgColor?.nsUIColor
+        var border: NSColor? {
+            mutating get { get(\._border, view?.layer?.borderColor) }
+            set { _border = newValue?.isDynamic == true ? newValue : nil }
+        }
+        
+        var _shadow: NSColor?
+        var _border: NSColor?
+        var _background: NSColor?
+        weak var view: NSView?
+        
+        mutating func update() {
+            guard let view = view, let layer = view.layer else { return }
+            if let shadow = shadow?.resolvedColor(for: view).cgColor {
+                layer.shadowColor = shadow
+            }
+            if let border = border?.resolvedColor(for: view).cgColor {
+                layer.borderColor = border
+            }
+            if let background = background?.resolvedColor(for: view).cgColor {
+                layer.backgroundColor = background
+            }
         }
 
-        mutating func update(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) {
-            guard let dynamics = self[keyPath: keyPath]?.dynamicColors else { return }
+        mutating func get(_ keyPath: WritableKeyPath<Self, NSColor?>, _ cgColor: CGColor?) -> NSColor? {
+            guard let dynamics = self[keyPath: keyPath]?.dynamicColors else { return nil }
             if cgColor != dynamics.light.cgColor, cgColor != dynamics.dark.cgColor {
                 self[keyPath: keyPath] = nil
             }
+            return self[keyPath: keyPath]
+        }
+        
+        var needsObserver: Bool {
+            _background != nil || _border != nil || _shadow != nil
         }
     }
 
     var dynamicColors: DynamicColors {
-        get { getAssociatedValue("dynamicColors", initialValue: DynamicColors()) }
+        get { getAssociatedValue("dynamicColors", initialValue: DynamicColors(view: self)) }
         set { setAssociatedValue(newValue, key: "dynamicColors")
             setupEffectiveAppearanceObserver()
         }
@@ -110,25 +125,8 @@ extension NSView {
             effectiveAppearanceObservation = nil
         } else if effectiveAppearanceObservation == nil {
             effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
-                self?.updateEffectiveColors()
+                self?.dynamicColors.update()
             }
-        }
-    }
-
-    func updateEffectiveColors() {
-        dynamicColors.update(\.shadow, cgColor: layer?.shadowColor)
-        dynamicColors.update(\.background, cgColor: layer?.backgroundColor)
-        dynamicColors.update(\.border, cgColor: layer?.borderColor)
-        setupEffectiveAppearanceObserver()
-
-        if let color = dynamicColors.background?.resolvedColor(for: self).cgColor {
-            layer?.backgroundColor = color
-        }
-        if let color = dynamicColors.shadow?.resolvedColor(for: self).cgColor {
-            layer?.shadowColor = color
-        }
-        if let color = dynamicColors.border?.resolvedColor(for: self).cgColor {
-            layer?.borderColor = color
         }
     }
 }

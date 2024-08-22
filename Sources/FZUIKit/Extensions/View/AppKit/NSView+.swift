@@ -107,9 +107,8 @@ extension NSViewProtocol {
             get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
             set {
                 NSView.swizzleAnimationForKey()
-                newValue?.wantsLayer = true
                 newValue?.removeFromSuperview()
-                optionalLayer?.mask = newValue?.layer
+                optionalLayer?.mask = newValue?.optionalLayer
             }
         }
 
@@ -126,13 +125,8 @@ extension NSViewProtocol {
             get { mask }
             set {
                 NSView.swizzleAnimationForKey()
-                newValue?.wantsLayer = true
                 newValue?.removeFromSuperview()
-                if let newMaskLayer = newValue?.layer {
-                    optionalLayer?.mask = InverseMaskLayer(maskLayer: newMaskLayer)
-                } else {
-                    optionalLayer?.mask = nil
-                }
+                optionalLayer?.mask = newValue?.optionalLayer?.inverseMask
             }
         }
 
@@ -402,7 +396,7 @@ extension NSViewProtocol {
         }
         
         @objc var _borderColor: NSColor? {
-            get { (self as? NSBox)?.borderColor ?? dynamicColors.color(\.border, cgColor: layer?.borderColor) }
+            get { (self as? NSBox)?.borderColor ?? dynamicColors.border ?? layer?.borderColor?.nsUIColor }
             set {
                 if let box = self as? NSBox {
                     box.borderColor = newValue ?? box.borderColor
@@ -423,7 +417,7 @@ extension NSViewProtocol {
         
        @objc var borderColorAnimatable: NSUIColor? {
             get { layer?.borderColor?.nsUIColor }
-            set { layer?.borderColor = newValue?.cgColor }
+            set { optionalLayer?.borderColor = newValue?.cgColor }
         }
 
         /**
@@ -453,9 +447,8 @@ extension NSViewProtocol {
         }
 
         var shadowColor: NSColor? {
-            get { dynamicColors.color(\.shadow, cgColor: layer?.shadowColor) }
+            get { dynamicColors.shadow ?? layer?.shadowColor?.nsUIColor }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
                 realSelf.dynamicColors.shadow = newValue
                 var animatableColor = newValue?.resolvedColor(for: self)
@@ -471,33 +464,30 @@ extension NSViewProtocol {
 
         @objc var shadowColorAnimatable: NSColor? {
             get { layer?.shadowColor?.nsColor }
-            set { layer?.shadowColor = newValue?.cgColor }
+            set { optionalLayer?.shadowColor = newValue?.cgColor }
         }
 
         @objc var shadowOffset: CGPoint {
             get { (layer?.shadowOffset ?? .zero).point }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                layer?.shadowOffset = newValue.size
+                optionalLayer?.shadowOffset = newValue.size
             }
         }
 
         @objc var shadowRadius: CGFloat {
             get { layer?.shadowRadius ?? .zero }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                layer?.shadowRadius = newValue
+                optionalLayer?.shadowRadius = newValue
             }
         }
 
         @objc var shadowOpacity: CGFloat {
             get { CGFloat(layer?.shadowOpacity ?? .zero) }
             set {
-                wantsLayer = true
                 NSView.swizzleAnimationForKey()
-                layer?.shadowOpacity = Float(newValue)
+                optionalLayer?.shadowOpacity = Float(newValue)
             }
         }
 

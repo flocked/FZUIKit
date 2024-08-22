@@ -124,7 +124,7 @@ import FZSwiftUtils
          */
         @objc open func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
             addSublayer(layer)
-            layer.constraintTo(layer: self, insets: insets)
+            layer.constraint(to: self, insets: insets)
         }
 
         /**
@@ -140,17 +140,19 @@ import FZSwiftUtils
         @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
             guard index >= 0, index < sublayers?.count ?? Int.max else { return }
             insertSublayer(layer, at: index)
-            layer.constraintTo(layer: self, insets: insets)
+            layer.constraint(to: self, insets: insets)
         }
-
+        
         /**
          Constraints the layer to the specified layer.
 
          The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` will be constraint to the specified layer. To remove the constraints use `removeConstraints()`.
 
-         - Parameter layer: The layer to constraint to.
+         - Parameters:
+            - layer: The layer to constraint to.
+            - insets: The insets.
          */
-        @objc open func constraintTo(layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
+        @objc open func constraint(to layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
             let frameUpdate: (() -> Void) = { [weak self] in
                 guard let self = self else { return }
                 var frame = layer.bounds
@@ -330,7 +332,7 @@ import FZSwiftUtils
         
         /// Sets the layer properties non-animated.
         public var nonAnimated: NonAnimated {
-            getAssociatedValue("nonAnimated", initialValue: NonAnimated(self))
+            NonAnimated(self)
         }
         
         /// Access layer properties non-animated.
@@ -361,25 +363,65 @@ import FZSwiftUtils
 #endif
 
 /*
- @discardableResult
- func addSublayer(withConstraint layer: CALayer) -> [NSLayoutConstraint] {
- addSublayer(layer)
- layer.cornerRadius = cornerRadius
- layer.maskedCorners = maskedCorners
- layer.masksToBounds = true
- return layer.constraintTo(layer: self)
- }
+class CALayerConstraint {
+    public weak internal(set) var first: CALayer?
+    public weak internal(set) var second: CALayer?
+    
+    public var isActive: Bool  {
+        get { observer.observedObject == second }
+        set {
+            guard newValue != isActive else { return }
+            if newValue, let second = second {
+                observer.replaceObservedObject(with: second)
+            } else {
+                observer.removeObservedObject()
+            }
+        }
+    }
+    public var insets: NSDirectionalEdgeInsets
+    
+    var observer: KeyValueObserver<CALayer>!
+    
+    init(_ first: CALayer, second: CALayer, insets: NSDirectionalEdgeInsets) {
+        self.first = first
+        self.second = second
+        self.insets = insets
+        
+        let frameUpdate: (() -> Void) = { [weak self] in
+            guard let self = self, let first = self.first, let second = self.second else { return }
+            var frame = second.bounds
+            frame.size.width -= insets.width
+            frame.size.height -= insets.height
+            frame.center = second.bounds.center
+            first.frame = frame
+        }
+        first.cornerRadius = second.cornerRadius
+        first.maskedCorners = second.maskedCorners
+        first.cornerCurve = second.cornerCurve
+                        
+        observer = KeyValueObserver(second)
+        observer.add(\.cornerRadius) { [weak self] old, new in
+            guard let self = self, let first = self.first else { return }
+            first.cornerRadius = new
+        }
+        observer.add(\.cornerCurve) { [weak self] old, new in
+            guard let self = self, let first = self.first else { return }
+            first.cornerCurve = new
+        }
+        observer.add(\.maskedCorners) { [weak self] old, new in
+            guard let self = self, let first = self.first else { return }
+            first.maskedCorners = new
+        }
+        observer.add(\.bounds) { old, new in
+            guard old != new else { return }
+            frameUpdate()
+        }
+        frameUpdate()
+    }
+}
 
- @discardableResult
- func constraintTo(layer: CALayer) -> [NSLayoutConstraint] {
- frame = layer.bounds
- let constrains = [
- NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0),
- NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0),
- NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0),
- NSLayoutConstraint(item: self, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: layer, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0),
- ]
- constrains.forEach { $0.isActive = true }
- return constrains
- }
- */
+var constraint: CALayerConstraint? {
+    get { getAssociatedValue("layerConstraint") }
+    set { setAssociatedValue(newValue, key: "layerConstraint") }
+}
+*/

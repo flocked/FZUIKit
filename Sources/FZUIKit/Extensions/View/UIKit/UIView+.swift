@@ -74,11 +74,12 @@
          Changes to this property can be animated. The default value is `none()`, which results in a view with no border.
          */
         public var border: BorderConfiguration {
-            get { dashedBorderView?.configuration ?? .init(color: borderColor, width: borderWidth) }
+            get { dashedBorderView?.configuration ?? _border }
             set {
+                _border = newValue
                 if newValue.needsDashedBorder {
                     borderColor = nil
-                    borderWidth = 0.0
+                    layer.borderWidth = 0.0
                     if dashedBorderView == nil {
                         dashedBorderView = DashedBorderView()
                         addSubview(withConstraint: dashedBorderView!)
@@ -88,27 +89,27 @@
                 } else {
                     dashedBorderView?.removeFromSuperview()
                     dashedBorderView = nil
-                    var newColor = newValue.color?.resolvedColor(for: self)
-                    if let color = newColor {
-                        newColor = newValue.colorTransformer?(color) ?? color
-                    }
+                    var newColor = newValue.resolvedColor()
                     if borderColor?.alphaComponent == 0.0 || borderColor == nil {
                         borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
                     }
                     borderColor = newColor
-                    borderWidth = newValue.width
+                    layer.borderWidth = newValue.width
                 }
             }
         }
-
-        @objc var borderColor: UIColor? {
-            get { layer.borderColor?.nsUIColor }
-            set { layer.borderColor = newValue?.cgColor }
+        
+        var _border: BorderConfiguration {
+            get { getAssociatedValue("_border", initialValue: BorderConfiguration(color: layer.borderColor?.nsUIColor, width: layer.borderWidth)) }
+            set { setAssociatedValue(newValue, key: "_border") }
         }
 
-        @objc var borderWidth: CGFloat {
-            get { layer.borderWidth }
-            set { layer.borderWidth = newValue }
+        @objc var borderColor: UIColor? {
+            get { dynamicColors.border ?? layer.borderColor?.nsUIColor }
+            set { 
+                layer.borderColor = newValue?.resolvedColor(for: self).cgColor
+                dynamicColors.border = newValue
+            }
         }
 
         /**
@@ -149,13 +150,7 @@
          */
         @objc public var inverseMask: NSUIView? {
             get { (layer.mask as? InverseMaskLayer)?.maskLayer?.parentView }
-            set {
-                if let newMaskLayer = newValue?.layer {
-                    layer.mask = InverseMaskLayer(maskLayer: newMaskLayer)
-                } else {
-                    layer.mask = nil
-                }
-            }
+            set { layer.mask = newValue?.layer.inverseMask }
         }
 
         /**
@@ -166,15 +161,30 @@
          Changes to this property can be animated. The default value is `none()`, which results in a view with no shadow.
          */
         public var shadow: ShadowConfiguration {
-            get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
-            set { 
+            get { ShadowConfiguration(color: shadowColor, colorTransformer: shadowColorTransformer, opacity: CGFloat(layer.shadowOpacity), radius: layer.shadowRadius, offset: layer.shadowOffset.point) }
+            set {
                 shadowColor = newValue.resolvedColor()
-                shadowOffset = newValue.offset
-                shadowOpacity = newValue.opacity
-                shadowRadius = newValue.radius
+                shadowColorTransformer = newValue.colorTransformer
+                layer.shadowOffset = newValue.offset.size
+                layer.shadowOpacity = Float(newValue.opacity)
+                layer.shadowRadius = newValue.radius
                 if !newValue.isInvisible {
                     clipsToBounds = false
                 }
+            }
+        }
+        
+        var shadowColorTransformer: ColorTransformer? {
+            get { getAssociatedValue("shadowColorTransformer") }
+            set { setAssociatedValue(newValue, key: "shadowColorTransformer") }
+        }
+        
+        /// The shadow color of the view.
+        @objc var shadowColor: NSUIColor? {
+            get { dynamicColors.shadow ?? layer.shadowColor?.uiColor }
+            set {
+                layer.shadowColor = newValue?.resolvedColor(for: self).cgColor
+                dynamicColors.shadow = newValue
             }
         }
 
@@ -198,27 +208,6 @@
                     }
                 }
             }
-        }
-
-        /// The shadow color of the view.
-        @objc var shadowColor: NSUIColor? {
-            get { layer.shadowColor?.uiColor }
-            set { layer.shadowColor = newValue?.resolvedColor(for: self).cgColor }
-        }
-
-        @objc var shadowOffset: CGPoint {
-            get { layer.shadowOffset.point }
-            set { layer.shadowOffset = newValue.size }
-        }
-
-        @objc var shadowRadius: CGFloat {
-            get { layer.shadowRadius }
-            set { layer.shadowRadius = newValue }
-        }
-
-        @objc var shadowOpacity: CGFloat {
-            get { CGFloat(layer.shadowOpacity) }
-            set { layer.shadowOpacity = Float(newValue) }
         }
 
         /**
@@ -272,6 +261,68 @@
             guard firstBaselineOffsetFromTop ?? 0.0 != 0 else { return frame.origin }
             return CGPoint(frame.x, frame.y + frame.height - (firstBaselineOffsetFromTop ?? 0.0) - 0.5)
         }
+        
+        /// Handlers for the view.
+        public struct Handlers {
+            /// The handler that gets called when the trait collection changes.
+            public var trait: ((UITraitCollection)->())?
+            
+            /// The handler that gets called when the user interface style changes.
+            public var userInterfaceStyle: ((UIUserInterfaceStyle)->())?
+            
+            /// The handler that gets called when the active appearance changes.
+            public var activeAppearance: ((UIUserInterfaceActiveAppearance)->())?
+            
+            var needsTraitObservation: Bool {
+                trait != nil || userInterfaceStyle != nil
+            }
+        }
+        
+        /// The handlers for the view.
+        public var handlers: Handlers {
+            get { getAssociatedValue("handlers", initialValue: Handlers()) }
+            set {
+                setAssociatedValue(newValue, key: "handlers")
+                setupTraitObservation()
+            }
+        }
+        
+        func setupTraitObservation() {
+            if !handlers.needsTraitObservation && dynamicColors._border == nil && dynamicColors._shadow == nil {
+                traitObserverView?.removeFromSuperview()
+                traitObserverView = nil
+            } else if traitObserverView == nil {
+                traitObserverView = TraitObserverView()
+                addSubview(traitObserverView!)
+                traitObserverView?.sendToBack()
+            }
+        }
+        
+        var traitObserverView: TraitObserverView? {
+            get { getAssociatedValue("traitObserverView") }
+            set { setAssociatedValue(newValue, key: "traitObserverView") }
+        }
+        
+        class TraitObserverView: UIView {
+            override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+                guard let superview = superview else { return }
+                let previous = previousTraitCollection ?? superview.traitCollection
+                
+                func compare<Value>(_ keyPath: KeyPath<UITraitCollection, Value>, handler: KeyPath<UIView, ((Value)->())?>) where Value: RawRepresentable, Value.RawValue == Int {
+                    if previous[keyPath: keyPath].rawValue != traitCollection[keyPath: keyPath].rawValue {
+                        superview[keyPath: handler]?(traitCollection[keyPath: keyPath])
+                    }
+                }
+                
+                superview.handlers.trait?(traitCollection)
+                compare(\.activeAppearance, handler: \.handlers.activeAppearance)
+                
+                if previous.userInterfaceStyle != traitCollection.userInterfaceStyle {
+                    superview.dynamicColors.update()
+                    superview.handlers.userInterfaceStyle?(traitCollection.userInterfaceStyle)
+                }
+            }
+        }
     }
 
     extension UIView.ContentMode: CaseIterable {
@@ -304,5 +355,60 @@
             self.init(rawValue: rawValue)!
         }
     }
+
+import FZSwiftUtils
+extension UIView {
+        
+    struct DynamicColors {
+
+        var shadow: UIColor? {
+            mutating get { get(\._shadow, view?.layer.shadowColor) }
+            set { _shadow = newValue?.isDynamic == true ? newValue : nil }
+        }
+        
+        var border: UIColor? {
+            mutating get { get(\._border, view?.layer.borderColor) }
+            set { _border = newValue?.isDynamic == true ? newValue : nil }
+        }
+        
+        var _shadow: UIColor?
+        var _border: UIColor?
+        weak var view: UIView?
+        
+        mutating func update() {
+            guard let view = view else { return }
+            if let shadow = shadow?.resolvedColor(for: view).cgColor {
+                view.layer.shadowColor = shadow
+            }
+            if let border = border?.resolvedColor(for: view).cgColor {
+                view.layer.borderColor = border
+            }
+        }
+
+        mutating func get(_ keyPath: WritableKeyPath<Self, UIColor?>, _ cgColor: CGColor?) -> UIColor? {
+            guard let dynamics = self[keyPath: keyPath]?.dynamicColors else { return nil }
+            if cgColor != dynamics.light.cgColor, cgColor != dynamics.dark.cgColor {
+                self[keyPath: keyPath] = nil
+            }
+            return self[keyPath: keyPath]
+        }
+        
+        var needsObserver: Bool {
+           _border != nil || _shadow != nil
+        }
+    }
+
+    var dynamicColors: DynamicColors {
+        get { getAssociatedValue("dynamicColors", initialValue: DynamicColors(view: self)) }
+        set { setAssociatedValue(newValue, key: "dynamicColors")
+            setupTraitObservation()
+        }
+    }
+
+    var effectiveAppearanceObservation: KeyValueObservation? {
+        get { getAssociatedValue("effectiveAppearanceObservation") }
+        set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
+    }
+}
 
 #endif

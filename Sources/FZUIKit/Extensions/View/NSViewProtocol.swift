@@ -36,4 +36,6 @@ public protocol NSViewProtocol: NSView {
      */
 }
 
+extension NSUIView: NSViewProtocol { }
+
 #endif
