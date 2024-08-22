@@ -539,14 +539,23 @@
                     optionalLayer?.addSublayer(withConstraint: innerShadowLayer)
                     innerShadowLayer.sendToBack()
                 }
+                guard let innerShadowLayer = innerShadowLayer else { return }
 
-                innerShadowColor = newValue.color
+                var newColor: NSUIColor? = nil
+                if var color = newValue.color?.resolvedColor(for: self) {
+                    newColor = newValue.colorTransformer?(color) ?? color
+                } else if isProxy() {
+                    newColor = .clear
+                }
+                if innerShadowLayer.shadowColor?.isVisible == false || innerShadowLayer.shadowColor == nil {
+                    innerShadowLayer.shadowColor = newColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                }
+                innerShadowColor = newColor
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
-                innerShadowLayer?.color = newValue.color
-                innerShadowLayer?.colorTransformer = newValue.colorTransformer
-                innerShadowLayer?.updateShadowPath()
+                innerShadowLayer.color = newValue.color
+                innerShadowLayer.colorTransformer = newValue.colorTransformer
                 /*
                 guard let innerShadowLayer = innerShadowLayer else { return }
                 
@@ -570,8 +579,8 @@
         }
 
         @objc var innerShadowColor: NSColor? {
-            get { innerShadowLayer?.color }
-            set { innerShadowLayer?.color = newValue }
+            get { innerShadowLayer?.shadowColor?.nsUIColor }
+            set { innerShadowLayer?.shadowColor = newValue?.cgColor }
         }
 
         @objc var innerShadowOpacity: CGFloat {
@@ -580,13 +589,13 @@
         }
 
         @objc var innerShadowRadius: CGFloat {
-            get { innerShadowLayer?.configuration.radius ?? 0 }
-            set { innerShadowLayer?.configuration.radius = newValue }
+            get { innerShadowLayer?.shadowRadius ?? 0 }
+            set { innerShadowLayer?.shadowRadius = newValue }
         }
 
         @objc var innerShadowOffset: CGPoint {
-            get { innerShadowLayer?.configuration.offset ?? .zero }
-            set { innerShadowLayer?.configuration.offset = newValue }
+            get { innerShadowLayer?.shadowOffset.point ?? .zero }
+            set { innerShadowLayer?.shadowOffset = newValue.size }
         }
 
         /// Removes all tracking areas.
