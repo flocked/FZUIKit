@@ -139,7 +139,6 @@ extension NSView {
             }
         }
         
-        observe(\.window, handler: \.windowHandlers.window)
         observe(\.window?.screen, handler: \.windowHandlers.screen)
         observe(\.effectiveAppearance, handler: \.viewHandlers.effectiveAppearance)
         observe(\.alphaValue, handler: \.viewHandlers.alphaValue)
@@ -492,10 +491,6 @@ extension NSView {
      
      Provide ``canDrop`` and/or ``allowedContentTypes`` to specify the items that can be dropped to the view.
      
-     
-     
-     ``didDrop`` gets the
-     
      The system calls the ``canDrop`` handler to validate if your view accepts dropping the content on the pasteboard. If it returns `true`, the system calls the ``didDrop`` handler when the user drops the content to your view.
      
      In the following example the view accepts dropping of images and file urls:
@@ -610,6 +605,12 @@ extension NSView {
         
         override func viewWillStartLiveResize() {
             super.viewWillStartLiveResize()
+            superview?.viewHandlers.isLiveResizing?(true)
+        }
+        
+        override func viewDidEndLiveResize() {
+            super.viewDidEndLiveResize()
+            superview?.viewHandlers.isLiveResizing?(true)
         }
 
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {

@@ -20,6 +20,11 @@ extension NSWindow {
         [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }].notificationToken!
     }
     
+    /// Observes the resizing of the window by the user.
+    @objc open func observeLiveResize(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
+        [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { _ in handler(false) }].notificationToken!
+    }
+    
     /**
      A Boolean value that indicates whether the window is the first responder.
      

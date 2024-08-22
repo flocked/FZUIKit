@@ -26,17 +26,19 @@ public extension NSViewProtocol {
         var widthConstraint: NSLayoutConstraint?
         var heightConstraint: NSLayoutConstraint?
         if size.width != NSView.noIntrinsicMetric && size.width > 0 {
-            widthConstraint = widthAnchor.constraint(lessThanOrEqualToConstant: size.width).priority(.fittingSizeCompression)
+            widthConstraint = widthAnchor.constraint(equalToConstant: size.width).priority(.fittingSizeCompression)
         }
         if size.height != NSView.noIntrinsicMetric && size.height > 0 {
-            heightConstraint = heightAnchor.constraint(lessThanOrEqualToConstant: size.height).priority(.fittingSizeCompression)
+            heightConstraint = heightAnchor.constraint(equalToConstant: size.height).priority(.fittingSizeCompression)
         }
         widthConstraint?.activate()
         heightConstraint?.activate()
+        layoutSubtreeIfNeeded()
         let fittingSize = fittingSize
         widthConstraint?.activate(false)
         heightConstraint?.activate(false)
         translatesAutoresizingMaskIntoConstraints = translatesAutoresizing
+        layoutSubtreeIfNeeded()
         return fittingSize
     }
 }
