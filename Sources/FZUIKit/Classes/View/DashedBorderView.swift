@@ -21,13 +21,14 @@ class DashedBorderView: NSUIView {
     var configuration: BorderConfiguration {
         didSet {
             guard oldValue != configuration else { return }
-            configuration.insets.bottomTop += configuration.width / 2.0
-            configuration.insets.leadingTrailing += configuration.width / 2.0
             update()
         }
     }
     
     func update() {
+        var configuration = configuration
+        configuration.insets.bottomTop += configuration.width / 2.0
+        configuration.insets.leadingTrailing += configuration.width / 2.0
         let view = superview ?? self
         hostingController.rootView = ContentView(border: configuration, cornerRadius: view.cornerRadius, cornerCurve: view.cornerCurve, roundedCorners: view.roundedCorners)
     }
@@ -35,9 +36,9 @@ class DashedBorderView: NSUIView {
     init(configuration: BorderConfiguration = .none()) {
         self.configuration = configuration
         super.init(frame: .zero)
-        
         hostingController = NSUIHostingController(rootView: ContentView(border: configuration, cornerRadius: cornerRadius, cornerCurve: cornerCurve, roundedCorners: roundedCorners))
         addSubview(withConstraint: hostingController.view)
+        update()
         optionalLayer?.zPosition = .greatestFiniteMagnitude
         observation = KeyValueObserver(self)
         #if os(macOS)
@@ -91,7 +92,7 @@ class DashedBorderView: NSUIView {
                 if border.dash.animates && border.needsDashedBorderView {
                     borderItem
                         .animation(
-                            Animation.linear(duration: border.dash.animationDuration)
+                            Animation.linear(duration: border.dash._animationSpeed)
                                 .repeatForever(autoreverses: false),
                             value: phase)
                         .onAppear {

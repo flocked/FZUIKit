@@ -59,13 +59,21 @@ extension CGLineCap: Codable { }
             /// A Boolean value that indicates whether the border dash animates.
             public var animates: Bool = false
             
-            public var animationDuration: CGFloat = 1.0
+            /// The speed of the animated border dash as a value between `0.0`  (slow) and `1.0` (fast).
+            public var animationSpeed: CGFloat = 0.5 {
+                didSet { animationSpeed = animationSpeed.clamped(to: 0...1) }
+            }
             
-            public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false) {
+            var _animationSpeed: CGFloat {
+                3.0 - animationSpeed.interpolated(from: 0...1, to: 0.05...3.0)
+            }
+            
+            public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: CGFloat = 0.1) {
                 self.pattern = pattern
                 self.phase = phase
                 self.lineCap = lineCap
                 self.animates = animates
+                self.animationSpeed = animationSpeed
             }
         }
 
@@ -118,13 +126,12 @@ extension CGLineCap: Codable { }
             Self(color: color, width: width, dash: .init(pattern: patterh, animates: animates))
         }
 
-        /// A Boolean value that indicates whether the border is invisible (when the color is `nil`, `clear` or the width `0`).
         var isInvisible: Bool {
-            width == 0.0 || resolvedColor() == nil || resolvedColor() == .clear
+            width == 0.0 || color == nil || color?.alphaComponent == 0.0
         }
 
         var needsDashedBorderView: Bool {
-            insets != .zero || !dash.pattern.isEmpty || !isInvisible
+            (insets != .zero || dash.pattern.count > 1) && !isInvisible
         }
     }
 
