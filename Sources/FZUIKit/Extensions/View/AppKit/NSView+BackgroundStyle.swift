@@ -43,6 +43,7 @@
                     view.symbolConfiguration = configuration
                     view.previousConfiguration = nil
                 }
+                Swift.print(view.symbolConfiguration ?? "nil")
                 /*
                 if backgroundStyle == .emphasized, let configuration = view.imageSymbolConfiguration {
                     view.previousConfiguration = view.symbolConfiguration
