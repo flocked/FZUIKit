@@ -80,7 +80,6 @@ extension NSImage.SymbolConfiguration {
         copy.setValue(value(forKey: "pointSize"), forKey: "pointSize")
         copy.setValue(value(forKey: "weight"), forKey: "weight")
         copy.setValue(value(forKey: "scale"), forKey: "scale")
-        copy.setValue(value(forKey: "prefersMulticolor"), forKey: "prefersMulticolor")
         return copy
     }
 }
