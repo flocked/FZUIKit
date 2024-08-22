@@ -40,13 +40,20 @@
         /// The insets of the border.
         public var insets: NSDirectionalEdgeInsets = .init(0)
         
-        /// The dash properties of the border.
+        /// The properties of the border dash.
         public var dash: Dash = Dash()
         
-        /// Properties for the border dash.
+        /// Properties of the border dash.
         public struct Dash: Hashable, Codable {
-            /// The pattern of the border dash.
-            public var pattern: [CGFloat] = []
+            
+            /// The pattern of the dash.
+            public var pattern: [CGFloat] = [] {
+                didSet {
+                    if pattern.count == 1, let value = pattern.first {
+                        pattern = [value, value]
+                    }
+                }
+            }
             
             /// How far into the dash pattern the line starts.
             public var phase: CGFloat = 0
@@ -54,12 +61,13 @@
             /// The endpoint style of a dash segment.
             public var lineCap: CGLineCap = .butt
             
-            /// A Boolean value that indicates whether the border dash animates.
+            /// A Boolean value that indicates whether the dash animates.
             public var animates: Bool = false
             
-            /// The speed of the animated border dash as a value between `0.0`  (slow) and `1.0` (fast).
+            /// The speed of the dash animation.
             public var animationSpeed: AnimationSpeed = .normal
             
+            /// The speed of the dash animation.
             public enum AnimationSpeed: Hashable, Codable {
                 /// Slow
                 case slow
