@@ -20,13 +20,6 @@ import SwiftUI
  The shadows of `NSView/UIView` and `CALayer` can be configurated by using their `innerShadow` and `outerShadow` properties.
  */
 public struct ShadowConfiguration: Hashable {
-    /// The type of a shadow.
-    enum ShadowType {
-        /// Inner shadow.
-        case inner
-        /// Outer shadow.
-        case outer
-    }
     
     /// The color of the shadow.
     public var color: NSUIColor? = .black
@@ -56,9 +49,8 @@ public struct ShadowConfiguration: Hashable {
     public var offset: CGPoint = .init(x: -1.0, y: 1.5)
     #endif
     
-    /// A Boolean value that indicates whether the shadow is invisible (when the color is `nil`, `clear` or the opacity `0`).
     var isInvisible: Bool {
-        (resolvedColor() == nil || resolvedColor()?.alphaComponent == 0.0 || opacity == 0.0)
+        opacity == 0.0 || resolvedColor() == nil || resolvedColor()?.alphaComponent == 0.0
     }
         
     #if os(macOS)
@@ -130,7 +122,6 @@ public struct ShadowConfiguration: Hashable {
 extension ShadowConfiguration: Codable {
     public enum CodingKeys: String, CodingKey {
         case color
-        case resolvedColor
         case opacity
         case radius
         case offset
@@ -253,22 +244,14 @@ public extension NSShadow {
 
 /// The Objective-C class for ``ShadowConfiguration``.
 public class __ShadowConfiguration: NSObject, NSCopying {
-    var color: NSUIColor?
-    var colorTransformer: ColorTransformer?
-    var opacity: CGFloat = 0.3
-    var radius: CGFloat = 2.0
-    var offset: CGPoint = .init(x: 1.0, y: -1.5)
+    let configuration: ShadowConfiguration
     
-    public init(color: NSUIColor?, opacity: CGFloat, radius: CGFloat, offset: CGPoint) {
-        self.color = color
-        self.opacity = opacity
-        self.radius = radius
-        self.offset = offset
-        super.init()
+    public init(configuration: ShadowConfiguration) {
+        self.configuration = configuration
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset)
+        __ShadowConfiguration(configuration: configuration)
     }
 }
 
@@ -277,11 +260,11 @@ extension ShadowConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __ShadowConfiguration
     
     public func _bridgeToObjectiveC() -> __ShadowConfiguration {
-        return __ShadowConfiguration(color: color, opacity: opacity, radius: radius, offset: offset)
+        return __ShadowConfiguration(configuration: self)
     }
     
     public static func _forceBridgeFromObjectiveC(_ source: __ShadowConfiguration, result: inout ShadowConfiguration?) {
-        result = ShadowConfiguration(color: source.color, opacity: source.opacity, radius: source.radius, offset: source.offset)
+        result = source.configuration
     }
     
     public static func _conditionallyBridgeFromObjectiveC(_ source: __ShadowConfiguration, result: inout ShadowConfiguration?) -> Bool {

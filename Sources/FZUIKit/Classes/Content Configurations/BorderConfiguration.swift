@@ -151,7 +151,7 @@ public struct BorderConfiguration: Hashable {
     }
     
     var isInvisible: Bool {
-        width == 0.0 || color == nil || color?.alphaComponent == 0.0
+        width == 0.0 || resolvedColor() == nil || resolvedColor()?.alphaComponent == 0.0
     }
     
     var needsDashedBorder: Bool {
@@ -201,23 +201,14 @@ extension NSUIView {
 
 /// The Objective-C class for ``BorderConfiguration``.
 public class __BorderConfiguration: NSObject, NSCopying {
-    var color: NSUIColor?
-    var colorTransformer: ColorTransformer?
-    var width: CGFloat
-    var dash: BorderConfiguration.Dash
-    var insets: NSDirectionalEdgeInsets
+    let configuration: BorderConfiguration
     
-    public init(color: NSUIColor?, colorTransformer: ColorTransformer?, width: CGFloat, dash: BorderConfiguration.Dash, insets: NSDirectionalEdgeInsets) {
-        self.color = color
-        self.width = width
-        self.colorTransformer = colorTransformer
-        self.dash = dash
-        self.insets = insets
-        super.init()
+    public init(configuration: BorderConfiguration) {
+        self.configuration = configuration
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dash: dash, insets: insets)
+        __BorderConfiguration(configuration: configuration)
     }
 }
 
@@ -226,11 +217,11 @@ extension BorderConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __BorderConfiguration
     
     public func _bridgeToObjectiveC() -> __BorderConfiguration {
-        return __BorderConfiguration(color: color, colorTransformer: colorTransformer, width: width, dash: dash, insets: insets)
+        return __BorderConfiguration(configuration: self)
     }
     
     public static func _forceBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) {
-        result = BorderConfiguration(color: source.color, colorTransformer: source.colorTransformer, width: source.width, dash: source.dash, insets: source.insets)
+        result = source.configuration
     }
     
     public static func _conditionallyBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) -> Bool {

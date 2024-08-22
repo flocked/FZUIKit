@@ -92,7 +92,7 @@ public struct NSViewConfigurationState: NSConfigurationState, Hashable {
 
 extension NSViewConfigurationState: ReferenceConvertible {
     /// The Objective-C type for this state.
-    public typealias ReferenceType = __NSViewConfigurationStateObjcNew
+    public typealias ReferenceType = __NSViewConfigurationState
 
     public var description: String {
         """
@@ -111,20 +111,20 @@ extension NSViewConfigurationState: ReferenceConvertible {
         description
     }
 
-    public func _bridgeToObjectiveC() -> __NSViewConfigurationStateObjcNew {
-        return __NSViewConfigurationStateObjcNew(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isActive: isActive, isFocused: isFocused, isExpanded: isExpanded, customStates: customStates)
+    public func _bridgeToObjectiveC() -> __NSViewConfigurationState {
+        return __NSViewConfigurationState(state: self)
     }
 
-    public static func _forceBridgeFromObjectiveC(_ source: __NSViewConfigurationStateObjcNew, result: inout NSViewConfigurationState?) {
-        result = NSViewConfigurationState(isSelected: source.isSelected, isEnabled: source.isEnabled, isHovered: source.isHovered, isEditing: source.isEditing, isActive: source.isActive, customStates: source.customStates)
+    public static func _forceBridgeFromObjectiveC(_ source: __NSViewConfigurationState, result: inout NSViewConfigurationState?) {
+        result = source.state
     }
 
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __NSViewConfigurationStateObjcNew, result: inout NSViewConfigurationState?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __NSViewConfigurationState, result: inout NSViewConfigurationState?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
 
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __NSViewConfigurationStateObjcNew?) -> NSViewConfigurationState {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __NSViewConfigurationState?) -> NSViewConfigurationState {
         if let source = source {
             var result: NSViewConfigurationState?
             _forceBridgeFromObjectiveC(source, result: &result)
@@ -135,30 +135,15 @@ extension NSViewConfigurationState: ReferenceConvertible {
 }
 
 /// The `Objective-C` class for ``NSViewConfigurationState``.
-public class __NSViewConfigurationStateObjcNew: NSObject, NSCopying {
-    var isSelected: Bool
-    var isEnabled: Bool
-    var isHovered: Bool
-    var isEditing: Bool
-    var isActive: Bool
-    var isFocused: Bool
-    var isExpanded: Bool
-    var customStates:[NSConfigurationStateCustomKey: AnyHashable]
+public class __NSViewConfigurationState: NSObject, NSCopying {
+    let state: NSViewConfigurationState
 
-    init(isSelected: Bool, isEnabled: Bool, isHovered: Bool, isEditing: Bool, isActive: Bool, isFocused: Bool, isExpanded: Bool, customStates: [NSConfigurationStateCustomKey: AnyHashable]) {
-        self.isSelected = isSelected
-        self.isEnabled = isEnabled
-        self.isHovered = isHovered
-        self.isEditing = isEditing
-        self.isActive = isActive
-        self.isFocused = isFocused
-        self.isExpanded = isExpanded
-        self.customStates = customStates
-        super.init()
+    init(state: NSViewConfigurationState) {
+        self.state = state
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __NSViewConfigurationStateObjcNew(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isActive: isActive, isFocused: isFocused, isExpanded: isExpanded, customStates: customStates)
+        __NSViewConfigurationState(state: state)
     }
 }
 #endif

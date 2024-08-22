@@ -135,38 +135,14 @@
 
 /// The Objective-C class for ``VisualEffectConfiguration``.
 public class __VisualEffectConfiguration: NSObject, NSCopying {
-    public typealias Material = NSVisualEffectView.Material
-    public typealias State = NSVisualEffectView.State
-    public typealias BlendingMode = NSVisualEffectView.BlendingMode
+    let configuration: VisualEffectConfiguration
 
-    public var material: Material
-
-    public var blendingMode: BlendingMode
-
-    public var appearance: NSAppearance?
-
-    public var state: State
-
-    public var isEmphasized: Bool
-
-    public var maskImage: NSImage?
-
-    public init(material: Material,
-                blendingMode: BlendingMode,
-                appearance: NSAppearance? = nil,
-                state: State = .followsWindowActiveState,
-                isEmphasized: Bool = false,
-                maskImage: NSImage? = nil) {
-        self.material = material
-        self.blendingMode = blendingMode
-        self.appearance = appearance
-        self.state = state
-        self.isEmphasized = isEmphasized
-        self.maskImage = maskImage
+    public init(configuration: VisualEffectConfiguration) {
+        self.configuration = configuration
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage)
+        __VisualEffectConfiguration(configuration: configuration)
     }
 }
 
@@ -175,11 +151,11 @@ extension VisualEffectConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __VisualEffectConfiguration
 
     public func _bridgeToObjectiveC() -> __VisualEffectConfiguration {
-        return __VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage)
+        return __VisualEffectConfiguration(configuration: self)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __VisualEffectConfiguration, result: inout VisualEffectConfiguration?) {
-        result = VisualEffectConfiguration(material: source.material, blendingMode: source.blendingMode, appearance: source.appearance, state: source.state, isEmphasized: source.isEmphasized, maskImage: source.maskImage)
+        result = source.configuration
     }
 
     public static func _conditionallyBridgeFromObjectiveC(_ source: __VisualEffectConfiguration, result: inout VisualEffectConfiguration?) -> Bool {

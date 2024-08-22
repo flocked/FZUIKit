@@ -249,48 +249,14 @@
 
 /// The Objective-C class for ``Gradient``.
 public class __Gradient: NSObject, NSCopying {
-    /// The array of color stops.
-    public var stops: [Stop]
-    /// The start point of the gradient.
-    public var startPoint: Point
-    /// The end point of the gradient.
-    public var endPoint: Point
-    /// The type of gradient.
-    public var type: Int
-    
-    /// One color stop in the gradient.
-    public class Stop {
-        /// The color for the stop.
-        public var color: NSUIColor
-        /// The parametric location of the stop.
-        public var location: CGFloat
-        /// Creates a color stop with a color and location.
-        public init(color: NSUIColor, location: CGFloat) {
-            self.color = color
-            self.location = location
-        }
-    }
-    
-    /// A point in the gradient.
-    public class Point {
-        public var x: CGFloat
-        public var y: CGFloat
-        
-        init(x: CGFloat, y: CGFloat) {
-            self.x = x
-            self.y = y
-        }
-    }
+    let gradient: Gradient
 
-    public init(stops: [Stop], startPoint: Point, endPoint: Point, type: Int) {
-        self.stops = stops
-        self.startPoint = startPoint
-        self.endPoint = endPoint
-        self.type = type
+    init(gradient: Gradient) {
+        self.gradient = gradient
     }
 
     public func copy(with zone: NSZone? = nil) -> Any {
-        __Gradient(stops: stops, startPoint: startPoint, endPoint: endPoint, type: type)
+        __Gradient(gradient: gradient)
     }
 }
 
@@ -299,11 +265,11 @@ extension Gradient: ReferenceConvertible {
     public typealias ReferenceType = __Gradient
 
     public func _bridgeToObjectiveC() -> __Gradient {
-        return __Gradient.init(stops: stops.compactMap({__Gradient.Stop(color: $0.color, location: $0.location)}), startPoint: __Gradient.Point(x: startPoint.x, y: startPoint.y), endPoint: __Gradient.Point(x: endPoint.x, y: endPoint.y), type: type.rawValue)
+        return __Gradient.init(gradient: self)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __Gradient, result: inout Gradient?) {
-        result = Gradient(stops: source.stops.compactMap({Gradient.Stop(color: $0.color, location: $0.location)}), startPoint: Gradient.Point(source.startPoint.x, source.startPoint.y), endPoint: Gradient.Point(source.endPoint.x, source.endPoint.y), type: GradientType(rawValue: source.type)!)
+        result = source.gradient
     }
 
     public static func _conditionallyBridgeFromObjectiveC(_ source: __Gradient, result: inout Gradient?) -> Bool {

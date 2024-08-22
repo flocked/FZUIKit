@@ -281,9 +281,9 @@ extension CGVector3:  Hashable {
 
 /// The Objective-C class for ``CGVector3``.
 public class __CGVector3: NSObject, NSCopying {
-    var storage: simd_double3
+    let storage: CGVector3
 
-    public init(_ storage: simd_double3) {
+    public init(_ storage: CGVector3) {
         self.storage = storage
     }
     
@@ -294,9 +294,9 @@ public class __CGVector3: NSObject, NSCopying {
 
 /// The Objective-C class for ``CGVector4``.
 public class __CGVector4: NSObject, NSCopying {
-    var storage: simd_double4
+    let storage: CGVector4
 
-    public init(_ storage: simd_double4) {
+    public init(_ storage: CGVector4) {
         self.storage = storage
     }
     
@@ -307,9 +307,9 @@ public class __CGVector4: NSObject, NSCopying {
 
 /// The Objective-C class for ``CGQuaternion``.
 public class __CGQuaternion: NSObject, NSCopying {
-    var storage: simd_quatd
+    var storage: CGQuaternion
 
-    public init(_ storage: simd_quatd) {
+    public init(_ storage: CGQuaternion) {
         self.storage = storage
     }
     
@@ -323,11 +323,11 @@ extension CGVector3: ReferenceConvertible {
     public typealias ReferenceType = __CGVector3
 
     public func _bridgeToObjectiveC() -> __CGVector3 {
-        return __CGVector3(storage)
+        return __CGVector3(self)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __CGVector3, result: inout CGVector3?) {
-        result = CGVector3(source.storage)
+        result = source.storage
     }
 
     public static func _conditionallyBridgeFromObjectiveC(_ source: __CGVector3, result: inout CGVector3?) -> Bool {
@@ -353,11 +353,11 @@ extension CGVector4: ReferenceConvertible {
     public typealias ReferenceType = __CGVector4
 
     public func _bridgeToObjectiveC() -> __CGVector4 {
-        return __CGVector4(storage)
+        return __CGVector4(self)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __CGVector4, result: inout CGVector4?) {
-        result = CGVector4(source.storage)
+        result = source.storage
     }
 
     public static func _conditionallyBridgeFromObjectiveC(_ source: __CGVector4, result: inout CGVector4?) -> Bool {
@@ -383,11 +383,11 @@ extension CGQuaternion: ReferenceConvertible {
     public typealias ReferenceType = __CGQuaternion
 
     public func _bridgeToObjectiveC() -> __CGQuaternion {
-        return __CGQuaternion(storage)
+        return __CGQuaternion(self)
     }
 
     public static func _forceBridgeFromObjectiveC(_ source: __CGQuaternion, result: inout CGQuaternion?) {
-        result = CGQuaternion(source.storage)
+        result = source.storage
     }
 
     public static func _conditionallyBridgeFromObjectiveC(_ source: __CGQuaternion, result: inout CGQuaternion?) -> Bool {
