@@ -34,7 +34,7 @@
             (self as? NSTableCellView)?.backgroundStyle = backgroundStyle
 
             if #available(macOS 12.0, *), let view = self as? NSImageView {
-                view.updateSymbolConfiguration(for: backgroundStyle)
+                view.updateSymbolConfiguration()
             }
             
             for subview in subviews {
@@ -45,26 +45,20 @@
 
 @available(macOS 12.0, *)
 extension NSImageView {
-    func updateSymbolConfiguration(for backgroundStyle: NSView.BackgroundStyle) {
+    func updateSymbolConfiguration() {
+        configurationObservation = nil
         if backgroundStyle == .emphasized {
-            if configurationObservation == nil {
-                configurationObservation = observeChanges(for: \.symbolConfiguration) { [weak self] old, new in
-                    guard let self = self else { return }
-                    self.updateSymbolConfiguration(for: self.backgroundStyle)
-                }
-            }
+            previousConfiguration = symbolConfiguration
             if let configuration = symbolConfiguration {
-                previousConfiguration = configuration
                 symbolConfiguration = configuration.noColorsCopy()
-            } else {
-                previousConfiguration = nil
             }
-        } else if backgroundStyle != .emphasized {
-            configurationObservation = nil
-            if let configuration = previousConfiguration {
-                symbolConfiguration = configuration
-                previousConfiguration = nil
+            configurationObservation = observeChanges(for: \.symbolConfiguration) { [weak self] old, new in
+                guard let self = self else { return }
+                self.updateSymbolConfiguration()
             }
+        } else if backgroundStyle != .emphasized, let configuration = previousConfiguration {
+            symbolConfiguration = configuration
+            previousConfiguration = nil
         }
     }
     
