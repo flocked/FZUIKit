@@ -140,10 +140,12 @@ public struct ImageSymbolConfiguration: Hashable {
         Self(color: .hierarchical(color))
     }
     
+    #if os(macOS)
     /// Creates a configuration with a hierarchical color using the tint color.
     public static var hierarchical: Self {
         Self(color: .hierarchical)
     }
+    #endif
 
     /// Creates a configuration with a multicolor color with the specified color.
     public static func multicolor(_ color: NSUIColor) -> Self {
@@ -585,8 +587,11 @@ public extension NSUIImageView {
     #else
     /// The configuration values to use when rendering the image.
     var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {
-        get { preferredSymbolConfiguration?.symbolConfiguration }
-        set { preferredSymbolConfiguration = newValue?.nsUI() }
+        get { getAssociatedValue("_imageSymbolConfiguration") }
+        set {
+            setAssociatedValue(newValue, key: "_imageSymbolConfiguration")
+            preferredSymbolConfiguration = newValue?.nsUI()
+        }
     }
     #endif
 }
