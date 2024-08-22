@@ -30,7 +30,7 @@ extension NSImageView {
     @available(macOS 12, *)
     @discardableResult
     func symbolConfiguration(_ configuration: ImageSymbolConfiguration?) -> Self {
-        self.symbolConfiguration = configuration?.nsUI()
+        self.imageSymbolConfiguration = configuration
         return self
     }
     

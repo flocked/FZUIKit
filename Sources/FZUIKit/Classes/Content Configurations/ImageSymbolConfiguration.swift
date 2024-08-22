@@ -495,14 +495,6 @@ public struct ImageSymbolConfiguration: Hashable {
 }
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
-extension NSUIImage.SymbolConfiguration {
-    var symbolConfiguration: ImageSymbolConfiguration? {
-        get { getAssociatedValue("symbolConfiguration", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "symbolConfiguration") }
-    }
-}
-
-@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
 public extension ImageSymbolConfiguration {
     #if os(macOS)
         /// Returns a `NSImage.SymbolConfiguration` representation.
@@ -516,56 +508,6 @@ public extension ImageSymbolConfiguration {
             nsUI()
         }
     #endif
-    internal func _nsUI() -> (configuration: NSUIImage.SymbolConfiguration, tintColor: NSUIColor?) {
-        var symbolColor: NSUIColor? = nil
-        var configuration: NSUIImage.SymbolConfiguration
-        switch color {
-        case let .hierarchical(color):
-            #if os(macOS)
-            symbolColor = color
-            configuration = ._preferringHierarchical()
-            #else
-            configuration = .hierarchical(color)
-            #endif
-        case .monochrome(let color):
-            symbolColor = color
-            configuration = .monochrome()
-        case let .palette(primary, secondary, tertiary):
-            configuration = .palette(primary, secondary, tertiary)
-        case let .multicolor(color):
-            configuration = .multicolor(color)
-        case .none:
-            #if os(macOS)
-                configuration = .init()
-            #else
-                configuration = .unspecified
-            #endif
-        }
-
-        switch font {
-        case .size(let size, weight: let weight, design: _):
-            configuration = configuration.font(size: size)
-            configuration = configuration.weight(weight)
-        case .textStyle(let style, weight: let weight, design: _):
-            configuration = configuration.font(style)
-            configuration = configuration.weight(weight)
-        case .none:
-            break
-        }
-
-        #if os(macOS)
-            if let symbolScale = imageScale?.nsSymbolScale {
-                configuration = configuration.scale(symbolScale)
-            }
-        #else
-            if let symbolScale = imageScale?.uiSymbolScale {
-                configuration = configuration.scale(symbolScale)
-            }
-        #endif
-
-        configuration.symbolConfiguration = self
-        return (configuration, symbolColor)
-    }
     
     internal func nsUI() -> NSUIImage.SymbolConfiguration {
         var configuration: NSUIImage.SymbolConfiguration
@@ -618,8 +560,6 @@ public extension ImageSymbolConfiguration {
                 configuration = configuration.scale(symbolScale)
             }
         #endif
-
-        configuration.symbolConfiguration = self
         return configuration
     }
 }
@@ -630,19 +570,25 @@ public extension NSUIImageView {
     #if os(macOS)
     /// The configuration values to use when rendering the image.
     var imageSymbolConfiguration: ImageSymbolConfiguration? {
-        get { symbolConfiguration?.symbolConfiguration }
-        set { 
-            let newValue = newValue?._nsUI()
-            if let color = newValue?.tintColor {
-                #if os(macOS)
-                contentTintColor = color
-                #else
-                tintColor = color
-                #endif
+        get { getAssociatedValue("_imageSymbolConfiguration") }
+        set {
+            setAssociatedValue(newValue, key: "_imageSymbolConfiguration")
+            if backgroundStyle == .emphasized, var newValue = newValue {
+                previousConfiguration = newValue.nsUI()
+                newValue.color = nil
+                symbolConfiguration = newValue.nsUI()
+            } else {
+                previousConfiguration = nil
+                symbolConfiguration = newValue?.nsUI()
             }
-            symbolConfiguration = newValue?.configuration
         }
     }
+    
+    var previousConfiguration: NSImage.SymbolConfiguration? {
+        get { getAssociatedValue("previousConfiguration") }
+        set { setAssociatedValue(newValue, key: "previousConfiguration") }
+    }
+    
     #else
     /// The configuration values to use when rendering the image.
     var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {
@@ -652,16 +598,6 @@ public extension NSUIImageView {
     #endif
 }
 
-@available(macOS 12.0, iOS 16.0, tvOS 16.00, *)
-public extension NSUIButton {
-    #if os(macOS)
-    /// The configuration values to use when rendering the image.
-    var imageSymbolConfiguration: ImageSymbolConfiguration? {
-        get { symbolConfiguration?.symbolConfiguration }
-        set { symbolConfiguration = newValue?.nsUI() }
-    }
-    #endif
-}
 #endif
 
 @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
@@ -733,14 +669,5 @@ public extension View {
         func applyingSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
             applyingSymbolConfiguration(configuration.nsUI())
 
-        }
-        
-        /// The configuration details for a symbol image.
-        var imageSymbolConfiguration: ImageSymbolConfiguration? {
-            #if os(macOS)
-            symbolConfiguration.symbolConfiguration
-            #else
-            symbolConfiguration?.symbolConfiguration
-            #endif
         }
     }

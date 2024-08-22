@@ -33,6 +33,17 @@
             (self as? NSControl)?.backgroundStyle = backgroundStyle
             (self as? NSTableCellView)?.backgroundStyle = backgroundStyle
 
+            if #available(macOS 12.0, *), let view = self as? NSImageView {
+                if backgroundStyle == .emphasized, var configuration = view.imageSymbolConfiguration {
+                    view.previousConfiguration = view.symbolConfiguration
+                    configuration.color = nil
+                    view.symbolConfiguration = configuration.nsUI()
+                } else if let configuration = view.previousConfiguration {
+                    view.symbolConfiguration = configuration
+                    view.previousConfiguration = nil
+                }
+            }
+            
             for subview in subviews {
                 subview.setBackgroundStyle(backgroundStyle)
             }
