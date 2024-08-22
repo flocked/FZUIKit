@@ -360,6 +360,20 @@ public struct ImageSymbolConfiguration: Hashable {
         public static var hierarchical: Self {
             hierarchical(nil)
         }
+        
+        var isMonochrome: Bool {
+            switch self {
+            case .monochrome: return true
+            default: return false
+            }
+        }
+        
+        var isHierarchical: Bool {
+            switch self {
+            case .hierarchical(_): return true
+            default: return false
+            }
+        }
         #else
         ///  A monochrome color configuration using the specified color.
         case monochrome(NSUIColor?)
@@ -502,6 +516,57 @@ public extension ImageSymbolConfiguration {
             nsUI()
         }
     #endif
+    internal func _nsUI() -> (configuration: NSUIImage.SymbolConfiguration, tintColor: NSUIColor?) {
+        var symbolColor: NSUIColor? = nil
+        var configuration: NSUIImage.SymbolConfiguration
+        switch color {
+        case let .hierarchical(color):
+            #if os(macOS)
+            symbolColor = color
+            configuration = ._preferringHierarchical()
+            #else
+            configuration = .hierarchical(color)
+            #endif
+        case .monochrome(let color):
+            symbolColor = color
+            configuration = .monochrome()
+        case let .palette(primary, secondary, tertiary):
+            configuration = .palette(primary, secondary, tertiary)
+        case let .multicolor(color):
+            configuration = .multicolor(color)
+        case .none:
+            #if os(macOS)
+                configuration = .init()
+            #else
+                configuration = .unspecified
+            #endif
+        }
+
+        switch font {
+        case .size(let size, weight: let weight, design: _):
+            configuration = configuration.font(size: size)
+            configuration = configuration.weight(weight)
+        case .textStyle(let style, weight: let weight, design: _):
+            configuration = configuration.font(style)
+            configuration = configuration.weight(weight)
+        case .none:
+            break
+        }
+
+        #if os(macOS)
+            if let symbolScale = imageScale?.nsSymbolScale {
+                configuration = configuration.scale(symbolScale)
+            }
+        #else
+            if let symbolScale = imageScale?.uiSymbolScale {
+                configuration = configuration.scale(symbolScale)
+            }
+        #endif
+
+        configuration.symbolConfiguration = self
+        return (configuration, symbolColor)
+    }
+    
     internal func nsUI() -> NSUIImage.SymbolConfiguration {
         var configuration: NSUIImage.SymbolConfiguration
         switch color {
@@ -566,7 +631,17 @@ public extension NSUIImageView {
     /// The configuration values to use when rendering the image.
     var imageSymbolConfiguration: ImageSymbolConfiguration? {
         get { symbolConfiguration?.symbolConfiguration }
-        set { symbolConfiguration = newValue?.nsUI() }
+        set { 
+            let newValue = newValue?._nsUI()
+            if let color = newValue?.tintColor {
+                #if os(macOS)
+                contentTintColor = color
+                #else
+                tintColor = color
+                #endif
+            }
+            symbolConfiguration = newValue?.configuration
+        }
     }
     #else
     /// The configuration values to use when rendering the image.
