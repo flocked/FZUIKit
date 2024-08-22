@@ -222,9 +222,13 @@
             } else {
                 mask = configuration.mask
             }
-            configurate(using: configuration.border)
-            configurate(using: configuration.shadow, type: .outer)
-            configurate(using: configuration.innerShadow, type: .inner)
+            border = configuration.border
+            #if os(macOS)
+            outerShadow = configuration.shadow
+            #else
+            shadow = configuration.shadow
+            #endif
+            innerShadow = configuration.innerShadow
             visualEffect = configuration.visualEffect
             scale = CGPoint(configuration.scale.width, configuration.scale.height)
             rotation = configuration.rotation

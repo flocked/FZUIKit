@@ -9,6 +9,10 @@
     import AppKit
     import FZSwiftUtils
 
+extension NSViewProtocol {
+    
+}
+
     extension NSView {
         /// Sets type of focus ring drawn around the view.
         @discardableResult
@@ -322,7 +326,7 @@
                 NSView.swizzleAnimationForKey()
                 optionalLayer?.cornerRadius = newValue
                 if newValue != 0.0 {
-                    cornerShape = .normal
+                    // cornerShape = .normal
                 }
                 self.clipsToBounds = clipsToBounds
                 layer?.masksToBounds = clipsToBounds
@@ -366,13 +370,10 @@
          The default value is `none()`, which results in a view with no border.
          */
        @objc open var border: BorderConfiguration {
-            get {
-                let view = realSelf
-                return view.dashedBorderView?.configuration ?? .init(color: view.borderColor, width: view._borderWidth)
-            }
+            get { realSelf.dashedBorderView?.configuration ?? .init(color: realSelf._borderColor, width: realSelf._borderWidth) }
             set {
-                if newValue.needsDashedBorderView {
-                    borderColor = nil
+                if newValue.needsDashedBorder {
+                    _borderColor = nil
                     _borderWidth = 0.0
                     if dashedBorderView == nil {
                         dashedBorderView = DashedBorderView()
@@ -383,10 +384,9 @@
                 } else {
                     dashedBorderView?.removeFromSuperview()
                     dashedBorderView = nil
-                    borderColor = newValue.resolvedColor()
+                    _borderColor = newValue.resolvedColor()
                     _borderWidth = newValue.width
                 }
-                shapeView?.border = border
             }
         }
 
@@ -396,35 +396,33 @@
                 if let box = self as? NSBox {
                     box.borderWidth = newValue
                 } else {
-                    NSView.swizzleAnimationForKey()
                     optionalLayer?.borderWidth = newValue
                 }
             }
         }
-
-        var borderColor: NSColor? {
-            get { (self as? NSBox)?.borderColor ?? dynamicColors.border ?? layer?.borderColor?.nsColor }
+        
+        @objc var _borderColor: NSColor? {
+            get { (self as? NSBox)?.borderColor ?? dynamicColors.color(\.border, cgColor: layer?.borderColor) }
             set {
                 if let box = self as? NSBox {
-                    box.borderColor = newValue
+                    box.borderColor = newValue ?? box.borderColor
                 } else {
-                    wantsLayer = true
-                    NSView.swizzleAnimationForKey()
                     realSelf.dynamicColors.border = newValue
+                    guard let layer = optionalLayer else { return }
                     var animatableColor = newValue?.resolvedColor(for: self)
                     if animatableColor == nil, isProxy() {
                         animatableColor = .clear
                     }
-                    if layer?.borderColor?.isVisible == false || layer?.borderColor == nil {
-                        layer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                    if layer.borderColor?.isVisible == false || layer.borderColor == nil {
+                        layer.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                     }
                     borderColorAnimatable = animatableColor
                 }
             }
         }
-
-        @objc var borderColorAnimatable: NSColor? {
-            get { layer?.borderColor?.nsColor }
+        
+       @objc var borderColorAnimatable: NSUIColor? {
+            get { layer?.borderColor?.nsUIColor }
             set { layer?.borderColor = newValue?.cgColor }
         }
 
@@ -447,7 +445,7 @@
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
                 shadowColor = newValue.resolvedColor()
-                shapeView?.outerShadow = newValue
+                // shapeView?.outerShadow = newValue
                 if !newValue.isInvisible {
                     clipsToBounds = false
                 }
@@ -455,7 +453,7 @@
         }
 
         var shadowColor: NSColor? {
-            get { dynamicColors.shadow ?? self.layer?.shadowColor?.nsColor }
+            get { dynamicColors.color(\.shadow, cgColor: layer?.shadowColor) }
             set {
                 wantsLayer = true
                 NSView.swizzleAnimationForKey()
@@ -542,7 +540,7 @@
                 guard let innerShadowLayer = innerShadowLayer else { return }
 
                 var newColor: NSUIColor? = nil
-                if var color = newValue.color?.resolvedColor(for: self) {
+                if let color = newValue.color?.resolvedColor(for: self) {
                     newColor = newValue.colorTransformer?(color) ?? color
                 } else if isProxy() {
                     newColor = .clear

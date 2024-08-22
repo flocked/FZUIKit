@@ -13,6 +13,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+/*
 /// A view with a shape.
 open class ShapedView: NSUIView {
     /// The shape.
@@ -76,5 +77,6 @@ open class ShapedView: NSUIView {
     }
     #endif
 }
+ */
 
 #endif

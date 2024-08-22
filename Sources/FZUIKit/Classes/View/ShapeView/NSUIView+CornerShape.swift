@@ -13,6 +13,7 @@
     #endif
     import FZSwiftUtils
 
+/*
 /// The corner shape of an object.
 public enum CornerShape: CustomStringConvertible {
     /// The default shape that uses the object's corner radius.
@@ -126,4 +127,5 @@ public enum CornerShape: CustomStringConvertible {
             set { setAssociatedValue(newValue, key: "shapeBoundsObservation") }
         }
     }
+ */
 #endif

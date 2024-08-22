@@ -153,61 +153,10 @@ extension ShadowConfiguration: Codable {
     }
 }
 
+
 extension NSUIView {
-    /**
-     Configurates the shadow of the view.
-     
-     - Parameters:
-     - configuration:The configuration of the shadow.
-     - type: The type of shadow (either `inner` or `outer`).
-     */
-    func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) {
-        if type == .outer {
-            shadowColor = configuration.resolvedColor()
-            shadowOffset = configuration.offset
-            shadowOpacity = configuration.opacity
-            shadowRadius = configuration.radius
-            if !configuration.isInvisible {
-                clipsToBounds = false
-            }
-        } else {
-            optionalLayer?.configurate(using: configuration, type: type)
-        }
-    }
-    
     var innerShadowLayer: InnerShadowLayer? {
         optionalLayer?.firstSublayer(type: InnerShadowLayer.self)
-    }
-}
-
-extension CALayer {
-    /**
-     Configurates the shadow of the layer.
-     
-     - Parameters:
-     - configuration:The configuration of the shadow.
-     - type: The type of shadow (either `inner` or `outer`).
-     */
-    func configurate(using configuration: ShadowConfiguration, type: ShadowConfiguration.ShadowType) {
-        if type == .outer {
-            shadow = configuration
-        } else {
-            if configuration.isInvisible {
-                innerShadowLayer?.removeFromSuperlayer()
-            } else {
-                if let innerShadowLayer = innerShadowLayer {
-                    innerShadowLayer.configuration = configuration
-                } else {
-                    let innerShadowLayer = InnerShadowLayer(configuration: configuration)
-                    addSublayer(withConstraint: innerShadowLayer)
-                    innerShadowLayer.sendToBack()
-                }
-            }
-        }
-    }
-    
-    var innerShadowLayer: InnerShadowLayer? {
-        firstSublayer(type: InnerShadowLayer.self)
     }
 }
 

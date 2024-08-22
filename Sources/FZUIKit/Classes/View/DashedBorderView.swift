@@ -89,7 +89,7 @@ class DashedBorderView: NSUIView {
         
         var body: some View {
             if let color = border.resolvedColor(), color.alphaComponent != 0.0 {
-                if border.dash.animates && border.needsDashedBorderView {
+                if border.dash.animates && border.needsDashedBorder {
                     borderItem
                         .animation(
                             Animation.linear(duration: border.dash.animationSpeed.duration)

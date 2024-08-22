@@ -53,35 +53,52 @@ import FZSwiftUtils
             }
         }
         
+        internal var innerShadowLayer: InnerShadowLayer? {
+            firstSublayer(type: InnerShadowLayer.self)
+        }
+        
         /// The border of the layer.
         @objc open var border: BorderConfiguration {
             get { borderLayer?.configuration ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
             set {
                 guard newValue != border else { return }
-                if newValue.isInvisible || !newValue.needsDashedBorderView {
-                    borderLayer?.removeFromSuperlayer()
-                }
-                
                 if let layer = self as? CAShapeLayer {
                     layer.strokeColor = newValue.resolvedColor()?.cgColor
                     layer.lineDashPattern = newValue.dash.pattern  as [NSNumber]
                     layer.lineWidth = newValue.width
                 } else {
-                    if newValue.needsDashedBorderView {
+                    if newValue.needsDashedBorder {
                         borderColor = nil
                         borderWidth = 0.0
-                        if borderLayer == nil {
-                            let borderedLayer = DashedBorderLayer()
-                            addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
-                            borderedLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
+                        if let layer = self as? CAShapeLayer {
+                            layer.strokeColor = newValue.resolvedColor()?.cgColor
+                            layer.lineDashPattern = newValue.dash.pattern  as [NSNumber]
+                            layer.lineWidth = newValue.width
+                            layer.lineDashPhase = newValue.dash.phase
+                        } else {
+                            if let borderLayer = borderLayer {
+                                borderLayer.configuration = newValue
+                            } else {
+                                let borderedLayer = DashedBorderLayer()
+                                addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
+                                borderedLayer.configuration = newValue
+                            }
                         }
-                        borderLayer?.configuration = newValue
                     } else {
                         borderColor = newValue.resolvedColor()?.cgColor
                         borderWidth = newValue.width
+                        if let layer = self as? CAShapeLayer {
+                            layer.strokeColor = nil
+                            layer.lineDashPattern = []
+                            layer.lineWidth = 0.0
+                        }
                     }
                 }
             }
+        }
+        
+        internal var borderLayer: DashedBorderLayer? {
+            firstSublayer(type: DashedBorderLayer.self)
         }
         
         /// Sends the layer to the front of it's superlayer.

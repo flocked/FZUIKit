@@ -76,7 +76,7 @@
         public var border: BorderConfiguration {
             get { dashedBorderView?.configuration ?? .init(color: borderColor, width: borderWidth) }
             set {
-                if newValue.needsDashedBorderView {
+                if newValue.needsDashedBorder {
                     borderColor = nil
                     borderWidth = 0.0
                     if dashedBorderView == nil {
@@ -88,7 +88,10 @@
                 } else {
                     dashedBorderView?.removeFromSuperview()
                     dashedBorderView = nil
-                    let newColor = newValue.resolvedColor()?.resolvedColor(for: self)
+                    var newColor = newValue.color?.resolvedColor(for: self)
+                    if let color = newColor {
+                        newColor = newValue.colorTransformer?(color) ?? color
+                    }
                     if borderColor?.alphaComponent == 0.0 || borderColor == nil {
                         borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
                     }
@@ -98,13 +101,11 @@
             }
         }
 
-        /// The border color of the view.
         @objc var borderColor: UIColor? {
             get { layer.borderColor?.nsUIColor }
             set { layer.borderColor = newValue?.cgColor }
         }
 
-        /// The border width of the view.
         @objc var borderWidth: CGFloat {
             get { layer.borderWidth }
             set { layer.borderWidth = newValue }
@@ -166,7 +167,15 @@
          */
         public var shadow: ShadowConfiguration {
             get { ShadowConfiguration(color: shadowColor, opacity: shadowOpacity, radius: shadowRadius, offset: shadowOffset) }
-            set { self.configurate(using: newValue, type: .outer) }
+            set { 
+                shadowColor = newValue.resolvedColor()
+                shadowOffset = newValue.offset
+                shadowOpacity = newValue.opacity
+                shadowRadius = newValue.radius
+                if !newValue.isInvisible {
+                    clipsToBounds = false
+                }
+            }
         }
 
         /**
@@ -176,7 +185,19 @@
          */
         public var innerShadow: ShadowConfiguration {
             get { layer.innerShadowLayer?.configuration ?? .none() }
-            set { configurate(using: newValue, type: .inner) }
+            set { 
+                if newValue.isInvisible {
+                    innerShadowLayer?.removeFromSuperlayer()
+                } else {
+                    if let innerShadowLayer = innerShadowLayer {
+                        innerShadowLayer.configuration = newValue
+                    } else {
+                        let innerShadowLayer = InnerShadowLayer(configuration: newValue)
+                        layer.addSublayer(withConstraint: innerShadowLayer)
+                        innerShadowLayer.sendToBack()
+                    }
+                }
+            }
         }
 
         /// The shadow color of the view.

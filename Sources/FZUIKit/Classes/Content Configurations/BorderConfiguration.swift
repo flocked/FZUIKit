@@ -154,7 +154,7 @@ public struct BorderConfiguration: Hashable {
         width == 0.0 || color == nil || color?.alphaComponent == 0.0
     }
     
-    var needsDashedBorderView: Bool {
+    var needsDashedBorder: Bool {
         (insets != .zero || dash.pattern.count > 1) && !isInvisible
     }
 }
@@ -193,70 +193,9 @@ extension BorderConfiguration.Dash.AnimationSpeed: ExpressibleByFloatLiteral {
 }
 
 extension NSUIView {
-    /**
-     Configurates the border apperance of the view.
-     
-     - Parameter configuration:The configuration for configurating the apperance.
-     */
-    func configurate(using configuration: BorderConfiguration) {
-        if configuration.needsDashedBorderView {
-            borderColor = nil
-            #if os(macOS)
-            _borderWidth = 0.0
-            #else
-            borderWidth = 0.0
-            #endif
-            if dashedBorderView == nil {
-                dashedBorderView = DashedBorderView()
-                addSubview(withConstraint: dashedBorderView!)
-                dashedBorderView?.sendToFront()
-            }
-            dashedBorderView?.configuration = configuration
-        } else {
-            dashedBorderView?.removeFromSuperview()
-            dashedBorderView = nil
-            let newColor = configuration.resolvedColor()?.resolvedColor(for: self)
-            if borderColor?.alphaComponent == 0.0 || borderColor == nil {
-                borderColor = newColor?.withAlphaComponent(0.0) ?? .clear
-            }
-            borderColor = newColor
-            #if os(macOS)
-            _borderWidth = configuration.width
-            #else
-            borderWidth = configuration.width
-            #endif
-        }
-    }
-    
     var dashedBorderView: DashedBorderView? {
         get { getAssociatedValue("dashedBorderView") }
         set { setAssociatedValue(newValue, key: "dashedBorderView") }
-    }
-}
-
-extension CALayer {
-    /**
-     Configurates the border apperance of the view.
-     
-     - Parameter  configuration:The configuration for configurating the apperance.
-     */
-    func configurate(using configuration: BorderConfiguration) {
-        if configuration.needsDashedBorderView {
-            borderColor = nil
-            borderWidth = 0.0
-            let borderLayer = borderLayer ?? DashedBorderLayer()
-            borderLayer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-            borderLayer.configuration = configuration
-            addSublayer(withConstraint: borderLayer, insets: configuration.insets)
-        } else {
-            borderLayer?.removeFromSuperlayer()
-            borderColor = configuration.resolvedColor()?.cgColor
-            borderWidth = configuration.width
-        }
-    }
-    
-    var borderLayer: DashedBorderLayer? {
-        firstSublayer(type: DashedBorderLayer.self)
     }
 }
 

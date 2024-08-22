@@ -18,7 +18,7 @@ public extension NSViewProtocol where Self: NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     var backgroundColor: NSColor? {
-        get { dynamicColors.background }
+        get { dynamicColors.color(\.background, cgColor: layer?.backgroundColor) }
         set {
             wantsLayer = true
             NSView.swizzleAnimationForKey()
@@ -76,8 +76,13 @@ extension NSView {
             didSet { if border?.isDynamic == false { border = nil } }
         }
 
-        var needsAppearanceObserver: Bool {
+        var needsObserver: Bool {
             background != nil || border != nil || shadow != nil
+        }
+        
+        mutating func color(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) -> NSUIColor? {
+            update(\.border, cgColor: cgColor)
+            return self[keyPath: keyPath] ?? cgColor?.nsUIColor
         }
 
         mutating func update(_ keyPath: WritableKeyPath<Self, NSColor?>, cgColor: CGColor?) {
@@ -101,7 +106,7 @@ extension NSView {
     }
 
     func setupEffectiveAppearanceObserver() {
-        if !dynamicColors.needsAppearanceObserver {
+        if !dynamicColors.needsObserver {
             effectiveAppearanceObservation = nil
         } else if effectiveAppearanceObservation == nil {
             effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in

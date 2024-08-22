@@ -13,6 +13,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+/*
 /// A layer with a shape.
 public class ShapedLayer: CAShapeLayer {
     /// The shape.
@@ -195,5 +196,6 @@ extension CAShapeLayer {
         set { setAssociatedValue(newValue, key: "isUpdatingShape") }
     }
 }
+ */
  */
 #endif

@@ -119,7 +119,7 @@
         func sharedInit() {
             borderedLayer.fillColor = nil
             addSublayer(borderedLayer)
-            
+            zPosition = .greatestFiniteMagnitude
             /*
              lineWidth: CGFloat = 1,
              lineCap: CGLineCap = .butt,

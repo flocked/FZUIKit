@@ -81,12 +81,15 @@ open class InnerShadowLayer: CALayer {
         shadowOffset = .zero
         shadowRadius = 0.0
         zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+        #if os(macOS)
         _superlayerObservation = observeChanges(for: \.superlayer) { [weak self] old, new in
             guard let self = self, old != new else { return }
             self.updateViewObservation()
         }
+        #endif
     }
     
+    #if os(macOS)
     func updateViewObservation() {
         if let view = superlayer?.parentView {
             updateShadowColor(for: view)
@@ -99,6 +102,7 @@ open class InnerShadowLayer: CALayer {
             viewObservation = nil
         }
     }
+    #endif
     
     func updateShadowColor(for view: NSUIView) {
         if let color = color?.resolvedColor(for: view) {
