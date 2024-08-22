@@ -35,11 +35,10 @@
 
             if #available(macOS 12.0, *), let view = self as? NSImageView {
                 if backgroundStyle == .emphasized, let configuration = view.symbolConfiguration {
-                    let copy = configuration.copy() as! NSImage.SymbolConfiguration
-                    view.previousConfiguration = copy
-                    configuration.colors = nil
-                    view.symbolConfiguration = nil
-                    view.symbolConfiguration = configuration
+                    view.previousConfiguration = configuration
+                    let copy = configuration.copied()
+                    copy.colors = nil
+                    view.symbolConfiguration = copy
                     Swift.print(view.symbolConfiguration?.colors ?? "nil")
                     Swift.print(view.symbolConfiguration ?? "nil")
                 } else if let configuration = view.previousConfiguration {
@@ -64,5 +63,20 @@
             }
         }
     }
+
+@available(macOS 12.0, *)
+extension NSImage.SymbolConfiguration {    
+    func copied() -> NSImage.SymbolConfiguration {
+        var configuration = NSImage.SymbolConfiguration()
+        configuration.setValue(value(forKey: "renderingStyle"), forKey: "renderingStyle")
+        // configuration.colors = colors
+        configuration.pointSize = pointSize
+        configuration.setValue(value(forKey: "weight"), forKey: "weight")
+        configuration.setValue(value(forKey: "scale"), forKey: "scale")
+        configuration.prefersMulticolor = prefersMulticolor
+        return configuration
+    }
+}
+
 
 #endif

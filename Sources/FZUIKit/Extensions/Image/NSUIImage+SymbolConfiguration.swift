@@ -244,7 +244,7 @@ extension NSUIImage.SymbolConfiguration {
 
     var colors: [NSUIColor]? {
         get { value(forKey: Self.colorsValueKey) }
-        set { setValue(safely: newValue, forKey: Self.colorsValueKey) }
+        set { setValue(newValue, forKey: Self.colorsValueKey) }
     }
 
     var primary: NSUIColor? {
