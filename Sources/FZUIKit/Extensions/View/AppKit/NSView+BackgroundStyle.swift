@@ -50,7 +50,11 @@ extension NSImageView {
         if backgroundStyle == .emphasized {
             previousConfiguration = symbolConfiguration
             if let configuration = symbolConfiguration {
-                symbolConfiguration = configuration.noColorsCopy()
+                let copy = NSImage.SymbolConfiguration()
+                copy.pointSize = configuration.pointSize
+                copy.setValue(configuration.value(forKey: "weight"), forKey: "weight")
+                copy.setValue(configuration.value(forKey: "scale"), forKey: "scale")
+                symbolConfiguration = copy
             }
             configurationObservation = observeChanges(for: \.symbolConfiguration) { [weak self] old, new in
                 guard let self = self else { return }
@@ -70,17 +74,6 @@ extension NSImageView {
     var previousConfiguration: NSImage.SymbolConfiguration? {
         get { getAssociatedValue("previousConfiguration") }
         set { setAssociatedValue(newValue, key: "previousConfiguration") }
-    }
-}
-
-@available(macOS 12.0, *)
-extension NSImage.SymbolConfiguration {
-    func noColorsCopy() -> NSImage.SymbolConfiguration {
-        let copy = NSImage.SymbolConfiguration()
-        copy.setValue(value(forKey: "pointSize"), forKey: "pointSize")
-        copy.setValue(value(forKey: "weight"), forKey: "weight")
-        copy.setValue(value(forKey: "scale"), forKey: "scale")
-        return copy
     }
 }
 
