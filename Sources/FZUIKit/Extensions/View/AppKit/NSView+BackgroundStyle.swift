@@ -40,10 +40,8 @@
                     copy.colors = nil
                     view.symbolConfiguration = copy
                     Swift.print(view.symbolConfiguration ?? "nil")
-                } else if backgroundStyle == .normal, let configuration = view.previousConfiguration {
-                    view.symbolConfiguration = configuration
-                    view.previousConfiguration = nil
                 }
+                
                 // Swift.print(view.symbolConfiguration ?? "nil")
                 /*
                 if backgroundStyle == .emphasized, let configuration = view.imageSymbolConfiguration {
