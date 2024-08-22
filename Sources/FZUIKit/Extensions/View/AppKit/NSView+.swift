@@ -539,7 +539,14 @@
                     optionalLayer?.addSublayer(withConstraint: innerShadowLayer)
                     innerShadowLayer.sendToBack()
                 }
-                innerShadowLayer?.configuration = newValue
+
+                innerShadowColor = newValue.color
+                innerShadowOffset = newValue.offset
+                innerShadowRadius = newValue.radius
+                innerShadowOpacity = newValue.opacity
+                innerShadowLayer?.color = newValue.color
+                innerShadowLayer?.colorTransformer = newValue.colorTransformer
+                innerShadowLayer?.updateShadowPath()                
                 /*
                 guard let innerShadowLayer = innerShadowLayer else { return }
                 
