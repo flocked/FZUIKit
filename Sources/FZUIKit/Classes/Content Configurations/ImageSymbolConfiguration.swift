@@ -589,6 +589,29 @@ public extension NSUIImageView {
         set { setAssociatedValue(newValue, key: "previousConfiguration") }
     }
     
+    var isUpdatingConfiguration: Bool {
+        get { getAssociatedValue("isUpdatingConfiguration") ?? false }
+        set { setAssociatedValue(newValue, key: "isUpdatingConfiguration") }
+    }
+    
+    var symbolConfigurationObservation: KeyValueObservation? {
+        get { getAssociatedValue("previousConfiguration") }
+        set { setAssociatedValue(newValue, key: "previousConfiguration") }
+    }
+    
+    func setupSymbolObserver() {
+        symbolConfigurationObservation = observeChanges(for: \.symbolConfiguration) { [weak self] old, new in
+            guard let self = self, !self.isUpdatingConfiguration else { return }
+            if self.backgroundStyle == .emphasized, var new = new {
+                self.previousConfiguration = new
+                self.isUpdatingConfiguration = true
+                new.colors = nil
+                self.symbolConfiguration = new
+                self.isUpdatingConfiguration = false
+            }
+        }
+    }
+    
     #else
     /// The configuration values to use when rendering the image.
     var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {

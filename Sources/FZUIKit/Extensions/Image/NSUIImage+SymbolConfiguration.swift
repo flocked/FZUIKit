@@ -236,7 +236,7 @@ extension NSUIImage.SymbolConfiguration {
 extension NSUIImage.SymbolConfiguration {
     static var colorsValueKey: String {
         #if os(macOS)
-            "paletteColors"
+            "_colors"
         #else
             "_colors"
         #endif
