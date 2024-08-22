@@ -35,10 +35,10 @@
 
             if #available(macOS 12.0, *), let view = self as? NSImageView {
                 if backgroundStyle == .emphasized, let configuration = view.symbolConfiguration {
-                    view.previousConfiguration = configuration
                     let copy = configuration.copy() as! NSImage.SymbolConfiguration
-                    copy.colors = nil
-                    view.symbolConfiguration = copy
+                    view.previousConfiguration = copy
+                    configuration.colors = nil
+                    view.symbolConfiguration = configuration
                     Swift.print(view.symbolConfiguration ?? "nil")
                 }
                 
