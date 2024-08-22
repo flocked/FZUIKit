@@ -45,7 +45,8 @@ extension NSView {
         get { getAssociatedValue("windowHandlers", initialValue: WindowHandlers()) }
         set {
             setAssociatedValue(newValue, key: "windowHandlers")
-            setupViewObservation()
+            setupObservation()
+            setupObserverView()
         }
     }
     
@@ -73,7 +74,8 @@ extension NSView {
         get { getAssociatedValue("viewHandlers", initialValue: ViewHandlers()) }
         set {
             setAssociatedValue(newValue, key: "viewHandlers")
-            setupViewObservation()
+            setupObservation()
+            setupObserverView()
         }
     }
     
@@ -115,81 +117,43 @@ extension NSView {
         }
     }
 
-    func setupViewObservation() {
-        if viewHandlers.needsObserving || windowHandlers.needsObserving {
-            if viewObserver == nil {
-                viewObserver = .init(self)
+    func setupObservation() {
+        func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: KeyPath<NSView, ((Value)->())?>) {
+            if self[keyPath: handler] == nil {
+                 viewObserver.remove(keyPath)
+            } else if !viewObserver.isObserving(keyPath) {
+                viewObserver.add(keyPath) { [weak self] old, new in
+                   guard let self = self else { return }
+                   self[keyPath: handler]?(new)
+               }
             }
-            observe(\.window, handler: \.windowHandlers.window)
-            observe(\.effectiveAppearance, handler: \.viewHandlers.effectiveAppearance)
-            observe(\.alphaValue, handler: \.viewHandlers.alphaValue)
-            observe(\.isHidden, handler: \.viewHandlers.isHidden)
-            observe(\.bounds, handler: \.viewHandlers.bounds)
-            observe(\.frame, handler: \.viewHandlers.frame)
-            observe(\.superview, handler: \.viewHandlers.superview)
-            observe(\.window?.screen, handler: \.viewHandlers.screen)
-            
-            if viewHandlers.isLiveResizing != nil {
-                NSView.isLiveResizingObservable = true
-                viewObserver?.add(\.inLiveResize) { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    self.viewHandlers.isLiveResizing?(new)
-                }
-            } else {
-                viewObserver?.remove(\.inLiveResize)
+        }
+        
+        observe(\.window, handler: \.windowHandlers.window)
+        observe(\.window?.screen, handler: \.windowHandlers.screen)
+        observe(\.effectiveAppearance, handler: \.viewHandlers.effectiveAppearance)
+        observe(\.alphaValue, handler: \.viewHandlers.alphaValue)
+        observe(\.isHidden, handler: \.viewHandlers.isHidden)
+        observe(\.bounds, handler: \.viewHandlers.bounds)
+        observe(\.frame, handler: \.viewHandlers.frame)
+        observe(\.superview, handler: \.viewHandlers.superview)
+        
+        if windowHandlers.frame == nil {
+            viewObserver.remove(\.window?.frame)
+        } else if !viewObserver.isObserving(\.window?.frame) {
+            viewObserver.add(\.window?.frame) { [weak self] _, frame in
+                guard let self = self, let frame = frame else { return }
+                self.windowHandlers.frame?(frame)
             }
-            
-            if windowHandlers.isLiveResizing != nil {
-                if  viewObserver?.isObserving(\.window?.inLiveResize) == false {
-                    NSWindow.isLiveResizeObservable = true
-                    viewObserver?.add(\.window?.inLiveResize) { [weak self] _, new in
-                        guard let self = self, let new = new else { return }
-                        self.windowHandlers.isLiveResizing?(new)
-                    }
-                }
-            } else {
-                viewObserver?.remove(\.window?.inLiveResize)
-            }
-            
-            if windowHandlers.isKey != nil {
-                if  viewObserver?.isObserving(\.window?.isKeyWindow) == false {
-                    NSWindow.isKeyWindowObservable = true
-                    viewObserver?.add(\.window?.isKeyWindow) { [weak self] _, new in
-                        guard let self = self, let new = new else { return }
-                        self.windowHandlers.isKey?(new)
-                    }
-                }
-            } else {
-                viewObserver?.remove(\.window?.isKeyWindow)
-            }
-            
-            if windowHandlers.isMain != nil {
-                if  viewObserver?.isObserving(\.window?.isMainWindow) == false {
-                    NSWindow.isMainWindowObservable = true
-                    viewObserver?.add(\.window?.isMainWindow) { [weak self] _, new in
-                        guard let self = self, let new = new else { return }
-                        self.windowHandlers.isMain?(new)
-                    }
-                }
-            } else {
-                viewObserver?.remove(\.window?.isMainWindow)
-            }
-            
-            if viewHandlers.isFirstResponder != nil {
-                _isFirstResponder = isFirstResponder
-                viewObserver?.add(\.window?.firstResponder) { [weak self] _, firstResponder in
-                    guard let self = self else { return }
-                    if let self = self as? NSTextField {
-                        self._isFirstResponder = self.isFirstResponder
-                    } else {
-                        self._isFirstResponder = self.isFirstResponder
-                    }
-                }
-            } else {
-                viewObserver?.remove(\.window?.firstResponder)
-            }
-        } else {
-            viewObserver = nil
+        }
+                 
+        if viewHandlers.isFirstResponder == nil {
+            viewObserver.remove(\.window?.firstResponder)
+        } else if !viewObserver.isObserving(\.window?.firstResponder) {
+            viewObserver.add(\.window?.firstResponder) { [weak self] _, firstResponder in
+               guard let self = self else { return }
+                self._isFirstResponder = self.isFirstResponder
+           }
         }
     }
     
@@ -302,22 +266,8 @@ extension NSView {
         }
     }
     
-    var viewObserver: KeyValueObserver<NSView>? {
-        get { getAssociatedValue("viewObserver", initialValue: nil) }
-        set { setAssociatedValue(newValue, key: "viewObserver") }
-    }
-    
-    func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: KeyPath<NSView, ((Value)->())?>) {
-        if self[keyPath: handler] != nil {
-            if  viewObserver?.isObserving(keyPath) == false {
-                viewObserver?.add(keyPath) { [weak self] old, new in
-                    guard let self = self else { return }
-                    self[keyPath: handler]?(new)
-                }
-            }
-        } else {
-            viewObserver?.remove(keyPath)
-        }
+    var viewObserver: KeyValueObserver<NSView> {
+        get { getAssociatedValue("viewObserver", initialValue: KeyValueObserver(self)) }
     }
     
     var observerView: ObserverView? {
@@ -326,13 +276,14 @@ extension NSView {
     }
         
     func setupObserverView() {
-        if mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil {
+        if mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil || windowHandlers.needsObserverView || viewHandlers.needsObserverView {
             if observerView == nil {
                 observerView = ObserverView(frame: .zero)
                 addSubview(withConstraint: observerView!)
             }
             observerView?._mouseHandlers = mouseHandlers
             observerView?._dropHandlers = dropHandlers
+            observerView?._windowHandlers = windowHandlers
         } else if observerView != nil {
             observerView?.removeFromSuperview()
             observerView = nil
@@ -350,11 +301,17 @@ extension NSView {
         /// The handler that gets called when `isMain` changed.
         public var isMain: ((Bool) -> Void)?
         
-        /// The handler that gets called when the window is resized by the user.
-        public var isLiveResizing: ((Bool)->())?
+        /// The handler that gets called when the screen changed.
+        public var screen: ((NSScreen?)->())?
         
-        var needsObserving: Bool {
-            isKey != nil || isMain != nil || window != nil
+        /// The handler that gets called when the bounds rectangle changed.
+        public var bounds: ((CGRect)->())?
+        
+        /// The handler that gets called when the frame rectangle changed.
+        public var frame: ((CGRect)->())?
+        
+        var needsObserverView: Bool {
+            isKey != nil || isMain != nil
         }
     }
     
@@ -376,18 +333,8 @@ extension NSView {
         public var effectiveAppearance: ((NSAppearance)->())?
         /// The handler that gets called when the view is the first responder.
         public var isFirstResponder: ((Bool)->())?
-        /// The handler that gets called when the screen changed.
-        public var screen: ((NSScreen?)->())?
-
-        var needsObserving: Bool {
-            superview != nil ||
-            isHidden != nil ||
-            alphaValue != nil ||
-            bounds != nil ||
-            frame != nil ||
-            effectiveAppearance != nil ||
-            isFirstResponder != nil ||
-            screen != nil ||
+        
+        var needsObserverView: Bool {
             isLiveResizing != nil
         }
     }
@@ -619,9 +566,49 @@ extension NSView {
         var _mouseHandlers = MouseHandlers() {
             didSet { trackingArea.options = _mouseHandlers.trackingAreaOptions }
         }
+        var _windowHandlers = WindowHandlers() {
+            didSet {
+                setupWindowObservation()
+            }
+        }
                         
         var _dropHandlers = DropHandlers() {
             didSet { self.setupDragAndDrop() }
+        }
+        
+        var keyWindowObservation: NotificationToken?
+        var mainWindowObservation: NotificationToken?
+        
+        override func viewWillStartLiveResize() {
+            super.viewWillStartLiveResize()
+        }
+
+        override func viewWillMove(toWindow newWindow: NSWindow?) {
+            setupWindowObservation(for: newWindow)
+            superview?.viewHandlers.isLiveResizing?(true)
+        }
+        
+        override func viewDidEndLiveResize() {
+            super.viewDidEndLiveResize()
+            superview?.viewHandlers.isLiveResizing?(false)
+        }
+
+        func setupWindowObservation(for newWindow: NSWindow? = nil) {
+            if let window = newWindow ?? window {
+                if let handler = _windowHandlers.isKey  {
+                    keyWindowObservation = window.isKeyObservation(handler: handler)
+                } else {
+                    keyWindowObservation = nil
+                }
+                if let handler = _windowHandlers.isMain {
+                    mainWindowObservation = window.isMainObservation(handler: handler)
+                } else {
+                    mainWindowObservation = nil
+                }
+            } else {
+                keyWindowObservation = nil
+                mainWindowObservation = nil
+            }
         }
         
         func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
