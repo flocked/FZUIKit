@@ -65,7 +65,7 @@ extension CGLineCap: Codable { }
             }
             
             var _animationSpeed: CGFloat {
-                animationSpeed.interpolated(from: 0.0, 1.0, to: 3.0, 0.1)
+                animationSpeed.interpolated(from: (0.0, 1.0), to: (3.0, 0.1))
             }
             
             public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: CGFloat = 0.5) {
