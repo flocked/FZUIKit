@@ -14,8 +14,6 @@
     import FZSwiftUtils
     import SwiftUI
 
-extension CGLineCap: Codable { }
-
     /**
      A configuration that specifies the appearance of a border.
 
@@ -60,15 +58,31 @@ extension CGLineCap: Codable { }
             public var animates: Bool = false
             
             /// The speed of the animated border dash as a value between `0.0`  (slow) and `1.0` (fast).
-            public var animationSpeed: CGFloat = 0.5 {
-                didSet { animationSpeed = animationSpeed.clamped(to: 0.0...1.0) }
+            public var animationSpeed: AnimationSpeed = .normal
+            
+            public enum AnimationSpeed: Hashable, Codable {
+                /// Slow
+                case slow
+                /// Normal
+                case normal
+                /// Fast
+                case fast
+                /// Custom between `0.0`  (slow) and `1.0` (fast).
+                case custom(Double)
+                
+                var duration: CGFloat {
+                    let speed: CGFloat
+                    switch self {
+                        case .slow: speed = 0.8
+                        case .normal: speed = 0.5
+                        case .fast: speed = 0.2
+                        case .custom(let value): speed = value.clamped(to: 0...1.0)
+                    }
+                    return speed.interpolated(from: (0.0, 1.0), to: (3.0, 0.1))
+                }
             }
             
-            var _animationSpeed: CGFloat {
-                animationSpeed.interpolated(from: (0.0, 1.0), to: (3.0, 0.1))
-            }
-            
-            public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: CGFloat = 0.5) {
+            public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: AnimationSpeed = .normal) {
                 self.pattern = pattern
                 self.phase = phase
                 self.lineCap = lineCap
@@ -157,6 +171,14 @@ extension BorderConfiguration: Codable {
                      width: try values.decode(CGFloat.self, forKey: .width),
                      dash: try values.decode(Dash.self, forKey: .width),
                      insets: try values.decode(NSDirectionalEdgeInsets.self, forKey: .insets))
+    }
+}
+
+extension CGLineCap: Codable { }
+
+extension BorderConfiguration.Dash.AnimationSpeed: ExpressibleByFloatLiteral {
+    public init(floatLiteral value: Double) {
+        self = .custom(value)
     }
 }
 

@@ -92,7 +92,7 @@ class DashedBorderView: NSUIView {
                 if border.dash.animates && border.needsDashedBorderView {
                     borderItem
                         .animation(
-                            Animation.linear(duration: border.dash._animationSpeed)
+                            Animation.linear(duration: border.dash.animationSpeed.duration)
                                 .repeatForever(autoreverses: false),
                             value: phase)
                         .onAppear {
