@@ -9,14 +9,14 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSWindow {
+extension NSWindow {    
     /// Observes the main state of the window.
-    @objc open func isMainObservation(handler: @escaping (_ isMain: Bool)->()) -> NotificationToken {
+    @objc open func observeIsMain(handler: @escaping (_ isMain: Bool)->()) -> NotificationToken {
         [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }].notificationToken!
     }
     
     /// Observes the key state of the window.
-    @objc open func isKeyObservation(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
+    @objc open func observeIsKey(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
         [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }].notificationToken!
     }
     
