@@ -46,13 +46,31 @@
 @available(macOS 12.0, *)
 extension NSImageView {
     func updateSymbolConfiguration(for backgroundStyle: NSView.BackgroundStyle) {
-        if backgroundStyle == .emphasized, let configuration = symbolConfiguration {
-            previousConfiguration = configuration
-            symbolConfiguration = configuration.noColorsCopy()
-        } else if backgroundStyle != .emphasized, let configuration = previousConfiguration {
-            symbolConfiguration = configuration
-            previousConfiguration = nil
+        if backgroundStyle == .emphasized {
+            if configurationObservation == nil {
+                configurationObservation = observeChanges(for: \.symbolConfiguration) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.updateSymbolConfiguration(for: self.backgroundStyle)
+                }
+            }
+            if let configuration = symbolConfiguration {
+                previousConfiguration = configuration
+                symbolConfiguration = configuration.noColorsCopy()
+            } else {
+                previousConfiguration = nil
+            }
+        } else if backgroundStyle != .emphasized {
+            configurationObservation = nil
+            if let configuration = previousConfiguration {
+                symbolConfiguration = configuration
+                previousConfiguration = nil
+            }
         }
+    }
+    
+    var configurationObservation: KeyValueObservation? {
+        get { getAssociatedValue("configurationObservation") }
+        set { setAssociatedValue(newValue, key: "configurationObservation") }
     }
     
     var previousConfiguration: NSImage.SymbolConfiguration? {
