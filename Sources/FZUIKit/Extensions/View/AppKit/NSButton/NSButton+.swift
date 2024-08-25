@@ -14,20 +14,11 @@ public extension NSButton {
     /**
      Creates a push button.
      
-     - Parameter title: The title of the button.
-     */
-    static func push(_ title: String) -> NSButton {
-        NSButton(title, style: .push)
-    }
-    
-    /**
-     Creates a push button.
-     
      - Parameters:
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func push(_ title: String? = nil, image: NSImage) -> NSButton {
+    static func push(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .push)
     }
     
@@ -44,22 +35,13 @@ public extension NSButton {
     }
     
     /**
-     Creates a button with a flexible height to accommodate longer text labels or an image.
-     
-     - Parameter title: The title of the button.
-     */
-    static func flexiblePush(_ title: String) -> NSButton {
-        NSButton(title, style: .flexiblePush)
-    }
-    
-    /**
      Creates a push button.
      
      - Parameters:
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func flexiblePush(_ title: String? = nil, image: NSImage) -> NSButton {
+    static func flexiblePush(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .push)
     }
     
@@ -78,20 +60,11 @@ public extension NSButton {
     /**
      Creates a button that’s appropriate for a toolbar item.
      
-     - Parameter title: The title of the button.
-     */
-    static func toolbar(_ title: String) -> NSButton {
-        NSButton(title, style: .toolbar)
-    }
-    
-    /**
-     Creates a button that’s appropriate for a toolbar item.
-     
      - Parameters:
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func toolbar(_ title: String? = nil, image: NSImage) -> NSButton {
+    static func toolbar(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .toolbar)
     }
     
@@ -110,20 +83,11 @@ public extension NSButton {
     /**
      Creates a button that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
      
-     - Parameter title: The title of the button.
-     */
-    static func accessoryBar(_ title: String) -> NSButton {
-        NSButton(title, style: .accessoryBar)
-    }
-    
-    /**
-     Creates a button that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
-     
      - Parameters:
         - title: The title of the button.
         - symbolName: The name of the symbol image.
      */
-    static func accessoryBar(_ title: String? = nil, image: NSImage) -> NSButton {
+    static func accessoryBar(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .accessoryBar)
     }
     
@@ -142,20 +106,11 @@ public extension NSButton {
     /**
      Creates a button that you use for extra actions in an accessory toolbar.
      
-     - Parameter title: The title of the button.
-     */
-    static func accessoryBarAction(_ title: String) -> NSButton {
-        NSButton(title, style: .accessoryBarAction)
-    }
-    
-    /**
-     Creates a button that you use for extra actions in an accessory toolbar.
-     
      - Parameters:
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func accessoryBarAction(_ title: String? = nil, image: NSImage) -> NSButton {
+    static func accessoryBarAction(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .accessoryBarAction)
     }
     
@@ -202,20 +157,11 @@ public extension NSButton {
     /**
      Creates a button for displaying additional information.
      
-     - Parameter title: The title of the button.
-     */
-    static func badge(_ title: String) -> NSButton {
-        NSButton(title, style: .badge)
-    }
-    
-    /**
-     Creates a button for displaying additional information.
-     
      - Parameters:
      - title: The title of the button.
      - image: The image of the button.
      */
-    static func badge(_ title: String? = nil, image: NSUIImage) -> NSButton {
+    static func badge(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .badge)
     }
     
@@ -232,22 +178,13 @@ public extension NSButton {
     }
     
     /**
-     Creates a square bezeled button that displays the specified character.
-     
-     - Parameter title: The title of the button.
-     */
-    static func smallSquare(_ title: String) -> NSButton {
-        NSButton(title, style: .smallSquare)
-    }
-    
-    /**
      Creates a square bezeled button that displays the specified image.
      
      - Parameters:
         - title: The title of the button.
         - symbolName: The name of the symbol image.
      */
-    static func smallSquare(_ title: String? = nil, image: NSUIImage) -> NSButton {
+    static func smallSquare(_ title: String? = nil, image: NSUIImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .smallSquare)
     }
     
@@ -266,22 +203,12 @@ public extension NSButton {
     /**
      Creates a button with a  button style based on the button’s contents and position within the window.
      
-     - Parameter title: The title of the button.
-     */
-    @available(macOS 14.0, *)
-    static func automatic(_ title: String) -> NSButton {
-        NSButton(title, style: .automatic)
-    }
-    
-    /**
-     Creates a button with a  button style based on the button’s contents and position within the window.
-     
      - Parameters:
         - title: The title of the button.
         - image: The image of the button.
      */
     @available(macOS 14.0, *)
-    static func automatic(_ title: String? = nil, image: NSImage) -> NSButton {
+    static func automatic(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
         NSButton(title, image: image, style: .automatic)
     }
     

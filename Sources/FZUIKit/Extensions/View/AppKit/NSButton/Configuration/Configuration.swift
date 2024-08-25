@@ -148,44 +148,50 @@
             public var size: NSControl.ControlSize = .regular
 
             /// A standard push style button.
-            public static func push(_ title: String? = nil) -> NSButton.Configuration {
+            public static func push(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                 var configuration = Self(type: .push)
                 configuration.title = title
+                configuration.image = image
                 return configuration
             }
 
             /// A push button with a flexible height to accommodate longer text labels or an image.
-            public static func flexiblePush(_ title: String? = nil) -> NSButton.Configuration {
+            public static func flexiblePush(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                 var configuration = Self(type: .flexiblePush)
                 configuration.title = title
+                configuration.image = image
                 return configuration
             }
 
             /// A button style that’s appropriate for a toolbar item.
-            public static func toolbar(_ title: String? = nil) -> NSButton.Configuration {
+            public static func toolbar(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                 var configuration = Self(type: .toolbar)
                 configuration.title = title
+                configuration.image = image
                 return configuration
             }
 
             /// A button style that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
-            public static func accessoryBar(_ title: String? = nil) -> NSButton.Configuration {
+            public static func accessoryBar(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                 var configuration = Self(type: .accessoryBar)
                 configuration.title = title
+                configuration.image = image
                 return configuration
             }
 
             /// A button style that you use for extra actions in an accessory toolbar.
-            public static func accessoryBarAction(_ title: String? = nil) -> NSButton.Configuration {
+            public static func accessoryBarAction(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                 var configuration = Self(type: .accessoryBarAction)
                 configuration.title = title
+                configuration.image = image
                 return configuration
             }
 
             /// A button style suitable for displaying additional information.
-            public static func badge(_ title: String? = nil) -> NSButton.Configuration {
+            public static func badge(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                 var configuration = Self(type: .badge)
                 configuration.title = title
+                configuration.image = image
                 return configuration
             }
             
@@ -213,21 +219,26 @@
             }
 
             /// A simple square bezel style that can scale to any size.
-            public static func smallSquare() -> NSButton.Configuration {
-                Self(type: .smallSquare)
+            public static func smallSquare(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
+                var configuration = Self(type: .smallSquare)
+                configuration.title = title
+                configuration.image = image
+                return configuration
             }
 
             /// Creates a configuration with a check box button.
-             public static func checkBox(_ title: String? = nil) -> NSButton.Configuration {
+             public static func checkBox(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                  var configuration = Self(type: .checkBox)
                  configuration.title = title
+                 configuration.image = image
                  return configuration
              }
 
             /// Creates a configuration with a radio button.
-             public static func radio(_ title: String? = nil) -> NSButton.Configuration {
+             public static func radio(_ title: String? = nil, image: NSImage? = nil) -> NSButton.Configuration {
                  var configuration = Self(type: .radio)
                  configuration.title = title
+                 configuration.image = image
                  return configuration
              }
             

@@ -70,15 +70,15 @@ public class NSContentUnavailableView: NSView, NSContentView {
         
         @ViewBuilder
         var buttonItem: some View {
-            if let configuration = configuration.button, configuration.hasContent {
-                ButtonItem(configuration: configuration)
+            if let configuration = configuration.button {
+                ButtonView(configuration)
             }
         }
         
         @ViewBuilder
         var secondaryButton: some View {
-            if let configuration = configuration.secondaryButton, configuration.hasContent {
-                ButtonItem(configuration: configuration)
+            if let configuration = configuration.secondaryButton {
+                ButtonView(configuration)
             }
         }
         
@@ -166,47 +166,6 @@ public class NSContentUnavailableView: NSView, NSContentView {
         }
     }
     
-    struct ButtonItem: View {
-        let configuration: NSContentUnavailableConfiguration.ButtonConfiguration
-        
-        @ViewBuilder
-        var imageItem: some View {
-            if let image = configuration.image {
-                Image(image)
-                    .resizable()
-                // .frame(width: configuration.size.size?.width, height: configuration.size.size?.height)
-            }
-        }
-        
-        var body: some View {
-            Button {
-                configuration.action?()
-            } label: {
-                if let atributedTitle = configuration.atributedTitle {
-                    if configuration.image != nil {
-                        Label { Text(atributedTitle) } icon: { imageItem }
-                    } else {
-                        Text(atributedTitle)
-                    }
-                } else if let title = configuration.title {
-                    if configuration.image != nil {
-                        Label { Text(title) } icon: { imageItem }
-                    } else {
-                        Text(title)
-                    }
-                } else if configuration.image != nil {
-                    imageItem
-                } else {
-                    Text("")
-                }
-            }.buttonStyling(configuration.style)
-                .foregroundColor(configuration.resolvedTintColor()?.swiftUI)
-                .symbolConfiguration(configuration.symbolConfiguration)
-                .controlSize(configuration.size.swiftUI)
-                .frame(width: configuration.resolvedSize?.width, height: configuration.resolvedSize?.height)
-        }
-    }
-    
     struct TextItem: View {
         let text: String?
         let attributedText: NSAttributedString?
@@ -232,9 +191,41 @@ public class NSContentUnavailableView: NSView, NSContentView {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
                 .font(properties.font.swiftUI)
-                .lineLimit(properties._maxNumberOfLines)
-                .foregroundColor(properties.color.swiftUI)
+                .lineLimit(properties.maxNumberOfLines == 0 ? nil : properties.maxNumberOfLines)
+                .foregroundColor(properties.resolvedColor().swiftUI)
                 .minimumScaleFactor(properties.minimumScaleFactor)
+        }
+    }
+    
+    struct ButtonView: NSViewRepresentable {
+        let configuration: NSContentUnavailableConfiguration.ButtonConfiguration
+        
+        init(_ configuration: NSContentUnavailableConfiguration.ButtonConfiguration) {
+            self.configuration = configuration
+        }
+        
+        public func makeNSView(context: Context) -> NSButton {
+            let button = NSButton()
+            if let attributedTitle = configuration.atributedTitle {
+                button.attributedTitle = attributedTitle.nsAttributedString
+            } else if let title = configuration.title {
+                button.title = title
+            }
+            button.image = configuration.image
+            button.symbolConfiguration = configuration.symbolConfiguration?.nsUI()
+            button.controlSize = configuration.size
+            button.contentTintColor = configuration.resolvedTintColor()
+            button.state = configuration.state
+            button.actionBlock = { _ in configuration.action?() }
+            button.bezelStyle = configuration.type.bezel
+            button.setButtonType(configuration.type.buttonType)
+            button.isEnabled = configuration.isEnabled
+            button.sizeToFit()
+            return button
+        }
+        
+        public func updateNSView(_ button: NSButton, context: Context) {
+            
         }
     }
 }

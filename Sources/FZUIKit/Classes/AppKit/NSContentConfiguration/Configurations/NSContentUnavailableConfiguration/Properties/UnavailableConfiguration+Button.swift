@@ -6,171 +6,124 @@
 //
 
 #if os(macOS)
-    import AppKit
-    import FZSwiftUtils
-    import SwiftUI
+import AppKit
+import FZSwiftUtils
+import SwiftUI
 
-    @available(macOS 12.0, *)
-    public extension NSContentUnavailableConfiguration {
-        /// Properties to configure buttons for a content-unavailable view.
-        struct ButtonConfiguration {
+@available(macOS 12.0, *)
+public extension NSContentUnavailableConfiguration {
+    /// Properties to configure buttons for a content-unavailable view.
+    struct ButtonConfiguration: Hashable {
+        
+        /// The style of the button.
+        public enum ButtonType: Hashable {
+            /// A standard push style button.
+            case push
+            /// A push button with a flexible height to accommodate longer text labels or an image.
+            case flexiblePush
+            /// A button style that’s appropriate for a toolbar item.
+            case toolbar
+            /// A button style that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
+            case accessoryBar
+            /// A button style that you use for extra actions in an accessory toolbar.
+            case accessoryBarAction
+            /// A button style suitable for displaying additional information.
+            case badge
+            /// A round button that can contain either a single character or an icon.
+            case circular
+            /// A simple square bezel style that can scale to any size.
+            case smallSquare
+            /// A checkbox button.
+            case checkBox
+            /// A radio button.
+            case help
             
-            /// The style of the button.
-            public enum Style: Int, Hashable {
-                /// A button style that doesn’t style or decorate its content while idle, but may apply a visual effect to indicate the pressed, focused, or enabled state of the button.
-                case plain
-                /// A button style that doesn’t apply a border.
-                case borderless
-                /// A button style that applies standard border artwork based on the button’s context.
-                case bordered
-                /// A button style that doesn’t apply a border.
-                case link
-            }
-            
-            /// The size of the button
-            public enum Size: Hashable {
-                /// A button that is minimally sized.
-                case mini
-                /// A button that is proportionally smaller size for space-constrained views.
-                case small
-                /// A button that is the default size.
-                case regular
-                /// A button that is prominently sized.
-                case large
-                /// A button with a fixed size (only valid for borderless buttons with an image)
-                case fixed(CGSize)
-                @available(macOS 14.0, *)
-                /// A button that is sized extra large.
-                case extraLarge
-                var size: CGSize? {
-                    switch self {
-                    case .fixed(let size): return size
-                    default: return nil
-                    }
-                }
-                var swiftUI: SwiftUI.ControlSize {
-                    switch self {
-                    case .mini: return .mini
-                    case .small: return .small
-                    case .large: return .large
-                    case .extraLarge: if #available(macOS 14.0, *) {
-                        return .extraLarge
-                    } else {
-                        return .regular
-                    }
-                    default: return .regular
-                    }
+            var buttonType: NSButton.ButtonType {
+                switch self {
+                case .accessoryBar: return .pushOnPushOff
+                case .checkBox: return .switch
+                default: return .momentaryPushIn
                 }
             }
-
-            /// The title.
-            public var title: String?
             
-            /// The attributed title.
-            public var atributedTitle: AttributedString?
-            
-            /// The image.
-            public var image: NSImage?
-
-            /// The action of the button.
-            public var action: (() -> Void)?
-            
-            /// A Boolean value that indicates whether the button is enabled.
-            public var isEnabled: Bool = true
-
-            /// The tint color.
-            public var tintColor: NSColor?
-            
-            /// The color transformer of the tint color.
-            public var tintColorTransformer: ColorTransformer?
-
-            ///  Generates the resolved tint color, using the tint color and color transformer.
-            public func resolvedTintColor() -> NSColor? {
-                guard let color = tintColor else { return nil }
-                return tintColorTransformer?(color) ?? color
-            }
-            
-            /// The style.
-            public var style: Style = .bordered
-            
-            /// The size of the button.
-            public var size: Size = .regular
-            
-            /// The symbol configuration of the image.
-            public var symbolConfiguration: ImageSymbolConfiguration?
-
-            var hasContent: Bool {
-                title != nil || atributedTitle != nil || image != nil
-            }
-            
-            var resolvedSize: CGSize? {
-                guard image == nil, style == .borderless else { return nil }
-                return size.size
-            }
-            
-            /// Creates a button configuration.
-            public init(title: String? = nil, atributedTitle: AttributedString? = nil, image: NSImage? = nil,  isEnabled: Bool = true, tintColor: NSColor? = nil, style: Style = .bordered, size: Size = .regular, symbolConfiguration: ImageSymbolConfiguration? = nil, action: (() -> Void)? = nil) {
-                self.title = title
-                self.atributedTitle = atributedTitle
-                self.image = image
-                self.action = action
-                self.isEnabled = isEnabled
-                self.tintColor = tintColor
-                self.style = style
-                self.size = size
-                self.symbolConfiguration = symbolConfiguration
-            }
-
-            /**
-             A text button.
-             
-             - Parameters:
-                - text: The text of the button.
-                - style: The style of the button.
-                - action: The action of the button.
-             */
-            public static func textButton(_ title: String, image: NSImage? = nil, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
-                Self(title: title, image: image, style: style, action: action)
-            }
-            
-            /**
-             A image button.
-             
-             - Parameters:
-                - image: The image of the button.
-                - style: The style of the button.
-                - action: The action of the button.
-             */
-            public static func imageButton(_ image: NSImage, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
-                Self(image: image, style: style, action: action)
-            }
-            
-            /**
-             A symbol image button.
-             
-             - Parameters:
-                - symbolName: The name of the symbol image.
-                - symbolConfiguration: The image symbol configuration.
-                - style: The style of the button.
-                - action: The action of the button.
-             */
-            public static func symbolImageButton(_ symbolName: String, symbolConfiguration: ImageSymbolConfiguration? = nil, style: Style = .bordered, action: @escaping (() -> Void)) -> Self {
-                Self(image: NSImage(systemSymbolName: symbolName), style: style, symbolConfiguration: symbolConfiguration, action: action)
+            var bezel: NSButton.BezelStyle {
+                switch self {
+                case .push: return .rounded
+                case .flexiblePush: return .regularSquare
+                case .toolbar: return .texturedRounded
+                case .accessoryBar: return .recessed
+                case .accessoryBarAction: return .roundRect
+                case .badge: return .inline
+                case .circular: return .circular
+                case .smallSquare: return .smallSquare
+                case .help: return .helpButton
+                default: return .rounded
+                }
             }
         }
-    }
-
-    @available(macOS 12.0, *)
-    extension NSContentUnavailableConfiguration.ButtonConfiguration: Hashable {
-        public static func == (lhs: NSContentUnavailableConfiguration.ButtonConfiguration, rhs: NSContentUnavailableConfiguration.ButtonConfiguration) -> Bool {
+                
+        /// The title.
+        public var title: String? {
+            didSet {
+                guard title != nil else { return }
+                atributedTitle = nil
+            }
+        }
+        
+        /// The attributed title.
+        public var atributedTitle: AttributedString? {
+            didSet {
+                guard atributedTitle != nil else { return }
+                atributedTitle = nil
+            }
+        }
+        
+        /// The image.
+        public var image: NSImage?
+        
+        /// The action of the button.
+        public var action: (() -> Void)?
+        
+        /// A Boolean value that indicates whether the button is enabled.
+        public var isEnabled: Bool = true
+        
+        /// The state of the button.
+        public var state: NSControl.StateValue = .on
+        
+        /// The size of the button.
+        public var size: NSControl.ControlSize = .regular
+        
+        /// The tint color.
+        public var tintColor: NSColor?
+        
+        /// The color transformer of the tint color.
+        public var tintColorTransformer: ColorTransformer?
+        
+        ///  Generates the resolved tint color, using the tint color and color transformer.
+        public func resolvedTintColor() -> NSColor? {
+            guard let color = tintColor else { return nil }
+            return tintColorTransformer?(color) ?? color
+        }
+        
+        /// The button type..
+        public var type: ButtonType = .push
+        
+        /// The symbol configuration of the image.
+        public var symbolConfiguration: ImageSymbolConfiguration?
+        
+        public init() {
+            
+        }
+        
+        public static func == (lhs: Self, rhs: Self) -> Bool {
             lhs.hashValue == rhs.hashValue
         }
-
+        
         public func hash(into hasher: inout Hasher) {
             hasher.combine(title)
             hasher.combine(atributedTitle)
             hasher.combine(image)
-            hasher.combine(style)
+            hasher.combine(type)
             hasher.combine(size)
             hasher.combine(tintColor)
             hasher.combine(tintColorTransformer)
@@ -178,18 +131,6 @@
             hasher.combine(isEnabled)
         }
     }
-
-    @available(macOS 12.0, *)
-    extension View {
-        @ViewBuilder
-        func buttonStyling(_ style: NSContentUnavailableConfiguration.ButtonConfiguration.Style) -> some View {
-            switch style {
-            case .plain: buttonStyle(.plain)
-            case .borderless: buttonStyle(.borderless)
-            case .bordered: buttonStyle(.bordered)
-            case .link: buttonStyle(.link)
-            }
-        }
-    }
+}
 
 #endif

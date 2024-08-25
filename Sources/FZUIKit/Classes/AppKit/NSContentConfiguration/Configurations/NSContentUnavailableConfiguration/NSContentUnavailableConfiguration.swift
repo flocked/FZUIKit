@@ -22,36 +22,32 @@
         /// The primary text to display.
         public var text: String? {
             didSet {
-                if text != nil { 
-                    attributedText = nil
-                }
+                guard text != nil else { return }
+                attributedText = nil
             }
         }
 
         /// An attributed variant of the primary text.
         public var attributedText: NSAttributedString? {
             didSet {
-                if attributedText != nil {
-                    text = nil
-                }
+                guard attributedText != nil else { return }
+                text = nil
             }
         }
 
         /// The secondary text to display.
         public var secondaryText: String? {
             didSet {
-                if secondaryText != nil {
-                    secondaryAttributedText = nil
-                }
+                guard secondaryText != nil else { return }
+                secondaryAttributedText = nil
             }
         }
 
         /// An attributed variant of the secondary text.
         public var secondaryAttributedText: NSAttributedString? {
             didSet {
-                if secondaryAttributedText != nil {
-                    secondaryText = nil
-                }
+                guard secondaryAttributedText != nil else { return }
+                secondaryText = nil
             }
         }
 
@@ -62,10 +58,10 @@
         public var secondaryButton: ButtonConfiguration?
 
         /// Properties for configuring the primary text.
-        public var textProperties: TextProperties = .primary()
+        public var textProperties: TextProperties = .primary
 
         /// Properties for configuring the secondary text.
-        public var secondaryTextProperties: TextProperties = .secondary()
+        public var secondaryTextProperties: TextProperties = .secondary
         
         /// The configuration for the image.
         public var imageProperties: ImageProperties = .init()
@@ -200,8 +196,8 @@
         /// Creates the default configuration for content that’s loading.
         static func loading() -> NSContentUnavailableConfiguration {
             var configuration = NSContentUnavailableConfiguration()
-            configuration.textProperties = .body()
-            configuration.secondaryTextProperties = configuration.textProperties
+            configuration.textProperties.font = .body
+            configuration.secondaryTextProperties.font = .body
             configuration.loadingIndicator = .spinning
             configuration.imageProperties.scaling = .none
             configuration.imageProperties.symbolConfiguration = .font(.title1, weight: .bold)
@@ -252,7 +248,9 @@
                     }
                 }
                 */
-                configuration.button = .init(title: "Select files…", style: .bordered, action: buttonHandler)
+                configuration.button = .init()
+                configuration.button?.title = "Select files…"
+                configuration.button?.action = buttonHandler
                 configuration.button?.symbolConfiguration = .font(.subheadline)
             }
             return configuration

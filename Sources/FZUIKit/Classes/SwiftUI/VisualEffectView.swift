@@ -117,12 +117,12 @@ public struct VisualEffectView: NSViewRepresentable {
         return view
     }
     
-    public func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
-        nsView.material = material
-        nsView.appearance = appearance
-        nsView.blendingMode = blendingMode
-        nsView.isEmphasized = isEmphasized
-        nsView.state = state
+    public func updateNSView(_ view: NSVisualEffectView, context: Context) {
+        view.material = material
+        view.appearance = appearance
+        view.blendingMode = blendingMode
+        view.isEmphasized = isEmphasized
+        view.state = state
     }
 }
 
