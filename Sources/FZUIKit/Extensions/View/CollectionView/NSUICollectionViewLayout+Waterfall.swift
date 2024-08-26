@@ -731,7 +731,13 @@ extension NSUICollectionView {
             set {
                 guard newValue != columns else { return }
                 if let pinchLayout = pinchLayout {
-                    pinchLayout.columns = newValue
+                    if let pinchLayout = pinchLayout as? CollectionViewWaterfallLayout {
+                        pinchLayout.willChangeValue(for: \.columns)
+                        pinchLayout.columns = newValue
+                        pinchLayout.didChangeValue(for: \.columns)
+                    } else {
+                        pinchLayout.columns = newValue
+                    }
                     pinchLayout.invalidateLayoutAnimated(duration: 0.2)
                 } else if let collectionView = collectionView, let layout = configuration?.invalidation(newValue) {
                     collectionView.setCollectionViewLayout(layout, animated: configuration?.animated == true)
