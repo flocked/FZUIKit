@@ -196,7 +196,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     open var itemSizeProvider: ItemSizeProvider?
     
     /// The amount of columns.
-    open var columns: Int = 2 {
+    @objc dynamic open var columns: Int = 2 {
         didSet { columns = columns.clamped(to: columnRange) }
     }
     
