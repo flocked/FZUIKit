@@ -9,68 +9,63 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSMagnificationGestureRecognizer {
+extension NSMagnificationGestureRecognizer: VelocityGestureRecognizer {
     
     /// The velocity of the magnification in scale factor per second.
     @objc dynamic public var velocity: CGFloat {
         get{
             swizzleGestureState()
-            return getAssociatedValue("velocity", initialValue: 1.0)
+            return getAssociatedValue("velocity") ?? 1.0
         }
         set{ setAssociatedValue(newValue, key: "velocity") }
     }
     
     var prevMagnification: CGFloat {
-        get{ return getAssociatedValue("prevMagnification", initialValue: magnification) }
+        get{ getAssociatedValue("prevMagnification") ?? magnification }
         set{ setAssociatedValue(newValue, key: "prevMagnification") }
     }
     
     var time: CFTimeInterval {
-        get{ return getAssociatedValue("time", initialValue: CACurrentMediaTime()) }
+        get{ getAssociatedValue("time") ?? CACurrentMediaTime() }
         set{ setAssociatedValue(newValue, key: "time") }
     }
     
     func updateVelocity() {
-        let previousTime = time
+        let prevTime = time
         time = CACurrentMediaTime()
         switch state {
-        case .began:
+        case .began: 
             velocity = 1.0
-        case .ended, .cancelled:
-            break
-        default:
-            let timeInterval = time - previousTime
-            let velocityDiff = magnification - prevMagnification
-            velocity = (velocityDiff / timeInterval)
+        case .changed:
+            velocity = (magnification - prevMagnification) / (time - prevTime)
+        default: break
         }
         prevMagnification = magnification
     }
 }
 
 extension NSGestureRecognizer {
-    var didSwizzleGestureState: Bool {
-        get{ getAssociatedValue("didSwizzleGestureState", initialValue: false) }
-        set{ setAssociatedValue(newValue, key: "didSwizzleGestureState") }
-    }
-    
     func swizzleGestureState() {
-        guard didSwizzleGestureState == false else { return }
-        didSwizzleGestureState = true
+        guard !isMethodReplaced(#selector(setter: NSGestureRecognizer.state)) else { return }
         do {
             try replaceMethod(
                 #selector(setter: NSGestureRecognizer.state),
                 methodSignature: (@convention(c)  (AnyObject, Selector, State) -> ()).self,
                 hookSignature: (@convention(block)  (AnyObject, State) -> ()).self) { store in {
                    object, state in
-                    (object as? NSMagnificationGestureRecognizer)?.updateVelocity()
-                    (object as? NSRotationGestureRecognizer)?.updateVelocity()
+                    (object as? VelocityGestureRecognizer)?.updateVelocity()
                    store.original(object, #selector(setter: NSGestureRecognizer.state), state)
                 }
            }
-            (self as? NSMagnificationGestureRecognizer)?.updateVelocity()
+            (self as? VelocityGestureRecognizer)?.updateVelocity()
         } catch {
             Swift.debugPrint(error)
         }
     }
 }
+
+protocol VelocityGestureRecognizer: NSGestureRecognizer {
+    func updateVelocity()
+}
+
 #endif

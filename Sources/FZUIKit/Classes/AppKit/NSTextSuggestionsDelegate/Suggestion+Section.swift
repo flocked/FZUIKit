@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 19.07.24.
 //
 
+/*
 #if os(macOS)
 import Foundation
 import SwiftUI
@@ -82,3 +83,4 @@ class SuggestionItemSectionCellView: NSTableCellView {
 
 
 #endif
+*/

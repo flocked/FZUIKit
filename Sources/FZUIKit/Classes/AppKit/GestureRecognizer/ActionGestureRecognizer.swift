@@ -21,8 +21,8 @@ open class ActionGestureRecognizer: NSGestureRecognizer {
     
     /// Initalizes the gesture recognizer with the specified actions.
     public init(actions: [NSEvent.EventType : (NSEvent) -> Void]) {
-        self.actions = actions
         super.init(target: nil, action: nil)
+        self.actions = actions
     }
         
     public required init?(coder: NSCoder) {

@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 19.07.24.
 //
 
+/*
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
@@ -155,3 +156,4 @@ class TextSuggestionController: NSObject, NSTableViewDelegate, NSTableViewDataSo
 }
 
 #endif
+*/

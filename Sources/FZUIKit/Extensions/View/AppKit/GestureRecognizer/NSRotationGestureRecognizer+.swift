@@ -9,39 +9,36 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSRotationGestureRecognizer {
+extension NSRotationGestureRecognizer: VelocityGestureRecognizer {
     
     /// The velocity of the rotation gesture in radians per second.
     @objc dynamic public var velocity: CGFloat {
         get{
             swizzleGestureState()
-            return getAssociatedValue("velocity", initialValue: 1.0)
+            return getAssociatedValue("velocity") ?? 1.0
         }
         set{ setAssociatedValue(newValue, key: "velocity") }
     }
     
     var prevRotation: CGFloat {
-        get{ return getAssociatedValue("prevRotation", initialValue: rotation) }
+        get{ getAssociatedValue("prevRotation") ?? rotation }
         set{ setAssociatedValue(newValue, key: "prevRotation") }
     }
     
     var time: CFTimeInterval {
-        get{ return getAssociatedValue("time", initialValue: CACurrentMediaTime()) }
+        get{ getAssociatedValue("time") ?? CACurrentMediaTime() }
         set{ setAssociatedValue(newValue, key: "time") }
     }
     
     func updateVelocity() {
-        let previousTime = time
+        let prevTime = time
         time = CACurrentMediaTime()
         switch state {
         case .began:
             velocity = 1.0
-        case .ended, .cancelled:
-            break
-        default:
-            let timeInterval = time - previousTime
-            let velocityDiff = rotation - prevRotation
-            velocity = (velocityDiff / timeInterval)
+        case .changed:
+            velocity = (rotation - prevRotation) / (time - prevTime)
+        default: break
         }
         prevRotation = rotation
     }

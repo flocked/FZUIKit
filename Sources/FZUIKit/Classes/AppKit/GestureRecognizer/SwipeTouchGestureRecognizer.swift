@@ -65,13 +65,12 @@
             previousDirection = []
             time = CACurrentMediaTime()
             velocity = 1.0
-
             if event.type == .gesture {
                 let touches = event.touches(matching: .any, in: view)
                 if touches.count == numberOfTouchesRequired {
                     twoFingersTouches = [:]
                     touches.forEach {
-                        self.twoFingersTouches?[$0.identity.description] = $0
+                        twoFingersTouches?[$0.identity.description] = $0
                     }
                 }
             }
