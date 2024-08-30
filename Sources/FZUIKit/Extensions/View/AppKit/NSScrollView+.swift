@@ -234,7 +234,7 @@
         }
                                                 
         var contentOffsetNotificationToken: NotificationToken? {
-            get { getAssociatedValue("contentOffsetNotificationToken", initialValue: nil) }
+            get { getAssociatedValue("contentOffsetNotificationToken") }
             set { setAssociatedValue(newValue, key: "contentOffsetNotificationToken")}
         }
         
@@ -610,7 +610,7 @@
         }
         
         var scrollViewObserver: KeyValueObserver<NSScrollView>? {
-            get { getAssociatedValue("scrollViewObserver", initialValue: nil) }
+            get { getAssociatedValue("scrollViewObserver") }
             set { setAssociatedValue(newValue, key: "scrollViewObserver") }
         }
         

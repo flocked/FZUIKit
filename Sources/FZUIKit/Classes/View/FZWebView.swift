@@ -412,7 +412,7 @@
         }
 
         var fileDestinationURL: URL? {
-            get { getAssociatedValue("fileDestinationURL", initialValue: nil) }
+            get { getAssociatedValue("fileDestinationURL") }
             set { setAssociatedValue(newValue, key: "fileDestinationURL") }
         }
     }

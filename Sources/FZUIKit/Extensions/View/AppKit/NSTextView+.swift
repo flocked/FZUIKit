@@ -382,7 +382,7 @@ import FZSwiftUtils
         }
         
         var _delegate: TextViewDelegate? {
-            get { getAssociatedValue("_delegate", initialValue: nil) }
+            get { getAssociatedValue("_delegate") }
             set { setAssociatedValue(newValue, key: "_delegate") }
         }
         
@@ -404,7 +404,7 @@ import FZSwiftUtils
         }
         
         var mouseDownMonitor: NSEvent.Monitor? {
-            get { getAssociatedValue("mouseDownMonitor", initialValue: nil) }
+            get { getAssociatedValue("mouseDownMonitor") }
             set { setAssociatedValue(newValue, key: "mouseDownMonitor") }
         }
 

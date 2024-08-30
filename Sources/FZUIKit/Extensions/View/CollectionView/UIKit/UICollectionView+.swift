@@ -77,7 +77,7 @@
         }
 
         var contentOffsetObserver: KeyValueObservation? {
-            get { getAssociatedValue("contentOffsetObserver", initialValue: nil) }
+            get { getAssociatedValue("contentOffsetObserver") }
             set { setAssociatedValue(newValue, key: "contentOffsetObserver") }
         }
 

@@ -36,7 +36,7 @@ extension NSButton {
      ```
      */
     public var configuration: NSButtonConfiguration? {
-        get { getAssociatedValue("configuration", initialValue: nil) }
+        get { getAssociatedValue("configuration") }
         set {
             setAssociatedValue(newValue, key: "configuration")
             updateConfiguration()
@@ -168,7 +168,7 @@ extension NSButton {
      Use this property as an alternative to overriding ``updateConfiguration()``. Set a closure to respond to button state changes by updating the button configuration.
      */
     public var configurationUpdateHandler: ConfigurationUpdateHandler? {
-        get { getAssociatedValue("NSButton_configurationUpdateHandler", initialValue: nil) }
+        get { getAssociatedValue("NSButton_configurationUpdateHandler") }
         set {
             setAssociatedValue(newValue, key: "NSButton_configurationUpdateHandler")
             setupConfigurationStateObserver()
@@ -192,7 +192,7 @@ extension NSButton {
     }
     
     var contentView: (NSView & NSContentView)? {
-        get { getAssociatedValue("NSButton_contentView", initialValue: nil) }
+        get { getAssociatedValue("NSButton_contentView") }
         set {
             contentView?.removeFromSuperview()
             setAssociatedValue(newValue, key: "NSButton_contentView")
@@ -200,7 +200,7 @@ extension NSButton {
     }
     
     var hoverView: HoverView? {
-        get { getAssociatedValue("HoverView", initialValue: nil) }
+        get { getAssociatedValue("HoverView") }
         set { setAssociatedValue(newValue, key: "HoverView") }
     }
     

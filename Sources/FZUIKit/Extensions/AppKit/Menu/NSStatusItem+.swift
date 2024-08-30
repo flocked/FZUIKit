@@ -18,7 +18,7 @@
          When using this handler, the `action` and `target` of the item's button is set to `nil` and this handler is used  instead.
          */
         public var onClick: (()->())? {
-            get { getAssociatedValue("onClick", initialValue: nil) }
+            get { getAssociatedValue("onClick") }
             set { setAssociatedValue(newValue, key: "onClick")
                 updateAction()
             }
@@ -32,7 +32,7 @@
          When using this handler, the `action` and `target` of the item's button is set to `nil` and this handler is used  instead.
          */
         public var onRightClick: (()->())? {
-            get { getAssociatedValue("onRightClick", initialValue: nil) }
+            get { getAssociatedValue("onRightClick") }
             set { setAssociatedValue(newValue, key: "onRightClick")
                 updateAction()
             }
@@ -40,7 +40,7 @@
         
         /// The menu that is displayed when the item is right clicked.
         public var rightClickMenu: NSMenu? {
-            get { getAssociatedValue("rightClickMenu", initialValue: nil) }
+            get { getAssociatedValue("rightClickMenu") }
             set { setAssociatedValue(newValue, key: "rightClickMenu")
                 updateAction()
             }
@@ -48,7 +48,7 @@
         
         /// The handler that provides the menu that is displayed when the item is right clicked.
         public var rightClickMenuProvider: (()->(NSMenu?))? {
-            get { getAssociatedValue("rightClickMenuProvider", initialValue: nil) }
+            get { getAssociatedValue("rightClickMenuProvider") }
             set { setAssociatedValue(newValue, key: "rightClickMenuProvider")
                 updateAction()
             }
@@ -69,7 +69,7 @@
          - Parameter state: The mouse holding state.
          */
         public var onMouseHold: ((_ state: MouseClickState)->())? {
-            get { getAssociatedValue("onMouseHold", initialValue: nil) }
+            get { getAssociatedValue("onMouseHold") }
             set { setAssociatedValue(newValue, key: "onMouseHold")
                 updateAction()
             }
@@ -81,7 +81,7 @@
          - Parameter state: The mouse holding state.
          */
         public var onRightMouseHold: ((MouseClickState)->())? {
-            get { getAssociatedValue("onRightMouseHold", initialValue: nil) }
+            get { getAssociatedValue("onRightMouseHold") }
             set { setAssociatedValue(newValue, key: "onRightMouseHold")
                 updateAction()
             }

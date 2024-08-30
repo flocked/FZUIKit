@@ -686,12 +686,12 @@ extension NSWindow {
     }
     
     var mainWindowObservation: KeyValueObservation? {
-        get { getAssociatedValue("mainWindowObservation", initialValue: nil) }
+        get { getAssociatedValue("mainWindowObservation") }
         set { setAssociatedValue(newValue, key: "mainWindowObservation") }
     }
     
     var keyWindowObservation: KeyValueObservation? {
-        get { getAssociatedValue("keyWindowObservation", initialValue: nil) }
+        get { getAssociatedValue("keyWindowObservation") }
         set { setAssociatedValue(newValue, key: "keyWindowObservation") }
     }
     
@@ -770,7 +770,7 @@ extension NSWindow {
     }
     
     var _inLiveResize: Bool? {
-        get { getAssociatedValue("_inLiveResize", initialValue: nil) }
+        get { getAssociatedValue("_inLiveResize") }
         set { 
             setAssociatedValue(newValue, key: "_inLiveResize")
             set(\.inLiveResize, \._inLiveResize, to: newValue)
@@ -778,7 +778,7 @@ extension NSWindow {
     }
     
     var _isMainWindow: Bool? {
-        get { getAssociatedValue("_isMainWindow", initialValue: nil) }
+        get { getAssociatedValue("_isMainWindow") }
         set {
             setAssociatedValue(newValue, key: "_isMainWindow")
             set(\.isMainWindow, \._isMainWindow, to: newValue)
@@ -786,7 +786,7 @@ extension NSWindow {
     }
     
     var _isKeyWindow: Bool? {
-        get { getAssociatedValue("_isKeyWindow", initialValue: nil) }
+        get { getAssociatedValue("_isKeyWindow") }
         set {
             setAssociatedValue(newValue, key: "_isKeyWindow")
             set(\.isKeyWindow, \._isKeyWindow, to: newValue)

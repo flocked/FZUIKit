@@ -187,7 +187,7 @@ extension CAShapeLayer {
     }
     
     var shapeLayerObserver: KeyValueObserver<CAShapeLayer>? {
-        get { getAssociatedValue("shapeLayerObserver", initialValue: nil) }
+        get { getAssociatedValue("shapeLayerObserver") }
         set { setAssociatedValue(newValue, key: "shapeLayerObserver") }
     }
     

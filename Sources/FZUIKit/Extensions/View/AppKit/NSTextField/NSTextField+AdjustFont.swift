@@ -177,7 +177,7 @@
         }
         
         var _font: NSFont? {
-            get { getAssociatedValue("_font", initialValue: nil) }
+            get { getAssociatedValue("_font") }
             set { 
                 setAssociatedValue(newValue, key: "_font")
             }

@@ -441,22 +441,22 @@ import SwiftUI
         }
         
         private var viewTrackingOptions: ViewTrackingOptions? {
-            get { getAssociatedValue("viewTrackingOptions", initialValue: nil) }
+            get { getAssociatedValue("viewTrackingOptions") }
             set { setAssociatedValue(newValue, key: "viewTrackingOptions") }
         }
 
         private var willCloseObservation: NotificationToken? {
-            get { getAssociatedValue("willCloseObservation", initialValue: nil) }
+            get { getAssociatedValue("willCloseObservation") }
             set { setAssociatedValue(newValue, key: "willCloseObservation") }
         }
         
         private var didShowObservation: NotificationToken? {
-            get { getAssociatedValue("didShowObservation", initialValue: nil) }
+            get { getAssociatedValue("didShowObservation") }
             set { setAssociatedValue(newValue, key: "didShowObservation") }
         }
 
         private var noArrowView: NSView? {
-            get { getAssociatedValue("noArrowView", initialValue: nil) }
+            get { getAssociatedValue("noArrowView") }
             set { setAssociatedValue(newValue, key: "noArrowView") }
         }
         
@@ -466,12 +466,12 @@ import SwiftUI
         }
         
         private var effectiveAppearanceObservation: KeyValueObservation? {
-            get { getAssociatedValue("effectiveAppearanceObservation", initialValue: nil) }
+            get { getAssociatedValue("effectiveAppearanceObservation") }
             set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
         }
         
         private var contentViewFrameObservation: KeyValueObservation? {
-            get { getAssociatedValue("contentViewFrameObservation", initialValue: nil) }
+            get { getAssociatedValue("contentViewFrameObservation") }
             set { setAssociatedValue(newValue, key: "contentViewFrameObservation") }
         }
         
@@ -481,7 +481,7 @@ import SwiftUI
         }
 
         private var popoverDelegate: Delegate? {
-            get { getAssociatedValue("popoverDelegate", initialValue: nil) }
+            get { getAssociatedValue("popoverDelegate") }
             set { setAssociatedValue(newValue, key: "popoverDelegate") }
         }
 

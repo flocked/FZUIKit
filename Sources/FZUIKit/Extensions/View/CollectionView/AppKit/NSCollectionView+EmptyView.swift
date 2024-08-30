@@ -30,7 +30,7 @@ extension NSCollectionView {
     
     /// A handler that is called whenever the collection view is empty.
     public var emptyContentHandler: ((_ isEmpty: Bool)->())? {
-        get { getAssociatedValue("emptyContentHandler", initialValue: nil) }
+        get { getAssociatedValue("emptyContentHandler") }
         set { 
             setAssociatedValue(newValue, key: "emptyContentHandler")
             if newValue != nil {
@@ -75,7 +75,7 @@ extension NSCollectionView {
     }
     
     var datasourceObservation: KeyValueObservation? {
-        get { getAssociatedValue("datasourceObservation", initialValue: nil) }
+        get { getAssociatedValue("datasourceObservation") }
         set { setAssociatedValue(newValue, key: "datasourceObservation") }
     }
 }

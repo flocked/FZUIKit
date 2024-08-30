@@ -54,7 +54,7 @@
         
         /// A handler that provides the velocity of the dragging of the view by it's background when ``isMovableByViewBackground`` is enabled.
         var backgroundDragVelocity: ((_ state: NSUIGestureRecognizer.State, _ velocity: CGPoint) -> Void)? {
-            get { getAssociatedValue("movableByBackgroundVelocity", initialValue: nil) }
+            get { getAssociatedValue("movableByBackgroundVelocity") }
             set { setAssociatedValue(newValue, key: "movableByBackgroundVelocity") }
         }
 
@@ -120,7 +120,7 @@
         }
 
         private var panGesture: NSUIPanGestureRecognizer? {
-            get { getAssociatedValue("panGesture", initialValue: nil) }
+            get { getAssociatedValue("panGesture") }
             set { setAssociatedValue(newValue, key: "panGesture") }
         }
     }

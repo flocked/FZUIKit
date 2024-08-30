@@ -427,7 +427,7 @@ public extension NSButton {
     }
     
     internal var buttonStateObserver: KeyValueObservation? {
-        get { getAssociatedValue("buttonStateObserver", initialValue: nil) }
+        get { getAssociatedValue("buttonStateObserver") }
         set { setAssociatedValue(newValue, key: "buttonStateObserver") }
     }
     

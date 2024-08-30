@@ -30,7 +30,7 @@ extension NSUIView {
     }
     
     var emphasizedBorderLayer: CALayer? {
-        get { getAssociatedValue("emphasizedBorderLayer", initialValue: nil) }
+        get { getAssociatedValue("emphasizedBorderLayer") }
         set { setAssociatedValue(newValue, key: "emphasizedBorderLayer") }
     }
 }

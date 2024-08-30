@@ -180,7 +180,7 @@
 
         /// The minimum numbers of characters needed when the user edits the string value.
         public var minimumNumberOfCharacters: Int? {
-            get { getAssociatedValue("minimumNumberOfCharacters", initialValue: nil) }
+            get { getAssociatedValue("minimumNumberOfCharacters") }
             set {
                 guard newValue != minimumNumberOfCharacters else { return }
                 setAssociatedValue(newValue, key: "minimumNumberOfCharacters")
@@ -205,7 +205,7 @@
 
         /// The maximum numbers of characters allowed when the user edits the string value.
         public var maximumNumberOfCharacters: Int? {
-            get { getAssociatedValue("maximumNumberOfCharacters", initialValue: nil) }
+            get { getAssociatedValue("maximumNumberOfCharacters") }
             set {
                 guard newValue != maximumNumberOfCharacters else { return }
                 setAssociatedValue(newValue, key: "maximumNumberOfCharacters")
@@ -293,7 +293,7 @@
         }
         
         var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool)? {
-            get { getAssociatedValue("isSelectableEditableState", initialValue: nil) }
+            get { getAssociatedValue("isSelectableEditableState") }
             set { setAssociatedValue(newValue, key: "isSelectableEditableState") }
         }
         
@@ -303,7 +303,7 @@
         }
         
         var mouseDownMonitor: NSEvent.Monitor? {
-            get { getAssociatedValue("mouseDownMonitor", initialValue: nil) }
+            get { getAssociatedValue("mouseDownMonitor") }
             set { setAssociatedValue(newValue, key: "mouseDownMonitor") }
         }
         
@@ -531,7 +531,7 @@
         }
         
         var textFieldObserver: KeyValueObserver<NSTextField>? {
-            get { getAssociatedValue("textFieldObserver", initialValue: nil) }
+            get { getAssociatedValue("textFieldObserver") }
             set { setAssociatedValue(newValue, key: "textFieldObserver") }
         }
         
@@ -541,7 +541,7 @@
         }
         
         var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
-            get { getAssociatedValue("doubleClickEditGestureRecognizer", initialValue: nil) }
+            get { getAssociatedValue("doubleClickEditGestureRecognizer") }
             set { setAssociatedValue(newValue, key: "doubleClickEditGestureRecognizer") }
         }
 

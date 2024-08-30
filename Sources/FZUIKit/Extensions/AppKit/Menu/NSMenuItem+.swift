@@ -405,7 +405,7 @@
         }
         
         internal var menuObservation: KeyValueObservation? {
-            get { getAssociatedValue("menuObservation", initialValue: nil) }
+            get { getAssociatedValue("menuObservation") }
             set { setAssociatedValue(newValue, key: "menuObservation") }
         }
     }

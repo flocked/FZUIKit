@@ -209,12 +209,12 @@ extension NSMenu {
     }
     
     var effectiveAppearanceObservation: KeyValueObservation? {
-        get { getAssociatedValue("effectiveAppearanceObservation", initialValue: nil) }
+        get { getAssociatedValue("effectiveAppearanceObservation") }
         set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
     }
     
     var delegateProxy: Delegate? {
-        get { getAssociatedValue("delegateProxy", initialValue: nil) }
+        get { getAssociatedValue("delegateProxy") }
         set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
     

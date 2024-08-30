@@ -667,7 +667,7 @@ protocol PinchableCollectionViewLayout: NSUICollectionViewLayout {
 #if os(macOS) || os(iOS)
 extension NSUICollectionViewLayout {
     var columnConfiguration: ColumnConfiguration? {
-        get { getAssociatedValue("columnConfiguration", initialValue: nil) }
+        get { getAssociatedValue("columnConfiguration") }
         set { setAssociatedValue(newValue, key: "columnConfiguration") }
     }
     
@@ -685,7 +685,7 @@ extension NSUICollectionViewLayout {
 
 extension NSUICollectionView {
     var pinchColumnsGestureRecognizer: PinchColumnsGestureRecognizer? {
-        get { getAssociatedValue("pinchColumnsGestureRecognizer", initialValue: nil) }
+        get { getAssociatedValue("pinchColumnsGestureRecognizer") }
         set { setAssociatedValue(newValue, key: "pinchColumnsGestureRecognizer") }
     }
     func setupPinchGestureRecognizer(_ needsRecognizer: Bool) {

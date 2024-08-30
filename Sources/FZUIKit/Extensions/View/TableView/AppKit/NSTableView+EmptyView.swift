@@ -31,7 +31,7 @@ extension NSTableView {
     
     /// A handler that is called whenever the table view is empty.
     public var emptyContentHandler: ((_ isEmpty: Bool)->())? {
-        get { getAssociatedValue("emptyContentHandler", initialValue: nil) }
+        get { getAssociatedValue("emptyContentHandler") }
         set { 
             setAssociatedValue(newValue, key: "emptyContentHandler")
             if newValue != nil {

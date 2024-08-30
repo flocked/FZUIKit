@@ -12,7 +12,7 @@
     extension CAAnimation {
         /// A handler that gets called when the animation starts.
         public var onStart: (() -> Void)? {
-            get { getAssociatedValue("didStart", initialValue: nil) }
+            get { getAssociatedValue("didStart") }
             set { setAssociatedValue(newValue, key: "didStart")
                 updateAnimationDelegate()
             }
@@ -20,14 +20,14 @@
 
         /// A handler that gets called when the animation stops.
         public var onStop: (() -> Void)? {
-            get { getAssociatedValue("didFinish", initialValue: nil) }
+            get { getAssociatedValue("didFinish") }
             set { setAssociatedValue(newValue, key: "didFinish")
                 updateAnimationDelegate()
             }
         }
 
         var delegateProxy: DelegateProxy? {
-            get { getAssociatedValue("delegateProxy", initialValue: nil) }
+            get { getAssociatedValue("delegateProxy") }
             set { setAssociatedValue(newValue, key: "delegateProxy") }
         }
 
@@ -77,7 +77,7 @@
      
      /// A handler that gets called when the animation starts.
      public var onStart: (() -> Void)? {
-         get { getAssociatedValue("didStart", initialValue: nil) }
+         get { getAssociatedValue("didStart") }
          set {
              setAssociatedValue(newValue, key: "didStart")
              if let onStart = newValue {
@@ -92,7 +92,7 @@
 
      /// A handler that gets called when the animation stops.
      public var onStop: (() -> Void)? {
-         get { getAssociatedValue("didFinish", initialValue: nil) }
+         get { getAssociatedValue("didFinish") }
          set {
              setAssociatedValue(newValue, key: "didFinish")
              if let onStop = newValue {

@@ -59,7 +59,7 @@ public extension NSViewProtocol where Self: NSView {
 extension NSView {
     /// A value that indicates the amout of mouse clicks outside the view to resign the view as first responder in its window.
     public var resignFirstResponderClickCount: Int? {
-        get { getAssociatedValue("resignFirstResponderClickCount", initialValue: nil) }
+        get { getAssociatedValue("resignFirstResponderClickCount") }
         set {
             guard newValue != resignFirstResponderClickCount, newValue ?? -1 > 0 else { return }
             setAssociatedValue(newValue, key: "resignFirstResponderClickCount")
@@ -93,12 +93,12 @@ extension NSView {
     }
     
     var resignFirstResponderObservation: KeyValueObservation? {
-        get { getAssociatedValue("resignFirstResponderObservation", initialValue: nil) }
+        get { getAssociatedValue("resignFirstResponderObservation") }
         set { setAssociatedValue(newValue, key: "resignFirstResponderObservation") }
     }
     
     var resignMouseDownMonitor: NSEvent.Monitor? {
-        get { getAssociatedValue("resignMouseDownMonitor", initialValue: nil) }
+        get { getAssociatedValue("resignMouseDownMonitor") }
         set { setAssociatedValue(newValue, key: "resignMouseDownMonitor") }
     }
 }

@@ -217,7 +217,7 @@ public extension AVPlayer {
     
     /// The handler that gets changed when the status of the current item changes.
     var itemStatusHandler: ((AVPlayerItem.Status)->())? {
-        get { getAssociatedValue("itemStatusHandler", initialValue: nil) }
+        get { getAssociatedValue("itemStatusHandler") }
         set { setAssociatedValue(newValue, key: "itemStatusHandler")
             if let statusHandler = newValue {
                 currentItemObservation = observeChanges(for: \.currentItem) { old, new in
@@ -232,7 +232,7 @@ public extension AVPlayer {
     }
     
     var currentItemObservation: KeyValueObservation? {
-        get { getAssociatedValue("currentItemObservation", initialValue: nil) }
+        get { getAssociatedValue("currentItemObservation") }
         set { setAssociatedValue(newValue, key: "currentItemObservation") }
     }
 }
@@ -286,7 +286,7 @@ extension AVPlayer {
     }
     
     var playerObservation: KeyValueObserver<AVPlayer>? {
-        get { getAssociatedValue("playerObservation", initialValue: nil) }
+        get { getAssociatedValue("playerObservation") }
         set { setAssociatedValue(newValue, key: "playerObservation") }
     }
     

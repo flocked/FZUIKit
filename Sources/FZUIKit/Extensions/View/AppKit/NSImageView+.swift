@@ -270,7 +270,7 @@ extension NSImageView {
     }
     
     var transitionImageObservation: KeyValueObservation? {
-        get { getAssociatedValue("transitionImageObservation", initialValue: nil) }
+        get { getAssociatedValue("transitionImageObservation") }
         set { setAssociatedValue(newValue, key: "transitionImageObservation") }
     }
     

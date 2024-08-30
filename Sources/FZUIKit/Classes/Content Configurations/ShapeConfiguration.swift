@@ -203,7 +203,7 @@
         }
 
         fileprivate var frameObserver: KeyValueObservation? {
-            get { getAssociatedValue("frameObserver", initialValue: nil) }
+            get { getAssociatedValue("frameObserver") }
             set { setAssociatedValue(newValue, key: "frameObserver") }
         }
     }

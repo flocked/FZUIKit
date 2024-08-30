@@ -116,7 +116,7 @@ public extension NSObjectProtocol where Self: UIGestureRecognizer {
         
     /// The action handler of the gesture recognizer.
     var actionBlock: ((Self) -> Void)? {
-        get { getAssociatedValue("actionBlock", initialValue: nil) }
+        get { getAssociatedValue("actionBlock") }
         set {
             if newValue != nil, actionBlock == nil {
                 addTarget(self, action: #selector(performActionBlock(sender:)))

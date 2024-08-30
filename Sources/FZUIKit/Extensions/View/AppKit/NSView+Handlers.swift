@@ -33,7 +33,7 @@ extension NSView {
      The provided menu is displayed when the user right-clicks the view. If you don't want to display a menu, return `nil`.
      */
     public var menuProvider: ((_ location: CGPoint)->(NSMenu?))? {
-        get { getAssociatedValue("menuProvider", initialValue: nil) }
+        get { getAssociatedValue("menuProvider") }
         set {
             setAssociatedValue(newValue, key: "menuProvider")
             setupEventMonitors()
@@ -100,7 +100,7 @@ extension NSView {
     }
         
     var observerGestureRecognizer: ObserverGestureRecognizer? {
-        get { getAssociatedValue("observerGestureRecognizer", initialValue: nil) }
+        get { getAssociatedValue("observerGestureRecognizer") }
         set { setAssociatedValue(newValue, key: "observerGestureRecognizer") }
     }
     
@@ -290,7 +290,7 @@ extension NSView {
     }
     
     var _inLiveResize: Bool? {
-        get { getAssociatedValue("_inLiveResize", initialValue: nil) }
+        get { getAssociatedValue("_inLiveResize") }
         set { setAssociatedValue(newValue, key: "_inLiveResize") }
     }
     
@@ -308,7 +308,7 @@ extension NSView {
     }
     
     var observerView: ObserverView? {
-        get { getAssociatedValue("observerView", initialValue: nil) }
+        get { getAssociatedValue("observerView") }
         set { setAssociatedValue(newValue, key: "observerView") }
     }
         

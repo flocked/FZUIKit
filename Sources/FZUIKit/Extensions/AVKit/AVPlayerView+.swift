@@ -129,7 +129,7 @@ extension AVPlayerView {
     }
     
     var videoBoundsObservation: KeyValueObservation? {
-        get { getAssociatedValue("videoBoundsObservation", initialValue: nil) }
+        get { getAssociatedValue("videoBoundsObservation") }
         set { setAssociatedValue(newValue, key: "videoBoundsObservation") }
     }
 }

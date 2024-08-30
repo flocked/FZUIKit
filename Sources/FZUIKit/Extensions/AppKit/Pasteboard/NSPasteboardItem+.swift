@@ -23,7 +23,7 @@ extension NSPasteboardItem {
     }
     
     var content: Any? {
-        get { getAssociatedValue("itemContent", initialValue: nil) }
+        get { getAssociatedValue("itemContent") }
         set { setAssociatedValue(newValue, key: "itemContent") }
     }
     
