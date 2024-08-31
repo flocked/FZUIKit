@@ -249,6 +249,8 @@ extension Collection where Element == CGImage {
         reduce(into: [CGImage]()) { images, image in
             if let last = images.last, !last.isEqual(to: image) {
                 images.append(image)
+            } else if images.isEmpty {
+                images.append(image)
             }
         }
     }

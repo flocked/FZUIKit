@@ -130,6 +130,8 @@ extension Collection where Element == NSUIImage {
         reduce(into: [NSUIImage]()) { images, image in
             if let last = images.last, !last.isEqual(to: image) {
                 images.append(image)
+            } else if images.isEmpty {
+                images.append(image)
             }
         }
     }
